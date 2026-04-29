@@ -1,0 +1,81 @@
+name: Generate Deep Research Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 研究选题，直接输入一段话即可
+        required: true
+        type: string
+      slug:
+        description: 自定义输出目录 slug（可选）
+        required: false
+        default: ""
+        type: string
+      language:
+        description: 报告语言
+        required: false
+        default: zh
+        type: choice
+        options:
+          - zh
+          - en
+      model:
+        description: DeepSeek 模型名
+        required: false
+        default: deepseek-chat
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo "Missing DEEPSEEK_API_KEY secret" >&2
+            exit 1
+          fi
+
+      - name: Generate report
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          python -m gen_rpt.main \
+            --topic "${{ github.event.inputs.topic }}" \
+            --slug "${{ github.event.inputs.slug }}" \
+            --language "${{ github.event.inputs.language }}" \
+            --model "${{ github.event.inputs.model }}" \
+            --out-root reports
+
+      - name: Commit generated report back to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain reports)" ]; then
+            git add reports
+            git commit -m "Add generated deep research report"
+            git push
+          else
+            echo "No report changes to commit"
+          fi
