@@ -6,14 +6,15 @@ from typing import Dict, List
 
 from .deepseek_client import DeepSeekClient
 from .graphics import create_chart, create_insight_card, ensure_dir
-from .report_renderer import render_report_html
+from .report_renderer import render_report_html, render_report_markdown
 from .web_fetch import SourceDocument, collect_sources
 
 
 class ResearchPipeline:
-    def __init__(self, client: DeepSeekClient, language: str = "zh") -> None:
+    def __init__(self, client: DeepSeekClient, language: str = "zh", target_length: int | None = None) -> None:
         self.client = client
-        self.language = language
+        self.language = "en" if str(language).lower().startswith("en") else "zh"
+        self.target_length = target_length or (1500 if self.language == "en" else 3000)
 
     def build_report(self, topic: str, output_dir: Path) -> Dict:
         ensure_dir(output_dir)
@@ -26,7 +27,20 @@ class ResearchPipeline:
         report = self._synthesize_report(topic, plan, sources)
         asset_map = self._materialize_assets(report, assets_dir)
 
-        render_report_html(report=report, assets=asset_map, output_file=output_dir / "report.html", topic=topic)
+        render_report_html(
+            report=report,
+            assets=asset_map,
+            output_file=output_dir / "report.html",
+            topic=topic,
+            language=self.language,
+        )
+        render_report_markdown(
+            report=report,
+            assets=asset_map,
+            output_file=output_dir / "report.md",
+            topic=topic,
+            language=self.language,
+        )
         (output_dir / "report_payload.json").write_text(
             json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
         )
@@ -43,7 +57,17 @@ class ResearchPipeline:
             "report": report,
             "asset_map": asset_map,
             "output_dir": str(output_dir),
+            "language": self.language,
+            "target_length": self.target_length,
         }
+
+    def _lang_instruction(self) -> str:
+        return "Use English for the whole report." if self.language == "en" else "全程使用中文输出。"
+
+    def _length_instruction(self) -> str:
+        if self.language == "en":
+            return f"Target around {self.target_length} words for the full report body and summary combined."
+        return f"全文正文与摘要合计目标约 {self.target_length} 个中文字符。"
 
     def _plan_research(self, topic: str) -> Dict:
         system = (
@@ -51,7 +75,28 @@ class ResearchPipeline:
             "Design a plan that follows the common Deep Research workflow: plan -> search -> read -> synthesize -> render. "
             "Return JSON only."
         )
-        user = f"""
+        if self.language == "en":
+            user = f"""
+Create a research plan for the following topic and return JSON only.
+
+Topic: {topic}
+
+Required JSON fields:
+- objective
+- audience
+- search_queries: 4-6 public web search queries in English when possible
+- outline: 4-6 section titles
+- chart_ideas: 2-3 chart opportunities
+- insight_card_ideas: 2-3 consulting-style insight card ideas
+- risks: data or evidence risks
+
+Requirements:
+- Use English
+- Keep search queries search-engine friendly
+- Do not output markdown
+"""
+        else:
+            user = f"""
 为下面这个选题生成一份研究计划，输出 JSON：
 
 选题：{topic}
@@ -87,7 +132,11 @@ JSON 字段要求：
 
         source_text = "\n\n".join(source_blocks)
         if not source_text:
-            source_text = "暂无抓取到足够网页资料，请基于选题输出可执行的分析框架，并明确指出需要后续补充外部证据。"
+            source_text = (
+                "Insufficient web evidence was fetched. Build a clear analysis framework and explicitly mark where more evidence is needed."
+                if self.language == "en"
+                else "暂无抓取到足够网页资料，请基于选题输出可执行的分析框架，并明确指出需要后续补充外部证据。"
+            )
 
         system = (
             "You are an elite research writer and strategy consultant. "
@@ -95,10 +144,80 @@ JSON 字段要求：
             "If numbers are weak or partial, mark them as indicative in captions or notes. "
             "Return strict JSON only."
         )
-        user = f"""
+        if self.language == "en":
+            user = f"""
+Based on the topic, research plan, and public web materials below, generate a rich research report data structure and return JSON only.
+
+Topic:
+{topic}
+
+Language rule:
+{self._lang_instruction()}
+
+Length rule:
+{self._length_instruction()}
+
+Research plan:
+{json.dumps(plan, ensure_ascii=False, indent=2)}
+
+Sources:
+{source_text}
+
+Required JSON fields:
+- report_title
+- report_subtitle
+- executive_summary: 3-5 bullets
+- sections: array, each item contains
+  - id
+  - title
+  - lead
+  - paragraphs: 3-5 paragraphs
+  - key_takeaways: 3 bullets
+  - visual_hint: image id such as card-1 or chart-1
+- insight_cards: array with 2-3 items, each contains
+  - id
+  - title
+  - subtitle
+  - bullets: 3-4 items
+  - highlight_number
+  - highlight_label
+  - exhibit_label
+- charts: array with 1-3 items, each contains
+  - id
+  - title
+  - subtitle
+  - type: bar / line / pie
+  - categories
+  - series: [{{"name": "", "values": []}}]
+  - x_label
+  - y_label
+  - caption
+  - source_note
+- references: array, each contains
+  - title
+  - url
+  - note
+
+Hard requirements:
+1. Use English throughout.
+2. Make it feel like a Deep Research deliverable: define the problem, map the current state, analyze trends, then recommend actions.
+3. Keep the writing specific and professional.
+4. When a section is text-heavy, point visual_hint to a relevant card or chart.
+5. If chart data is approximate or synthesized, clearly say so in caption or source_note.
+6. references may only use real URLs that appear in the source materials.
+7. Do not output markdown. Output JSON only.
+"""
+        else:
+            user = f"""
 请基于以下选题、研究计划和公开资料，生成一份图文并茂研究报告的数据结构，输出 JSON。
 
 选题：{topic}
+
+语言要求：
+{self._lang_instruction()}
+
+篇幅要求：
+{self._length_instruction()}
 
 研究计划：
 {json.dumps(plan, ensure_ascii=False, indent=2)}
@@ -124,9 +243,11 @@ JSON 字段要求：
   - bullets: 3-4 条
   - highlight_number
   - highlight_label
+  - exhibit_label
 - charts: 数组，1-3 项，每项包含
   - id
   - title
+  - subtitle
   - type: bar / line / pie
   - categories
   - series: [{{"name": "", "values": []}}]
