@@ -4,79 +4,100 @@ import html
 from pathlib import Path
 from typing import Dict, List
 
+from .theme import load_theme
 
-CSS = """
-:root {
-  --accent: #127c7e;
-  --ink: #1f2937;
-  --muted: #667085;
-  --line: #dbe4ea;
-  --paper: #ffffff;
-  --bg: #f4f7f9;
-}
-* { box-sizing: border-box; }
-body {
+
+THEME = load_theme()
+PALETTE = THEME["palette"]
+BRAND_NAME = THEME["brand_name"]
+REPORT_LABEL = THEME.get("report_label", "Deep Research Report")
+
+CSS = f"""
+:root {{
+  --accent: {PALETTE['accent']};
+  --ink: {PALETTE['ink']};
+  --muted: {PALETTE['subtle']};
+  --line: {PALETTE['line']};
+  --paper: {PALETTE['paper']};
+  --bg: {PALETTE['panel']};
+}}
+* {{ box-sizing: border-box; }}
+body {{
   margin: 0;
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans CJK SC', 'Microsoft YaHei', sans-serif;
   background: var(--bg);
   color: var(--ink);
   line-height: 1.72;
-}
-.container {
+}}
+.container {{
   width: min(1100px, calc(100% - 48px));
   margin: 32px auto 56px;
-}
-.hero, .block {
+}}
+.hero, .block {{
   background: var(--paper);
   border-radius: 20px;
   padding: 32px;
   box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
   margin-bottom: 22px;
-}
-.kicker {
+}}
+.kicker {{
   color: var(--accent);
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-h1 {
+}}
+.brand {{
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}}
+h1 {{
   font-size: 40px;
   line-height: 1.15;
   margin: 12px 0;
-}
-h2 {
+}}
+h2 {{
   font-size: 28px;
   margin: 0 0 16px;
-}
-.subtitle, .meta, .caption, .source-note { color: var(--muted); }
-.summary-list li, .takeaways li, .refs li { margin-bottom: 10px; }
-img.visual {
+}}
+.subtitle, .meta, .caption, .source-note {{ color: var(--muted); }}
+.summary-list li, .takeaways li, .refs li {{ margin-bottom: 10px; }}
+img.visual {{
   width: 100%;
   border-radius: 16px;
   border: 1px solid var(--line);
   margin: 18px 0 8px;
-}
-.callout {
+}}
+.callout {{
   border-left: 4px solid var(--accent);
   background: #f6fbfb;
   padding: 18px 18px 18px 20px;
   border-radius: 12px;
   margin: 18px 0;
-}
-a { color: var(--accent); }
-@media (max-width: 860px) {
-  .container { width: min(100%, calc(100% - 24px)); }
-  h1 { font-size: 32px; }
-}
+}}
+a {{ color: var(--accent); }}
+.footer-note {{
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 18px;
+}}
+@media (max-width: 860px) {{
+  .container {{ width: min(100%, calc(100% - 24px)); }}
+  h1 {{ font-size: 32px; }}
+}}
 """
 
 
 LABELS = {
     "zh": {
         "lang": "zh-CN",
-        "hero": "Deep Research Report",
+        "hero": REPORT_LABEL,
         "topic": "选题",
+        "prepared_by": "出品方",
         "summary": "执行摘要",
         "cards": "关键洞察图卡",
         "takeaways": "本节要点",
@@ -86,8 +107,9 @@ LABELS = {
     },
     "en": {
         "lang": "en",
-        "hero": "Deep Research Report",
+        "hero": REPORT_LABEL,
         "topic": "Topic",
+        "prepared_by": "Prepared by",
         "summary": "Executive Summary",
         "cards": "Key Insight Cards",
         "takeaways": "Section Takeaways",
@@ -118,10 +140,12 @@ def render_report_html(report: Dict, assets: Dict[str, str], output_file: Path, 
         "</head>",
         "<body><div class='container'>",
         "<section class='hero'>",
+        f"<div class='brand'>{html.escape(BRAND_NAME)}</div>",
         f"<div class='kicker'>{html.escape(labels['hero'])}</div>",
         f"<h1>{html.escape(report.get('report_title', topic))}</h1>",
         f"<p class='subtitle'>{html.escape(report.get('report_subtitle', ''))}</p>",
         f"<p class='meta'>{html.escape(labels['topic'])}: {html.escape(topic)}</p>",
+        f"<p class='meta'>{html.escape(labels['prepared_by'])}: {html.escape(BRAND_NAME)}</p>",
         "</section>",
     ]
 
@@ -182,6 +206,7 @@ def render_report_html(report: Dict, assets: Dict[str, str], output_file: Path, 
             parts.append(f"<li><a href='{url}' target='_blank' rel='noreferrer'>{title}</a><div class='source-note'>{note}</div></li>")
         parts.append("</ol></section>")
 
+    parts.append(f"<div class='footer-note'>{html.escape(BRAND_NAME)}</div>")
     parts.append("</div></body></html>")
     output_file.write_text("\n".join(parts), encoding="utf-8")
     return output_file
@@ -191,6 +216,8 @@ def render_report_markdown(report: Dict, assets: Dict[str, str], output_file: Pa
     labels = _labels(language)
     lines: List[str] = []
     lines.append(f"# {report.get('report_title', topic)}")
+    lines.append("")
+    lines.append(f"**{labels['prepared_by']}**: {BRAND_NAME}")
     subtitle = report.get("report_subtitle", "")
     if subtitle:
         lines.append("")
