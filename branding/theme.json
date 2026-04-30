@@ -1,0 +1,20 @@
+{
+  "brand_name": "BO Institute Strategy Agent",
+  "report_label": "Deep Research Report",
+  "palette": {
+    "accent": "#0E6B72",
+    "accent_dark": "#0A4F56",
+    "ink": "#1F2937",
+    "subtle": "#667085",
+    "grid": "#D8DEE5",
+    "paper": "#FFFFFF",
+    "panel": "#F7F9FB",
+    "line": "#DCE6EC"
+  },
+  "series_colors": [
+    "#0E6B72",
+    "#233645",
+    "#7E96A8",
+    "#C4D0D8"
+  ]
+}
