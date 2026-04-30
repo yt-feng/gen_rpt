@@ -85,6 +85,10 @@ JSON 字段要求：
                 f"[Source {idx}]\nTitle: {src.title}\nURL: {src.url}\nSearch Query: {src.query}\nSnippet: {src.snippet}\nExcerpt:\n{excerpt}"
             )
 
+        source_text = "\n\n".join(source_blocks)
+        if not source_text:
+            source_text = "暂无抓取到足够网页资料，请基于选题输出可执行的分析框架，并明确指出需要后续补充外部证据。"
+
         system = (
             "You are an elite research writer and strategy consultant. "
             "Use only the provided source material as factual grounding. "
@@ -100,7 +104,7 @@ JSON 字段要求：
 {json.dumps(plan, ensure_ascii=False, indent=2)}
 
 资料：
-{'\n\n'.join(source_blocks) if source_blocks else '暂无抓取到足够网页资料，请基于选题输出可执行的分析框架，并明确指出需要后续补充外部证据。'}
+{source_text}
 
 JSON 字段要求：
 - report_title: 报告标题
@@ -125,7 +129,7 @@ JSON 字段要求：
   - title
   - type: bar / line / pie
   - categories
-  - series: [{"name": "", "values": []}]
+  - series: [{{"name": "", "values": []}}]
   - x_label
   - y_label
   - caption
