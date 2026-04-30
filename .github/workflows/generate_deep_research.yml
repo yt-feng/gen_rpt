@@ -20,6 +20,11 @@ on:
         options:
           - zh
           - en
+      target_length:
+        description: 目标篇幅。中文默认 3000，英文默认 1500；留空则走默认值
+        required: false
+        default: ""
+        type: string
       model:
         description: DeepSeek 模型名
         required: false
@@ -43,6 +48,11 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install system fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-noto-cjk
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -60,13 +70,19 @@ jobs:
       - name: Generate report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          TARGET_LENGTH: ${{ github.event.inputs.target_length }}
         run: |
+          EXTRA_ARGS=""
+          if [ -n "$TARGET_LENGTH" ]; then
+            EXTRA_ARGS="$EXTRA_ARGS --target-length $TARGET_LENGTH"
+          fi
           python -m gen_rpt.main \
             --topic "${{ github.event.inputs.topic }}" \
             --slug "${{ github.event.inputs.slug }}" \
             --language "${{ github.event.inputs.language }}" \
             --model "${{ github.event.inputs.model }}" \
-            --out-root reports
+            --out-root reports \
+            $EXTRA_ARGS
 
       - name: Commit generated report back to repo
         run: |
