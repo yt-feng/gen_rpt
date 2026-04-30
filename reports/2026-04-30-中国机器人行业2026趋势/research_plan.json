@@ -1,0 +1,35 @@
+{
+  "objective": "To identify and analyze the key trends, drivers, and challenges shaping the Chinese robotics industry in 2026, providing actionable insights for strategic decision-making.",
+  "audience": "Senior executives, strategists, and investors in robotics, automation, and manufacturing sectors.",
+  "search_queries": [
+    "China robotics industry trends 2026",
+    "Chinese government robotics policy 2026",
+    "China industrial robot market forecast 2026",
+    "China service robot market growth 2026",
+    "China robotics AI integration 2026",
+    "China robotics supply chain 2026"
+  ],
+  "outline": [
+    "1. Market Size and Growth Forecasts for Chinese Robotics in 2026",
+    "2. Government Policies and Regulatory Landscape",
+    "3. Key Technology Trends: AI, Sensors, and Human-Robot Collaboration",
+    "4. Application Sectors: Manufacturing, Healthcare, and Service Robots",
+    "5. Competitive Landscape: Domestic vs. International Players",
+    "6. Supply Chain Dynamics and Challenges"
+  ],
+  "chart_ideas": [
+    "Line chart: Historical and projected market size of Chinese robotics industry (2020-2026) by segment (industrial, service, specialty).",
+    "Bar chart: Top 5 application sectors for robotics in China (2026) with growth rate comparison.",
+    "Pie chart: Market share of domestic vs. foreign robotics companies in China (2026)."
+  ],
+  "insight_card_ideas": [
+    "Insight Card 1: 'Policy Push: How China's 14th Five-Year Plan Accelerates Robotics Adoption' – key policy targets and funding.",
+    "Insight Card 2: 'The Rise of Collaborative Robots: Why SMEs are Driving Demand in 2026' – cost and flexibility advantages.",
+    "Insight Card 3: 'Supply Chain Resilience: China's Strategy to Reduce Dependence on Foreign Components' – localization efforts and risks."
+  ],
+  "risks": [
+    "Data availability: Official market forecasts may be overly optimistic or lack granularity.",
+    "Evidence reliability: Government policy documents may be vague or change rapidly.",
+    "Data recency: Some statistics may be from 2024 or earlier, limiting accuracy for 2026 projections."
+  ]
+}
