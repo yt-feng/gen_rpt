@@ -7,35 +7,42 @@
 1. 用 DeepSeek 生成研究计划
 2. 自动做公开网页检索与资料抓取
 3. 按 Deep Research 风格组织章节
-4. 自动生成 **麦肯锡风格图卡** 与统一视觉风格图表
-5. 同步输出 `HTML + Markdown`
+4. 自动生成 **品牌化洞察图卡** 与统一视觉风格图表
+5. 同步输出 `HTML + Markdown + PDF`
 6. 把结果直接写回当前 repo 的 `reports/` 目录
 
 ## 现在已经支持什么
 
 - **Action 输入一句话选题**，自动生成完整研究报告
+- **品牌化呈现**：当前默认品牌名为 `BO Institute Strategy Agent`
+- **主题外置配置**：支持通过 `branding/theme.json` 统一调整主题色与品牌文案
 - **语言切换**：支持 `zh / en`，且会真实影响提示词与输出文案
 - **篇幅控制**：支持在 Action 里限定目标长度
   - 中文默认 `3000` 字
   - 英文默认 `1500` words
-- **图文并茂**：正文中自动穿插咨询风格图卡与图表
-- **Markdown 输出**：自动生成 `report.md`，方便 GitHub Preview
+- **图文并茂**：正文中自动穿插洞察图卡与图表
+- **多格式输出**：自动生成 `report.html`、`report.md`、`report.pdf`
 - **写回 repo**：不是 artifact，而是直接 commit 到仓库
 - **DeepSeek Secret 配置位**：支持你自己去 Settings 里配置 API Secret
 - **中文图表字体修复**：workflow 会安装 CJK 字体，并在 Matplotlib 中自动 fallback
+- **重叠优化**：已从模型输出长度约束 + 绘图布局动态缩放两个层面减少图卡和图表文字重叠
 
 ## 项目结构
 
 ```text
 gen_rpt/
 ├── .github/workflows/generate_deep_research.yml
+├── branding/
+│   └── theme.json
 ├── gen_rpt/
 │   ├── __init__.py
 │   ├── deepseek_client.py
 │   ├── web_fetch.py
 │   ├── graphics.py
 │   ├── report_renderer.py
+│   ├── pdf_renderer.py
 │   ├── research_pipeline.py
+│   ├── theme.py
 │   └── main.py
 ├── reports/
 ├── requirements.txt
@@ -62,6 +69,7 @@ gen_rpt/
 reports/YYYY-MM-DD-your-topic-slug/
   report.html
   report.md
+  report.pdf
   report_payload.json
   research_plan.json
   sources.json
@@ -90,6 +98,28 @@ DEEPSEEK_API_KEY
 6. Name 填：`DEEPSEEK_API_KEY`
 7. Value 填你的 DeepSeek API Key
 
+## 主题色与品牌配置
+
+当前品牌和颜色已经外置到：
+
+```text
+branding/theme.json
+```
+
+默认内容里包含：
+
+- `brand_name`
+- `report_label`
+- `palette`
+- `series_colors`
+
+你后面把附件里的 json 给我，或者你自己直接覆盖这个文件，都可以让以下内容同步变化：
+
+- HTML 页面主题色
+- 洞察图卡配色
+- 图表配色
+- 报告头部品牌名
+
 ## 本地运行
 
 ### 1. 安装依赖
@@ -98,7 +128,15 @@ DEEPSEEK_API_KEY
 pip install -r requirements.txt
 ```
 
-### 2. 配置环境变量
+### 2. 安装 PDF 依赖（本地）
+
+本地如果也要生成 PDF，请额外安装：
+
+```bash
+wkhtmltopdf
+```
+
+### 3. 配置环境变量
 
 ```bash
 cp .env.example .env
@@ -112,7 +150,7 @@ DEEPSEEK_API_KEY=your_deepseek_api_key_here
 
 改成你自己的 key。
 
-### 3. 执行生成
+### 4. 执行生成
 
 中文例子：
 
@@ -146,19 +184,7 @@ python -m gen_rpt.main \
 - **Search**：对公开网页做搜索与内容抓取
 - **Read**：抽取网页正文，整理为资料池
 - **Synthesize**：让模型输出结构化报告 JSON
-- **Render**：自动渲染 HTML、Markdown、咨询风格图卡和图表
-
-## 视觉风格说明
-
-为了满足“图文并茂”的目标，当前实现加入了两类视觉元素：
-
-- **咨询风格图卡**：适合在正文较长时插入，强化关键洞察
-- **统一风格图表**：当前统一成偏麦肯锡风格的简洁商务视觉
-  - 白底
-  - 少量强调色
-  - 弱网格线
-  - 左对齐标题
-  - Exhibit 风格标识
+- **Render**：自动渲染 HTML、Markdown、PDF、品牌化图卡和图表
 
 ## 当前版本的边界
 
@@ -166,8 +192,8 @@ python -m gen_rpt.main \
 
 - 公开网页搜索依赖通用搜索页面结构，后续可继续增强稳定性
 - 图表数据主要来自模型对公开资料的结构化整理，复杂定量研究可继续叠加专门数据源
-- 当前输出主格式是 `HTML + Markdown`，后续可以继续扩展 `PDF / PPTX`
-- 当前“咨询风格配图”是程序化图卡，不是扩散模型生成的写实图片
+- 当前“品牌化配图”仍然是程序化图卡，不是扩散模型生成的写实图片
+- 如果图卡文本极端偏长，虽然已经做了长度约束和动态缩放，仍建议进一步压缩源文案
 
 ## 作者
 
