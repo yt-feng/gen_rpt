@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from typing import Dict, List
 
+from .brand_assets import copy_or_generate_brand_assets, summarize_reference_institutions, write_reference_backup
 from .deepseek_client import DeepSeekClient
 from .graphics import create_chart, create_insight_card, ensure_dir
 from .pdf_renderer import render_pdf_from_html
@@ -25,8 +26,13 @@ class ResearchPipeline:
         plan = self._plan_research(topic)
         queries = plan.get("search_queries", [])[:4]
         sources = collect_sources(queries, per_query=3, max_sources=8)
+        source_dicts = [source.__dict__ for source in sources]
         report = self._synthesize_report(topic, plan, sources)
-        asset_map = self._materialize_assets(report, assets_dir)
+        report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), source_dicts)
+
+        asset_map = copy_or_generate_brand_assets(assets_dir)
+        asset_map.update(self._materialize_assets(report, assets_dir))
+        backup_dir = write_reference_backup(output_dir, report.get("references", []), source_dicts)
 
         html_path = render_report_html(
             report=report,
@@ -51,15 +57,16 @@ class ResearchPipeline:
             json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8"
         )
         (output_dir / "sources.json").write_text(
-            json.dumps([source.__dict__ for source in sources], ensure_ascii=False, indent=2), encoding="utf-8"
+            json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8"
         )
 
         return {
             "plan": plan,
-            "sources": [source.__dict__ for source in sources],
+            "sources": source_dicts,
             "report": report,
             "asset_map": asset_map,
             "output_dir": str(output_dir),
+            "backup_dir": str(backup_dir),
             "language": self.language,
             "target_length": self.target_length,
             "html_path": str(html_path),
@@ -74,6 +81,14 @@ class ResearchPipeline:
         if self.language == "en":
             return f"Target around {self.target_length} words for the full report body and summary combined."
         return f"全文正文与摘要合计目标约 {self.target_length} 个中文字符。"
+
+    def _title_style_instruction(self) -> str:
+        if self.language == "en":
+            return (
+                "Apply pyramid-principle writing. Make the report title, section titles, and section leads conclusion-first, crisp, sharp, and executive-ready. "
+                "Avoid generic labels such as 'Market Overview' or 'Trend Analysis' unless they already contain a clear conclusion."
+            )
+        return "遵循金字塔原理。报告标题、章节标题、导语都要结论先行、短促、锋利、有高管可读性，避免空泛标题。"
 
     def _plan_research(self, topic: str) -> Dict:
         system = (
@@ -100,6 +115,7 @@ Requirements:
 - Use English
 - Keep search queries search-engine friendly
 - Keep chart and insight-card concepts concise enough for clean visual rendering
+- Make outline titles conclusion-first and crisp
 - Do not output markdown
 """
         else:
@@ -121,6 +137,7 @@ JSON 字段要求：
 - 默认使用中文
 - 查询语句尽量适合搜索引擎
 - 图表主题和图卡主题尽量简洁，便于后续可视化呈现
+- outline 标题要结论先行、短促有力
 - 不要输出 markdown，只输出 JSON
 """
         return self.client.chat_json(
@@ -164,6 +181,9 @@ Language rule:
 
 Length rule:
 {self._length_instruction()}
+
+Headline rule:
+{self._title_style_instruction()}
 
 Research plan:
 {json.dumps(plan, ensure_ascii=False, indent=2)}
@@ -210,18 +230,19 @@ Hard requirements:
 1. Use English throughout.
 2. Make it feel like a Deep Research deliverable: define the problem, map the current state, analyze trends, then recommend actions.
 3. Keep the writing specific and professional.
-4. When a section is text-heavy, point visual_hint to a relevant card or chart.
-5. If chart data is approximate or synthesized, clearly say so in caption or source_note.
-6. references may only use real URLs that appear in the source materials.
-7. Keep visual text short enough to avoid overlapping when rendered:
+4. Use pyramid-principle headlines: conclusion-first, crisp, sharp.
+5. When a section is text-heavy, point visual_hint to a relevant card or chart.
+6. If chart data is approximate or synthesized, clearly say so in caption or source_note.
+7. references may only use real URLs that appear in the source materials.
+8. Keep visual text short enough to avoid overlapping when rendered:
    - insight card title <= 12 English words
    - insight card subtitle <= 24 English words
    - each insight card bullet <= 16 English words
    - chart title <= 12 English words
    - chart subtitle <= 18 English words
    - category labels should be compact
-8. Do not include meta labels such as 'McKinsey-style', 'consulting-style', 'sample card', or production notes in any final report text.
-9. Do not output markdown. Output JSON only.
+9. Do not include meta labels such as 'McKinsey-style', 'consulting-style', 'sample card', or production notes in any final report text.
+10. Do not output markdown. Output JSON only.
 """
         else:
             user = f"""
@@ -234,6 +255,9 @@ Hard requirements:
 
 篇幅要求：
 {self._length_instruction()}
+
+标题要求：
+{self._title_style_instruction()}
 
 研究计划：
 {json.dumps(plan, ensure_ascii=False, indent=2)}
@@ -280,18 +304,19 @@ JSON 字段要求：
 1. 默认使用中文。
 2. 报告结构要有“像 Deep Research”的感觉：先定义问题，再梳理现状，再分析趋势，再给建议。
 3. 正文要专业，但避免空话。
-4. 如果某个章节文字较多，请把 visual_hint 指向合适的图卡或图表。
-5. 图表数据若为概括性整理，请在 caption 或 source_note 里明确写“示意性整理”或等价说明。
-6. references 只允许使用资料区里真实出现过的 URL。
-7. 为避免图像排版拥挤，请尽量压缩可视化文本长度：
+4. 标题和导语要遵循金字塔原理：结论先行、短促、锋利。
+5. 如果某个章节文字较多，请把 visual_hint 指向合适的图卡或图表。
+6. 图表数据若为概括性整理，请在 caption 或 source_note 里明确写“示意性整理”或等价说明。
+7. references 只允许使用资料区里真实出现过的 URL。
+8. 为避免图像排版拥挤，请尽量压缩可视化文本长度：
    - 图卡标题尽量不超过 18 个中文字符
    - 图卡副标题尽量不超过 32 个中文字符
    - 图卡 bullet 每条尽量不超过 24 个中文字符
    - 图表标题尽量不超过 18 个中文字符
    - 图表副标题尽量不超过 28 个中文字符
    - 类目标签尽量短
-8. 不要在最终内容中出现类似“McKinsey-style”“consulting-style”“样例图卡”“制作说明”之类的元描述。
-9. 不要输出 markdown，只输出 JSON。
+9. 不要在最终内容中出现类似“McKinsey-style”“consulting-style”“样例图卡”“制作说明”之类的元描述。
+10. 不要输出 markdown，只输出 JSON。
 """
         return self.client.chat_json(
             [
