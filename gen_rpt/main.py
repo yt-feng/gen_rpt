@@ -43,9 +43,11 @@ def main() -> None:
     result = pipeline.build_report(topic=args.topic, output_dir=output_dir)
     report_path = output_dir / "report.html"
     markdown_path = output_dir / "report.md"
+    pdf_path = output_dir / "report.pdf"
 
     print(f"Report generated at: {report_path}")
     print(f"Markdown generated at: {markdown_path}")
+    print(f"PDF generated at: {pdf_path}")
     step_summary = os.getenv("GITHUB_STEP_SUMMARY")
     if step_summary:
         with open(step_summary, "a", encoding="utf-8") as f:
@@ -55,6 +57,7 @@ def main() -> None:
             f.write(f"- Target length: {target_length}\n")
             f.write(f"- HTML: `{report_path}`\n")
             f.write(f"- Markdown: `{markdown_path}`\n")
+            f.write(f"- PDF: `{pdf_path}`\n")
             f.write(f"- Assets: {len(result['asset_map'])}\n")
 
 
