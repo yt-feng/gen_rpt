@@ -1,0 +1,35 @@
+{
+  "objective": "To analyze the current state, key players, revenue models, and regulatory landscape of China's creator economy, providing actionable insights for global investors and platform strategists.",
+  "audience": "Global investors, venture capitalists, and business strategists interested in China's digital content market.",
+  "search_queries": [
+    "China creator economy market size 2024",
+    "top Chinese content platforms Kuaishou Bilibili Douyin comparison",
+    "Chinese livestreaming e-commerce revenue statistics",
+    "China influencer marketing regulations 2024",
+    "Chinese creator monetization models tipping subscription advertising",
+    "China short video platform user demographics 2024"
+  ],
+  "outline": [
+    "Market Overview and Growth Drivers",
+    "Key Platforms and Competitive Landscape",
+    "Creator Monetization Models and Revenue Streams",
+    "Regulatory Environment and Policy Impacts",
+    "Audience Behavior and Demographic Trends",
+    "Future Outlook and Investment Opportunities"
+  ],
+  "chart_ideas": [
+    "Bar chart: Revenue breakdown by platform (Douyin, Kuaishou, Bilibili, Xiaohongshu) for 2023",
+    "Line chart: Growth of creator economy market size (USD) from 2019 to 2024",
+    "Pie chart: Share of monetization methods (livestreaming tipping, e-commerce commissions, brand sponsorships, advertising revenue)"
+  ],
+  "insight_card_ideas": [
+    "Key Insight: Livestreaming e-commerce drives over 60% of creator revenue in China, far surpassing Western ad-based models.",
+    "Key Insight: Regulatory tightening on content and tax compliance is reshaping creator-platform relationships, favoring larger MCNs.",
+    "Key Insight: Gen Z and Gen Alpha dominate consumption on short-video platforms, with average daily usage exceeding 2 hours."
+  ],
+  "risks": [
+    "Data reliability: Official statistics may underreport or overstate market figures due to opaque reporting by private platforms.",
+    "Regulatory volatility: Sudden policy changes (e.g., bans on certain content or tax crackdowns) can rapidly alter the landscape.",
+    "Platform bias: Publicly available data may favor larger platforms (Douyin, Kuaishou) while underrepresenting niche or emerging players."
+  ]
+}
