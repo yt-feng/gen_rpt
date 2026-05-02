@@ -87,9 +87,6 @@ def generate_cover_background(output_path: Path) -> Path:
         ys = 0.14 + 0.72 * t + 0.02 * np.sin(2 * math.pi * (xs * 1.4 + t * 0.7))
         ax.plot(xs, ys, color=(0.75, 0.92, 0.96, 0.08 if idx < 7 else 0.12), linewidth=1.8)
 
-    ax.text(0.08, 0.93, BRAND_NAME.upper(), color=(1, 1, 1, 0.88), fontsize=15, fontweight="bold", va="top")
-    ax.text(0.08, 0.885, "Deep Research Cover Background", color=(1, 1, 1, 0.42), fontsize=12, va="top")
-
     plt.savefig(output_path, bbox_inches="tight", pad_inches=0, facecolor=fig.get_facecolor())
     plt.close(fig)
     return output_path
