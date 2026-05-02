@@ -6,6 +6,7 @@ from typing import Dict, List
 
 from .deepseek_client import DeepSeekClient
 from .graphics import create_chart, create_insight_card, ensure_dir
+from .pdf_renderer import render_pdf_from_html
 from .report_renderer import render_report_html, render_report_markdown
 from .web_fetch import SourceDocument, collect_sources
 
@@ -27,20 +28,22 @@ class ResearchPipeline:
         report = self._synthesize_report(topic, plan, sources)
         asset_map = self._materialize_assets(report, assets_dir)
 
-        render_report_html(
+        html_path = render_report_html(
             report=report,
             assets=asset_map,
             output_file=output_dir / "report.html",
             topic=topic,
             language=self.language,
         )
-        render_report_markdown(
+        markdown_path = render_report_markdown(
             report=report,
             assets=asset_map,
             output_file=output_dir / "report.md",
             topic=topic,
             language=self.language,
         )
+        pdf_path = render_pdf_from_html(html_path, output_dir / "report.pdf")
+
         (output_dir / "report_payload.json").write_text(
             json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
         )
@@ -59,6 +62,9 @@ class ResearchPipeline:
             "output_dir": str(output_dir),
             "language": self.language,
             "target_length": self.target_length,
+            "html_path": str(html_path),
+            "markdown_path": str(markdown_path),
+            "pdf_path": str(pdf_path),
         }
 
     def _lang_instruction(self) -> str:
@@ -87,12 +93,13 @@ Required JSON fields:
 - search_queries: 4-6 public web search queries in English when possible
 - outline: 4-6 section titles
 - chart_ideas: 2-3 chart opportunities
-- insight_card_ideas: 2-3 consulting-style insight card ideas
+- insight_card_ideas: 2-3 executive insight card ideas
 - risks: data or evidence risks
 
 Requirements:
 - Use English
 - Keep search queries search-engine friendly
+- Keep chart and insight-card concepts concise enough for clean visual rendering
 - Do not output markdown
 """
         else:
@@ -107,12 +114,13 @@ JSON 字段要求：
 - search_queries: 4-6 个适合公开网络检索的查询语句
 - outline: 4-6 个章节标题
 - chart_ideas: 2-3 个适合图表化的角度
-- insight_card_ideas: 2-3 个适合做咨询风格图卡的角度
+- insight_card_ideas: 2-3 个适合做高管洞察图卡的角度
 - risks: 研究中可能出现的数据风险或口径风险
 
 要求：
 - 默认使用中文
 - 查询语句尽量适合搜索引擎
+- 图表主题和图卡主题尽量简洁，便于后续可视化呈现
 - 不要输出 markdown，只输出 JSON
 """
         return self.client.chat_json(
@@ -205,7 +213,15 @@ Hard requirements:
 4. When a section is text-heavy, point visual_hint to a relevant card or chart.
 5. If chart data is approximate or synthesized, clearly say so in caption or source_note.
 6. references may only use real URLs that appear in the source materials.
-7. Do not output markdown. Output JSON only.
+7. Keep visual text short enough to avoid overlapping when rendered:
+   - insight card title <= 12 English words
+   - insight card subtitle <= 24 English words
+   - each insight card bullet <= 16 English words
+   - chart title <= 12 English words
+   - chart subtitle <= 18 English words
+   - category labels should be compact
+8. Do not include meta labels such as 'McKinsey-style', 'consulting-style', 'sample card', or production notes in any final report text.
+9. Do not output markdown. Output JSON only.
 """
         else:
             user = f"""
@@ -267,7 +283,15 @@ JSON 字段要求：
 4. 如果某个章节文字较多，请把 visual_hint 指向合适的图卡或图表。
 5. 图表数据若为概括性整理，请在 caption 或 source_note 里明确写“示意性整理”或等价说明。
 6. references 只允许使用资料区里真实出现过的 URL。
-7. 不要输出 markdown，只输出 JSON。
+7. 为避免图像排版拥挤，请尽量压缩可视化文本长度：
+   - 图卡标题尽量不超过 18 个中文字符
+   - 图卡副标题尽量不超过 32 个中文字符
+   - 图卡 bullet 每条尽量不超过 24 个中文字符
+   - 图表标题尽量不超过 18 个中文字符
+   - 图表副标题尽量不超过 28 个中文字符
+   - 类目标签尽量短
+8. 不要在最终内容中出现类似“McKinsey-style”“consulting-style”“样例图卡”“制作说明”之类的元描述。
+9. 不要输出 markdown，只输出 JSON。
 """
         return self.client.chat_json(
             [
