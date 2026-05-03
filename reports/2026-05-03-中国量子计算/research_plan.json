@@ -1,0 +1,35 @@
+{
+  "objective": "Assess the current state, key players, and strategic implications of China's quantum computing advancements.",
+  "audience": "Technology executives, policy analysts, and investors seeking a concise strategic overview.",
+  "search_queries": [
+    "China quantum computing latest breakthroughs 2025",
+    "China quantum supremacy experiments results",
+    "Chinese quantum computing companies and startups",
+    "China national quantum computing investment policy",
+    "China vs US quantum computing comparison",
+    "Quantum computing applications in China"
+  ],
+  "outline": [
+    "China Leads in Quantum Patent Filings and Government Investment",
+    "Chinese Tech Giants and Startups Dominate Quantum Hardware Development",
+    "Quantum Supremacy Claims: China's Experimental Milestones",
+    "Strategic Applications: Cryptography, AI, and Defense in China",
+    "Global Race: How China's Quantum Progress Compares to the US and EU",
+    "Risks and Uncertainties: Verification, Talent, and Supply Chain Gaps"
+  ],
+  "chart_ideas": [
+    "Bar chart: Annual quantum patent filings by country (China, US, Japan, EU) 2015-2025",
+    "Timeline: Key Chinese quantum supremacy experiments and their qubit counts",
+    "Pie chart: Distribution of Chinese quantum funding by sector (government, corporate, venture capital)"
+  ],
+  "insight_card_ideas": [
+    "China's quantum computing investment exceeds $15 billion, surpassing all other nations combined.",
+    "Chinese researchers achieved quantum supremacy with 66-qubit processor in 2023, but verification remains contested.",
+    "Alibaba, Baidu, and Huawei lead quantum cloud services, offering access to over 50 qubits via public platforms."
+  ],
+  "risks": [
+    "Official Chinese sources may overstate achievements; independent verification is limited.",
+    "Patent counts may not reflect actual innovation quality or commercial viability.",
+    "Data on classified military applications is unavailable, skewing strategic assessment."
+  ]
+}
