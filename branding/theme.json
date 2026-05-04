@@ -1,20 +1,45 @@
 {
-  "brand_name": "BO Institute Strategy Agent",
+  "brand_name": "BlueOcean",
   "report_label": "Deep Research Report",
+  "font_family": "Trebuchet MS, Aptos, Arial, sans-serif",
+  "content_style": "blueocean-bcg-memo",
   "palette": {
-    "accent": "#0E6B72",
-    "accent_dark": "#0A4F56",
-    "ink": "#1F2937",
-    "subtle": "#667085",
-    "grid": "#D8DEE5",
+    "accent": "#003087",
+    "accent_dark": "#002D72",
+    "bright_blue": "#3273F6",
+    "medium_blue": "#0055A4",
+    "ink": "#333333",
+    "text_black": "#141414",
+    "subtle": "#64696E",
+    "muted_gray": "#787D82",
+    "axis": "#808080",
+    "grid": "#DCE0E4",
     "paper": "#FFFFFF",
-    "panel": "#F7F9FB",
-    "line": "#DCE6EC"
+    "panel": "#F5F7FA",
+    "line": "#C8C8C8",
+    "light_blue_fill": "#EBF5FF",
+    "pale_blue_fill": "#F0F8FF",
+    "light_gray_fill": "#F0F2F5",
+    "navy_dark": "#051C2C",
+    "confidential_red": "#C00000"
   },
   "series_colors": [
-    "#0E6B72",
-    "#233645",
-    "#7E96A8",
-    "#C4D0D8"
-  ]
+    "#003087",
+    "#3273F6",
+    "#A3B1BE",
+    "#DCE0E4"
+  ],
+  "writing_rules": {
+    "title_style": "conclusion-first, crisp, sharp, executive",
+    "section_lead_style": "one-sentence implication-first lead",
+    "methodology": [
+      "Define the decision question",
+      "Break the question into an issue tree",
+      "Prioritize the key drivers",
+      "Gather evidence",
+      "Synthesize the crux",
+      "Develop strategic options",
+      "Recommend actions"
+    ]
+  }
 }
