@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 import textwrap
 from pathlib import Path
 from typing import Dict, List
@@ -14,38 +13,36 @@ from matplotlib.patches import FancyBboxPatch
 
 from .theme import load_theme
 
-
 THEME = load_theme()
 PALETTE = THEME["palette"]
 BRAND_NAME = THEME["brand_name"]
-REPORT_LABEL = THEME.get("report_label", "Deep Research Report")
 ACCENT = PALETTE["accent"]
-ACCENT_DARK = PALETTE["accent_dark"]
+ACCENT_DARK = PALETTE.get("accent_dark", ACCENT)
 INK = PALETTE["ink"]
 SUBTLE = PALETTE["subtle"]
 GRID = PALETTE["grid"]
 PAPER = PALETTE["paper"]
 PANEL = PALETTE["panel"]
 LINE = PALETTE["line"]
-SERIES_COLORS = THEME.get("series_colors", [ACCENT, "#233645", "#7E96A8", "#C4D0D8"])
+AXIS = PALETTE.get("axis", "#808080")
+SERIES_COLORS = THEME.get("series_colors", [ACCENT, "#3273F6", "#A3B1BE", "#DCE0E4"])
+FONT_FAMILY = THEME.get("font_family", "Trebuchet MS, Aptos, Arial, sans-serif")
 
 
 def configure_matplotlib_fonts() -> None:
-    preferred_fonts = [
+    preferred_fonts = [x.strip() for x in FONT_FAMILY.split(",")] + [
+        "Trebuchet MS",
+        "Aptos",
+        "Arial",
         "Noto Sans CJK SC",
-        "Noto Sans CJK JP",
-        "Noto Sans SC",
         "Microsoft YaHei",
         "PingFang SC",
-        "Heiti SC",
         "SimHei",
-        "WenQuanYi Zen Hei",
-        "Arial Unicode MS",
         "DejaVu Sans",
     ]
     available = {f.name for f in font_manager.fontManager.ttflist}
     chosen = [name for name in preferred_fonts if name in available]
-    plt.rcParams["font.sans-serif"] = (chosen + ["DejaVu Sans"]) if chosen else ["DejaVu Sans"]
+    plt.rcParams["font.sans-serif"] = chosen if chosen else ["DejaVu Sans"]
     plt.rcParams["axes.unicode_minus"] = False
 
 
@@ -61,184 +58,152 @@ def _wrap_text(value: str, width: int) -> str:
 
 
 def _wrapped_lines(value: str, width: int) -> int:
-    wrapped = textwrap.wrap(str(value).strip(), width=max(8, width))
-    return max(1, len(wrapped))
+    return max(1, len(textwrap.wrap(str(value).strip(), width=max(8, width))))
 
 
 def _truncate_text(value: str, max_chars: int) -> str:
     text = str(value).strip()
-    return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + "…"
-
-
-def _fit_card_layout(title: str, subtitle: str, bullets: List[str], highlight_label: str) -> Dict[str, float]:
-    title_lines = _wrapped_lines(title, 26)
-    subtitle_lines = _wrapped_lines(subtitle, 46)
-    bullet_lines = sum(_wrapped_lines(b, 36) for b in bullets)
-    highlight_lines = _wrapped_lines(highlight_label, 12)
-    score = title_lines * 1.5 + subtitle_lines * 1.0 + bullet_lines * 1.15 + highlight_lines * 0.7
-
-    if score <= 15:
-        return {"title": 24, "subtitle": 12.2, "bullet": 13.3, "y": 0.60}
-    if score <= 18:
-        return {"title": 22, "subtitle": 11.5, "bullet": 12.5, "y": 0.59}
-    if score <= 21:
-        return {"title": 20, "subtitle": 11.0, "bullet": 11.8, "y": 0.57}
-    return {"title": 18, "subtitle": 10.4, "bullet": 11.0, "y": 0.55}
+    return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + "..."
 
 
 def create_insight_card(card: Dict, output_path: Path) -> Path:
     ensure_dir(output_path.parent)
-    fig = plt.figure(figsize=(12, 6.75), dpi=160, facecolor=PANEL)
+    fig = plt.figure(figsize=(11.4, 4.5), dpi=180, facecolor=PAPER)
     ax = plt.axes([0, 0, 1, 1])
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
 
-    bg = FancyBboxPatch((0.03, 0.05), 0.94, 0.90, boxstyle="round,pad=0.012,rounding_size=0.02", linewidth=0, facecolor=PAPER)
-    accent_bar = FancyBboxPatch((0.03, 0.05), 0.015, 0.90, boxstyle="round,pad=0.0,rounding_size=0.02", linewidth=0, facecolor=ACCENT)
-    right_panel = FancyBboxPatch((0.69, 0.15), 0.22, 0.64, boxstyle="round,pad=0.02,rounding_size=0.02", linewidth=1, edgecolor=LINE, facecolor="#F8FBFC")
-    ax.add_patch(bg)
-    ax.add_patch(accent_bar)
-    ax.add_patch(right_panel)
+    panel = FancyBboxPatch((0.02, 0.06), 0.96, 0.88, boxstyle="round,pad=0.004,rounding_size=0.012", linewidth=0.8, edgecolor=LINE, facecolor=PAPER)
+    bar = FancyBboxPatch((0.035, 0.12), 0.008, 0.74, boxstyle="round,pad=0.0,rounding_size=0.008", linewidth=0, facecolor=ACCENT)
+    metric = FancyBboxPatch((0.71, 0.24), 0.20, 0.46, boxstyle="round,pad=0.006,rounding_size=0.012", linewidth=0.8, edgecolor=GRID, facecolor="#F7FAFD")
+    ax.add_patch(panel)
+    ax.add_patch(bar)
+    ax.add_patch(metric)
 
-    exhibit_label = _truncate_text(card.get("exhibit_label", "Strategic insight"), 48)
-    title = _truncate_text(card.get("title", "Insight"), 120)
-    subtitle = _truncate_text(card.get("subtitle", ""), 180)
-    bullets: List[str] = [_truncate_text(item, 100) for item in card.get("bullets", [])[:4]]
+    exhibit = _truncate_text(card.get("exhibit_label", "Key point"), 42)
+    title = _truncate_text(card.get("title", "Insight"), 74)
+    subtitle = _truncate_text(card.get("subtitle", ""), 110)
+    bullets = [_truncate_text(x, 62) for x in card.get("bullets", [])[:4]]
     highlight_number = str(card.get("highlight_number", "3"))
-    highlight_label = _truncate_text(card.get("highlight_label", "Key finding"), 36)
+    highlight_label = _truncate_text(card.get("highlight_label", "Key finding"), 24)
 
-    layout = _fit_card_layout(title, subtitle, bullets, highlight_label)
-    ax.text(0.08, 0.90, BRAND_NAME.upper(), fontsize=10.5, fontweight="bold", color=ACCENT, va="top")
-    ax.text(0.08, 0.855, _wrap_text(exhibit_label, 40), fontsize=10.5, fontweight="bold", color=SUBTLE, va="top")
-    ax.text(0.08, 0.805, _wrap_text(title, 28), fontsize=layout["title"], fontweight="bold", color=INK, va="top", linespacing=1.15)
-    ax.text(0.08, 0.705, _wrap_text(subtitle, 46), fontsize=layout["subtitle"], color=SUBTLE, va="top", linespacing=1.45)
+    title_size = 15.5 if _wrapped_lines(title, 30) <= 2 else 13.5
+    subtitle_size = 8.8 if _wrapped_lines(subtitle, 46) <= 2 else 8.0
+    bullet_size = 8.5
 
-    y = layout["y"]
+    ax.text(0.075, 0.84, BRAND_NAME.upper(), fontsize=7.2, fontweight="bold", color=ACCENT, va="top")
+    ax.text(0.075, 0.79, exhibit, fontsize=7.4, color=SUBTLE, va="top")
+    ax.text(0.075, 0.725, _wrap_text(title, 30), fontsize=title_size, fontweight="bold", color=INK, va="top", linespacing=1.08)
+    ax.text(0.075, 0.61, _wrap_text(subtitle, 46), fontsize=subtitle_size, color=SUBTLE, va="top", linespacing=1.22)
+
+    y = 0.50
     for bullet in bullets:
-        wrapped = _wrap_text(bullet, 36)
-        line_count = _wrapped_lines(bullet, 36)
-        ax.text(0.09, y, f"• {wrapped}", fontsize=layout["bullet"], color=INK, va="top", linespacing=1.42)
-        y -= 0.046 * line_count + 0.026
+        lines = _wrapped_lines(bullet, 34)
+        ax.text(0.082, y, f"- {_wrap_text(bullet, 34)}", fontsize=bullet_size, color=INK, va="top", linespacing=1.25)
+        y -= 0.07 + max(0, lines - 1) * 0.036
 
-    ax.text(0.80, 0.57, highlight_number, fontsize=42, fontweight="bold", color=ACCENT_DARK, ha="center")
-    ax.text(0.80, 0.43, _wrap_text(highlight_label, 11), fontsize=14.5, color=INK, ha="center", linespacing=1.25)
-    ax.text(0.80, 0.22, BRAND_NAME, fontsize=10.0, color=SUBTLE, ha="center")
+    ax.text(0.81, 0.50, highlight_number, fontsize=22, fontweight="bold", color=ACCENT_DARK, ha="center", va="center")
+    ax.text(0.81, 0.38, _wrap_text(highlight_label, 11), fontsize=8.8, color=INK, ha="center", va="center", linespacing=1.1)
 
-    plt.savefig(output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
+    plt.savefig(output_path, bbox_inches="tight", facecolor=fig.get_facecolor(), pad_inches=0.02)
     plt.close(fig)
     return output_path
 
 
-def _apply_axes_style(ax, title: str, subtitle: str = "") -> None:
-    ax.set_facecolor(PAPER)
-    ax.spines["top"].set_visible(False)
-    ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_color("#C9D3DC")
-    ax.spines["bottom"].set_color("#C9D3DC")
-    ax.tick_params(axis="x", labelsize=10, colors=INK)
-    ax.tick_params(axis="y", labelsize=10, colors=INK)
-    ax.grid(True, axis="y", linestyle="--", linewidth=0.8, color=GRID, alpha=0.9)
-    ax.set_axisbelow(True)
-    ax.set_title(_wrap_text(title, 60), fontsize=18, fontweight="bold", color=INK, loc="left", pad=20)
+def _base_chart_frame(fig, title: str, subtitle: str, exhibit_no: str | None = None):
+    label = f"EXHIBIT {exhibit_no}" if exhibit_no else "EXHIBIT"
+    fig.text(0.055, 0.955, label, fontsize=8.0, fontweight="bold", color=ACCENT)
+    fig.text(0.055, 0.915, _wrap_text(title, 72), fontsize=15.2, color=INK)
     if subtitle:
-        ax.text(0.0, 1.04, _wrap_text(subtitle, 90), transform=ax.transAxes, fontsize=10.3, color=SUBTLE, va="bottom")
-
-
-def _figure_height(categories: List[str], chart_type: str) -> float:
-    longest = max((len(str(x)) for x in categories), default=0)
-    count = len(categories)
-    height = 7.0
-    if chart_type == "bar":
-        height += min(2.2, max(0, count - 6) * 0.18)
-    if longest > 16:
-        height += 0.6
-    return height
+        fig.text(0.055, 0.875, _wrap_text(subtitle, 95), fontsize=8.6, color=SUBTLE)
+    ax = plt.axes([0.09, 0.22, 0.82, 0.55])
+    ax.set_facecolor(PAPER)
+    for side in ["top", "right"]:
+        ax.spines[side].set_visible(False)
+    ax.spines["left"].set_color(GRID)
+    ax.spines["bottom"].set_color(GRID)
+    ax.tick_params(axis="x", labelsize=7.8, colors=AXIS)
+    ax.tick_params(axis="y", labelsize=8.0, colors=INK)
+    ax.grid(True, axis="x", color=GRID, linewidth=0.55, alpha=0.55)
+    ax.grid(False, axis="y")
+    ax.set_axisbelow(True)
+    return ax
 
 
 def create_chart(chart: Dict, output_path: Path) -> Path:
     ensure_dir(output_path.parent)
     chart_type = str(chart.get("type", "bar")).lower()
-    title = chart.get("title", "Chart")
-    subtitle = chart.get("subtitle", "")
+    title = _truncate_text(chart.get("title", "Chart"), 82)
+    subtitle = _truncate_text(chart.get("subtitle", ""), 130)
     categories = [str(c) for c in chart.get("categories", [])]
     series = chart.get("series", []) or [{"name": "Value", "values": chart.get("values", [])}]
-    fig_height = _figure_height(categories, chart_type)
-
-    fig = plt.figure(figsize=(12, fig_height), dpi=160, facecolor=PAPER)
-    ax = plt.axes([0.10, 0.20, 0.84, 0.64])
-    _apply_axes_style(ax, title=title, subtitle=subtitle)
-    fig.text(0.10, 0.90, BRAND_NAME.upper(), fontsize=10.0, fontweight="bold", color=ACCENT)
-    fig.text(0.10, 0.875, REPORT_LABEL, fontsize=10.0, color=SUBTLE)
-
-    should_show_values = sum(len(item.get("values", [])) for item in series) <= 12
+    fig = plt.figure(figsize=(10.8, 6.0), dpi=180, facecolor=PAPER)
+    ax = _base_chart_frame(fig, title, subtitle, str(chart.get("exhibit_no", "")) or None)
 
     if chart_type == "line":
+        ax.grid(True, axis="both", color=GRID, linewidth=0.55, alpha=0.55)
         for idx, item in enumerate(series):
             values = item.get("values", [])
             color = SERIES_COLORS[idx % len(SERIES_COLORS)]
-            ax.plot(categories, values, marker="o", markersize=5.5, linewidth=2.5, color=color, label=item.get("name", "Series"))
-            if values and len(values) <= 10:
-                for x, y in zip(categories, values):
-                    ax.annotate(str(y), (x, y), xytext=(0, 8), textcoords="offset points", ha="center", fontsize=9, color=color)
+            ax.plot(categories, values, marker="o", markersize=4.0, linewidth=1.9, color=color, label=item.get("name", "Series"))
+        if len(series) > 1:
+            ax.legend(frameon=False, fontsize=7.8, loc="upper left")
     elif chart_type == "pie":
+        ax.remove()
+        ax = plt.axes([0.16, 0.22, 0.45, 0.56])
         pie_values = series[0].get("values", []) if series else []
-        colors = SERIES_COLORS[: max(1, len(categories))]
-        if len(categories) <= 6:
-            wedges, texts, autotexts = ax.pie(
-                pie_values,
-                labels=[_wrap_text(c, 16) for c in categories],
-                autopct="%1.0f%%",
-                startangle=90,
-                colors=colors,
-                wedgeprops={"width": 0.48, "edgecolor": PAPER},
-            )
-            for t in texts + autotexts:
-                t.set_color(INK)
-                t.set_fontsize(10)
-        else:
-            wedges, _ = ax.pie(
-                pie_values,
-                startangle=90,
-                colors=colors,
-                wedgeprops={"width": 0.48, "edgecolor": PAPER},
-            )
-            ax.legend(wedges, [_wrap_text(c, 22) for c in categories], frameon=False, loc="center left", bbox_to_anchor=(1.02, 0.5))
-        ax.axis("equal")
-        ax.grid(False)
-        for spine in ax.spines.values():
-            spine.set_visible(False)
+        wedges, _texts, autotexts = ax.pie(
+            pie_values,
+            startangle=90,
+            colors=SERIES_COLORS[: max(1, len(categories))],
+            wedgeprops={"width": 0.42, "edgecolor": PAPER},
+            autopct="%1.0f%%",
+            pctdistance=0.78,
+        )
+        for t in autotexts:
+            t.set_color(PAPER)
+            t.set_fontsize(7.7)
+        ax.legend(wedges, [_wrap_text(c, 16) for c in categories], frameon=False, fontsize=7.8, loc="center left", bbox_to_anchor=(1.0, 0.5))
+        ax.set(aspect="equal")
     else:
-        total_series = max(1, len(series))
-        x = list(range(len(categories)))
-        width = 0.72 / total_series
-        offset = -((total_series - 1) * width) / 2
-        for idx, item in enumerate(series):
-            positions = [i + offset + idx * width for i in x]
-            values = item.get("values", [])
-            color = SERIES_COLORS[idx % len(SERIES_COLORS)]
-            bars = ax.bar(positions, values, width=width, label=item.get("name", "Series"), color=color)
-            if should_show_values:
-                for bar, value in zip(bars, values):
-                    ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height(), str(value), ha="center", va="bottom", fontsize=8.8, color=INK)
-        rotate = 25 if len(categories) > 7 or max((len(c) for c in categories), default=0) > 14 else 0
-        ax.set_xticks(x)
-        ax.set_xticklabels([_wrap_text(c, 12 if rotate else 14) for c in categories], rotation=rotate, ha="right" if rotate else "center")
+        if len(series) == 1:
+            values = series[0].get("values", [])
+            y = list(range(len(categories)))
+            colors = [ACCENT] + ["#A3B1BE"] * (len(categories) - 1)
+            ax.barh(y, values, color=colors[: len(categories)], edgecolor="none", height=0.56)
+            ax.set_yticks(y)
+            ax.set_yticklabels([_wrap_text(c, 22) for c in categories], fontsize=8.0, color=INK)
+            ax.invert_yaxis()
+            max_v = max(values) if values else 1
+            ax.set_xlim(0, max_v * 1.18)
+            for yi, value in zip(y, values):
+                ax.text(value + max_v * 0.015, yi, f"{value}", va="center", ha="left", fontsize=8.2, color=ACCENT if yi == 0 else INK)
+        else:
+            x = list(range(len(categories)))
+            width = 0.70 / len(series)
+            offset = -((len(series) - 1) * width) / 2
+            for idx, item in enumerate(series):
+                values = item.get("values", [])
+                color = SERIES_COLORS[idx % len(SERIES_COLORS)]
+                pos = [i + offset + idx * width for i in x]
+                ax.bar(pos, values, width=width, color=color, edgecolor="none", label=item.get("name", "Series"))
+            ax.set_xticks(x)
+            ax.set_xticklabels([_wrap_text(c, 11) for c in categories], fontsize=7.6)
+            ax.legend(frameon=False, fontsize=7.6, loc="upper left")
 
     if chart.get("x_label") and chart_type != "pie":
-        ax.set_xlabel(chart["x_label"], fontsize=10.4, color=SUBTLE, labelpad=12)
-    if chart.get("y_label") and chart_type != "pie":
-        ax.set_ylabel(chart["y_label"], fontsize=10.4, color=SUBTLE, labelpad=10)
-    if len(series) > 1 and chart_type != "pie":
-        ax.legend(frameon=False, loc="upper left", bbox_to_anchor=(0.0, 1.01), ncol=min(3, len(series)))
+        ax.set_xlabel(chart["x_label"], fontsize=7.8, color=SUBTLE)
+    if chart.get("y_label") and chart_type not in {"pie", "bar"}:
+        ax.set_ylabel(chart["y_label"], fontsize=7.8, color=SUBTLE)
 
     caption = chart.get("caption") or ""
     source_note = chart.get("source_note") or ""
     if caption:
-        fig.text(0.10, 0.08, _wrap_text(caption, 120), fontsize=10.0, color=INK)
+        fig.text(0.055, 0.118, _wrap_text(caption, 135), fontsize=7.6, color=INK)
     if source_note:
-        fig.text(0.10, 0.045, _wrap_text(f"Source: {source_note}", 140), fontsize=9.3, color=SUBTLE)
+        fig.text(0.055, 0.075, _wrap_text(f"Sources: {source_note}", 140), fontsize=6.0, color=SUBTLE)
 
-    plt.savefig(output_path, bbox_inches="tight", facecolor=fig.get_facecolor())
+    plt.savefig(output_path, bbox_inches="tight", facecolor=fig.get_facecolor(), pad_inches=0.02)
     plt.close(fig)
     return output_path
