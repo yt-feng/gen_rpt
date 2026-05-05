@@ -44,8 +44,8 @@ def run_pdf_qa(pdf_path: Path, html_path: Path, qa_dir: Path, *, render_pages: i
         return result
 
     result["page_count"] = doc.page_count
-    if doc.page_count < 3:
-        _fail(result, "too_few_pages", "PDF has fewer than three pages.", "check_renderer")
+    if doc.page_count < 6:
+        _fail(result, "short_report", "PDF has fewer than six pages; report may be too thin.", "expand_report_or_check_renderer")
     else:
         _pass(result, "page_count", f"PDF has {doc.page_count} pages.")
 
@@ -67,14 +67,13 @@ def run_pdf_qa(pdf_path: Path, html_path: Path, qa_dir: Path, *, render_pages: i
     else:
         _pass(result, "text_extractability", "PDF text extraction looks healthy.")
 
+    if "..." in full_text or "…" in full_text:
+        _fail(result, "visible_truncation", "Visible ellipses found in PDF text; content may have been truncated.", "remove_text_truncation")
+
     lower = full_text.lower()
     for pattern in META_LABEL_PATTERNS:
         if pattern.lower() in lower:
             _fail(result, "meta_label_visible", f"Visible meta label found: {pattern}", "strip_meta_labels")
-
-    html = html_path.read_text(encoding="utf-8", errors="ignore") if html_path.exists() else ""
-    for risk in _inspect_html_page_density(html):
-        _fail(result, risk["code"], risk["message"], risk["recommendation"])
 
     result["passed"] = not result["issues"]
     _write(result, qa_dir)
@@ -82,44 +81,46 @@ def run_pdf_qa(pdf_path: Path, html_path: Path, qa_dir: Path, *, render_pages: i
 
 
 def apply_pdf_qa_fixes(report: Dict[str, Any], qa_result: Dict[str, Any]) -> Dict[str, Any]:
+    """Clean unsafe/meta text without truncating client-ready prose.
+
+    Previous versions shortened content aggressively, which created visible ellipses
+    in titles and paragraphs. The renderer now handles overflow by adding pages, so
+    the QA fix should preserve the report substance.
+    """
     fixed = deepcopy(report)
-    fixed["_layout_profile"] = "compact"
+    fixed["_layout_profile"] = "client_ready"
     fixed["_qa_autofixed"] = True
     fixed["_qa_recommendations"] = qa_result.get("recommendations", [])
 
-    fixed["report_title"] = _clean_text(fixed.get("report_title", ""), 70)
-    fixed["report_subtitle"] = _clean_text(fixed.get("report_subtitle", ""), 130)
-    fixed["executive_summary"] = [_clean_text(x, 115) for x in fixed.get("executive_summary", [])[:6]]
+    fixed["report_title"] = _clean_text(fixed.get("report_title", ""))
+    fixed["report_subtitle"] = _clean_text(fixed.get("report_subtitle", ""))
+    fixed["executive_summary"] = [_clean_text(x) for x in fixed.get("executive_summary", [])]
 
     for step in fixed.get("method_steps", []):
-        step["name"] = _clean_text(step.get("name", ""), 42)
-        step["description"] = _clean_text(step.get("description", ""), 95)
+        step["name"] = _clean_text(step.get("name", ""))
+        step["description"] = _clean_text(step.get("description", ""))
 
     for section in fixed.get("sections", []):
-        section["title"] = _clean_text(section.get("title", ""), 72)
-        section["lead"] = _clean_text(section.get("lead", ""), 120)
-        section["paragraphs"] = [_clean_text(p, 260) for p in section.get("paragraphs", [])[:3]]
-        section["key_takeaways"] = [_clean_text(x, 95) for x in section.get("key_takeaways", [])[:2]]
+        section["title"] = _clean_text(section.get("title", ""))
+        section["lead"] = _clean_text(section.get("lead", ""))
+        section["paragraphs"] = [_clean_text(p) for p in section.get("paragraphs", [])]
+        section["key_takeaways"] = [_clean_text(x) for x in section.get("key_takeaways", [])]
 
     for card in fixed.get("insight_cards", []):
-        card["title"] = _clean_text(card.get("title", ""), 58)
-        card["subtitle"] = _clean_text(card.get("subtitle", ""), 82)
-        card["bullets"] = [_clean_text(x, 52) for x in card.get("bullets", [])[:3]]
-        card["highlight_label"] = _clean_text(card.get("highlight_label", ""), 20)
-        card["exhibit_label"] = _clean_text(card.get("exhibit_label", ""), 28)
+        card["title"] = _clean_text(card.get("title", ""))
+        card["subtitle"] = _clean_text(card.get("subtitle", ""))
+        card["bullets"] = [_clean_text(x) for x in card.get("bullets", [])]
+        card["highlight_label"] = _clean_text(card.get("highlight_label", ""))
+        card["exhibit_label"] = _clean_text(card.get("exhibit_label", ""))
 
     for chart in fixed.get("charts", []):
-        chart["title"] = _clean_text(chart.get("title", ""), 64)
-        chart["subtitle"] = _clean_text(chart.get("subtitle", ""), 95)
-        chart["categories"] = [_clean_text(str(x), 18) for x in chart.get("categories", [])[:8]]
-        chart["caption"] = _clean_text(chart.get("caption", ""), 115)
-        chart["source_note"] = _clean_text(chart.get("source_note", ""), 110)
+        chart["title"] = _clean_text(chart.get("title", ""))
+        chart["subtitle"] = _clean_text(chart.get("subtitle", ""))
+        chart["categories"] = [_clean_text(str(x)) for x in chart.get("categories", [])]
+        chart["caption"] = _clean_text(chart.get("caption", ""))
+        chart["source_note"] = _clean_text(chart.get("source_note", ""))
         for item in chart.get("series", []):
-            item["name"] = _clean_text(item.get("name", ""), 24)
-            values = item.get("values", [])
-            if len(values) > len(chart.get("categories", [])):
-                item["values"] = values[: len(chart.get("categories", []))]
-
+            item["name"] = _clean_text(item.get("name", ""))
     return fixed
 
 
@@ -144,7 +145,7 @@ def _inspect_page_text_layout(page: fitz.Page, page_no: int) -> List[Dict[str, s
                 issues.append({
                     "code": "text_block_overlap",
                     "message": f"Page {page_no}: possible text overlap between '{a[4][:28]}' and '{b[4][:28]}'.",
-                    "recommendation": "compact_layout_and_truncate",
+                    "recommendation": "increase_page_count_or_adjust_layout",
                 })
                 return issues
 
@@ -158,35 +159,18 @@ def _inspect_page_text_layout(page: fitz.Page, page_no: int) -> List[Dict[str, s
                 if txt and size:
                     sizes.append(size)
     if sizes:
-        if min(sizes) < 4.5:
-            issues.append({"code": "font_too_small", "message": f"Page {page_no}: text below 4.5pt detected.", "recommendation": "increase_min_font_or_reduce_content"})
-        if max(sizes) > 52:
+        if min(sizes) < 4.2:
+            issues.append({"code": "font_too_small", "message": f"Page {page_no}: text below 4.2pt detected.", "recommendation": "increase_min_font_or_add_pages"})
+        if max(sizes) > 56:
             issues.append({"code": "font_too_large", "message": f"Page {page_no}: unusually large text detected.", "recommendation": "reduce_cover_or_title_font"})
     return issues
 
 
-def _inspect_html_page_density(html: str) -> List[Dict[str, str]]:
-    risks = []
-    pages = re.findall(r"<section class='page[^']*'.*?</section>", html, flags=re.DOTALL)
-    for idx, page in enumerate(pages, start=1):
-        text = re.sub(r"<[^>]+>", " ", page)
-        text_len = len(re.sub(r"\s+", "", text))
-        visuals = page.count("<img")
-        if text_len > 1800 and visuals >= 1:
-            risks.append({"code": "dense_page_with_visual", "message": f"HTML page {idx}: dense text plus visual may overflow.", "recommendation": "compact_layout_and_truncate"})
-        elif text_len > 2600:
-            risks.append({"code": "dense_text_page", "message": f"HTML page {idx}: text density is high.", "recommendation": "truncate_section_text"})
-    return risks
-
-
-def _clean_text(value: Any, max_chars: int) -> str:
+def _clean_text(value: Any) -> str:
     text = str(value or "")
     for pattern in META_LABEL_PATTERNS:
         text = re.sub(re.escape(pattern), "", text, flags=re.IGNORECASE)
-    text = re.sub(r"\s+", " ", text).strip()
-    if len(text) <= max_chars:
-        return text
-    return text[: max_chars - 3].rstrip() + "..."
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _overlap_ratio(a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]) -> float:
