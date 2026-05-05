@@ -44,12 +44,20 @@ def main() -> None:
     report_path = output_dir / "report.html"
     markdown_path = output_dir / "report.md"
     pdf_path = output_dir / "report.pdf"
+    pptx_path = output_dir / "report.pptx"
+    presentation_path = output_dir / "presentation.html"
+    qa_path = output_dir / "qa_result.json"
 
     print(f"Report generated at: {report_path}")
     print(f"Markdown generated at: {markdown_path}")
     print(f"PDF generated at: {pdf_path}")
+    print(f"PPTX generated at: {pptx_path}")
+    print(f"HTML presentation generated at: {presentation_path}")
+    print(f"QA result generated at: {qa_path}")
+
     step_summary = os.getenv("GITHUB_STEP_SUMMARY")
     if step_summary:
+        qa_result = result.get("qa_result", {})
         with open(step_summary, "a", encoding="utf-8") as f:
             f.write("## Deep Research report generated\n")
             f.write(f"- Topic: {args.topic}\n")
@@ -58,6 +66,10 @@ def main() -> None:
             f.write(f"- HTML: `{report_path}`\n")
             f.write(f"- Markdown: `{markdown_path}`\n")
             f.write(f"- PDF: `{pdf_path}`\n")
+            f.write(f"- PPTX: `{pptx_path}`\n")
+            f.write(f"- HTML Presentation: `{presentation_path}`\n")
+            f.write(f"- QA passed: `{qa_result.get('passed')}`\n")
+            f.write(f"- QA issues: `{len(qa_result.get('issues', []))}`\n")
             f.write(f"- Assets: {len(result['asset_map'])}\n")
 
 
