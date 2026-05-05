@@ -1,0 +1,62 @@
+{
+  "objective": "Assess the market opportunity for microbial pesticide products in China by 2026, identifying key growth drivers, competitive dynamics, and strategic entry points for a global crop protection company.",
+  "audience": "Senior leadership team (VP of Strategy, Head of APAC, R&D Director) at a multinational agricultural chemical firm considering investment or partnership in China's biological pesticide segment.",
+  "decision_question": "Should our company invest in or partner to enter China's microbial pesticide market by 2026, and if so, which product categories and regions offer the highest return potential?",
+  "issue_tree": [
+    {
+      "question": "What is the current and projected market size for microbial pesticides in China, and what are the key demand drivers?",
+      "why_it_matters": "Quantifies the opportunity and validates growth assumptions for resource allocation.",
+      "evidence_needed": "Market size data (2020-2025), CAGR forecasts to 2026, regulatory policy impacts (e.g., China's Green Agriculture Plan), crop-specific adoption rates, and farmer incentive programs."
+    },
+    {
+      "question": "Which microbial pesticide categories (e.g., Bacillus thuringiensis, Trichoderma, Beauveria) are gaining traction, and what are their performance benchmarks vs. chemical alternatives?",
+      "why_it_matters": "Identifies high-potential product segments and technical gaps that our R&D can address.",
+      "evidence_needed": "Sales volume by active ingredient, field trial efficacy data, resistance management trends, and farmer preference surveys."
+    },
+    {
+      "question": "Who are the dominant domestic and international players, and what are their market shares, distribution strategies, and pricing models?",
+      "why_it_matters": "Reveals competitive intensity, potential acquisition targets, and partnership opportunities.",
+      "evidence_needed": "Company revenue data, product registrations, distribution channel maps, and pricing benchmarks."
+    },
+    {
+      "question": "What are the regulatory and registration barriers for new microbial pesticide products in China, and how are they evolving?",
+      "why_it_matters": "Determines time-to-market and cost of entry; critical for go/no-go decision.",
+      "evidence_needed": "Registration timelines, data requirements, recent policy changes (e.g., simplified bio-pesticide registration), and local testing protocols."
+    },
+    {
+      "question": "Which geographic regions and crop segments in China offer the highest adoption potential for microbial pesticides by 2026?",
+      "why_it_matters": "Focuses go-to-market resources on highest-return areas.",
+      "evidence_needed": "Regional pest pressure maps, crop acreage data, farmer income levels, and existing biological product penetration rates."
+    }
+  ],
+  "search_queries": [
+    "China microbial pesticide market size forecast 2026",
+    "China biological pesticide registration policy 2025",
+    "Bacillus thuringiensis China sales volume 2024",
+    "Trichoderma market share China agriculture",
+    "China green agriculture plan 2025 pesticide reduction",
+    "Top microbial pesticide companies China 2024"
+  ],
+  "outline": [
+    "China's microbial pesticide market will exceed $X billion by 2026, driven by regulatory push and farmer adoption",
+    "Bacillus thuringiensis and Trichoderma dominate, but unmet needs exist in fruit and vegetable segments",
+    "Domestic players lead in volume, but foreign firms capture premium pricing through efficacy and formulation",
+    "Registration barriers are lowering, but data requirements and local trials remain key hurdles",
+    "Eastern and southern provinces offer the highest near-term opportunity for microbial pesticide adoption"
+  ],
+  "chart_ideas": [
+    "Stacked bar chart: Market size by microbial category (Bt, Trichoderma, Beauveria, others) for 2020-2026 with CAGR annotations",
+    "Heatmap of China: Provincial adoption rate of microbial pesticides vs. chemical pesticide reduction targets",
+    "Bubble chart: Competitive landscape (market share vs. revenue growth) for top 10 domestic and international players"
+  ],
+  "insight_card_ideas": [
+    "Insight Card 1: 'Regulatory tailwind' – How China's 2025 pesticide reduction policy creates a $X million opportunity for microbial products",
+    "Insight Card 2: 'Farmer economics' – Why microbial pesticides are 20% more profitable for rice farmers in Jiangsu province",
+    "Insight Card 3: 'White space' – Trichoderma products for soil-borne diseases in greenhouse vegetables are underpenetrated, with <5% adoption"
+  ],
+  "risks": [
+    "Official market size data from Chinese sources may be inconsistent or inflated due to government subsidies",
+    "Field trial efficacy data may be biased toward favorable conditions and not reflect real-world variability",
+    "Regulatory changes (e.g., sudden tightening of bio-pesticide registration) could delay market entry beyond 2026"
+  ]
+}
