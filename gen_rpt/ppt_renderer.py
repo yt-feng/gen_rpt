@@ -5,6 +5,7 @@ from typing import Dict, List
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
+from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.util import Inches, Pt
 
@@ -27,33 +28,29 @@ SLIDE_W = Inches(13.333)
 SLIDE_H = Inches(7.5)
 LM = Inches(0.62)
 RM = Inches(0.62)
-TOP = Inches(0.42)
-BOTTOM = Inches(0.36)
+TOP = Inches(0.38)
 
 
 def render_pptx(report: Dict, assets: Dict[str, str], output_file: Path, topic: str, language: str = "zh") -> Path:
     prs = Presentation()
     prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
+    root = output_file.parent
 
     title = report.get("report_title", topic)
     subtitle = report.get("report_subtitle", "")
 
-    _slide_cover(prs, title, subtitle, topic)
+    _slide_cover(prs, title, subtitle, topic, assets, root)
     _slide_toc(prs, report)
     _slide_highlights(prs, report)
     _slide_approach(prs, report)
 
-    cards = [(k, v) for k, v in assets.items() if k.startswith("card-")]
-    if cards:
-        _slide_image_gallery(prs, "Three implications shape the management agenda", [p for _, p in cards[:3]], output_file.parent)
-
     for section in report.get("sections", [])[:6]:
-        _slide_section(prs, section, assets, output_file.parent)
+        _slide_section(prs, section, assets, root)
 
     chart_paths = [v for k, v in assets.items() if k.startswith("chart-")]
     for idx, chart_path in enumerate(chart_paths[:4], start=1):
-        _slide_chart(prs, f"Exhibit {idx}: evidence clarifies the strategic trade-off", chart_path, output_file.parent)
+        _slide_chart(prs, f"Exhibit {idx}: evidence clarifies the strategic trade-off", chart_path, root)
 
     _slide_closing(prs, report, topic)
     output_file.parent.mkdir(parents=True, exist_ok=True)
@@ -70,7 +67,7 @@ def _blank(prs: Presentation):
 
 
 def _add_brand(slide, page_title: str = "") -> None:
-    tx = slide.shapes.add_textbox(SLIDE_W - Inches(1.55), Inches(0.18), Inches(1.1), Inches(0.25))
+    tx = slide.shapes.add_textbox(SLIDE_W - Inches(1.65), Inches(0.18), Inches(1.22), Inches(0.24))
     p = tx.text_frame.paragraphs[0]
     p.text = BRAND_NAME
     p.font.size = Pt(8)
@@ -86,125 +83,117 @@ def _add_brand(slide, page_title: str = "") -> None:
 
 
 def _title(slide, title: str, subtitle: str = "") -> None:
-    box = slide.shapes.add_textbox(LM, TOP, Inches(10.3), Inches(0.82))
+    box = slide.shapes.add_textbox(LM, TOP, Inches(10.6), Inches(0.88))
     tf = box.text_frame
     tf.clear()
+    tf.word_wrap = True
     p = tf.paragraphs[0]
-    p.text = _trim(title, 110)
-    p.font.size = Pt(22)
+    p.text = _trim(title, 105)
+    p.font.size = Pt(21)
     p.font.color.rgb = _rgb(INK)
     p.font.bold = False
     if subtitle:
         p2 = tf.add_paragraph()
-        p2.text = _trim(subtitle, 145)
-        p2.font.size = Pt(9)
+        p2.text = _trim(subtitle, 140)
+        p2.font.size = Pt(8.5)
         p2.font.color.rgb = _rgb(MUTED)
-    line = slide.shapes.add_shape(1, LM, Inches(1.25), SLIDE_W - LM - RM, Inches(0.01))
-    line.fill.solid(); line.fill.fore_color.rgb = _rgb(LINE)
-    line.line.color.rgb = _rgb(LINE)
+    _line(slide, LM, Inches(1.20), SLIDE_W - LM - RM)
 
 
-def _slide_cover(prs, title: str, subtitle: str, topic: str) -> None:
+def _slide_cover(prs, title: str, subtitle: str, topic: str, assets: Dict[str, str], root: Path) -> None:
     slide = _blank(prs)
-    left = slide.shapes.add_shape(1, 0, 0, Inches(5.15), SLIDE_H)
-    left.fill.solid(); left.fill.fore_color.rgb = _rgb(NAVY)
-    left.line.fill.background()
-    band = slide.shapes.add_shape(1, Inches(5.15), 0, Inches(0.16), SLIDE_H)
-    band.fill.solid(); band.fill.fore_color.rgb = _rgb(BRIGHT_BLUE)
-    band.line.fill.background()
+    bg_path = root / assets.get("cover-background", "")
+    if bg_path.exists():
+        slide.shapes.add_picture(str(bg_path), 0, 0, width=SLIDE_W, height=SLIDE_H)
+        shade = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)
+        shade.fill.solid(); shade.fill.fore_color.rgb = _rgb(NAVY); shade.fill.transparency = 18
+        shade.line.fill.background()
+    else:
+        bg = slide.background.fill
+        bg.solid(); bg.fore_color.rgb = _rgb(NAVY)
 
-    box = slide.shapes.add_textbox(Inches(0.72), Inches(0.72), Inches(4.25), Inches(4.9))
+    panel = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.72), Inches(0.75), Inches(5.05), Inches(3.65))
+    panel.fill.solid(); panel.fill.fore_color.rgb = _rgb("#FFFFFF")
+    panel.line.fill.background()
+    accent = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0.72), Inches(0.75), Inches(5.05), Inches(0.08))
+    accent.fill.solid(); accent.fill.fore_color.rgb = _rgb(BRIGHT_BLUE); accent.line.fill.background()
+
+    box = slide.shapes.add_textbox(Inches(1.05), Inches(1.05), Inches(4.35), Inches(2.85))
     tf = box.text_frame; tf.word_wrap = True
     p = tf.paragraphs[0]
     p.text = BRAND_NAME.upper()
-    p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = _rgb("#FFFFFF")
-    p2 = tf.add_paragraph(); p2.text = _trim(title, 90); p2.font.size = Pt(28); p2.font.color.rgb = _rgb("#FFFFFF"); p2.space_before = Pt(22)
-    p3 = tf.add_paragraph(); p3.text = _trim(subtitle or topic, 130); p3.font.size = Pt(11); p3.font.color.rgb = _rgb("#C9D8E6"); p3.space_before = Pt(18)
-
-    right = slide.shapes.add_textbox(Inches(5.65), Inches(1.05), Inches(6.8), Inches(4.8))
-    tf2 = right.text_frame
-    tf2.word_wrap = True
-    p = tf2.paragraphs[0]
-    p.text = "A decision-oriented research pack"
-    p.font.size = Pt(18); p.font.color.rgb = _rgb(ACCENT)
-    p2 = tf2.add_paragraph(); p2.text = _trim(topic, 180); p2.font.size = Pt(13); p2.font.color.rgb = _rgb(INK); p2.space_before = Pt(14)
+    p.font.size = Pt(9); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT)
+    p2 = tf.add_paragraph(); p2.text = _trim(title, 82); p2.font.size = Pt(25); p2.font.color.rgb = _rgb(INK); p2.space_before = Pt(18)
+    p3 = tf.add_paragraph(); p3.text = _trim(subtitle or topic, 120); p3.font.size = Pt(10); p3.font.color.rgb = _rgb(MUTED); p3.space_before = Pt(14)
 
 
 def _slide_toc(prs, report: Dict) -> None:
     slide = _blank(prs); _add_brand(slide, "Contents"); _title(slide, "The discussion follows the management question, evidence, and implications")
     y = Inches(1.55)
     for idx, sec in enumerate(report.get("sections", [])[:7], start=1):
-        num = slide.shapes.add_textbox(LM, y, Inches(0.4), Inches(0.3))
-        p = num.text_frame.paragraphs[0]; p.text = f"{idx:02d}"; p.font.size = Pt(10); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT)
-        text = slide.shapes.add_textbox(Inches(1.15), y, Inches(10.8), Inches(0.35))
-        p2 = text.text_frame.paragraphs[0]; p2.text = _trim(sec.get("title", "Section"), 105); p2.font.size = Pt(15); p2.font.color.rgb = _rgb(INK)
-        y += Inches(0.62)
+        pnum = slide.shapes.add_textbox(LM, y, Inches(0.55), Inches(0.3)).text_frame.paragraphs[0]
+        pnum.text = f"{idx:02d}"; pnum.font.size = Pt(10); pnum.font.bold = True; pnum.font.color.rgb = _rgb(ACCENT)
+        p = slide.shapes.add_textbox(Inches(1.25), y, Inches(10.5), Inches(0.42)).text_frame.paragraphs[0]
+        p.text = _trim(sec.get("title", "Section"), 96); p.font.size = Pt(14); p.font.color.rgb = _rgb(INK)
+        y += Inches(0.60)
 
 
 def _slide_highlights(prs, report: Dict) -> None:
-    slide = _blank(prs); _add_brand(slide, "Key highlights"); _title(slide, "The analysis points to a concentrated set of management priorities")
+    slide = _blank(prs); _add_brand(slide, "Key highlights"); _title(slide, "The analysis narrows the agenda to six management priorities")
     items = report.get("executive_summary", [])[:6]
-    x0, y0 = LM, Inches(1.58)
-    w, h = Inches(3.95), Inches(1.45)
+    x0, y0 = LM, Inches(1.52)
+    w, h = Inches(5.9), Inches(1.12)
     for idx, item in enumerate(items):
-        x = x0 + Inches(4.25) * (idx % 3)
-        y = y0 + Inches(1.75) * (idx // 3)
-        _card(slide, x, y, w, h, _trim(item, 115), idx + 1)
+        x = x0 + Inches(6.12) * (idx % 2)
+        y = y0 + Inches(1.34) * (idx // 2)
+        _card(slide, x, y, w, h, _trim(_clean_summary_item(item), 120), idx + 1)
 
 
 def _slide_approach(prs, report: Dict) -> None:
     slide = _blank(prs); _add_brand(slide, "Approach"); _title(slide, "Seven-step problem solving turns a broad topic into a decision agenda")
     steps = report.get("method_steps", [])[:7]
-    x = LM; y = Inches(1.68)
-    box_w = Inches(1.64); gap = Inches(0.13)
+    x = LM; y = Inches(1.62)
+    box_w = Inches(1.62); gap = Inches(0.13)
     for idx, step in enumerate(steps, start=1):
-        box = slide.shapes.add_shape(1, x, y, box_w, Inches(2.1))
+        box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, box_w, Inches(2.25))
         box.fill.solid(); box.fill.fore_color.rgb = _rgb(LIGHT_BLUE if idx in {1, 5, 7} else "#F7F9FB")
         box.line.color.rgb = _rgb(LINE)
-        tb = slide.shapes.add_textbox(x + Inches(0.1), y + Inches(0.12), box_w - Inches(0.2), Inches(1.75))
-        tf = tb.text_frame; tf.word_wrap = True
-        p = tf.paragraphs[0]; p.text = f"{idx}. {_trim(step.get('name', ''), 28)}"; p.font.size = Pt(9); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT)
-        p2 = tf.add_paragraph(); p2.text = _trim(step.get("description", ""), 85); p2.font.size = Pt(7.5); p2.font.color.rgb = _rgb(INK)
+        tb = slide.shapes.add_textbox(x + Inches(0.1), y + Inches(0.12), box_w - Inches(0.2), Inches(1.95))
+        tf = tb.text_frame; tf.word_wrap = True; tf.margin_bottom = 0; tf.margin_top = 0
+        p = tf.paragraphs[0]; p.text = f"{idx}. {_trim(step.get('name', ''), 24)}"; p.font.size = Pt(8.2); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT)
+        p2 = tf.add_paragraph(); p2.text = _trim(step.get("description", ""), 80); p2.font.size = Pt(6.8); p2.font.color.rgb = _rgb(INK)
         x += box_w + gap
-
-
-def _slide_image_gallery(prs, title: str, image_paths: List[str], root: Path) -> None:
-    slide = _blank(prs); _add_brand(slide, "Key implications"); _title(slide, title)
-    y = Inches(1.45)
-    for path in image_paths:
-        full = root / path
-        if full.exists():
-            slide.shapes.add_picture(str(full), LM, y, width=Inches(11.9))
-            y += Inches(1.72)
 
 
 def _slide_section(prs, section: Dict, assets: Dict[str, str], root: Path) -> None:
     slide = _blank(prs); _add_brand(slide, section.get("title", "Section")); _title(slide, section.get("title", "Section"), section.get("lead", ""))
-    left = slide.shapes.add_textbox(LM, Inches(1.55), Inches(5.45), Inches(4.75))
-    tf = left.text_frame; tf.word_wrap = True
+    left = slide.shapes.add_textbox(LM, Inches(1.48), Inches(5.35), Inches(4.55))
+    tf = left.text_frame; tf.word_wrap = True; tf.margin_top = 0; tf.margin_bottom = 0
     for idx, paragraph in enumerate(section.get("paragraphs", [])[:3]):
         p = tf.paragraphs[0] if idx == 0 else tf.add_paragraph()
-        p.text = _trim(paragraph, 240)
-        p.font.size = Pt(9)
+        p.text = _trim(paragraph, 210)
+        p.font.size = Pt(8.6)
         p.font.color.rgb = _rgb(INK)
-        p.space_after = Pt(8)
+        p.space_after = Pt(7)
+    takeaways = section.get("key_takeaways", [])[:2]
+    if takeaways:
+        p = tf.add_paragraph(); p.text = "Key implications"; p.font.size = Pt(8.2); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT); p.space_before = Pt(6)
+        for item in takeaways:
+            p2 = tf.add_paragraph(); p2.text = f"- {_trim(item, 78)}"; p2.font.size = Pt(7.6); p2.font.color.rgb = _rgb(INK)
     visual = assets.get(section.get("visual_hint", ""), "")
     full = root / visual
     if visual and full.exists():
-        slide.shapes.add_picture(str(full), Inches(6.45), Inches(1.55), width=Inches(6.1))
+        slide.shapes.add_picture(str(full), Inches(6.45), Inches(1.50), width=Inches(6.18), height=Inches(4.58))
     else:
-        take = slide.shapes.add_textbox(Inches(6.55), Inches(1.65), Inches(5.8), Inches(4.0))
-        take.text_frame.word_wrap = True
-        for idx, item in enumerate(section.get("key_takeaways", [])[:3]):
-            p = take.text_frame.paragraphs[0] if idx == 0 else take.text_frame.add_paragraph()
-            p.text = f"- {_trim(item, 95)}"; p.font.size = Pt(11); p.font.color.rgb = _rgb(ACCENT)
+        box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(6.55), Inches(1.62), Inches(5.8), Inches(4.1))
+        box.fill.solid(); box.fill.fore_color.rgb = _rgb(PANEL); box.line.color.rgb = _rgb(LINE)
 
 
 def _slide_chart(prs, title: str, chart_path: str, root: Path) -> None:
     slide = _blank(prs); _add_brand(slide, title); _title(slide, title)
     full = root / chart_path
     if full.exists():
-        slide.shapes.add_picture(str(full), Inches(0.85), Inches(1.32), width=Inches(11.6))
+        slide.shapes.add_picture(str(full), Inches(0.95), Inches(1.30), width=Inches(11.35), height=Inches(5.30))
 
 
 def _slide_closing(prs, report: Dict, topic: str) -> None:
@@ -218,17 +207,32 @@ def _slide_closing(prs, report: Dict, topic: str) -> None:
 
 
 def _card(slide, x, y, w, h, text: str, idx: int) -> None:
-    box = slide.shapes.add_shape(1, x, y, w, h)
+    box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, w, h)
     box.fill.solid(); box.fill.fore_color.rgb = _rgb("#FFFFFF")
     box.line.color.rgb = _rgb(LINE)
-    bar = slide.shapes.add_shape(1, x, y, Inches(0.06), h)
+    bar = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, Inches(0.06), h)
     bar.fill.solid(); bar.fill.fore_color.rgb = _rgb(ACCENT)
     bar.line.fill.background()
-    num = slide.shapes.add_textbox(x + Inches(0.16), y + Inches(0.12), Inches(0.45), Inches(0.25))
-    p = num.text_frame.paragraphs[0]; p.text = str(idx); p.font.size = Pt(11); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT)
-    body = slide.shapes.add_textbox(x + Inches(0.16), y + Inches(0.42), w - Inches(0.3), h - Inches(0.5))
+    num = slide.shapes.add_textbox(x + Inches(0.16), y + Inches(0.12), Inches(0.48), Inches(0.24))
+    p = num.text_frame.paragraphs[0]; p.text = f"{idx:02d}"; p.font.size = Pt(9.5); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT)
+    body = slide.shapes.add_textbox(x + Inches(0.70), y + Inches(0.17), w - Inches(0.88), h - Inches(0.24))
     body.text_frame.word_wrap = True
-    p2 = body.text_frame.paragraphs[0]; p2.text = text; p2.font.size = Pt(9.5); p2.font.color.rgb = _rgb(INK)
+    p2 = body.text_frame.paragraphs[0]; p2.text = text; p2.font.size = Pt(8.4); p2.font.color.rgb = _rgb(INK)
+
+
+def _line(slide, x, y, w) -> None:
+    line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, w, Inches(0.01))
+    line.fill.solid(); line.fill.fore_color.rgb = _rgb(LINE)
+    line.line.color.rgb = _rgb(LINE)
+
+
+def _clean_summary_item(item: str) -> str:
+    item = str(item or "").strip()
+    if "：" in item:
+        head, rest = item.split("：", 1)
+        if rest.strip().startswith(head.strip()):
+            item = head + "：" + rest.strip()[len(head.strip()):].lstrip("：: ，,。")
+    return item
 
 
 def _rgb(hex_color: str) -> RGBColor:
