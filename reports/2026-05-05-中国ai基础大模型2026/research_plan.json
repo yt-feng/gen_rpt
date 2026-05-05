@@ -1,0 +1,35 @@
+{
+  "objective": "Assess the competitive landscape, technological progress, and market outlook for China's foundational AI large models by 2026.",
+  "audience": "Technology strategists, investors, and policy analysts tracking China's AI ecosystem.",
+  "search_queries": [
+    "China AI large model market size 2026 forecast",
+    "Baidu Ernie GPT 2026 capabilities",
+    "Alibaba Tongyi Qianwen 2026 benchmark",
+    "Tencent Hunyuan model 2026 performance",
+    "China AI regulation 2026 large model",
+    "China AI talent pipeline 2026"
+  ],
+  "outline": [
+    "China's AI Large Models Will Dominate by 2026: Market Size and Key Players",
+    "Baidu, Alibaba, Tencent Lead: Benchmarking the Top Three Models",
+    "Regulatory Landscape Shapes Model Development: 2026 Policy Outlook",
+    "Talent and Compute: The Infrastructure Behind China's AI Ambitions",
+    "Global Implications: How China's Models Compete with GPT-5 and Gemini",
+    "Investment Thesis: Opportunities and Risks in China's AI Model Ecosystem"
+  ],
+  "chart_ideas": [
+    "Bar chart: Market share of top Chinese AI large models (Baidu, Alibaba, Tencent, others) projected for 2026",
+    "Line chart: Performance trend (e.g., MMLU score) of leading Chinese models vs. global benchmarks from 2023 to 2026",
+    "Stacked area chart: Cumulative investment in Chinese AI large model startups by year (2023-2026)"
+  ],
+  "insight_card_ideas": [
+    "Key Insight: China's top 3 models will achieve parity with GPT-5 on core benchmarks by 2026",
+    "Key Insight: Regulatory sandbox accelerates model deployment in healthcare and finance",
+    "Key Insight: Compute constraints drive innovation in model efficiency and edge deployment"
+  ],
+  "risks": [
+    "Limited public benchmark data for Chinese models post-2024 due to export controls",
+    "Uncertainty in government policy shifts affecting model training data access",
+    "Potential overestimation of market size due to opaque revenue reporting"
+  ]
+}
