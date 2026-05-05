@@ -7,6 +7,7 @@ from typing import Dict, List
 from .brand_assets import copy_or_generate_brand_assets, summarize_reference_institutions, write_reference_backup
 from .deepseek_client import DeepSeekClient
 from .graphics import create_chart, create_insight_card, ensure_dir
+from .image_generator import generate_ai_image_assets
 from .pdf_qa import apply_pdf_qa_fixes, run_pdf_qa
 from .pdf_renderer import render_pdf_from_html
 from .ppt_renderer import render_pptx
@@ -35,8 +36,9 @@ class ResearchPipeline:
         report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), source_dicts)
 
         asset_map = copy_or_generate_brand_assets(assets_dir)
-        asset_map.update(self._materialize_assets(report, assets_dir))
         backup_dir = write_reference_backup(output_dir, report.get("references", []), source_dicts)
+        asset_map.update(generate_ai_image_assets(self.client, topic, report, assets_dir, Path(backup_dir), language=self.language))
+        asset_map.update(self._materialize_assets(report, assets_dir))
 
         html_path, markdown_path, pdf_path = self._render_report_pack(report, asset_map, output_dir, topic)
         qa_dir = output_dir / "backup" / "qa"
@@ -48,6 +50,7 @@ class ResearchPipeline:
             (output_dir / "report_payload_prefixed.json").write_text(
                 json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
             )
+            asset_map.update(generate_ai_image_assets(self.client, topic, final_report, assets_dir, Path(backup_dir), language=self.language))
             html_path, markdown_path, pdf_path = self._render_report_pack(final_report, asset_map, output_dir, topic)
             qa_result = run_pdf_qa(pdf_path, html_path, qa_dir / "after_fix")
 
