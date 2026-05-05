@@ -82,7 +82,7 @@ def render_presentation_html(report: Dict, assets: Dict[str, str], output_file: 
         slide_no += 1
 
     for key, path in [(k, v) for k, v in assets.items() if k.startswith("chart-")][:4]:
-        _slide(parts, "", f"<div class='kicker'>Exhibit</div><h2>Evidence page</h2><img class='visual' src='{html.escape(path)}'/>”, "Exhibit", slide_no)
+        _slide(parts, "", f"<div class='kicker'>Exhibit</div><h2>Evidence page</h2><img class='visual' src='{html.escape(path)}'/>", "Exhibit", slide_no)
         slide_no += 1
 
     parts.append("</main><div class='controls'></div><script>" + JS + "</script></body></html>")
