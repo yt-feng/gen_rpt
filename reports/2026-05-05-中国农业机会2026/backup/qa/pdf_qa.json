@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "pdf_path": "/home/runner/work/gen_rpt/gen_rpt/reports/2026-05-05-中国农业机会2026/report.pdf",
+  "html_path": "reports/2026-05-05-中国农业机会2026/report.html",
+  "checks": [
+    {
+      "code": "page_count",
+      "message": "PDF has 10 pages."
+    },
+    {
+      "code": "text_extractability",
+      "message": "PDF text extraction looks healthy."
+    }
+  ],
+  "issues": [],
+  "recommendations": [],
+  "page_count": 10,
+  "screenshots": [
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_001.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_002.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_003.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_004.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_005.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_006.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_007.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_008.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_009.png",
+    "reports/2026-05-05-中国农业机会2026/backup/qa/page_010.png"
+  ]
+}
