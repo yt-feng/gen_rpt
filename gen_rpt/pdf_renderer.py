@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -14,14 +15,20 @@ def render_pdf_from_html(html_path: Path, pdf_path: Path) -> Path:
             "wkhtmltopdf is not installed. Install it locally or run the GitHub Action workflow, which installs it automatically."
         )
 
+    page_format = os.getenv("REPORT_PAGE_FORMAT", "B5").upper()
+    if page_format == "A4":
+        size_args = ["--page-size", "A4"]
+    else:
+        # B5-ish portrait booklet, aligned with report_renderer.py CSS.
+        size_args = ["--page-width", "176mm", "--page-height", "250mm"]
+
     command = [
         binary,
         "--enable-local-file-access",
         "--encoding",
         "utf-8",
         "--print-media-type",
-        "--page-size",
-        "A4",
+        *size_args,
         "--margin-top",
         "0",
         "--margin-right",
