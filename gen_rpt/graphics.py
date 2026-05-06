@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import textwrap
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Tuple
 
 import matplotlib
 
@@ -61,9 +61,9 @@ def _wrapped_lines(value: str, width: int) -> int:
     return max(1, len(textwrap.wrap(str(value).strip(), width=max(8, width))))
 
 
-def _truncate_text(value: str, max_chars: int) -> str:
-    text = str(value).strip()
-    return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + "..."
+def _truncate_text(value: Any, max_chars: int) -> str:
+    text = str(value or "").strip()
+    return text if len(text) <= max_chars else text[:max_chars].rstrip()
 
 
 def create_insight_card(card: Dict, output_path: Path) -> Path:
@@ -84,7 +84,7 @@ def create_insight_card(card: Dict, output_path: Path) -> Path:
     exhibit = _truncate_text(card.get("exhibit_label", "Key point"), 42)
     title = _truncate_text(card.get("title", "Insight"), 74)
     subtitle = _truncate_text(card.get("subtitle", ""), 110)
-    bullets = [_truncate_text(x, 62) for x in card.get("bullets", [])[:4]]
+    bullets = [_truncate_text(x, 62) for x in _safe_list(card.get("bullets", []))[:4]]
     highlight_number = str(card.get("highlight_number", "3"))
     highlight_label = _truncate_text(card.get("highlight_label", "Key finding"), 24)
 
@@ -133,69 +133,34 @@ def _base_chart_frame(fig, title: str, subtitle: str, exhibit_no: str | None = N
 
 def create_chart(chart: Dict, output_path: Path) -> Path:
     ensure_dir(output_path.parent)
-    chart_type = str(chart.get("type", "bar")).lower()
+    if not isinstance(chart, dict):
+        chart = {"title": "Chart", "series": [chart]}
+    chart_type = str(chart.get("type", "bar") or "bar").lower()
     title = _truncate_text(chart.get("title", "Chart"), 82)
     subtitle = _truncate_text(chart.get("subtitle", ""), 130)
-    categories = [str(c) for c in chart.get("categories", [])]
-    series = chart.get("series", []) or [{"name": "Value", "values": chart.get("values", [])}]
+    categories, series = _normalize_chart_data(chart)
+    if not series:
+        series = [{"name": "Value", "values": [0.0]}]
+        categories = ["Value"]
+
     fig = plt.figure(figsize=(10.8, 6.0), dpi=180, facecolor=PAPER)
     ax = _base_chart_frame(fig, title, subtitle, str(chart.get("exhibit_no", "")) or None)
 
-    if chart_type == "line":
-        ax.grid(True, axis="both", color=GRID, linewidth=0.55, alpha=0.55)
-        for idx, item in enumerate(series):
-            values = item.get("values", [])
-            color = SERIES_COLORS[idx % len(SERIES_COLORS)]
-            ax.plot(categories, values, marker="o", markersize=4.0, linewidth=1.9, color=color, label=item.get("name", "Series"))
-        if len(series) > 1:
-            ax.legend(frameon=False, fontsize=7.8, loc="upper left")
-    elif chart_type == "pie":
-        ax.remove()
-        ax = plt.axes([0.16, 0.22, 0.45, 0.56])
-        pie_values = series[0].get("values", []) if series else []
-        wedges, _texts, autotexts = ax.pie(
-            pie_values,
-            startangle=90,
-            colors=SERIES_COLORS[: max(1, len(categories))],
-            wedgeprops={"width": 0.42, "edgecolor": PAPER},
-            autopct="%1.0f%%",
-            pctdistance=0.78,
-        )
-        for t in autotexts:
-            t.set_color(PAPER)
-            t.set_fontsize(7.7)
-        ax.legend(wedges, [_wrap_text(c, 16) for c in categories], frameon=False, fontsize=7.8, loc="center left", bbox_to_anchor=(1.0, 0.5))
-        ax.set(aspect="equal")
-    else:
-        if len(series) == 1:
-            values = series[0].get("values", [])
-            y = list(range(len(categories)))
-            colors = [ACCENT] + ["#A3B1BE"] * (len(categories) - 1)
-            ax.barh(y, values, color=colors[: len(categories)], edgecolor="none", height=0.56)
-            ax.set_yticks(y)
-            ax.set_yticklabels([_wrap_text(c, 22) for c in categories], fontsize=8.0, color=INK)
-            ax.invert_yaxis()
-            max_v = max(values) if values else 1
-            ax.set_xlim(0, max_v * 1.18)
-            for yi, value in zip(y, values):
-                ax.text(value + max_v * 0.015, yi, f"{value}", va="center", ha="left", fontsize=8.2, color=ACCENT if yi == 0 else INK)
+    try:
+        if chart_type == "line":
+            _draw_line_chart(ax, categories, series)
+        elif chart_type == "pie":
+            _draw_pie_chart(fig, ax, categories, series)
         else:
-            x = list(range(len(categories)))
-            width = 0.70 / len(series)
-            offset = -((len(series) - 1) * width) / 2
-            for idx, item in enumerate(series):
-                values = item.get("values", [])
-                color = SERIES_COLORS[idx % len(SERIES_COLORS)]
-                pos = [i + offset + idx * width for i in x]
-                ax.bar(pos, values, width=width, color=color, edgecolor="none", label=item.get("name", "Series"))
-            ax.set_xticks(x)
-            ax.set_xticklabels([_wrap_text(c, 11) for c in categories], fontsize=7.6)
-            ax.legend(frameon=False, fontsize=7.6, loc="upper left")
+            _draw_bar_chart(ax, categories, series)
+    except Exception:
+        ax.clear()
+        _draw_bar_chart(ax, categories, series[:1])
 
     if chart.get("x_label") and chart_type != "pie":
-        ax.set_xlabel(chart["x_label"], fontsize=7.8, color=SUBTLE)
+        ax.set_xlabel(str(chart["x_label"]), fontsize=7.8, color=SUBTLE)
     if chart.get("y_label") and chart_type not in {"pie", "bar"}:
-        ax.set_ylabel(chart["y_label"], fontsize=7.8, color=SUBTLE)
+        ax.set_ylabel(str(chart["y_label"]), fontsize=7.8, color=SUBTLE)
 
     caption = chart.get("caption") or ""
     source_note = chart.get("source_note") or ""
@@ -207,3 +172,164 @@ def create_chart(chart: Dict, output_path: Path) -> Path:
     plt.savefig(output_path, bbox_inches="tight", facecolor=fig.get_facecolor(), pad_inches=0.02)
     plt.close(fig)
     return output_path
+
+
+def _draw_line_chart(ax, categories: List[str], series: List[Dict[str, Any]]) -> None:
+    ax.grid(True, axis="both", color=GRID, linewidth=0.55, alpha=0.55)
+    for idx, item in enumerate(series):
+        values = item.get("values", [])
+        color = SERIES_COLORS[idx % len(SERIES_COLORS)]
+        x = list(range(len(categories)))
+        ax.plot(x, values, marker="o", markersize=4.0, linewidth=1.9, color=color, label=item.get("name", "Series"))
+    ax.set_xticks(list(range(len(categories))))
+    ax.set_xticklabels([_wrap_text(c, 11) for c in categories], fontsize=7.6)
+    if len(series) > 1:
+        ax.legend(frameon=False, fontsize=7.8, loc="upper left")
+
+
+def _draw_pie_chart(fig, ax, categories: List[str], series: List[Dict[str, Any]]) -> None:
+    ax.remove()
+    ax = plt.axes([0.16, 0.22, 0.45, 0.56])
+    pie_values = [max(0.0, float(x)) for x in series[0].get("values", [])]
+    if not pie_values or sum(pie_values) <= 0:
+        pie_values = [1.0]
+        categories = ["Value"]
+    wedges, _texts, autotexts = ax.pie(
+        pie_values,
+        startangle=90,
+        colors=SERIES_COLORS[: max(1, len(categories))],
+        wedgeprops={"width": 0.42, "edgecolor": PAPER},
+        autopct="%1.0f%%",
+        pctdistance=0.78,
+    )
+    for t in autotexts:
+        t.set_color(PAPER)
+        t.set_fontsize(7.7)
+    ax.legend(wedges, [_wrap_text(c, 16) for c in categories], frameon=False, fontsize=7.8, loc="center left", bbox_to_anchor=(1.0, 0.5))
+    ax.set(aspect="equal")
+
+
+def _draw_bar_chart(ax, categories: List[str], series: List[Dict[str, Any]]) -> None:
+    if len(series) == 1:
+        values = series[0].get("values", [])
+        y = list(range(len(categories)))
+        colors = [ACCENT] + ["#A3B1BE"] * max(0, len(categories) - 1)
+        ax.barh(y, values, color=colors[: len(categories)], edgecolor="none", height=0.56)
+        ax.set_yticks(y)
+        ax.set_yticklabels([_wrap_text(c, 22) for c in categories], fontsize=8.0, color=INK)
+        ax.invert_yaxis()
+        max_v = max(values) if values else 1
+        if max_v <= 0:
+            max_v = 1
+        ax.set_xlim(0, max_v * 1.18)
+        for yi, value in zip(y, values):
+            ax.text(value + max_v * 0.015, yi, _format_value(value), va="center", ha="left", fontsize=8.2, color=ACCENT if yi == 0 else INK)
+    else:
+        x = list(range(len(categories)))
+        width = 0.70 / max(1, len(series))
+        offset = -((len(series) - 1) * width) / 2
+        for idx, item in enumerate(series):
+            values = item.get("values", [])
+            color = SERIES_COLORS[idx % len(SERIES_COLORS)]
+            pos = [i + offset + idx * width for i in x]
+            ax.bar(pos, values, width=width, color=color, edgecolor="none", label=item.get("name", "Series"))
+        ax.set_xticks(x)
+        ax.set_xticklabels([_wrap_text(c, 11) for c in categories], fontsize=7.6)
+        ax.legend(frameon=False, fontsize=7.6, loc="upper left")
+
+
+def _normalize_chart_data(chart: Dict[str, Any]) -> Tuple[List[str], List[Dict[str, Any]]]:
+    raw_categories = chart.get("categories", [])
+    raw_series = chart.get("series", None)
+    fallback_values = chart.get("values", [])
+
+    if isinstance(raw_categories, (str, int, float)):
+        categories = [str(raw_categories)]
+    elif isinstance(raw_categories, list):
+        categories = [str(c) for c in raw_categories]
+    else:
+        categories = []
+
+    series: List[Dict[str, Any]] = []
+    if isinstance(raw_series, dict):
+        raw_series = [raw_series]
+
+    if isinstance(raw_series, list) and raw_series:
+        if all(isinstance(item, dict) for item in raw_series):
+            for idx, item in enumerate(raw_series):
+                values = _coerce_values(item.get("values", []))
+                if values:
+                    series.append({"name": str(item.get("name") or f"Series {idx + 1}"), "values": values})
+        else:
+            values = _coerce_values(raw_series)
+            if values:
+                series.append({"name": "Value", "values": values})
+
+    if not series:
+        values = _coerce_values(fallback_values)
+        if values:
+            series.append({"name": "Value", "values": values})
+
+    if not series:
+        return categories or ["Value"], []
+
+    max_len = max(len(item["values"]) for item in series)
+    if not categories:
+        categories = [f"Item {idx + 1}" for idx in range(max_len)]
+    elif len(categories) < max_len:
+        categories = categories + [f"Item {idx + 1}" for idx in range(len(categories), max_len)]
+    elif len(categories) > max_len:
+        categories = categories[:max_len]
+
+    for item in series:
+        values = item["values"]
+        if len(values) < len(categories):
+            values = values + [0.0] * (len(categories) - len(values))
+        item["values"] = values[: len(categories)]
+
+    return categories, series
+
+
+def _coerce_values(raw: Any) -> List[float]:
+    if isinstance(raw, dict):
+        raw = list(raw.values())
+    if isinstance(raw, (int, float)):
+        raw = [raw]
+    if isinstance(raw, str):
+        raw = [raw]
+    if not isinstance(raw, list):
+        return []
+    values: List[float] = []
+    for value in raw:
+        converted = _to_float(value)
+        if converted is not None:
+            values.append(converted)
+    return values
+
+
+def _to_float(value: Any) -> float | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value).strip().replace(",", "").replace("%", "")
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def _safe_list(value: Any) -> List[Any]:
+    if isinstance(value, list):
+        return value
+    if value is None:
+        return []
+    return [value]
+
+
+def _format_value(value: float) -> str:
+    if abs(value - round(value)) < 1e-6:
+        return str(int(round(value)))
+    return f"{value:.1f}"
