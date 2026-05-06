@@ -27,7 +27,12 @@ def generate_ai_image_assets(
     *,
     language: str = "zh",
 ) -> Dict[str, str]:
-    """Generate cover and section images. Falls back to local abstract art."""
+    """Generate cover and section images. Falls back to local abstract art.
+
+    This function deliberately does not overwrite section.visual_hint. The LLM may
+    point sections to chart ids; those chart links should remain intact so data
+    exhibits are not replaced by decorative AI images.
+    """
     if os.getenv("DISABLE_AI_IMAGES", "").lower() in {"1", "true", "yes"}:
         return {}
 
@@ -46,7 +51,7 @@ def generate_ai_image_assets(
     result["cover-background"] = f"assets/{cover_path.name}"
     prompt_records.append({"id": "cover-background", "keywords": cover_keywords, "prompt": cover_prompt, "url": _url(cover_prompt)})
 
-    for idx, section in enumerate(report.get("sections", [])[:6], start=1):
+    for idx, section in enumerate(report.get("sections", [])[:8], start=1):
         keywords = (
             f"{section.get('title', '')}; {section.get('lead', '')}; {topic}; "
             "executive strategy presentation image; abstract analytical business visual; blue ocean palette; "
@@ -56,7 +61,6 @@ def generate_ai_image_assets(
         target = assets_dir / f"image-{idx}.png"
         _download_or_fallback(prompt, target, kind="section")
         result[f"image-{idx}"] = f"assets/{target.name}"
-        section["visual_hint"] = f"image-{idx}"
         prompt_records.append({"id": f"image-{idx}", "keywords": keywords, "prompt": prompt, "url": _url(prompt)})
         time.sleep(0.2)
 
