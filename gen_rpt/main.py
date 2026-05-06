@@ -21,17 +21,17 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate a rich deep research report.")
     parser.add_argument("--topic", required=True, help="Research topic or the sentence you typed into GitHub Action.")
     parser.add_argument("--slug", default="", help="Optional custom output slug.")
-    parser.add_argument("--language", default="zh", help="Report language. Default: zh")
+    parser.add_argument("--language", default="en", help="Report language. Default: en")
     parser.add_argument("--model", default="deepseek-chat", help="DeepSeek model name.")
-    parser.add_argument("--target-length", type=int, default=0, help="Target character count for zh or word count for en.")
+    parser.add_argument("--target-length", type=int, default=0, help="Optional legacy target length. Leave empty for natural report length.")
     parser.add_argument("--out-root", default="reports", help="Output root directory.")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-    normalized_language = "en" if str(args.language).lower().startswith("en") else "zh"
-    target_length = args.target_length or (1500 if normalized_language == "en" else 3000)
+    normalized_language = "zh" if str(args.language).lower().startswith("zh") else "en"
+    target_length = args.target_length or 0
 
     client = DeepSeekClient(model=args.model)
     pipeline = ResearchPipeline(client=client, language=normalized_language, target_length=target_length)
@@ -62,7 +62,6 @@ def main() -> None:
             f.write("## Deep Research report generated\n")
             f.write(f"- Topic: {args.topic}\n")
             f.write(f"- Language: {normalized_language}\n")
-            f.write(f"- Target length: {target_length}\n")
             f.write(f"- HTML: `{report_path}`\n")
             f.write(f"- Markdown: `{markdown_path}`\n")
             f.write(f"- PDF: `{pdf_path}`\n")
