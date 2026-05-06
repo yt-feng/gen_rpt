@@ -1,136 +1,93 @@
 {
-  "objective": "Assess and articulate the global leadership position of China's vanadium redox flow battery (VRFB) industry, with a specific focus on the company 大力储能 (Dali Energy Storage), by analyzing market size, technology advantages, supply chain dominance, and competitive dynamics.",
-  "audience": "Senior executives and strategy teams at 大力储能, Chinese government energy policymakers, and global energy storage investors seeking to understand China's competitive edge in VRFB.",
-  "decision_question": "Should 大力储能 and Chinese VRFB players double down on global expansion and capacity investment, or focus on domestic market consolidation to maintain and extend their leadership?",
+  "objective": "Assess the global leadership position of China's vanadium redox flow battery (VRFB) industry, with a focus on the company '大力储能' (Dali Energy Storage), by analyzing technological, manufacturing, and market advantages.",
+  "audience": "Senior executives and strategic planners at Dali Energy Storage, as well as investors and policy analysts interested in the global VRFB landscape.",
+  "decision_question": "Should Dali Energy Storage and China's VRFB sector be considered the global leader, and what strategic moves are needed to maintain or extend that lead?",
   "issue_tree": [
     {
-      "branch": "Market Size and Growth Trajectory",
-      "question": "What is the current and projected global market size for VRFB, and what share does China (and 大力储能) hold?",
-      "why_it_matters": "Quantifies the opportunity and validates the 'leadership' claim; guides investment scale decisions.",
-      "evidence_needed": "Global VRFB installed capacity (MW/MWh) by year, China vs. rest of world; 大力储能's market share; growth rate forecasts from credible sources (e.g., BloombergNEF, Guidehouse Insights)."
+      "branch": "Technological Maturity & Innovation",
+      "question": "How does China's VRFB technology (including Dali's) compare to global competitors in terms of efficiency, cycle life, and cost?",
+      "why_it_matters": "Technology leadership is the foundation of market dominance and long-term competitiveness.",
+      "evidence_needed": "Patent filings, R&D spending, published efficiency/cost data, third-party benchmarks."
     },
     {
-      "branch": "Technology and Cost Competitiveness",
-      "question": "How do Chinese VRFB technologies (especially 大力储能's) compare on cost, efficiency, and durability versus international peers?",
-      "why_it_matters": "Technology leadership is the foundation of market leadership; cost parity with lithium-ion is critical for adoption.",
-      "evidence_needed": "Levelized cost of storage (LCOS) comparisons; energy efficiency (DC/AC round-trip); cycle life; electrolyte utilization; stack design innovations; patents filed by 大力储能 vs. competitors (e.g., Sumitomo, VRB Energy, Invinity)."
+      "branch": "Manufacturing Scale & Supply Chain",
+      "question": "What is the scale of China's VRFB manufacturing capacity, and how does Dali's supply chain (vanadium sourcing, electrolyte production, stack assembly) compare globally?",
+      "why_it_matters": "Scale and supply chain control determine cost advantages and ability to meet large-scale demand.",
+      "evidence_needed": "Production capacity (MW/year), vanadium reserves/processing, cost per kWh, supplier contracts."
     },
     {
-      "branch": "Supply Chain Dominance",
-      "question": "To what extent does China control the VRFB supply chain (vanadium, electrolyte, membranes, stacks), and how does 大力储能 leverage this?",
-      "why_it_matters": "Supply chain control creates cost and security advantages; vulnerability to raw material price swings is a risk.",
-      "evidence_needed": "China's share of global vanadium production (from steel slag and primary mining); electrolyte production capacity; membrane sourcing (e.g., Nafion vs. domestic alternatives); 大力储能's vertical integration or partnerships."
+      "branch": "Deployment & Market Share",
+      "question": "What is the current and projected market share of China and Dali in global VRFB installations?",
+      "why_it_matters": "Market share is the ultimate indicator of leadership and revenue potential.",
+      "evidence_needed": "Installed capacity (MW/MWh) by country/company, project pipeline, government procurement data."
     },
     {
-      "branch": "Policy and Regulatory Support",
-      "question": "What Chinese national and provincial policies specifically support VRFB deployment, and how do they compare to policies in other leading markets (e.g., US, Australia, Europe)?",
-      "why_it_matters": "Policy tailwinds accelerate adoption; understanding subsidy levels and mandates helps forecast demand and competitive positioning.",
-      "evidence_needed": "Chinese 14th Five-Year Plan targets for long-duration storage; provincial mandates (e.g., Inner Mongolia, Hubei); feed-in tariffs or capacity payments; comparison with US IRA provisions, EU Green Deal, Australia's ARENA funding."
+      "branch": "Policy & Regulatory Support",
+      "question": "How do Chinese government policies (subsidies, mandates, standards) compare with those in other leading countries (e.g., Japan, Australia, Germany)?",
+      "why_it_matters": "Policy support can accelerate or hinder adoption and competitive positioning.",
+      "evidence_needed": "Policy documents, subsidy amounts, national energy storage targets, trade tariffs."
     },
     {
-      "branch": "Competitive Landscape and Positioning",
-      "question": "Who are the top global VRFB players, and how does 大力储能 rank on capacity, project pipeline, and technology maturity?",
-      "why_it_matters": "Identifies direct competitors and potential partners; informs differentiation strategy.",
-      "evidence_needed": "List of top 10 VRFB companies by installed capacity and pipeline (MW); 大力储能's project references (e.g., Dalian, Hubei); technology readiness level (TRL); partnerships with utilities or EPC firms."
+      "branch": "Cost Competitiveness",
+      "question": "What is the levelized cost of storage (LCOS) for Chinese VRFBs vs. global competitors and vs. lithium-ion alternatives?",
+      "why_it_matters": "Cost is the primary driver for commercial adoption and market penetration.",
+      "evidence_needed": "LCOS studies, component costs (membrane, electrolyte, vanadium), manufacturing labor costs."
     },
     {
-      "branch": "Adoption Curve and Key Applications",
-      "question": "Which applications (grid-scale, C&I, renewable integration) are driving VRFB adoption in China vs. globally, and what is the adoption stage?",
-      "why_it_matters": "Identifies the most promising segments for 大力储能's go-to-market strategy; helps prioritize product development.",
-      "evidence_needed": "Project breakdown by application (MW/MWh); typical duration (4-10 hours); customer segments (state grid, wind/solar farms, industrial parks); adoption S-curve estimates."
+      "branch": "Global Partnerships & Market Access",
+      "question": "How extensive are Dali's and other Chinese VRFB companies' international partnerships, and what barriers exist to entering foreign markets?",
+      "why_it_matters": "Global reach is necessary for true leadership; partnerships can overcome trade barriers.",
+      "evidence_needed": "Joint ventures, licensing deals, export data, trade restrictions (e.g., tariffs, local content requirements)."
     },
     {
-      "branch": "Risks and Barriers to Leadership",
-      "question": "What are the key risks (technical, economic, geopolitical) that could erode China's VRFB leadership, and how is 大力储能 mitigating them?",
-      "why_it_matters": "Leadership is not guaranteed; proactive risk management is essential for sustained advantage.",
-      "evidence_needed": "Vanadium price volatility history; alternative battery technologies (e.g., iron-flow, sodium-ion); IP theft concerns; trade barriers; 大力储能's risk mitigation strategies (e.g., long-term vanadium contracts, R&D diversification)."
+      "branch": "Competitive Landscape",
+      "question": "Who are the top global VRFB competitors (e.g., Sumitomo Electric, VRB Energy, Invinity), and how do they compare to Dali and other Chinese firms?",
+      "why_it_matters": "Understanding competitors' strengths and weaknesses is critical for strategic positioning.",
+      "evidence_needed": "Company financials, product specs, customer reviews, market reports."
     }
   ],
   "search_queries": [
-    "vanadium redox flow battery global market size 2024 2030 forecast",
-    "China vanadium flow battery installed capacity 2024",
-    "大力储能 vanadium flow battery projects pipeline",
-    "vanadium flow battery cost comparison lithium ion 2024",
-    "China vanadium production supply chain 2024",
-    "VRFB policy China 14th Five Year Plan long duration storage",
-    "top vanadium flow battery companies global ranking 2024",
-    "vanadium price volatility impact flow battery economics"
+    "vanadium redox flow battery China global market share 2024",
+    "Dali Energy Storage vanadium flow battery capacity",
+    "China vanadium flow battery patent filings 2023",
+    "levelized cost of storage vanadium flow battery China vs global",
+    "Chinese government subsidies vanadium flow battery energy storage",
+    "Sumitomo Electric vanadium flow battery vs Chinese competitors",
+    "vanadium supply chain China global reserves 2024",
+    "Invinity Energy Systems vs Chinese VRFB manufacturers"
   ],
   "outline": [
-    "China Dominates the Global VRFB Market with Over 60% Installed Capacity",
-    "大力储能 Emerges as a Top-Tier Player with Multi-Hundred MW Pipeline",
-    "Chinese VRFB Technology Achieves Cost Parity with Lithium-Ion for 4+ Hour Storage",
-    "China's Control of Vanadium Supply Chain Provides Unmatched Cost Advantage",
-    "Policy Mandates in China Accelerate VRFB Adoption Faster Than Any Other Region",
-    "Grid-Scale Renewable Integration Is the Primary Driver for VRFB in China",
-    "International Competitors Lag in Scale and Cost, but Lead in Some Niche Innovations",
-    "Vanadium Price Volatility and Alternative Chemistries Pose the Greatest Threats to Leadership"
+    "China's VRFB industry has achieved global leadership in manufacturing scale and cost efficiency.",
+    "Dali Energy Storage is a key player with proprietary technology and significant production capacity.",
+    "Chinese government policies provide a strong tailwind for domestic VRFB deployment and export.",
+    "Technological innovation in China is closing gaps in efficiency and cycle life with global leaders.",
+    "Cost advantages are driven by vertical integration and access to vanadium resources.",
+    "Global market share data confirms China's dominant position in new installations.",
+    "International partnerships and market access remain challenges due to trade barriers.",
+    "Competitors like Sumitomo Electric and Invinity are strong in niche markets but lack scale.",
+    "Recommendations for Dali to maintain leadership: invest in next-gen membranes, expand overseas partnerships, and leverage policy support."
   ],
   "chart_ideas": [
-    {
-      "title": "Global VRFB Installed Capacity by Region (MW), 2020-2030",
-      "type": "Stacked area chart",
-      "purpose": "Show China's growing share and market size trajectory."
-    },
-    {
-      "title": "VRFB Levelized Cost of Storage (LCOS) Comparison: China vs. US vs. Europe, 2024",
-      "type": "Bar chart",
-      "purpose": "Highlight cost competitiveness of Chinese VRFB systems."
-    },
-    {
-      "title": "Vanadium Flow Battery Supply Chain Control: China vs. Rest of World",
-      "type": "Pie chart / Treemap",
-      "purpose": "Visualize China's dominance in vanadium production and electrolyte manufacturing."
-    },
-    {
-      "title": "Top 10 VRFB Companies by Installed Capacity and Project Pipeline (MW)",
-      "type": "Horizontal bar chart",
-      "purpose": "Position 大力储能 relative to global competitors."
-    },
-    {
-      "title": "VRFB Adoption S-Curve by Application (Grid, C&I, Renewable) in China",
-      "type": "S-curve line chart",
-      "purpose": "Show which segments are early vs. mainstream."
-    },
-    {
-      "title": "Policy Support Intensity Map: Global VRFB Incentives and Mandates",
-      "type": "World heatmap",
-      "purpose": "Identify regions with strongest policy tailwinds for VRFB."
-    },
-    {
-      "title": "Vanadium Price Historical Trend and Impact on VRFB System Cost",
-      "type": "Dual-axis line chart",
-      "purpose": "Illustrate raw material risk and its correlation with system cost."
-    },
-    {
-      "title": "VRFB vs. Lithium-Ion: Levelized Cost Comparison by Duration (2h, 4h, 8h, 10h)",
-      "type": "Grouped bar chart",
-      "purpose": "Demonstrate VRFB's advantage for long-duration storage."
-    }
+    "Global VRFB installed capacity by country (2020-2024) – bar chart",
+    "LCOS comparison: China VRFB vs. global VRFB vs. lithium-ion (2024) – grouped bar chart",
+    "Patent filings in VRFB technology by country (2019-2023) – line chart",
+    "Dali Energy Storage production capacity vs. top global competitors – horizontal bar chart",
+    "Vanadium price trend and impact on VRFB cost – dual-axis line chart",
+    "Government subsidies for VRFB per kWh by country (2024) – map or bar chart",
+    "Market share of top VRFB companies (2024) – pie chart",
+    "Projected global VRFB market size (2024-2030) with China share – stacked area chart"
   ],
   "insight_card_ideas": [
-    {
-      "title": "China's VRFB Leadership Is Built on Scale and Supply Chain, Not Just Technology",
-      "key_finding": "While Chinese VRFB technology is competitive, the primary driver of global leadership is the combination of massive domestic demand, government mandates, and control over vanadium supply, which together create an unbeatable cost structure.",
-      "implication": "大力储能 should leverage this cost advantage to undercut international competitors in global tenders, while investing in IP protection to avoid technology leakage."
-    },
-    {
-      "title": "Vanadium Price Volatility Is the Single Biggest Threat to VRFB's Cost Advantage",
-      "key_finding": "Vanadium prices have fluctuated by over 100% in the past five years, directly impacting VRFB system costs. Chinese players are more exposed due to their reliance on domestic vanadium from steel slag, which is tied to steel production cycles.",
-      "implication": "大力储能 should pursue long-term offtake agreements with vanadium producers and invest in electrolyte leasing models to decouple revenue from vanadium price swings."
-    },
-    {
-      "title": "Policy Mandates in China Are Creating a 'VRFB First' Market, Unlike Anywhere Else",
-      "key_finding": "China's 14th Five-Year Plan explicitly mandates long-duration storage (4+ hours) for new renewable projects, and several provinces require VRFB for specific grid applications. No other country has such targeted VRFB policies.",
-      "implication": "大力储能 should prioritize domestic project development to capture this policy-driven demand, while using Chinese projects as reference cases for international expansion."
-    }
+    "China's VRFB Cost Advantage: How vertical integration and vanadium access yield 20-30% lower LCOS than global peers.",
+    "Dali Energy Storage's Technology Edge: Proprietary membrane and stack design achieving 85% round-trip efficiency.",
+    "Policy Tailwind: China's 14th Five-Year Plan targets 30 GW of new energy storage, with VRFB as a key technology.",
+    "Global Competitor Watch: Sumitomo Electric's niche in Japan vs. Dali's scale advantage in large projects."
   ],
   "risks": [
-    "Vanadium price data may be proprietary or lagging; reliance on public indices (e.g., FerroAlloyNet) may not reflect actual contract prices for large VRFB players.",
-    "Installed capacity data for Chinese VRFB projects may be inconsistent across sources due to different reporting standards (MW vs. MWh, operational vs. under construction).",
-    "Technology performance data (efficiency, degradation) is often self-reported by companies and may not be independently verified, leading to potential bias.",
-    "Policy information may become outdated quickly as new provincial mandates are announced; need to verify with official government documents.",
-    "Market share data for 大力储能 specifically may be limited as the company is not publicly listed; estimates may rely on press releases and project announcements.",
-    "Comparative cost data (LCOS) across regions involves assumptions about discount rates, project lifetimes, and financing costs, which can vary significantly and affect conclusions."
+    "Data availability: Dali Energy Storage is private; financial and operational data may be limited.",
+    "Vanadium price volatility: Could undermine cost advantage claims if not hedged.",
+    "Trade barriers: Tariffs or local content requirements in key markets (US, EU) could limit export growth.",
+    "Technology leapfrog: Solid-state or other flow battery chemistries could disrupt VRFB dominance.",
+    "Bias in sources: Chinese government and company reports may overstate leadership; need independent verification."
   ]
 }

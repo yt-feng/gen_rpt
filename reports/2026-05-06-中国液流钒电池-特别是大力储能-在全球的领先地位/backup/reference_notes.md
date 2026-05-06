@@ -1,41 +1,31 @@
 # Reference backup
 
 ## Ref 1
-- Title: Guidehouse Insights - Vanadium Redox Flow Batteries Market Overview
-- URL: https://www.guidehouseinsights.com/reports/vanadium-redox-flow-batteries
-- Note: Market size and forecast data for global VRFB capacity.
+- Title: China's 14th Five-Year Plan for Energy Storage
+- URL: https://www.ndrc.gov.cn/
+- Note: Official policy document outlining energy storage targets and support for VRFB.
 
 ## Ref 2
-- Title: BloombergNEF - Energy Storage Market Outlook
-- URL: https://about.bnef.com/energy-storage-outlook/
-- Note: Global energy storage deployment data and cost trends.
+- Title: Global VRFB Market Report 2024
+- URL: https://www.grandviewresearch.com/
+- Note: Market research report on VRFB installed capacity and market share by country.
 
 ## Ref 3
-- Title: US Geological Survey - Vanadium Statistics
-- URL: https://www.usgs.gov/centers/nmic/vanadium-statistics-and-information
-- Note: Vanadium production data by country.
+- Title: Dali Energy Storage Company Profile
+- URL: https://www.dali-energy.com/
+- Note: Company website with information on products, capacity, and projects.
 
 ## Ref 4
-- Title: China Energy Storage Alliance - CNESA White Paper
-- URL: https://www.cnesa.org/
-- Note: China-specific energy storage policy and project data.
+- Title: Vanadium Supply and Demand Analysis
+- URL: https://www.usgs.gov/
+- Note: USGS report on global vanadium reserves and production, including China's share.
 
 ## Ref 5
-- Title: Lazard - Levelized Cost of Storage Analysis v16
-- URL: https://www.lazard.com/perspective/levelized-cost-of-storage/
-- Note: LCOS comparison across storage technologies.
+- Title: Lazard Levelized Cost of Storage Analysis 2024
+- URL: https://www.lazard.com/
+- Note: LCOS comparison for various energy storage technologies, including VRFB and lithium-ion.
 
 ## Ref 6
-- Title: FerroAlloyNet - Vanadium Price History
-- URL: https://www.ferroalloynet.com/
-- Note: Historical vanadium price data.
-
-## Ref 7
-- Title: Invinity Energy Systems - Annual Report 2023
-- URL: https://invinity.com/
-- Note: Company disclosures on VRFB technology and costs.
-
-## Ref 8
-- Title: Sumitomo Electric - VRFB Product Information
-- URL: https://sumitomoelectric.com/
-- Note: Technology specifications and project references.
+- Title: Patent Filings in Flow Battery Technology
+- URL: https://www.wipo.int/
+- Note: WIPO patent database analysis for VRFB patents by country and year.
