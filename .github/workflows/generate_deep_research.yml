@@ -4,29 +4,29 @@ on:
   workflow_dispatch:
     inputs:
       topic:
-        description: 研究选题，直接输入一段话即可
+        description: Research topic. You can enter either English or Chinese.
         required: true
         type: string
       slug:
-        description: 自定义输出目录 slug（可选）
+        description: Optional custom output directory slug
         required: false
         default: ""
         type: string
       language:
-        description: 报告语言
+        description: Report language
         required: false
-        default: zh
+        default: en
         type: choice
         options:
-          - zh
           - en
+          - zh
       target_length:
-        description: 目标篇幅。中文默认 3000，英文默认 1500；留空则走默认值
+        description: Optional legacy target length. Leave blank for natural 10-30 page report.
         required: false
         default: ""
         type: string
       model:
-        description: DeepSeek 模型名
+        description: DeepSeek model name
         required: false
         default: deepseek-chat
         type: string
@@ -37,6 +37,7 @@ permissions:
 jobs:
   generate-report:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -71,6 +72,9 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           TARGET_LENGTH: ${{ github.event.inputs.target_length }}
+          REPORT_PAGE_FORMAT: B5
+          MAX_AI_SECTION_IMAGES: 3
+          AI_IMAGE_TIMEOUT: 18
         run: |
           EXTRA_ARGS=""
           if [ -n "$TARGET_LENGTH" ]; then
