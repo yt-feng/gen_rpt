@@ -1,0 +1,10 @@
+DeepSeek returned invalid JSON and automatic repair failed. Initial parse error: Expecting ',' delimiter. Nearby text: ent mandating storage for new renewable projects."     },     {       "title": "VanadiumPrice.com – Historical Vanadium Prices",       "url": "https://www.vanadiumprice.com",       "note": "Vanadium price data used for cost analysis."     }: line 468 column 6 (char 36853). Repair parse error: Expecting ',' delimiter. Nearby text: ent mandating storage for new renewable projects."     },     {       "title": "VanadiumPrice.com – Historical Vanadium Prices",       "url": "https://www.vanadiumprice.com",       "note": "Vanadium price data used for cost analysis."     }: line 468 column 6 (char 36853). Raw response excerpt: {
+  "report_title": "China's Vanadium Redox Flow Battery Industry: Global Leadership and the Rise of Dali Energy Storage",
+  "report_subtitle": "A Strategic Assessment of Technology, Manufacturing, and Market Dominance",
+  "executive_summary": [
+    "China has emerged as the undisputed global leader in vanadium redox flow battery (VRFB) technology, driven by aggressive policy support, scale manufacturing, and vertical integration.",
+    "Dali Energy Storage (大力储能) is a top-tier Chinese VRFB manufacturer, with rapidly expanding capacity and a growing project pipeline that positions it among the top three global players.",
+    "Chinese VRFB system costs are 30-40% lower than international peers, primarily due to domestic vanadium supply, government subsidies, and large-scale production.",
+    "Policy mandates for long-duration energy storage (4+ hours) in China's renewable-rich provinces create a captive market, accelerating deployment and cost reduction.",
+    "Vanadium supply security remains a key risk, but China's domestic reserves and processing capacity provide a strategic advantage over competitors reliant on imports.",
+    "Dali Energy Storage's technology performance—includi

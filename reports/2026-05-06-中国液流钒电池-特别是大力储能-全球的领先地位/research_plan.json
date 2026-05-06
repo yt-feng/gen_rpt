@@ -1,0 +1,94 @@
+{
+  "objective": "Assess the global leadership position of China's vanadium redox flow battery (VRFB) industry, with a focus on the company '大力储能' (Dali Energy Storage), by analyzing technological, manufacturing, and market factors.",
+  "audience": "Senior executives and strategic planners in the energy storage industry, investors, and policy analysts seeking to understand competitive dynamics and investment opportunities.",
+  "decision_question": "Should our organization invest in or partner with Chinese VRFB companies, particularly 大力储能, to secure a leading position in the global long-duration energy storage market?",
+  "issue_tree": [
+    {
+      "branch": "Technological Leadership",
+      "question": "How does 大力储能's VRFB technology compare to global competitors in terms of efficiency, cycle life, and energy density?",
+      "why_it_matters": "Technology performance directly impacts cost, reliability, and market adoption.",
+      "evidence_needed": "Patent filings, published performance data, third-party test results, and comparison with leading international VRFB firms (e.g., Sumitomo, VRB Energy)."
+    },
+    {
+      "branch": "Manufacturing Scale & Cost",
+      "question": "What is 大力储能's current and planned manufacturing capacity, and how does its cost structure compare to global benchmarks?",
+      "why_it_matters": "Scale and cost determine competitiveness in utility-scale projects.",
+      "evidence_needed": "Factory capacity (MW/year), production cost per kWh, supply chain for vanadium and membranes, and comparison with Chinese and international peers."
+    },
+    {
+      "branch": "Market Position & Deployments",
+      "question": "What is the installed base and project pipeline of 大力储能, and how does it rank globally?",
+      "why_it_matters": "Market share and project references validate commercial traction.",
+      "evidence_needed": "List of completed and ongoing projects (MW/MWh), revenue, contracts, and market share data from industry reports."
+    },
+    {
+      "branch": "Policy & Regulatory Support",
+      "question": "How do Chinese government policies (e.g., subsidies, mandates for long-duration storage) benefit 大力储能 and the VRFB sector?",
+      "why_it_matters": "Policy tailwinds can accelerate adoption and reduce risk.",
+      "evidence_needed": "National and provincial policies, subsidy amounts, and impact on VRFB procurement."
+    },
+    {
+      "branch": "Supply Chain & Raw Materials",
+      "question": "How secure is 大力储能's access to vanadium and other critical materials, and how does this compare to global competitors?",
+      "why_it_matters": "Vanadium price volatility and supply concentration (China, Russia) affect cost and scalability.",
+      "evidence_needed": "Vanadium sourcing agreements, price trends, and vertical integration strategies."
+    },
+    {
+      "branch": "Competitive Landscape",
+      "question": "Who are the top global VRFB players, and what is 大力储能's relative position?",
+      "why_it_matters": "Identifies direct competitors and market gaps.",
+      "evidence_needed": "Market share rankings, technology comparisons, and recent funding/partnerships of key players (e.g., VRB Energy, Invinity, Sumitomo)."
+    },
+    {
+      "branch": "Innovation & R&D Pipeline",
+      "question": "What are 大力储能's key innovations (e.g., new electrolytes, stack design) and how do they compare to global R&D trends?",
+      "why_it_matters": "Future-proofing against technology obsolescence.",
+      "evidence_needed": "R&D spending, patent portfolio, academic collaborations, and published research."
+    }
+  ],
+  "search_queries": [
+    "大力储能 vanadium redox flow battery capacity 2024",
+    "China vanadium flow battery global market share 2024",
+    "VRFB cost per kWh China vs international 2024",
+    "vanadium supply chain China 2024 price forecast",
+    "大力储能 projects pipeline MW MWh",
+    "top vanadium flow battery companies global ranking 2024",
+    "China energy storage policy long-duration storage subsidy 2024",
+    "VRFB patent analysis China 2024"
+  ],
+  "outline": [
+    "1. 大力储能 is a leading global VRFB manufacturer with rapidly expanding capacity.",
+    "2. China's policy environment provides a decisive advantage for domestic VRFB firms.",
+    "3. 大力储能's technology performance is competitive with top international players.",
+    "4. Cost advantages from scale and supply chain integration solidify China's lead.",
+    "5. Vanadium supply security is a key risk, but China's domestic resources mitigate it.",
+    "6. Global market share data shows China and 大力储能 gaining dominance.",
+    "7. Innovation pipeline suggests continued leadership in next-generation VRFB.",
+    "8. Strategic partnerships and project wins validate commercial viability.",
+    "9. Investment in 大力储能 offers exposure to a high-growth, policy-backed sector.",
+    "10. Conclusion: China and 大力储能 are positioned to lead the global VRFB market."
+  ],
+  "chart_ideas": [
+    "Bar chart: Global VRFB installed capacity by country (2020-2024)",
+    "Line chart: Vanadium price trend vs VRFB system cost (2019-2024)",
+    "Bubble chart: VRFB companies by capacity, cost, and technology maturity",
+    "Stacked area chart: China's energy storage policy support by type (subsidies, mandates)",
+    "Pie chart: 大力储能 revenue breakdown by region (domestic vs export)",
+    "Radar chart: Technology comparison (efficiency, cycle life, energy density) of top VRFB firms",
+    "Timeline: 大力储能 project milestones and capacity ramp-up",
+    "Heatmap: Global vanadium resource distribution and supply risk"
+  ],
+  "insight_card_ideas": [
+    "Insight Card 1: 'China's VRFB Dominance: Policy, Scale, and Cost' – Key drivers and implications for global competition.",
+    "Insight Card 2: '大力储能: The Emerging VRFB Champion' – Company profile, strengths, and growth trajectory.",
+    "Insight Card 3: 'Vanadium Supply Risk: A Double-Edged Sword' – How China's control of vanadium affects VRFB economics.",
+    "Insight Card 4: 'Global VRFB Market Outlook 2025-2030' – Forecast of market share, cost trends, and technology shifts."
+  ],
+  "risks": [
+    "Limited public data on 大力储能's financials and proprietary technology.",
+    "Vanadium price volatility may skew cost comparisons.",
+    "Policy changes in China could alter competitive dynamics.",
+    "Third-party verification of performance claims may be scarce.",
+    "Rapid technology evolution (e.g., iron-flow, zinc-bromine) could disrupt VRFB market."
+  ]
+}
