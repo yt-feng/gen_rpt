@@ -1,0 +1,173 @@
+{
+  "passed": false,
+  "pdf_path": "/home/runner/work/gen_rpt/gen_rpt/reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/report.pdf",
+  "html_path": "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/report.html",
+  "checks": [
+    {
+      "code": "page_count",
+      "message": "PDF has 29 pages."
+    },
+    {
+      "code": "text_extractability",
+      "message": "PDF text extraction looks healthy."
+    }
+  ],
+  "issues": [
+    {
+      "code": "font_too_small",
+      "message": "Page 2: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 3: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 4: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 5: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 6: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 7: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 8: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 9: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 10: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 11: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 12: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 13: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 14: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 15: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 16: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 17: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 18: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 19: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 20: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 21: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 22: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 23: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 24: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 25: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 26: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 27: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 28: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 29: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    }
+  ],
+  "recommendations": [
+    "increase_min_font_or_add_pages"
+  ],
+  "page_count": 29,
+  "screenshots": [
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_001.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_002.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_003.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_004.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_005.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_006.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_007.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_008.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_009.png",
+    "reports/2026-05-06-中国液流钒电池-特别是大力储能-在全球的领先地位/backup/qa/page_010.png"
+  ]
+}
