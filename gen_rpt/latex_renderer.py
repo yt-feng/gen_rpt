@@ -23,7 +23,6 @@ LATEX_HEADER = r"""
 \usepackage{hyperref}
 \usepackage{setspace}
 \usepackage{parskip}
-\usepackage{microtype}
 \defaultfontfeatures{Ligatures=TeX}
 \setmainfont{DejaVu Sans}
 \setsansfont{DejaVu Sans}
@@ -56,11 +55,6 @@ LATEX_HEADER = r"""
 
 
 def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path, topic: str, language: str = "en") -> Dict[str, str]:
-    """Render a consulting-style LaTeX PDF alongside the HTML/PDF pipeline.
-
-    Returns paths for the .tex file and, if xelatex is available and succeeds, the
-    compiled PDF. The caller can still continue when LaTeX is unavailable.
-    """
     output_dir.mkdir(parents=True, exist_ok=True)
     tex_path = output_dir / "report_latex.tex"
     pdf_path = output_dir / "report_latex.pdf"
@@ -72,8 +66,9 @@ def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir:
         return {"tex_path": str(tex_path), "pdf_path": ""}
 
     try:
+        combined_output = ""
         for _ in range(2):
-            subprocess.run(
+            run = subprocess.run(
                 [xelatex, "-interaction=nonstopmode", "-halt-on-error", tex_path.name],
                 cwd=str(output_dir),
                 check=True,
@@ -82,6 +77,8 @@ def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir:
                 text=True,
                 timeout=180,
             )
+            combined_output += run.stdout[-4000:]
+        (output_dir / "latex_build.log").write_text(combined_output, encoding="utf-8")
         return {"tex_path": str(tex_path), "pdf_path": str(pdf_path) if pdf_path.exists() else ""}
     except Exception as exc:
         (output_dir / "latex_error.txt").write_text(str(exc), encoding="utf-8")
@@ -104,7 +101,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
     parts.append(_disclaimer_page(institutions))
 
     for idx, section in enumerate(sections, start=1):
-        parts.append(_section_page(section, assets, output_dir, idx))
+        parts.append(_section_page(section, assets, idx))
 
     if institutions:
         refs = _tex(", ".join(str(x) for x in institutions))
@@ -184,7 +181,7 @@ def _disclaimer_page(institutions: List[Any]) -> str:
 """
 
 
-def _section_page(section: Dict[str, Any], assets: Dict[str, str], output_dir: Path, idx: int) -> str:
+def _section_page(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
     title = _tex(_strip_number_prefix(section.get("title", f"Section {idx}")))
     lead = _tex(section.get("lead", ""))
     paragraphs = [_tex(p) for p in section.get("paragraphs", [])[:5]]
@@ -193,9 +190,9 @@ def _section_page(section: Dict[str, Any], assets: Dict[str, str], output_dir: P
     visual = _asset_path(assets.get(visual_key, ""))
     visual_block = ""
     if visual and visual_key.startswith("chart-"):
-        visual_block = rf"\vspace{{3pt}}\begin{{center}}\includegraphics[width=.86\linewidth,max height=88mm,keepaspectratio]{{{visual}}}\end{{center}}"
+        visual_block = rf"\vspace{{3pt}}\begin{{center}}\includegraphics[width=.86\linewidth,height=82mm,keepaspectratio]{{{visual}}}\end{{center}}"
     elif visual and visual_key.startswith("image-"):
-        visual_block = rf"\vspace{{3pt}}\begin{{center}}\includegraphics[width=.70\linewidth,max height=82mm,keepaspectratio]{{{visual}}}\end{{center}}"
+        visual_block = rf"\vspace{{3pt}}\begin{{center}}\includegraphics[width=.70\linewidth,height=76mm,keepaspectratio]{{{visual}}}\end{{center}}"
 
     takeaway_block = ""
     if takeaways:
