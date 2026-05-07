@@ -61,7 +61,7 @@ jobs:
 
       - name: Run smoke test
         env:
-          REPORT_PAGE_FORMAT: B5
+          REPORT_PAGE_FORMAT: A4
           DISABLE_AI_IMAGES: true
         run: |
           python tests/smoke_test_pipeline.py
@@ -79,9 +79,10 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           TARGET_LENGTH: ${{ github.event.inputs.target_length }}
-          REPORT_PAGE_FORMAT: B5
+          REPORT_PAGE_FORMAT: A4
           MAX_AI_SECTION_IMAGES: 3
-          AI_IMAGE_TIMEOUT: 18
+          AI_IMAGE_TIMEOUT: 35
+          SHOW_FALLBACK_IMAGES: false
         run: |
           EXTRA_ARGS=""
           if [ -n "$TARGET_LENGTH" ]; then
