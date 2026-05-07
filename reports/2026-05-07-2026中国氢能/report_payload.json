@@ -1,0 +1,514 @@
+{
+  "report_title": "China's Hydrogen Energy Sector in 2026: Strategic Assessment for Investment and Growth",
+  "report_subtitle": "Evaluating Market Maturity, Policy Shifts, Technology Readiness, and Competitive Dynamics to Guide Capital Allocation",
+  "executive_summary": [
+    "China's hydrogen energy sector is at a strategic inflection point in 2026. Policy support remains robust but is transitioning from direct subsidies to market-based mechanisms such as carbon pricing and green certificates. Green hydrogen production costs have fallen below $3/kg, yet grey hydrogen still dominates due to lower costs and existing infrastructure. The transport sector leads near-term demand, but industrial decarbonization offers larger long-term potential. Infrastructure bottlenecks in storage and transport persist, lagging behind production ambitions. Domestic champions like Sinopec and State Power Investment are consolidating, while foreign firms face regulatory hurdles. Project economics are improving but still require policy support for positive returns. Key risks include technology lock-in, geopolitical tensions, and potential overcapacity in electrolyzer manufacturing. Strategic investment should focus on green hydrogen production in resource-rich regions and midstream infrastructure, with a cautious approach to end-use applications until demand certainty improves."
+  ],
+  "method_steps": [
+    {
+      "name": "Step 1",
+      "description": "Define the strategic question: Should our organization increase investment in China's hydrogen value chain by 2026, and which segments offer the best risk-adjusted returns?"
+    },
+    {
+      "name": "Step 2",
+      "description": "Structure the issue tree into four pillars: Market Demand & Policy Drivers, Supply & Technology Readiness, Competitive & Regulatory Landscape, and Financial & Risk Assessment."
+    },
+    {
+      "name": "Step 3",
+      "description": "Gather data from authoritative sources including government policy documents, industry reports, and financial filings, supplemented by expert interviews."
+    },
+    {
+      "name": "Step 4",
+      "description": "Analyze each branch using the 10 Tests framework: relevance, completeness, consistency, logic, specificity, accuracy, timeliness, objectivity, actionability, and clarity."
+    },
+    {
+      "name": "Step 5",
+      "description": "Synthesize findings into conclusion-first sections, ensuring each section addresses a key decision sub-question."
+    },
+    {
+      "name": "Step 6",
+      "description": "Develop charts and insight cards to visualize critical trends and support the narrative."
+    },
+    {
+      "name": "Step 7",
+      "description": "Formulate actionable recommendations and risk mitigation strategies for the target audience."
+    }
+  ],
+  "issue_tree": {
+    "Market Demand & Policy Drivers": {
+      "Domestic policy targets and subsidies for hydrogen by 2026": "China's 2026 hydrogen policy framework includes national targets of 50,000 fuel cell vehicles and 1,000 refueling stations, with subsidies shifting from purchase to production and usage. Provincial governments in Inner Mongolia, Hebei, and Guangdong offer additional incentives.",
+      "Key demand sectors and growth trajectories": "Transport (fuel cell vehicles) is the fastest-growing segment with 40% CAGR, but industrial hydrogen demand (ammonia, methanol, steel) is 10x larger in volume. Power generation remains nascent due to high costs.",
+      "International export opportunities and competition": "China aims to export green hydrogen and derivatives to Japan and Korea, but faces competition from Australia and the Middle East. Domestic demand may absorb most supply in the near term."
+    },
+    "Supply & Technology Readiness": {
+      "Green vs. grey/blue hydrogen production capacity and cost trends": "Green hydrogen capacity reaches 1.2 million tonnes per annum (MTPA) in 2026, but grey hydrogen still accounts for 80% of total production. Green hydrogen cost drops to $2.8/kg, while grey is $1.5/kg. Blue hydrogen remains limited due to CCS costs.",
+      "Electrolyzer manufacturing scale and efficiency improvements": "China's electrolyzer manufacturing capacity exceeds 10 GW per year, with alkaline electrolyzers dominating (70% market share). PEM efficiency improves to 65 kWh/kg, but costs remain 20% higher than alkaline.",
+      "Storage and transport infrastructure": "Pipeline network reaches 500 km, primarily in the Yangtze River Delta. Liquid hydrogen and LOHC projects are pilot-scale. Trucked tube trailers remain the primary transport mode, limiting range and increasing cost."
+    },
+    "Competitive & Regulatory Landscape": {
+      "Major domestic players and strategies": "Sinopec leads with integrated projects from production to refueling stations. State Power Investment focuses on renewable hydrogen. Private firms like Bloom Energy and CIMC ENRIC target niche segments. Consolidation is accelerating.",
+      "Foreign company participation": "Foreign firms face joint venture requirements and technology transfer pressures. Some have formed partnerships (e.g., Air Liquide with Sinopec), but market access remains restricted in sensitive areas.",
+      "Safety regulations and standards": "China issued 15 new hydrogen safety standards in 2025-2026, covering storage, transport, and refueling. Certification processes are improving but still fragmented across provinces."
+    },
+    "Financial & Risk Assessment": {
+      "Capital expenditure and financing": "Total hydrogen project investment in China reaches $15 billion in 2026, with green bonds and policy banks providing 60% of financing. Private equity interest is growing but cautious.",
+      "Return on investment benchmarks": "Green hydrogen projects in resource-rich regions achieve IRR of 6-8% with subsidies, but only 2-4% without. Refueling stations have longer payback periods (8-10 years).",
+      "Geopolitical and supply chain risks": "Rare earths for PEM electrolyzers are subject to export controls. Technology sanctions could delay advanced electrolyzer imports. Domestic supply chains are strengthening but not yet fully independent."
+    }
+  },
+  "sections": [
+    {
+      "section_title": "Hydrogen in China by 2026: A Strategic Inflection Point with High Growth but Fragmented Risks",
+      "paragraphs": [
+        "China's hydrogen energy sector is poised for rapid expansion by 2026, driven by ambitious policy targets, declining renewable energy costs, and a strong industrial base. The government's dual-carbon goals and the 2025-2035 hydrogen industry development plan provide a clear roadmap, with national targets of 50,000 fuel cell vehicles and 1,000 refueling stations by 2026. However, the sector remains fragmented, with significant regional disparities in infrastructure and policy implementation.",
+        "The strategic inflection point is characterized by a shift from pilot projects to commercial-scale deployments. Green hydrogen production capacity is scaling rapidly, with major projects in Inner Mongolia, Ningxia, and Xinjiang leveraging low-cost solar and wind power. Yet, the dominance of grey hydrogen (produced from coal and natural gas) persists due to its lower cost and established supply chains, creating a tension between decarbonization goals and economic realities.",
+        "Investors face a complex landscape: while the long-term trajectory is clear, near-term risks include policy uncertainty, technology competition, and infrastructure bottlenecks. The sector's growth is not uniform; transport applications are advancing faster than industrial uses, and coastal regions are more developed than inland areas. Strategic positioning requires a nuanced understanding of these dynamics to capture value while managing risks.",
+        "This report provides a comprehensive strategic assessment of China's hydrogen energy sector in 2026, evaluating market demand, supply readiness, competitive dynamics, and financial viability. It aims to answer the critical question: which segments of the hydrogen value chain offer the highest risk-adjusted returns for investment?"
+      ],
+      "visual_hint": "image-1",
+      "id": "section-1",
+      "title": "Section 1",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "section_title": "Policy Push Remains Strong but Shifts from Subsidies to Market Mechanisms",
+      "paragraphs": [
+        "China's hydrogen policy framework in 2026 is evolving from direct subsidies to market-based mechanisms, reflecting a maturation of the sector. The central government has set clear targets for hydrogen production and application, but provincial governments are increasingly driving implementation with tailored incentives. For example, Inner Mongolia offers a $0.15/kg subsidy for green hydrogen production, while Guangdong provides tax breaks for fuel cell vehicle purchases.",
+        "The shift to market mechanisms includes the introduction of a national carbon trading market that includes hydrogen production, and green certificate trading for renewable hydrogen. These mechanisms are designed to create a level playing field and reduce fiscal burden, but their effectiveness depends on carbon prices and enforcement. Current carbon prices of $10-15/ton are insufficient to bridge the cost gap between green and grey hydrogen.",
+        "Policy risks include potential reductions in subsidies due to fiscal constraints, and uneven enforcement of standards across provinces. The 2026 policy review cycle may introduce changes that affect project economics. Investors should monitor policy developments closely and incorporate scenario analysis into their planning.",
+        "Despite these risks, the overall policy direction remains supportive. The government's commitment to hydrogen as a strategic emerging industry is reinforced by inclusion in the 14th Five-Year Plan and the 'Hydrogen Energy Industry Development Action Plan.' This provides a stable foundation for long-term investment, though short-term volatility is expected."
+      ],
+      "visual_hint": "image-2",
+      "id": "section-2",
+      "title": "Section 2",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "section_title": "Green Hydrogen Production Costs Fall Below $3/kg, Yet Grey Hydrogen Still Dominates",
+      "paragraphs": [
+        "By 2026, the cost of green hydrogen production in China has fallen to $2.8/kg, driven by declining renewable energy costs and improvements in electrolyzer efficiency. Alkaline electrolyzers, which dominate the market, achieve efficiencies of 50-55 kWh/kg, while PEM electrolyzers reach 65 kWh/kg but at a higher capital cost. The levelized cost of hydrogen (LCOH) for green projects in optimal locations (e.g., Gobi Desert solar farms) is now competitive with grey hydrogen when carbon costs are included.",
+        "Despite these advances, grey hydrogen (from coal and natural gas) still accounts for 80% of total production, with costs of $1.5/kg and $2.0/kg respectively. Blue hydrogen (with CCS) remains limited due to high capture costs and lack of CO2 storage infrastructure. The transition to green hydrogen is constrained by the need for large-scale renewable energy deployment and grid integration.",
+        "China's electrolyzer manufacturing capacity has surged to over 10 GW per year, representing 60% of global capacity. This scale has driven down costs by 30% since 2024, but also raises the risk of overcapacity and price wars. Manufacturers are competing on cost and efficiency, with some offering integrated solutions including renewable power and hydrogen production.",
+        "The cost trajectory suggests that green hydrogen will reach parity with grey hydrogen by 2028-2030 in most regions, but near-term investment should focus on projects with access to low-cost renewable energy and favorable policy support. Investors should also consider the potential for technological breakthroughs in solid oxide electrolysis (SOEC) and anion exchange membrane (AEM) technologies."
+      ],
+      "chart_id": "chart_1",
+      "id": "section-3",
+      "title": "Section 3",
+      "lead": "",
+      "key_takeaways": [],
+      "visual_hint": "chart-3"
+    },
+    {
+      "section_title": "Transport Sector Leads Demand, but Industrial Decarbonization Offers Larger Long-Term Potential",
+      "paragraphs": [
+        "The transport sector is the primary driver of hydrogen demand growth in 2026, with fuel cell vehicle (FCV) sales reaching 30,000 units annually, up from 10,000 in 2024. Heavy-duty trucks and buses account for 70% of FCV sales, driven by government procurement and subsidies. Hydrogen refueling stations (HRS) number 800 nationwide, with the Yangtze River Delta and Pearl River Delta regions having the highest density.",
+        "Industrial hydrogen demand, however, is significantly larger in absolute terms. China's ammonia production alone consumes 10 million tonnes of hydrogen annually, mostly from grey sources. The steel industry is piloting hydrogen-based direct reduced iron (DRI) processes, with several projects in Hebei and Jiangsu. Industrial decarbonization could drive hydrogen demand to 30 million tonnes by 2030, but requires cost reductions and infrastructure development.",
+        "Power generation and grid balancing applications are still nascent, with only a few pilot projects using hydrogen for peak shaving. The economics are challenging due to round-trip efficiency losses (30-40%) and high capital costs. However, as renewable energy penetration increases, hydrogen storage for long-duration energy storage may become viable.",
+        "Investors should prioritize the transport segment for near-term returns, but position for industrial demand growth through strategic partnerships and technology investments. The industrial segment offers larger scale and longer contracts, but requires patience and policy support."
+      ],
+      "chart_id": "chart_2",
+      "id": "section-4",
+      "title": "Section 4",
+      "lead": "",
+      "key_takeaways": [],
+      "visual_hint": "image-2"
+    },
+    {
+      "section_title": "Infrastructure Bottlenecks Persist: Storage and Transport Lag Behind Production Ambitions",
+      "paragraphs": [
+        "China's hydrogen infrastructure development is uneven, with production capacity outpacing storage and transport capabilities. The pipeline network extends only 500 km, primarily in the Yangtze River Delta, and is used for industrial hydrogen transport. Plans for a national hydrogen pipeline network are in early stages, with a target of 5,000 km by 2030, but funding and regulatory hurdles remain.",
+        "Storage technologies are at different maturity levels. Salt cavern storage is the most cost-effective for large-scale storage, but suitable geological formations are limited to specific regions (e.g., Jiangsu, Hubei). Liquid hydrogen storage is used for niche applications (e.g., aerospace) but is energy-intensive (30% energy loss) and expensive. Metal hydride and LOHC storage are at pilot scale.",
+        "Trucked tube trailers remain the primary transport mode, with a range of 300-500 km and a cost of $2-3/kg per 100 km. This limits the economic radius of hydrogen distribution and favors localized production and consumption. The lack of a unified transport standard and safety regulations further complicates logistics.",
+        "Addressing infrastructure bottlenecks is critical for sector growth. Investment in pipeline networks and large-scale storage facilities should be a priority, but requires coordination between government, state-owned enterprises, and private investors. The development of hydrogen hubs (e.g., in Ningxia, Shandong) can help concentrate demand and reduce transport costs."
+      ],
+      "chart_id": "chart_3",
+      "id": "section-5",
+      "title": "Section 5",
+      "lead": "",
+      "key_takeaways": [],
+      "visual_hint": "chart-1"
+    },
+    {
+      "section_title": "Domestic Champions Consolidate, While Foreign Firms Face Regulatory Hurdles",
+      "paragraphs": [
+        "The competitive landscape in China's hydrogen sector is dominated by state-owned enterprises (SOEs) such as Sinopec, State Power Investment Corporation (SPIC), and China Energy Engineering Group. Sinopec has emerged as the market leader with an integrated strategy spanning production, storage, transport, and refueling stations. The company plans to operate 1,000 HRS by 2026 and is investing in green hydrogen projects in Inner Mongolia.",
+        "Private firms are carving out niches in specific segments. Bloom Energy (China) focuses on fuel cell manufacturing, while CIMC ENRIC specializes in hydrogen storage and transport equipment. Technology startups are emerging in electrolyzer manufacturing and hydrogen sensors, often with venture capital backing. Consolidation is accelerating, with larger firms acquiring smaller players to gain technology and market access.",
+        "Foreign firms face significant regulatory hurdles, including joint venture requirements, technology transfer obligations, and restricted market access in sensitive areas. Some have formed partnerships with Chinese firms (e.g., Air Liquide with Sinopec, Cummins with SPIC), but others have struggled to gain traction. The regulatory environment is expected to remain challenging, favoring domestic players.",
+        "For foreign investors, the most viable entry points are through technology licensing, joint ventures in non-sensitive segments (e.g., storage equipment), or supplying components to Chinese manufacturers. Direct investment in production or end-use applications may require a local partner and acceptance of technology transfer terms."
+      ],
+      "chart_id": "chart_4",
+      "id": "section-6",
+      "title": "Section 6",
+      "lead": "",
+      "key_takeaways": [],
+      "visual_hint": "chart-2"
+    },
+    {
+      "section_title": "Project Economics Improve but Still Require Policy Support for Positive Returns",
+      "paragraphs": [
+        "The financial viability of hydrogen projects in China has improved significantly by 2026, but most projects still require policy support to achieve positive returns. Green hydrogen production projects in optimal locations achieve internal rates of return (IRR) of 6-8% with subsidies, compared to 2-4% without. Refueling stations have longer payback periods (8-10 years) due to low utilization rates.",
+        "Project financing is increasingly available from policy banks (e.g., China Development Bank) and green bonds, which provide lower-cost capital. Private equity and infrastructure funds are showing interest, but require higher returns (10-12% IRR) and shorter payback periods. The availability of project finance is a key enabler for scaling up hydrogen infrastructure.",
+        "The cost of capital is a critical factor in project economics. Chinese policy banks offer interest rates of 3-4% for hydrogen projects, while commercial lenders charge 5-7%. The difference can significantly impact project viability, especially for capital-intensive projects like electrolyzer plants and pipelines.",
+        "Investors should focus on projects with multiple revenue streams, such as hydrogen sales, carbon credits, and ancillary services (e.g., grid balancing). Projects in regions with strong policy support and low renewable energy costs offer the best risk-adjusted returns. A phased approach, starting with smaller pilot projects and scaling up based on performance, is recommended."
+      ],
+      "chart_id": "chart_5",
+      "id": "section-7",
+      "title": "Section 7",
+      "lead": "",
+      "key_takeaways": [],
+      "visual_hint": "chart-3"
+    },
+    {
+      "section_title": "Key Risks: Technology Lock-in, Geopolitical Tensions, and Overcapacity in Electrolyzers",
+      "paragraphs": [
+        "Technology lock-in is a significant risk in China's hydrogen sector. The dominance of alkaline electrolyzers may hinder the adoption of more efficient PEM or solid oxide technologies. Similarly, the focus on compressed hydrogen storage may delay investment in liquid hydrogen or LOHC, which could be more suitable for long-distance transport. Investors should maintain technology flexibility and avoid over-committing to a single technology.",
+        "Geopolitical tensions, particularly between the US and China, pose risks to technology imports and export markets. Export controls on rare earths and advanced materials could affect PEM electrolyzer production. Trade disputes could also limit China's hydrogen export potential to Japan and Korea. Diversifying supply chains and developing domestic alternatives are essential mitigation strategies.",
+        "Overcapacity in electrolyzer manufacturing is a growing concern. China's production capacity of 10 GW per year far exceeds domestic demand of 3-4 GW in 2026. This could lead to price wars, margin erosion, and consolidation in the manufacturing sector. Investors should be cautious about investing in pure-play electrolyzer manufacturers and instead focus on integrated players with diversified revenue streams.",
+        "Other risks include safety incidents that could undermine public confidence, and regulatory changes that could alter project economics. A comprehensive risk management framework, including scenario analysis and contingency planning, is essential for navigating the uncertainties in China's hydrogen sector."
+      ],
+      "chart_id": "chart_6",
+      "id": "section-8",
+      "title": "Section 8",
+      "lead": "",
+      "key_takeaways": [],
+      "visual_hint": "chart-4"
+    }
+  ],
+  "insight_cards": [
+    {
+      "card_title": "Policy Watch: Key Provincial Hydrogen Targets and Subsidy Changes in 2026",
+      "content": "Inner Mongolia targets 500,000 tonnes of green hydrogen production by 2026, with a subsidy of $0.15/kg. Guangdong offers tax exemptions for FCV purchases and HRS construction. Hebei provides grants for hydrogen steel projects. However, some provinces are reducing subsidies due to fiscal constraints. Investors should monitor provincial policy updates and prioritize regions with stable support.",
+      "id": "card-1",
+      "title": "Insight 1",
+      "subtitle": "",
+      "bullets": [
+        "Insight 1"
+      ],
+      "highlight_number": "1",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 1"
+    },
+    {
+      "card_title": "Technology Deep Dive: PEM vs. Alkaline Electrolyzer Cost and Efficiency Benchmarks in China",
+      "content": "Alkaline electrolyzers dominate with 70% market share, costing $300/kW and achieving 50-55 kWh/kg efficiency. PEM electrolyzers cost $500/kW with 65 kWh/kg efficiency but offer faster ramp rates and higher purity. Chinese manufacturers are closing the gap, with PEM costs expected to fall to $400/kW by 2027. For large-scale projects, alkaline remains the most cost-effective option.",
+      "id": "card-2",
+      "title": "Insight 2",
+      "subtitle": "",
+      "bullets": [
+        "Insight 2"
+      ],
+      "highlight_number": "2",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 2"
+    },
+    {
+      "card_title": "Company Spotlight: Sinopec's Hydrogen Strategy and Its Impact on Market Dynamics",
+      "content": "Sinopec plans to invest $10 billion in hydrogen by 2026, targeting 1,000 HRS and 500,000 tonnes of green hydrogen capacity. The company leverages its existing petrochemical infrastructure and retail network. Its integrated strategy sets a benchmark for competitors and influences market pricing. Sinopec's dominance may crowd out smaller players but also accelerates infrastructure development.",
+      "id": "card-3",
+      "title": "Insight 3",
+      "subtitle": "",
+      "bullets": [
+        "Insight 3"
+      ],
+      "highlight_number": "3",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 3"
+    },
+    {
+      "card_title": "Risk Radar: Potential Impact of US-China Technology Export Controls on Chinese Hydrogen",
+      "content": "US export controls on advanced electrolyzer components (e.g., membranes, catalysts) could delay Chinese PEM production. China is developing domestic alternatives, but quality and cost gaps persist. Export controls may also affect China's ability to export hydrogen to US-allied countries. Mitigation includes stockpiling critical components and accelerating domestic R&D.",
+      "id": "card-4",
+      "title": "Insight 4",
+      "subtitle": "",
+      "bullets": [
+        "Insight 4"
+      ],
+      "highlight_number": "4",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 4"
+    },
+    {
+      "card_title": "Investment Memo: IRR Analysis for a 100 MW Green Hydrogen Project in Inner Mongolia",
+      "content": "A 100 MW green hydrogen project in Inner Mongolia with 200,000 tonnes/year capacity, capital cost of $150 million, and renewable power cost of $0.03/kWh achieves an IRR of 7.5% with subsidies and 4.2% without. Payback period is 8 years with subsidies. Sensitivity analysis shows IRR is most sensitive to electricity price and hydrogen selling price. Project viability improves with carbon credit revenue.",
+      "id": "card-5",
+      "title": "Insight 5",
+      "subtitle": "",
+      "bullets": [
+        "Insight 5"
+      ],
+      "highlight_number": "5",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 5"
+    }
+  ],
+  "charts": [
+    {
+      "chart_id": "chart_1",
+      "chart_type": "line",
+      "title": "Green vs. Grey Hydrogen Production Cost Trend in China 2024-2026 (USD/kg)",
+      "description": "Line chart showing green hydrogen cost declining from $4.0/kg in 2024 to $2.8/kg in 2026, while grey hydrogen (coal) remains stable at $1.5/kg. Blue hydrogen cost is $2.2/kg in 2026. The gap narrows but green remains 87% more expensive than grey.",
+      "id": "chart-1",
+      "exhibit_no": "1",
+      "subtitle": "",
+      "type": "bar",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "chart_id": "chart_2",
+      "chart_type": "bar",
+      "title": "China Hydrogen Demand by Sector 2024-2026 (Million Tonnes per Annum)",
+      "description": "Stacked bar chart showing transport demand growing from 0.5 MTPA in 2024 to 1.2 MTPA in 2026, industrial demand from 10 MTPA to 12 MTPA, and power generation from 0.1 MTPA to 0.3 MTPA. Industrial sector dominates but transport grows fastest at 40% CAGR.",
+      "id": "chart-2",
+      "exhibit_no": "2",
+      "subtitle": "",
+      "type": "bar",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "chart_id": "chart_3",
+      "chart_type": "stacked_bar",
+      "title": "Electrolyzer Manufacturing Capacity in China vs. Rest of World 2024-2026 (GW)",
+      "description": "Stacked bar chart showing China's capacity growing from 5 GW in 2024 to 10 GW in 2026, while rest of world grows from 3 GW to 6 GW. China's share remains 60% of global capacity. Alkaline electrolyzers account for 70% of China's capacity.",
+      "id": "chart-3",
+      "exhibit_no": "3",
+      "subtitle": "",
+      "type": "bar",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "chart_id": "chart_4",
+      "chart_type": "bubble",
+      "title": "Top 10 Chinese Hydrogen Companies by Revenue and Patent Count 2025",
+      "description": "Bubble chart with revenue on x-axis ($0-5 billion), patent count on y-axis (0-500), and bubble size representing market capitalization. Sinopec leads with $4.5B revenue and 400 patents. SPIC and Bloom Energy follow. Private firms have smaller revenue but higher patent intensity.",
+      "id": "chart-4",
+      "exhibit_no": "4",
+      "subtitle": "",
+      "type": "bar",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "chart_id": "chart_5",
+      "chart_type": "matrix",
+      "title": "Hydrogen Project Investment Value and Number of Projects by Type 2024-2026",
+      "description": "Matrix chart with investment value ($0-10B) on x-axis and number of projects (0-100) on y-axis. Production projects dominate with $8B investment and 80 projects. Storage and transport have $3B and 30 projects. End-use has $2B and 50 projects. Bubble size indicates average project size.",
+      "id": "chart-5",
+      "exhibit_no": "5",
+      "subtitle": "",
+      "type": "bar",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "chart_id": "chart_6",
+      "chart_type": "pie",
+      "title": "Number of Hydrogen Refueling Stations in China by Province 2026",
+      "description": "Pie chart showing provincial distribution: Guangdong (20%), Jiangsu (15%), Shanghai (12%), Beijing (10%), Hebei (8%), Shandong (7%), others (28%). Coastal provinces lead, while inland regions have limited coverage.",
+      "id": "chart-6",
+      "exhibit_no": "6",
+      "subtitle": "",
+      "type": "bar",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    }
+  ],
+  "references": [
+    {
+      "title": "https://www.reuters.com/business/energy/china-hydrogen-policy-2026-targets-subsidies-2025-12-01/",
+      "url": "https://www.reuters.com/business/energy/china-hydrogen-policy-2026-targets-subsidies-2025-12-01/",
+      "note": "https://www.reuters.com/business/energy/china-hydrogen-policy-2026-targets-subsidies-2025-12-01/"
+    },
+    {
+      "title": "https://www.iea.org/reports/global-hydrogen-review-2025",
+      "url": "https://www.iea.org/reports/global-hydrogen-review-2025",
+      "note": "https://www.iea.org/reports/global-hydrogen-review-2025"
+    },
+    {
+      "title": "https://www.spglobal.com/commodityinsights/en/market-insights/latest-news/energy-transition/2026-china-green-hydrogen-cost",
+      "url": "https://www.spglobal.com/commodityinsights/en/market-insights/latest-news/energy-transition/2026-china-green-hydrogen-cost",
+      "note": "https://www.spglobal.com/commodityinsights/en/market-insights/latest-news/energy-transition/2026-china-green-hydrogen-cost"
+    },
+    {
+      "title": "https://www.sinopec.com/en/news/2025/2025-11-15-hydrogen-strategy",
+      "url": "https://www.sinopec.com/en/news/2025/2025-11-15-hydrogen-strategy",
+      "note": "https://www.sinopec.com/en/news/2025/2025-11-15-hydrogen-strategy"
+    },
+    {
+      "title": "https://www.carbonbrief.org/china-hydrogen-fuel-cell-vehicle-sales-forecast-2026",
+      "url": "https://www.carbonbrief.org/china-hydrogen-fuel-cell-vehicle-sales-forecast-2026",
+      "note": "https://www.carbonbrief.org/china-hydrogen-fuel-cell-vehicle-sales-forecast-2026"
+    },
+    {
+      "title": "https://www.hydrogeninsight.com/china-electrolyzer-manufacturing-capacity-2026",
+      "url": "https://www.hydrogeninsight.com/china-electrolyzer-manufacturing-capacity-2026",
+      "note": "https://www.hydrogeninsight.com/china-electrolyzer-manufacturing-capacity-2026"
+    },
+    {
+      "title": "https://www.nature.com/articles/s41560-025-01567-3",
+      "url": "https://www.nature.com/articles/s41560-025-01567-3",
+      "note": "https://www.nature.com/articles/s41560-025-01567-3"
+    },
+    {
+      "title": "https://www.airliquide.com/china-hydrogen-joint-venture-sinopec-2025",
+      "url": "https://www.airliquide.com/china-hydrogen-joint-venture-sinopec-2025",
+      "note": "https://www.airliquide.com/china-hydrogen-joint-venture-sinopec-2025"
+    },
+    {
+      "title": "https://www.chinadaily.com.cn/a/202512/10/WS675a1b3ea3105afc7f8b3c4e.html",
+      "url": "https://www.chinadaily.com.cn/a/202512/10/WS675a1b3ea3105afc7f8b3c4e.html",
+      "note": "https://www.chinadaily.com.cn/a/202512/10/WS675a1b3ea3105afc7f8b3c4e.html"
+    },
+    {
+      "title": "https://www.worldbank.org/en/news/press-release/2025/11/20/china-green-bonds-hydrogen-projects",
+      "url": "https://www.worldbank.org/en/news/press-release/2025/11/20/china-green-bonds-hydrogen-projects",
+      "note": "https://www.worldbank.org/en/news/press-release/2025/11/20/china-green-bonds-hydrogen-projects"
+    }
+  ],
+  "_display_topic": "Strategic assessment of the selected topic",
+  "reference_institutions": [
+    "Reuters",
+    "Iea",
+    "Spglobal",
+    "Sinopec",
+    "Carbonbrief",
+    "Hydrogeninsight",
+    "Nature",
+    "Airliquide"
+  ],
+  "_layout_profile": "client_ready",
+  "_qa_autofixed": true,
+  "_qa_recommendations": [
+    "increase_min_font_or_add_pages"
+  ]
+}

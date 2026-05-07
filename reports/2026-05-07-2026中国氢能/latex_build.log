@@ -1,0 +1,256 @@
+share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/titlesec/titlesec.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage.sty
+(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage2e.sty
+(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpagemodern.sty) 
+)) (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
+(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hxetex.def
+(/usr/share/texlive/texmf-dist/tex/generic/stringenc/stringenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/parskip/parskip.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+
+LaTeX Warning: Unused global option(s):
+    [10.5pt].
+
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+
+Package hyperref Warning: Rerun to get /PageLabels entry.
+
+
+Underfull \hbox (badness 2181) in paragraph at lines 56--56
+\TU/DejaVuSans(0)/m/n/24.88 ergy Sector in 2026: 
+
+Underfull \hbox (badness 3803) in paragraph at lines 56--56
+\TU/DejaVuSans(0)/m/n/24.88 for Investment and 
+[1]
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
+
+
+Overfull \hbox (517.84018pt too wide) in paragraph at lines 64--68
+[][][] 
+
+LaTeX Warning: Reference `LastPage' on page 2 undefined on input line 68.
+
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 71--72
+
+
+Overfull \hbox (517.84018pt too wide) in paragraph at lines 73--84
+[][][] 
+
+LaTeX Warning: Reference `LastPage' on page 3 undefined on input line 84.
+
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 87--88
+
+
+Overfull \hbox (18.39111pt too wide) in paragraph at lines 89--94
+[][]\TU/DejaVuSans(0)/m/n/9 This
+
+LaTeX Warning: Reference `LastPage' on page 4 undefined on input line 94.
+
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 98--99
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--114
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 128--129
+
+
+LaTeX Warning: Reference `LastPage' on page 5 undefined on input line 138.
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 143--144
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 158--159
+
+
+LaTeX Warning: Reference `LastPage' on page 6 undefined on input line 169.
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 173--174
+
+
+LaTeX Warning: Reference `LastPage' on page 7 undefined on input line 187.
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 188--189
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 203--204
+
+
+LaTeX Warning: Reference `LastPage' on page 8 undefined on input line 214.
+
+[8]
+
+LaTeX Warning: Reference `LastPage' on page 9 undefined on input line 220.
+
+[9] 
+enddocument/afterlastpage: lastpage setting LastPage.
+(./report_latex.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+
+Package rerunfilecheck Warning: File `report_latex.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+
+Package lastpage Warning: Rerun to get the references right on input line 220.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (9 pages).
+Transcript written on report_latex.log.
+moduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/titlesec/titlesec.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage.sty
+(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage2e.sty
+(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpagemodern.sty) 
+)) (/usr/share/texlive/texmf-dist/tex/latex/hyperref/hyperref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvsetkeys/kvsetkeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/kvdefinekeys/kvdefinekeys.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdfescape/pdfescape.sty
+(/usr/share/texlive/texmf-dist/tex/generic/ltxcmds/ltxcmds.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/pdftexcmds/pdftexcmds.sty
+(/usr/share/texlive/texmf-dist/tex/generic/infwarerr/infwarerr.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/hycolor/hycolor.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/auxhook/auxhook.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
+(/usr/share/texlive/texmf-dist/tex/latex/refcount/refcount.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/gettitlestring/gettitlestring.sty
+(/usr/share/texlive/texmf-dist/tex/latex/kvoptions/kvoptions.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/etoolbox/etoolbox.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/pd1enc.def)
+(/usr/share/texlive/texmf-dist/tex/generic/intcalc/intcalc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/puenc.def)
+(/usr/share/texlive/texmf-dist/tex/latex/url/url.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/bitset/bitset.sty
+(/usr/share/texlive/texmf-dist/tex/generic/bigintcalc/bigintcalc.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/base/atbegshi-ltx.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/hyperref/hxetex.def
+(/usr/share/texlive/texmf-dist/tex/generic/stringenc/stringenc.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/rerunfilecheck/rerunfilecheck.sty
+(/usr/share/texlive/texmf-dist/tex/latex/base/atveryend-ltx.sty)
+(/usr/share/texlive/texmf-dist/tex/generic/uniquecounter/uniquecounter.sty)))
+(/usr/share/texlive/texmf-dist/tex/latex/parskip/parskip.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+
+LaTeX Warning: Unused global option(s):
+    [10.5pt].
+
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+(./report_latex.out) (./report_latex.out)
+Underfull \hbox (badness 2181) in paragraph at lines 56--56
+\TU/DejaVuSans(0)/m/n/24.88 ergy Sector in 2026: 
+
+Underfull \hbox (badness 3803) in paragraph at lines 56--56
+\TU/DejaVuSans(0)/m/n/24.88 for Investment and 
+[1]
+Underfull \hbox (badness 10000) in paragraph at lines 62--63
+
+
+Overfull \hbox (517.84018pt too wide) in paragraph at lines 64--68
+[][][] 
+[2]
+Underfull \hbox (badness 10000) in paragraph at lines 71--72
+
+
+Overfull \hbox (517.84018pt too wide) in paragraph at lines 73--84
+[][][] 
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 87--88
+
+
+Overfull \hbox (18.39111pt too wide) in paragraph at lines 89--94
+[][]\TU/DejaVuSans(0)/m/n/9 This
+[4]
+Underfull \hbox (badness 10000) in paragraph at lines 98--99
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 113--114
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 128--129
+
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 143--144
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 158--159
+
+[6]
+Underfull \hbox (badness 10000) in paragraph at lines 173--174
+
+[7]
+Underfull \hbox (badness 10000) in paragraph at lines 188--189
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 203--204
+
+[8] [9] 
+enddocument/afterlastpage: lastpage setting LastPage.
+(./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (9 pages).
+Transcript written on report_latex.log.

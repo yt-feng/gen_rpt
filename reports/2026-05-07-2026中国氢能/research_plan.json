@@ -1,0 +1,72 @@
+{
+  "objective": "To conduct a strategic assessment of China's hydrogen energy sector in 2026, evaluating its market maturity, policy environment, technological readiness, and competitive landscape to inform investment and strategic decisions.",
+  "audience": "Senior executives and strategic planners in energy, automotive, and industrial gas companies; government policy advisors; and institutional investors focused on clean energy.",
+  "decision_question": "Should our organization increase investment in China's hydrogen energy value chain by 2026, and if so, which segments (production, storage, transport, or end-use) offer the highest risk-adjusted returns?",
+  "issue_tree": {
+    "Market Demand & Policy Drivers": {
+      "Domestic policy targets and subsidies for hydrogen by 2026": null,
+      "Key demand sectors (transport, industry, power generation) and their growth trajectories": null,
+      "International export opportunities and competition": null
+    },
+    "Supply & Technology Readiness": {
+      "Green vs. grey/blue hydrogen production capacity and cost trends": null,
+      "Electrolyzer manufacturing scale and efficiency improvements": null,
+      "Storage and transport infrastructure (pipelines, liquid H2, LOHC)": null
+    },
+    "Competitive & Regulatory Landscape": {
+      "Major domestic players (state-owned enterprises, private firms) and their strategies": null,
+      "Foreign company participation and joint ventures": null,
+      "Safety regulations, standards, and certification frameworks": null
+    },
+    "Financial & Risk Assessment": {
+      "Capital expenditure requirements and project financing availability": null,
+      "Return on investment benchmarks and payback periods": null,
+      "Geopolitical and supply chain risks (rare earths, technology sanctions)": null
+    }
+  },
+  "search_queries": [
+    "China hydrogen energy policy 2026 targets subsidies",
+    "China green hydrogen production cost 2026 electrolyzer",
+    "China hydrogen refueling station deployment 2026",
+    "China hydrogen fuel cell vehicle sales forecast 2026",
+    "China hydrogen storage technology liquid organic hydrogen carrier",
+    "China hydrogen pipeline infrastructure plan 2026",
+    "China hydrogen industry competitive landscape Sinopec State Power Investment",
+    "China hydrogen safety regulations standards 2026",
+    "China hydrogen project financing green bonds 2026",
+    "China hydrogen export potential Japan Korea 2026"
+  ],
+  "outline": [
+    "Hydrogen in China by 2026: A Strategic Inflection Point with High Growth but Fragmented Risks",
+    "Policy Push Remains Strong but Shifts from Subsidies to Market Mechanisms",
+    "Green Hydrogen Production Costs Fall Below $3/kg, Yet Grey Hydrogen Still Dominates",
+    "Transport Sector Leads Demand, but Industrial Decarbonization Offers Larger Long-Term Potential",
+    "Infrastructure Bottlenecks Persist: Storage and Transport Lag Behind Production Ambitions",
+    "Domestic Champions Consolidate, While Foreign Firms Face Regulatory Hurdles",
+    "Project Economics Improve but Still Require Policy Support for Positive Returns",
+    "Key Risks: Technology Lock-in, Geopolitical Tensions, and Overcapacity in Electrolyzers"
+  ],
+  "chart_ideas": [
+    "China hydrogen demand by sector (transport, industry, power) 2024-2026 with CAGR annotations",
+    "Green vs. grey hydrogen production cost trend in China 2024-2026 (USD/kg)",
+    "Electrolyzer manufacturing capacity in China vs. rest of world 2024-2026 (GW)",
+    "Number of hydrogen refueling stations in China by province 2024-2026",
+    "Top 10 Chinese hydrogen companies by revenue and patent count 2025",
+    "Hydrogen project investment value and number of projects by type (production, storage, end-use) 2024-2026"
+  ],
+  "insight_card_ideas": [
+    "Policy Watch: Key provincial hydrogen targets and subsidy changes in 2026",
+    "Technology Deep Dive: PEM vs. alkaline electrolyzer cost and efficiency benchmarks in China",
+    "Company Spotlight: Sinopec's hydrogen strategy and its impact on market dynamics",
+    "Risk Radar: Potential impact of US-China technology export controls on Chinese hydrogen",
+    "Investment Memo: IRR analysis for a 100 MW green hydrogen project in Inner Mongolia"
+  ],
+  "risks": [
+    "Overreliance on policy support that may be reduced or redirected",
+    "Technological uncertainty: which electrolyzer and storage technology will dominate",
+    "Infrastructure underinvestment leading to demand-supply mismatch",
+    "Geopolitical risks affecting technology imports and export markets",
+    "Safety incidents undermining public and investor confidence",
+    "Overcapacity in electrolyzer manufacturing leading to price wars and margin erosion"
+  ]
+}

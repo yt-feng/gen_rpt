@@ -1,0 +1,34 @@
+[
+  {
+    "id": "cover-background",
+    "keywords": "Strategic assessment of the selected topic; premium strategy report cover; sophisticated editorial business report background; realistic abstract landscape, oceanic energy, glass waves, deep blue and white, no readable words, no logo",
+    "prompt": "A photorealistic, premium strategy report cover in the style of a BCG publication, featuring a sophisticated editorial business background with an abstract landscape of oceanic energy. Glass-like waves in deep blue and white create a clean, elegant composition, evoking strategic assessment and high-end consulting visuals. No readable words, logos, marks, watermarks, UI, or charts., no readable text, no logos, no watermarks",
+    "url": "https://image.pollinations.ai/prompt/A%20photorealistic%2C%20premium%20strategy%20report%20cover%20in%20the%20style%20of%20a%20BCG%20publication%2C%20featuring%20a%20sophisticated%20editorial%20business%20background%20with%20an%20abstract%20landscape%20of%20oceanic%20energy.%20Glass-like%20waves%20in%20deep%20blue%20and%20white%20create%20a%20clean%2C%20elegant%20composition%2C%20evoking%20strategic%20assessment%20and%20high-end%20consulting%20visuals.%20No%20readable%20words%2C%20logos%2C%20marks%2C%20watermarks%2C%20UI%2C%20or%20charts.%2C%20no%20readable%20text%2C%20no%20logos%2C%20no%20watermarks?width=1024&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux",
+    "status": "pollinations",
+    "reason": ""
+  },
+  {
+    "id": "image-1",
+    "keywords": "Section 1; ; Strategic assessment of the selected topic; premium editorial strategy report image, photorealistic business environment, human-scale context, cinematic lighting, blue and white palette, clean composition, no readable text, no logo",
+    "prompt": "A premium editorial strategy report visual, photorealistic business environment with human-scale context, cinematic lighting, elegant blue and white palette, clean composition, no readable text, no logo, no charts, no UI elements, suitable for a BCG-style publication.",
+    "url": "https://image.pollinations.ai/prompt/A%20premium%20editorial%20strategy%20report%20visual%2C%20photorealistic%20business%20environment%20with%20human-scale%20context%2C%20cinematic%20lighting%2C%20elegant%20blue%20and%20white%20palette%2C%20clean%20composition%2C%20no%20readable%20text%2C%20no%20logo%2C%20no%20charts%2C%20no%20UI%20elements%2C%20suitable%20for%20a%20BCG-style%20publication.?width=1024&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux",
+    "status": "skipped_fallback_disabled",
+    "reason": "HTTPSConnectionPool(host='image.pollinations.ai', port=443): Read timed out. (read timeout=35)"
+  },
+  {
+    "id": "image-2",
+    "keywords": "Section 2; ; Strategic assessment of the selected topic; premium editorial strategy report image, photorealistic business environment, human-scale context, cinematic lighting, blue and white palette, clean composition, no readable text, no logo",
+    "prompt": "A photorealistic editorial image for a premium strategy consulting report, depicting a strategic assessment of a selected topic in a high-end business environment. The scene shows a human-scale context, such as a polished conference table with a single, sleek tablet displaying a subtle, abstract strategic diagram (no readable text or logos), surrounded by minimalist office decor. Cinematic lighting casts soft, directional shadows, emphasizing a clean composition with a sophisticated blue and white palette. The atmosphere is calm, professional, and authoritative, evoking a BCG-style publication visual without any charts, UI elements, or watermarks.",
+    "url": "https://image.pollinations.ai/prompt/A%20photorealistic%20editorial%20image%20for%20a%20premium%20strategy%20consulting%20report%2C%20depicting%20a%20strategic%20assessment%20of%20a%20selected%20topic%20in%20a%20high-end%20business%20environment.%20The%20scene%20shows%20a%20human-scale%20context%2C%20such%20as%20a%20polished%20conference%20table%20with%20a%20single%2C%20sleek%20tablet%20displaying%20a%20subtle%2C%20abstract%20strategic%20diagram%20%28no%20readable%20text%20or%20logos%29%2C%20surrounded%20by%20minimalist%20office%20decor.%20Cinematic%20lighting%20casts%20soft%2C%20directional%20shadows%2C%20emphasizing%20a%20clean%20composition%20with%20a%20sophisticated%20blue%20and%20white%20palette.%20The%20atmosphere%20is%20calm%2C%20professional%2C%20and%20authoritative%2C%20evoking%20a%20BCG-style%20publication%20visual%20without%20any%20charts%2C%20UI%20elements%2C%20or%20watermarks.?width=1024&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux",
+    "status": "skipped_fallback_disabled",
+    "reason": "429 Client Error: Too Many Requests for url: https://image.pollinations.ai/prompt/A%20photorealistic%20editorial%20image%20for%20a%20premium%20strategy%20consulting%20report%2C%20depicting%20a%20strategic%20assessment%20of%20a%20selected%20topic%20in%20a%20high-end%20business%20environment.%20The%20"
+  },
+  {
+    "id": "image-3",
+    "keywords": "Section 3; ; Strategic assessment of the selected topic; premium editorial strategy report image, photorealistic business environment, human-scale context, cinematic lighting, blue and white palette, clean composition, no readable text, no logo",
+    "prompt": "A premium editorial strategy report visual, photorealistic business environment, human-scale context, cinematic lighting, elegant blue and white palette, clean composition, no readable text, no logo, no UI, no charts, suitable for a BCG-style publication.",
+    "url": "https://image.pollinations.ai/prompt/A%20premium%20editorial%20strategy%20report%20visual%2C%20photorealistic%20business%20environment%2C%20human-scale%20context%2C%20cinematic%20lighting%2C%20elegant%20blue%20and%20white%20palette%2C%20clean%20composition%2C%20no%20readable%20text%2C%20no%20logo%2C%20no%20UI%2C%20no%20charts%2C%20suitable%20for%20a%20BCG-style%20publication.?width=1024&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux",
+    "status": "skipped_fallback_disabled",
+    "reason": "429 Client Error: Too Many Requests for url: https://image.pollinations.ai/prompt/A%20premium%20editorial%20strategy%20report%20visual%2C%20photorealistic%20business%20environment%2C%20human-scale%20context%2C%20cinematic%20lighting%2C%20elegant%20blue%20and%20white%20palette%2C%20clean%20compositio"
+  }
+]
