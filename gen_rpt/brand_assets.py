@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import shutil
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List
 from urllib.parse import urlparse
 
 import matplotlib
@@ -92,17 +92,19 @@ def generate_cover_background(output_path: Path) -> Path:
     return output_path
 
 
-def summarize_reference_institutions(references: List[Dict], sources: List[Dict]) -> List[str]:
-    names = []
-    for item in references:
-        url = item.get("url", "")
-        title = item.get("title", "")
+def summarize_reference_institutions(references: List[Any], sources: List[Any]) -> List[str]:
+    names: List[str] = []
+    for item in _safe_items(references):
+        ref = _normalize_reference_item(item)
+        url = ref.get("url", "")
+        title = ref.get("title", "")
         name = _institution_from_url(url) or _institution_from_title(title)
         if name:
             names.append(name)
-    for item in sources:
-        url = item.get("url", "")
-        title = item.get("title", "")
+    for item in _safe_items(sources):
+        ref = _normalize_reference_item(item)
+        url = ref.get("url", "")
+        title = ref.get("title", "")
         name = _institution_from_url(url) or _institution_from_title(title)
         if name:
             names.append(name)
@@ -117,12 +119,13 @@ def summarize_reference_institutions(references: List[Dict], sources: List[Dict]
     return deduped[:8]
 
 
-def write_reference_backup(output_dir: Path, references: List[Dict], sources: List[Dict]) -> Path:
+def write_reference_backup(output_dir: Path, references: List[Any], sources: List[Any]) -> Path:
     backup_dir = output_dir / "backup"
     backup_dir.mkdir(parents=True, exist_ok=True)
 
     summary_lines = ["# Reference backup", ""]
-    for idx, ref in enumerate(references, start=1):
+    for idx, item in enumerate(_safe_items(references), start=1):
+        ref = _normalize_reference_item(item)
         summary_lines.append(f"## Ref {idx}")
         summary_lines.append(f"- Title: {ref.get('title', '')}")
         summary_lines.append(f"- URL: {ref.get('url', '')}")
@@ -130,23 +133,44 @@ def write_reference_backup(output_dir: Path, references: List[Dict], sources: Li
         summary_lines.append("")
     (backup_dir / "reference_notes.md").write_text("\n".join(summary_lines).strip() + "\n", encoding="utf-8")
 
-    for idx, source in enumerate(sources, start=1):
+    for idx, item in enumerate(_safe_items(sources), start=1):
+        source = _normalize_reference_item(item)
         lines = [
             f"Title: {source.get('title', '')}",
             f"URL: {source.get('url', '')}",
             f"Search Query: {source.get('query', '')}",
             "",
-            source.get('content', ''),
+            str(source.get('content', '')),
         ]
         (backup_dir / f"source_{idx:02d}.txt").write_text("\n".join(lines), encoding="utf-8")
 
     return backup_dir
 
 
+def _safe_items(value: Any) -> List[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _normalize_reference_item(item: Any) -> Dict[str, str]:
+    if isinstance(item, dict):
+        return {str(k): "" if v is None else str(v) for k, v in item.items()}
+    text = str(item or "").strip()
+    url = ""
+    for token in text.split():
+        if token.startswith("http://") or token.startswith("https://"):
+            url = token.strip(".,);]")
+            break
+    return {"title": text, "url": url, "note": text}
+
+
 def _institution_from_url(url: str) -> str:
     if not url:
         return ""
-    host = urlparse(url).netloc.lower()
+    host = urlparse(str(url)).netloc.lower()
     host = host.replace("www.", "")
     mapping = {
         "mckinsey.com": "McKinsey",
@@ -197,6 +221,8 @@ def _institution_from_title(title: str) -> str:
         "Deloitte",
         "EY",
         "KPMG",
+        "BloombergNEF",
+        "IEA",
     ]
     for key in keywords:
         if key.lower() in text.lower():
