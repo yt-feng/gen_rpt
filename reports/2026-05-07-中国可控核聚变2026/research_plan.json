@@ -1,0 +1,105 @@
+{
+  "objective": "Assess the strategic implications of China's controlled nuclear fusion program by 2026, focusing on technological progress, policy support, international competition, and potential impact on global energy markets.",
+  "audience": "Senior executives and strategic planners in energy, technology, and investment sectors, as well as policy analysts and government advisors.",
+  "decision_question": "What is the likely state of China's controlled nuclear fusion program by 2026, and what strategic opportunities and risks does it present for global stakeholders?",
+  "issue_tree": {
+    "node": "Strategic assessment of China's controlled nuclear fusion by 2026",
+    "children": [
+      {
+        "node": "Technological progress",
+        "children": [
+          {
+            "node": "Key milestones achieved (e.g., EAST, CFETR, HL-2M)"
+          },
+          {
+            "node": "Comparison with international projects (ITER, private fusion)"
+          },
+          {
+            "node": "Critical technical challenges remaining (plasma confinement, materials, tritium breeding)"
+          }
+        ]
+      },
+      {
+        "node": "Policy and funding environment",
+        "children": [
+          {
+            "node": "National fusion roadmap and government investment levels"
+          },
+          {
+            "node": "Role of state-owned enterprises and research institutes"
+          },
+          {
+            "node": "Regulatory and safety framework for fusion energy"
+          }
+        ]
+      },
+      {
+        "node": "International collaboration and competition",
+        "children": [
+          {
+            "node": "China's participation in ITER and bilateral agreements"
+          },
+          {
+            "node": "Competitive dynamics with US, EU, Japan, South Korea, and private fusion companies"
+          },
+          {
+            "node": "Technology transfer and intellectual property issues"
+          }
+        ]
+      },
+      {
+        "node": "Strategic implications for energy and geopolitics",
+        "children": [
+          {
+            "node": "Potential timeline for commercial fusion and impact on fossil fuels and renewables"
+          },
+          {
+            "node": "Geopolitical leverage and energy independence for China"
+          },
+          {
+            "node": "Risks of technology disruption and supply chain dependencies"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "China controlled nuclear fusion 2026 progress",
+    "EAST tokamak latest results 2025",
+    "CFETR design and timeline",
+    "China fusion energy policy 2025",
+    "ITER China contribution status",
+    "global fusion energy race 2026",
+    "private fusion companies China",
+    "fusion energy commercial timeline 2030",
+    "China nuclear fusion vs US EU",
+    "fusion reactor materials challenges China"
+  ],
+  "outline": [
+    "China's fusion program is on track to achieve key technical milestones by 2026, but commercial viability remains distant.",
+    "Government funding and policy support for fusion in China are robust and growing, with a clear national roadmap.",
+    "China is both a key collaborator and a competitor in international fusion efforts, leveraging ITER while advancing domestic projects.",
+    "Strategic implications include potential energy independence for China and shifts in global energy geopolitics, but risks from technology gaps and supply chains persist."
+  ],
+  "chart_ideas": [
+    "Timeline of China's fusion milestones vs. international projects (2010-2035)",
+    "Comparison of government fusion funding: China, US, EU, Japan (annual budget)",
+    "Technology readiness level (TRL) of key fusion components in China vs. global benchmarks",
+    "Map of international fusion collaborations involving China",
+    "Projected impact of fusion on China's energy mix under different scenarios (2030-2050)"
+  ],
+  "insight_card_ideas": [
+    "China's fusion timeline: What to expect by 2026",
+    "How China's fusion funding compares globally",
+    "The role of EAST and CFETR in China's fusion roadmap",
+    "China's fusion IP strategy: Lessons from ITER",
+    "Geopolitical risks of a Chinese fusion breakthrough"
+  ],
+  "risks": [
+    "Overestimation of technological readiness due to optimistic official statements",
+    "Underestimation of engineering and materials challenges",
+    "Dependence on foreign supply chains for critical components (e.g., magnets, tritium)",
+    "Potential for international collaboration breakdown (e.g., ITER delays or geopolitical tensions)",
+    "Regulatory and safety hurdles for fusion deployment in China"
+  ]
+}
