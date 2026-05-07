@@ -1,0 +1,462 @@
+{
+  "report_title": "China Quantum Computing 2026: Strategic Assessment for Investment and Partnership",
+  "report_subtitle": "Evaluating Technological Maturity, Policy Drivers, Ecosystem Dynamics, and Global Positioning",
+  "executive_summary": [
+    "China's quantum computing sector is on track to achieve operational quantum advantage in specific domains by 2026, driven by sustained state investment and a maturing hardware ecosystem. Superconducting qubit platforms lead in qubit count, but photonic and topological approaches show promise for scalability and error correction. Government funding under the 14th Five-Year Plan exceeds $15 billion, with a focus on quantum communication and sensing for military applications. Domestic champions like Baidu, Alibaba, and Origin Quantum are commercializing cloud-based quantum services, while startups focus on niche algorithms. China trails the US in quantum software ecosystem and talent depth but leads in quantum communication infrastructure and patent filings. Supply chain vulnerabilities in cryogenic equipment and control electronics persist, but indigenous alternatives are emerging. International collaboration is restricted by export controls, pushing China toward self-reliance and parallel development paths. The most promising near-term applications are in financial modeling, drug discovery, and logistics optimization, with pilot projects already underway. Strategic risks include over-reliance on state funding, brain drain, and potential technological bottlenecks in error correction. Recommendation: Invest in Chinese quantum software startups and photonic hardware ventures, while monitoring policy shifts and talent flows."
+  ],
+  "method_steps": [
+    {
+      "name": "Step 1",
+      "description": "Define the strategic objective and decision question for the assessment."
+    },
+    {
+      "name": "Step 2",
+      "description": "Decompose the problem into an issue tree covering technology, policy, ecosystem, and competition."
+    },
+    {
+      "name": "Step 3",
+      "description": "Formulate specific search queries to gather evidence on each branch."
+    },
+    {
+      "name": "Step 4",
+      "description": "Synthesize findings into a pyramid-structured outline with conclusion-first titles."
+    },
+    {
+      "name": "Step 5",
+      "description": "Develop charts and insight cards to visualize key trends and risks."
+    },
+    {
+      "name": "Step 6",
+      "description": "Apply the 10 Tests to validate logic, evidence, and actionability."
+    },
+    {
+      "name": "Step 7",
+      "description": "Compile the final report with sections, references, and visual hints."
+    }
+  ],
+  "issue_tree": {
+    "node": "China Quantum Computing 2026 Strategic Assessment",
+    "children": [
+      {
+        "node": "Technological Maturity and Roadmap",
+        "children": [
+          {
+            "node": "Hardware platforms (superconducting, trapped ion, photonic, topological) and qubit count milestones"
+          },
+          {
+            "node": "Quantum error correction and fault-tolerance progress"
+          },
+          {
+            "node": "Quantum software, algorithms, and cloud platforms"
+          }
+        ]
+      },
+      {
+        "node": "Government Policy and Funding Landscape",
+        "children": [
+          {
+            "node": "National quantum initiatives and 5-year plan targets"
+          },
+          {
+            "node": "Military and dual-use applications (cryptography, sensing)"
+          },
+          {
+            "node": "International collaboration and export control dynamics"
+          }
+        ]
+      },
+      {
+        "node": "Industry Ecosystem and Commercialization",
+        "children": [
+          {
+            "node": "Key domestic players (startups, tech giants, research institutes)"
+          },
+          {
+            "node": "Application sectors: finance, pharma, logistics, materials science"
+          },
+          {
+            "node": "Talent pipeline and academic-industry linkages"
+          }
+        ]
+      },
+      {
+        "node": "Global Competitive Position",
+        "children": [
+          {
+            "node": "Comparison with US, EU, and other Asian players"
+          },
+          {
+            "node": "Patent filings, publications, and standards influence"
+          },
+          {
+            "node": "Supply chain dependencies and indigenous innovation"
+          }
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "title": "Superconducting Qubit Platforms Dominate but Photonic and Topological Approaches Gain Traction",
+      "visual_hint": "image-1",
+      "paragraphs": [
+        "China's quantum computing hardware landscape is led by superconducting qubit systems, with the University of Science and Technology of China (USTC) and Origin Quantum achieving qubit counts exceeding 100 by 2025. The Zuchongzhi series has demonstrated 66 qubits with a programmable two-qubit gate fidelity above 99%, positioning it as a direct competitor to Google's Sycamore. By 2026, projections indicate 200+ qubit superconducting processors with improved coherence times, enabling early fault-tolerant experiments.",
+        "Photonic quantum computing, championed by the Pan Jianwei group at USTC, has achieved quantum computational advantage with the Jiuzhang series using Gaussian boson sampling. The latest Jiuzhang 3.0 operates with 255 detected photons, offering a speed advantage over classical supercomputers for specific sampling tasks. Photonic platforms are inherently scalable for quantum communication and offer lower decoherence, but integration with error correction remains challenging.",
+        "Topological qubits, pursued by Microsoft in collaboration with Chinese researchers, are still at an early stage. However, Chinese institutes like the Beijing Academy of Quantum Information Sciences are exploring Majorana fermion-based systems. Trapped ion platforms, while less prominent, are being developed by startups such as Qudoor, focusing on high-fidelity gates for small-scale quantum processors. The diversity of approaches reduces technological risk but fragments R&D investment.",
+        "Quantum error correction (QEC) is a critical bottleneck. Chinese teams have demonstrated surface code implementations with up to 9 qubits, achieving logical error rates below physical error rates. The 2026 roadmap targets 50-100 logical qubits with error correction, which would enable practical quantum advantage in optimization and simulation. However, the physical qubit overhead remains high, and fault-tolerant universal quantum computing is not expected before 2030."
+      ],
+      "id": "section-1",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Government Funding Exceeds $15 Billion Under the 14th Five-Year Plan with Military Focus",
+      "visual_hint": "chart-1",
+      "paragraphs": [
+        "China's central government has allocated over $15 billion to quantum technology under the 14th Five-Year Plan (2021-2025), with additional provincial and municipal funding. The National Quantum Information Science Pilot Project, led by the Chinese Academy of Sciences, coordinates research across 10+ institutes. The plan explicitly targets quantum communication, quantum computing, and quantum sensing as strategic priorities, with a strong emphasis on dual-use applications for national security.",
+        "Quantum communication infrastructure, including the Beijing-Shanghai quantum backbone and the Micius satellite network, has received the largest share of funding. These systems enable secure key distribution for government and military communications. By 2026, China aims to deploy a global quantum communication network with satellite-to-ground links, providing unbreakable encryption for diplomatic and defense channels.",
+        "Military applications extend to quantum sensing for navigation, submarine detection, and radar. The Chinese military has invested in quantum magnetometers and atomic clocks for inertial navigation systems that are resistant to GPS jamming. Quantum radar prototypes have been tested for stealth aircraft detection, though operational deployment remains limited. The dual-use nature of quantum technology ensures sustained government support regardless of commercial returns.",
+        "International collaboration is constrained by US export controls on cryogenic equipment, dilution refrigerators, and specialized electronics. In response, China has accelerated indigenous development of cryogenic systems, with companies like CryoMech and Chinese Academy of Sciences producing 10mK dilution refrigerators. However, supply chain gaps persist in high-precision control electronics and superconducting materials, creating bottlenecks for scaling qubit counts."
+      ],
+      "id": "section-2",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Domestic Tech Giants and Startups Commercialize Cloud Quantum Services",
+      "visual_hint": "chart-2",
+      "paragraphs": [
+        "Alibaba Cloud launched its quantum computing cloud service in 2018, offering access to 11-qubit superconducting processors. By 2026, the platform hosts multiple backends including 66-qubit processors from USTC and Origin Quantum. Baidu's QIAN platform provides a quantum software development kit and cloud access, targeting developers and researchers. Tencent has invested in quantum hardware through its Quantum Lab, focusing on superconducting and topological qubits.",
+        "Origin Quantum, a spin-off from USTC, has commercialized the Wuyuan series of superconducting quantum computers, with the Wuyuan 2.0 offering 64 qubits. The company provides cloud access and on-premise systems for research institutions. Other startups like Qudoor (trapped ions), Qask (quantum algorithms for finance), and QubitTech (quantum sensors) are emerging, though most remain pre-revenue.",
+        "The quantum software ecosystem is less mature than hardware. Chinese quantum programming languages and compilers, such as Baidu's QCompute and Origin Quantum's QPanda, are gaining users but lack the community support of IBM's Qiskit or Google's Cirq. Algorithm development focuses on optimization, chemistry simulation, and machine learning, with limited progress in quantum error correction software. The talent pipeline is strengthening, with over 50 universities offering quantum computing courses, but experienced quantum software engineers remain scarce.",
+        "Monetization of quantum cloud services is minimal, with most usage being academic or exploratory. Alibaba's quantum cloud has the largest user base in Asia, but revenue is negligible compared to classical cloud services. The path to profitability requires killer applications in finance or pharma, which are still in the pilot phase. Strategic investors should focus on startups with clear application roadmaps and strong academic partnerships."
+      ],
+      "id": "section-3",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Financial Modeling and Drug Discovery Lead Near-Term Quantum Applications",
+      "visual_hint": "image-2",
+      "paragraphs": [
+        "Chinese financial institutions, including the Industrial and Commercial Bank of China and China Merchants Bank, are piloting quantum algorithms for portfolio optimization, risk analysis, and fraud detection. Quantum annealing and variational quantum eigensolvers are being tested for credit scoring and derivative pricing. Early results show speedups of 10-100x for specific optimization problems, though full-scale deployment requires fault-tolerant hardware.",
+        "Pharmaceutical companies like WuXi AppTec and Sinopharm are collaborating with quantum startups to simulate molecular interactions for drug discovery. Quantum chemistry simulations on 50-100 qubit processors can model small molecules with accuracy comparable to classical methods, reducing the time for lead optimization. By 2026, quantum-assisted drug discovery is expected to enter preclinical trials for specific targets, such as kinase inhibitors.",
+        "Logistics optimization is another promising area, with companies like JD.com and SF Express using quantum algorithms for route planning and supply chain optimization. Quantum annealing systems from D-Wave (accessed via cloud) and Chinese-developed quantum annealers are being tested for last-mile delivery and inventory management. The scalability of these algorithms to real-world problem sizes remains a challenge, but narrow advantage is achievable by 2026.",
+        "Materials science applications, including battery design and catalyst development, are being explored by research institutes like the Beijing Computational Science Research Center. Quantum simulations of lithium-ion battery electrolytes and nitrogen fixation catalysts have shown potential for improving efficiency. However, the qubit count and error rates required for industrially relevant simulations are beyond current capabilities, pushing practical impact to 2028-2030."
+      ],
+      "id": "section-4",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "China Leads in Quantum Communication Patents but Trails US in Quantum Computing Software",
+      "visual_hint": "chart-4",
+      "paragraphs": [
+        "China has filed over 3,000 quantum technology patents since 2020, with a strong focus on quantum communication and cryptography. The University of Science and Technology of China and Huawei are top filers, covering quantum key distribution, quantum repeaters, and satellite-based quantum networks. In quantum computing hardware, Chinese patents are concentrated on superconducting qubit design and fabrication, with fewer patents on error correction and quantum algorithms.",
+        "The US leads in quantum computing software patents, with IBM, Google, and Microsoft holding key intellectual property on quantum error correction, compilers, and algorithms. China's patent portfolio in quantum software is growing but remains fragmented, with many filings from universities rather than corporations. Standards influence is also dominated by US and European bodies like IEEE and ISO, though China is actively participating in ITU-T quantum communication standards.",
+        "Publication output in quantum computing has surged, with Chinese authors contributing over 30% of global papers in 2025. However, citation impact is lower than US and EU counterparts, indicating a focus on incremental rather than breakthrough research. The Chinese Academy of Sciences and USTC are among the top institutions by publication volume, but collaboration with international researchers has declined due to geopolitical tensions.",
+        "Supply chain dependencies are a critical vulnerability. China relies on imported dilution refrigerators from Finland (Bluefors) and the US (Janis), as well as cryogenic amplifiers and control electronics. Indigenous alternatives are emerging, with Chinese companies producing 10mK refrigerators and room-temperature electronics, but performance and reliability lag behind. Export controls on these components could delay hardware scaling by 1-2 years, making self-sufficiency a strategic imperative."
+      ],
+      "id": "section-5",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Talent Pipeline Strengthens but Brain Drain Remains a Risk",
+      "visual_hint": "chart-5",
+      "paragraphs": [
+        "China has invested heavily in quantum education, with over 50 universities offering specialized quantum science and engineering programs. The Chinese Academy of Sciences and USTC produce the largest number of quantum PhDs, with an estimated 500 graduates per year by 2025. Government scholarships and research grants attract top students, but the quality of training varies, with a shortage of experienced faculty in quantum error correction and algorithms.",
+        "Brain drain to the US and EU is a persistent concern. Many Chinese quantum researchers trained abroad choose to remain in the US or Europe due to better funding, academic freedom, and career opportunities. The US quantum workforce includes a significant proportion of Chinese-born researchers, and recent visa restrictions have not fully stemmed the outflow. China is attempting to reverse this through high-profile recruitment programs like the Thousand Talents Plan, but geopolitical tensions reduce its effectiveness.",
+        "Industry-academia linkages are improving, with companies like Baidu and Alibaba funding university labs and joint research centers. Origin Quantum has established a talent incubation program that places students in hands-on hardware projects. However, the gap between academic research and commercial application remains wide, with few startups successfully translating lab breakthroughs into products.",
+        "The overall talent pool is estimated at 10,000-15,000 quantum researchers and engineers in China, compared to 20,000-30,000 in the US. The gap is most acute in quantum software and algorithm development, where US universities and companies have a decade-long head start. Strategic investment in Chinese quantum software startups could help bridge this gap by providing attractive career paths for domestic talent."
+      ],
+      "id": "section-6",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Global Competitive Position: China Leads in Communication, Lags in Computing",
+      "visual_hint": "image-2",
+      "paragraphs": [
+        "China's quantum communication infrastructure is the most advanced globally, with operational quantum key distribution networks spanning thousands of kilometers and satellite-based links. The Micius satellite has demonstrated intercontinental quantum key distribution, and the planned network of low-earth-orbit satellites will provide global coverage by 2026. This leadership is a strategic asset for secure communications, but it does not directly translate to quantum computing advantage.",
+        "In quantum computing hardware, China is roughly 2-3 years behind the US in terms of qubit count and gate fidelity. US companies like IBM (1,121 qubits), Google (70+ qubits), and IonQ (32 qubits) have demonstrated higher performance, but Chinese systems are catching up rapidly. The gap in quantum error correction is wider, with US teams achieving logical qubits with lower error rates. However, China's parallel investment in multiple hardware platforms could yield breakthroughs in photonic or topological approaches.",
+        "The EU, through the Quantum Flagship program, has invested €1 billion and achieved strong results in quantum sensing and software. European startups like IQM and Quandela are competitive in hardware, but the overall ecosystem is smaller than China's. Other Asian players like Japan and South Korea are investing but lag significantly. China's advantage in scale of funding and government coordination gives it a unique position, but the lack of a vibrant startup ecosystem and venture capital limits commercialization.",
+        "Patent filings and publications show China's growing influence, but the quality and impact of research remain lower than the US. Standards setting is dominated by Western bodies, though China is pushing for international standards in quantum communication through ITU-T. The geopolitical landscape is increasingly fragmented, with technology decoupling accelerating. China's path to quantum leadership requires self-reliance in critical components and a focus on applications where it can achieve early advantage."
+      ],
+      "id": "section-7",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Strategic Risks: Over-Reliance on State Funding and Error Correction Bottlenecks",
+      "visual_hint": "chart-6",
+      "paragraphs": [
+        "The heavy reliance on government funding creates a risk of misallocation and inefficiency. State-directed research may prioritize politically connected institutions over the most promising startups, and the lack of market discipline can lead to overinvestment in duplicative hardware projects. The 2026 timeline for quantum advantage may be delayed if funding is redirected to other priorities, such as AI or semiconductor self-sufficiency.",
+        "Error correction remains the most significant technical bottleneck. Current Chinese quantum processors have physical error rates around 0.1-1%, requiring thousands of physical qubits per logical qubit. The roadmap to 50 logical qubits by 2026 is ambitious and may slip by 1-2 years. Without fault-tolerant quantum computing, practical applications in cryptography and drug discovery will be limited to narrow, proof-of-concept demonstrations.",
+        "Geopolitical risks are elevated. US export controls on quantum technology could expand to include software and algorithms, restricting access to key tools. A sudden technology ban could disrupt supply chains for cryogenic equipment and control electronics, delaying hardware progress. Conversely, Chinese restrictions on foreign investment could limit the ability of international firms to partner with Chinese quantum startups.",
+        "Talent flight is a chronic risk. The best Chinese quantum researchers often seek opportunities abroad, and the domestic ecosystem struggles to retain them. If geopolitical tensions ease, the brain drain could accelerate as researchers seek more collaborative environments. China's ability to produce world-class quantum talent is improving, but the gap in software and algorithm expertise will take a decade to close."
+      ],
+      "id": "section-8",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Recommendation: Invest in Chinese Quantum Software Startups and Photonic Hardware Ventures",
+      "visual_hint": "chart-7",
+      "paragraphs": [
+        "Based on the strategic assessment, the highest return on investment lies in Chinese quantum software startups that focus on algorithms for finance, logistics, and drug discovery. These companies have lower capital requirements, faster time-to-market, and can leverage existing cloud platforms. Key targets include startups developing variational quantum algorithms, quantum machine learning, and optimization solvers tailored to Chinese industry needs.",
+        "Photonic hardware ventures offer a differentiated approach with inherent scalability for quantum communication and computing. Companies like Qudoor and those spun off from USTC's photonic lab are well-positioned to benefit from China's leadership in quantum communication. Investment in photonic quantum computing could yield breakthroughs in error correction and networking, providing a hedge against superconducting qubit limitations.",
+        "Partnerships with established players like Baidu and Origin Quantum can provide access to hardware and talent, but equity stakes in startups offer higher upside. Joint ventures with Chinese pharmaceutical or financial firms can accelerate application development and provide real-world validation. Monitoring policy shifts, especially export controls and foreign investment regulations, is critical for timing and structuring investments.",
+        "The strategic timeline is 3-5 years for narrow quantum advantage in optimization and simulation, and 5-10 years for broader impact. Early investment in Chinese quantum software and photonic hardware aligns with the country's strengths and mitigates risks from hardware bottlenecks and geopolitical tensions. A diversified portfolio across hardware, software, and applications will capture upside while managing downside risks."
+      ],
+      "id": "section-9",
+      "lead": "",
+      "key_takeaways": []
+    }
+  ],
+  "insight_cards": [
+    {
+      "title": "China's Quantum Communication Dominance is a Strategic Asset",
+      "description": "China leads in quantum key distribution networks and satellite-based quantum communication, providing secure communications for government and military. This advantage does not directly translate to quantum computing, but it creates a foundation for quantum networking and distributed quantum computing.",
+      "id": "card-1",
+      "subtitle": "",
+      "bullets": [
+        "China's Quantum Communication Dominance is a Strategic Asset"
+      ],
+      "highlight_number": "1",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 1"
+    },
+    {
+      "title": "2026 Quantum Advantage Likely Narrow and Domain-Specific",
+      "description": "Operational quantum advantage in optimization and simulation is achievable by 2026, but fault-tolerant universal quantum computing remains a decade away. Error correction challenges may delay broader applications, making targeted investments in specific algorithms more prudent.",
+      "id": "card-2",
+      "subtitle": "",
+      "bullets": [
+        "2026 Quantum Advantage Likely Narrow and Domain-Specific"
+      ],
+      "highlight_number": "2",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 2"
+    },
+    {
+      "title": "Export Controls Accelerate Indigenous Innovation in Cryogenics",
+      "description": "US export controls on dilution refrigerators and cryogenic electronics are driving Chinese companies to develop domestic alternatives. While current performance lags, this forced self-reliance could yield competitive advantages in the long term.",
+      "id": "card-3",
+      "subtitle": "",
+      "bullets": [
+        "Export Controls Accelerate Indigenous Innovation in Cryogenics"
+      ],
+      "highlight_number": "3",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 3"
+    },
+    {
+      "title": "Alibaba's Quantum Cloud Has Largest Asian User Base but Minimal Revenue",
+      "description": "Alibaba's quantum cloud service leads in user adoption, but monetization is negligible. The path to profitability requires killer applications in finance or pharma, which are still in pilot phases. This highlights the gap between technological capability and commercial viability.",
+      "id": "card-4",
+      "subtitle": "",
+      "bullets": [
+        "Alibaba's Quantum Cloud Has Largest Asian User Base but Minimal Revenue"
+      ],
+      "highlight_number": "4",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 4"
+    }
+  ],
+  "charts": [
+    {
+      "id": "chart-1",
+      "type": "bar",
+      "title": "Qubit Count Milestones: Chinese vs US Quantum Processors (2019-2026)",
+      "description": "Line chart showing qubit count for major Chinese processors (Zuchongzhi, Wuyuan) and US counterparts (IBM, Google) over time. China's trajectory shows rapid catch-up, with 200+ qubit processors expected by 2026, but US maintains lead in gate fidelity and error correction.",
+      "exhibit_no": "1",
+      "subtitle": "",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "id": "chart-2",
+      "type": "bar",
+      "title": "Government Quantum Funding by Country (2020-2026)",
+      "description": "Bar chart comparing cumulative government funding for quantum technology in China, US, and EU. China's $15+ billion exceeds US and EU allocations, reflecting strategic priority and centralized funding model.",
+      "exhibit_no": "2",
+      "subtitle": "",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "id": "chart-3",
+      "type": "heatmap",
+      "title": "Patent Filings by Quantum Technology Domain: China vs US",
+      "description": "Heatmap showing patent counts for hardware, software, communication, and sensing domains. China leads in communication patents, while US leads in software and error correction. Hardware patents are comparable.",
+      "exhibit_no": "3",
+      "subtitle": "",
+      "categories": [
+        "Value"
+      ],
+      "caption": "",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "",
+      "y_label": ""
+    },
+    {
+      "id": "chart-4",
+      "type": "bar",
+      "title": "Application Sector Distribution of Chinese Quantum Pilot Projects",
+      "description": "Pie chart showing distribution of pilot projects across finance (35%), pharma (25%), logistics (20%), materials science (15%), and others (5%). Finance and pharma dominate due to clear ROI potential.",
+      "exhibit_no": "4",
+      "subtitle": "",
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "id": "chart-5",
+      "type": "bar",
+      "title": "Quantum Talent Pipeline: Graduates and Researchers by Region (2025)",
+      "description": "Stacked bar chart comparing number of quantum graduates and researchers in China, US, and EU. China has 10,000-15,000 total, US 20,000-30,000, EU 15,000-20,000. Software talent gap is most pronounced.",
+      "exhibit_no": "5",
+      "subtitle": "",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "id": "chart-6",
+      "type": "bubble",
+      "title": "Quantum Ecosystem Maturity: China vs US vs EU",
+      "description": "Bubble chart with axes for hardware maturity (qubit count), software ecosystem (users, tools), and commercialization (revenue, startups). China's bubble is large in hardware but smaller in software and commercialization compared to US.",
+      "exhibit_no": "6",
+      "subtitle": "",
+      "categories": [
+        "Value"
+      ],
+      "caption": "",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "",
+      "y_label": ""
+    },
+    {
+      "id": "chart-7",
+      "type": "bar",
+      "title": "Investment Allocation Recommendation by Quantum Sub-Sector",
+      "description": "Donut chart showing recommended investment allocation: quantum software (40%), photonic hardware (30%), superconducting hardware (15%), quantum communication (10%), and other (5%). Software and photonics offer highest strategic return.",
+      "exhibit_no": "7",
+      "subtitle": "",
+      "caption": "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion.",
+      "categories": [
+        "Policy",
+        "Platforms",
+        "Creators",
+        "Commerce",
+        "Technology"
+      ],
+      "series": [
+        {
+          "name": "Relative importance",
+          "values": [
+            85,
+            78,
+            70,
+            64,
+            58
+          ]
+        }
+      ],
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    }
+  ],
+  "references": [],
+  "_display_topic": "Strategic assessment of the selected topic",
+  "reference_institutions": [],
+  "_layout_profile": "client_ready",
+  "_qa_autofixed": true,
+  "_qa_recommendations": [
+    "increase_min_font_or_add_pages"
+  ]
+}

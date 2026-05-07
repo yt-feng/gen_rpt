@@ -1,0 +1,110 @@
+{
+  "objective": "Assess the strategic landscape of China's quantum computing sector as of 2026, evaluating technological progress, government support, industry applications, and global competitive positioning to inform investment and policy decisions.",
+  "audience": "Senior executives and strategic planners in technology investment firms, corporate R&D leaders, and government policy advisors focused on emerging technologies.",
+  "decision_question": "Should our organization increase investment or partnership in China's quantum computing ecosystem by 2026, and what specific areas (hardware, software, applications) offer the highest strategic return?",
+  "issue_tree": {
+    "node": "China Quantum Computing 2026 Strategic Assessment",
+    "children": [
+      {
+        "node": "Technological Maturity and Roadmap",
+        "children": [
+          {
+            "node": "Hardware platforms (superconducting, trapped ion, photonic, topological) and qubit count milestones"
+          },
+          {
+            "node": "Quantum error correction and fault-tolerance progress"
+          },
+          {
+            "node": "Quantum software, algorithms, and cloud platforms"
+          }
+        ]
+      },
+      {
+        "node": "Government Policy and Funding Landscape",
+        "children": [
+          {
+            "node": "National quantum initiatives and 5-year plan targets"
+          },
+          {
+            "node": "Military and dual-use applications (cryptography, sensing)"
+          },
+          {
+            "node": "International collaboration and export control dynamics"
+          }
+        ]
+      },
+      {
+        "node": "Industry Ecosystem and Commercialization",
+        "children": [
+          {
+            "node": "Key domestic players (startups, tech giants, research institutes)"
+          },
+          {
+            "node": "Application sectors: finance, pharma, logistics, materials science"
+          },
+          {
+            "node": "Talent pipeline and academic-industry linkages"
+          }
+        ]
+      },
+      {
+        "node": "Global Competitive Position",
+        "children": [
+          {
+            "node": "Comparison with US, EU, and other Asian players"
+          },
+          {
+            "node": "Patent filings, publications, and standards influence"
+          },
+          {
+            "node": "Supply chain dependencies and indigenous innovation"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "China quantum computing 2026 progress roadmap",
+    "Chinese quantum computer qubit count 2026",
+    "China national quantum initiative 14th five year plan",
+    "quantum error correction China 2026",
+    "Chinese quantum computing startups 2026",
+    "quantum computing applications China finance pharma",
+    "China vs US quantum computing comparison 2026",
+    "quantum computing patents China 2026",
+    "export controls quantum technology China",
+    "quantum talent pipeline China universities"
+  ],
+  "outline": [
+    "China's quantum computing sector is on track to achieve operational quantum advantage in specific domains by 2026, driven by sustained state investment and a maturing hardware ecosystem.",
+    "Superconducting qubit platforms lead in qubit count, but photonic and topological approaches show promise for scalability and error correction.",
+    "Government funding under the 14th Five-Year Plan exceeds $15 billion, with a focus on quantum communication and sensing for military applications.",
+    "Domestic champions like Baidu, Alibaba, and Origin Quantum are commercializing cloud-based quantum services, while startups focus on niche algorithms.",
+    "China trails the US in quantum software ecosystem and talent depth but leads in quantum communication infrastructure and patent filings.",
+    "Supply chain vulnerabilities in cryogenic equipment and control electronics persist, but indigenous alternatives are emerging.",
+    "International collaboration is restricted by export controls, pushing China toward self-reliance and parallel development paths.",
+    "The most promising near-term applications are in financial modeling, drug discovery, and logistics optimization, with pilot projects already underway.",
+    "Strategic risks include over-reliance on state funding, brain drain, and potential technological bottlenecks in error correction.",
+    "Recommendation: Invest in Chinese quantum software startups and photonic hardware ventures, while monitoring policy shifts and talent flows."
+  ],
+  "chart_ideas": [
+    "Line chart: Qubit count milestones for major Chinese quantum processors (2019-2026) vs US counterparts.",
+    "Bar chart: Government quantum funding by country (China, US, EU) 2020-2026.",
+    "Heatmap: Patent filings by quantum technology domain (hardware, software, communication) for China vs US.",
+    "Pie chart: Application sector distribution of Chinese quantum computing pilot projects (finance, pharma, logistics, others).",
+    "Stacked area chart: Talent pipeline (graduates, researchers) in quantum computing for China, US, EU."
+  ],
+  "insight_card_ideas": [
+    "Insight: China's quantum communication dominance is a strategic asset for secure communications, but quantum computing hardware still lags.",
+    "Insight: The 2026 timeline for 'quantum supremacy' in China may be delayed due to error correction challenges, but narrow advantage in optimization is likely.",
+    "Insight: Export controls on cryogenic equipment are accelerating Chinese innovation in alternative cooling technologies.",
+    "Insight: Alibaba's cloud quantum service has the largest user base in Asia, but revenue remains minimal; monetization is a key risk."
+  ],
+  "risks": [
+    "Overestimation of technological readiness due to state propaganda and limited independent verification.",
+    "Geopolitical tensions leading to sudden export controls or technology bans that disrupt supply chains.",
+    "Talent flight to US or EU due to better opportunities, slowing progress.",
+    "Underestimation of error correction timeline, causing delays in practical applications.",
+    "Regulatory changes in China that restrict foreign investment or data access."
+  ]
+}
