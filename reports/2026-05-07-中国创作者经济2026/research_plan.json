@@ -1,0 +1,92 @@
+{
+  "objective": "To assess the strategic landscape of the Chinese creator economy in 2026, identifying key trends, competitive dynamics, regulatory impacts, and growth opportunities for stakeholders.",
+  "audience": "Senior executives and strategists at global technology and media companies, venture capital firms, and Chinese internet platforms seeking to understand the market's trajectory and investment potential.",
+  "decision_question": "Should our company invest in or partner with Chinese creator economy platforms or creators in 2026, and if so, which segments and strategies offer the highest risk-adjusted returns?",
+  "issue_tree": {
+    "Market Overview": {
+      "Market Size & Growth": "Current and projected market value, user base, and revenue streams (advertising, e-commerce, tipping, subscriptions).",
+      "Key Platforms": "Douyin, Kuaishou, Bilibili, Xiaohongshu, WeChat Channels, and emerging platforms.",
+      "Creator Demographics": "Number of creators, income distribution, professional vs. amateur split, geographic concentration."
+    },
+    "Regulatory Environment": {
+      "Content Regulations": "Censorship rules, content rating systems, algorithm transparency requirements.",
+      "Tax & Labor Laws": "Taxation of creator income, labor classification (employee vs. independent contractor), social insurance obligations.",
+      "Data & Privacy": "Data localization, cross-border data transfer restrictions, user consent requirements."
+    },
+    "Competitive Dynamics": {
+      "Platform Competition": "Market share battles, differentiation strategies, network effects, and switching costs.",
+      "Creator Monetization": "Revenue sharing models, tipping, brand sponsorships, e-commerce integration, virtual gifts.",
+      "Technology Trends": "AI-generated content, short-form video, live streaming, augmented reality filters, recommendation algorithms."
+    },
+    "User Behavior & Trends": {
+      "Content Preferences": "Popular genres (education, entertainment, lifestyle, gaming), format preferences (short video, live, text+image).",
+      "Engagement Metrics": "Time spent, daily active users, content consumption patterns, generational differences.",
+      "Trust & Authenticity": "Influence of KOLs, fake follower concerns, brand safety, community trust."
+    },
+    "Investment & Partnership Opportunities": {
+      "Platform Investments": "Valuation trends, IPO prospects, strategic stakes.",
+      "Creator Economy Infrastructure": "MCNs, analytics tools, payment processors, content management systems.",
+      "Cross-Border Potential": "Chinese creators targeting overseas audiences, international brands partnering with Chinese creators."
+    },
+    "Risks & Challenges": {
+      "Regulatory Risk": "Sudden policy changes, platform shutdowns, fines.",
+      "Market Saturation": "Creator oversupply, declining engagement, rising acquisition costs.",
+      "Economic Uncertainty": "Consumer spending slowdown, advertising budget cuts, currency fluctuations.",
+      "Technology Disruption": "New platforms, AI replacing human creators, changing user habits."
+    }
+  },
+  "search_queries": [
+    "China creator economy market size 2026 forecast",
+    "Douyin Kuaishou Bilibili creator revenue sharing model 2025",
+    "China internet content regulation 2025 2026 new rules",
+    "Chinese creator economy tax policy independent contractor",
+    "AI generated content China short video platform 2026",
+    "Chinese KOL marketing spending 2025 2026",
+    "China cross-border creator economy overseas expansion",
+    "Chinese creator economy venture capital investment trends 2025",
+    "WeChat Channels creator monetization 2026",
+    "Xiaohongshu creator income statistics 2025"
+  ],
+  "outline": [
+    "Market Size and Growth Trajectory of China's Creator Economy in 2026",
+    "Dominant Platforms and Their Strategic Positions in the Creator Ecosystem",
+    "Regulatory Landscape: Key Policies Shaping Creator Operations and Platform Liability",
+    "Creator Monetization Models: Advertising, E-commerce, and Virtual Gifts as Revenue Pillars",
+    "Technology Trends: AI, Short Video, and Live Streaming as Competitive Differentiators",
+    "User Engagement Patterns and Content Preferences Across Generations",
+    "Investment Opportunities: Platform Valuations, MCNs, and Infrastructure Plays",
+    "Cross-Border Potential: Chinese Creators Going Global and International Brands Entering China",
+    "Risk Factors: Regulatory Uncertainty, Market Saturation, and Economic Headwinds",
+    "Strategic Recommendations for Global Technology and Media Companies"
+  ],
+  "chart_ideas": [
+    "Line chart: Projected market size of China's creator economy (2022-2026) with breakdown by revenue source (advertising, e-commerce, tipping, subscriptions).",
+    "Bar chart: Top 5 platforms by creator count and average creator income (2025).",
+    "Stacked area chart: User time spent on creator content vs. traditional media (2022-2026).",
+    "Heatmap: Regulatory risk scores by content category (e.g., education, entertainment, political commentary).",
+    "Bubble chart: Platform market share vs. creator satisfaction vs. revenue growth rate (2025).",
+    "Pie chart: Distribution of creator income levels (e.g., top 1%, 10%, 50%, bottom 50%).",
+    "Waterfall chart: Impact of regulatory changes on platform revenue (hypothetical scenario).",
+    "Scatter plot: Correlation between platform investment in AI tools and creator retention rate."
+  ],
+  "insight_card_ideas": [
+    "Insight Card 1: 'AI-Generated Content Will Reshape Creator Roles' – How AI tools are lowering barriers but also threatening authenticity.",
+    "Insight Card 2: 'Regulatory Crackdowns on Algorithmic Recommendations' – Impact on content discovery and creator reach.",
+    "Insight Card 3: 'The Rise of Professional Creators' – Shift from amateur to full-time creators with MCN support.",
+    "Insight Card 4: 'E-commerce Integration as the Primary Monetization Engine' – How live selling and product links drive revenue.",
+    "Insight Card 5: 'Gen Z vs. Gen Alpha Content Preferences' – Differences in platform choice and content format.",
+    "Insight Card 6: 'Cross-Border Creator Collaborations' – Opportunities and challenges for Chinese creators targeting Southeast Asia.",
+    "Insight Card 7: 'Data Privacy Regulations and Creator Analytics' – How new rules affect targeting and measurement.",
+    "Insight Card 8: 'Creator Economy Infrastructure Gaps' – Opportunities for third-party tools in payment, analytics, and legal compliance."
+  ],
+  "risks": [
+    "Regulatory risk: Sudden policy changes could disrupt platform operations or creator income.",
+    "Market saturation risk: Oversupply of creators may depress earnings and increase platform churn.",
+    "Economic downturn risk: Reduced consumer spending and advertising budgets could shrink the market.",
+    "Technology disruption risk: AI-generated content could replace human creators or shift user preferences.",
+    "Platform dependency risk: Creators heavily reliant on a single platform face income volatility.",
+    "Data privacy risk: Stricter regulations may limit targeting capabilities and increase compliance costs.",
+    "Cross-border risk: Geopolitical tensions could hinder international expansion or partnerships.",
+    "Fraud and trust risk: Fake followers, scams, and brand safety issues could erode advertiser confidence."
+  ]
+}
