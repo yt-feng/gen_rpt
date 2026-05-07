@@ -19,8 +19,7 @@ LATEX_HEADER = r"""
 \usepackage{fancyhdr}
 \usepackage{hyperref}
 \defaultfontfeatures{Ligatures=TeX}
-\setmainfont{DejaVu Sans}
-\setsansfont{DejaVu Sans}
+\IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
 \definecolor{BOBlue}{HTML}{0055A4}
 \definecolor{BOBright}{HTML}{3273F6}
 \definecolor{BONavy}{HTML}{051C2C}
@@ -29,12 +28,12 @@ LATEX_HEADER = r"""
 \definecolor{BOLight}{HTML}{F4F8FC}
 \hypersetup{colorlinks=true,linkcolor=BOBlue,urlcolor=BOBlue}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.6pt}
+\setlength{\parskip}{3.5pt}
 \setlength{\tabcolsep}{4pt}
 \renewcommand{\arraystretch}{1.18}
 \hyphenpenalty=10000
 \exhyphenpenalty=10000
-\tolerance=3000
+\tolerance=3500
 \emergencystretch=2em
 \sloppy
 \pagestyle{fancy}
@@ -44,14 +43,7 @@ LATEX_HEADER = r"""
 \fancyhead[L]{\scriptsize\color{BOMuted} BLUEOCEAN | CONFIDENTIAL}
 \fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean | Confidential}
 \fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
-\newcommand{\bohrule}{\vspace{2pt}{\color{BOBright}\rule{\linewidth}{1pt}}\vspace{5pt}}
-\newcommand{\kicker}[1]{\textcolor{BOBlue}{\scriptsize\bfseries\MakeUppercase{#1}}\\[-1pt]}
-\newcommand{\lead}[1]{\textcolor{BOBlue}{\normalsize #1}\par\vspace{2pt}}
-\newcommand{\source}[1]{\textcolor{BOMuted}{\scriptsize #1}}
-\newcommand{\takeaway}[1]{\vspace{4pt}\noindent\colorbox{BOLight}{\parbox{0.965\linewidth}{\small #1}}\vspace{3pt}}
-\newcommand{\boxtitle}[1]{\textcolor{BOBlue}{\scriptsize\bfseries\MakeUppercase{#1}}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
-\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 """
 
 
@@ -94,13 +86,12 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
     title = _tex(report.get("report_title") or topic)
     subtitle = _tex(report.get("report_subtitle") or "Strategic assessment")
     cover = _asset_path(assets.get("cover-background", ""))
-    logo = _asset_path(assets.get("brand-logo", ""), allow_svg=False)
     sections = report.get("sections", []) or []
     summary = _summary_items(report.get("executive_summary", []))
     institutions = report.get("reference_institutions", []) or []
 
     parts: List[str] = [LATEX_HEADER, "\\begin{document}", "\\raggedright"]
-    parts.append(_cover_page(title, subtitle, cover, logo))
+    parts.append(_cover_page(title, subtitle, cover))
     parts.append(_summary_page(summary))
     parts.append(_strategic_logic_page(report, sections))
     parts.append(_contents_page(sections))
@@ -109,89 +100,74 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
         parts.append(_section_block(section, assets, idx))
     if institutions:
         refs = _tex(", ".join(str(x) for x in institutions))
-        parts.append(f"\\clearpage\n\\kicker{{Reference note}}\n{{\\small\\color{{BOMuted}} This report was informed by public research and data from: {refs}. Full source backup is archived in the backup folder.}}\n")
+        parts.append("\\clearpage\n" + _kicker("Reference note") + f"{{\\small\\color{{BOMuted}} This report was informed by public research and data from: {refs}. Full source backup is archived in the backup folder.}}\n")
     parts.append("\\end{document}\n")
     return "\n".join(parts)
 
 
-def _cover_page(title: str, subtitle: str, cover: str, logo: str) -> str:
+def _cover_page(title: str, subtitle: str, cover: str) -> str:
     background = ""
     if cover:
         background = f"\\node[anchor=south west,inner sep=0] at (current page.south west) {{\\includegraphics[width=\\paperwidth,height=\\paperheight]{{{cover}}}}};"
-    logo_node = ""
-    if logo:
-        logo_node = f"\\node[anchor=north east] at ([xshift=-12mm,yshift=-9mm]current page.north east) {{\\includegraphics[width=18mm]{{{logo}}}}};"
     return rf"""
 \thispagestyle{{empty}}
 \begin{{tikzpicture}}[remember picture,overlay]
 {background}
-\fill[white,opacity=.94] ([xshift=15mm,yshift=-18mm]current page.north west) rectangle ++(132mm,-70mm);
+\fill[white,opacity=.94] ([xshift=15mm,yshift=-18mm]current page.north west) rectangle ++(132mm,-72mm);
 \fill[BOBright] ([xshift=15mm,yshift=-18mm]current page.north west) rectangle ++(132mm,-1.8mm);
-{logo_node}
 \node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-25mm]current page.north west) {{\sffamily\scriptsize\bfseries\color{{BOBlue}} BLUEOCEAN\\DEEP RESEARCH REPORT}};
-\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-39mm]current page.north west) {{\parbox{{120mm}}{{\raggedright\hyphenpenalty=10000\exhyphenpenalty=10000\sffamily\fontsize{{21}}{{23}}\selectfont\color{{BONavy}} {title}}}}};
-\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-74mm]current page.north west) {{\sffamily\scriptsize\color{{BOMuted}} {subtitle}}};
+\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-39mm]current page.north west) {{\parbox{{120mm}}{{\raggedright\sffamily\fontsize{{21}}{{23}}\selectfont\color{{BONavy}} {title}}}}};
+\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-76mm]current page.north west) {{\sffamily\scriptsize\color{{BOMuted}} {subtitle}}};
 \end{{tikzpicture}}
 \clearpage
 """
 
 
 def _summary_page(summary: List[str]) -> str:
-    cards = [_summary_card(idx, item) for idx, item in enumerate(summary[:6], start=1)]
-    while len(cards) < 6:
-        cards.append(_summary_card(len(cards) + 1, "Evidence base and management implications should be validated through source backup and client discussion."))
-    return rf"""
-\kicker{{Key highlights}}
-{{\Large\sffamily\bfseries\color{{BONavy}} The report opens with six decision-relevant conclusions}}\\[4pt]
-\bohrule
-\begin{{tabularx}}{{\linewidth}}{{Y Y}}
-{cards[0]} & {cards[1]} \\\[7pt]
-{cards[2]} & {cards[3]} \\\[7pt]
-{cards[4]} & {cards[5]}
-\end{{tabularx}}
-\clearpage
-"""
-
-
-def _summary_card(idx: int, text: str) -> str:
-    content = _tex(_shorten(text, 240))
+    rows = []
+    for idx, item in enumerate((summary or [])[:8], start=1):
+        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx:02d}}} & {{\\small {_tex(_shorten(item, 320))}}} \\\\[5pt]\n")
+    if not rows:
+        rows.append("\\textcolor{BOBlue}{\\bfseries 01} & {\\small Evidence base and management implications should be validated through source backup and client discussion.} \\\\[5pt]\n")
     return (
-        "\\colorbox{BOLight}{\\parbox{0.455\\linewidth}{"
-        f"\\textcolor{{BOBlue}}{{\\bfseries {idx:02d}}}\\\\[-1pt]"
-        f"{{\\small {content}}}"
-        "}}"
+        _kicker("Key highlights")
+        + _heading("The report opens with decision-relevant conclusions")
+        + _rule()
+        + "\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n"
+        + "".join(rows)
+        + "\\end{tabularx}\n\\clearpage\n"
     )
 
 
 def _strategic_logic_page(report: Dict[str, Any], sections: List[Dict[str, Any]]) -> str:
-    thesis = _tex(_shorten(report.get("report_subtitle") or "Strategy should focus on where evidence, policy, ecosystem maturity and commercialization converge.", 230))
-    labels = [_strip_number_prefix(s.get("title", f"Pillar {idx}")) for idx, s in enumerate(sections[:4], start=1)]
+    thesis = _tex(_shorten(report.get("report_subtitle") or "Strategy should focus on where evidence, policy, ecosystem maturity and commercialization converge.", 260))
+    labels = [_tex(_shorten(_strip_number_prefix(s.get("title", f"Pillar {idx}")), 54)) for idx, s in enumerate(sections[:4], start=1)]
     while len(labels) < 4:
         labels.append("Strategic pillar")
-    labels = [_tex(_shorten(x, 58)) for x in labels]
     return rf"""
-\kicker{{Strategic logic}}
-{{\Large\sffamily\bfseries\color{{BONavy}} The assessment links market evidence to management action}}\\[4pt]
-\bohrule
-{{\small {thesis}}}\\[8pt]
+{_kicker("Strategic logic")}
+{_heading("The assessment links market evidence to management action")}
+{_rule()}
+{{\small {thesis}}}\par\vspace{{8pt}}
 \begin{{center}}
 \begin{{tikzpicture}}[x=1mm,y=1mm]
-\tikzstyle{{nodebox}}=[draw=BOLine,fill=BOLight,rounded corners=2mm,minimum width=39mm,minimum height=18mm,align=center,text width=35mm]
-\node[nodebox] (a) at (22,48) {{\textcolor{{BOBlue}}{{\bfseries Evidence}}\\\scriptsize {labels[0]}}};
-\node[nodebox] (b) at (70,48) {{\textcolor{{BOBlue}}{{\bfseries Policy}}\\\scriptsize {labels[1]}}};
-\node[nodebox] (c) at (118,48) {{\textcolor{{BOBlue}}{{\bfseries Ecosystem}}\\\scriptsize {labels[2]}}};
-\node[nodebox] (d) at (166,48) {{\textcolor{{BOBlue}}{{\bfseries Action}}\\\scriptsize {labels[3]}}};
+\tikzstyle{{nodebox}}=[draw=BOLine,fill=BOLight,rounded corners=2mm,minimum width=38mm,minimum height=17mm,align=center,text width=34mm]
+\node[nodebox] (a) at (22,44) {{\textcolor{{BOBlue}}{{\bfseries Evidence}}\\\scriptsize {labels[0]}}};
+\node[nodebox] (b) at (70,44) {{\textcolor{{BOBlue}}{{\bfseries Policy}}\\\scriptsize {labels[1]}}};
+\node[nodebox] (c) at (118,44) {{\textcolor{{BOBlue}}{{\bfseries Ecosystem}}\\\scriptsize {labels[2]}}};
+\node[nodebox] (d) at (166,44) {{\textcolor{{BOBlue}}{{\bfseries Action}}\\\scriptsize {labels[3]}}};
 \draw[->,very thick,BOBright] (a) -- (b);
 \draw[->,very thick,BOBright] (b) -- (c);
 \draw[->,very thick,BOBright] (c) -- (d);
-\node[draw=BOBlue,fill=white,rounded corners=2mm,align=center,text width=145mm,minimum height=18mm] at (94,15) {{\small Client-ready recommendation requires a clear bridge from factual signal to investable / actionable choice.}};
+\node[draw=BOBlue,fill=white,rounded corners=2mm,align=center,text width=142mm,minimum height=17mm] at (94,14) {{\small Client-ready recommendation requires a clear bridge from factual signal to investable or actionable choice.}};
 \end{{tikzpicture}}
 \end{{center}}
-\begin{{tabularx}}{{\linewidth}}{{L{{34mm}}Y Y}}
+\vspace{{4pt}}
+\begin{{tabularx}}{{\linewidth}}{{p{{34mm}}YY}}
 \textcolor{{BOBlue}}{{\bfseries Lens}} & \textcolor{{BOBlue}}{{\bfseries What it tests}} & \textcolor{{BOBlue}}{{\bfseries Output in the report}} \\
-Market / policy signal & Whether the opportunity is structurally supported or merely episodic & Conclusion-first chapter titles and a prioritized management agenda \\
-Ecosystem maturity & Whether capability, partners and talent can turn technology into deployment & Native tables, matrices and issue maps embedded in the LaTeX report \\
-Execution risk & Whether bottlenecks can change timing, valuation or partnership structure & Risk register and mitigation table in later chapters \\
+Market signal & Whether the opportunity is structurally supported or merely episodic & Conclusion-first chapters and prioritized management implications \\
+Ecosystem maturity & Whether capabilities and partners can turn technology into deployment & Native tables, issue maps and risk screens embedded in LaTeX \\
+Execution risk & Whether bottlenecks can change timing, valuation or partnership structure & Risk register and mitigation logic in later chapters \\
 \end{{tabularx}}
 \clearpage
 """
@@ -200,70 +176,72 @@ Execution risk & Whether bottlenecks can change timing, valuation or partnership
 def _contents_page(sections: List[Dict[str, Any]]) -> str:
     rows = []
     for idx, section in enumerate(sections, start=1):
-        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx}}} & {_tex(_strip_number_prefix(section.get('title', 'Section')))} \\\\[4pt]\n")
-    return rf"""
-\kicker{{Contents}}
-{{\Large\sffamily\bfseries\color{{BONavy}} Contents}}\\[4pt]
-\bohrule
-\begin{{tabularx}}{{\linewidth}}{{p{{10mm}}Y}}
-{''.join(rows)}\end{{tabularx}}
-\clearpage
-"""
+        title = _tex(_strip_number_prefix(section.get("title", "Section")))
+        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx}}} & {title} \\\\[4pt]\n")
+    return (
+        _kicker("Contents")
+        + _heading("Contents")
+        + _rule()
+        + "\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n"
+        + "".join(rows)
+        + "\\end{tabularx}\n\\clearpage\n"
+    )
 
 
 def _disclaimer_page(institutions: List[Any]) -> str:
     ref_note = ""
     if institutions:
-        ref_note = "\\vspace{6pt}\\source{This report was informed by public research and data from: " + _tex(", ".join(str(x) for x in institutions)) + ".}"
-    return rf"""
-\kicker{{Disclaimer}}
-{{\Large\sffamily\bfseries\color{{BONavy}} Disclaimer}}\\[4pt]
-\bohrule
-{{\small This document is a management consulting and research analysis deliverable for strategy discussion only and does not constitute investment, legal, tax, or audit advice.}}
-{ref_note}
-\vspace{{6pt}}
-\source{{The full source backup is archived in the backup folder.}}
-\clearpage
-"""
+        ref_note = "\\vspace{6pt}{\\scriptsize\\color{BOMuted} This report was informed by public research and data from: " + _tex(", ".join(str(x) for x in institutions)) + ".}"
+    return (
+        _kicker("Disclaimer")
+        + _heading("Disclaimer")
+        + _rule()
+        + "{\\small This document is a management consulting and research analysis deliverable for strategy discussion only and does not constitute investment, legal, tax, or audit advice.}\n"
+        + ref_note
+        + "\\vspace{6pt}\n{\\scriptsize\\color{BOMuted} The full source backup is archived in the backup folder.}\n\\clearpage\n"
+    )
 
 
 def _section_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
     title = _tex(_strip_number_prefix(section.get("title", f"Section {idx}")))
-    lead = _tex(_shorten(section.get("lead", ""), 220))
+    lead = _tex(_shorten(section.get("lead", ""), 240))
     paragraphs = [_tex(p) for p in section.get("paragraphs", [])[:5]]
-    takeaways = [_tex(_shorten(x, 130)) for x in section.get("key_takeaways", [])[:3]]
+    takeaways = [_tex(_shorten(x, 150)) for x in section.get("key_takeaways", [])[:3]]
     image_path = _asset_path(assets.get(f"image-{idx}", ""))
     image_block = ""
     if image_path:
-        image_block = f"\\begin{{center}}\\includegraphics[width=.78\\linewidth,height=46mm,keepaspectratio]{{{image_path}}}\\end{{center}}"
-    takeaway_text = " ".join([f"\\textbullet\\ {x}" for x in takeaways]) if takeaways else "\\textbullet\\ Validate assumptions with the reference backup. \\textbullet\\ Translate evidence into management action."
+        image_block = f"\\begin{{center}}\\includegraphics[width=.74\\linewidth,height=44mm,keepaspectratio]{{{image_path}}}\\end{{center}}\n"
+    takeaway_text = " ".join([f"\\textbullet\\ {x}" for x in takeaways]) if takeaways else "\\textbullet\\ Validate assumptions with source backup. \\textbullet\\ Translate evidence into action."
     body = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[:3]])
     continuation = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[3:]])
-    continuation_block = f"\n{{\\small {continuation}}}\n" if continuation else ""
-    lead_block = f"\\lead{{{lead}}}" if lead else ""
-    return rf"""
-\clearpage
-\kicker{{Chapter {idx}}}
-{{\Large\sffamily\bfseries\color{{BONavy}} {title}}}\\[4pt]
-{lead_block}
-{body}
-\takeaway{{\textbf{{So what:}} {takeaway_text}}}
-{image_block}
-{_analysis_tool(idx)}
-{continuation_block}
-"""
+    lead_block = f"{{\\textcolor{{BOBlue}}{{\\normalsize {lead}}}}}\\par\\vspace{{2pt}}\n" if lead else ""
+    return (
+        "\\clearpage\n"
+        + _kicker(f"Chapter {idx}")
+        + _heading(title)
+        + lead_block
+        + body
+        + "\n\\vspace{3pt}\\noindent\\fcolorbox{BOLine}{BOLight}{\\parbox{0.965\\linewidth}{\\small \\textbf{So what:} " + takeaway_text + "}}\\vspace{4pt}\n"
+        + image_block
+        + _analysis_tool(idx)
+        + (f"\n{{\\small {continuation}}}\n" if continuation else "")
+    )
 
 
 def _analysis_tool(idx: int) -> str:
-    return [_architecture_diagram, _timeline_diagram, _ecosystem_table, _application_matrix, _risk_register, _decision_table][(idx - 1) % 6]()
+    tools = [_architecture_diagram, _timeline_diagram, _ecosystem_table, _application_matrix, _risk_register, _decision_table]
+    return tools[(idx - 1) % len(tools)]()
 
 
 def _architecture_diagram() -> str:
     return r"""
-\vspace{4pt}\boxtitle{Diagnostic architecture map}\\[-2pt]
+\vspace{4pt}{\textcolor{BOBlue}{\scriptsize\bfseries DIAGNOSTIC ARCHITECTURE MAP}}\par
 \begin{center}\begin{tikzpicture}[x=1mm,y=1mm]
 \tikzstyle{box}=[draw=BOLine,fill=BOLight,rounded corners=2mm,minimum width=38mm,minimum height=14mm,align=center,text width=35mm]
-\node[box] (a) at (25,25) {\small Hardware / platform};\node[box] (b) at (73,25) {\small Funding / policy};\node[box] (c) at (121,25) {\small Ecosystem / talent};\node[box] (d) at (169,25) {\small Commercial use cases};
+\node[box] (a) at (25,22) {\small Hardware / platform};
+\node[box] (b) at (73,22) {\small Funding / policy};
+\node[box] (c) at (121,22) {\small Ecosystem / talent};
+\node[box] (d) at (169,22) {\small Commercial use cases};
 \draw[->,very thick,BOBright] (a) -- (b);\draw[->,very thick,BOBright] (b) -- (c);\draw[->,very thick,BOBright] (c) -- (d);
 \end{tikzpicture}\end{center}
 """
@@ -271,21 +249,24 @@ def _architecture_diagram() -> str:
 
 def _timeline_diagram() -> str:
     return r"""
-\vspace{4pt}\boxtitle{Indicative development roadmap}\\[-2pt]
+\vspace{4pt}{\textcolor{BOBlue}{\scriptsize\bfseries INDICATIVE DEVELOPMENT ROADMAP}}\par
 \begin{center}\begin{tikzpicture}[x=1mm,y=1mm]
 \draw[very thick,BOBright] (10,18) -- (170,18);
-\foreach \x/\year/\label in {10/2021/Policy launch,55/2023/Pilot scaling,105/2026/Commercial proof,150/2030/Industrial adoption}{\fill[BOBlue] (\x,18) circle (2.1);\node[anchor=south,align=center,text width=32mm] at (\x,22) {\scriptsize\textcolor{BOBlue}{\textbf{\year}}\\\scriptsize \label};}
+\fill[BOBlue] (10,18) circle (2.1);\node[anchor=south,align=center,text width=32mm] at (10,22) {\scriptsize\textcolor{BOBlue}{\textbf{2021}}\\\scriptsize Policy launch};
+\fill[BOBlue] (55,18) circle (2.1);\node[anchor=south,align=center,text width=32mm] at (55,22) {\scriptsize\textcolor{BOBlue}{\textbf{2023}}\\\scriptsize Pilot scaling};
+\fill[BOBlue] (105,18) circle (2.1);\node[anchor=south,align=center,text width=32mm] at (105,22) {\scriptsize\textcolor{BOBlue}{\textbf{2026}}\\\scriptsize Commercial proof};
+\fill[BOBlue] (150,18) circle (2.1);\node[anchor=south,align=center,text width=32mm] at (150,22) {\scriptsize\textcolor{BOBlue}{\textbf{2030}}\\\scriptsize Industrial adoption};
 \end{tikzpicture}\end{center}
 """
 
 
 def _ecosystem_table() -> str:
     return r"""
-\vspace{4pt}\boxtitle{Ecosystem role map}\\[2pt]
-\begin{tabularx}{\linewidth}{L{33mm}Y Y}
+\vspace{4pt}{\textcolor{BOBlue}{\scriptsize\bfseries ECOSYSTEM ROLE MAP}}\par
+\begin{tabularx}{\linewidth}{p{33mm}YY}
 \textcolor{BOBlue}{\bfseries Actor} & \textcolor{BOBlue}{\bfseries Role in scaling} & \textcolor{BOBlue}{\bfseries Management implication} \\
 Government / labs & Anchor funding, standards and strategic direction & Track policy shifts and non-market funding priorities \\
-Large platforms & Provide cloud access, customer reach and infrastructure credibility & Use partnerships to accelerate go-to-market and validation \\
+Large platforms & Provide infrastructure credibility and customer reach & Use partnerships to accelerate validation and go-to-market \\
 Startups & Specialize around algorithms, components and vertical applications & Prioritize teams with clear application roadmap and defensible talent \\
 Customers & Convert pilots into repeatable deployment evidence & Focus on use cases with visible ROI and procurement urgency \\
 \end{tabularx}
@@ -294,21 +275,21 @@ Customers & Convert pilots into repeatable deployment evidence & Focus on use ca
 
 def _application_matrix() -> str:
     return r"""
-\vspace{4pt}\boxtitle{Application attractiveness screen}\\[2pt]
-\begin{tabularx}{\linewidth}{L{36mm}L{27mm}L{27mm}Y}
+\vspace{4pt}{\textcolor{BOBlue}{\scriptsize\bfseries APPLICATION ATTRACTIVENESS SCREEN}}\par
+\begin{tabularx}{\linewidth}{p{36mm}p{27mm}p{27mm}Y}
 \textcolor{BOBlue}{\bfseries Application} & \textcolor{BOBlue}{\bfseries Time to proof} & \textcolor{BOBlue}{\bfseries Value clarity} & \textcolor{BOBlue}{\bfseries Priority logic} \\
 Optimization / logistics & Near term & Medium & Attractive where narrow advantage can be demonstrated with existing workflows \\
 Finance / risk & Near term & High & Strong business sponsor, but deployment depends on reliability and governance \\
 Drug / materials discovery & Medium term & High & Strategic upside is large, but technical proof and data integration remain demanding \\
-Security / infrastructure & Medium term & Medium & Policy-driven demand can support early deployment even before broad commercial ROI \\
+Security / infrastructure & Medium term & Medium & Policy-driven demand can support early deployment before broad commercial ROI \\
 \end{tabularx}
 """
 
 
 def _risk_register() -> str:
     return r"""
-\vspace{4pt}\boxtitle{Risk register and mitigation logic}\\[2pt]
-\begin{tabularx}{\linewidth}{L{36mm}L{25mm}Y}
+\vspace{4pt}{\textcolor{BOBlue}{\scriptsize\bfseries RISK REGISTER AND MITIGATION LOGIC}}\par
+\begin{tabularx}{\linewidth}{p{36mm}p{25mm}Y}
 \textcolor{BOBlue}{\bfseries Risk} & \textcolor{BOBlue}{\bfseries Severity} & \textcolor{BOBlue}{\bfseries Mitigation lens} \\
 Technology bottleneck & High & Stage-gate investment against measurable performance milestones \\
 Supply chain constraint & Medium-high & Build local alternatives, dual-source critical components and monitor export controls \\
@@ -320,8 +301,8 @@ Commercial adoption delay & Medium & Prioritize customers with urgent pain point
 
 def _decision_table() -> str:
     return r"""
-\vspace{4pt}\boxtitle{Decision filter for management action}\\[2pt]
-\begin{tabularx}{\linewidth}{L{34mm}Y Y}
+\vspace{4pt}{\textcolor{BOBlue}{\scriptsize\bfseries DECISION FILTER FOR MANAGEMENT ACTION}}\par
+\begin{tabularx}{\linewidth}{p{34mm}YY}
 \textcolor{BOBlue}{\bfseries Decision test} & \textcolor{BOBlue}{\bfseries What good looks like} & \textcolor{BOBlue}{\bfseries Warning sign} \\
 Strategic fit & Reinforces a priority market, capability or policy-backed growth lane & Attractive technology without a buyer or owner \\
 Evidence quality & Demonstrated performance data, reference customers and transparent assumptions & Claims depend on one-off demos or unsupported forecasts \\
@@ -331,11 +312,25 @@ Timing & Clear 12-36 month proof path & Value creation pushed beyond practical i
 """
 
 
+def _kicker(text: str) -> str:
+    return "{\\textcolor{BOBlue}{\\scriptsize\\bfseries " + _tex(str(text).upper()) + "}}\\par\\vspace{-1pt}\n"
+
+
+def _heading(text: str) -> str:
+    return "{\\Large\\sffamily\\bfseries\\color{BONavy} " + text + "}\\par\\vspace{4pt}\n"
+
+
+def _rule() -> str:
+    return "\\vspace{2pt}{\\color{BOBright}\\rule{\\linewidth}{1pt}}\\vspace{5pt}\n"
+
+
 def _asset_path(path: str, *, allow_svg: bool = True) -> str:
     if not path:
         return ""
     normalized = path.replace("\\", "/")
     if not allow_svg and normalized.lower().endswith(".svg"):
+        return ""
+    if normalized.lower().endswith(".svg"):
         return ""
     return normalized
 
@@ -359,7 +354,16 @@ def _shorten(value: Any, max_chars: int) -> str:
 def _tex(value: Any) -> str:
     text = str(value or "").replace("\u00ad", "").replace("\ufffe", "").replace("\ufeff", "")
     text = " ".join(text.replace("\n", " ").split())
-    replacements = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_", "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}"}
-    for src, dst in replacements.items():
-        text = text.replace(src, dst)
-    return text
+    mapping = {
+        "\\": r"\textbackslash{}",
+        "&": r"\&",
+        "%": r"\%",
+        "$": r"\$",
+        "#": r"\#",
+        "_": r"\_",
+        "{": r"\{",
+        "}": r"\}",
+        "~": r"\textasciitilde{}",
+        "^": r"\textasciicircum{}",
+    }
+    return "".join(mapping.get(ch, ch) for ch in text)
