@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .deepseek_client import DeepSeekClient
+from .latex_renderer import render_latex_pdf
 from .research_pipeline import ResearchPipeline
 
 
@@ -48,9 +49,24 @@ def main() -> None:
     presentation_path = output_dir / "presentation.html"
     qa_path = output_dir / "qa_result.json"
 
+    latex_result = render_latex_pdf(
+        report=result.get("report", {}),
+        assets=result.get("asset_map", {}),
+        output_dir=output_dir,
+        topic=result.get("report", {}).get("_display_topic") or args.topic,
+        language=normalized_language,
+    )
+    latex_tex_path = Path(latex_result.get("tex_path", output_dir / "report_latex.tex"))
+    latex_pdf_path = Path(latex_result.get("pdf_path")) if latex_result.get("pdf_path") else output_dir / "report_latex.pdf"
+
     print(f"Report generated at: {report_path}")
     print(f"Markdown generated at: {markdown_path}")
     print(f"PDF generated at: {pdf_path}")
+    print(f"LaTeX source generated at: {latex_tex_path}")
+    if latex_pdf_path.exists():
+        print(f"LaTeX PDF generated at: {latex_pdf_path}")
+    else:
+        print(f"LaTeX PDF not generated; see {output_dir / 'latex_error.txt'} if present")
     print(f"PPTX generated at: {pptx_path}")
     print(f"HTML presentation generated at: {presentation_path}")
     print(f"QA result generated at: {qa_path}")
@@ -65,6 +81,8 @@ def main() -> None:
             f.write(f"- HTML: `{report_path}`\n")
             f.write(f"- Markdown: `{markdown_path}`\n")
             f.write(f"- PDF: `{pdf_path}`\n")
+            f.write(f"- LaTeX source: `{latex_tex_path}`\n")
+            f.write(f"- LaTeX PDF: `{latex_pdf_path}`\n")
             f.write(f"- PPTX: `{pptx_path}`\n")
             f.write(f"- HTML Presentation: `{presentation_path}`\n")
             f.write(f"- QA passed: `{qa_result.get('passed')}`\n")
