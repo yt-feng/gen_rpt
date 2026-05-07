@@ -1,0 +1,1 @@
+Command '['/usr/bin/xelatex', '-interaction=nonstopmode', '-halt-on-error', 'report_latex.tex']' returned non-zero exit status 1.
