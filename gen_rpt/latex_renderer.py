@@ -27,8 +27,6 @@ LATEX_HEADER = r"""
 \definecolor{BOMuted}{HTML}{6F7F8F}
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
-\definecolor{BOMid}{HTML}{DDEAF7}
-\definecolor{BOGreen}{HTML}{3A8B84}
 \hypersetup{colorlinks=true,linkcolor=BOBlue,urlcolor=BOBlue}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{3.6pt}
@@ -52,7 +50,6 @@ LATEX_HEADER = r"""
 \newcommand{\source}[1]{\textcolor{BOMuted}{\scriptsize #1}}
 \newcommand{\takeaway}[1]{\vspace{4pt}\noindent\colorbox{BOLight}{\parbox{0.965\linewidth}{\small #1}}\vspace{3pt}}
 \newcommand{\boxtitle}[1]{\textcolor{BOBlue}{\scriptsize\bfseries\MakeUppercase{#1}}}
-\newcommand{\Needspace}[1]{\par\vspace{2pt}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 """
@@ -108,14 +105,11 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
     parts.append(_strategic_logic_page(report, sections))
     parts.append(_contents_page(sections))
     parts.append(_disclaimer_page(institutions))
-
     for idx, section in enumerate(sections, start=1):
         parts.append(_section_block(section, assets, idx))
-
     if institutions:
         refs = _tex(", ".join(str(x) for x in institutions))
         parts.append(f"\\clearpage\n\\kicker{{Reference note}}\n{{\\small\\color{{BOMuted}} This report was informed by public research and data from: {refs}. Full source backup is archived in the backup folder.}}\n")
-
     parts.append("\\end{document}\n")
     return "\n".join(parts)
 
@@ -143,9 +137,7 @@ def _cover_page(title: str, subtitle: str, cover: str, logo: str) -> str:
 
 
 def _summary_page(summary: List[str]) -> str:
-    cards = []
-    for idx, item in enumerate(summary[:6], start=1):
-        cards.append(_summary_card(idx, item))
+    cards = [_summary_card(idx, item) for idx, item in enumerate(summary[:6], start=1)]
     while len(cards) < 6:
         cards.append(_summary_card(len(cards) + 1, "Evidence base and management implications should be validated through source backup and client discussion."))
     return rf"""
@@ -162,7 +154,13 @@ def _summary_page(summary: List[str]) -> str:
 
 
 def _summary_card(idx: int, text: str) -> str:
-    return rf"\colorbox{{BOLight}}{{\parbox{{0.455\linewidth}}{{\textcolor{{BOBlue}}{{\bfseries {idx:02d}}}\\[-1pt]{{\small {_tex(_shorten(text, 240))}}}}}}"
+    content = _tex(_shorten(text, 240))
+    return (
+        "\\colorbox{BOLight}{\\parbox{0.455\\linewidth}{"
+        f"\\textcolor{{BOBlue}}{{\\bfseries {idx:02d}}}\\\\[-1pt]"
+        f"{{\\small {content}}}"
+        "}}"
+    )
 
 
 def _strategic_logic_page(report: Dict[str, Any], sections: List[Dict[str, Any]]) -> str:
@@ -238,84 +236,52 @@ def _section_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     image_block = ""
     if image_path:
         image_block = f"\\begin{{center}}\\includegraphics[width=.78\\linewidth,height=46mm,keepaspectratio]{{{image_path}}}\\end{{center}}"
-
-    if takeaways:
-        takeaway_text = " ".join([f"\\textbullet\\ {x}" for x in takeaways])
-    else:
-        takeaway_text = "\\textbullet\\ Validate assumptions with the reference backup. \\textbullet\\ Translate evidence into management action."
-
+    takeaway_text = " ".join([f"\\textbullet\\ {x}" for x in takeaways]) if takeaways else "\\textbullet\\ Validate assumptions with the reference backup. \\textbullet\\ Translate evidence into management action."
     body = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[:3]])
     continuation = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[3:]])
-    tool = _analysis_tool(idx, title, paragraphs, takeaways)
     continuation_block = f"\n{{\\small {continuation}}}\n" if continuation else ""
-
+    lead_block = f"\\lead{{{lead}}}" if lead else ""
     return rf"""
 \clearpage
 \kicker{{Chapter {idx}}}
 {{\Large\sffamily\bfseries\color{{BONavy}} {title}}}\\[4pt]
-{('\lead{' + lead + '}') if lead else ''}
+{lead_block}
 {body}
 \takeaway{{\textbf{{So what:}} {takeaway_text}}}
 {image_block}
-{tool}
+{_analysis_tool(idx)}
 {continuation_block}
 """
 
 
-def _analysis_tool(idx: int, title: str, paragraphs: List[str], takeaways: List[str]) -> str:
-    mode = ((idx - 1) % 6) + 1
-    if mode == 1:
-        return _architecture_diagram()
-    if mode == 2:
-        return _timeline_diagram()
-    if mode == 3:
-        return _ecosystem_table()
-    if mode == 4:
-        return _application_matrix()
-    if mode == 5:
-        return _risk_register()
-    return _decision_table()
+def _analysis_tool(idx: int) -> str:
+    return [_architecture_diagram, _timeline_diagram, _ecosystem_table, _application_matrix, _risk_register, _decision_table][(idx - 1) % 6]()
 
 
 def _architecture_diagram() -> str:
     return r"""
-\vspace{4pt}
-\boxtitle{Diagnostic architecture map}\\[-2pt]
-\begin{center}
-\begin{tikzpicture}[x=1mm,y=1mm]
+\vspace{4pt}\boxtitle{Diagnostic architecture map}\\[-2pt]
+\begin{center}\begin{tikzpicture}[x=1mm,y=1mm]
 \tikzstyle{box}=[draw=BOLine,fill=BOLight,rounded corners=2mm,minimum width=38mm,minimum height=14mm,align=center,text width=35mm]
-\node[box] (a) at (25,25) {\small Hardware / platform};
-\node[box] (b) at (73,25) {\small Funding / policy};
-\node[box] (c) at (121,25) {\small Ecosystem / talent};
-\node[box] (d) at (169,25) {\small Commercial use cases};
-\draw[->,very thick,BOBright] (a) -- (b);
-\draw[->,very thick,BOBright] (b) -- (c);
-\draw[->,very thick,BOBright] (c) -- (d);
-\end{tikzpicture}
-\end{center}
+\node[box] (a) at (25,25) {\small Hardware / platform};\node[box] (b) at (73,25) {\small Funding / policy};\node[box] (c) at (121,25) {\small Ecosystem / talent};\node[box] (d) at (169,25) {\small Commercial use cases};
+\draw[->,very thick,BOBright] (a) -- (b);\draw[->,very thick,BOBright] (b) -- (c);\draw[->,very thick,BOBright] (c) -- (d);
+\end{tikzpicture}\end{center}
 """
 
 
 def _timeline_diagram() -> str:
     return r"""
-\vspace{4pt}
-\boxtitle{Indicative development roadmap}\\[-2pt]
-\begin{center}
-\begin{tikzpicture}[x=1mm,y=1mm]
+\vspace{4pt}\boxtitle{Indicative development roadmap}\\[-2pt]
+\begin{center}\begin{tikzpicture}[x=1mm,y=1mm]
 \draw[very thick,BOBright] (10,18) -- (170,18);
-\foreach \x/\year/\label in {10/2021/Policy launch,55/2023/Pilot scaling,105/2026/Commercial proof,150/2030/Industrial adoption}{
-  \fill[BOBlue] (\x,18) circle (2.1);
-  \node[anchor=south,align=center,text width=32mm] at (\x,22) {\scriptsize\textcolor{BOBlue}{\textbf{\year}}\\\scriptsize \label};
-}
-\end{tikzpicture}
-\end{center}
+\foreach \x/\year/\label in {10/2021/Policy launch,55/2023/Pilot scaling,105/2026/Commercial proof,150/2030/Industrial adoption}{\fill[BOBlue] (\x,18) circle (2.1);\node[anchor=south,align=center,text width=32mm] at (\x,22) {\scriptsize\textcolor{BOBlue}{\textbf{\year}}\\\scriptsize \label};}
+\end{tikzpicture}\end{center}
 """
 
 
 def _ecosystem_table() -> str:
     return r"""
-\vspace{4pt}
-\boxtitle{Ecosystem role map}\\[2pt]
+\vspace{4pt}\boxtitle{Ecosystem role map}\\[2pt]
 \begin{tabularx}{\linewidth}{L{33mm}Y Y}
 \textcolor{BOBlue}{\bfseries Actor} & \textcolor{BOBlue}{\bfseries Role in scaling} & \textcolor{BOBlue}{\bfseries Management implication} \\
 Government / labs & Anchor funding, standards and strategic direction & Track policy shifts and non-market funding priorities \\
@@ -328,8 +294,7 @@ Customers & Convert pilots into repeatable deployment evidence & Focus on use ca
 
 def _application_matrix() -> str:
     return r"""
-\vspace{4pt}
-\boxtitle{Application attractiveness screen}\\[2pt]
+\vspace{4pt}\boxtitle{Application attractiveness screen}\\[2pt]
 \begin{tabularx}{\linewidth}{L{36mm}L{27mm}L{27mm}Y}
 \textcolor{BOBlue}{\bfseries Application} & \textcolor{BOBlue}{\bfseries Time to proof} & \textcolor{BOBlue}{\bfseries Value clarity} & \textcolor{BOBlue}{\bfseries Priority logic} \\
 Optimization / logistics & Near term & Medium & Attractive where narrow advantage can be demonstrated with existing workflows \\
@@ -342,8 +307,7 @@ Security / infrastructure & Medium term & Medium & Policy-driven demand can supp
 
 def _risk_register() -> str:
     return r"""
-\vspace{4pt}
-\boxtitle{Risk register and mitigation logic}\\[2pt]
+\vspace{4pt}\boxtitle{Risk register and mitigation logic}\\[2pt]
 \begin{tabularx}{\linewidth}{L{36mm}L{25mm}Y}
 \textcolor{BOBlue}{\bfseries Risk} & \textcolor{BOBlue}{\bfseries Severity} & \textcolor{BOBlue}{\bfseries Mitigation lens} \\
 Technology bottleneck & High & Stage-gate investment against measurable performance milestones \\
@@ -356,8 +320,7 @@ Commercial adoption delay & Medium & Prioritize customers with urgent pain point
 
 def _decision_table() -> str:
     return r"""
-\vspace{4pt}
-\boxtitle{Decision filter for management action}\\[2pt]
+\vspace{4pt}\boxtitle{Decision filter for management action}\\[2pt]
 \begin{tabularx}{\linewidth}{L{34mm}Y Y}
 \textcolor{BOBlue}{\bfseries Decision test} & \textcolor{BOBlue}{\bfseries What good looks like} & \textcolor{BOBlue}{\bfseries Warning sign} \\
 Strategic fit & Reinforces a priority market, capability or policy-backed growth lane & Attractive technology without a buyer or owner \\
@@ -378,15 +341,9 @@ def _asset_path(path: str, *, allow_svg: bool = True) -> str:
 
 
 def _summary_items(value: Any) -> List[str]:
-    raw: List[str]
-    if isinstance(value, list):
-        raw = [str(x).strip() for x in value if str(x).strip()]
-    else:
-        raw = [str(value).strip()] if str(value).strip() else []
+    raw = [str(x).strip() for x in value if str(x).strip()] if isinstance(value, list) else ([str(value).strip()] if str(value).strip() else [])
     if len(raw) <= 2 and raw and len(" ".join(raw)) > 450:
-        text = " ".join(raw)
-        sentences = re.split(r"(?<=[.!?])\s+", text)
-        raw = [s.strip() for s in sentences if len(s.strip()) > 20]
+        raw = [s.strip() for s in re.split(r"(?<=[.!?])\s+", " ".join(raw)) if len(s.strip()) > 20]
     return raw[:8]
 
 
@@ -400,21 +357,9 @@ def _shorten(value: Any, max_chars: int) -> str:
 
 
 def _tex(value: Any) -> str:
-    text = str(value or "")
-    text = text.replace("\u00ad", "").replace("\ufffe", "").replace("\ufeff", "")
+    text = str(value or "").replace("\u00ad", "").replace("\ufffe", "").replace("\ufeff", "")
     text = " ".join(text.replace("\n", " ").split())
-    replacements = {
-        "\\": r"\textbackslash{}",
-        "&": r"\&",
-        "%": r"\%",
-        "$": r"\$",
-        "#": r"\#",
-        "_": r"\_",
-        "{": r"\{",
-        "}": r"\}",
-        "~": r"\textasciitilde{}",
-        "^": r"\textasciicircum{}",
-    }
+    replacements = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_", "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}"}
     for src, dst in replacements.items():
         text = text.replace(src, dst)
     return text
