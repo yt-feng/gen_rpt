@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 
 
 LATEX_HEADER = r"""
-\documentclass[10.5pt,a4paper]{article}
+\documentclass[10pt,a4paper]{article}
 \usepackage[a4paper,margin=14mm,top=12mm,bottom=13mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
@@ -16,13 +16,8 @@ LATEX_HEADER = r"""
 \usepackage{tikz}
 \usepackage{tabularx}
 \usepackage{array}
-\usepackage{enumitem}
-\usepackage{titlesec}
 \usepackage{fancyhdr}
-\usepackage{lastpage}
 \usepackage{hyperref}
-\usepackage{parskip}
-\usepackage{needspace}
 \defaultfontfeatures{Ligatures=TeX}
 \setmainfont{DejaVu Sans}
 \setsansfont{DejaVu Sans}
@@ -35,22 +30,19 @@ LATEX_HEADER = r"""
 \hypersetup{colorlinks=true,linkcolor=BOBlue,urlcolor=BOBlue}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{4pt}
-\setlist[itemize]{leftmargin=*,topsep=2pt,itemsep=1pt,parsep=0pt}
-\titleformat{\section}{\Large\sffamily\bfseries\color{BONavy}}{}{0pt}{}
-\titleformat{\subsection}{\normalsize\bfseries\sffamily\color{BOBlue}}{}{0pt}{}
-\titlespacing*{\section}{0pt}{8pt}{5pt}
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
 \fancyhead[L]{\scriptsize\color{BOMuted} BLUEOCEAN | CONFIDENTIAL}
 \fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean | Confidential}
-\fancyfoot[R]{\scriptsize\color{BOMuted} \thepage/\pageref{LastPage}}
+\fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
 \newcommand{\bohrule}{\vspace{2pt}{\color{BOBright}\rule{\linewidth}{1pt}}\vspace{5pt}}
 \newcommand{\kicker}[1]{\textcolor{BOBlue}{\scriptsize\bfseries\MakeUppercase{#1}}\\[-2pt]}
 \newcommand{\lead}[1]{\textcolor{BOBlue}{\normalsize #1}\par\vspace{2pt}}
 \newcommand{\source}[1]{\textcolor{BOMuted}{\scriptsize #1}}
 \newcommand{\takeaway}[1]{\vspace{3pt}\noindent\colorbox{BOLight}{\parbox{0.965\linewidth}{\small #1}}\vspace{3pt}}
+\newcommand{\Needspace}[1]{\par\vspace{2pt}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 """
 
@@ -146,7 +138,7 @@ def _summary_page(summary: List[str]) -> str:
         rows.append("\\textcolor{BOBlue}{\\bfseries 01} & No executive summary was generated. \\\\\n")
     return rf"""
 \kicker{{Key highlights}}
-\section*{{The analysis points to a focused set of management priorities}}
+{{\Large\sffamily\bfseries\color{{BONavy}} The analysis points to a focused set of management priorities}}\\[4pt]
 \bohrule
 \begin{{tabularx}}{{\linewidth}}{{p{{12mm}}Y}}
 {''.join(rows)}\end{{tabularx}}
@@ -160,7 +152,7 @@ def _contents_page(sections: List[Dict[str, Any]]) -> str:
         rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx}}} & {_tex(_strip_number_prefix(section.get('title', 'Section')))} \\\\[4pt]\n")
     return rf"""
 \kicker{{Contents}}
-\section*{{Contents}}
+{{\Large\sffamily\bfseries\color{{BONavy}} Contents}}\\[4pt]
 \bohrule
 \begin{{tabularx}}{{\linewidth}}{{p{{10mm}}Y}}
 {''.join(rows)}\end{{tabularx}}
@@ -174,7 +166,7 @@ def _disclaimer_page(institutions: List[Any]) -> str:
         ref_note = "\\vspace{6pt}\\source{This report was informed by public research and data from: " + _tex(", ".join(str(x) for x in institutions)) + ".}"
     return rf"""
 \kicker{{Disclaimer}}
-\section*{{Disclaimer}}
+{{\Large\sffamily\bfseries\color{{BONavy}} Disclaimer}}\\[4pt]
 \bohrule
 {{\small This document is a management consulting and research analysis deliverable for strategy discussion only and does not constitute investment, legal, tax, or audit advice.}}
 {ref_note}
@@ -207,7 +199,7 @@ def _section_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     return rf"""
 \Needspace{{55mm}}
 \kicker{{Chapter {idx}}}
-\section*{{{title}}}
+{{\Large\sffamily\bfseries\color{{BONavy}} {title}}}\\[4pt]
 {lead_block}
 {paras}
 {takeaway_block}
