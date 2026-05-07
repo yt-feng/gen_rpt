@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
 from gen_rpt.brand_assets import copy_or_generate_brand_assets, summarize_reference_institutions, write_reference_backup
 from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.graphics import create_chart, create_insight_card
+from gen_rpt.latex_renderer import render_latex_pdf
 from gen_rpt.report_renderer import render_report_html, render_report_markdown
 
 
@@ -38,7 +39,7 @@ def main() -> None:
             {"title": "Stacked chart without id", "type": "stacked_bar", "categories": ["2024", "2025"], "series": [{"name": "A", "values": [1, 2]}, {"name": "B", "values": [2, 3]}]},
             {"title": "Matrix chart", "type": "matrix", "rows": ["Cost", "Supply"], "columns": ["A", "B"], "values": [[5, 3], [4, 2]]},
             {"title": "Bubble chart", "type": "bubble", "points": [{"label": "A", "x": 40, "y": 70, "size": 50}]},
-            123,
+            {"title": "Bad single point market size", "type": "pie", "categories": ["Market"], "series": [{"name": "Value", "values": [100]}]},
         ],
         "references": ["BloombergNEF 2024", {"title": "IEA report", "url": "https://www.iea.org/", "note": "Source"}],
     }
@@ -48,7 +49,7 @@ def main() -> None:
     asset_map = copy_or_generate_brand_assets(assets)
     write_reference_backup(out, report.get("references", []), [{"title": "Source", "url": "https://example.com", "content": "content"}])
 
-    # Provide AI image placeholders so image visual hints render without external calls.
+    # Provide one real local image placeholder for image visual hints without external calls.
     asset_map["image-1"] = asset_map["cover-background"]
     for card in report.get("insight_cards", []):
         target = assets / f"{card['id']}.png"
@@ -61,11 +62,18 @@ def main() -> None:
 
     render_report_html(report, asset_map, out / "report.html", "Smoke topic", "en")
     render_report_markdown(report, asset_map, out / "report.md", "Smoke topic", "en")
+    latex_result = render_latex_pdf(report, asset_map, out, "Smoke topic", "en")
 
     assert (out / "report.html").exists()
     assert (out / "report.md").exists()
+    assert (out / "report_latex.tex").exists()
     assert any((assets / f"chart-{idx}.png").exists() for idx in range(1, 5))
-    print(json.dumps({"ok": True, "assets": len(asset_map), "cards": len(report.get("insight_cards", [])), "charts": len(report.get("charts", []))}))
+    if not latex_result.get("pdf_path"):
+        error_path = out / "latex_error.txt"
+        if error_path.exists():
+            raise RuntimeError(error_path.read_text(encoding="utf-8")[-1200:])
+        raise RuntimeError("LaTeX PDF was not generated and no latex_error.txt was written")
+    print(json.dumps({"ok": True, "assets": len(asset_map), "cards": len(report.get("insight_cards", [])), "charts": len(report.get("charts", [])), "latex_pdf": latex_result.get("pdf_path")}))
 
 
 if __name__ == "__main__":
