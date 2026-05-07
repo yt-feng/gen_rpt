@@ -8,8 +8,8 @@ from typing import Any, Dict, List
 
 
 LATEX_HEADER = r"""
-\documentclass[11pt,a4paper]{article}
-\usepackage[a4paper,margin=15mm,top=13mm,bottom=14mm]{geometry}
+\documentclass[10.5pt,a4paper]{article}
+\usepackage[a4paper,margin=14mm,top=12mm,bottom=13mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{graphicx}
@@ -21,8 +21,8 @@ LATEX_HEADER = r"""
 \usepackage{fancyhdr}
 \usepackage{lastpage}
 \usepackage{hyperref}
-\usepackage{setspace}
 \usepackage{parskip}
+\usepackage{needspace}
 \defaultfontfeatures{Ligatures=TeX}
 \setmainfont{DejaVu Sans}
 \setsansfont{DejaVu Sans}
@@ -34,10 +34,11 @@ LATEX_HEADER = r"""
 \definecolor{BOLight}{HTML}{F4F8FC}
 \hypersetup{colorlinks=true,linkcolor=BOBlue,urlcolor=BOBlue}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{5pt}
-\setlist[itemize]{leftmargin=*,topsep=2pt,itemsep=2pt}
-\titleformat{\section}{\Large\sffamily\color{BONavy}}{}{0pt}{}
+\setlength{\parskip}{4pt}
+\setlist[itemize]{leftmargin=*,topsep=2pt,itemsep=1pt,parsep=0pt}
+\titleformat{\section}{\Large\sffamily\bfseries\color{BONavy}}{}{0pt}{}
 \titleformat{\subsection}{\normalsize\bfseries\sffamily\color{BOBlue}}{}{0pt}{}
+\titlespacing*{\section}{0pt}{8pt}{5pt}
 \pagestyle{fancy}
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
@@ -45,9 +46,9 @@ LATEX_HEADER = r"""
 \fancyhead[L]{\scriptsize\color{BOMuted} BLUEOCEAN | CONFIDENTIAL}
 \fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean | Confidential}
 \fancyfoot[R]{\scriptsize\color{BOMuted} \thepage/\pageref{LastPage}}
-\newcommand{\bohrule}{\vspace{3pt}{\color{BOBright}\rule{\linewidth}{1.1pt}}\vspace{5pt}}
+\newcommand{\bohrule}{\vspace{2pt}{\color{BOBright}\rule{\linewidth}{1pt}}\vspace{5pt}}
 \newcommand{\kicker}[1]{\textcolor{BOBlue}{\scriptsize\bfseries\MakeUppercase{#1}}\\[-2pt]}
-\newcommand{\lead}[1]{\textcolor{BOBlue}{\large #1}\par\vspace{3pt}}
+\newcommand{\lead}[1]{\textcolor{BOBlue}{\normalsize #1}\par\vspace{2pt}}
 \newcommand{\source}[1]{\textcolor{BOMuted}{\scriptsize #1}}
 \newcommand{\takeaway}[1]{\vspace{3pt}\noindent\colorbox{BOLight}{\parbox{0.965\linewidth}{\small #1}}\vspace{3pt}}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
@@ -77,9 +78,13 @@ def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir:
                 text=True,
                 timeout=180,
             )
-            combined_output += run.stdout[-4000:]
+            combined_output += run.stdout[-5000:]
         (output_dir / "latex_build.log").write_text(combined_output, encoding="utf-8")
         return {"tex_path": str(tex_path), "pdf_path": str(pdf_path) if pdf_path.exists() else ""}
+    except subprocess.CalledProcessError as exc:
+        output = exc.stdout or ""
+        (output_dir / "latex_error.txt").write_text(output[-8000:] or str(exc), encoding="utf-8")
+        return {"tex_path": str(tex_path), "pdf_path": ""}
     except Exception as exc:
         (output_dir / "latex_error.txt").write_text(str(exc), encoding="utf-8")
         return {"tex_path": str(tex_path), "pdf_path": ""}
@@ -89,7 +94,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
     title = _tex(report.get("report_title") or topic)
     subtitle = _tex(report.get("report_subtitle") or "Strategic assessment")
     cover = _asset_path(assets.get("cover-background", ""))
-    logo = _asset_path(assets.get("brand-logo", ""))
+    logo = _asset_path(assets.get("brand-logo", ""), allow_svg=False)
     sections = report.get("sections", []) or []
     summary = [_tex(x) for x in report.get("executive_summary", [])[:8]]
     institutions = report.get("reference_institutions", []) or []
@@ -101,11 +106,11 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
     parts.append(_disclaimer_page(institutions))
 
     for idx, section in enumerate(sections, start=1):
-        parts.append(_section_page(section, assets, idx))
+        parts.append(_section_block(section, assets, idx))
 
     if institutions:
         refs = _tex(", ".join(str(x) for x in institutions))
-        parts.append(f"\\clearpage\n\\kicker{{Reference note}}\n{{\\small\\color{{BOMuted}} This report was informed by public research and data from: {refs}. Full source backup is archived in the backup folder.}}\n")
+        parts.append(f"\\Needspace{{30mm}}\n\\kicker{{Reference note}}\n{{\\small\\color{{BOMuted}} This report was informed by public research and data from: {refs}. Full source backup is archived in the backup folder.}}\n")
 
     parts.append("\\end{document}\n")
     return "\n".join(parts)
@@ -122,12 +127,12 @@ def _cover_page(title: str, subtitle: str, cover: str, logo: str) -> str:
 \thispagestyle{{empty}}
 \begin{{tikzpicture}}[remember picture,overlay]
 {background}
-\fill[white,opacity=.94] ([xshift=16mm,yshift=-18mm]current page.north west) rectangle ++(112mm,-62mm);
-\fill[BOBright] ([xshift=16mm,yshift=-18mm]current page.north west) rectangle ++(112mm,-1.7mm);
+\fill[white,opacity=.94] ([xshift=16mm,yshift=-18mm]current page.north west) rectangle ++(116mm,-65mm);
+\fill[BOBright] ([xshift=16mm,yshift=-18mm]current page.north west) rectangle ++(116mm,-1.7mm);
 {logo_node}
-\node[anchor=north west,text width=100mm] at ([xshift=21mm,yshift=-25mm]current page.north west) {{\sffamily\scriptsize\bfseries\color{{BOBlue}} BLUEOCEAN\\DEEP RESEARCH REPORT}};
-\node[anchor=north west,text width=100mm] at ([xshift=21mm,yshift=-37mm]current page.north west) {{\sffamily\Huge\color{{BONavy}} {title}}};
-\node[anchor=north west,text width=100mm] at ([xshift=21mm,yshift=-67mm]current page.north west) {{\sffamily\scriptsize\color{{BOMuted}} {subtitle}}};
+\node[anchor=north west,text width=104mm] at ([xshift=21mm,yshift=-25mm]current page.north west) {{\sffamily\scriptsize\bfseries\color{{BOBlue}} BLUEOCEAN\\DEEP RESEARCH REPORT}};
+\node[anchor=north west,text width=104mm] at ([xshift=21mm,yshift=-37mm]current page.north west) {{\sffamily\Huge\color{{BONavy}} {title}}};
+\node[anchor=north west,text width=104mm] at ([xshift=21mm,yshift=-69mm]current page.north west) {{\sffamily\scriptsize\color{{BOMuted}} {subtitle}}};
 \end{{tikzpicture}}
 \clearpage
 """
@@ -136,16 +141,15 @@ def _cover_page(title: str, subtitle: str, cover: str, logo: str) -> str:
 def _summary_page(summary: List[str]) -> str:
     rows = []
     for idx, item in enumerate(summary, start=1):
-        rows.append(rf"\textcolor{{BOBlue}}{{\bfseries {idx:02d}}} & {item} \\\\[5pt]")
+        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx:02d}}} & {item} \\\\[5pt]\n")
     if not rows:
-        rows.append(r"\textcolor{BOBlue}{\bfseries 01} & No executive summary was generated. \\")
+        rows.append("\\textcolor{BOBlue}{\\bfseries 01} & No executive summary was generated. \\\\\n")
     return rf"""
 \kicker{{Key highlights}}
 \section*{{The analysis points to a focused set of management priorities}}
 \bohrule
 \begin{{tabularx}}{{\linewidth}}{{p{{12mm}}Y}}
-{''.join(rows)}
-\end{{tabularx}}
+{''.join(rows)}\end{{tabularx}}
 \clearpage
 """
 
@@ -153,14 +157,13 @@ def _summary_page(summary: List[str]) -> str:
 def _contents_page(sections: List[Dict[str, Any]]) -> str:
     rows = []
     for idx, section in enumerate(sections, start=1):
-        rows.append(rf"\textcolor{{BOBlue}}{{\bfseries {idx}}} & {_tex(_strip_number_prefix(section.get('title', 'Section')))} \\\\[4pt]")
+        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx}}} & {_tex(_strip_number_prefix(section.get('title', 'Section')))} \\\\[4pt]\n")
     return rf"""
 \kicker{{Contents}}
 \section*{{Contents}}
 \bohrule
 \begin{{tabularx}}{{\linewidth}}{{p{{10mm}}Y}}
-{''.join(rows)}
-\end{{tabularx}}
+{''.join(rows)}\end{{tabularx}}
 \clearpage
 """
 
@@ -181,7 +184,7 @@ def _disclaimer_page(institutions: List[Any]) -> str:
 """
 
 
-def _section_page(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
+def _section_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
     title = _tex(_strip_number_prefix(section.get("title", f"Section {idx}")))
     lead = _tex(section.get("lead", ""))
     paragraphs = [_tex(p) for p in section.get("paragraphs", [])[:5]]
@@ -190,31 +193,35 @@ def _section_page(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> 
     visual = _asset_path(assets.get(visual_key, ""))
     visual_block = ""
     if visual and visual_key.startswith("chart-"):
-        visual_block = rf"\vspace{{3pt}}\begin{{center}}\includegraphics[width=.86\linewidth,height=82mm,keepaspectratio]{{{visual}}}\end{{center}}"
+        visual_block = f"\\vspace{{3pt}}\\begin{{center}}\\includegraphics[width=.78\\linewidth,height=68mm,keepaspectratio]{{{visual}}}\\end{{center}}"
     elif visual and visual_key.startswith("image-"):
-        visual_block = rf"\vspace{{3pt}}\begin{{center}}\includegraphics[width=.70\linewidth,height=76mm,keepaspectratio]{{{visual}}}\end{{center}}"
+        visual_block = f"\\vspace{{3pt}}\\begin{{center}}\\includegraphics[width=.62\\linewidth,height=60mm,keepaspectratio]{{{visual}}}\\end{{center}}"
 
     takeaway_block = ""
     if takeaways:
-        items = "".join([rf"\item {x}" for x in takeaways])
-        takeaway_block = rf"\takeaway{{\textbf{{Takeaways}}\begin{{itemize}}{items}\end{{itemize}}}}"
+        items = "".join([f"\\item {x}" for x in takeaways])
+        takeaway_block = f"\\takeaway{{\\textbf{{Takeaways}}\\begin{{itemize}}{items}\\end{{itemize}}}}"
 
-    paras = "\n\n".join([rf"{{\small {p}}}" for p in paragraphs])
+    paras = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs])
+    lead_block = f"\\lead{{{lead}}}" if lead else ""
     return rf"""
-\clearpage
+\Needspace{{55mm}}
 \kicker{{Chapter {idx}}}
 \section*{{{title}}}
-\lead{{{lead}}}
+{lead_block}
 {paras}
 {takeaway_block}
 {visual_block}
 """
 
 
-def _asset_path(path: str) -> str:
+def _asset_path(path: str, *, allow_svg: bool = True) -> str:
     if not path:
         return ""
-    return path.replace("\\", "/")
+    normalized = path.replace("\\", "/")
+    if not allow_svg and normalized.lower().endswith(".svg"):
+        return ""
+    return normalized
 
 
 def _strip_number_prefix(text: str) -> str:
