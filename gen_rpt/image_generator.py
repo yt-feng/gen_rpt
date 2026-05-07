@@ -4,7 +4,7 @@ import json
 import os
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from urllib.parse import quote
 
 import requests
@@ -15,7 +15,6 @@ from .theme import load_theme
 
 THEME = load_theme()
 PALETTE = THEME.get("palette", {})
-BRAND_NAME = THEME.get("brand_name", "BlueOcean")
 DEFAULT_MAX_SECTION_IMAGES = 2
 DEFAULT_IMAGE_TIMEOUT = 18
 
@@ -27,19 +26,21 @@ def generate_ai_image_assets(
     assets_dir: Path,
     backup_dir: Path,
     *,
-    language: str = "zh",
+    language: str = "en",
 ) -> Dict[str, str]:
-    """Generate cover and a small number of section images.
+    """Generate Pollinations images.
 
-    Image generation is intentionally treated as an enhancement, not a critical
-    path. Slow or failed Pollinations calls immediately fall back to local
-    BlueOcean-style abstract art.
+    Fallback abstract images are allowed for the cover, but section fallback images
+    are suppressed by default because they look like generic blue fillers. The
+    backup/image_prompts.json file records whether each image came from
+    Pollinations or from fallback/skipped generation.
     """
     if os.getenv("DISABLE_AI_IMAGES", "").lower() in {"1", "true", "yes"}:
         return {}
 
     max_section_images = _int_env("MAX_AI_SECTION_IMAGES", DEFAULT_MAX_SECTION_IMAGES)
     timeout_seconds = _int_env("AI_IMAGE_TIMEOUT", DEFAULT_IMAGE_TIMEOUT)
+    show_fallback_images = os.getenv("SHOW_FALLBACK_IMAGES", "false").lower() in {"1", "true", "yes"}
 
     assets_dir.mkdir(parents=True, exist_ok=True)
     backup_dir.mkdir(parents=True, exist_ok=True)
@@ -47,26 +48,27 @@ def generate_ai_image_assets(
     result: Dict[str, str] = {}
 
     cover_keywords = (
-        f"{topic}; premium strategy report cover; abstract ocean depth; blue corporate visual system; "
-        "subtle flowing lines; no readable words; no brand mark; premium business research background"
+        f"{topic}; premium strategy report cover; sophisticated editorial business report background; "
+        "realistic abstract landscape, oceanic energy, glass waves, deep blue and white, no readable words, no logo"
     )
     cover_prompt = _polish_prompt(client, cover_keywords)
     cover_path = assets_dir / "cover-background.png"
-    _download_or_fallback(cover_prompt, cover_path, kind="cover", timeout_seconds=timeout_seconds)
+    status, reason = _download_or_fallback(cover_prompt, cover_path, kind="cover", timeout_seconds=timeout_seconds, allow_fallback=True)
     result["cover-background"] = f"assets/{cover_path.name}"
-    prompt_records.append({"id": "cover-background", "keywords": cover_keywords, "prompt": cover_prompt, "url": _url(cover_prompt)})
+    prompt_records.append({"id": "cover-background", "keywords": cover_keywords, "prompt": cover_prompt, "url": _url(cover_prompt), "status": status, "reason": reason})
 
     for idx, section in enumerate(report.get("sections", [])[:max_section_images], start=1):
         keywords = (
             f"{section.get('title', '')}; {section.get('lead', '')}; {topic}; "
-            "executive strategy presentation image; abstract analytical business visual; blue ocean palette; "
-            "clean geometric lines; subtle data grid; no readable words; no brand mark"
+            "premium editorial strategy report image, photorealistic business environment, human-scale context, "
+            "cinematic lighting, blue and white palette, clean composition, no readable text, no logo"
         )
         prompt = _polish_prompt(client, keywords)
         target = assets_dir / f"image-{idx}.png"
-        _download_or_fallback(prompt, target, kind="section", timeout_seconds=timeout_seconds)
-        result[f"image-{idx}"] = f"assets/{target.name}"
-        prompt_records.append({"id": f"image-{idx}", "keywords": keywords, "prompt": prompt, "url": _url(prompt)})
+        status, reason = _download_or_fallback(prompt, target, kind="section", timeout_seconds=timeout_seconds, allow_fallback=show_fallback_images)
+        if status == "pollinations" or show_fallback_images:
+            result[f"image-{idx}"] = f"assets/{target.name}"
+        prompt_records.append({"id": f"image-{idx}", "keywords": keywords, "prompt": prompt, "url": _url(prompt), "status": status, "reason": reason})
         time.sleep(0.1)
 
     (backup_dir / "image_prompts.json").write_text(json.dumps(prompt_records, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -85,23 +87,22 @@ Return JSON only:
 
 Rules:
 - English only
-- premium management consulting visual
-- BlueOcean corporate style
-- dark blue and bright blue palette
-- abstract analytical composition with clean lines and subtle data-grid feeling
-- avoid readable text, logos, and marks inside the image
+- premium strategy consulting report visual, suitable for a BCG-style publication
+- photorealistic or high-end editorial visual, not generic blue filler
+- elegant blue/white palette, clean composition
+- avoid readable text, logos, marks, watermarks, UI and charts inside the image
 """
     try:
-        data = client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.35)
+        data = client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.25)
         prompt = str(data.get("prompt", "")).strip()
         if prompt:
             return _sanitize(prompt)
     except Exception:
         pass
-    return _sanitize(f"Premium management consulting visual, BlueOcean corporate style, dark blue and bright blue, abstract analytical composition, clean geometric lines, subtle data-grid feeling. Topic: {keywords}")
+    return _sanitize(f"Premium editorial strategy consulting report visual, photorealistic, blue and white palette, no readable text, no logo. Topic: {keywords}")
 
 
-def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int) -> None:
+def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, allow_fallback: bool) -> Tuple[str, str]:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     try:
         response = requests.get(_url(prompt), timeout=timeout_seconds)
@@ -112,9 +113,12 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
             image = image.convert("RGB")
             image.save(output_path, format="PNG")
         tmp.unlink(missing_ok=True)
-        return
-    except Exception:
-        _fallback_image(output_path, kind=kind)
+        return "pollinations", ""
+    except Exception as exc:
+        if allow_fallback:
+            _fallback_image(output_path, kind=kind)
+            return "fallback", str(exc)[:300]
+        return "skipped_fallback_disabled", str(exc)[:300]
 
 
 def _url(prompt: str) -> str:
@@ -125,8 +129,8 @@ def _url(prompt: str) -> str:
 
 def _sanitize(prompt: str) -> str:
     prompt = " ".join(str(prompt).replace("\n", " ").split())
-    if "avoid readable text" not in prompt.lower():
-        prompt += ", avoid readable text, logos, and marks inside the image"
+    if "no readable text" not in prompt.lower():
+        prompt += ", no readable text, no logos, no watermarks"
     return prompt[:900]
 
 
@@ -141,16 +145,14 @@ def _fallback_image(output_path: Path, *, kind: str) -> None:
         for x in range(width):
             t = (x * 0.55 + y * 0.45) / (width + height)
             glow = max(0.0, 1.0 - (((x - width * 0.78) / 360) ** 2 + ((y - height * 0.25) / 300) ** 2))
-            r = int(navy[0] * (1 - t) + mid[0] * t + accent[0] * glow * 0.28)
-            g = int(navy[1] * (1 - t) + mid[1] * t + accent[1] * glow * 0.28)
-            b = int(navy[2] * (1 - t) + mid[2] * t + accent[2] * glow * 0.28)
+            r = int(navy[0] * (1 - t) + mid[0] * t + accent[0] * glow * 0.22)
+            g = int(navy[1] * (1 - t) + mid[1] * t + accent[1] * glow * 0.22)
+            b = int(navy[2] * (1 - t) + mid[2] * t + accent[2] * glow * 0.22)
             px[x, y] = (min(255, r), min(255, g), min(255, b))
     draw = ImageDraw.Draw(img, "RGBA")
-    for i in range(15):
-        y = 120 + i * 55
-        draw.arc((-220, y - 120, 1240, y + 260), 190, 350, fill=(255, 255, 255, 22), width=2)
-    draw.ellipse((610, 120, 1180, 690), fill=(60, 150, 190, 36))
-    draw.ellipse((-160, 690, 520, 1270), fill=(70, 170, 215, 30))
+    for i in range(10):
+        y = 120 + i * 70
+        draw.arc((-220, y - 120, 1240, y + 260), 190, 350, fill=(255, 255, 255, 18), width=2)
     img = img.filter(ImageFilter.SMOOTH_MORE)
     img.save(output_path, format="PNG")
 
