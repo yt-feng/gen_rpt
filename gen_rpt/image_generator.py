@@ -48,8 +48,10 @@ def generate_ai_image_assets(
     result: Dict[str, str] = {}
 
     cover_keywords = (
-        f"{topic}; premium strategy report cover; sophisticated editorial business report background; "
-        "realistic abstract landscape, oceanic energy, glass waves, deep blue and white, no readable words, no logo"
+        f"{topic}; premium strategy report cover; topic-specific editorial visual; "
+        "cinematic real-world or high-end conceptual scene that reflects the industry or technology being researched; "
+        "executive publication quality; sophisticated composition; blue-white accent palette; no readable words; no logo; "
+        "avoid generic ocean waves, avoid glass-wave filler, avoid repetitive abstract blue background"
     )
     cover_prompt = _polish_prompt(client, cover_keywords)
     cover_path = assets_dir / "cover-background.png"
@@ -60,8 +62,9 @@ def generate_ai_image_assets(
     for idx, section in enumerate(report.get("sections", [])[:max_section_images], start=1):
         keywords = (
             f"{section.get('title', '')}; {section.get('lead', '')}; {topic}; "
-            "premium editorial strategy report image, photorealistic business environment, human-scale context, "
-            "cinematic lighting, blue and white palette, clean composition, no readable text, no logo"
+            "premium editorial strategy report image, photorealistic business or technology environment, human-scale context, "
+            "cinematic lighting, blue and white accents, clean composition, no readable text, no logo, "
+            "avoid generic blue abstract filler"
         )
         prompt = _polish_prompt(client, keywords)
         target = assets_dir / f"image-{idx}.png"
@@ -88,8 +91,10 @@ Return JSON only:
 Rules:
 - English only
 - premium strategy consulting report visual, suitable for a BCG-style publication
+- topic-specific visual metaphor or real-world scene; reflect the industry/technology instead of generic decoration
 - photorealistic or high-end editorial visual, not generic blue filler
-- elegant blue/white palette, clean composition
+- elegant blue/white accents, clean composition
+- avoid generic ocean waves, glass waves, water surfaces, abstract blue gradients unless the topic is explicitly ocean-related
 - avoid readable text, logos, marks, watermarks, UI and charts inside the image
 """
     try:
@@ -99,7 +104,7 @@ Rules:
             return _sanitize(prompt)
     except Exception:
         pass
-    return _sanitize(f"Premium editorial strategy consulting report visual, photorealistic, blue and white palette, no readable text, no logo. Topic: {keywords}")
+    return _sanitize(f"Premium topic-specific editorial strategy consulting report visual, photorealistic, blue and white accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
 
 
 def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, allow_fallback: bool) -> Tuple[str, str]:
@@ -129,8 +134,11 @@ def _url(prompt: str) -> str:
 
 def _sanitize(prompt: str) -> str:
     prompt = " ".join(str(prompt).replace("\n", " ").split())
-    if "no readable text" not in prompt.lower():
+    lower = prompt.lower()
+    if "no readable text" not in lower:
         prompt += ", no readable text, no logos, no watermarks"
+    if "avoid ocean waves" not in lower:
+        prompt += ", avoid generic ocean waves and abstract blue filler"
     return prompt[:900]
 
 
@@ -144,15 +152,16 @@ def _fallback_image(output_path: Path, *, kind: str) -> None:
     for y in range(height):
         for x in range(width):
             t = (x * 0.55 + y * 0.45) / (width + height)
-            glow = max(0.0, 1.0 - (((x - width * 0.78) / 360) ** 2 + ((y - height * 0.25) / 300) ** 2))
-            r = int(navy[0] * (1 - t) + mid[0] * t + accent[0] * glow * 0.22)
-            g = int(navy[1] * (1 - t) + mid[1] * t + accent[1] * glow * 0.22)
-            b = int(navy[2] * (1 - t) + mid[2] * t + accent[2] * glow * 0.22)
+            glow = max(0.0, 1.0 - (((x - width * 0.68) / 330) ** 2 + ((y - height * 0.32) / 280) ** 2))
+            r = int(navy[0] * (1 - t) + mid[0] * t + accent[0] * glow * 0.18)
+            g = int(navy[1] * (1 - t) + mid[1] * t + accent[1] * glow * 0.18)
+            b = int(navy[2] * (1 - t) + mid[2] * t + accent[2] * glow * 0.18)
             px[x, y] = (min(255, r), min(255, g), min(255, b))
     draw = ImageDraw.Draw(img, "RGBA")
-    for i in range(10):
-        y = 120 + i * 70
-        draw.arc((-220, y - 120, 1240, y + 260), 190, 350, fill=(255, 255, 255, 18), width=2)
+    for i in range(8):
+        x = 90 + i * 120
+        draw.line((x, 120, x + 220, 900), fill=(255, 255, 255, 14), width=2)
+        draw.ellipse((x - 6, 120 + i * 28, x + 6, 132 + i * 28), fill=(255, 255, 255, 24))
     img = img.filter(ImageFilter.SMOOTH_MORE)
     img.save(output_path, format="PNG")
 
