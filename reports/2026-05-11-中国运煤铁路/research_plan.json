@@ -1,0 +1,93 @@
+{
+  "objective": "To assess the strategic position and future outlook of China's coal railway network, focusing on its role in energy security, economic efficiency, and environmental transition.",
+  "audience": "Senior executives and strategic planners in energy, logistics, and infrastructure sectors; government policy advisors; and investment analysts.",
+  "decision_question": "Should our organization invest in, partner with, or divest from assets related to China's coal railway network, given the dual pressures of energy demand and decarbonization?",
+  "issue_tree": {
+    "root": "Strategic assessment of China's coal railway network",
+    "branches": [
+      {
+        "node": "Current state and capacity",
+        "children": [
+          "Major coal railway corridors (e.g., Daqin, Shuohuang, Haoji) and their throughput",
+          "Infrastructure age, maintenance costs, and bottlenecks",
+          "Integration with coal mining regions (Shanxi, Shaanxi, Inner Mongolia) and ports"
+        ]
+      },
+      {
+        "node": "Demand drivers and energy policy",
+        "children": [
+          "Coal consumption trends in power generation and heavy industry",
+          "Government policies on coal phase-down vs. energy security (e.g., 14th Five-Year Plan)",
+          "Impact of renewable energy growth and grid stability needs"
+        ]
+      },
+      {
+        "node": "Competitive and regulatory landscape",
+        "children": [
+          "Alternative transport modes (trucking, inland waterways) and cost comparison",
+          "Railway pricing reforms and state-owned enterprise dynamics",
+          "Environmental regulations (carbon taxes, emission standards) affecting coal logistics"
+        ]
+      },
+      {
+        "node": "Financial and investment outlook",
+        "children": [
+          "Capital expenditure plans for railway expansion or upgrades",
+          "Revenue trends, profitability, and debt levels of key railway operators",
+          "Risk from stranded assets as coal demand declines"
+        ]
+      },
+      {
+        "node": "Strategic implications and recommendations",
+        "children": [
+          "Opportunities in coal logistics efficiency and technology (e.g., automation, digitalization)",
+          "Diversification into clean energy or multi-commodity transport",
+          "Time horizon for divestment or partnership decisions"
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "China coal railway capacity Daqin line 2025",
+    "China coal consumption forecast 2030 power generation",
+    "China 14th Five-Year Plan coal railway investment",
+    "China railway freight pricing reform 2024",
+    "China coal transport cost truck vs rail 2025",
+    "China carbon tax impact coal logistics",
+    "China railway operator profitability 2024 Daqin Railway",
+    "China stranded assets coal infrastructure risk",
+    "China coal railway automation technology trends",
+    "China energy security coal demand 2025"
+  ],
+  "outline": [
+    "Strategic importance of China's coal railways in energy security and economic growth",
+    "Current capacity and performance of major coal railway corridors",
+    "Demand outlook for coal transport amid energy transition policies",
+    "Competitive position of railways versus alternative transport modes",
+    "Regulatory and environmental pressures shaping the coal railway sector",
+    "Financial health and investment needs of key railway operators",
+    "Risk assessment: stranded assets and declining coal demand",
+    "Opportunities for efficiency gains and diversification",
+    "Strategic recommendations for investment, partnership, or divestment"
+  ],
+  "chart_ideas": [
+    "Line chart: China coal production and railway coal freight volume (2015-2025)",
+    "Bar chart: Capacity utilization of major coal railway lines (Daqin, Shuohuang, Haoji)",
+    "Stacked area chart: Coal transport modal share (rail, truck, water) over time",
+    "Scatter plot: Railway operator revenue vs. coal price index (2018-2024)",
+    "Waterfall chart: Impact of carbon tax on coal railway operating costs"
+  ],
+  "insight_card_ideas": [
+    "Insight: Coal railways remain critical for grid stability despite renewable growth",
+    "Insight: Railway automation can reduce costs by 15-20% but requires high capex",
+    "Insight: Policy uncertainty creates a 5-10 year window for strategic positioning",
+    "Insight: Diversification into containerized freight offers a hedge against coal decline"
+  ],
+  "risks": [
+    "Overestimating coal demand due to rapid renewable deployment or economic slowdown",
+    "Underestimating regulatory tightening (e.g., carbon border taxes, emission caps)",
+    "Infrastructure bottlenecks or accidents disrupting supply chains",
+    "Currency or interest rate fluctuations affecting investment returns",
+    "Geopolitical tensions impacting coal trade routes or technology access"
+  ]
+}
