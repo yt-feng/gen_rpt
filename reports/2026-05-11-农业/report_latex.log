@@ -1,0 +1,573 @@
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.5.11)  11 MAY 2026 10:55
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**report_latex.tex
+(./report_latex.tex
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-22>
+(/usr/share/texlive/texmf-dist/tex/latex/base/article.cls
+Document Class: article 2023/05/17 v1.4n Standard LaTeX document class
+(/usr/share/texlive/texmf-dist/tex/latex/base/size10.clo
+File: size10.clo 2023/05/17 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count183
+\c@section=\count184
+\c@subsection=\count185
+\c@subsubsection=\count186
+\c@paragraph=\count187
+\c@subparagraph=\count188
+\c@figure=\count189
+\c@table=\count190
+\abovecaptionskip=\skip48
+\belowcaptionskip=\skip49
+\bibindent=\dimen140
+)
+(/usr/share/texlive/texmf-dist/tex/latex/geometry/geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+
+(/usr/share/texlive/texmf-dist/tex/generic/iftex/iftex.sty
+Package: iftex 2022/02/03 v1.0f TeX engine tests
+))
+\Gm@cnth=\count191
+\Gm@cntv=\count192
+\c@Gm@tempcnt=\count193
+\Gm@bindingoffset=\dimen141
+\Gm@wd@mp=\dimen142
+\Gm@odd@mp=\dimen143
+\Gm@even@mp=\dimen144
+\Gm@layoutwidth=\dimen145
+\Gm@layoutheight=\dimen146
+\Gm@layouthoffset=\dimen147
+\Gm@layoutvoffset=\dimen148
+\Gm@dimlist=\toks18
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fontspec/fontspec.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3packages/xparse/xparse.sty
+(/usr/share/texlive/texmf-dist/tex/latex/l3kernel/expl3.sty
+Package: expl3 2024-01-22 L3 programming layer (loader) 
+
+(/usr/share/texlive/texmf-dist/tex/latex/l3backend/l3backend-xetex.def
+File: l3backend-xetex.def 2024-01-04 L3 backend support: XeTeX
+\g__graphics_track_int=\count194
+\l__pdf_internal_box=\box51
+\g__pdf_backend_object_int=\count195
+\g__pdf_backend_annotation_int=\count196
+\g__pdf_backend_link_int=\count197
+))
+Package: xparse 2023-10-10 L3 Experimental document command parser
+)
+Package: fontspec 2022/01/15 v2.8a Font selection for XeLaTeX and LuaLaTeX
+
+(/usr/share/texlive/texmf-dist/tex/latex/fontspec/fontspec-xetex.sty
+Package: fontspec-xetex 2022/01/15 v2.8a Font selection for XeLaTeX and LuaLaTe
+X
+\l__fontspec_script_int=\count198
+\l__fontspec_language_int=\count199
+\l__fontspec_strnum_int=\count266
+\l__fontspec_tmp_int=\count267
+\l__fontspec_tmpa_int=\count268
+\l__fontspec_tmpb_int=\count269
+\l__fontspec_tmpc_int=\count270
+\l__fontspec_em_int=\count271
+\l__fontspec_emdef_int=\count272
+\l__fontspec_strong_int=\count273
+\l__fontspec_strongdef_int=\count274
+\l__fontspec_tmpa_dim=\dimen149
+\l__fontspec_tmpb_dim=\dimen150
+\l__fontspec_tmpc_dim=\dimen151
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/fontenc.sty
+Package: fontenc 2021/04/29 v2.0v Standard LaTeX package
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fontspec/fontspec.cfg)))
+(/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2023/11/15 v3.01 LaTeX color extensions (UK)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: xetex.def on input line 274.
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-def/xetex.def
+File: xetex.def 2022/09/22 v5.0n Graphics/color driver for xetex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1350.
+Package xcolor Info: Model `RGB' extended on input line 1366.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1368.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1371.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1372.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1373.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2021/09/16 v1.2d Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2022/03/10 v1.4e Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2021/08/11 v1.11 sin cos tan (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: xetex.def on input line 107.
+)
+\Gin@req@height=\dimen152
+\Gin@req@width=\dimen153
+)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+Package: tabularx 2023/07/08 v2.11c `tabularx' package (DPC)
+
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty
+Package: array 2023/10/16 v2.5g Tabular extension package (FMi)
+\col@sep=\dimen154
+\ar@mcellbox=\box52
+\extrarowheight=\dimen155
+\NC@list=\toks19
+\extratabsurround=\skip50
+\backup@length=\skip51
+\ar@cellbox=\box53
+)
+\TX@col@width=\dimen156
+\TX@old@table=\dimen157
+\TX@old@col=\dimen158
+\TX@target=\dimen159
+\TX@delta=\dimen160
+\TX@cols=\count275
+\TX@ftn=\toks20
+)
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
+Package: fancyhdr 2022/11/09 v4.1 Extensive control of page headers and footers
+
+\f@nch@headwidth=\skip52
+\f@nch@O@elh=\skip53
+\f@nch@O@erh=\skip54
+\f@nch@O@olh=\skip55
+\f@nch@O@orh=\skip56
+\f@nch@O@elf=\skip57
+\f@nch@O@erf=\skip58
+\f@nch@O@olf=\skip59
+\f@nch@O@orf=\skip60
+)
+
+Package fontspec Info: Could not resolve font "Noto Sans CJK SC/I" (it
+(fontspec)             probably doesn't exist).
+
+
+Package fontspec Info: Font family 'NotoSansCJKSC(0)' created for font 'Noto
+(fontspec)             Sans CJK SC' with options
+(fontspec)             [Ligatures=TeX,Ligatures=TeX].
+(fontspec)              
+(fontspec)              This font family consists of the following NFSS
+(fontspec)             series/shapes:
+(fontspec)              
+(fontspec)             - 'normal' (m/n) with NFSS spec.: <->"Noto Sans CJK
+(fontspec)             SC/OT:script=latn;language=dflt;mapping=tex-text;"
+(fontspec)             - 'small caps'  (m/sc) with NFSS spec.: 
+(fontspec)             - 'bold' (b/n) with NFSS spec.: <->"Noto Sans CJK
+(fontspec)             SC/B/OT:script=latn;language=dflt;mapping=tex-text;"
+(fontspec)             - 'bold small caps'  (b/sc) with NFSS spec.: 
+(fontspec)             - 'bold italic' (b/it) with NFSS spec.: <->"Noto Sans
+(fontspec)             CJK
+(fontspec)             SC/BI/OT:script=latn;language=dflt;mapping=tex-text;"
+(fontspec)             - 'bold italic small caps'  (b/scit) with NFSS spec.: 
+
+
+(./report_latex.aux)
+\openout1 = `report_latex.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 36.
+LaTeX Font Info:    Trying to load font information for TS1+cmr on input line 3
+6.
+ (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd
+File: ts1cmr.fd 2023/04/13 v2.5m Standard LaTeX font definitions
+)
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for TU/lmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+*geometry* verbose mode - [ preamble ] result:
+* driver: xetex
+* paper: a4paper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(36.98857pt, 523.53073pt, 36.98857pt)
+* v-part:(T,H,B)=(31.29802pt, 779.60553pt, 34.1433pt)
+* \paperwidth=597.50787pt
+* \paperheight=845.04684pt
+* \textwidth=523.53073pt
+* \textheight=779.60553pt
+* \oddsidemargin=-35.28142pt
+* \evensidemargin=-35.28142pt
+* \topmargin=-77.97197pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=10.0pt
+* \footskip=30.0pt
+* \marginparwidth=57.0pt
+* \marginparsep=11.0pt
+* \columnsep=10.0pt
+* \skip\footins=9.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+
+Package fontspec Info: Adjusting the maths setup (use [no-math] to avoid
+(fontspec)             this).
+
+\symlegacymaths=\mathgroup4
+LaTeX Font Info:    Overwriting symbol font `legacymaths' in version `bold'
+(Font)                  OT1/cmr/m/n --> OT1/cmr/bx/n on input line 36.
+LaTeX Font Info:    Redeclaring math accent \acute on input line 36.
+LaTeX Font Info:    Redeclaring math accent \grave on input line 36.
+LaTeX Font Info:    Redeclaring math accent \ddot on input line 36.
+LaTeX Font Info:    Redeclaring math accent \tilde on input line 36.
+LaTeX Font Info:    Redeclaring math accent \bar on input line 36.
+LaTeX Font Info:    Redeclaring math accent \breve on input line 36.
+LaTeX Font Info:    Redeclaring math accent \check on input line 36.
+LaTeX Font Info:    Redeclaring math accent \hat on input line 36.
+LaTeX Font Info:    Redeclaring math accent \dot on input line 36.
+LaTeX Font Info:    Redeclaring math accent \mathring on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \colon on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Gamma on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Delta on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Theta on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Lambda on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Xi on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Pi on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Sigma on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Upsilon on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Phi on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Psi on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \Omega on input line 36.
+LaTeX Font Info:    Redeclaring math symbol \mathdollar on input line 36.
+LaTeX Font Info:    Redeclaring symbol font `operators' on input line 36.
+LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
+(Font)              `operators' in the math version `normal' on input line 36.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  OT1/cmr/m/n --> TU/NotoSansCJKSC(0)/m/n on input line 3
+6.
+LaTeX Font Info:    Encoding `OT1' has changed to `TU' for symbol font
+(Font)              `operators' in the math version `bold' on input line 36.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  OT1/cmr/bx/n --> TU/NotoSansCJKSC(0)/m/n on input line 
+36.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `normal'
+(Font)                  TU/NotoSansCJKSC(0)/m/n --> TU/NotoSansCJKSC(0)/m/n on 
+input line 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `normal'
+(Font)                  OT1/cmr/m/it --> TU/NotoSansCJKSC(0)/m/it on input line
+ 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathbf' in version `normal'
+(Font)                  OT1/cmr/bx/n --> TU/NotoSansCJKSC(0)/b/n on input line 
+36.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `normal'
+(Font)                  OT1/cmss/m/n --> TU/NotoSansCJKSC(0)/m/n on input line 
+36.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `normal'
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/m/n on input line 36.
+LaTeX Font Info:    Overwriting symbol font `operators' in version `bold'
+(Font)                  TU/NotoSansCJKSC(0)/m/n --> TU/NotoSansCJKSC(0)/b/n on 
+input line 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathit' in version `bold'
+(Font)                  OT1/cmr/bx/it --> TU/NotoSansCJKSC(0)/b/it on input lin
+e 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathsf' in version `bold'
+(Font)                  OT1/cmss/bx/n --> TU/NotoSansCJKSC(0)/b/n on input line
+ 36.
+LaTeX Font Info:    Overwriting math alphabet `\mathtt' in version `bold'
+(Font)                  OT1/cmtt/m/n --> TU/lmtt/b/n on input line 36.
+File: assets/cover-background.png Graphic file (type bmp)
+<assets/cover-background.png>
+
+Overfull \hbox (73.97285pt too wide) in paragraph at lines 39--39
+[][]  
+ []
+
+[1
+
+]
+Overfull \vbox (105.08705pt too high) has occurred while \output is active []
+
+
+[2] [3] [4
+
+] [5
+
+] [6
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 84--85
+[]\TU/NotoSansCJKSC(0)/m/n/9 Climate change is fundamentally altering agricultu
+ral productivity,
+ []
+
+
+Underfull \hbox (badness 2856) in paragraph at lines 84--85
+\TU/NotoSansCJKSC(0)/m/n/9 frequency of extreme weather events reducing crop yi
+elds globally.
+ []
+
+
+Underfull \hbox (badness 1540) in paragraph at lines 84--85
+\TU/NotoSansCJKSC(0)/m/n/9 adaptation, global crop yields could decline by up t
+o 25% by 2050,
+ []
+
+
+Underfull \hbox (badness 1442) in paragraph at lines 84--85
+\TU/NotoSansCJKSC(0)/m/n/9 impacts, while temperate zones may experience some b
+enefits from
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 86--87
+[]\TU/NotoSansCJKSC(0)/m/n/9 Simultaneously, technological innovation is accele
+rating at an
+ []
+
+File: assets/image-1.png Graphic file (type bmp)
+<assets/image-1.png>
+[7
+
+
+]
+Underfull \hbox (badness 2368) in paragraph at lines 103--104
+\TU/NotoSansCJKSC(0)/m/n/9 by population growth and rising incomes in developin
+g economies,
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 103--104
+\TU/NotoSansCJKSC(0)/m/n/9 particularly in Asia and Africa. This demand surge i
+s straining
+ []
+
+
+Underfull \hbox (badness 4940) in paragraph at lines 103--104
+\TU/NotoSansCJKSC(0)/m/n/9 natural resources, with agricultural land expansion 
+already limited
+ []
+
+
+Underfull \hbox (badness 2903) in paragraph at lines 105--106
+\TU/NotoSansCJKSC(0)/m/n/9 and nutrient depletion, reduces productivity on one-
+third of global
+ []
+
+File: assets/image-2.png Graphic file (type bmp)
+<assets/image-2.png>
+[8
+
+]
+Underfull \hbox (badness 6204) in paragraph at lines 122--123
+\TU/NotoSansCJKSC(0)/m/n/9 and farm management software, enable real-time monit
+oring and
+ []
+
+
+Underfull \hbox (badness 1132) in paragraph at lines 122--123
+\TU/NotoSansCJKSC(0)/m/n/9 and automated irrigation optimize resource use, redu
+cing waste and
+ []
+
+
+Underfull \hbox (badness 3439) in paragraph at lines 124--125
+[]\TU/NotoSansCJKSC(0)/m/n/9 The adoption of digital twins—virtual replicas of 
+physical farms—is
+ []
+
+
+Underfull \hbox (badness 5359) in paragraph at lines 124--125
+\TU/NotoSansCJKSC(0)/m/n/9 simulate crop growth, weather scenarios, and resourc
+e allocation,
+ []
+
+File: assets/image-3.png Graphic file (type bmp)
+<assets/image-3.png>
+[9
+
+]
+Underfull \hbox (badness 4927) in paragraph at lines 141--142
+[]\TU/NotoSansCJKSC(0)/m/n/9 The European Union’s Farm to Fork Strategy, part o
+f the Green
+ []
+
+
+Underfull \hbox (badness 3179) in paragraph at lines 141--142
+\TU/NotoSansCJKSC(0)/m/n/9 Deal, is driving a fundamental shift toward sustaina
+ble agriculture.
+ []
+
+
+Underfull \hbox (badness 1521) in paragraph at lines 141--142
+\TU/NotoSansCJKSC(0)/m/n/9 and increasing organic farming to 25% of agricultura
+l land by 2030.
+ []
+
+
+Underfull \hbox (badness 1009) in paragraph at lines 141--142
+\TU/NotoSansCJKSC(0)/m/n/9 also creating new market opportunities for sustainab
+le products and
+ []
+
+
+Underfull \hbox (badness 4779) in paragraph at lines 143--144
+[]\TU/NotoSansCJKSC(0)/m/n/9 Trade tensions, particularly between the United St
+ates and China,
+ []
+
+File: assets/image-4.png Graphic file (type bmp)
+<assets/image-4.png>
+[10
+
+]
+Underfull \hbox (badness 2409) in paragraph at lines 162--163
+[]\TU/NotoSansCJKSC(0)/m/n/9 Soil health is equally critical, with one-third of
+ global soils already
+ []
+
+File: assets/image-5.png Graphic file (type bmp)
+<assets/image-5.png>
+[11
+
+]
+Underfull \hbox (badness 2035) in paragraph at lines 179--180
+\TU/NotoSansCJKSC(0)/m/n/9 meat, and fermentation-derived proteins, is projecte
+d to grow from
+ []
+
+
+Underfull \hbox (badness 1389) in paragraph at lines 179--180
+\TU/NotoSansCJKSC(0)/m/n/9 $29 billion in 2025 to $162 billion by 2030, accordi
+ng to Bloomberg
+ []
+
+
+Underfull \hbox (badness 6110) in paragraph at lines 179--180
+\TU/NotoSansCJKSC(0)/m/n/9 ethical, and healthy food options, as well as invest
+or interest in
+ []
+
+File: assets/image-6.png Graphic file (type bmp)
+<assets/image-6.png>
+[12
+
+]
+Underfull \hbox (badness 1881) in paragraph at lines 198--199
+[]\TU/NotoSansCJKSC(0)/m/n/9 Carbon farming, which involves agricultural practi
+ces that sequester
+ []
+
+
+Underfull \hbox (badness 5331) in paragraph at lines 198--199
+\TU/NotoSansCJKSC(0)/m/n/9 carbon in soil and biomass, is emerging as a signifi
+cant revenue
+ []
+
+
+Underfull \hbox (badness 1226) in paragraph at lines 198--199
+\TU/NotoSansCJKSC(0)/m/n/9 year. Voluntary carbon markets are growing rapidly, 
+with prices for
+ []
+
+
+Underfull \hbox (badness 5064) in paragraph at lines 200--201
+\TU/NotoSansCJKSC(0)/m/n/9 with multiple registries and methodologies creating 
+confusion and
+ []
+
+File: assets/image-7.png Graphic file (type bmp)
+<assets/image-7.png>
+[13
+
+]
+Underfull \hbox (badness 3635) in paragraph at lines 217--218
+[]\TU/NotoSansCJKSC(0)/m/n/9 Based on the analysis, seven strategic priorities 
+emerge for senior
+ []
+
+
+Underfull \hbox (badness 1867) in paragraph at lines 217--218
+\TU/NotoSansCJKSC(0)/m/n/9 executives and policymakers. First, accelerate inves
+tment in digital
+ []
+
+
+Underfull \hbox (badness 3199) in paragraph at lines 217--218
+\TU/NotoSansCJKSC(0)/m/n/9 markets to create new revenue streams and enhance su
+stainability
+ []
+
+
+Underfull \hbox (badness 5862) in paragraph at lines 219--220
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fifth, adapt to regulatory shifts in Europe and tr
+ade tensions by
+ []
+
+
+Underfull \hbox (badness 1072) in paragraph at lines 219--220
+\TU/NotoSansCJKSC(0)/m/n/9 diversifying supply chains and developing premium pr
+oducts. Sixth,
+ []
+
+
+Underfull \hbox (badness 3907) in paragraph at lines 219--220
+\TU/NotoSansCJKSC(0)/m/n/9 bridge the digital divide to ensure inclusive growth
+ and access to
+ []
+
+File: assets/image-8.png Graphic file (type bmp)
+<assets/image-8.png>
+[14
+
+] [15
+
+] (./report_latex.aux)
+ ***********
+LaTeX2e <2023-11-01> patch level 1
+L3 programming layer <2024-01-22>
+ ***********
+ ) 
+Here is how much of TeX's memory you used:
+ 4812 strings out of 476904
+ 125860 string characters out of 5806011
+ 1924627 words of memory out of 5000000
+ 26675 multiletter control sequences out of 15000+600000
+ 558221 words of font info for 55 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 79i,13n,93p,675b,319s stack positions out of 10000i,1000n,20000p,200000b,200000s
+
+Output written on report_latex.pdf (15 pages).
