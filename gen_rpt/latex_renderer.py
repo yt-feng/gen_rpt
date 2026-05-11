@@ -17,7 +17,6 @@ LATEX_HEADER = r"""
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{fancyhdr}
-\usepackage{hyperref}
 \defaultfontfeatures{Ligatures=TeX}
 \IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
 \definecolor{BOBlue}{HTML}{0055A4}
@@ -26,8 +25,6 @@ LATEX_HEADER = r"""
 \definecolor{BOMuted}{HTML}{6F7F8F}
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
-\definecolor{BOCell}{HTML}{EEF5FB}
-\hypersetup{colorlinks=true,linkcolor=BOBlue,urlcolor=BOBlue}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{3.2pt}
 \setlength{\tabcolsep}{4pt}
@@ -221,21 +218,22 @@ def _section_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     body_left = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[:2]])
     body_right = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[2:4]])
     continuation = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[4:]])
-    return (
-        "\\clearpage\n"
-        + _kicker(f"Chapter {idx}")
-        + _heading(title)
-        + lead_block
-        + "\\begin{tabularx}{\\linewidth}{Y p{58mm}}\n"
-        + body_left
-        + " & "
-        + image_block
-        + " \\\n\\end{tabularx}\n"
-        + "\\vspace{3pt}\\noindent\\fcolorbox{BOLine}{BOLight}{\\parbox{0.965\\linewidth}{\\small \\textbf{So what:} " + takeaway_text + "}}\\vspace{4pt}\n"
-        + "{\\small " + body_right + "}\n"
-        + _analysis_tool(idx)
-        + (f"\n{{\\small {continuation}}}\n" if continuation else "")
-    )
+    return rf"""
+\clearpage
+{_kicker(f"Chapter {idx}")}
+{_heading(title)}
+{lead_block}
+\begin{{minipage}}[t]{{0.58\linewidth}}
+{body_left}
+\end{{minipage}}\hfill
+\begin{{minipage}}[t]{{0.36\linewidth}}
+{image_block}
+\end{{minipage}}
+\vspace{{3pt}}\noindent\fcolorbox{{BOLine}}{{BOLight}}{{\parbox{{0.965\linewidth}}{{\small \textbf{{So what:}} {takeaway_text}}}}}\vspace{{4pt}}
+{{\small {body_right}}}
+{_analysis_tool(idx)}
+{('{' + '\\small ' + continuation + '}') if continuation else ''}
+"""
 
 
 def _image_block(path: str) -> str:
@@ -260,7 +258,10 @@ def _visual_placeholder() -> str:
 \fill[BOLight] (0,0) rectangle (58,45);
 \draw[BOLine] (0,0) rectangle (58,45);
 \draw[BOBright,very thick] (8,12) -- (20,28) -- (34,18) -- (50,34);
-\foreach \x/\y in {8/12,20/28,34/18,50/34}{\fill[BOBlue] (\x,\y) circle (1.8);}
+\fill[BOBlue] (8,12) circle (1.8);
+\fill[BOBlue] (20,28) circle (1.8);
+\fill[BOBlue] (34,18) circle (1.8);
+\fill[BOBlue] (50,34) circle (1.8);
 \node[align=center,text width=48mm] at (29,8) {\scriptsize\color{BOMuted} Strategic visual};
 \end{tikzpicture}
 """
@@ -355,11 +356,10 @@ def _mini_bar(a: str, b: str, c: str, d: str) -> str:
 \vspace{{8pt}}
 \begin{{center}}
 \begin{{tikzpicture}}[x=1mm,y=1mm]
-\foreach \x/\w/\label in {{0/43/{a},47/35/{b},86/31/{c},121/27/{d}}}{{
-  \fill[BOLight] (\x,0) rectangle +(36,8);
-  \fill[BOBright] (\x,0) rectangle +(\w/2.1,8);
-  \node[anchor=west] at (\x,12) {{\scriptsize\color{{BOMuted}} \label}};
-}}
+\fill[BOLight] (0,0) rectangle +(36,8); \fill[BOBright] (0,0) rectangle +(20,8); \node[anchor=west] at (0,12) {{\scriptsize\color{{BOMuted}} {a}}};
+\fill[BOLight] (47,0) rectangle +(36,8); \fill[BOBright] (47,0) rectangle +(17,8); \node[anchor=west] at (47,12) {{\scriptsize\color{{BOMuted}} {b}}};
+\fill[BOLight] (86,0) rectangle +(36,8); \fill[BOBright] (86,0) rectangle +(15,8); \node[anchor=west] at (86,12) {{\scriptsize\color{{BOMuted}} {c}}};
+\fill[BOLight] (121,0) rectangle +(36,8); \fill[BOBright] (121,0) rectangle +(13,8); \node[anchor=west] at (121,12) {{\scriptsize\color{{BOMuted}} {d}}};
 \end{{tikzpicture}}
 \end{{center}}
 """
