@@ -1,0 +1,67 @@
+{
+  "objective": "To conduct a strategic assessment of the agricultural sector, identifying key trends, challenges, and opportunities to inform investment and policy decisions.",
+  "audience": "Senior executives and policymakers in agribusiness and government.",
+  "decision_question": "What are the most critical strategic priorities and risks in the agricultural sector over the next 3-5 years?",
+  "issue_tree": {
+    "Global Agricultural Trends": [
+      "Climate change impacts on crop yields",
+      "Technological innovations (precision agriculture, AI, biotech)",
+      "Shifts in global trade policies and supply chains"
+    ],
+    "Regional Dynamics": [
+      "Asia-Pacific: rising demand and land constraints",
+      "Europe: sustainability regulations and farm-to-fork strategy",
+      "Americas: export competitiveness and consolidation"
+    ],
+    "Key Challenges": [
+      "Water scarcity and soil degradation",
+      "Labor shortages and aging farmer population",
+      "Price volatility and market access"
+    ],
+    "Strategic Opportunities": [
+      "Digital agriculture and data analytics",
+      "Alternative proteins and vertical farming",
+      "Carbon farming and ecosystem services"
+    ]
+  },
+  "search_queries": [
+    "global agricultural trends 2025 climate change technology",
+    "precision agriculture market size 2025",
+    "farm-to-fork strategy Europe impact",
+    "agricultural trade policy shifts 2025",
+    "water scarcity agriculture solutions",
+    "vertical farming market growth 2025",
+    "carbon farming opportunities and challenges",
+    "alternative proteins market forecast 2025"
+  ],
+  "outline": [
+    "Agriculture faces unprecedented disruption from climate change and technology",
+    "Global demand growth is outpacing sustainable supply expansion",
+    "Digital and precision agriculture offer the highest ROI for productivity gains",
+    "Regulatory shifts in Europe and trade tensions reshape competitive landscape",
+    "Water and soil health are the most critical long-term risks",
+    "Alternative proteins and vertical farming represent high-growth adjacencies",
+    "Carbon markets create new revenue streams but require verification standards"
+  ],
+  "chart_ideas": [
+    "Global crop yield trends vs. climate variability index (2010-2025)",
+    "Adoption rates of precision agriculture technologies by region (2025)",
+    "Trade flow changes for key commodities (2019 vs. 2025)",
+    "Water stress index for top agricultural producing countries",
+    "Investment in agri-tech startups by category (2020-2025)"
+  ],
+  "insight_card_ideas": [
+    "Climate-smart agriculture: balancing productivity and resilience",
+    "The rise of digital twins in farm management",
+    "How labor automation is reshaping rural economies",
+    "Carbon farming: from niche to mainstream?",
+    "Alternative proteins: threat or opportunity for traditional livestock?"
+  ],
+  "risks": [
+    "Overreliance on technology without addressing digital divide",
+    "Policy uncertainty from trade wars and environmental regulations",
+    "Underestimation of climate tipping points on key crops",
+    "Market fragmentation limiting scalability of new agri-models",
+    "Data privacy and cybersecurity vulnerabilities in smart farming"
+  ]
+}
