@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Iterable, Tuple
 
 from pptx import Presentation
 from pptx.dml.color import RGBColor
@@ -30,7 +30,7 @@ RM = Inches(0.62)
 TOP = Inches(0.38)
 
 
-def render_pptx(report: Dict, assets: Dict[str, str], output_file: Path, topic: str, language: str = "zh") -> Path:
+def render_pptx(report: Dict, assets: Dict[str, str], output_file: Path, topic: str, language: str = "en") -> Path:
     prs = Presentation()
     prs.slide_width = SLIDE_W
     prs.slide_height = SLIDE_H
@@ -43,14 +43,14 @@ def render_pptx(report: Dict, assets: Dict[str, str], output_file: Path, topic: 
     _slide_toc(prs, report)
     _slide_highlights(prs, report)
 
-    for section in report.get("sections", [])[:10]:
-        _slide_section(prs, section, assets, root)
+    for idx, section in enumerate(report.get("sections", [])[:10], start=1):
+        _slide_section(prs, section, assets, root, idx)
 
-    chart_paths = [v for k, v in assets.items() if k.startswith("chart-")]
-    for idx, chart_path in enumerate(chart_paths[:8], start=1):
-        _slide_chart(prs, f"Exhibit {idx}: evidence clarifies the strategic trade-off", chart_path, root)
+    chart_paths = [v for k, v in _sorted_asset_items(assets) if k.startswith("chart-")]
+    for idx, chart_path in enumerate(chart_paths[:6], start=1):
+        _slide_chart(prs, f"Exhibit {idx}: evidence clarifies the strategic trade-off", chart_path, root, assets)
 
-    _slide_closing(prs, report, topic)
+    _slide_closing(prs, report, topic, assets, root)
     output_file.parent.mkdir(parents=True, exist_ok=True)
     prs.save(str(output_file))
     return output_file
@@ -100,9 +100,9 @@ def _title(slide, title: str, subtitle: str = "") -> None:
 
 def _slide_cover(prs, title: str, subtitle: str, topic: str, assets: Dict[str, str], root: Path) -> None:
     slide = _blank(prs)
-    bg_path = root / assets.get("cover-background", "")
-    if bg_path.exists():
-        slide.shapes.add_picture(str(bg_path), 0, 0, width=SLIDE_W, height=SLIDE_H)
+    bg_path = _asset_path(root, assets.get("cover-background", ""))
+    if bg_path:
+        _safe_picture(slide, bg_path, 0, 0, SLIDE_W, SLIDE_H)
         shade = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, 0, 0, SLIDE_W, SLIDE_H)
         shade.fill.solid(); shade.fill.fore_color.rgb = _rgb(NAVY); shade.fill.transparency = 18
         shade.line.fill.background()
@@ -127,8 +127,11 @@ def _slide_cover(prs, title: str, subtitle: str, topic: str, assets: Dict[str, s
 
 def _slide_toc(prs, report: Dict) -> None:
     slide = _blank(prs); _add_brand(slide, "Contents"); _title(slide, "The discussion follows the management question, evidence, and implications")
+    sections = report.get("sections", [])[:10]
+    if not sections:
+        sections = [{"title": "Executive priorities and implications"}, {"title": "Evidence base and management agenda"}]
     y = Inches(1.55)
-    for idx, sec in enumerate(report.get("sections", [])[:10], start=1):
+    for idx, sec in enumerate(sections, start=1):
         pnum = slide.shapes.add_textbox(LM, y, Inches(0.55), Inches(0.3)).text_frame.paragraphs[0]
         pnum.text = f"{idx:02d}"; pnum.font.size = Pt(9.5); pnum.font.bold = True; pnum.font.color.rgb = _rgb(ACCENT)
         p = slide.shapes.add_textbox(Inches(1.25), y, Inches(10.5), Inches(0.42)).text_frame.paragraphs[0]
@@ -139,19 +142,22 @@ def _slide_toc(prs, report: Dict) -> None:
 def _slide_highlights(prs, report: Dict) -> None:
     slide = _blank(prs); _add_brand(slide, "Key highlights"); _title(slide, "The analysis narrows the agenda to a focused set of management priorities")
     items = report.get("executive_summary", [])[:8]
+    if not items:
+        items = ["Evidence should be converted into a focused management agenda.", "Priorities should be sequenced by urgency, proof quality, and execution risk."]
     x0, y0 = LM, Inches(1.52)
     w, h = Inches(5.9), Inches(0.95)
-    for idx, item in enumerate(items):
+    for idx, item in enumerate(items[:8]):
         x = x0 + Inches(6.12) * (idx % 2)
         y = y0 + Inches(1.11) * (idx // 2)
         _card(slide, x, y, w, h, _fit(_clean_summary_item(item), 135), idx + 1)
 
 
-def _slide_section(prs, section: Dict, assets: Dict[str, str], root: Path) -> None:
+def _slide_section(prs, section: Dict, assets: Dict[str, str], root: Path, section_idx: int) -> None:
     slide = _blank(prs); _add_brand(slide, section.get("title", "Section")); _title(slide, section.get("title", "Section"), section.get("lead", ""))
     left = slide.shapes.add_textbox(LM, Inches(1.48), Inches(5.35), Inches(4.72))
     tf = left.text_frame; tf.word_wrap = True; tf.margin_top = 0; tf.margin_bottom = 0
-    for idx, paragraph in enumerate(section.get("paragraphs", [])[:3]):
+    paragraphs = section.get("paragraphs", [])[:3] or [section.get("lead", "Evidence should be translated into management implications.")]
+    for idx, paragraph in enumerate(paragraphs):
         p = tf.paragraphs[0] if idx == 0 else tf.add_paragraph()
         p.text = _fit(paragraph, 260)
         p.font.size = Pt(8.2)
@@ -162,26 +168,30 @@ def _slide_section(prs, section: Dict, assets: Dict[str, str], root: Path) -> No
         p = tf.add_paragraph(); p.text = "Key implications"; p.font.size = Pt(8.2); p.font.bold = True; p.font.color.rgb = _rgb(ACCENT); p.space_before = Pt(6)
         for item in takeaways:
             p2 = tf.add_paragraph(); p2.text = f"- {_fit(item, 96)}"; p2.font.size = Pt(7.3); p2.font.color.rgb = _rgb(INK)
-    visual = assets.get(section.get("visual_hint", ""), "")
-    full = root / visual
-    if visual and full.exists():
-        slide.shapes.add_picture(str(full), Inches(6.45), Inches(1.50), width=Inches(6.18), height=Inches(4.58))
+
+    visual_path = _resolve_section_visual(section, section_idx, assets, root)
+    if visual_path:
+        _safe_picture(slide, visual_path, Inches(6.45), Inches(1.50), Inches(6.18), Inches(4.58))
     else:
-        box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(6.55), Inches(1.62), Inches(5.8), Inches(4.1))
-        box.fill.solid(); box.fill.fore_color.rgb = _rgb(PANEL); box.line.color.rgb = _rgb(LINE)
+        _visual_placeholder(slide, Inches(6.55), Inches(1.62), Inches(5.8), Inches(4.1), section.get("title", "Evidence visual"))
 
 
-def _slide_chart(prs, title: str, chart_path: str, root: Path) -> None:
+def _slide_chart(prs, title: str, chart_path: str, root: Path, assets: Dict[str, str]) -> None:
     slide = _blank(prs); _add_brand(slide, title); _title(slide, title)
-    full = root / chart_path
-    if full.exists():
-        slide.shapes.add_picture(str(full), Inches(0.95), Inches(1.30), width=Inches(11.35), height=Inches(5.30))
+    full = _asset_path(root, chart_path) or _asset_path(root, assets.get("cover-background", ""))
+    if full:
+        _safe_picture(slide, full, Inches(0.95), Inches(1.30), Inches(11.35), Inches(5.30))
+    else:
+        _visual_placeholder(slide, Inches(0.95), Inches(1.30), Inches(11.35), Inches(5.30), "Evidence exhibit")
 
 
-def _slide_closing(prs, report: Dict, topic: str) -> None:
+def _slide_closing(prs, report: Dict, topic: str, assets: Dict[str, str], root: Path) -> None:
     slide = _blank(prs); _add_brand(slide, "Closing")
+    cover = _asset_path(root, assets.get("cover-background", ""))
+    if cover:
+        _safe_picture(slide, cover, Inches(7.2), Inches(1.15), Inches(5.55), Inches(5.25))
     _title(slide, "The next step is to convert the research into a short list of decisions")
-    tx = slide.shapes.add_textbox(LM, Inches(1.6), Inches(10.8), Inches(3.2))
+    tx = slide.shapes.add_textbox(LM, Inches(1.6), Inches(6.25), Inches(3.2))
     tf = tx.text_frame; tf.word_wrap = True
     p = tf.paragraphs[0]
     p.text = _fit(report.get("report_subtitle", topic), 260)
@@ -206,6 +216,64 @@ def _line(slide, x, y, w) -> None:
     line = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, w, Inches(0.01))
     line.fill.solid(); line.fill.fore_color.rgb = _rgb(LINE)
     line.line.color.rgb = _rgb(LINE)
+
+
+def _resolve_section_visual(section: Dict, section_idx: int, assets: Dict[str, str], root: Path) -> Path | None:
+    candidates = [
+        f"image-{section_idx}",
+        str(section.get("visual_hint", "")),
+        f"chart-{section_idx}",
+        "cover-background",
+    ]
+    for key in candidates:
+        if not key:
+            continue
+        path = _asset_path(root, assets.get(key, ""))
+        if path:
+            return path
+    return None
+
+
+def _asset_path(root: Path, relative: str) -> Path | None:
+    if not relative:
+        return None
+    full = root / relative
+    if full.exists() and full.is_file() and full.stat().st_size > 0:
+        return full
+    return None
+
+
+def _safe_picture(slide, path: Path, x, y, width, height) -> bool:
+    try:
+        slide.shapes.add_picture(str(path), x, y, width=width, height=height)
+        return True
+    except Exception:
+        _visual_placeholder(slide, x, y, width, height, "Visual unavailable")
+        return False
+
+
+def _visual_placeholder(slide, x, y, w, h, label: str) -> None:
+    box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, w, h)
+    box.fill.solid(); box.fill.fore_color.rgb = _rgb(PANEL); box.line.color.rgb = _rgb(LINE)
+    accent = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, Inches(0.08), h)
+    accent.fill.solid(); accent.fill.fore_color.rgb = _rgb(ACCENT); accent.line.fill.background()
+    tx = slide.shapes.add_textbox(x + Inches(0.28), y + Inches(0.28), w - Inches(0.55), Inches(0.8))
+    p = tx.text_frame.paragraphs[0]
+    p.text = _fit(label, 120)
+    p.font.size = Pt(13)
+    p.font.color.rgb = _rgb(ACCENT)
+
+
+def _sorted_asset_items(assets: Dict[str, str]) -> Iterable[Tuple[str, str]]:
+    def key(item: Tuple[str, str]):
+        name = item[0]
+        if "-" in name:
+            try:
+                return (name.split("-", 1)[0], int(name.split("-", 1)[1]))
+            except Exception:
+                pass
+        return (name, 0)
+    return sorted(assets.items(), key=key)
 
 
 def _clean_summary_item(item: str) -> str:
