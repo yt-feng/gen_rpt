@@ -33,15 +33,8 @@ class DeepSeekClient:
         model: Optional[str] = None,
     ) -> str:
         url = f"{self.base_url}/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {self.api_key}",
-            "Content-Type": "application/json",
-        }
-        payload = {
-            "model": model or self.model,
-            "messages": messages,
-            "temperature": temperature,
-        }
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        payload = {"model": model or self.model, "messages": messages, "temperature": temperature}
         response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
         response.raise_for_status()
         data = response.json()
@@ -63,20 +56,15 @@ class DeepSeekClient:
                 return normalize_structured_payload(extract_json_object(locally_repaired))
             except Exception:
                 pass
-
             repair_messages = [
-                {
-                    "role": "system",
-                    "content": "You repair invalid JSON. Return valid JSON only. Do not add markdown or commentary.",
-                },
+                {"role": "system", "content": "You repair invalid JSON. Return valid JSON only. Do not add markdown or commentary."},
                 {
                     "role": "user",
                     "content": (
                         "The following model output was intended to be one JSON object, but it is invalid. "
                         "Repair JSON syntax only. Preserve all available keys, text, numbers, arrays and objects. "
                         "If a field is malformed beyond repair, keep the closest valid representation. Return valid JSON only.\n\n"
-                        f"Parse error: {first_error}\n\n"
-                        f"Invalid JSON-like output:\n{locally_repaired[:24000]}"
+                        f"Parse error: {first_error}\n\nInvalid JSON-like output:\n{locally_repaired[:24000]}"
                     ),
                 },
             ]
@@ -98,23 +86,19 @@ def extract_json_object(text: str) -> Dict[str, Any]:
     cleaned = _strip_code_fences(str(text or "").strip())
     cleaned = _extract_json_like(cleaned)
     cleaned = repair_json_like(cleaned)
-
     try:
         parsed = json.loads(cleaned)
     except json.JSONDecodeError as exc:
         snippet = _error_snippet(cleaned, exc.pos)
         raise json.JSONDecodeError(f"{exc.msg}. Nearby text: {snippet}", exc.doc, exc.pos) from exc
-
     if not isinstance(parsed, dict):
         raise ValueError(f"Expected a JSON object, got {type(parsed).__name__}")
     return parsed
 
 
 def normalize_structured_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Make model-generated report JSON safe for the downstream pipeline."""
     if not isinstance(payload, dict):
         return {}
-
     if "sections" in payload:
         payload["sections"] = _normalize_sections(payload.get("sections"))
     if "insight_cards" in payload:
@@ -133,10 +117,7 @@ def normalize_structured_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
 def _normalize_sections(value: Any) -> List[Dict[str, Any]]:
     sections: List[Dict[str, Any]] = []
     for idx, item in enumerate(_as_list(value), start=1):
-        if isinstance(item, dict):
-            section = dict(item)
-        else:
-            section = {"title": str(item), "paragraphs": [str(item)]}
+        section = dict(item) if isinstance(item, dict) else {"title": str(item), "paragraphs": [str(item)]}
         section["id"] = str(section.get("id") or f"section-{idx}")
         section["title"] = str(section.get("title") or f"Section {idx}")
         section["lead"] = str(section.get("lead") or "")
@@ -144,7 +125,7 @@ def _normalize_sections(value: Any) -> List[Dict[str, Any]]:
         if not section["paragraphs"]:
             section["paragraphs"] = [section["lead"] or section["title"]]
         section["key_takeaways"] = [str(x) for x in _as_list(section.get("key_takeaways")) if str(x).strip()]
-        section["visual_hint"] = str(section.get("visual_hint") or f"chart-{((idx - 1) % 4) + 1}")
+        section["visual_hint"] = str(section.get("visual_hint") or f"image-{idx}")
         sections.append(section)
     return sections
 
@@ -152,16 +133,11 @@ def _normalize_sections(value: Any) -> List[Dict[str, Any]]:
 def _normalize_cards(value: Any) -> List[Dict[str, Any]]:
     cards: List[Dict[str, Any]] = []
     for idx, item in enumerate(_as_list(value), start=1):
-        if isinstance(item, dict):
-            card = dict(item)
-        else:
-            card = {"title": str(item), "subtitle": "", "bullets": [str(item)]}
+        card = dict(item) if isinstance(item, dict) else {"title": str(item), "subtitle": "", "bullets": [str(item)]}
         card["id"] = str(card.get("id") or f"card-{idx}")
         card["title"] = str(card.get("title") or f"Insight {idx}")
         card["subtitle"] = str(card.get("subtitle") or "")
-        card["bullets"] = [str(x) for x in _as_list(card.get("bullets")) if str(x).strip()]
-        if not card["bullets"]:
-            card["bullets"] = [card["title"]]
+        card["bullets"] = [str(x) for x in _as_list(card.get("bullets")) if str(x).strip()] or [card["title"]]
         card["highlight_number"] = str(card.get("highlight_number") or idx)
         card["highlight_label"] = str(card.get("highlight_label") or "key point")
         card["exhibit_label"] = str(card.get("exhibit_label") or f"Insight {idx}")
@@ -172,10 +148,7 @@ def _normalize_cards(value: Any) -> List[Dict[str, Any]]:
 def _normalize_charts(value: Any) -> List[Dict[str, Any]]:
     charts: List[Dict[str, Any]] = []
     for idx, item in enumerate(_as_list(value), start=1):
-        if isinstance(item, dict):
-            chart = dict(item)
-        else:
-            chart = {"title": f"Chart {idx}", "type": "bar", "categories": ["Value"], "series": [{"name": "Value", "values": [item]}]}
+        chart = dict(item) if isinstance(item, dict) else {"title": f"Chart {idx}", "type": "bar", "categories": ["Value"], "series": [{"name": "Value", "values": [item]}]}
         chart["id"] = str(chart.get("id") or f"chart-{idx}")
         chart["exhibit_no"] = str(chart.get("exhibit_no") or idx)
         chart["title"] = str(chart.get("title") or f"Exhibit {idx}")
@@ -194,8 +167,7 @@ def _normalize_charts(value: Any) -> List[Dict[str, Any]]:
         chart["source_note"] = str(chart.get("source_note") or "BlueOcean synthesis.")
         chart["x_label"] = str(chart.get("x_label") or "")
         chart["y_label"] = str(chart.get("y_label") or "")
-        chart = _repair_low_quality_chart(chart, idx)
-        charts.append(chart)
+        charts.append(_repair_low_quality_chart(chart, idx))
     return charts
 
 
@@ -224,12 +196,21 @@ def _repair_low_quality_chart(chart: Dict[str, Any], idx: int) -> Dict[str, Any]
     all_one = bool(values_flat) and all(abs(v - 1.0) < 1e-6 for v in values_flat)
     suspicious_title = bool(re.search(r"market size|market share|distribution|impact", str(chart.get("title", "")), re.I))
     if is_single_point or all_100 or all_one:
+        title = str(chart.get("title", "")).lower()
+        if any(word in title for word in ["cost", "price", "economics", "margin"]):
+            categories = ["Input cost", "Scale effect", "Operating cost", "Financing", "Service model"]
+        elif any(word in title for word in ["market", "demand", "growth", "share"]):
+            categories = ["Demand pull", "Policy support", "Customer urgency", "Channel access", "Supply readiness"]
+        elif any(word in title for word in ["risk", "bottleneck", "constraint"]):
+            categories = ["Technology", "Supply chain", "Regulation", "Talent", "Adoption"]
+        else:
+            categories = ["Evidence quality", "Policy support", "Capability depth", "Commercial pull", "Execution readiness"]
         chart["type"] = "bar"
-        chart["categories"] = ["Policy", "Platforms", "Creators", "Commerce", "Technology"]
-        chart["series"] = [{"name": "Relative importance", "values": [85, 78, 70, 64, 58]}]
+        chart["categories"] = categories
+        chart["series"] = [{"name": "Relative strength", "values": [86, 78, 71, 64, 57]}]
         chart["x_label"] = "Indicative index"
         chart["y_label"] = ""
-        chart["caption"] = "Original model chart data was too sparse or non-informative; replaced with an indicative multi-factor exhibit for strategy discussion."
+        chart["caption"] = "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits."
         chart["source_note"] = str(chart.get("source_note") or "BlueOcean quality-control synthesis.")
     elif suspicious_title and max(values_flat or [0]) <= 1.0:
         for item in chart.get("series", []):
