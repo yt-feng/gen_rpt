@@ -9,7 +9,7 @@ from typing import Any, Dict, List
 
 LATEX_HEADER = r"""
 \documentclass[10pt,a4paper]{article}
-\usepackage[a4paper,margin=13.5mm,top=11.5mm,bottom=12.5mm]{geometry}
+\usepackage[a4paper,margin=13mm,top=11mm,bottom=12mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{graphicx}
@@ -26,14 +26,15 @@ LATEX_HEADER = r"""
 \definecolor{BOMuted}{HTML}{6F7F8F}
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
+\definecolor{BOCell}{HTML}{EEF5FB}
 \hypersetup{colorlinks=true,linkcolor=BOBlue,urlcolor=BOBlue}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.5pt}
+\setlength{\parskip}{3.2pt}
 \setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{1.18}
+\renewcommand{\arraystretch}{1.15}
 \hyphenpenalty=10000
 \exhyphenpenalty=10000
-\tolerance=3500
+\tolerance=4000
 \emergencystretch=2em
 \sloppy
 \pagestyle{fancy}
@@ -86,7 +87,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], output_dir: Path,
     title = _tex(report.get("report_title") or topic)
     subtitle = _tex(report.get("report_subtitle") or "Strategic assessment")
     cover = _asset_path(assets.get("cover-background", ""))
-    sections = report.get("sections", []) or []
+    sections = _safe_sections(report.get("sections", []))
     summary = _summary_items(report.get("executive_summary", []))
     institutions = report.get("reference_institutions", []) or []
 
@@ -113,11 +114,11 @@ def _cover_page(title: str, subtitle: str, cover: str) -> str:
 \thispagestyle{{empty}}
 \begin{{tikzpicture}}[remember picture,overlay]
 {background}
-\fill[white,opacity=.94] ([xshift=15mm,yshift=-18mm]current page.north west) rectangle ++(132mm,-72mm);
-\fill[BOBright] ([xshift=15mm,yshift=-18mm]current page.north west) rectangle ++(132mm,-1.8mm);
-\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-25mm]current page.north west) {{\sffamily\scriptsize\bfseries\color{{BOBlue}} BLUEOCEAN\\DEEP RESEARCH REPORT}};
-\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-39mm]current page.north west) {{\parbox{{120mm}}{{\raggedright\sffamily\fontsize{{21}}{{23}}\selectfont\color{{BONavy}} {title}}}}};
-\node[anchor=north west,text width=120mm] at ([xshift=21mm,yshift=-76mm]current page.north west) {{\sffamily\scriptsize\color{{BOMuted}} {subtitle}}};
+\fill[white,opacity=.95] ([xshift=14mm,yshift=-17mm]current page.north west) rectangle ++(138mm,-75mm);
+\fill[BOBright] ([xshift=14mm,yshift=-17mm]current page.north west) rectangle ++(138mm,-1.8mm);
+\node[anchor=north west,text width=126mm] at ([xshift=21mm,yshift=-25mm]current page.north west) {{\sffamily\scriptsize\bfseries\color{{BOBlue}} BLUEOCEAN\\DEEP RESEARCH REPORT}};
+\node[anchor=north west,text width=126mm] at ([xshift=21mm,yshift=-39mm]current page.north west) {{\parbox{{126mm}}{{\raggedright\sffamily\fontsize{{21}}{{23}}\selectfont\color{{BONavy}} {title}}}}};
+\node[anchor=north west,text width=126mm] at ([xshift=21mm,yshift=-77mm]current page.north west) {{\sffamily\scriptsize\color{{BOMuted}} {subtitle}}};
 \end{{tikzpicture}}
 \clearpage
 """
@@ -126,7 +127,7 @@ def _cover_page(title: str, subtitle: str, cover: str) -> str:
 def _summary_page(summary: List[str]) -> str:
     rows = []
     for idx, item in enumerate((summary or [])[:8], start=1):
-        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx:02d}}} & {{\\small {_tex(_shorten(item, 320))}}} \\\\[5pt]\n")
+        rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx:02d}}} & {{\\small {_tex(_shorten(item, 300))}}} \\\\[5pt]\n")
     if not rows:
         rows.append("\\textcolor{BOBlue}{\\bfseries 01} & {\\small Evidence base and management implications should be validated through source backup and client discussion.} \\\\[5pt]\n")
     return (
@@ -135,7 +136,9 @@ def _summary_page(summary: List[str]) -> str:
         + _rule()
         + "\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n"
         + "".join(rows)
-        + "\\end{tabularx}\n\\clearpage\n"
+        + "\\end{tabularx}\n"
+        + _mini_bar("Evidence", "Policy", "Execution", "Value")
+        + "\\clearpage\n"
     )
 
 
@@ -178,6 +181,8 @@ def _contents_page(sections: List[Dict[str, Any]]) -> str:
     for idx, section in enumerate(sections, start=1):
         title = _tex(_strip_number_prefix(section.get("title", "Section")))
         rows.append(f"\\textcolor{{BOBlue}}{{\\bfseries {idx}}} & {title} \\\\[4pt]\n")
+    if not rows:
+        rows.append("\\textcolor{BOBlue}{\\bfseries 1} & Executive priorities and implications \\\\[4pt]\n")
     return (
         _kicker("Contents")
         + _heading("Contents")
@@ -204,28 +209,61 @@ def _disclaimer_page(institutions: List[Any]) -> str:
 
 def _section_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
     title = _tex(_strip_number_prefix(section.get("title", f"Section {idx}")))
-    lead = _tex(_shorten(section.get("lead", ""), 240))
+    lead = _tex(_shorten(section.get("lead", ""), 230))
     paragraphs = [_tex(p) for p in section.get("paragraphs", [])[:5]]
-    takeaways = [_tex(_shorten(x, 150)) for x in section.get("key_takeaways", [])[:3]]
-    image_path = _asset_path(assets.get(f"image-{idx}", ""))
-    image_block = ""
-    if image_path:
-        image_block = f"\\begin{{center}}\\includegraphics[width=.74\\linewidth,height=44mm,keepaspectratio]{{{image_path}}}\\end{{center}}\n"
+    while len(paragraphs) < 3:
+        paragraphs.append("Evidence should be translated into management implications and validated against the source backup.")
+    takeaways = [_tex(_shorten(x, 135)) for x in section.get("key_takeaways", [])[:3]]
+    image_path = _resolve_image_path(section, assets, idx)
+    image_block = _image_block(image_path)
     takeaway_text = " ".join([f"\\textbullet\\ {x}" for x in takeaways]) if takeaways else "\\textbullet\\ Validate assumptions with source backup. \\textbullet\\ Translate evidence into action."
-    body = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[:3]])
-    continuation = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[3:]])
     lead_block = f"{{\\textcolor{{BOBlue}}{{\\normalsize {lead}}}}}\\par\\vspace{{2pt}}\n" if lead else ""
+    body_left = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[:2]])
+    body_right = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[2:4]])
+    continuation = "\n\n".join([f"{{\\small {p}}}" for p in paragraphs[4:]])
     return (
         "\\clearpage\n"
         + _kicker(f"Chapter {idx}")
         + _heading(title)
         + lead_block
-        + body
-        + "\n\\vspace{3pt}\\noindent\\fcolorbox{BOLine}{BOLight}{\\parbox{0.965\\linewidth}{\\small \\textbf{So what:} " + takeaway_text + "}}\\vspace{4pt}\n"
+        + "\\begin{tabularx}{\\linewidth}{Y p{58mm}}\n"
+        + body_left
+        + " & "
         + image_block
+        + " \\\n\\end{tabularx}\n"
+        + "\\vspace{3pt}\\noindent\\fcolorbox{BOLine}{BOLight}{\\parbox{0.965\\linewidth}{\\small \\textbf{So what:} " + takeaway_text + "}}\\vspace{4pt}\n"
+        + "{\\small " + body_right + "}\n"
         + _analysis_tool(idx)
         + (f"\n{{\\small {continuation}}}\n" if continuation else "")
     )
+
+
+def _image_block(path: str) -> str:
+    if not path:
+        return _visual_placeholder()
+    return f"\\includegraphics[width=58mm,height=45mm,keepaspectratio]{{{path}}}"
+
+
+def _resolve_image_path(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
+    candidates = [f"image-{idx}", str(section.get("visual_hint", "")), "cover-background"]
+    for key in candidates:
+        value = assets.get(key, "")
+        normalized = _asset_path(value)
+        if normalized:
+            return normalized
+    return ""
+
+
+def _visual_placeholder() -> str:
+    return r"""
+\begin{tikzpicture}[x=1mm,y=1mm]
+\fill[BOLight] (0,0) rectangle (58,45);
+\draw[BOLine] (0,0) rectangle (58,45);
+\draw[BOBright,very thick] (8,12) -- (20,28) -- (34,18) -- (50,34);
+\foreach \x/\y in {8/12,20/28,34/18,50/34}{\fill[BOBlue] (\x,\y) circle (1.8);}
+\node[align=center,text width=48mm] at (29,8) {\scriptsize\color{BOMuted} Strategic visual};
+\end{tikzpicture}
+"""
 
 
 def _analysis_tool(idx: int) -> str:
@@ -312,6 +350,21 @@ Timing & Clear 12-36 month proof path & Value creation pushed beyond practical i
 """
 
 
+def _mini_bar(a: str, b: str, c: str, d: str) -> str:
+    return rf"""
+\vspace{{8pt}}
+\begin{{center}}
+\begin{{tikzpicture}}[x=1mm,y=1mm]
+\foreach \x/\w/\label in {{0/43/{a},47/35/{b},86/31/{c},121/27/{d}}}{{
+  \fill[BOLight] (\x,0) rectangle +(36,8);
+  \fill[BOBright] (\x,0) rectangle +(\w/2.1,8);
+  \node[anchor=west] at (\x,12) {{\scriptsize\color{{BOMuted}} \label}};
+}}
+\end{{tikzpicture}}
+\end{{center}}
+"""
+
+
 def _kicker(text: str) -> str:
     return "{\\textcolor{BOBlue}{\\scriptsize\\bfseries " + _tex(str(text).upper()) + "}}\\par\\vspace{-1pt}\n"
 
@@ -333,6 +386,12 @@ def _asset_path(path: str, *, allow_svg: bool = True) -> str:
     if normalized.lower().endswith(".svg"):
         return ""
     return normalized
+
+
+def _safe_sections(value: Any) -> List[Dict[str, Any]]:
+    if isinstance(value, list) and value:
+        return [x if isinstance(x, dict) else {"title": str(x), "paragraphs": [str(x)]} for x in value]
+    return [{"title": "Executive priorities and implications", "lead": "The analysis should be translated into a concise management agenda.", "paragraphs": ["The available evidence should be organized around decision quality, execution risk and near-term management implications.", "The most useful output is a short list of actions that can be tested against public evidence and client constraints.", "Follow-up work should validate the assumptions against the source backup."], "key_takeaways": ["Focus on actionability.", "Validate source quality.", "Translate evidence into decisions."], "visual_hint": "image-1"}]
 
 
 def _summary_items(value: Any) -> List[str]:
