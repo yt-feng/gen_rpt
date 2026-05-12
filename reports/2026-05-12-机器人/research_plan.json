@@ -1,0 +1,90 @@
+{
+  "objective": "Assess the strategic landscape of the robotics industry to identify key trends, competitive dynamics, and growth opportunities for a company considering entry or expansion.",
+  "audience": "Senior executives and strategic planners in a technology or manufacturing firm evaluating robotics market entry or investment.",
+  "decision_question": "Should our company invest in developing or acquiring robotics capabilities, and if so, which sub-segments and geographic markets offer the highest strategic fit and return potential?",
+  "issue_tree": {
+    "Market Overview": {
+      "Market Size and Growth": "Global robotics market size, historical and projected CAGR, key drivers and restraints.",
+      "Segmentation": "Industrial vs. service robotics, by application (manufacturing, logistics, healthcare, consumer), by region.",
+      "Key Trends": "AI integration, collaborative robots, autonomous mobile robots, robot-as-a-service models."
+    },
+    "Competitive Landscape": {
+      "Major Players": "Incumbents (ABB, Fanuc, Yaskawa, Kuka) and emerging disruptors (Boston Dynamics, UiPath, Intuitive Surgical).",
+      "Market Share and Positioning": "By segment and region, competitive advantages, recent strategic moves.",
+      "Barriers to Entry": "Capital intensity, IP, regulatory approvals, talent scarcity."
+    },
+    "Technology and Innovation": {
+      "Core Technologies": "Sensors, actuators, control systems, AI/ML, computer vision, natural language processing.",
+      "Innovation Hotspots": "Soft robotics, swarm robotics, human-robot collaboration, edge computing.",
+      "R&D Investment Trends": "Corporate and government spending, patent filings, university research."
+    },
+    "Regulatory and Ethical Considerations": {
+      "Safety Standards": "ISO 10218, ISO/TS 15066, regional regulations.",
+      "Data Privacy and Security": "Concerns with connected robots, cybersecurity risks.",
+      "Ethical and Social Impact": "Job displacement, workforce reskilling, public acceptance."
+    },
+    "Opportunities and Risks": {
+      "Growth Opportunities": "High-growth verticals (healthcare, logistics, agriculture), emerging markets (Asia-Pacific, Middle East), new business models.",
+      "Key Risks": "Technological obsolescence, supply chain dependencies, trade tensions, high upfront costs."
+    }
+  },
+  "search_queries": [
+    "global robotics market size 2025 2030 CAGR",
+    "industrial vs service robotics market share 2025",
+    "top robotics companies market share 2025",
+    "collaborative robot market trends 2025",
+    "robotics AI integration trends 2025",
+    "robot as a service business model growth",
+    "robotics safety standards ISO 10218 2025",
+    "robotics cybersecurity risks 2025",
+    "robotics job displacement workforce reskilling",
+    "healthcare robotics market growth 2025",
+    "agriculture robotics market trends 2025",
+    "Asia Pacific robotics market growth 2025",
+    "robotics patent filings 2025",
+    "soft robotics innovation 2025",
+    "swarm robotics research 2025"
+  ],
+  "outline": [
+    "Robotics market is poised for double-digit growth driven by AI and automation demand",
+    "Industrial robotics dominates but service robotics is the fastest-growing segment",
+    "Asia-Pacific leads in production and adoption, with China as the largest market",
+    "Incumbents hold strong positions but face disruption from agile startups and tech giants",
+    "Collaborative robots and autonomous mobile robots are reshaping factory and warehouse operations",
+    "Robot-as-a-service lowers entry barriers and accelerates adoption among SMEs",
+    "Regulatory frameworks are evolving but remain fragmented across regions",
+    "Ethical and social concerns require proactive workforce transition strategies",
+    "Healthcare and logistics offer the highest near-term growth opportunities",
+    "Supply chain concentration and trade tensions pose significant risks to robotics companies"
+  ],
+  "chart_ideas": [
+    "Global robotics market size and CAGR by segment (industrial, service) 2020-2030",
+    "Regional market share breakdown for robotics (Asia-Pacific, North America, Europe, RoW) 2025",
+    "Top 10 robotics companies by revenue and market share 2025",
+    "Robot density (robots per 10,000 employees) by country 2025",
+    "Patent filings in robotics by technology area (2015-2025)",
+    "Investment in robotics startups by year and segment (2018-2025)",
+    "Adoption rate of collaborative robots vs. traditional industrial robots (2020-2025)",
+    "Projected growth rates for robotics in healthcare, logistics, agriculture, and consumer sectors"
+  ],
+  "insight_card_ideas": [
+    "Why collaborative robots are the key to SME automation",
+    "The rise of robot-as-a-service: business model implications",
+    "China's robotics strategy: from manufacturing powerhouse to innovation leader",
+    "How AI is making robots smarter and more autonomous",
+    "Navigating the regulatory maze: safety and data privacy in robotics",
+    "The talent gap in robotics: critical skills and how to bridge it",
+    "Supply chain vulnerabilities in robotics: semiconductors and rare earths",
+    "Robotics in healthcare: surgical precision meets operational efficiency"
+  ],
+  "risks": [
+    "Overestimating market growth due to hype and unrealistic adoption timelines",
+    "Underestimating regulatory hurdles and compliance costs across different regions",
+    "Technological disruption from unexpected breakthroughs (e.g., quantum computing, new materials)",
+    "Supply chain disruptions for critical components (chips, sensors, actuators)",
+    "Talent shortage in robotics engineering and AI",
+    "Public backlash and labor union resistance leading to stricter regulations",
+    "Currency fluctuations and trade tariffs impacting global competitiveness",
+    "Cybersecurity vulnerabilities in connected robotic systems"
+  ]
+}
