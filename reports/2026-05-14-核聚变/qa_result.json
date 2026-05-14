@@ -1,0 +1,103 @@
+{
+  "passed": false,
+  "pdf_path": "/home/runner/work/gen_rpt/gen_rpt/reports/2026-05-14-核聚变/report.pdf",
+  "html_path": "reports/2026-05-14-核聚变/report.html",
+  "checks": [
+    {
+      "code": "page_count",
+      "message": "PDF has 15 pages."
+    },
+    {
+      "code": "text_extractability",
+      "message": "PDF text extraction looks healthy."
+    }
+  ],
+  "issues": [
+    {
+      "code": "font_too_small",
+      "message": "Page 2: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 3: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 4: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 5: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 6: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 7: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 8: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 9: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 10: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 11: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 12: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 13: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 14: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 15: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    }
+  ],
+  "recommendations": [
+    "increase_min_font_or_add_pages"
+  ],
+  "page_count": 15,
+  "screenshots": [
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_001.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_002.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_003.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_004.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_005.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_006.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_007.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_008.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_009.png",
+    "reports/2026-05-14-核聚变/backup/qa/after_fix/page_010.png"
+  ]
+}

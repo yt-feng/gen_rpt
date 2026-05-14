@@ -1,0 +1,95 @@
+{
+  "objective": "Assess the strategic landscape of nuclear fusion technology, including its current state, key players, challenges, and potential impact on energy markets and geopolitics.",
+  "audience": "Senior executives and strategic planners in the energy sector, investors, and policy makers.",
+  "decision_question": "Should our organization invest in or partner for nuclear fusion technology development, and if so, which approach (e.g., magnetic confinement, inertial confinement, or emerging alternatives) and timeline offer the best strategic fit?",
+  "issue_tree": [
+    {
+      "node": "Technology Maturity and Roadmaps",
+      "children": [
+        "Magnetic confinement (tokamaks, stellarators) – ITER, SPARC, etc.",
+        "Inertial confinement (laser, Z-pinch) – NIF, First Light Fusion, etc.",
+        "Alternative concepts (e.g., field-reversed configuration, magnetized target fusion)",
+        "Key milestones and timelines to commercial viability"
+      ]
+    },
+    {
+      "node": "Key Players and Competitive Landscape",
+      "children": [
+        "Public projects (ITER, national labs)",
+        "Private ventures (Commonwealth Fusion Systems, TAE Technologies, Helion Energy, etc.)",
+        "Government policies and funding (US, China, EU, UK, Japan)",
+        "Partnerships and supply chain dependencies"
+      ]
+    },
+    {
+      "node": "Economic and Market Viability",
+      "children": [
+        "Levelized cost of fusion electricity vs. renewables, fission, and fossil fuels",
+        "Capital expenditure and operational costs",
+        "Regulatory and safety considerations",
+        "Market size and adoption scenarios (2030–2050)"
+      ]
+    },
+    {
+      "node": "Risks and Challenges",
+      "children": [
+        "Technical risks (plasma confinement, materials, tritium breeding)",
+        "Regulatory and public acceptance risks",
+        "Competition from other low-carbon technologies (solar, wind, advanced fission, storage)",
+        "Geopolitical risks (supply chain, IP, export controls)"
+      ]
+    },
+    {
+      "node": "Strategic Implications for Our Organization",
+      "children": [
+        "Potential entry points (equity investment, R&D partnership, licensing)",
+        "Timing and risk appetite",
+        "Synergies with existing business (energy, materials, engineering)",
+        "Recommended next steps"
+      ]
+    }
+  ],
+  "search_queries": [
+    "nuclear fusion latest breakthroughs 2025",
+    "ITER project status and timeline 2025",
+    "Commonwealth Fusion Systems SPARC progress",
+    "Helion Energy fusion reactor timeline",
+    "nuclear fusion vs renewables cost comparison 2025",
+    "private fusion companies funding 2025",
+    "fusion energy regulatory framework",
+    "tritium supply for fusion reactors",
+    "fusion energy market forecast 2030 2050",
+    "China fusion research progress",
+    "US fusion energy policy 2025",
+    "fusion reactor materials challenges"
+  ],
+  "outline": [
+    "Nuclear fusion is approaching technical feasibility but commercial viability remains a decade or more away",
+    "Public and private fusion projects are accelerating with significant funding and milestones",
+    "Fusion faces stiff competition from rapidly improving renewables and storage technologies",
+    "Key technical hurdles include plasma confinement, materials, and tritium breeding",
+    "Strategic entry should focus on near-term partnerships and monitoring key milestones",
+    "Recommended next steps: engage with leading private fusion firms and assess internal R&D capabilities"
+  ],
+  "chart_ideas": [
+    "Timeline of major fusion projects and milestones (ITER, SPARC, Helion, etc.)",
+    "Comparison of levelized cost of electricity (LCOE) for fusion vs. other sources (2025–2050)",
+    "Global fusion funding by source (public vs. private, by country) 2020–2025",
+    "Technology readiness level (TRL) of different fusion approaches",
+    "Market adoption scenarios for fusion under different policy and cost assumptions"
+  ],
+  "insight_card_ideas": [
+    "Fusion's 'hype cycle' – managing expectations vs. real progress",
+    "The tritium bottleneck: why fuel supply is a critical risk",
+    "Why fusion may not be 'too cheap to meter' – economic realities",
+    "Lessons from fission: regulatory and public acceptance challenges",
+    "China's fusion strategy: a potential leapfrog opportunity?"
+  ],
+  "risks": [
+    "Technical risk: key plasma physics or materials problems may prove intractable within expected timelines",
+    "Market risk: rapid cost declines in renewables and storage could erode fusion's competitive advantage",
+    "Regulatory risk: licensing and safety approval processes may be lengthy and uncertain",
+    "Geopolitical risk: export controls or supply chain disruptions (e.g., rare materials, tritium) could delay projects",
+    "Execution risk: private fusion companies may fail to raise sufficient capital or meet milestones"
+  ]
+}
