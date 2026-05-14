@@ -1,11 +1,20 @@
 name: Generate Deep Research Report
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'gen_rpt/**'
+      - 'tests/**'
+      - '.github/workflows/generate_deep_research.yml'
+      - 'requirements.txt'
   workflow_dispatch:
     inputs:
       topic:
         description: Research topic. You can enter either English or Chinese.
-        required: true
+        required: false
+        default: Nuclear fusion commercialization outlook and strategic implications
         type: string
       slug:
         description: Optional custom output directory slug
@@ -36,6 +45,7 @@ permissions:
 
 jobs:
   generate-report:
+    if: github.event_name != 'push' || !contains(github.event.head_commit.message, 'Add generated deep research report')
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -56,7 +66,7 @@ jobs:
       - name: Install system packages
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-noto-cjk wkhtmltopdf texlive-xetex texlive-latex-recommended texlive-pictures
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk wkhtmltopdf texlive-xetex texlive-latex-recommended texlive-pictures texlive-latex-extra
 
       - name: Install dependencies
         run: |
@@ -89,15 +99,28 @@ jobs:
           AI_IMAGE_RETRIES: 3
           SHOW_FALLBACK_IMAGES: true
         run: |
+          TOPIC="${{ github.event.inputs.topic }}"
+          SLUG="${{ github.event.inputs.slug }}"
+          LANGUAGE="${{ github.event.inputs.language }}"
+          MODEL="${{ github.event.inputs.model }}"
+          if [ -z "$TOPIC" ]; then
+            TOPIC="Nuclear fusion commercialization outlook and strategic implications"
+          fi
+          if [ -z "$LANGUAGE" ]; then
+            LANGUAGE="en"
+          fi
+          if [ -z "$MODEL" ]; then
+            MODEL="deepseek-chat"
+          fi
           EXTRA_ARGS=""
           if [ -n "$TARGET_LENGTH" ]; then
             EXTRA_ARGS="$EXTRA_ARGS --target-length $TARGET_LENGTH"
           fi
           python -m gen_rpt.main \
-            --topic "${{ github.event.inputs.topic }}" \
-            --slug "${{ github.event.inputs.slug }}" \
-            --language "${{ github.event.inputs.language }}" \
-            --model "${{ github.event.inputs.model }}" \
+            --topic "$TOPIC" \
+            --slug "$SLUG" \
+            --language "$LANGUAGE" \
+            --model "$MODEL" \
             --out-root reports \
             $EXTRA_ARGS
 
