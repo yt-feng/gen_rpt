@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.5.14)  14 MAY 2026 10:18
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.5.14)  14 MAY 2026 14:28
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -491,15 +491,15 @@ LaTeX Font Info:    ... okay on input line 37.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(36.98857pt, 523.53073pt, 36.98857pt)
-* v-part:(T,H,B)=(34.1433pt, 773.91498pt, 36.98857pt)
+* h-part:(L,W,R)=(39.83385pt, 517.84018pt, 39.83385pt)
+* v-part:(T,H,B)=(36.98857pt, 768.22443pt, 39.83385pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=523.53073pt
-* \textheight=773.91498pt
-* \oddsidemargin=-35.28142pt
-* \evensidemargin=-35.28142pt
-* \topmargin=-75.1267pt
+* \textwidth=517.84018pt
+* \textheight=768.22443pt
+* \oddsidemargin=-32.43614pt
+* \evensidemargin=-32.43614pt
+* \topmargin=-72.28142pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=10.0pt
@@ -594,78 +594,248 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 ] [2
 
 ]
-Underfull \hbox (badness 1629) in paragraph at lines 80--80
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+Underfull \hbox (badness 1917) in paragraph at lines 83--83
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion is approaching technical breakeven,
+ with recent net
+ []
+
+
+Underfull \hbox (badness 3260) in paragraph at lines 84--84
+\TU/NotoSansCJKSC(0)/m/n/9 2023 achieved net energy gain for the first time, pr
+oducing more
  []
 
 File: assets/image-1.png Graphic file (type bmp)
 <assets/image-1.png>
 File: assets/chart-1.png Graphic file (type bmp)
 <assets/chart-1.png>
+[3
 
-Underfull \hbox (badness 1629) in paragraph at lines 99--99
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+
+] [4]
+Underfull \hbox (badness 1997) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 since 2020, driven by breakthroughs in high-temperat
+ure supercon-
+ []
+
+
+Underfull \hbox (badness 6559) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 ductors (HTS) and advanced computing. Commonwealth F
+usion
+ []
+
+
+Underfull \hbox (badness 2753) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 first commercial plants. However, the gap between a 
+net energy
  []
 
 File: assets/image-2.png Graphic file (type bmp)
 <assets/image-2.png>
 File: assets/chart-2.png Graphic file (type bmp)
 <assets/chart-2.png>
-[3
+[5
 
-]
-Underfull \hbox (badness 1629) in paragraph at lines 118--118
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+] [6]
+Underfull \hbox (badness 1845) in paragraph at lines 137--137
+[]\TU/NotoSansCJKSC(0)/m/n/9 However, significant engineering, economic, and re
+gulatory hurdles
+ []
+
+
+Underfull \hbox (badness 1789) in paragraph at lines 138--138
+\TU/NotoSansCJKSC(0)/m/n/9 of weather. This baseload capability is critical for
+ grid stability as
+ []
+
+
+Underfull \hbox (badness 1701) in paragraph at lines 138--138
+\TU/NotoSansCJKSC(0)/m/n/9 renewable penetration increases. Fusion plants could
+ also provide
+ []
+
+
+Underfull \hbox (badness 1048) in paragraph at lines 139--139
+\TU/NotoSansCJKSC(0)/m/n/9 Countries like Japan, South Korea, and many European
+ nations are
  []
 
 File: assets/image-3.png Graphic file (type bmp)
 <assets/image-3.png>
 File: assets/chart-3.png Graphic file (type bmp)
 <assets/chart-3.png>
-[4]
-Underfull \hbox (badness 1629) in paragraph at lines 137--137
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+[7
+
+] [8]
+Underfull \hbox (badness 1546) in paragraph at lines 164--164
+\TU/NotoSansCJKSC(0)/m/n/9 and enhancing energy independence, rather than near-
+term market
+ []
+
+
+Underfull \hbox (badness 1028) in paragraph at lines 166--166
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion technology could also exacerbate existing i
+nequalities if only
  []
 
 File: assets/image-4.png Graphic file (type bmp)
 <assets/image-4.png>
 File: assets/chart-4.png Graphic file (type bmp)
 <assets/chart-4.png>
+[9
 
-Underfull \hbox (badness 1629) in paragraph at lines 156--156
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+] [10]
+Underfull \hbox (badness 1325) in paragraph at lines 191--191
+[]\TU/NotoSansCJKSC(0)/m/n/9 Geopolitical implications include reduced fossil f
+uel dependence for
+ []
+
+
+Underfull \hbox (badness 5607) in paragraph at lines 192--192
+\TU/NotoSansCJKSC(0)/m/n/9 strategy is prudent. Direct equity in fusion startup
+s offers high
+ []
+
+
+Underfull \hbox (badness 7558) in paragraph at lines 192--192
+\TU/NotoSansCJKSC(0)/m/n/9 in enabling technologies that are critical across mu
+ltiple reactor
+ []
+
+
+Underfull \hbox (badness 2326) in paragraph at lines 192--192
+\TU/NotoSansCJKSC(0)/m/n/9 (e.g., tungsten alloys, silicon carbide composites),
+ tritium breeding
+ []
+
+
+Underfull \hbox (badness 4582) in paragraph at lines 193--193
+[]\TU/NotoSansCJKSC(0)/m/n/9 Corporate venture arms of energy and industrial co
+mpanies (e.g.,
+ []
+
+
+Underfull \hbox (badness 2065) in paragraph at lines 193--193
+\TU/NotoSansCJKSC(0)/m/n/9 often with strategic partnerships. These alliances p
+rovide startups
+ []
+
+
+Underfull \hbox (badness 1354) in paragraph at lines 193--193
+\TU/NotoSansCJKSC(0)/m/n/9 investors early access to technology. For example, C
+ommonwealth
  []
 
 File: assets/image-5.png Graphic file (type bmp)
 <assets/image-5.png>
 File: assets/chart-5.png Graphic file (type bmp)
 <assets/chart-5.png>
-[5]
-Underfull \hbox (badness 1629) in paragraph at lines 175--175
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+[11
+
+] [12]
+Underfull \hbox (badness 5036) in paragraph at lines 218--218
+[]\TU/NotoSansCJKSC(0)/m/n/9 Investment strategies should prioritize enabling t
+echnologies (e.g.,
+ []
+
+
+Underfull \hbox (badness 1584) in paragraph at lines 218--218
+\TU/NotoSansCJKSC(0)/m/n/9 high-temperature superconductors, tritium breeding) 
+and diversified
  []
 
 File: assets/image-6.png Graphic file (type bmp)
 <assets/image-6.png>
 File: assets/chart-6.png Graphic file (type bmp)
 <assets/chart-6.png>
-[6]
-Underfull \hbox (badness 1629) in paragraph at lines 194--194
-[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
-stinguish facts that
+[13
+
+] [14]
+Underfull \hbox (badness 1259) in paragraph at lines 245--245
+[]\TU/NotoSansCJKSC(0)/m/n/9 Regulatory frameworks and public acceptance will b
+e critical gating
+ []
+
+
+Underfull \hbox (badness 2478) in paragraph at lines 246--246
+[]\TU/NotoSansCJKSC(0)/m/n/9 China and South Korea have the most aggressive fus
+ion programs
+ []
+
+
+Underfull \hbox (badness 1902) in paragraph at lines 247--247
+[]\TU/NotoSansCJKSC(0)/m/n/9 In contrast, Western projects face permitting chal
+lenges and public
+ []
+
+
+Underfull \hbox (badness 1297) in paragraph at lines 247--247
+\TU/NotoSansCJKSC(0)/m/n/9 regulations, as well as potential local opposition. 
+The UK’s STEP
  []
 
 File: assets/image-7.png Graphic file (type bmp)
 <assets/image-7.png>
 File: assets/chart-7.png Graphic file (type bmp)
 <assets/chart-7.png>
-[7] [8
+[15
+
+] [16]
+Underfull \hbox (badness 4024) in paragraph at lines 272--272
+[]\TU/NotoSansCJKSC(0)/m/n/9 This report provides a structured analysis of tech
+nology maturity,
+ []
+
+
+Underfull \hbox (badness 2828) in paragraph at lines 273--273
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion and renewables are often framed as competit
+ors, but they
+ []
+
+
+Underfull \hbox (badness 1783) in paragraph at lines 273--273
+\TU/NotoSansCJKSC(0)/m/n/9 intermittent power, while fusion offers firm, dispat
+chable baseload.
+ []
+
+
+Underfull \hbox (badness 4341) in paragraph at lines 274--274
+\TU/NotoSansCJKSC(0)/m/n/9 but competitive with nuclear fission and natural gas
+ with carbon
+ []
+
+
+Underfull \hbox (badness 1484) in paragraph at lines 274--274
+\TU/NotoSansCJKSC(0)/m/n/9 capture. If carbon prices reach $100/ton or more, fu
+sion becomes
+ []
+
+File: assets/image-8.png Graphic file (type bmp)
+<assets/image-8.png>
+File: assets/chart-2.png Graphic file (type bmp)
+<assets/chart-2.png>
+[17
+
+] [18]
+Underfull \hbox (badness 3058) in paragraph at lines 300--300
+\TU/NotoSansCJKSC(0)/m/n/9 compared to fossil fuels. The US Navy has funded res
+earch into
+ []
+
+File: assets/image-9.png Graphic file (type bmp)
+<assets/image-9.png>
+File: assets/chart-3.png Graphic file (type bmp)
+<assets/chart-3.png>
+[19
+
+] [20]
+File: assets/image-10.png Graphic file (type bmp)
+<assets/image-10.png>
+File: assets/chart-4.png Graphic file (type bmp)
+<assets/chart-4.png>
+ [21
+
+] [22] [23
 
 ] (./report_latex.aux)
  ***********
@@ -674,12 +844,12 @@ L3 programming layer <2024-01-22>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14934 strings out of 476904
- 348194 string characters out of 5806011
- 1927627 words of memory out of 5000000
- 36581 multiletter control sequences out of 15000+600000
+ 14976 strings out of 476904
+ 349014 string characters out of 5806011
+ 1931627 words of memory out of 5000000
+ 36620 multiletter control sequences out of 15000+600000
  558221 words of font info for 55 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 84i,12n,93p,3019b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,13n,93p,2989b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on report_latex.pdf (8 pages).
+Output written on report_latex.pdf (23 pages).
