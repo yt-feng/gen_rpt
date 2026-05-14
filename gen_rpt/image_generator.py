@@ -29,12 +29,11 @@ def generate_ai_image_assets(
     *,
     language: str = "en",
 ) -> Dict[str, str]:
-    """Generate or safely materialize editorial report visuals.
+    """Generate editorial visuals for the report.
 
-    Pollinations remains the first-choice source for cover and section visuals. If
-    Pollinations is rate-limited or times out, the pipeline now creates a local,
-    BCG-style editorial fallback instead of leaving blank placeholders in the PPT,
-    HTML PDF, or LaTeX PDF.
+    Important: the AI cover is written to cover-ai.png instead of the brand
+    fallback cover-background.png. Earlier versions reused the already-created
+    brand cover as a cache hit, which prevented Pollinations from being called.
     """
     if os.getenv("DISABLE_AI_IMAGES", "").lower() in {"1", "true", "yes"}:
         return {}
@@ -50,13 +49,15 @@ def generate_ai_image_assets(
     result: Dict[str, str] = {}
 
     cover_keywords = (
-        f"{topic}; premium strategy report cover; topic-specific editorial visual; "
-        "cinematic real-world or high-end conceptual scene that reflects the industry or technology being researched; "
-        "executive publication quality; sophisticated composition; blue-white accent palette; no readable words; no logo; "
-        "avoid generic ocean waves, avoid glass-wave filler, avoid repetitive abstract blue background"
+        f"{topic}; full-page premium strategy report cover background; topic-specific editorial visual; "
+        "show a sophisticated real-world or cinematic conceptual scene directly related to the researched industry or technology; "
+        "executive publication quality; deep blue, white and electric-blue accents; no readable words; no logo; "
+        "leave calm negative space for a white title card; avoid generic ocean waves, abstract blue filler and unrelated decorative gradients"
     )
     cover_prompt = _polish_prompt(client, cover_keywords)
-    cover_path = assets_dir / "cover-background.png"
+    cover_path = assets_dir / "cover-ai.png"
+    if cover_path.exists():
+        cover_path.unlink(missing_ok=True)
     status, reason = _download_or_fallback(cover_prompt, cover_path, kind="cover", timeout_seconds=timeout_seconds, retries=retries, allow_fallback=True)
     result["cover-background"] = f"assets/{cover_path.name}"
     prompt_records.append({"id": "cover-background", "keywords": cover_keywords, "prompt": cover_prompt, "url": _url(cover_prompt), "status": status, "reason": reason})
@@ -166,36 +167,44 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
     accent = _hex(PALETTE.get("bright_blue", "#3273F6"))
     mid = _hex(PALETTE.get("medium_blue", "#0055A4"))
     paper = (246, 249, 252)
+    topic_type = _prompt_type(prompt)
 
     img = Image.new("RGB", (width, height), paper if kind == "section" else navy)
     px = img.load()
     for y in range(height):
         for x in range(width):
             t = (x * 0.45 + y * 0.55) / (width + height)
-            glow = max(0.0, 1.0 - (((x - width * 0.72) / 380) ** 2 + ((y - height * 0.28) / 260) ** 2))
+            glow = max(0.0, 1.0 - (((x - width * 0.70) / 360) ** 2 + ((y - height * 0.38) / 250) ** 2))
             if kind == "cover":
-                r = int(navy[0] * (1 - t) + mid[0] * t + accent[0] * glow * 0.25)
-                g = int(navy[1] * (1 - t) + mid[1] * t + accent[1] * glow * 0.25)
-                b = int(navy[2] * (1 - t) + mid[2] * t + accent[2] * glow * 0.25)
+                r = int(navy[0] * (1 - t) + mid[0] * t + accent[0] * glow * 0.22)
+                g = int(navy[1] * (1 - t) + mid[1] * t + accent[1] * glow * 0.22)
+                b = int(navy[2] * (1 - t) + mid[2] * t + accent[2] * glow * 0.22)
             else:
-                r = int(paper[0] * (1 - t * 0.25) + accent[0] * t * 0.18 + accent[0] * glow * 0.10)
-                g = int(paper[1] * (1 - t * 0.25) + accent[1] * t * 0.18 + accent[1] * glow * 0.10)
-                b = int(paper[2] * (1 - t * 0.25) + accent[2] * t * 0.18 + accent[2] * glow * 0.10)
+                r = int(paper[0] * (1 - t * 0.20) + accent[0] * t * 0.16 + accent[0] * glow * 0.08)
+                g = int(paper[1] * (1 - t * 0.20) + accent[1] * t * 0.16 + accent[1] * glow * 0.08)
+                b = int(paper[2] * (1 - t * 0.20) + accent[2] * t * 0.16 + accent[2] * glow * 0.08)
             px[x, y] = (min(255, r), min(255, g), min(255, b))
 
     draw = ImageDraw.Draw(img, "RGBA")
-    topic_type = _prompt_type(prompt)
-    line_color = (255, 255, 255, 70) if kind == "cover" else (0, 85, 164, 62)
-    node_color = (255, 255, 255, 90) if kind == "cover" else (0, 48, 135, 90)
-    accent_color = (*accent, 120)
+    line_color = (255, 255, 255, 84) if kind == "cover" else (0, 85, 164, 70)
+    node_color = (255, 255, 255, 110) if kind == "cover" else (0, 48, 135, 100)
+    electric = (*accent, 145)
 
-    if topic_type == "rail":
-        for offset in [0, 86, 172, 258]:
-            draw.line((80, 680 - offset, 1180, 230 - offset), fill=line_color, width=5)
-            draw.line((90, 735 - offset, 1190, 285 - offset), fill=line_color, width=5)
-            for k in range(10):
-                x = 150 + k * 105
-                draw.line((x, 710 - offset, x + 62, 628 - offset), fill=line_color, width=2)
+    if topic_type == "fusion":
+        cx, cy = int(width * 0.66), int(height * 0.48)
+        for r in [70, 130, 210, 300]:
+            draw.ellipse((cx - r, cy - r, cx + r, cy + r), outline=line_color, width=4)
+        for i in range(14):
+            angle = (i / 14) * 6.28318
+            x1 = cx + int(90 * __import__('math').cos(angle))
+            y1 = cy + int(90 * __import__('math').sin(angle))
+            x2 = cx + int(330 * __import__('math').cos(angle))
+            y2 = cy + int(330 * __import__('math').sin(angle))
+            draw.line((x1, y1, x2, y2), fill=line_color, width=2)
+        draw.ellipse((cx - 48, cy - 48, cx + 48, cy + 48), fill=electric)
+        draw.rectangle((80, 660, 1180, 710), outline=line_color, width=3)
+        for i in range(8):
+            draw.rectangle((130 + i * 125, 610, 185 + i * 125, 780), outline=line_color, width=2)
     elif topic_type == "energy":
         for i in range(9):
             cx = 180 + i * 115
@@ -203,6 +212,13 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
             draw.ellipse((cx - 38, cy - 38, cx + 38, cy + 38), outline=line_color, width=4)
             if i > 0:
                 draw.line((cx - 115 + 38, 330 + (((i - 1) % 3) - 1) * 70, cx - 38, cy), fill=line_color, width=3)
+    elif topic_type == "rail":
+        for offset in [0, 86, 172, 258]:
+            draw.line((80, 680 - offset, 1180, 230 - offset), fill=line_color, width=5)
+            draw.line((90, 735 - offset, 1190, 285 - offset), fill=line_color, width=5)
+            for k in range(10):
+                x = 150 + k * 105
+                draw.line((x, 710 - offset, x + 62, 628 - offset), fill=line_color, width=2)
     else:
         points = [(120, 620), (300, 420), (470, 540), (650, 300), (830, 450), (1030, 260), (1170, 380)]
         for a, b in zip(points, points[1:]):
@@ -210,16 +226,14 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
         for x, y in points:
             draw.ellipse((x - 14, y - 14, x + 14, y + 14), fill=node_color)
 
-    for i in range(6):
-        x0 = 70 + i * 205
-        draw.rounded_rectangle((x0, 90 + (i % 2) * 54, x0 + 130, 135 + (i % 2) * 54), radius=18, outline=accent_color, width=2)
-    draw.rectangle((0, 0, width, height), outline=(255, 255, 255, 24), width=10)
     img = img.filter(ImageFilter.SMOOTH_MORE)
     img.save(output_path, format="PNG")
 
 
 def _prompt_type(prompt: str) -> str:
     lower = prompt.lower()
+    if any(token in lower for token in ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
+        return "fusion"
     if any(token in lower for token in ["rail", "railway", "train", "logistics", "coal"]):
         return "rail"
     if any(token in lower for token in ["energy", "battery", "power", "grid", "hydrogen", "storage"]):
