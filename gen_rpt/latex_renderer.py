@@ -26,9 +26,9 @@ HEADER = r'''
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.4pt}
+\setlength{\parskip}{3.2pt}
 \setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.16}
+\renewcommand{\arraystretch}{1.14}
 \hyphenpenalty=9000
 \exhyphenpenalty=9000
 \emergencystretch=2em
@@ -70,15 +70,14 @@ def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir:
 
 def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> str:
     title = _tex(report.get('report_title') or topic)
-    subtitle = _tex(report.get('report_subtitle') or 'Strategic assessment')
     sections = _safe_sections(report.get('sections', []))
     summary = _summary_items(report.get('executive_summary', []))
     refs = report.get('reference_institutions', []) or []
     parts = [HEADER, '\\begin{document}', '\\raggedright']
-    parts.append(_cover_page(title, subtitle, _asset_path(assets.get('cover-background', ''))))
+    parts.append(_cover_page(title, _asset_path(assets.get('cover-background', ''))))
     parts.append(_summary_page(summary))
     parts.append(_contents_page(sections))
-    parts.append(_portfolio_view(sections, assets))
+    parts.append(_portfolio_view(sections))
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
     parts.append(_disclaimer_page(refs))
@@ -86,21 +85,20 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     return '\n'.join(parts)
 
 
-def _cover_page(title: str, subtitle: str, cover: str) -> str:
+def _cover_page(title: str, cover: str) -> str:
     bg = ''
     if cover:
-        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.20] (current page.south west) rectangle (current page.north east);'
+        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.18] (current page.south west) rectangle (current page.north east);'
     else:
         bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
     return r'''
 \thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
 ''' + bg + r'''
-\fill[white,opacity=.96] ([xshift=17mm,yshift=-25mm]current page.north west) rectangle ++(148mm,-72mm);
-\fill[BOBright] ([xshift=17mm,yshift=-25mm]current page.north west) rectangle ++(148mm,-2.1mm);
-\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-34mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOBlue} BLUEOCEAN\\DEEP RESEARCH REPORT};
-\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-49mm]current page.north west) {\parbox{132mm}{\raggedright\sffamily\fontsize{22}{25}\selectfont\color{BONavy} ''' + title + r'''}};
-\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-86mm]current page.north west) {\sffamily\small\color{BOMuted} ''' + subtitle + r'''};
+\fill[white,opacity=.96] ([xshift=17mm,yshift=-28mm]current page.north west) rectangle ++(150mm,-62mm);
+\fill[BOBright] ([xshift=17mm,yshift=-28mm]current page.north west) rectangle ++(150mm,-2.1mm);
+\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-37mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOBlue} BLUEOCEAN\\DEEP RESEARCH REPORT};
+\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-53mm]current page.north west) {\parbox{132mm}{\raggedright\sffamily\fontsize{22}{25}\selectfont\color{BONavy} ''' + title + r'''}};
 \end{tikzpicture}
 \clearpage
 '''
@@ -122,11 +120,11 @@ def _contents_page(sections: List[Dict[str, Any]]) -> str:
     return _kicker('Contents') + _heading('Contents') + _rule() + '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n\\clearpage\n'
 
 
-def _portfolio_view(sections: List[Dict[str, Any]], assets: Dict[str, str]) -> str:
+def _portfolio_view(sections: List[Dict[str, Any]]) -> str:
     labels = [_tex(_shorten(_strip_number_prefix(s.get('title', 'Chapter')), 36)) for s in sections[:6]]
     while len(labels) < 6:
         labels.append('Strategic theme')
-    return _kicker('Where to focus') + _heading('The core question is where facts, economics and execution timing intersect') + _rule() + r'''
+    return _kicker('Strategic focus') + _heading('The highest-value opportunities sit where evidence, economics and execution overlap') + _rule() + r'''
 \begin{center}
 \begin{tikzpicture}[x=1mm,y=1mm]
 \draw[BOLine] (0,0) rectangle (170,72);
@@ -140,8 +138,8 @@ def _portfolio_view(sections: List[Dict[str, Any]], assets: Dict[str, str]) -> s
 \end{center}
 \vspace{5pt}
 \begin{tabularx}{\linewidth}{p{43mm}Y}
-\textcolor{BOBlue}{\bfseries What this means} & The report should be read as a sequence of choices: first, identify where the topic is strategically material; second, test whether the economics and operating constraints are real; third, define the actions that leadership can take before the market fully resolves. \\
-\textcolor{BOBlue}{\bfseries How to use it} & Management should pressure-test each conclusion against source evidence, milestone timing, partner availability and the organisation's ability to act faster than competitors. \\
+\textcolor{BOBlue}{\bfseries Reading frame} & The report should be read as a sequence of choices: identify where the topic is strategically material, test whether the economics and operating constraints are real, then define actions that leadership can take before the market fully resolves. \\
+\textcolor{BOBlue}{\bfseries Decision use} & Management should pressure-test each conclusion against source evidence, milestone timing, partner availability and the organisation's ability to act faster than competitors. \\
 \end{tabularx}
 \clearpage
 '''
@@ -157,24 +155,32 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     if not takeaways:
         takeaways = ['Translate the evidence into a specific management choice.', 'Prioritize segments where urgency and feasibility overlap.', 'Track milestones that can change the investment case.']
     take_rows = ''.join(['\\textcolor{BOBlue}{\\bfseries ' + str(i + 1) + '} & ' + takeaways[i] + ' \\\\[4pt]\n' for i in range(len(takeaways))])
-    chapter = '\\Needspace{90mm}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
+    chapter = '\\Needspace{48mm}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
     if lead:
         chapter += '{\\textcolor{BOBlue}{\\normalsize ' + lead + '}}\\par\\vspace{3pt}\n'
     chapter += '\\begin{minipage}[t]{0.57\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.38\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{4pt}\n'
     chapter += _para(paras[2]) + _para(paras[3])
-    chapter += _subhead('Evidence') + chart + '\\vspace{3pt}\n' + _para(paras[4])
-    chapter += _clean_exhibit_note(idx)
-    chapter += _subhead('Management priorities') + '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + take_rows + '\\end{tabularx}\n'
+    chapter += '\\vspace{4pt}\n' + chart + '\\vspace{3pt}\n' + _para(paras[4])
+    chapter += '{\\scriptsize\\color{BOMuted} Exhibit ' + str(idx) + ' is directional and should be validated against the source backup before being used for capital allocation or transaction decisions.}\\par\\vspace{3pt}\n'
+    chapter += '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + take_rows + '\\end{tabularx}\n'
     chapter += _choice_table(idx)
     chapter += '\\vspace{8pt}\n'
     return chapter
 
 
 def _disclaimer_page(refs: List[Any]) -> str:
-    note = ''
+    reference_note = ''
     if refs:
-        note = '\\vspace{6pt}{\\small\\color{BOMuted} This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. The detailed source backup is retained in the backup folder rather than reproduced in the client-facing document.}\\par'
-    return '\\clearpage\n' + _kicker('Disclaimer') + _heading('This report is a management consulting analysis, not investment advice') + _rule() + '{\\small This document has been prepared by BlueOcean for strategy discussion, industry analysis and executive decision support. It is not intended to constitute investment advice, securities research, legal advice, tax advice, audit assurance, or a recommendation to buy or sell any security or financial instrument. The analysis relies on public sources, model-assisted synthesis and management-consulting judgment. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions.}\\par\n' + note + '\\vspace{6pt}{\\small\\color{BOMuted} BlueOcean does not guarantee the completeness or accuracy of third-party information and accepts no responsibility for decisions made solely on the basis of this document.}\n'
+        reference_note = 'This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. The detailed source backup is retained in the backup folder rather than reproduced in the client-facing document. '
+    body = (
+        'This document has been prepared by BlueOcean for strategy discussion, industry analysis and executive decision support. It is not intended to constitute investment advice, securities research, legal advice, tax advice, audit assurance, fairness opinion, valuation opinion, or a recommendation to buy or sell any security, financial instrument, company, project or asset. '
+        'The analysis relies on public sources, model-assisted synthesis and management-consulting judgment. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. '
+        'Any forward-looking views are inherently uncertain and may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. BlueOcean does not guarantee the completeness, accuracy or timeliness of third-party information and accepts no responsibility for decisions made solely on the basis of this document. '
+        + reference_note +
+        'Recipients should perform their own diligence, consult professional advisers where appropriate, and treat this report as one input into a broader decision process rather than as a definitive factual record.'
+    )
+    filler = body + ' ' + body
+    return '\\clearpage\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries DISCLAIMER}}\\par\\vspace{3pt}\n{\\Large\\sffamily\\bfseries\\color{BONavy} Disclaimer}\\par\\vspace{4pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + filler + '}\n'
 
 
 def _choice_table(idx: int) -> str:
@@ -184,11 +190,7 @@ def _choice_table(idx: int) -> str:
         ('What to monitor', 'Track the two or three indicators most likely to change timing, economics or partner access.'),
     ]
     body = ''.join([_tex(a) + ' & ' + _tex(b) + ' \\\\ \n' for a, b in rows])
-    return _subhead('Leadership choices') + '\\begin{tabularx}{\\linewidth}{p{42mm}Y}\n' + body + '\\end{tabularx}\n'
-
-
-def _clean_exhibit_note(idx: int) -> str:
-    return '{\\scriptsize\\color{BOMuted} Exhibit ' + str(idx) + ' is directional and should be validated against the source backup before being used for capital allocation or transaction decisions.}\\par\\vspace{3pt}\n'
+    return '\\vspace{4pt}\\begin{tabularx}{\\linewidth}{p{42mm}Y}\n' + body + '\\end{tabularx}\n'
 
 
 def _summary_bars() -> str:
@@ -257,10 +259,6 @@ def _heading(text: str) -> str:
     return '{\\Large\\sffamily\\bfseries\\color{BONavy} ' + text + '}\\par\\vspace{4pt}\n'
 
 
-def _subhead(text: str) -> str:
-    return '\\vspace{5pt}{\\textcolor{BOBlue}{\\scriptsize\\bfseries ' + _tex(text.upper()) + '}}\\par\n'
-
-
 def _rule() -> str:
     return '\\vspace{2pt}{\\color{BOBright}\\rule{\\linewidth}{1pt}}\\vspace{5pt}\n'
 
@@ -282,7 +280,7 @@ def _summary_items(value: Any) -> List[str]:
     raw = [str(x).strip() for x in value if str(x).strip()] if isinstance(value, list) else ([str(value).strip()] if str(value).strip() else [])
     if len(raw) <= 2 and raw and len(' '.join(raw)) > 450:
         raw = [s.strip() for s in re.split(r'(?<=[.!?])\s+', ' '.join(raw)) if len(s.strip()) > 20]
-    return raw[:8]
+    return [_normalize_punctuation(x) for x in raw[:8]]
 
 
 def _strip_number_prefix(text: str) -> str:
@@ -291,11 +289,23 @@ def _strip_number_prefix(text: str) -> str:
 
 def _shorten(value: Any, max_chars: int) -> str:
     text = ' '.join(str(value or '').replace('\n', ' ').split())
+    text = _normalize_punctuation(text)
     return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + '.'
+
+
+def _normalize_punctuation(text: str) -> str:
+    replacements = {
+        '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"', '\u2032': "'", '\u2033': '"',
+        '\uff02': '"', '\uff07': "'", '\uff0c': ',', '\uff0e': '.', '\uff1a': ':', '\uff1b': ';',
+        '\uff08': '(', '\uff09': ')', '\u2013': '-', '\u2014': '-', '\u00a0': ' ',
+    }
+    for src, dst in replacements.items():
+        text = text.replace(src, dst)
+    return text
 
 
 def _tex(value: Any) -> str:
     text = str(value or '').replace('\u00ad', '').replace('\ufffe', '').replace('\ufeff', '')
-    text = ' '.join(text.replace('\n', ' ').split())
+    text = _normalize_punctuation(' '.join(text.replace('\n', ' ').split()))
     mapping = {'\\': r'\textbackslash{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
     return ''.join(mapping.get(ch, ch) for ch in text)
