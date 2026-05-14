@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 
 HEADER = r'''
 \documentclass[10pt,a4paper]{article}
-\usepackage[a4paper,margin=13mm,top=12mm,bottom=13mm]{geometry}
+\usepackage[a4paper,margin=14mm,top=13mm,bottom=14mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{graphicx}
@@ -26,9 +26,9 @@ HEADER = r'''
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.1pt}
+\setlength{\parskip}{4.0pt}
 \setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.13}
+\renewcommand{\arraystretch}{1.15}
 \hyphenpenalty=9000
 \exhyphenpenalty=9000
 \emergencystretch=2em
@@ -105,34 +105,38 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
     heading = _agenda_heading(summary, sections)
     summary_rows = []
     for idx, item in enumerate(summary[:5], start=1):
-        summary_rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\footnotesize ' + _tex(_shorten(item, 250)) + '} \\\\[4pt]\n')
+        summary_rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\footnotesize ' + _tex(_shorten(item, 245)) + '} \\\\[4pt]\n')
     if not summary_rows:
         summary_rows.append('\\textcolor{BOBlue}{\\bfseries 01} & {\\footnotesize Leadership should align resources to the few facts that change strategic choices.} \\\\[4pt]\n')
 
     content_rows = []
     for idx, section in enumerate(sections, start=1):
         title = _tex(_strip_number_prefix(section.get('title', 'Section')))
-        content_rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + title + ' & {\\color{BOMuted}p.~\\pageref{chap:' + str(idx) + '}} \\\\[3pt]\n')
+        content_rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + title + ' & {\\color{BOMuted}pp.~\\pageref{chap:' + str(idx) + '}--\\pageref{chap:' + str(idx) + ':end}} \\\\[3pt]\n')
 
-    return _kicker('Executive conclusions and contents') + _heading(heading) + _rule() + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n' + ''.join(summary_rows) + '\\end{tabularx}\n\\vspace{6pt}\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries CONTENTS}}\\par\\vspace{2pt}\n\\begin{tabularx}{\\linewidth}{p{8mm}Yp{18mm}}\n' + ''.join(content_rows) + '\\end{tabularx}\n\\clearpage\n'
+    return _kicker('Executive conclusions and contents') + _heading(heading) + _rule() + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n' + ''.join(summary_rows) + '\\end{tabularx}\n\\vspace{6pt}\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries CONTENTS}}\\par\\vspace{2pt}\n\\begin{tabularx}{\\linewidth}{p{8mm}Yp{29mm}}\n' + ''.join(content_rows) + '\\end{tabularx}\n\\clearpage\n'
 
 
 def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
-    title = _tex(_strip_number_prefix(section.get('title', f'Section {idx}')))
-    lead = _tex(_shorten(section.get('lead', ''), 270))
+    title_raw = _strip_number_prefix(section.get('title', f'Section {idx}'))
+    title = _tex(title_raw)
+    lead_raw = str(section.get('lead', '') or '').strip()
+    lead = _tex(_shorten(lead_raw, 270))
     paras = _paras(section)
-    visual = _image_block(_resolve_image(section, assets, idx), '66mm', '46mm')
+    visual = _image_block(_resolve_image(section, assets, idx), '64mm', '45mm')
     chart_path = _resolve_chart(assets, idx)
-    chart = _image_block(chart_path, '150mm', '64mm') if chart_path else ''
-    chapter = '\\Needspace{34mm}\n\\label{chap:' + str(idx) + '}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
-    if lead:
+    chart = _center_image(chart_path, '0.88\\linewidth', '62mm') if chart_path else ''
+
+    chapter = '\\clearpage\n\\label{chap:' + str(idx) + '}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
+    if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
         chapter += '{\\textcolor{BOBlue}{\\normalsize ' + lead + '}}\\par\\vspace{3pt}\n'
-    chapter += '\\begin{minipage}[t]{0.57\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.38\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{4pt}\n'
-    chapter += _para(paras[2]) + _para(paras[3])
+    chapter += '\\begin{minipage}[t]{0.58\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + _para(paras[2]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{5pt}\n'
+    chapter += _para(paras[3]) + _para(paras[4])
     if chart:
-        chapter += '\\vspace{4pt}\n' + chart + '\\vspace{3pt}\n'
-    chapter += _para(paras[4]) + _para(paras[5])
-    chapter += '\\vspace{8pt}\n'
+        chapter += '\\vspace{5pt}\n' + chart + '\\vspace{4pt}\n'
+    for paragraph in paras[5:10]:
+        chapter += _para(paragraph)
+    chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
 
@@ -167,20 +171,28 @@ def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
 def _paras(section: Dict[str, Any]) -> List[str]:
     raw = [str(x) for x in section.get('paragraphs', []) if str(x).strip()]
     lead = str(section.get('lead', '') or '').strip()
-    if lead:
+    title = _strip_number_prefix(section.get('title', 'the issue'))
+    if lead and _normalize_punctuation(lead).lower() != _normalize_punctuation(title).lower():
         raw.insert(0, lead)
     expansions = [
-        'For executives, the practical implication is to distinguish facts that should change resource allocation from signals that are still too early to underwrite a major commitment.',
-        'The strongest near-term stance is to define measurable proof points, maintain flexibility, and revisit the opportunity as technical, policy and customer milestones become clearer.',
-        'The management agenda should therefore sequence actions by materiality, feasibility and timing rather than treating the market as a single binary bet.',
+        'The evidence behind ' + title + ' should be interpreted through its effect on market timing, capital intensity and the credibility of deployment pathways.',
+        'A durable strategic position requires more than scientific progress: it depends on repeatable execution, supply-chain resilience, standards, financing, customer adoption and policy alignment.',
+        'The practical implication is to separate milestones that merely improve sentiment from milestones that materially change economics, procurement decisions or partnership structures.',
+        'Management teams should maintain optionality while tracking the few indicators that can change conviction, including technical proof, cost trajectory, regulatory clarity and customer willingness to commit.',
     ]
-    while len(raw) < 6:
+    while len(raw) < 10:
         raw.append(expansions[(len(raw) - 1) % len(expansions)])
-    return [_tex(x) for x in raw[:6]]
+    return [_tex(x) for x in raw[:10]]
 
 
 def _para(text: str) -> str:
     return '{\\small ' + text + '}\\par\n'
+
+
+def _center_image(path: str, width: str, height: str) -> str:
+    if not path:
+        return ''
+    return '\\begin{center}\\includegraphics[width=' + width + ',height=' + height + ',keepaspectratio]{' + path + '}\\end{center}\n'
 
 
 def _image_block(path: str, width: str, height: str) -> str:
@@ -251,7 +263,7 @@ def _normalize_punctuation(text: str) -> str:
     replacements = {
         '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"', '\u2032': "'", '\u2033': '"',
         '\uff02': '"', '\uff07': "'", '\uff0c': ',', '\uff0e': '.', '\uff1a': ':', '\uff1b': ';',
-        '\uff08': '(', '\uff09': ')', '\u2013': '-', '\u2014': '-', '\u00a0': ' ',
+        '\uff08': '(', '\uff09': ')', '\u2013': '-', '\u2014': '-', '\u00a0': ' ', '\u2011': '-', '\u2010': '-', '\u2012': '-',
     }
     for src, dst in replacements.items():
         text = text.replace(src, dst)
