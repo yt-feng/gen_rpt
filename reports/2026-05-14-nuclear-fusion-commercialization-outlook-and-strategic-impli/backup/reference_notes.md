@@ -21,21 +21,26 @@
 - Note: https://tae.com/
 
 ## Ref 5
-- Title: https://www.fusionindustryassociation.org/
-- URL: https://www.fusionindustryassociation.org/
-- Note: https://www.fusionindustryassociation.org/
+- Title: https://zapenergy.com/
+- URL: https://zapenergy.com/
+- Note: https://zapenergy.com/
 
 ## Ref 6
-- Title: https://www.energy.gov/fusion-energy-sciences
-- URL: https://www.energy.gov/fusion-energy-sciences
-- Note: https://www.energy.gov/fusion-energy-sciences
+- Title: https://www.energy.gov/science/fes
+- URL: https://www.energy.gov/science/fes
+- Note: https://www.energy.gov/science/fes
 
 ## Ref 7
-- Title: https://www.nrc.gov/
-- URL: https://www.nrc.gov/
-- Note: https://www.nrc.gov/
+- Title: https://www.iaea.org/topics/fusion-energy
+- URL: https://www.iaea.org/topics/fusion-energy
+- Note: https://www.iaea.org/topics/fusion-energy
 
 ## Ref 8
-- Title: https://www.gov.uk/government/collections/fusion-energy
-- URL: https://www.gov.uk/government/collections/fusion-energy
-- Note: https://www.gov.uk/government/collections/fusion-energy
+- Title: https://www.nrc.gov/reactors/new-reactors/advanced.html
+- URL: https://www.nrc.gov/reactors/new-reactors/advanced.html
+- Note: https://www.nrc.gov/reactors/new-reactors/advanced.html
+
+## Ref 9
+- Title: https://www.oecd-nea.org/jcms/pl_78936/fusion-energy
+- URL: https://www.oecd-nea.org/jcms/pl_78936/fusion-energy
+- Note: https://www.oecd-nea.org/jcms/pl_78936/fusion-energy

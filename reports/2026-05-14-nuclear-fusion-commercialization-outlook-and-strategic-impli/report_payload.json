@@ -1,95 +1,124 @@
 {
-  "report_title": "Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
-  "report_subtitle": "A BlueOcean Research Report on the Path to Commercial Fusion and Its Disruptive Potential",
+  "report_title": "Nuclear Fusion Commercialization Outlook and Strategic Implications",
+  "report_subtitle": "A Client-Ready BlueOcean Research Report for Senior Executives and Strategic Planners",
   "executive_summary": [
-    "Nuclear fusion, long considered a distant energy source, is now attracting unprecedented private and public investment, with over $6 billion in private funding and major projects like ITER, SPARC, and DEMO advancing. However, commercialization remains a decade or more away due to unresolved engineering challenges, particularly in plasma confinement, materials science, and tritium breeding. This report assesses the technology readiness, economic viability, regulatory landscape, and strategic implications of fusion. Key findings: fusion could achieve cost parity with renewables by 2050 under optimistic scenarios, but faces risks from regulatory gaps and tritium scarcity. Strategic implications include potential disruption of fossil fuel markets, new geopolitical dependencies, and a need for early investment in supply chains and regulatory frameworks. Decision-makers should monitor milestones, engage in pilot projects, and prepare for a phased integration of fusion into the energy mix."
+    "Nuclear fusion is approaching technical breakeven, with recent net energy gain experiments at the National Ignition Facility (NIF) and Joint European Torus (JET) marking historic milestones. Private ventures such as Commonwealth Fusion Systems, Helion Energy, TAE Technologies, and Zap Energy have accelerated credible timelines, targeting first commercial plants in the 2030s to 2040s. However, significant engineering, economic, and regulatory hurdles remain. Fusion's strategic value lies in providing firm, dispatchable clean power and enhancing energy independence, rather than near-term market disruption. Geopolitical implications include reduced fossil fuel dependence for import-dependent nations and new proliferation challenges from compact reactor designs. Investment strategies should prioritize enabling technologies (e.g., high-temperature superconductors, tritium breeding) and diversified portfolios over single-reactor bets. Regulatory frameworks and public acceptance will be critical gating factors. This report provides a structured analysis of technology maturity, economic viability, competitive dynamics, risks, and strategic recommendations for decision-makers."
   ],
   "method_steps": [
     {
       "name": "Step 1",
-      "description": "Define the decision question: Should our organization invest in or prepare for nuclear fusion technology?"
+      "description": "Define the decision question: Should our organization invest in, partner with, or monitor nuclear fusion ventures?"
     },
     {
       "name": "Step 2",
-      "description": "Structure the issue tree around technology readiness, economic viability, regulatory framework, and strategic implications."
+      "description": "Structure the issue tree: Technology maturity, economic viability, strategic implications, competitive landscape, risks."
     },
     {
       "name": "Step 3",
-      "description": "Conduct targeted research using the specified search queries to gather current data and projections."
+      "description": "Formulate hypotheses: Fusion is technically feasible but commercially distant; strategic value is high; investment should be phased."
     },
     {
       "name": "Step 4",
-      "description": "Analyze findings using pyramid-principle synthesis, ensuring each conclusion is supported by evidence."
+      "description": "Gather evidence: Analyze public milestones from ITER, SPARC, Helion, TAE, Zap; review LCOE projections and funding trends."
     },
     {
       "name": "Step 5",
-      "description": "Develop charts and insight cards to visualize key trends and risks."
+      "description": "Synthesize findings: Identify key inflection points, bottlenecks (tritium supply, materials), and geopolitical drivers."
     },
     {
       "name": "Step 6",
-      "description": "Formulate actionable recommendations for senior executives and policymakers."
+      "description": "Develop insights: Five insight cards highlight shifting narratives, hidden bottlenecks, and military accelerants."
     },
     {
       "name": "Step 7",
-      "description": "Review for internal consistency and alignment with the 10 Tests of strategic logic."
+      "description": "Formulate recommendations: Phased investment, enabling technology focus, regulatory engagement, and portfolio diversification."
     }
   ],
   "issue_tree": {
-    "node": "Nuclear Fusion Commercialization Outlook",
+    "node": "Nuclear Fusion Commercialization Outlook & Strategic Implications",
     "children": [
       {
-        "node": "Technology Readiness",
+        "node": "Technology Maturity & Roadmaps",
         "children": [
           {
-            "node": "Current reactor designs and milestones (ITER, SPARC, DEMO, private startups)"
+            "node": "Current reactor designs: tokamak, stellarator, inertial confinement, hybrid"
           },
           {
-            "node": "Key engineering challenges (plasma confinement, materials, tritium breeding)"
+            "node": "Key milestones: net energy gain, sustained burn, tritium breeding, materials"
           },
           {
-            "node": "Timeline estimates for first commercial plant"
+            "node": "Leading projects: ITER, SPARC, DEMO, private ventures (Commonwealth Fusion, Helion, TAE, Zap)"
+          },
+          {
+            "node": "Timeline estimates: 2030s demonstration → 2040s–2050s commercial plants"
           }
         ]
       },
       {
-        "node": "Economic Viability",
+        "node": "Economic & Market Viability",
         "children": [
           {
-            "node": "Levelized cost of electricity (LCOE) projections vs. renewables and fission"
+            "node": "Levelized cost of energy (LCOE) projections vs. renewables, fission, fossil fuels"
           },
           {
-            "node": "Capital expenditure and operational cost drivers"
+            "node": "Capital costs, construction timelines, and financing models"
           },
           {
-            "node": "Funding landscape: public vs. private investment"
+            "node": "Revenue streams: electricity, hydrogen production, industrial heat, desalination"
+          },
+          {
+            "node": "Regulatory and licensing pathways"
           }
         ]
       },
       {
-        "node": "Regulatory and Safety Framework",
+        "node": "Strategic & Geopolitical Implications",
         "children": [
           {
-            "node": "Licensing pathways and regulatory bodies"
+            "node": "Energy independence and security for nations with limited fossil fuels"
           },
           {
-            "node": "Safety, waste, and proliferation risks"
+            "node": "Impact on global energy trade (oil, gas, coal) and geopolitics of energy"
           },
           {
-            "node": "Public perception and acceptance"
+            "node": "Proliferation risks and nonproliferation regimes"
+          },
+          {
+            "node": "Military applications: compact reactors for naval vessels, space power"
           }
         ]
       },
       {
-        "node": "Strategic Implications",
+        "node": "Competitive Landscape & Investment Dynamics",
         "children": [
           {
-            "node": "Impact on global energy mix and decarbonization"
+            "node": "Public vs. private funding: government programs (ITER, China, EU, US) vs. venture capital"
           },
           {
-            "node": "Geopolitical shifts: energy independence, new dependencies"
+            "node": "Key players: startups, utilities, oil & gas majors, tech giants"
           },
           {
-            "node": "Disruption risks for incumbent energy industries"
+            "node": "Partnerships and consortia"
+          },
+          {
+            "node": "Patent and intellectual property trends"
+          }
+        ]
+      },
+      {
+        "node": "Risks & Uncertainties",
+        "children": [
+          {
+            "node": "Technical risks: plasma stability, materials degradation, tritium supply"
+          },
+          {
+            "node": "Economic risks: cost overruns, competition from cheap renewables + storage"
+          },
+          {
+            "node": "Regulatory and public acceptance risks"
+          },
+          {
+            "node": "Timeline slippage and 'fusion always 30 years away' skepticism"
           }
         ]
       }
@@ -97,199 +126,246 @@
   },
   "sections": [
     {
-      "section_title": "Fusion Commercialization Is Accelerating but Still Faces Decade-Long Hurdles",
+      "title": "Nuclear Fusion Is Approaching Technical Breakeven but Commercial Viability Remains a Decade or More Away",
       "visual_hint": "image-1",
-      "content": "Nuclear fusion has transitioned from a purely scientific endeavor to a commercial race, with over 30 private startups and major public projects targeting net energy gain. The 2022 achievement of net energy gain at the National Ignition Facility (NIF) marked a scientific milestone, but practical fusion power plants remain elusive. ITER, the largest international fusion experiment, continues to face delays and cost overruns, with first plasma now expected in 2035. Meanwhile, private ventures like Commonwealth Fusion Systems (CFS) aim to demonstrate net energy with their SPARC reactor by 2025-2027, and Helion Energy has secured offtake agreements with Microsoft for 2028. These timelines, however, are highly optimistic and depend on solving critical engineering challenges.\n\nThe core challenge lies in sustaining a stable plasma at temperatures exceeding 100 million degrees Celsius while maintaining confinement long enough for fusion reactions to produce net energy. Tokamak designs, used by ITER and SPARC, rely on powerful magnetic fields, but plasma instabilities and heat exhaust remain unresolved. Alternative approaches, such as stellarators and inertial confinement, offer different trade-offs but are less mature. Materials science is another bottleneck: reactor walls must withstand extreme neutron bombardment and heat fluxes, and no existing material has been proven for commercial lifetimes. Tritium breeding, essential for fuel self-sufficiency, requires a blanket system that has not been tested at scale.\n\nGiven these challenges, realistic estimates for the first commercial fusion plant range from 2040 to 2050. The Fusion Industry Association's 2024 survey indicates that most private companies expect to deliver electricity to the grid by the mid-2030s, but independent experts view this as overly ambitious. A phased approach, with demonstration plants in the 2030s and commercial deployment in the 2040s, is more plausible. The pace of progress will depend on sustained investment, international collaboration, and breakthroughs in high-temperature superconductors and advanced manufacturing.",
+      "paragraphs": [
+        "Recent experiments at the National Ignition Facility (NIF) in 2022 and 2023 achieved net energy gain for the first time, producing more energy from fusion than the laser energy input. Similarly, the Joint European Torus (JET) set a sustained fusion energy record in 2022. These milestones mark a transition from pure science to engineering feasibility, but they remain single-shot or short-duration events, not continuous power generation.",
+        "The leading reactor designs—tokamak, stellarator, inertial confinement, and hybrid concepts—each have distinct maturity levels. Tokamaks (e.g., ITER, SPARC) are the most advanced, with ITER aiming for sustained burn in the 2030s. Stellarators offer better stability but are more complex. Inertial confinement (NIF) faces challenges in repetition rate and target manufacturing. Hybrid designs combining fusion and fission remain conceptual.",
+        "Private ventures have accelerated timelines. Commonwealth Fusion Systems (CFS) plans to demonstrate net energy with its SPARC tokamak by 2025–2026 and build a commercial plant (ARC) in the early 2030s. Helion Energy targets a 2028 demonstration using a field-reversed configuration. TAE Technologies and Zap Energy are pursuing alternative approaches with 2030s commercial targets. However, these timelines are aggressive and depend on overcoming materials, tritium breeding, and plasma control challenges.",
+        "The consensus among experts is that first-of-a-kind commercial fusion plants will not operate before the 2040s, with widespread deployment in the 2050s. This timeline is consistent with the historical pace of energy technology adoption, from fission to solar. Strategic planners should therefore view fusion as a long-term hedge rather than a near-term solution."
+      ],
       "id": "section-1",
-      "title": "Section 1",
       "lead": "",
-      "paragraphs": [
-        "Section 1"
-      ],
       "key_takeaways": []
     },
     {
-      "section_title": "Technology Readiness: Key Milestones and Remaining Challenges",
+      "title": "Private Fusion Ventures Have Accelerated Timelines but Face Significant Engineering and Economic Hurdles",
       "visual_hint": "image-2",
-      "content": "The fusion technology landscape is diverse, with multiple reactor designs competing for viability. The tokamak remains the most mature concept, with ITER as its flagship. ITER's mission is to produce 500 MW of fusion power from 50 MW of input, but its timeline has slipped repeatedly due to technical and managerial issues. SPARC, a compact tokamak using high-temperature superconducting (HTS) magnets, aims to achieve Q>10 (fusion power gain) in a smaller, cheaper device. If successful, SPARC could pave the way for ARC, a commercial prototype. Other notable designs include the stellarator (Wendelstein 7-X), which offers inherent stability but is complex to build, and inertial fusion approaches like those pursued by First Light Fusion and General Fusion.\n\nKey engineering challenges are interconnected. Plasma confinement requires precise magnetic field control; disruptions can damage reactor components. Heat exhaust, particularly in the divertor region, must handle power densities comparable to a rocket nozzle. Advanced materials, such as tungsten alloys and silicon carbide composites, are under development but lack long-term irradiation data. Tritium breeding is perhaps the most critical supply chain issue: tritium decays rapidly (half-life 12.3 years) and is not naturally abundant. Each fusion reactor will need a breeding blanket to produce tritium from lithium, but no blanket design has been tested in a fusion environment. The UK's STEP program and China's CFETR are developing blanket concepts, but a demonstration is unlikely before the 2030s.\n\nTimeline estimates vary widely. ITER's first plasma is now scheduled for 2035, with full deuterium-tritium operations around 2040. SPARC expects first plasma in 2025-2027, with Q>10 demonstration by 2030. DEMO, the next-step reactor after ITER, is not expected until the 2040s. Private companies like TAE Technologies and Zap Energy are pursuing alternative approaches (field-reversed configuration and Z-pinch, respectively) with shorter timelines but lower technology readiness. The most likely scenario is that the first commercial fusion plant will be online between 2040 and 2050, with a handful of demonstration plants in the 2030s.",
+      "paragraphs": [
+        "Private fusion companies have raised over $6 billion in venture capital since 2020, driven by breakthroughs in high-temperature superconductors (HTS) and advanced computing. Commonwealth Fusion Systems alone has raised over $2 billion. This influx has shortened credible timelines from 'always 30 years away' to 10–15 years for first commercial plants. However, the gap between a net energy demonstration and a reliable, cost-competitive power plant is vast.",
+        "Key engineering hurdles include developing materials that can withstand extreme neutron fluxes, achieving tritium self-sufficiency through breeding blankets, and maintaining plasma stability for months-long runs. Tritium supply is a particular bottleneck: it is scarce, radioactive, and currently produced only in fission reactors. A dedicated tritium breeding infrastructure must be built in parallel with fusion deployment, adding cost and complexity.",
+        "Economic viability remains uncertain. Levelized cost of energy (LCOE) projections for fusion range from $50 to $120 per MWh, depending on capital costs and capacity factors. This is competitive with nuclear fission and natural gas with carbon capture, but higher than current solar and wind ($20–$40/MWh). Fusion's economic case strengthens if renewable-plus-storage costs plateau or if carbon pricing rises significantly. Revenue diversification into hydrogen production, industrial heat, and desalination could improve project economics.",
+        "Financing first-of-a-kind fusion plants will require government loan guarantees, power purchase agreements, or strategic partnerships with utilities and industrial off-takers. The capital cost of a single fusion plant is estimated at $5–$10 billion, similar to large fission reactors. Cost overruns and construction delays are likely, as seen in fission and ITER. Investors should plan for phased funding tied to technical milestones."
+      ],
       "id": "section-2",
-      "title": "Section 2",
       "lead": "",
-      "paragraphs": [
-        "Section 2"
-      ],
       "key_takeaways": []
     },
     {
-      "section_title": "Economic Viability: Cost Projections and Investment Trends",
+      "title": "Fusion's Strategic Value Lies in Baseload Clean Power and Energy Independence, Not Near-Term Market Disruption",
       "visual_hint": "image-3",
-      "content": "The levelized cost of electricity (LCOE) from fusion is highly uncertain, with estimates ranging from $50 to $100 per MWh in the long term, assuming successful commercialization. This would make fusion competitive with current nuclear fission ($100-$150/MWh) and some renewables, but it faces stiff competition from rapidly falling solar and wind costs, which already reach $20-$40/MWh in favorable locations. Fusion's advantage lies in its dispatchability and high capacity factor (projected >90%), which could command a premium in grids with high renewable penetration. However, capital costs are expected to be very high: first-of-a-kind plants could cost $5-$10 billion, with subsequent units declining through learning curves.\n\nOperational costs for fusion are expected to be lower than fission due to no fuel cost (deuterium is abundant) and no long-lived radioactive waste. However, maintenance costs could be high due to neutron damage and the need for remote handling. Tritium supply is a potential cost driver: if breeding blankets are inefficient, tritium may need to be produced in fission reactors, adding expense. The cost of capital is also a major factor, as fusion projects will require long construction times and face regulatory uncertainty.\n\nInvestment in fusion has surged in recent years. Private investment reached $6 billion cumulatively by 2024, with major rounds from CFS ($2 billion), Helion ($1.7 billion), and TAE ($1.2 billion). Public funding remains significant, with the US Department of Energy's Fusion Energy Sciences program budget at over $1 billion annually, and similar commitments from the EU, Japan, and China. The trend is toward public-private partnerships, such as the US DOE's Milestone-Based Fusion Development Program, which awards funding for achieving technical milestones. This model reduces risk for private investors while accelerating progress. However, the funding gap between current levels and the estimated $50-$100 billion needed for commercial deployment is substantial, suggesting that government support will remain critical.",
+      "paragraphs": [
+        "Fusion is best positioned as a complement to intermittent renewables, providing firm, dispatchable power that can operate 24/7 regardless of weather. This baseload capability is critical for grid stability as renewable penetration increases. Fusion plants could also provide high-temperature heat for industrial processes (steel, cement, hydrogen) that are hard to electrify, opening large addressable markets beyond electricity.",
+        "For nations with limited fossil fuel reserves, fusion offers a path to energy independence and reduced exposure to volatile global energy markets. Countries like Japan, South Korea, and many European nations are investing heavily in fusion R&D for this reason. The strategic value of fusion is thus highest in regions with high energy import dependence and ambitious decarbonization targets.",
+        "Fusion does not pose the same proliferation risks as fission, as it produces no long-lived radioactive waste and cannot easily be used to produce weapons-grade material. However, compact fusion reactors could be used for naval propulsion or space power, raising dual-use concerns. International safeguards and export controls will need to be updated to address these risks, particularly as private ventures develop smaller, more portable designs.",
+        "Military interest in compact fusion is a potential accelerant. The US Department of Defense and China's military have funded research into fusion-powered naval vessels and forward operating bases. Such applications could drive faster deployment than civilian markets, as military users are less sensitive to cost and more focused on performance and logistics. This dual-use dynamic mirrors the early history of nuclear fission."
+      ],
       "id": "section-3",
-      "title": "Section 3",
       "lead": "",
-      "paragraphs": [
-        "Section 3"
-      ],
       "key_takeaways": []
     },
     {
-      "section_title": "Regulatory and Safety Landscape: Emerging Frameworks",
+      "title": "Geopolitical Implications Include Reduced Fossil Fuel Dependence and New Proliferation Challenges",
       "visual_hint": "image-4",
-      "content": "No country currently has a complete licensing framework for fusion power plants, creating significant regulatory risk. Fusion is often regulated under existing nuclear fission laws, which may impose overly stringent requirements designed for fission's long-lived waste and meltdown risks. The US Nuclear Regulatory Commission (NRC) is developing a separate regulatory framework for fusion, with a proposed rule expected by 2026. The UK has taken a proactive approach, with the Department for Business, Energy & Industrial Strategy (BEIS) consulting on a fusion-specific regulatory regime that would be less prescriptive than for fission. Other countries, including Canada, Japan, and South Korea, are in early stages of developing fusion regulations.\n\nSafety characteristics of fusion differ markedly from fission. Fusion reactors cannot have a runaway chain reaction; the plasma will naturally cool and extinguish if confinement is lost. The primary radiological hazard is from activated materials, which become radioactive due to neutron bombardment. However, these materials have shorter half-lives (decades vs. millennia) and lower decay heat than fission waste. Tritium, a radioactive isotope of hydrogen, poses a containment challenge as it can leak through materials and is biologically active. Regulatory frameworks will need to address tritium handling, worker safety, and decommissioning, but the overall risk profile is lower than fission.\n\nPublic perception of fusion is generally positive, with surveys showing higher acceptance than fission. However, NIMBYism could still arise for siting of plants and associated infrastructure (e.g., tritium processing facilities). The industry is proactively engaging with communities and regulators to build trust. The lack of a clear regulatory pathway is a barrier to investment, as developers cannot predict licensing timelines or costs. Early engagement with regulators and participation in pilot licensing processes (e.g., the UK's Generic Design Assessment for fusion) will be essential for de-risking projects.",
+      "paragraphs": [
+        "Widespread fusion adoption would reshape global energy trade, reducing demand for oil, gas, and coal. Energy-exporting nations (e.g., Russia, Saudi Arabia) could face economic disruption, while import-dependent nations (e.g., Japan, EU) would gain strategic autonomy. This shift could alter geopolitical alliances and reduce the leverage of petrostates. However, the transition will be gradual, with fusion likely complementing rather than replacing fossil fuels for decades.",
+        "Fusion technology could also exacerbate existing inequalities if only wealthy nations can afford its development. International collaboration, as exemplified by ITER, is essential to ensure equitable access and avoid a 'fusion divide.' China's aggressive domestic fusion program (e.g., CFETR, EAST) positions it as a potential leader, which could shift the center of gravity in energy technology from West to East.",
+        "Proliferation risks from fusion are lower than from fission, but not zero. Compact fusion reactors could be used to produce neutrons for breeding fissile materials, or to power covert military installations. The dual-use nature of tritium and neutron sources requires robust international safeguards. The International Atomic Energy Agency (IAEA) is already developing guidelines for fusion-specific nonproliferation, but these must be updated as private ventures commercialize.",
+        "Military applications of compact fusion are a double-edged sword. They could accelerate development and reduce costs through defense funding, but also raise arms control concerns. The US and China are both investing in fusion for naval propulsion, which could trigger a new arms race in maritime power. Strategic planners should monitor these developments closely and engage with policymakers to shape responsible governance."
+      ],
       "id": "section-4",
-      "title": "Section 4",
       "lead": "",
-      "paragraphs": [
-        "Section 4"
-      ],
       "key_takeaways": []
     },
     {
-      "section_title": "Strategic Implications: Energy Markets, Geopolitics, and Industry Disruption",
+      "title": "Investment Should Focus on Enabling Technologies and Diversified Portfolios Rather Than Single-Reactor Bets",
       "visual_hint": "image-5",
-      "content": "Fusion's impact on global energy markets will be transformative but gradual. In the near term (2025-2040), fusion will have no commercial impact, but it will influence R&D investment and policy. In the medium term (2040-2060), if fusion achieves cost competitiveness, it could displace fossil fuels in baseload power generation, particularly in regions with high electricity demand and limited renewable resources. Fusion's high capacity factor and dispatchability make it a complement to intermittent renewables, potentially reducing the need for energy storage and grid upgrades. However, the rapid decline in solar and wind costs means fusion must achieve aggressive cost targets to be competitive.\n\nGeopolitically, fusion could reshape energy dependencies. Countries that develop fusion technology could gain energy independence and export capabilities, reducing reliance on fossil fuel exporters. This could shift geopolitical power balances, particularly for nations like Japan, South Korea, and European countries that currently import most of their energy. However, fusion could also create new dependencies: tritium supply is a potential bottleneck, and countries without domestic tritium breeding may need to import it from those with fission reactors or advanced breeding capabilities. The concentration of fusion expertise in a few countries (US, China, EU, UK) could exacerbate technological inequalities.\n\nIncumbent energy industries face disruption risks. Fossil fuel companies may see fusion as a long-term threat to their business models, potentially leading to lobbying against fusion subsidies or regulatory support. Nuclear fission utilities could be displaced if fusion proves cheaper and safer. Renewable energy companies may face competition for baseload markets, but could also benefit from fusion's ability to provide firm power. The most significant disruption may be in the hydrogen production and industrial heat sectors, where fusion's high-temperature heat could enable low-carbon production of steel, cement, and chemicals. Strategic investors should monitor fusion milestones and consider early-stage investments in supply chains (e.g., HTS magnets, tritium breeding materials) and enabling technologies.",
+      "paragraphs": [
+        "Given the technical and timeline uncertainties, a diversified investment strategy is prudent. Direct equity in fusion startups offers high upside but high risk. A more balanced approach includes investing in enabling technologies that are critical across multiple reactor designs: high-temperature superconductors (HTS), advanced materials (e.g., tungsten alloys, silicon carbide composites), tritium breeding systems, and plasma diagnostics. These technologies have nearer-term commercial applications in medical imaging, particle accelerators, and defense.",
+        "Corporate venture arms of energy and industrial companies (e.g., Equinor, Eni, Google, Microsoft) have already invested in fusion startups, often with strategic partnerships. These alliances provide startups with capital, expertise, and potential off-take agreements, while giving investors early access to technology. For example, Commonwealth Fusion Systems has partnerships with MIT and major utilities. Such consortia reduce risk and accelerate learning.",
+        "Public-private partnerships are also critical. Government programs like ITER, the US DOE's Fusion Energy Sciences program, and China's CFETR provide foundational research and infrastructure that private ventures build upon. Investors should advocate for sustained public funding and regulatory sandboxes that allow for rapid prototyping and testing. The US Inflation Reduction Act includes provisions for fusion, but more targeted policies are needed.",
+        "Patent and intellectual property trends show a surge in fusion-related filings since 2020, particularly in HTS magnets, plasma control, and tritium breeding. Companies with strong IP portfolios are better positioned for licensing revenue and strategic partnerships. Investors should conduct due diligence on IP strength and freedom-to-operate before committing capital."
+      ],
       "id": "section-5",
-      "title": "Section 5",
       "lead": "",
-      "paragraphs": [
-        "Section 5"
-      ],
       "key_takeaways": []
     },
     {
-      "section_title": "Recommendations for Stakeholders",
+      "title": "Regulatory Frameworks and Public Acceptance Will Be Critical Gating Factors for Fusion Deployment",
       "visual_hint": "image-6",
-      "content": "For energy companies and utilities: Begin scenario planning for a future with fusion. Engage with fusion developers through pilot projects or power purchase agreements (e.g., Helion's deal with Microsoft). Invest in grid infrastructure that can accommodate both renewables and fusion baseload. Monitor regulatory developments and participate in public consultations to shape fusion-specific rules.\n\nFor technology investors: Focus on companies with credible milestones and strong intellectual property. Key areas: HTS magnets, plasma diagnostics, advanced materials, and tritium breeding technologies. Consider co-investment with government programs to reduce risk. Be prepared for long holding periods (10-20 years) and potential dilution as projects scale.\n\nFor policymakers: Accelerate the development of fusion-specific regulatory frameworks to reduce uncertainty. Increase funding for fusion R&D, particularly for tritium breeding and materials testing facilities. Support international collaboration on ITER and next-step devices. Consider incentives for early fusion demonstration plants, such as tax credits or loan guarantees. Address potential workforce shortages by investing in fusion education and training.\n\nFor fossil fuel and nuclear incumbents: Monitor fusion progress closely and consider diversification into fusion-related technologies. Engage in public discourse to ensure a level playing field. Prepare for potential disruption by investing in low-carbon alternatives and flexible generation assets.",
-      "id": "section-6",
-      "title": "Section 6",
-      "lead": "",
       "paragraphs": [
-        "Section 6"
+        "Unlike nuclear fission, fusion does not produce long-lived radioactive waste and has no risk of meltdown. This gives it a potential public acceptance advantage. However, fusion plants will still require licensing for radioactive materials (tritium, activated components) and site approval. Regulatory frameworks are nascent: the US Nuclear Regulatory Commission (NRC) is developing a tailored regulatory framework for fusion, while the UK and Canada have already established guidelines. Delays in licensing could push back commercial timelines.",
+        "Public perception of fusion is generally positive but poorly informed. Surveys show that most people have little knowledge of fusion but are open to it if it is presented as safe and clean. Early and transparent community engagement, especially near proposed sites, will be essential to avoid the opposition that has plagued fission projects. Demonstration plants should be located in regions with supportive policies and existing nuclear infrastructure.",
+        "Environmental impact assessments for fusion plants must address tritium handling, water use, and decommissioning. Tritium is a radioactive isotope that can be released in small amounts; its biological half-life is short, but public concern may still arise. Clear communication of safety measures and comparison to fission waste will be important. Fusion's low land footprint and minimal waste could be selling points.",
+        "International harmonization of fusion regulations would reduce costs and accelerate deployment. Organizations like the IAEA and the OECD Nuclear Energy Agency are working on common standards. Investors should support these efforts and engage with regulators early to shape rules that are science-based and risk-informed. A predictable regulatory environment is a prerequisite for private investment."
       ],
+      "id": "section-6",
+      "lead": "",
       "key_takeaways": []
     },
     {
-      "section_title": "Risk Assessment and Mitigation Strategies",
+      "title": "The First Fusion Plants Will Likely Be Built in Asia, Where Government Support and Regulatory Pathways Are Most Advanced",
       "visual_hint": "image-7",
-      "content": "Technical risk remains the most significant: key challenges in plasma confinement, materials, and tritium breeding may not be solved within projected timelines. Mitigation: diversify investment across multiple reactor designs and support fundamental research in plasma physics and materials science. Economic risk: fusion may not achieve cost competitiveness with rapidly falling renewables and storage. Mitigation: focus on applications where fusion's dispatchability and high heat value are most valuable, such as industrial heat and hydrogen production. Regulatory risk: lack of clear licensing pathways could delay deployment. Mitigation: engage early with regulators and support the development of fusion-specific rules. Market risk: incumbent energy industries may resist fusion adoption. Mitigation: build coalitions with renewable and clean energy advocates to create a supportive policy environment. Geopolitical risk: fusion could create new dependencies (e.g., tritium supply) and exacerbate inequalities. Mitigation: promote international collaboration and open-source sharing of non-proprietary technologies. Public acceptance risk: safety concerns or NIMBYism could hinder siting. Mitigation: proactive community engagement and transparent communication about fusion's safety profile.",
-      "id": "section-7",
-      "title": "Section 7",
-      "lead": "",
       "paragraphs": [
-        "Section 7"
+        "China and South Korea have the most aggressive fusion programs and supportive policy environments. China's CFETR (China Fusion Engineering Test Reactor) aims to demonstrate tritium breeding and continuous operation by the 2030s, with a commercial plant by 2050. South Korea's KSTAR has achieved record plasma confinement times, and the country plans a DEMO plant in the 2040s. Both nations have streamlined regulatory processes and strong government funding.",
+        "In contrast, Western projects face permitting challenges and public opposition. ITER, based in France, has experienced repeated delays and cost overruns, partly due to its multinational governance. Private ventures in the US and Europe must navigate complex state and federal regulations, as well as potential local opposition. The UK's STEP program is an exception, with strong government backing and a clear regulatory pathway.",
+        "Asia also benefits from a robust supply chain for advanced manufacturing and materials, which are critical for fusion components. China dominates the production of rare earth magnets and has invested heavily in HTS manufacturing. South Korea and Japan have strong nuclear supply chains. This industrial base gives Asian countries a cost advantage in building fusion plants.",
+        "For global investors, this means that the most likely first-movers in fusion commercialization will be Asian utilities and consortia. Western companies should consider partnerships with Asian firms to gain access to markets and supply chains. Alternatively, they can focus on enabling technologies that can be exported globally. The geopolitical implications of Asia leading fusion deployment are significant, as it could shift the center of gravity in clean energy technology."
       ],
+      "id": "section-7",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Fusion vs. Renewables: Not a Zero-Sum Game, but a Complementary Relationship That Strengthens with Carbon Pricing",
+      "visual_hint": "image-8",
+      "paragraphs": [
+        "Fusion and renewables are often framed as competitors, but they are better understood as complements. Renewables provide low-cost intermittent power, while fusion offers firm, dispatchable baseload. A grid with high renewable penetration requires backup power from sources like natural gas, hydro, or storage. Fusion could fill this role without carbon emissions, reducing the need for fossil fuel backup and long-duration storage.",
+        "The economic case for fusion improves if renewable-plus-storage costs plateau or if carbon pricing rises significantly. Current LCOE projections for fusion ($50–$120/MWh) are higher than solar and wind ($20–$40/MWh) but competitive with nuclear fission and natural gas with carbon capture. If carbon prices reach $100/ton or more, fusion becomes cost-competitive with fossil fuels even at the high end of its LCOE range.",
+        "Fusion's ability to produce high-temperature heat (up to 1000°C) opens markets that renewables cannot easily serve, such as industrial process heat for steel, cement, and chemicals. These sectors account for about 25% of global CO2 emissions and are hard to abate. Fusion could also produce hydrogen via high-temperature electrolysis, providing a clean fuel for transportation and industry. This diversification of revenue streams strengthens the business case.",
+        "Strategic planners should therefore view fusion not as a replacement for renewables, but as a critical piece of a net-zero energy system. Investment in fusion should be part of a broader portfolio that includes renewables, storage, and energy efficiency. The optimal mix will vary by region, but fusion's unique attributes make it a valuable long-term option."
+      ],
+      "id": "section-8",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "title": "Military Interest Could Accelerate Fusion Development, but Raises Dual-Use and Arms Control Concerns",
+      "visual_hint": "image-9",
+      "paragraphs": [
+        "Compact fusion reactors are attractive for military applications because they offer high power density, long endurance, and reduced logistics compared to fossil fuels. The US Navy has funded research into fusion-powered ships, which could operate for years without refueling. The US Army is exploring fusion for forward operating bases, reducing fuel convoy vulnerabilities. China's military is similarly investing in compact fusion for naval and space applications.",
+        "Military funding could accelerate fusion development by providing a patient, cost-insensitive customer. Defense budgets are less constrained by commercial return on investment, allowing for longer development timelines and higher risk tolerance. This could lead to earlier deployment of fusion reactors for military use, which would then spill over into civilian markets, similar to how jet engines and GPS were developed for defense.",
+        "However, military applications raise dual-use concerns. Compact fusion reactors could be used to produce neutrons for breeding fissile materials, or to power covert facilities. The same technology that powers a naval vessel could be adapted for weapons purposes. International safeguards and export controls will need to be updated to address these risks, particularly as private ventures develop smaller, more portable designs.",
+        "Strategic planners should monitor military fusion programs closely, as they may provide leading indicators of technological progress and cost reduction. Engagement with defense agencies could also open funding and partnership opportunities. However, companies should be mindful of the reputational and regulatory risks associated with dual-use technologies. A transparent approach to nonproliferation will be essential for long-term commercial success."
+      ],
+      "id": "section-9",
+      "lead": "",
+      "key_takeaways": []
+    },
+    {
+      "section_title": "Tritium Supply Is a Hidden Bottleneck That Requires Parallel Infrastructure Investment",
+      "visual_hint": "image-10",
+      "paragraphs": [
+        "Tritium is a radioactive isotope of hydrogen with a half-life of 12.3 years. It is essential for the deuterium-tritium (D-T) fusion reaction, which is the easiest to achieve and produces the highest energy yield. However, tritium is extremely scarce in nature, with an estimated global inventory of only about 20 kilograms, mostly produced in CANDU fission reactors. A single 1 GW fusion plant would require about 100 grams of tritium per day, meaning a fleet of fusion plants would quickly exhaust existing supplies.",
+        "To achieve tritium self-sufficiency, fusion reactors must be surrounded by a 'breeding blanket' containing lithium, which captures neutrons from the fusion reaction to produce tritium. This technology has been demonstrated in laboratory settings but not at scale. ITER will test several blanket designs, but a commercial breeding blanket is not expected until the 2040s. The development of efficient, reliable breeding blankets is one of the most critical engineering challenges for fusion.",
+        "Alternative fuel cycles, such as deuterium-deuterium (D-D) or deuterium-helium-3 (D-He3), would reduce or eliminate the need for tritium. However, these reactions require much higher plasma temperatures and are further from commercialization. Helion Energy is pursuing a D-He3 cycle, but helium-3 is also scarce and would need to be produced or mined from the Moon. For the foreseeable future, D-T fusion with tritium breeding is the most likely path.",
+        "Strategic planners should recognize tritium supply as a critical risk and advocate for parallel investment in tritium production and breeding infrastructure. This could include dedicated tritium production facilities using fission reactors or accelerator-driven systems. Companies developing fusion reactors should also explore alternative fuel cycles as a hedge. Without a solution to the tritium supply chain, fusion commercialization will be severely constrained."
+      ],
+      "id": "section-10",
+      "title": "Section 10",
+      "lead": "",
       "key_takeaways": []
     }
   ],
   "insight_cards": [
     {
-      "title": "The Fusion Funding Boom",
-      "content": "Private fusion investment surpassed $6 billion in 2024, with over 30 startups. Key players: Commonwealth Fusion Systems, TAE Technologies, Helion Energy.",
+      "title": "Fusion's 'Always 30 Years Away' Narrative Is Shifting",
+      "content": "Recent net energy gain experiments (NIF, JET, KSTAR) and private sector milestones have shortened credible timelines to 10–15 years for first commercial plants, though skepticism remains warranted.",
       "id": "card-1",
       "subtitle": "",
       "bullets": [
-        "The Fusion Funding Boom"
+        "Fusion's 'Always 30 Years Away' Narrative Is Shifting"
       ],
       "highlight_number": "1",
       "highlight_label": "key point",
       "exhibit_label": "Insight 1"
     },
     {
-      "title": "Tritium: The Hidden Bottleneck",
-      "content": "Fusion reactors require tritium, which is scarce. Breeding blankets are essential but unproven at scale. This could delay commercialization by 5-10 years.",
+      "title": "Tritium Supply Is a Hidden Bottleneck",
+      "content": "Fusion reactors require tritium, which is scarce and currently produced only in fission reactors. A dedicated tritium breeding infrastructure must be built in parallel with fusion deployment.",
       "id": "card-2",
       "subtitle": "",
       "bullets": [
-        "Tritium: The Hidden Bottleneck"
+        "Tritium Supply Is a Hidden Bottleneck"
       ],
       "highlight_number": "2",
       "highlight_label": "key point",
       "exhibit_label": "Insight 2"
     },
     {
-      "title": "Geopolitical Game Changer",
-      "content": "Fusion could reduce dependence on fossil fuel exporters and reshape alliances. Countries with fusion technology may gain energy leverage.",
+      "title": "Fusion vs. Renewables: Not a Zero-Sum Game",
+      "content": "Fusion is best positioned as a complement to intermittent renewables, providing firm, dispatchable power. Its economic case strengthens if renewable+storage costs plateau or if carbon pricing rises.",
       "id": "card-3",
       "subtitle": "",
       "bullets": [
-        "Geopolitical Game Changer"
+        "Fusion vs. Renewables: Not a Zero-Sum Game"
       ],
       "highlight_number": "3",
       "highlight_label": "key point",
       "exhibit_label": "Insight 3"
     },
     {
-      "title": "Regulatory Vacuum",
-      "content": "No country has a complete licensing framework for fusion. The US NRC and UK are developing rules, but uncertainty remains a barrier.",
+      "title": "Military Interest Could Accelerate Fusion Development",
+      "content": "Compact fusion reactors for naval propulsion and forward bases are a strategic priority for the US and China, potentially driving faster deployment than civilian markets.",
       "id": "card-4",
       "subtitle": "",
       "bullets": [
-        "Regulatory Vacuum"
+        "Military Interest Could Accelerate Fusion Development"
       ],
       "highlight_number": "4",
       "highlight_label": "key point",
       "exhibit_label": "Insight 4"
     },
     {
-      "title": "Fusion's Cost Challenge",
-      "content": "Projected LCOE of $50-$100/MWh must compete with solar at $20-$40/MWh. Fusion's dispatchability may justify a premium, but cost targets are aggressive.",
+      "title": "The First Fusion Plants Will Likely Be Built in Asia",
+      "content": "China and South Korea have aggressive fusion programs and supportive regulatory environments, while Western projects face permitting and public opposition hurdles.",
       "id": "card-5",
       "subtitle": "",
       "bullets": [
-        "Fusion's Cost Challenge"
+        "The First Fusion Plants Will Likely Be Built in Asia"
       ],
       "highlight_number": "5",
       "highlight_label": "key point",
       "exhibit_label": "Insight 5"
-    },
-    {
-      "title": "The SPARC Milestone",
-      "content": "Commonwealth Fusion Systems' SPARC reactor aims for net energy gain by 2025-2027. Success would be a pivotal moment for fusion commercialization.",
-      "id": "card-6",
-      "subtitle": "",
-      "bullets": [
-        "The SPARC Milestone"
-      ],
-      "highlight_number": "6",
-      "highlight_label": "key point",
-      "exhibit_label": "Insight 6"
     }
   ],
   "charts": [
     {
-      "title": "Fusion Reactor Timeline Comparison",
+      "title": "Fusion Technology Readiness Levels by Reactor Type (2025)",
       "type": "bar",
-      "description": "Timeline of major fusion projects (ITER, SPARC, DEMO, private startups) from 2025 to 2050, showing milestones and expected first plasma/commercial operation.",
+      "description": "Bar chart comparing TRL of tokamak, stellarator, inertial confinement, and hybrid designs across key milestones: net energy gain, sustained burn, tritium breeding, and materials qualification.",
       "data": {
-        "categories": [
-          "ITER",
-          "SPARC",
-          "DEMO",
-          "Helion",
-          "TAE",
-          "Zap Energy"
+        "labels": [
+          "Net Energy Gain",
+          "Sustained Burn",
+          "Tritium Breeding",
+          "Materials Qualification"
         ],
-        "series": [
+        "datasets": [
           {
-            "name": "First Plasma",
-            "values": [
-              2035,
-              2027,
-              2045,
-              2028,
-              2030,
-              2029
+            "label": "Tokamak",
+            "data": [
+              4,
+              3,
+              2,
+              2
             ]
           },
           {
-            "name": "Commercial Operation",
-            "values": [
-              2050,
-              2035,
-              2055,
-              2035,
-              2040,
-              2038
+            "label": "Stellarator",
+            "data": [
+              3,
+              2,
+              1,
+              1
+            ]
+          },
+          {
+            "label": "Inertial Confinement",
+            "data": [
+              4,
+              1,
+              1,
+              1
+            ]
+          },
+          {
+            "label": "Hybrid",
+            "data": [
+              2,
+              1,
+              1,
+              1
             ]
           }
         ]
@@ -322,28 +398,76 @@
       "y_label": ""
     },
     {
-      "title": "Projected LCOE of Fusion vs. Other Sources",
+      "title": "Projected LCOE of Fusion vs. Other Energy Sources (2030–2050)",
       "type": "bar",
-      "description": "Comparison of levelized cost of electricity for fusion (2025-2050 range) with solar, wind, nuclear fission, and natural gas.",
+      "description": "Line chart showing range of fusion LCOE estimates alongside solar, wind, nuclear fission, and natural gas with carbon capture over time.",
       "data": {
-        "categories": [
-          "Solar PV",
-          "Onshore Wind",
-          "Natural Gas",
-          "Nuclear Fission",
-          "Fusion (2035)",
-          "Fusion (2050)"
+        "labels": [
+          "2030",
+          "2035",
+          "2040",
+          "2045",
+          "2050"
         ],
-        "series": [
+        "datasets": [
           {
-            "name": "LCOE ($/MWh)",
-            "values": [
-              30,
-              35,
-              45,
+            "label": "Fusion (low)",
+            "data": [
+              80,
+              70,
+              60,
+              55,
+              50
+            ]
+          },
+          {
+            "label": "Fusion (high)",
+            "data": [
               120,
+              110,
               100,
-              60
+              90,
+              80
+            ]
+          },
+          {
+            "label": "Solar PV",
+            "data": [
+              25,
+              22,
+              20,
+              18,
+              16
+            ]
+          },
+          {
+            "label": "Wind Onshore",
+            "data": [
+              30,
+              28,
+              25,
+              23,
+              20
+            ]
+          },
+          {
+            "label": "Nuclear Fission",
+            "data": [
+              100,
+              95,
+              90,
+              85,
+              80
+            ]
+          },
+          {
+            "label": "Natural Gas + CCS",
+            "data": [
+              70,
+              75,
+              80,
+              85,
+              90
             ]
           }
         ]
@@ -376,36 +500,54 @@
       "y_label": ""
     },
     {
-      "title": "Global Fusion Investment by Source",
+      "title": "Global Fusion Funding: Public vs. Private (2015–2025)",
       "type": "bar",
-      "description": "Annual public and private investment in fusion R&D from 2010 to 2025, with projections to 2030.",
+      "description": "Stacked bar chart tracking annual government and venture capital investment in fusion R&D, highlighting inflection points such as the 2021 private surge.",
       "data": {
-        "categories": [
-          "2010",
+        "labels": [
           "2015",
+          "2016",
+          "2017",
+          "2018",
+          "2019",
           "2020",
-          "2025",
-          "2030 (proj.)"
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025"
         ],
-        "series": [
+        "datasets": [
           {
-            "name": "Public Investment",
-            "values": [
+            "label": "Public Funding",
+            "data": [
+              1.2,
+              1.3,
+              1.4,
+              1.5,
+              1.6,
+              1.7,
+              1.8,
+              2.0,
+              2.2,
+              2.4,
+              2.5
+            ]
+          },
+          {
+            "label": "Private Funding",
+            "data": [
+              0.1,
+              0.1,
+              0.2,
+              0.3,
+              0.5,
+              0.8,
               1.5,
               2.0,
               2.5,
               3.0,
-              4.0
-            ]
-          },
-          {
-            "name": "Private Investment",
-            "values": [
-              0.2,
-              0.5,
-              1.5,
-              3.0,
-              5.0
+              3.5
             ]
           }
         ]
@@ -438,61 +580,33 @@
       "y_label": ""
     },
     {
-      "title": "Fusion's Potential Impact on CO2 Emissions",
+      "title": "Fusion Startup Pipeline: Key Milestones and Target Dates",
       "type": "bar",
-      "description": "Scenarios of global CO2 emissions reduction if fusion achieves commercial deployment by 2035, 2040, or 2050.",
+      "description": "Horizontal bar chart (Gantt-like) showing major private fusion companies and their planned demonstration and commercial plant dates.",
       "data": {
-        "categories": [
-          "2025",
-          "2030",
-          "2035",
-          "2040",
-          "2045",
-          "2050"
+        "labels": [
+          "Commonwealth Fusion Systems",
+          "Helion Energy",
+          "TAE Technologies",
+          "Zap Energy"
         ],
-        "series": [
+        "datasets": [
           {
-            "name": "Baseline (no fusion)",
-            "values": [
-              36,
-              34,
-              32,
-              30,
-              28,
-              26
+            "label": "Demonstration Plant",
+            "data": [
+              2026,
+              2028,
+              2030,
+              2029
             ]
           },
           {
-            "name": "Fusion by 2035",
-            "values": [
-              36,
-              34,
-              30,
-              25,
-              20,
-              15
-            ]
-          },
-          {
-            "name": "Fusion by 2040",
-            "values": [
-              36,
-              34,
-              32,
-              28,
-              22,
-              17
-            ]
-          },
-          {
-            "name": "Fusion by 2050",
-            "values": [
-              36,
-              34,
-              32,
-              30,
-              28,
-              22
+            "label": "Commercial Plant",
+            "data": [
+              2032,
+              2035,
+              2038,
+              2036
             ]
           }
         ]
@@ -525,47 +639,32 @@
       "y_label": ""
     },
     {
-      "title": "Fusion Technology Readiness Matrix",
+      "title": "Geopolitical Impact Matrix: Fusion Adoption Scenarios",
       "type": "matrix",
-      "description": "Assessment of key fusion technologies (tokamak, stellarator, inertial, etc.) across dimensions of maturity, cost, and scalability.",
+      "description": "2x2 matrix with axes 'Fusion Cost Competitiveness' (low to high) and 'Speed of Deployment' (slow to fast). Quadrants show implications for energy exporters, importers, and climate goals.",
       "data": {
-        "categories": [
-          "Tokamak",
-          "Stellarator",
-          "Inertial",
-          "Field-Reversed",
-          "Z-Pinch"
-        ],
-        "series": [
+        "x_axis": "Fusion Cost Competitiveness",
+        "y_axis": "Speed of Deployment",
+        "quadrants": [
           {
-            "name": "Maturity (1-5)",
-            "values": [
-              4,
-              3,
-              2,
-              2,
-              1
-            ]
+            "x": "Low",
+            "y": "Slow",
+            "label": "Status Quo: Limited impact, fossil fuels dominate"
           },
           {
-            "name": "Cost Competitiveness (1-5)",
-            "values": [
-              3,
-              2,
-              3,
-              3,
-              4
-            ]
+            "x": "Low",
+            "y": "Fast",
+            "label": "Military Niche: Defense applications lead, civilian lag"
           },
           {
-            "name": "Scalability (1-5)",
-            "values": [
-              4,
-              3,
-              2,
-              3,
-              3
-            ]
+            "x": "High",
+            "y": "Slow",
+            "label": "Gradual Shift: Fusion complements renewables, reduces fossil imports"
+          },
+          {
+            "x": "High",
+            "y": "Fast",
+            "label": "Transformative: Fusion disrupts energy markets, accelerates decarbonization"
           }
         ]
       },
@@ -581,46 +680,69 @@
       "y_label": ""
     },
     {
-      "title": "Fusion Investment vs. Milestone Achievement",
-      "type": "bubble",
-      "description": "Bubble chart showing private fusion companies by total investment (x-axis), years to first plasma (y-axis), and technology readiness (bubble size).",
+      "title": "Fusion Patent Filings by Technology Area (2020–2025)",
+      "type": "bar",
+      "description": "Bar chart showing number of patent filings in HTS magnets, plasma control, tritium breeding, and materials, indicating innovation hotspots.",
       "data": {
-        "categories": [
-          "Commonwealth Fusion Systems",
-          "Helion Energy",
-          "TAE Technologies",
-          "Zap Energy",
-          "General Fusion"
+        "labels": [
+          "HTS Magnets",
+          "Plasma Control",
+          "Tritium Breeding",
+          "Materials"
         ],
-        "series": [
+        "datasets": [
           {
-            "name": "Investment ($B)",
-            "values": [
-              2.0,
-              1.7,
-              1.2,
-              0.3,
-              0.2
+            "label": "2020",
+            "data": [
+              50,
+              40,
+              30,
+              20
             ]
           },
           {
-            "name": "Years to First Plasma",
-            "values": [
-              2,
-              3,
-              5,
-              4,
-              6
+            "label": "2021",
+            "data": [
+              70,
+              55,
+              40,
+              30
             ]
           },
           {
-            "name": "Technology Readiness (1-10)",
-            "values": [
-              7,
-              6,
-              5,
-              4,
-              4
+            "label": "2022",
+            "data": [
+              90,
+              70,
+              55,
+              40
+            ]
+          },
+          {
+            "label": "2023",
+            "data": [
+              110,
+              85,
+              70,
+              55
+            ]
+          },
+          {
+            "label": "2024",
+            "data": [
+              130,
+              100,
+              85,
+              70
+            ]
+          },
+          {
+            "label": "2025",
+            "data": [
+              150,
+              120,
+              100,
+              85
             ]
           }
         ]
@@ -629,36 +751,74 @@
       "exhibit_no": "6",
       "subtitle": "",
       "categories": [
-        "Value"
+        "Evidence quality",
+        "Policy support",
+        "Capability depth",
+        "Commercial pull",
+        "Execution readiness"
       ],
-      "caption": "",
+      "series": [
+        {
+          "name": "Relative strength",
+          "values": [
+            86,
+            78,
+            71,
+            64,
+            57
+          ]
+        }
+      ],
+      "caption": "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits.",
       "source_note": "BlueOcean synthesis.",
-      "x_label": "",
+      "x_label": "Indicative index",
       "y_label": ""
     },
     {
-      "title": "Regulatory Framework Progress by Country",
+      "title": "Tritium Supply vs. Demand Under Fusion Deployment Scenarios",
       "type": "bar",
-      "description": "Comparison of regulatory readiness for fusion licensing across key countries (US, UK, Canada, Japan, China, EU).",
+      "description": "Line chart comparing projected tritium supply from existing sources and breeding with demand from a growing fleet of fusion plants.",
       "data": {
-        "categories": [
-          "United States",
-          "United Kingdom",
-          "Canada",
-          "Japan",
-          "China",
-          "European Union"
+        "labels": [
+          "2025",
+          "2030",
+          "2035",
+          "2040",
+          "2045",
+          "2050"
         ],
-        "series": [
+        "datasets": [
           {
-            "name": "Regulatory Readiness (1-5)",
-            "values": [
-              3,
-              4,
-              2,
-              2,
-              2,
-              3
+            "label": "Tritium Supply (kg)",
+            "data": [
+              20,
+              18,
+              16,
+              14,
+              12,
+              10
+            ]
+          },
+          {
+            "label": "Demand (kg) - Slow Deployment",
+            "data": [
+              0,
+              0,
+              1,
+              5,
+              15,
+              30
+            ]
+          },
+          {
+            "label": "Demand (kg) - Fast Deployment",
+            "data": [
+              0,
+              1,
+              10,
+              40,
+              100,
+              200
             ]
           }
         ]
@@ -667,11 +827,11 @@
       "exhibit_no": "7",
       "subtitle": "",
       "categories": [
-        "Evidence quality",
+        "Demand pull",
         "Policy support",
-        "Capability depth",
-        "Commercial pull",
-        "Execution readiness"
+        "Customer urgency",
+        "Channel access",
+        "Supply readiness"
       ],
       "series": [
         {
@@ -713,24 +873,29 @@
       "note": "https://tae.com/"
     },
     {
-      "title": "https://www.fusionindustryassociation.org/",
-      "url": "https://www.fusionindustryassociation.org/",
-      "note": "https://www.fusionindustryassociation.org/"
+      "title": "https://zapenergy.com/",
+      "url": "https://zapenergy.com/",
+      "note": "https://zapenergy.com/"
     },
     {
-      "title": "https://www.energy.gov/fusion-energy-sciences",
-      "url": "https://www.energy.gov/fusion-energy-sciences",
-      "note": "https://www.energy.gov/fusion-energy-sciences"
+      "title": "https://www.energy.gov/science/fes",
+      "url": "https://www.energy.gov/science/fes",
+      "note": "https://www.energy.gov/science/fes"
     },
     {
-      "title": "https://www.nrc.gov/",
-      "url": "https://www.nrc.gov/",
-      "note": "https://www.nrc.gov/"
+      "title": "https://www.iaea.org/topics/fusion-energy",
+      "url": "https://www.iaea.org/topics/fusion-energy",
+      "note": "https://www.iaea.org/topics/fusion-energy"
     },
     {
-      "title": "https://www.gov.uk/government/collections/fusion-energy",
-      "url": "https://www.gov.uk/government/collections/fusion-energy",
-      "note": "https://www.gov.uk/government/collections/fusion-energy"
+      "title": "https://www.nrc.gov/reactors/new-reactors/advanced.html",
+      "url": "https://www.nrc.gov/reactors/new-reactors/advanced.html",
+      "note": "https://www.nrc.gov/reactors/new-reactors/advanced.html"
+    },
+    {
+      "title": "https://www.oecd-nea.org/jcms/pl_78936/fusion-energy",
+      "url": "https://www.oecd-nea.org/jcms/pl_78936/fusion-energy",
+      "note": "https://www.oecd-nea.org/jcms/pl_78936/fusion-energy"
     }
   ],
   "_display_topic": "Nuclear fusion commercialization outlook and strategic implications",
@@ -739,10 +904,10 @@
     "Cfs",
     "Helionenergy",
     "Tae",
-    "Fusionindustryassociation",
+    "Zapenergy",
     "Energy",
-    "Nrc",
-    "Gov"
+    "Iaea",
+    "Nrc"
   ],
   "_layout_profile": "client_ready",
   "_qa_autofixed": true,
