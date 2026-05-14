@@ -26,9 +26,9 @@ HEADER = r'''
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.2pt}
+\setlength{\parskip}{3.1pt}
 \setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.14}
+\renewcommand{\arraystretch}{1.13}
 \hyphenpenalty=9000
 \exhyphenpenalty=9000
 \emergencystretch=2em
@@ -75,9 +75,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     refs = report.get('reference_institutions', []) or []
     parts = [HEADER, '\\begin{document}', '\\raggedright']
     parts.append(_cover_page(title, _asset_path(assets.get('cover-background', ''))))
-    parts.append(_summary_page(summary))
-    parts.append(_contents_page(sections))
-    parts.append(_portfolio_view(sections))
+    parts.append(_agenda_and_contents_page(summary, sections))
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
     parts.append(_disclaimer_page(refs))
@@ -86,7 +84,6 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
 
 
 def _cover_page(title: str, cover: str) -> str:
-    bg = ''
     if cover:
         bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.18] (current page.south west) rectangle (current page.north east);'
     else:
@@ -104,45 +101,20 @@ def _cover_page(title: str, cover: str) -> str:
 '''
 
 
-def _summary_page(summary: List[str]) -> str:
-    rows = []
-    for idx, item in enumerate(summary[:8], start=1):
-        rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\small ' + _tex(_shorten(item, 330)) + '} \\\\[5pt]\n')
-    if not rows:
-        rows.append('\\textcolor{BOBlue}{\\bfseries 01} & {\\small Leadership should align resources to the few facts that change strategic choices.} \\\\[5pt]\n')
-    return _kicker('Executive conclusions') + _heading('Management should focus on the few moves that can change the outcome') + _rule() + '\\begin{tabularx}{\\linewidth}{p{13mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n\\vspace{5pt}\n' + _summary_bars() + '\\clearpage\n'
+def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]) -> str:
+    heading = _agenda_heading(summary, sections)
+    summary_rows = []
+    for idx, item in enumerate(summary[:5], start=1):
+        summary_rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\footnotesize ' + _tex(_shorten(item, 250)) + '} \\\\[4pt]\n')
+    if not summary_rows:
+        summary_rows.append('\\textcolor{BOBlue}{\\bfseries 01} & {\\footnotesize Leadership should align resources to the few facts that change strategic choices.} \\\\[4pt]\n')
 
-
-def _contents_page(sections: List[Dict[str, Any]]) -> str:
-    rows = []
+    content_rows = []
     for idx, section in enumerate(sections, start=1):
-        rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + _tex(_strip_number_prefix(section.get('title', 'Section'))) + ' \\\\[4pt]\n')
-    return _kicker('Contents') + _heading('Contents') + _rule() + '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n\\clearpage\n'
+        title = _tex(_strip_number_prefix(section.get('title', 'Section')))
+        content_rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + title + ' & {\\color{BOMuted}p.~\\pageref{chap:' + str(idx) + '}} \\\\[3pt]\n')
 
-
-def _portfolio_view(sections: List[Dict[str, Any]]) -> str:
-    labels = [_tex(_shorten(_strip_number_prefix(s.get('title', 'Chapter')), 36)) for s in sections[:6]]
-    while len(labels) < 6:
-        labels.append('Strategic theme')
-    return _kicker('Strategic focus') + _heading('The highest-value opportunities sit where evidence, economics and execution overlap') + _rule() + r'''
-\begin{center}
-\begin{tikzpicture}[x=1mm,y=1mm]
-\draw[BOLine] (0,0) rectangle (170,72);
-\draw[BOLine] (85,0) -- (85,72); \draw[BOLine] (0,36) -- (170,36);
-\node[anchor=west] at (3,68) {\scriptsize Higher strategic materiality};
-\node[anchor=west] at (3,4) {\scriptsize Lower strategic materiality};
-\node[anchor=south] at (30,74) {\scriptsize Harder to execute};
-\node[anchor=south] at (122,74) {\scriptsize Easier to execute};
-'''+ _bubble(120, 54, labels[0], 'BOBright') + _bubble(96, 44, labels[1], 'BOBlue') + _bubble(62, 52, labels[2], 'BOMuted') + _bubble(128, 27, labels[3], 'BOBlue') + _bubble(50, 22, labels[4], 'BOMuted') + _bubble(150, 15, labels[5], 'BOBright') + r'''
-\end{tikzpicture}
-\end{center}
-\vspace{5pt}
-\begin{tabularx}{\linewidth}{p{43mm}Y}
-\textcolor{BOBlue}{\bfseries Reading frame} & The report should be read as a sequence of choices: identify where the topic is strategically material, test whether the economics and operating constraints are real, then define actions that leadership can take before the market fully resolves. \\
-\textcolor{BOBlue}{\bfseries Decision use} & Management should pressure-test each conclusion against source evidence, milestone timing, partner availability and the organisation's ability to act faster than competitors. \\
-\end{tabularx}
-\clearpage
-'''
+    return _kicker('Executive conclusions and contents') + _heading(heading) + _rule() + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n' + ''.join(summary_rows) + '\\end{tabularx}\n\\vspace{6pt}\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries CONTENTS}}\\par\\vspace{2pt}\n\\begin{tabularx}{\\linewidth}{p{8mm}Yp{18mm}}\n' + ''.join(content_rows) + '\\end{tabularx}\n\\clearpage\n'
 
 
 def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
@@ -150,20 +122,16 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     lead = _tex(_shorten(section.get('lead', ''), 270))
     paras = _paras(section)
     visual = _image_block(_resolve_image(section, assets, idx), '66mm', '46mm')
-    chart = _image_block(_resolve_chart(assets, idx), '155mm', '70mm')
-    takeaways = [_tex(_shorten(x, 170)) for x in section.get('key_takeaways', [])[:4]]
-    if not takeaways:
-        takeaways = ['Translate the evidence into a specific management choice.', 'Prioritize segments where urgency and feasibility overlap.', 'Track milestones that can change the investment case.']
-    take_rows = ''.join(['\\textcolor{BOBlue}{\\bfseries ' + str(i + 1) + '} & ' + takeaways[i] + ' \\\\[4pt]\n' for i in range(len(takeaways))])
-    chapter = '\\Needspace{48mm}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
+    chart_path = _resolve_chart(assets, idx)
+    chart = _image_block(chart_path, '150mm', '64mm') if chart_path else ''
+    chapter = '\\Needspace{34mm}\n\\label{chap:' + str(idx) + '}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
     if lead:
         chapter += '{\\textcolor{BOBlue}{\\normalsize ' + lead + '}}\\par\\vspace{3pt}\n'
     chapter += '\\begin{minipage}[t]{0.57\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.38\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{4pt}\n'
     chapter += _para(paras[2]) + _para(paras[3])
-    chapter += '\\vspace{4pt}\n' + chart + '\\vspace{3pt}\n' + _para(paras[4])
-    chapter += '{\\scriptsize\\color{BOMuted} Exhibit ' + str(idx) + ' is directional and should be validated against the source backup before being used for capital allocation or transaction decisions.}\\par\\vspace{3pt}\n'
-    chapter += '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + take_rows + '\\end{tabularx}\n'
-    chapter += _choice_table(idx)
+    if chart:
+        chapter += '\\vspace{4pt}\n' + chart + '\\vspace{3pt}\n'
+    chapter += _para(paras[4]) + _para(paras[5])
     chapter += '\\vspace{8pt}\n'
     return chapter
 
@@ -183,31 +151,17 @@ def _disclaimer_page(refs: List[Any]) -> str:
     return '\\clearpage\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries DISCLAIMER}}\\par\\vspace{3pt}\n{\\Large\\sffamily\\bfseries\\color{BONavy} Disclaimer}\\par\\vspace{4pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + filler + '}\n'
 
 
-def _choice_table(idx: int) -> str:
-    rows = [
-        ('Where to compete', 'Prioritize the arenas where the evidence supports both value creation and right-to-win.'),
-        ('How to participate', 'Choose the lightest credible commitment first, then scale when milestones reduce uncertainty.'),
-        ('What to monitor', 'Track the two or three indicators most likely to change timing, economics or partner access.'),
-    ]
-    body = ''.join([_tex(a) + ' & ' + _tex(b) + ' \\\\ \n' for a, b in rows])
-    return '\\vspace{4pt}\\begin{tabularx}{\\linewidth}{p{42mm}Y}\n' + body + '\\end{tabularx}\n'
-
-
-def _summary_bars() -> str:
-    return r'''
-\begin{center}
-\begin{tikzpicture}[x=1mm,y=1mm]
-\fill[BOLight] (0,0) rectangle +(38,8); \fill[BOBright] (0,0) rectangle +(28,8); \node[anchor=west] at (0,11) {\scriptsize Evidence};
-\fill[BOLight] (46,0) rectangle +(38,8); \fill[BOBright] (46,0) rectangle +(24,8); \node[anchor=west] at (46,11) {\scriptsize Economics};
-\fill[BOLight] (92,0) rectangle +(38,8); \fill[BOBright] (92,0) rectangle +(21,8); \node[anchor=west] at (92,11) {\scriptsize Timing};
-\fill[BOLight] (138,0) rectangle +(38,8); \fill[BOBright] (138,0) rectangle +(18,8); \node[anchor=west] at (138,11) {\scriptsize Execution};
-\end{tikzpicture}
-\end{center}
-'''
-
-
-def _bubble(x: int, y: int, label: str, color: str) -> str:
-    return '\\fill[' + color + '] (' + str(x) + ',' + str(y) + ') circle (2.8); \\node[anchor=west,text width=42mm] at (' + str(x + 4) + ',' + str(y) + ') {\\scriptsize ' + label + '};\n'
+def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
+    for item in summary:
+        cleaned = _normalize_punctuation(str(item or '').strip())
+        if not cleaned:
+            continue
+        if cleaned.lower().startswith(('this report', 'the report', 'our analysis')):
+            continue
+        return _tex(_shorten(cleaned, 118))
+    if sections:
+        return _tex(_shorten(_strip_number_prefix(sections[0].get('title', 'Management agenda')), 118))
+    return 'Management should focus on the few moves that can change the outcome'
 
 
 def _paras(section: Dict[str, Any]) -> List[str]:
@@ -216,9 +170,9 @@ def _paras(section: Dict[str, Any]) -> List[str]:
     if lead:
         raw.insert(0, lead)
     expansions = [
-        'The important management question is not whether the signal exists, but whether it is strong enough to justify a change in priorities, partnerships or capital allocation.',
-        'A practical reading of the evidence should distinguish between near-term operating choices and longer-term strategic options that remain conditional on future milestones.',
-        'The strongest response is to define a small number of measurable proof points, assign owners, and revisit the decision as the evidence base improves.',
+        'For executives, the practical implication is to distinguish facts that should change resource allocation from signals that are still too early to underwrite a major commitment.',
+        'The strongest near-term stance is to define measurable proof points, maintain flexibility, and revisit the opportunity as technical, policy and customer milestones become clearer.',
+        'The management agenda should therefore sequence actions by materiality, feasibility and timing rather than treating the market as a single binary bet.',
     ]
     while len(raw) < 6:
         raw.append(expansions[(len(raw) - 1) % len(expansions)])
