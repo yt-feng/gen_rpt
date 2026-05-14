@@ -1,4 +1,36 @@
-paths.code.tex)))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
 (/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
 (/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
 (/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
@@ -6,98 +38,115 @@ paths.code.tex)))
 (./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
-[1] [2] [3]
-Overfull \hbox (41.20691pt too wide) in paragraph at lines 108--109
- [] 
+[1]
+
+LaTeX Warning: Reference `chap:1' on page 2 undefined on input line 71.
+
+
+LaTeX Warning: Reference `chap:2' on page 2 undefined on input line 71.
+
+
+LaTeX Warning: Reference `chap:3' on page 2 undefined on input line 71.
+
+
+LaTeX Warning: Reference `chap:4' on page 2 undefined on input line 71.
+
+
+LaTeX Warning: Reference `chap:5' on page 2 undefined on input line 71.
+
+
+LaTeX Warning: Reference `chap:6' on page 2 undefined on input line 71.
+
+
+LaTeX Warning: Reference `chap:7' on page 2 undefined on input line 71.
+
+[2]
+Underfull \hbox (badness 1629) in paragraph at lines 80--80
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
+
+Underfull \hbox (badness 1629) in paragraph at lines 99--99
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
+[3]
+Underfull \hbox (badness 1629) in paragraph at lines 118--118
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 [4]
-Underfull \hbox (badness 1221) in paragraph at lines 121--121
-\TU/NotoSansCJKSC(0)/m/n/9 in December 2022 marked a historic milestone, provin
-g that fusion
+Underfull \hbox (badness 1629) in paragraph at lines 137--137
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 
-Underfull \hbox (badness 1033) in paragraph at lines 122--122
-\TU/NotoSansCJKSC(0)/m/n/9 superconducting magnets. Other approaches, including
- stellarators
+Underfull \hbox (badness 1629) in paragraph at lines 156--156
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 [5]
-Underfull \hbox (badness 2334) in paragraph at lines 149--149
-\TU/NotoSansCJKSC(0)/m/n/9 Companies like Commonwealth Fusion Systems, TAE Tech
-nologies,
-
-Underfull \hbox (badness 2951) in paragraph at lines 149--149
-\TU/NotoSansCJKSC(0)/m/n/9 and General Fusion are pursuing aggressive schedules
-, often with
-
-Underfull \hbox (badness 1874) in paragraph at lines 150--150
-\TU/NotoSansCJKSC(0)/m/n/9 SPARC. These magnets reduce the size and cost of fus
-ion devices,
-
-Underfull \hbox (badness 2253) in paragraph at lines 150--150
-\TU/NotoSansCJKSC(0)/m/n/9 potentially shortening the path to commercial reacto
-rs. However,
+Underfull \hbox (badness 1629) in paragraph at lines 175--175
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 [6]
-Underfull \hbox (badness 2582) in paragraph at lines 177--177
-[]\TU/NotoSansCJKSC(0)/m/n/9 Estimating the levelized cost of energy (LCOE) for
- fusion is highly
+Underfull \hbox (badness 1629) in paragraph at lines 194--194
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
+[7] [8] (./report_latex.aux)
 
-Underfull \hbox (badness 3219) in paragraph at lines 177--177
-\TU/NotoSansCJKSC(0)/m/n/9 that first-of-a-kind fusion plants could have LCOE i
-n the range of
-[7]
-Underfull \hbox (badness 3049) in paragraph at lines 205--205
-[]\TU/NotoSansCJKSC(0)/m/n/9 The regulatory landscape for fusion is fragmented 
-and still under
+LaTeX Warning: There were undefined references.
 
-Underfull \hbox (badness 1377) in paragraph at lines 206--206
-\TU/NotoSansCJKSC(0)/m/n/9 advancing regulatory frameworks, but with less trans
-parency. The
-[8]
-Underfull \hbox (badness 4779) in paragraph at lines 233--233
-[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion energy could fundamentally alter global ene
-rgy dynamics.
 
-Underfull \hbox (badness 1210) in paragraph at lines 233--233
-\TU/NotoSansCJKSC(0)/m/n/9 Countries that successfully commercialize fusion wou
-ld gain energy
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
 
-Underfull \hbox (badness 3919) in paragraph at lines 233--233
-\TU/NotoSansCJKSC(0)/m/n/9 themselves from price volatility. This has significa
-nt geopolitical
-
-Underfull \hbox (badness 2253) in paragraph at lines 234--234
-[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion also offers a path to deep decarbonization,
- providing firm,
-
-Underfull \hbox (badness 2343) in paragraph at lines 234--234
-\TU/NotoSansCJKSC(0)/m/n/9 net-zero targets. Unlike fission, fusion produces no
- long-lived ra-
-
-Underfull \hbox (badness 4927) in paragraph at lines 234--234
-\TU/NotoSansCJKSC(0)/m/n/9 dioactive waste and has no risk of meltdown, potenti
-ally easing
-
-Underfull \hbox (badness 3168) in paragraph at lines 234--234
-\TU/NotoSansCJKSC(0)/m/n/9 public opposition. However, fusion could disrupt exi
-sting energy
-[9]
-Underfull \hbox (badness 3623) in paragraph at lines 261--261
-[]\TU/NotoSansCJKSC(0)/m/n/9 Despite the promise, fusion faces substantial risk
-s. The primary
-[10]
-Underfull \hbox (badness 4467) in paragraph at lines 289--289
-[]\TU/NotoSansCJKSC(0)/m/n/9 For organizations considering strategic involvemen
-t in fusion, the
-
-Underfull \hbox (badness 1337) in paragraph at lines 289--289
-\TU/NotoSansCJKSC(0)/m/n/9 actions include: (1) Establish R&D partnerships with
- leading fusion
-
-Underfull \hbox (badness 2781) in paragraph at lines 289--289
-\TU/NotoSansCJKSC(0)/m/n/9 companies and national labs to gain technical insigh
-ts and talent
-[11] [12] (./report_latex.aux) )
+ )
 (see the transcript file for additional information)
-Output written on report_latex.pdf (12 pages).
+Output written on report_latex.pdf (8 pages).
 Transcript written on report_latex.log.
-paths.code.tex)))
+/generic/pgf/basiclayer/pgfcorescopes.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoregraphicstate.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransformation
+s.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorequick.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreobjects.code.t
+ex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepathprocessing
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorearrows.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreshade.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreimage.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
 (/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
 (/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
 (/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
@@ -105,94 +154,35 @@ paths.code.tex)))
 (./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
 *geometry* driver: auto-detecting
 *geometry* detected driver: xetex
-[1] [2] [3]
-Overfull \hbox (41.20691pt too wide) in paragraph at lines 108--109
- [] 
+[1] [2]
+Underfull \hbox (badness 1629) in paragraph at lines 80--80
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
+
+Underfull \hbox (badness 1629) in paragraph at lines 99--99
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
+[3]
+Underfull \hbox (badness 1629) in paragraph at lines 118--118
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 [4]
-Underfull \hbox (badness 1221) in paragraph at lines 121--121
-\TU/NotoSansCJKSC(0)/m/n/9 in December 2022 marked a historic milestone, provin
-g that fusion
+Underfull \hbox (badness 1629) in paragraph at lines 137--137
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 
-Underfull \hbox (badness 1033) in paragraph at lines 122--122
-\TU/NotoSansCJKSC(0)/m/n/9 superconducting magnets. Other approaches, including
- stellarators
+Underfull \hbox (badness 1629) in paragraph at lines 156--156
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 [5]
-Underfull \hbox (badness 2334) in paragraph at lines 149--149
-\TU/NotoSansCJKSC(0)/m/n/9 Companies like Commonwealth Fusion Systems, TAE Tech
-nologies,
-
-Underfull \hbox (badness 2951) in paragraph at lines 149--149
-\TU/NotoSansCJKSC(0)/m/n/9 and General Fusion are pursuing aggressive schedules
-, often with
-
-Underfull \hbox (badness 1874) in paragraph at lines 150--150
-\TU/NotoSansCJKSC(0)/m/n/9 SPARC. These magnets reduce the size and cost of fus
-ion devices,
-
-Underfull \hbox (badness 2253) in paragraph at lines 150--150
-\TU/NotoSansCJKSC(0)/m/n/9 potentially shortening the path to commercial reacto
-rs. However,
+Underfull \hbox (badness 1629) in paragraph at lines 175--175
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
 [6]
-Underfull \hbox (badness 2582) in paragraph at lines 177--177
-[]\TU/NotoSansCJKSC(0)/m/n/9 Estimating the levelized cost of energy (LCOE) for
- fusion is highly
-
-Underfull \hbox (badness 3219) in paragraph at lines 177--177
-\TU/NotoSansCJKSC(0)/m/n/9 that first-of-a-kind fusion plants could have LCOE i
-n the range of
-[7]
-Underfull \hbox (badness 3049) in paragraph at lines 205--205
-[]\TU/NotoSansCJKSC(0)/m/n/9 The regulatory landscape for fusion is fragmented 
-and still under
-
-Underfull \hbox (badness 1377) in paragraph at lines 206--206
-\TU/NotoSansCJKSC(0)/m/n/9 advancing regulatory frameworks, but with less trans
-parency. The
-[8]
-Underfull \hbox (badness 4779) in paragraph at lines 233--233
-[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion energy could fundamentally alter global ene
-rgy dynamics.
-
-Underfull \hbox (badness 1210) in paragraph at lines 233--233
-\TU/NotoSansCJKSC(0)/m/n/9 Countries that successfully commercialize fusion wou
-ld gain energy
-
-Underfull \hbox (badness 3919) in paragraph at lines 233--233
-\TU/NotoSansCJKSC(0)/m/n/9 themselves from price volatility. This has significa
-nt geopolitical
-
-Underfull \hbox (badness 2253) in paragraph at lines 234--234
-[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion also offers a path to deep decarbonization,
- providing firm,
-
-Underfull \hbox (badness 2343) in paragraph at lines 234--234
-\TU/NotoSansCJKSC(0)/m/n/9 net-zero targets. Unlike fission, fusion produces no
- long-lived ra-
-
-Underfull \hbox (badness 4927) in paragraph at lines 234--234
-\TU/NotoSansCJKSC(0)/m/n/9 dioactive waste and has no risk of meltdown, potenti
-ally easing
-
-Underfull \hbox (badness 3168) in paragraph at lines 234--234
-\TU/NotoSansCJKSC(0)/m/n/9 public opposition. However, fusion could disrupt exi
-sting energy
-[9]
-Underfull \hbox (badness 3623) in paragraph at lines 261--261
-[]\TU/NotoSansCJKSC(0)/m/n/9 Despite the promise, fusion faces substantial risk
-s. The primary
-[10]
-Underfull \hbox (badness 4467) in paragraph at lines 289--289
-[]\TU/NotoSansCJKSC(0)/m/n/9 For organizations considering strategic involvemen
-t in fusion, the
-
-Underfull \hbox (badness 1337) in paragraph at lines 289--289
-\TU/NotoSansCJKSC(0)/m/n/9 actions include: (1) Establish R&D partnerships with
- leading fusion
-
-Underfull \hbox (badness 2781) in paragraph at lines 289--289
-\TU/NotoSansCJKSC(0)/m/n/9 companies and national labs to gain technical insigh
-ts and talent
-[11] [12] (./report_latex.aux) )
+Underfull \hbox (badness 1629) in paragraph at lines 194--194
+[]\TU/NotoSansCJKSC(0)/m/n/9 For executives, the practical implication is to di
+stinguish facts that
+[7] [8] (./report_latex.aux) )
 (see the transcript file for additional information)
-Output written on report_latex.pdf (12 pages).
+Output written on report_latex.pdf (8 pages).
 Transcript written on report_latex.log.

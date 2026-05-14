@@ -1,51 +1,41 @@
 # Reference backup
 
 ## Ref 1
-- Title: https://www.fusionindustryassociation.org
-- URL: https://www.fusionindustryassociation.org
-- Note: https://www.fusionindustryassociation.org
+- Title: https://www.iter.org/
+- URL: https://www.iter.org/
+- Note: https://www.iter.org/
 
 ## Ref 2
-- Title: https://www.iter.org
-- URL: https://www.iter.org
-- Note: https://www.iter.org
+- Title: https://cfs.energy/
+- URL: https://cfs.energy/
+- Note: https://cfs.energy/
 
 ## Ref 3
-- Title: https://cfs.energy
-- URL: https://cfs.energy
-- Note: https://cfs.energy
+- Title: https://www.helionenergy.com/
+- URL: https://www.helionenergy.com/
+- Note: https://www.helionenergy.com/
 
 ## Ref 4
-- Title: https://www.nrc.gov
-- URL: https://www.nrc.gov
-- Note: https://www.nrc.gov
+- Title: https://tae.com/
+- URL: https://tae.com/
+- Note: https://tae.com/
 
 ## Ref 5
-- Title: https://www.gov.uk/government/publications/fusion-energy-regulation
-- URL: https://www.gov.uk/government/publications/fusion-energy-regulation
-- Note: https://www.gov.uk/government/publications/fusion-energy-regulation
+- Title: https://www.fusionindustryassociation.org/
+- URL: https://www.fusionindustryassociation.org/
+- Note: https://www.fusionindustryassociation.org/
 
 ## Ref 6
-- Title: https://www.energy.gov/fusion
-- URL: https://www.energy.gov/fusion
-- Note: https://www.energy.gov/fusion
+- Title: https://www.energy.gov/fusion-energy-sciences
+- URL: https://www.energy.gov/fusion-energy-sciences
+- Note: https://www.energy.gov/fusion-energy-sciences
 
 ## Ref 7
-- Title: https://www.tae.com
-- URL: https://www.tae.com
-- Note: https://www.tae.com
+- Title: https://www.nrc.gov/
+- URL: https://www.nrc.gov/
+- Note: https://www.nrc.gov/
 
 ## Ref 8
-- Title: https://generalfusion.com
-- URL: https://generalfusion.com
-- Note: https://generalfusion.com
-
-## Ref 9
-- Title: https://firstlightfusion.com
-- URL: https://firstlightfusion.com
-- Note: https://firstlightfusion.com
-
-## Ref 10
-- Title: https://www.wendelstein7x.de
-- URL: https://www.wendelstein7x.de
-- Note: https://www.wendelstein7x.de
+- Title: https://www.gov.uk/government/collections/fusion-energy
+- URL: https://www.gov.uk/government/collections/fusion-energy
+- Note: https://www.gov.uk/government/collections/fusion-energy
