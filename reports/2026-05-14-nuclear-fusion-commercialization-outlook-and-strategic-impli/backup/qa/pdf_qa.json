@@ -5,7 +5,7 @@
   "checks": [
     {
       "code": "page_count",
-      "message": "PDF has 15 pages."
+      "message": "PDF has 12 pages."
     },
     {
       "code": "text_extractability",
@@ -67,27 +67,12 @@
       "code": "font_too_small",
       "message": "Page 12: text below 4.2pt detected.",
       "recommendation": "increase_min_font_or_add_pages"
-    },
-    {
-      "code": "font_too_small",
-      "message": "Page 13: text below 4.2pt detected.",
-      "recommendation": "increase_min_font_or_add_pages"
-    },
-    {
-      "code": "font_too_small",
-      "message": "Page 14: text below 4.2pt detected.",
-      "recommendation": "increase_min_font_or_add_pages"
-    },
-    {
-      "code": "font_too_small",
-      "message": "Page 15: text below 4.2pt detected.",
-      "recommendation": "increase_min_font_or_add_pages"
     }
   ],
   "recommendations": [
     "increase_min_font_or_add_pages"
   ],
-  "page_count": 15,
+  "page_count": 12,
   "screenshots": [
     "reports/2026-05-14-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_001.png",
     "reports/2026-05-14-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_002.png",

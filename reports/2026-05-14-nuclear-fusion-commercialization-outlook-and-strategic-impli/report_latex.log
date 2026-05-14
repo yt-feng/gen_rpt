@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.5.14)  14 MAY 2026 07:35
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.5.14)  14 MAY 2026 08:10
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -596,40 +596,22 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 ] [3
 
 ]
-Overfull \hbox (41.20691pt too wide) in paragraph at lines 111--112
+Overfull \hbox (41.20691pt too wide) in paragraph at lines 108--109
  [] 
  []
 
 [4
 
 ]
-Underfull \hbox (badness 1019) in paragraph at lines 124--124
-[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion technology has made remarkable stri
-des in the past
+Underfull \hbox (badness 1221) in paragraph at lines 121--121
+\TU/NotoSansCJKSC(0)/m/n/9 in December 2022 marked a historic milestone, provin
+g that fusion
  []
 
 
-Underfull \hbox (badness 3601) in paragraph at lines 124--124
-\TU/NotoSansCJKSC(0)/m/n/9 decade, transitioning from theoretical physics to en
-gineering pro-
- []
-
-
-Underfull \hbox (badness 7081) in paragraph at lines 124--124
-\TU/NotoSansCJKSC(0)/m/n/9 totypes. Multiple reactor designs-tokamaks, stellara
-tors, inertial
- []
-
-
-Underfull \hbox (badness 2221) in paragraph at lines 124--124
-\TU/NotoSansCJKSC(0)/m/n/9 being pursued by both public projects (ITER, JT-60SA
-) and private
- []
-
-
-Underfull \hbox (badness 1325) in paragraph at lines 125--125
-\TU/NotoSansCJKSC(0)/m/n/9 aims to produce 500 MW of fusion power from 50 MW of
- input by
+Underfull \hbox (badness 1033) in paragraph at lines 122--122
+\TU/NotoSansCJKSC(0)/m/n/9 superconducting magnets. Other approaches, including
+ stellarators
  []
 
 File: assets/image-1.png Graphic file (type bmp)
@@ -639,15 +621,27 @@ File: assets/chart-1.png Graphic file (type bmp)
 [5
 
 ]
-Underfull \hbox (badness 1253) in paragraph at lines 153--153
-\TU/NotoSansCJKSC(0)/m/n/9 be low due to abundant fuel (deuterium and lithium) 
-and minimal
+Underfull \hbox (badness 2334) in paragraph at lines 149--149
+\TU/NotoSansCJKSC(0)/m/n/9 Companies like Commonwealth Fusion Systems, TAE Tech
+nologies,
  []
 
 
-Underfull \hbox (badness 5359) in paragraph at lines 153--153
-\TU/NotoSansCJKSC(0)/m/n/9 government guarantees, public-private partnerships, 
-or innovative
+Underfull \hbox (badness 2951) in paragraph at lines 149--149
+\TU/NotoSansCJKSC(0)/m/n/9 and General Fusion are pursuing aggressive schedules
+, often with
+ []
+
+
+Underfull \hbox (badness 1874) in paragraph at lines 150--150
+\TU/NotoSansCJKSC(0)/m/n/9 SPARC. These magnets reduce the size and cost of fus
+ion devices,
+ []
+
+
+Underfull \hbox (badness 2253) in paragraph at lines 150--150
+\TU/NotoSansCJKSC(0)/m/n/9 potentially shortening the path to commercial reacto
+rs. However,
  []
 
 File: assets/image-2.png Graphic file (type bmp)
@@ -655,57 +649,15 @@ File: assets/image-2.png Graphic file (type bmp)
 File: assets/chart-2.png Graphic file (type bmp)
 <assets/chart-2.png>
 [6]
-Underfull \hbox (badness 2608) in paragraph at lines 180--180
-\TU/NotoSansCJKSC(0)/m/n/9 with minimal fuel cost and no long-lived radioactive
- waste. This
+Underfull \hbox (badness 2582) in paragraph at lines 177--177
+[]\TU/NotoSansCJKSC(0)/m/n/9 Estimating the levelized cost of energy (LCOE) for
+ fusion is highly
  []
 
 
-Underfull \hbox (badness 1975) in paragraph at lines 180--180
-\TU/NotoSansCJKSC(0)/m/n/9 could fundamentally alter energy security for nation
-s that develop
- []
-
-
-Underfull \hbox (badness 5274) in paragraph at lines 180--180
-\TU/NotoSansCJKSC(0)/m/n/9 or license fusion technology, reducing dependence on
- fossil fuel
- []
-
-
-Underfull \hbox (badness 2591) in paragraph at lines 180--180
-\TU/NotoSansCJKSC(0)/m/n/9 imports and insulating economies from price volatili
-ty. Countries
- []
-
-
-Underfull \hbox (badness 2142) in paragraph at lines 180--180
-\TU/NotoSansCJKSC(0)/m/n/9 Union, Japan, and South Korea-could gain strategic a
-dvantages in
- []
-
-
-Underfull \hbox (badness 1728) in paragraph at lines 181--181
-\TU/NotoSansCJKSC(0)/m/n/9 importance of oil and gas reserves. Energy-importing
- nations like
- []
-
-
-Underfull \hbox (badness 1603) in paragraph at lines 181--181
-\TU/NotoSansCJKSC(0)/m/n/9 Japan and South Korea could achieve energy independe
-nce, while
- []
-
-
-Underfull \hbox (badness 1275) in paragraph at lines 181--181
-\TU/NotoSansCJKSC(0)/m/n/9 fossil fuel exporters may face declining revenues. H
-owever, fusion
- []
-
-
-Underfull \hbox (badness 1253) in paragraph at lines 181--181
-\TU/NotoSansCJKSC(0)/m/n/9 could also exacerbate inequalities if only a few nat
-ions control the
+Underfull \hbox (badness 3219) in paragraph at lines 177--177
+\TU/NotoSansCJKSC(0)/m/n/9 that first-of-a-kind fusion plants could have LCOE i
+n the range of
  []
 
 File: assets/image-3.png Graphic file (type bmp)
@@ -713,15 +665,15 @@ File: assets/image-3.png Graphic file (type bmp)
 File: assets/chart-3.png Graphic file (type bmp)
 <assets/chart-3.png>
 [7]
-Underfull \hbox (badness 1057) in paragraph at lines 208--208
-[]\TU/NotoSansCJKSC(0)/m/n/9 Private investment in fusion has surged, with over
- $5 billion raised
+Underfull \hbox (badness 3049) in paragraph at lines 205--205
+[]\TU/NotoSansCJKSC(0)/m/n/9 The regulatory landscape for fusion is fragmented 
+and still under
  []
 
 
-Underfull \hbox (badness 1178) in paragraph at lines 208--208
-\TU/NotoSansCJKSC(0)/m/n/9 $2 billion round, Helion Energy’s $500 million from 
-Microsoft and
+Underfull \hbox (badness 1377) in paragraph at lines 206--206
+\TU/NotoSansCJKSC(0)/m/n/9 advancing regulatory frameworks, but with less trans
+parency. The
  []
 
 File: assets/image-4.png Graphic file (type bmp)
@@ -729,9 +681,45 @@ File: assets/image-4.png Graphic file (type bmp)
 File: assets/chart-4.png Graphic file (type bmp)
 <assets/chart-4.png>
 [8]
-Underfull \hbox (badness 1917) in paragraph at lines 236--236
-\TU/NotoSansCJKSC(0)/m/n/9 withstand the extreme conditions inside a reactor. T
-he history of
+Underfull \hbox (badness 4779) in paragraph at lines 233--233
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion energy could fundamentally alter global ene
+rgy dynamics.
+ []
+
+
+Underfull \hbox (badness 1210) in paragraph at lines 233--233
+\TU/NotoSansCJKSC(0)/m/n/9 Countries that successfully commercialize fusion wou
+ld gain energy
+ []
+
+
+Underfull \hbox (badness 3919) in paragraph at lines 233--233
+\TU/NotoSansCJKSC(0)/m/n/9 themselves from price volatility. This has significa
+nt geopolitical
+ []
+
+
+Underfull \hbox (badness 2253) in paragraph at lines 234--234
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion also offers a path to deep decarbonization,
+ providing firm,
+ []
+
+
+Underfull \hbox (badness 2343) in paragraph at lines 234--234
+\TU/NotoSansCJKSC(0)/m/n/9 net-zero targets. Unlike fission, fusion produces no
+ long-lived ra-
+ []
+
+
+Underfull \hbox (badness 4927) in paragraph at lines 234--234
+\TU/NotoSansCJKSC(0)/m/n/9 dioactive waste and has no risk of meltdown, potenti
+ally easing
+ []
+
+
+Underfull \hbox (badness 3168) in paragraph at lines 234--234
+\TU/NotoSansCJKSC(0)/m/n/9 public opposition. However, fusion could disrupt exi
+sting energy
  []
 
 File: assets/image-5.png Graphic file (type bmp)
@@ -739,33 +727,9 @@ File: assets/image-5.png Graphic file (type bmp)
 File: assets/chart-5.png Graphic file (type bmp)
 <assets/chart-5.png>
 [9]
-Underfull \hbox (badness 3989) in paragraph at lines 264--264
-\TU/NotoSansCJKSC(0)/m/n/9 dented private capital into fusion startups. Since 2
-020, over $5
- []
-
-
-Underfull \hbox (badness 1755) in paragraph at lines 264--264
-\TU/NotoSansCJKSC(0)/m/n/9 billion has been invested, with major rounds from Co
-mmonwealth
- []
-
-
-Underfull \hbox (badness 3375) in paragraph at lines 264--264
-\TU/NotoSansCJKSC(0)/m/n/9 influx is driven by advances in high-temperature sup
-erconductors,
- []
-
-
-Underfull \hbox (badness 2662) in paragraph at lines 265--265
-\TU/NotoSansCJKSC(0)/m/n/9 Many startups are targeting smaller, cheaper reactor
-s that can be
- []
-
-
-Underfull \hbox (badness 3364) in paragraph at lines 265--265
-\TU/NotoSansCJKSC(0)/m/n/9 built in factories and deployed modularly, potential
-ly accelerating
+Underfull \hbox (badness 3623) in paragraph at lines 261--261
+[]\TU/NotoSansCJKSC(0)/m/n/9 Despite the promise, fusion faces substantial risk
+s. The primary
  []
 
 File: assets/image-6.png Graphic file (type bmp)
@@ -773,76 +737,28 @@ File: assets/image-6.png Graphic file (type bmp)
 File: assets/chart-6.png Graphic file (type bmp)
 <assets/chart-6.png>
 [10]
-Underfull \hbox (badness 1320) in paragraph at lines 292--292
-[]\TU/NotoSansCJKSC(0)/m/n/9 ITER, the world’s largest fusion experiment, has b
-een plagued by
+Underfull \hbox (badness 4467) in paragraph at lines 289--289
+[]\TU/NotoSansCJKSC(0)/m/n/9 For organizations considering strategic involvemen
+t in fusion, the
  []
 
 
-Underfull \hbox (badness 1038) in paragraph at lines 293--293
-[]\TU/NotoSansCJKSC(0)/m/n/9 Despite these setbacks, ITER remains a critical mi
-lestone for fusion
+Underfull \hbox (badness 1337) in paragraph at lines 289--289
+\TU/NotoSansCJKSC(0)/m/n/9 actions include: (1) Establish R&D partnerships with
+ leading fusion
  []
 
 
-Underfull \hbox (badness 3108) in paragraph at lines 293--293
-\TU/NotoSansCJKSC(0)/m/n/9 Lessons from ITER are informing next-generation desi
-gns, but the
+Underfull \hbox (badness 2781) in paragraph at lines 289--289
+\TU/NotoSansCJKSC(0)/m/n/9 companies and national labs to gain technical insigh
+ts and talent
  []
 
 File: assets/image-7.png Graphic file (type bmp)
 <assets/image-7.png>
 File: assets/chart-7.png Graphic file (type bmp)
 <assets/chart-7.png>
-[11]
-Underfull \hbox (badness 2326) in paragraph at lines 320--320
-[]\TU/NotoSansCJKSC(0)/m/n/9 The advent of commercial fusion could fundamentall
-y alter global
- []
-
-File: assets/image-8.png Graphic file (type bmp)
-<assets/image-8.png>
-File: assets/chart-2.png Graphic file (type bmp)
-<assets/chart-2.png>
-[12]
-Underfull \hbox (badness 1400) in paragraph at lines 349--349
-\TU/NotoSansCJKSC(0)/m/n/9 efficiency required for a commercial reactor. ITER w
-ill test tritium
- []
-
-File: assets/image-9.png Graphic file (type bmp)
-<assets/image-9.png>
-File: assets/chart-3.png Graphic file (type bmp)
-<assets/chart-3.png>
-[13]
-Underfull \hbox (badness 2856) in paragraph at lines 376--376
-\TU/NotoSansCJKSC(0)/m/n/9 net energy gain demonstrations (e.g., SPARC), progre
-ss on tritium
- []
-
-
-Underfull \hbox (badness 3158) in paragraph at lines 377--377
-\TU/NotoSansCJKSC(0)/m/n/9 evaluate the economic competitiveness of fusion rela
-tive to other
- []
-
-
-Underfull \hbox (badness 5022) in paragraph at lines 377--377
-\TU/NotoSansCJKSC(0)/m/n/9 frameworks and ensure that fusion is treated appropr
-iately (e.g.,
- []
-
-
-Underfull \hbox (badness 3407) in paragraph at lines 377--377
-\TU/NotoSansCJKSC(0)/m/n/9 needs, such as lithium for tritium breeding and high
--temperature
- []
-
-File: assets/image-10.png Graphic file (type bmp)
-<assets/image-10.png>
-File: assets/chart-4.png Graphic file (type bmp)
-<assets/chart-4.png>
-[14] [15
+[11] [12
 
 ] (./report_latex.aux)
  ***********
@@ -851,12 +767,12 @@ L3 programming layer <2024-01-22>
  ***********
  ) 
 Here is how much of TeX's memory you used:
- 14962 strings out of 476904
- 348914 string characters out of 5806011
+ 14935 strings out of 476904
+ 348296 string characters out of 5806011
  1929627 words of memory out of 5000000
- 36606 multiletter control sequences out of 15000+600000
+ 36582 multiletter control sequences out of 15000+600000
  558221 words of font info for 55 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 84i,12n,93p,2975b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 84i,12n,93p,3021b,609s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on report_latex.pdf (15 pages).
+Output written on report_latex.pdf (12 pages).
