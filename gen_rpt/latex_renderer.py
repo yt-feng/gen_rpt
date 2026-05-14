@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 
 HEADER = r'''
 \documentclass[10pt,a4paper]{article}
-\usepackage[a4paper,margin=13mm,top=11mm,bottom=12mm]{geometry}
+\usepackage[a4paper,margin=13mm,top=12mm,bottom=13mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{graphicx}
@@ -16,6 +16,7 @@ HEADER = r'''
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{fancyhdr}
+\usepackage{needspace}
 \defaultfontfeatures{Ligatures=TeX}
 \IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
 \definecolor{BOBlue}{HTML}{0055A4}
@@ -25,11 +26,11 @@ HEADER = r'''
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{3.8pt}
+\setlength{\parskip}{3.4pt}
 \setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.20}
-\hyphenpenalty=10000
-\exhyphenpenalty=10000
+\renewcommand{\arraystretch}{1.16}
+\hyphenpenalty=9000
+\exhyphenpenalty=9000
 \emergencystretch=2em
 \sloppy
 \pagestyle{fancy}
@@ -77,10 +78,9 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     parts.append(_cover_page(title, subtitle, _asset_path(assets.get('cover-background', ''))))
     parts.append(_summary_page(summary))
     parts.append(_contents_page(sections))
+    parts.append(_portfolio_view(sections, assets))
     for idx, section in enumerate(sections, start=1):
-        parts.append(_section_opener(section, assets, idx))
-        parts.append(_section_evidence(section, assets, idx))
-        parts.append(_section_implications(section, assets, idx))
+        parts.append(_chapter_block(section, assets, idx))
     parts.append(_disclaimer_page(refs))
     parts.append('\\end{document}\n')
     return '\n'.join(parts)
@@ -89,18 +89,18 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
 def _cover_page(title: str, subtitle: str, cover: str) -> str:
     bg = ''
     if cover:
-        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[white,opacity=.18] (current page.south west) rectangle (current page.north east);'
+        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.20] (current page.south west) rectangle (current page.north east);'
     else:
         bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
     return r'''
 \thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
 ''' + bg + r'''
-\fill[white,opacity=.96] ([xshift=16mm,yshift=-20mm]current page.north west) rectangle ++(140mm,-72mm);
-\fill[BOBright] ([xshift=16mm,yshift=-20mm]current page.north west) rectangle ++(140mm,-2mm);
-\node[anchor=north west,text width=126mm] at ([xshift=23mm,yshift=-29mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOBlue} BLUEOCEAN\\DEEP RESEARCH REPORT};
-\node[anchor=north west,text width=126mm] at ([xshift=23mm,yshift=-43mm]current page.north west) {\parbox{126mm}{\raggedright\sffamily\fontsize{22}{25}\selectfont\color{BONavy} ''' + title + r'''}};
-\node[anchor=north west,text width=126mm] at ([xshift=23mm,yshift=-80mm]current page.north west) {\sffamily\small\color{BOMuted} ''' + subtitle + r'''};
+\fill[white,opacity=.96] ([xshift=17mm,yshift=-25mm]current page.north west) rectangle ++(148mm,-72mm);
+\fill[BOBright] ([xshift=17mm,yshift=-25mm]current page.north west) rectangle ++(148mm,-2.1mm);
+\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-34mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOBlue} BLUEOCEAN\\DEEP RESEARCH REPORT};
+\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-49mm]current page.north west) {\parbox{132mm}{\raggedright\sffamily\fontsize{22}{25}\selectfont\color{BONavy} ''' + title + r'''}};
+\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-86mm]current page.north west) {\sffamily\small\color{BOMuted} ''' + subtitle + r'''};
 \end{tikzpicture}
 \clearpage
 '''
@@ -109,42 +109,65 @@ def _cover_page(title: str, subtitle: str, cover: str) -> str:
 def _summary_page(summary: List[str]) -> str:
     rows = []
     for idx, item in enumerate(summary[:8], start=1):
-        rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\small ' + _tex(_shorten(item, 330)) + '} \\\\[6pt]\n')
+        rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\small ' + _tex(_shorten(item, 330)) + '} \\\\[5pt]\n')
     if not rows:
-        rows.append('\\textcolor{BOBlue}{\\bfseries 01} & {\\small The report prioritizes the facts that change management decisions.} \\\\[6pt]\n')
-    return _kicker('Executive conclusions') + _heading('The market is shifting fast enough to require a clear management agenda') + _rule() + '\\begin{tabularx}{\\linewidth}{p{13mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n\\clearpage\n'
+        rows.append('\\textcolor{BOBlue}{\\bfseries 01} & {\\small Leadership should align resources to the few facts that change strategic choices.} \\\\[5pt]\n')
+    return _kicker('Executive conclusions') + _heading('Management should focus on the few moves that can change the outcome') + _rule() + '\\begin{tabularx}{\\linewidth}{p{13mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n\\vspace{5pt}\n' + _summary_bars() + '\\clearpage\n'
 
 
 def _contents_page(sections: List[Dict[str, Any]]) -> str:
     rows = []
     for idx, section in enumerate(sections, start=1):
-        rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + _tex(_strip_number_prefix(section.get('title', 'Section'))) + ' \\\\[5pt]\n')
+        rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + _tex(_strip_number_prefix(section.get('title', 'Section'))) + ' \\\\[4pt]\n')
     return _kicker('Contents') + _heading('Contents') + _rule() + '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n\\clearpage\n'
 
 
-def _section_opener(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
+def _portfolio_view(sections: List[Dict[str, Any]], assets: Dict[str, str]) -> str:
+    labels = [_tex(_shorten(_strip_number_prefix(s.get('title', 'Chapter')), 36)) for s in sections[:6]]
+    while len(labels) < 6:
+        labels.append('Strategic theme')
+    return _kicker('Where to focus') + _heading('The core question is where facts, economics and execution timing intersect') + _rule() + r'''
+\begin{center}
+\begin{tikzpicture}[x=1mm,y=1mm]
+\draw[BOLine] (0,0) rectangle (170,72);
+\draw[BOLine] (85,0) -- (85,72); \draw[BOLine] (0,36) -- (170,36);
+\node[anchor=west] at (3,68) {\scriptsize Higher strategic materiality};
+\node[anchor=west] at (3,4) {\scriptsize Lower strategic materiality};
+\node[anchor=south] at (30,74) {\scriptsize Harder to execute};
+\node[anchor=south] at (122,74) {\scriptsize Easier to execute};
+'''+ _bubble(120, 54, labels[0], 'BOBright') + _bubble(96, 44, labels[1], 'BOBlue') + _bubble(62, 52, labels[2], 'BOMuted') + _bubble(128, 27, labels[3], 'BOBlue') + _bubble(50, 22, labels[4], 'BOMuted') + _bubble(150, 15, labels[5], 'BOBright') + r'''
+\end{tikzpicture}
+\end{center}
+\vspace{5pt}
+\begin{tabularx}{\linewidth}{p{43mm}Y}
+\textcolor{BOBlue}{\bfseries What this means} & The report should be read as a sequence of choices: first, identify where the topic is strategically material; second, test whether the economics and operating constraints are real; third, define the actions that leadership can take before the market fully resolves. \\
+\textcolor{BOBlue}{\bfseries How to use it} & Management should pressure-test each conclusion against source evidence, milestone timing, partner availability and the organisation's ability to act faster than competitors. \\
+\end{tabularx}
+\clearpage
+'''
+
+
+def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
     title = _tex(_strip_number_prefix(section.get('title', f'Section {idx}')))
-    lead = _tex(_shorten(section.get('lead', ''), 260))
+    lead = _tex(_shorten(section.get('lead', ''), 270))
     paras = _paras(section)
-    image = _image_block(_resolve_image(section, assets, idx), '74mm', '54mm')
-    return '\\clearpage\n' + _kicker('Chapter ' + str(idx)) + _heading(title) + ('{\\textcolor{BOBlue}{\\large ' + lead + '}}\\par\\vspace{4pt}\n' if lead else '') + '\\begin{minipage}[t]{0.52\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.42\\linewidth}\n' + image + '\n\\end{minipage}\n\\vspace{5pt}\n' + _para(paras[2]) + _section_table(idx)
-
-
-def _section_evidence(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
-    title = _tex(_strip_number_prefix(section.get('title', f'Section {idx}')))
-    chart = _image_block(_resolve_chart(assets, idx), '170mm', '88mm')
-    paras = _paras(section)
-    return '\\clearpage\n' + _kicker('Evidence exhibit') + _heading(title) + chart + '\\vspace{5pt}\n' + _para(paras[3]) + _para(_evidence_sentence(title)) + _matrix_block(idx)
-
-
-def _section_implications(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
-    title = _tex(_strip_number_prefix(section.get('title', f'Section {idx}')))
-    paras = _paras(section)
-    takes = [_tex(_shorten(x, 170)) for x in section.get('key_takeaways', [])[:4]]
-    if not takes:
-        takes = [_tex('Prioritize management actions that change resource allocation.'), _tex('Validate the evidence base before committing capital.'), _tex('Sequence initiatives by materiality, feasibility and timing.')]
-    rows = ''.join(['\\textcolor{BOBlue}{\\bfseries ' + str(i + 1) + '} & ' + takes[i] + ' \\\\[5pt]\n' for i in range(len(takes))])
-    return '\\clearpage\n' + _kicker('Management implications') + _heading(title) + _para(paras[4]) + '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + rows + '\\end{tabularx}\n\\vspace{6pt}\n' + _roadmap_block(idx)
+    visual = _image_block(_resolve_image(section, assets, idx), '66mm', '46mm')
+    chart = _image_block(_resolve_chart(assets, idx), '155mm', '70mm')
+    takeaways = [_tex(_shorten(x, 170)) for x in section.get('key_takeaways', [])[:4]]
+    if not takeaways:
+        takeaways = ['Translate the evidence into a specific management choice.', 'Prioritize segments where urgency and feasibility overlap.', 'Track milestones that can change the investment case.']
+    take_rows = ''.join(['\\textcolor{BOBlue}{\\bfseries ' + str(i + 1) + '} & ' + takeaways[i] + ' \\\\[4pt]\n' for i in range(len(takeaways))])
+    chapter = '\\Needspace{90mm}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
+    if lead:
+        chapter += '{\\textcolor{BOBlue}{\\normalsize ' + lead + '}}\\par\\vspace{3pt}\n'
+    chapter += '\\begin{minipage}[t]{0.57\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.38\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{4pt}\n'
+    chapter += _para(paras[2]) + _para(paras[3])
+    chapter += _subhead('Evidence') + chart + '\\vspace{3pt}\n' + _para(paras[4])
+    chapter += _clean_exhibit_note(idx)
+    chapter += _subhead('Management priorities') + '\\begin{tabularx}{\\linewidth}{p{10mm}Y}\n' + take_rows + '\\end{tabularx}\n'
+    chapter += _choice_table(idx)
+    chapter += '\\vspace{8pt}\n'
+    return chapter
 
 
 def _disclaimer_page(refs: List[Any]) -> str:
@@ -154,50 +177,35 @@ def _disclaimer_page(refs: List[Any]) -> str:
     return '\\clearpage\n' + _kicker('Disclaimer') + _heading('This report is a management consulting analysis, not investment advice') + _rule() + '{\\small This document has been prepared by BlueOcean for strategy discussion, industry analysis and executive decision support. It is not intended to constitute investment advice, securities research, legal advice, tax advice, audit assurance, or a recommendation to buy or sell any security or financial instrument. The analysis relies on public sources, model-assisted synthesis and management-consulting judgment. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions.}\\par\n' + note + '\\vspace{6pt}{\\small\\color{BOMuted} BlueOcean does not guarantee the completeness or accuracy of third-party information and accepts no responsibility for decisions made solely on the basis of this document.}\n'
 
 
-def _section_table(idx: int) -> str:
-    return r'''
-\vspace{6pt}{\textcolor{BOBlue}{\scriptsize\bfseries DECISION LENS}}\par
-\begin{tabularx}{\linewidth}{p{42mm}Y}
-\textcolor{BOBlue}{\bfseries Question} & \textcolor{BOBlue}{\bfseries Why it matters} \\
-Market direction & Separates structural change from temporary noise \\
-Competitive response & Identifies where incumbents, challengers and customers may move next \\
-Capital priority & Connects the argument to resource allocation and timing \\
-\end{tabularx}
-'''
+def _choice_table(idx: int) -> str:
+    rows = [
+        ('Where to compete', 'Prioritize the arenas where the evidence supports both value creation and right-to-win.'),
+        ('How to participate', 'Choose the lightest credible commitment first, then scale when milestones reduce uncertainty.'),
+        ('What to monitor', 'Track the two or three indicators most likely to change timing, economics or partner access.'),
+    ]
+    body = ''.join([_tex(a) + ' & ' + _tex(b) + ' \\\\ \n' for a, b in rows])
+    return _subhead('Leadership choices') + '\\begin{tabularx}{\\linewidth}{p{42mm}Y}\n' + body + '\\end{tabularx}\n'
 
 
-def _matrix_block(idx: int) -> str:
+def _clean_exhibit_note(idx: int) -> str:
+    return '{\\scriptsize\\color{BOMuted} Exhibit ' + str(idx) + ' is directional and should be validated against the source backup before being used for capital allocation or transaction decisions.}\\par\\vspace{3pt}\n'
+
+
+def _summary_bars() -> str:
     return r'''
-\vspace{6pt}{\textcolor{BOBlue}{\scriptsize\bfseries STRATEGIC POSITIONING MAP}}\par
 \begin{center}
 \begin{tikzpicture}[x=1mm,y=1mm]
-\draw[BOLine] (0,0) rectangle (150,56);
-\draw[BOLine] (75,0) -- (75,56); \draw[BOLine] (0,28) -- (150,28);
-\node[anchor=west] at (3,52) {\scriptsize High urgency};
-\node[anchor=west] at (3,3) {\scriptsize Lower urgency};
-\node[anchor=south] at (20,57) {\scriptsize Lower readiness};
-\node[anchor=south] at (112,57) {\scriptsize Higher readiness};
-\fill[BOBright] (108,42) circle (3.2); \node[anchor=west] at (113,42) {\scriptsize Priority arena};
-\fill[BOBlue] (55,36) circle (2.6); \node[anchor=west] at (60,36) {\scriptsize Monitor};
-\fill[BOMuted] (95,16) circle (2.4); \node[anchor=west] at (100,16) {\scriptsize Sequence later};
+\fill[BOLight] (0,0) rectangle +(38,8); \fill[BOBright] (0,0) rectangle +(28,8); \node[anchor=west] at (0,11) {\scriptsize Evidence};
+\fill[BOLight] (46,0) rectangle +(38,8); \fill[BOBright] (46,0) rectangle +(24,8); \node[anchor=west] at (46,11) {\scriptsize Economics};
+\fill[BOLight] (92,0) rectangle +(38,8); \fill[BOBright] (92,0) rectangle +(21,8); \node[anchor=west] at (92,11) {\scriptsize Timing};
+\fill[BOLight] (138,0) rectangle +(38,8); \fill[BOBright] (138,0) rectangle +(18,8); \node[anchor=west] at (138,11) {\scriptsize Execution};
 \end{tikzpicture}
 \end{center}
 '''
 
 
-def _roadmap_block(idx: int) -> str:
-    return r'''
-\vspace{6pt}{\textcolor{BOBlue}{\scriptsize\bfseries EXECUTION ROADMAP}}\par
-\begin{center}
-\begin{tikzpicture}[x=1mm,y=1mm]
-\draw[very thick,BOBright] (10,18) -- (166,18);
-\fill[BOBlue] (10,18) circle (2.2); \node[anchor=south,align=center,text width=34mm] at (10,22) {\scriptsize\textcolor{BOBlue}{\textbf{Now}}\\Confirm evidence};
-\fill[BOBlue] (62,18) circle (2.2); \node[anchor=south,align=center,text width=34mm] at (62,22) {\scriptsize\textcolor{BOBlue}{\textbf{Next}}\\Prioritize moves};
-\fill[BOBlue] (114,18) circle (2.2); \node[anchor=south,align=center,text width=34mm] at (114,22) {\scriptsize\textcolor{BOBlue}{\textbf{Then}}\\Commit resources};
-\fill[BOBlue] (166,18) circle (2.2); \node[anchor=south,align=center,text width=34mm] at (166,22) {\scriptsize\textcolor{BOBlue}{\textbf{Scale}}\\Institutionalize};
-\end{tikzpicture}
-\end{center}
-'''
+def _bubble(x: int, y: int, label: str, color: str) -> str:
+    return '\\fill[' + color + '] (' + str(x) + ',' + str(y) + ') circle (2.8); \\node[anchor=west,text width=42mm] at (' + str(x + 4) + ',' + str(y) + ') {\\scriptsize ' + label + '};\n'
 
 
 def _paras(section: Dict[str, Any]) -> List[str]:
@@ -205,9 +213,14 @@ def _paras(section: Dict[str, Any]) -> List[str]:
     lead = str(section.get('lead', '') or '').strip()
     if lead:
         raw.insert(0, lead)
-    while len(raw) < 5:
-        raw.append('The implication for executives is to translate the signal into a sequenced agenda: validate the facts, prioritize where the economics are strongest, and assign accountable owners for the next wave of decisions.')
-    return [_tex(x) for x in raw[:5]]
+    expansions = [
+        'The important management question is not whether the signal exists, but whether it is strong enough to justify a change in priorities, partnerships or capital allocation.',
+        'A practical reading of the evidence should distinguish between near-term operating choices and longer-term strategic options that remain conditional on future milestones.',
+        'The strongest response is to define a small number of measurable proof points, assign owners, and revisit the decision as the evidence base improves.',
+    ]
+    while len(raw) < 6:
+        raw.append(expansions[(len(raw) - 1) % len(expansions)])
+    return [_tex(x) for x in raw[:6]]
 
 
 def _para(text: str) -> str:
@@ -221,11 +234,11 @@ def _image_block(path: str, width: str, height: str) -> str:
 
 
 def _resolve_image(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
-    for key in [f'image-{idx}', str(section.get('visual_hint', '')), 'cover-background']:
+    for key in [f'image-{idx}', str(section.get('visual_hint', ''))]:
         path = _asset_path(assets.get(key, ''))
         if path:
             return path
-    return ''
+    return _asset_path(assets.get('cover-background', ''))
 
 
 def _resolve_chart(assets: Dict[str, str], idx: int) -> str:
@@ -236,16 +249,16 @@ def _resolve_chart(assets: Dict[str, str], idx: int) -> str:
     return ''
 
 
-def _evidence_sentence(title: str) -> str:
-    return 'The exhibit should be read as directional evidence: it frames the relative magnitude, timing and management relevance of the issue rather than replacing diligence on the underlying source data.'
-
-
 def _kicker(text: str) -> str:
     return '{\\textcolor{BOBlue}{\\scriptsize\\bfseries ' + _tex(str(text).upper()) + '}}\\par\\vspace{-1pt}\n'
 
 
 def _heading(text: str) -> str:
     return '{\\Large\\sffamily\\bfseries\\color{BONavy} ' + text + '}\\par\\vspace{4pt}\n'
+
+
+def _subhead(text: str) -> str:
+    return '\\vspace{5pt}{\\textcolor{BOBlue}{\\scriptsize\\bfseries ' + _tex(text.upper()) + '}}\\par\n'
 
 
 def _rule() -> str:
