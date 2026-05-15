@@ -42,12 +42,28 @@ on:
 
 permissions:
   contents: write
+  actions: read
+
+concurrency:
+  group: gen-rpt-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   generate-report:
-    if: github.event_name != 'push' || !contains(github.event.head_commit.message, 'Add generated deep research report')
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Add generated deep research report')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 40
+    env:
+      REPORT_PAGE_FORMAT: A4
+      MAX_AI_SECTION_IMAGES: 12
+      AI_IMAGE_TIMEOUT: 45
+      AI_IMAGE_RETRIES: 3
+      SHOW_FALLBACK_IMAGES: true
+      TOPIC_INPUT: ${{ inputs.topic || '' }}
+      SLUG_INPUT: ${{ inputs.slug || '' }}
+      LANGUAGE_INPUT: ${{ inputs.language || '' }}
+      TARGET_LENGTH_INPUT: ${{ inputs.target_length || '' }}
+      MODEL_INPUT: ${{ inputs.model || '' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -75,7 +91,6 @@ jobs:
 
       - name: Run smoke test
         env:
-          REPORT_PAGE_FORMAT: A4
           DISABLE_AI_IMAGES: true
         run: |
           python tests/smoke_test_pipeline.py
@@ -92,17 +107,14 @@ jobs:
       - name: Generate report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          TARGET_LENGTH: ${{ github.event.inputs.target_length }}
-          REPORT_PAGE_FORMAT: A4
-          MAX_AI_SECTION_IMAGES: 12
-          AI_IMAGE_TIMEOUT: 45
-          AI_IMAGE_RETRIES: 3
-          SHOW_FALLBACK_IMAGES: true
         run: |
-          TOPIC="${{ github.event.inputs.topic }}"
-          SLUG="${{ github.event.inputs.slug }}"
-          LANGUAGE="${{ github.event.inputs.language }}"
-          MODEL="${{ github.event.inputs.model }}"
+          set -euo pipefail
+          TOPIC="$TOPIC_INPUT"
+          SLUG="$SLUG_INPUT"
+          LANGUAGE="$LANGUAGE_INPUT"
+          MODEL="$MODEL_INPUT"
+          TARGET_LENGTH="$TARGET_LENGTH_INPUT"
+
           if [ -z "$TOPIC" ]; then
             TOPIC="Nuclear fusion commercialization outlook and strategic implications"
           fi
@@ -112,10 +124,11 @@ jobs:
           if [ -z "$MODEL" ]; then
             MODEL="deepseek-chat"
           fi
-          if [ "${{ github.event_name }}" = "push" ] && [ -z "$SLUG" ]; then
-            SHORT_SHA="$(echo "${{ github.sha }}" | cut -c1-7)"
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ -z "$SLUG" ]; then
+            SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
             SLUG="auto-smoke-nuclear-fusion-${SHORT_SHA}"
           fi
+
           EXTRA_ARGS=""
           if [ -n "$TARGET_LENGTH" ]; then
             EXTRA_ARGS="$EXTRA_ARGS --target-length $TARGET_LENGTH"
@@ -130,11 +143,13 @@ jobs:
 
       - name: Commit generated report back to repo
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain reports)" ]; then
             git add reports
             git commit -m "Add generated deep research report"
+            git pull --rebase origin main
             git push
           else
             echo "No report changes to commit"
