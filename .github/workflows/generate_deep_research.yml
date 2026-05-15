@@ -112,6 +112,10 @@ jobs:
           if [ -z "$MODEL" ]; then
             MODEL="deepseek-chat"
           fi
+          if [ "${{ github.event_name }}" = "push" ] && [ -z "$SLUG" ]; then
+            SHORT_SHA="$(echo "${{ github.sha }}" | cut -c1-7)"
+            SLUG="auto-smoke-nuclear-fusion-${SHORT_SHA}"
+          fi
           EXTRA_ARGS=""
           if [ -n "$TARGET_LENGTH" ]; then
             EXTRA_ARGS="$EXTRA_ARGS --target-length $TARGET_LENGTH"
