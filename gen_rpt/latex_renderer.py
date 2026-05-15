@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import shutil
 import subprocess
+import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -17,7 +18,7 @@ HEADER = r'''
 \usepackage{array}
 \usepackage{fancyhdr}
 \usepackage{needspace}
-\defaultfontfeatures{Ligatures=TeX}
+\defaultfontfeatures{Ligatures=NoCommon}
 \IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
 \definecolor{BOBlue}{HTML}{0055A4}
 \definecolor{BOBright}{HTML}{3273F6}
@@ -26,9 +27,9 @@ HEADER = r'''
 \definecolor{BOLine}{HTML}{DCE3EA}
 \definecolor{BOLight}{HTML}{F4F8FC}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{4.0pt}
+\setlength{\parskip}{4.2pt}
 \setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.16}
 \hyphenpenalty=9000
 \exhyphenpenalty=9000
 \emergencystretch=2em
@@ -122,7 +123,7 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     title_raw = _strip_number_prefix(section.get('title', f'Section {idx}'))
     title = _tex(title_raw)
     lead_raw = str(section.get('lead', '') or '').strip()
-    lead = _tex(_shorten(lead_raw, 270))
+    lead = _tex(_shorten(lead_raw, 320))
     paras = _paras(section)
     visual = _image_block(_resolve_image(section, assets, idx), '64mm', '45mm')
     chart_path = _resolve_chart(assets, idx)
@@ -132,13 +133,39 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
         chapter += '{\\textcolor{BOBlue}{\\normalsize ' + lead + '}}\\par\\vspace{3pt}\n'
     chapter += '\\begin{minipage}[t]{0.58\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + _para(paras[2]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{5pt}\n'
-    chapter += _para(paras[3]) + _para(paras[4])
+    for paragraph in paras[3:6]:
+        chapter += _para(paragraph)
     if chart:
         chapter += '\\vspace{5pt}\n' + chart + '\\vspace{4pt}\n'
-    for paragraph in paras[5:12]:
-        chapter += _para(paragraph)
+    chapter += _subsection_blocks(section, paras[6:])
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
+
+
+def _subsection_blocks(section: Dict[str, Any], fallback_paras: List[str]) -> str:
+    blocks = []
+    seen = set()
+    for subsection in section.get('subsections', []) or []:
+        if not isinstance(subsection, dict):
+            continue
+        title = _strip_number_prefix(subsection.get('title', ''))
+        paras = [_normalize_punctuation(str(x).strip()) for x in subsection.get('paragraphs', []) if str(x).strip()]
+        paras = [p for p in paras if p.lower() not in seen]
+        for p in paras:
+            seen.add(p.lower())
+        if not paras:
+            continue
+        if title and not _is_generic_title(title):
+            blocks.append(_subhead(title))
+        for p in paras[:5]:
+            blocks.append(_para(_tex(p)))
+    if not blocks:
+        blocks.extend(_para(p) for p in fallback_paras[:7])
+    return ''.join(blocks)
+
+
+def _subhead(text: str) -> str:
+    return '\\vspace{4pt}{\\color{BOBlue}\\sffamily\\bfseries\\small ' + _tex(text) + '}\\par\\vspace{1pt}\n'
 
 
 def _disclaimer_page(refs: List[Any]) -> str:
@@ -157,27 +184,53 @@ def _disclaimer_page(refs: List[Any]) -> str:
 
 
 def _repair_sections(report: Dict[str, Any], sections: List[Dict[str, Any]], topic: str, summary: List[str]) -> List[Dict[str, Any]]:
-    title = str(report.get('report_title') or topic)
+    report_title = str(report.get('report_title') or topic)
     if not sections:
-        sections = [{'title': title, 'paragraphs': []}]
+        sections = [{'title': report_title, 'paragraphs': []}]
     repaired: List[Dict[str, Any]] = []
     for idx, original in enumerate(sections, start=1):
         section = dict(original)
         current_title = _strip_number_prefix(section.get('title', ''))
         if _is_generic_title(current_title):
-            current_title = _derive_title(idx, title, summary)
+            current_title = _derive_title(idx, report_title, summary)
             section['title'] = current_title
         lead = str(section.get('lead') or '').strip()
-        if not lead or _is_generic_title(lead) or lead.lower() == current_title.lower():
-            section['lead'] = _derive_lead(idx, current_title, title, summary)
+        if not lead or _is_generic_title(lead) or _normalize_punctuation(lead).lower() == _normalize_punctuation(current_title).lower():
+            section['lead'] = _derive_lead(idx, current_title, report_title, summary)
         paragraphs = [str(x).strip() for x in section.get('paragraphs', []) if str(x).strip()]
         if _paragraphs_are_weak(paragraphs):
-            paragraphs = _generated_paragraphs(idx, current_title, title, summary)
-        elif len(paragraphs) < 8:
-            paragraphs = paragraphs + _generated_paragraphs(idx, current_title, title, summary)[: 8 - len(paragraphs)]
+            paragraphs = _generated_paragraphs(idx, current_title, report_title, summary)
+        elif len(paragraphs) < 10:
+            paragraphs = _dedupe(paragraphs + _generated_paragraphs(idx, current_title, report_title, summary))[:10]
+        else:
+            paragraphs = _dedupe(paragraphs)
         section['paragraphs'] = [_normalize_punctuation(p) for p in paragraphs[:12]]
         repaired.append(section)
-    return repaired
+    return _merge_sections(repaired, max_sections=6, report_title=report_title, summary=summary)
+
+
+def _merge_sections(sections: List[Dict[str, Any]], max_sections: int, report_title: str, summary: List[str]) -> List[Dict[str, Any]]:
+    if len(sections) <= max_sections:
+        return sections
+    group_size = (len(sections) + max_sections - 1) // max_sections
+    merged: List[Dict[str, Any]] = []
+    for start in range(0, len(sections), group_size):
+        group = sections[start:start + group_size]
+        idx = len(merged) + 1
+        primary = group[0]
+        merged_title = primary.get('title') or _derive_title(idx, report_title, summary)
+        merged_lead = primary.get('lead') or _derive_lead(idx, merged_title, report_title, summary)
+        paragraphs: List[str] = []
+        subsections: List[Dict[str, Any]] = []
+        for item in group:
+            item_title = _strip_number_prefix(item.get('title', ''))
+            item_paras = _dedupe([str(x) for x in item.get('paragraphs', []) if str(x).strip()])
+            paragraphs.extend(item_paras[:5])
+            if item_title and not _is_generic_title(item_title):
+                subsections.append({'title': item_title, 'paragraphs': item_paras[:6]})
+        paragraphs = _dedupe(paragraphs + _generated_paragraphs(idx, merged_title, report_title, summary))[:14]
+        merged.append({'id': primary.get('id', f'section-{idx}'), 'title': merged_title, 'lead': merged_lead, 'paragraphs': paragraphs, 'subsections': subsections[:4], 'visual_hint': primary.get('visual_hint', f'image-{idx}')})
+    return merged[:max_sections]
 
 
 def _derive_title(idx: int, report_title: str, summary: List[str]) -> str:
@@ -191,8 +244,6 @@ def _derive_title(idx: int, report_title: str, summary: List[str]) -> str:
         'Fuel, materials and regulation remain the constraints that can reset timing',
         'Strategic positioning should focus on options, partnerships and milestone discipline',
         'Winners will be defined by execution credibility rather than technology narratives',
-        'Management should treat the market as a staged option rather than a single bet',
-        'The next decade will decide whether fusion becomes infrastructure or remains optionality',
     ]
     return fallback[(idx - 1) % len(fallback)]
 
@@ -208,7 +259,7 @@ def _title_from_sentence(text: str) -> str:
 
 def _derive_lead(idx: int, title: str, report_title: str, summary: List[str]) -> str:
     if idx - 1 < len(summary):
-        return _shorten(summary[idx - 1], 260)
+        return _shorten(summary[idx - 1], 300)
     return 'The central question is how quickly the market can convert technical progress into bankable deployment evidence.'
 
 
@@ -247,6 +298,21 @@ def _is_generic_title(text: str) -> bool:
     return bool(re.match(r'^(section|chapter)\s*\d*$', cleaned)) or cleaned in {'section', 'chapter', 'executive priorities and implications'}
 
 
+def _dedupe(values: List[str]) -> List[str]:
+    result: List[str] = []
+    seen = set()
+    for value in values:
+        normalized = _normalize_punctuation(str(value).strip())
+        if not normalized:
+            continue
+        key = re.sub(r'\W+', '', normalized.lower())[:180]
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(normalized)
+    return result
+
+
 def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
     for item in summary:
         cleaned = _normalize_punctuation(str(item or '').strip())
@@ -262,13 +328,12 @@ def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
 
 def _paras(section: Dict[str, Any]) -> List[str]:
     raw = [str(x) for x in section.get('paragraphs', []) if str(x).strip()]
-    lead = str(section.get('lead', '') or '').strip()
     title = _strip_number_prefix(section.get('title', 'the issue'))
-    if lead and _normalize_punctuation(lead).lower() != _normalize_punctuation(title).lower():
-        raw.insert(0, lead)
-    expansions = _generated_paragraphs(1, title, title, [lead or title])
+    expansions = _generated_paragraphs(1, title, title, [section.get('lead') or title])
+    raw = _dedupe(raw)
     while len(raw) < 12:
         raw.append(expansions[(len(raw) - 1) % len(expansions)])
+        raw = _dedupe(raw)
     return [_tex(x) for x in raw[:12]]
 
 
@@ -347,13 +412,17 @@ def _shorten(value: Any, max_chars: int) -> str:
 
 
 def _normalize_punctuation(text: str) -> str:
-    replacements = {
-        '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"', '\u2032': "'", '\u2033': '"',
-        '\uff02': '"', '\uff07': "'", '\uff0c': ',', '\uff0e': '.', '\uff1a': ':', '\uff1b': ';',
-        '\uff08': '(', '\uff09': ')', '\u2013': '-', '\u2014': '-', '\u00a0': ' ', '\u2011': '-', '\u2010': '-', '\u2012': '-',
+    text = unicodedata.normalize('NFKC', str(text or ''))
+    translation = {
+        0x2018: "'", 0x2019: "'", 0x201A: "'", 0x201B: "'", 0x2032: "'", 0xFF07: "'",
+        0x201C: '"', 0x201D: '"', 0x201E: '"', 0x201F: '"', 0x2033: '"', 0xFF02: '"',
+        0x2010: '-', 0x2011: '-', 0x2012: '-', 0x2013: '-', 0x2014: '-', 0x2212: '-',
+        0x00A0: ' ', 0x202F: ' ', 0x3000: ' ', 0xFF0C: ',', 0xFF0E: '.', 0xFF1A: ':', 0xFF1B: ';', 0xFF08: '(', 0xFF09: ')',
     }
-    for src, dst in replacements.items():
-        text = text.replace(src, dst)
+    text = ''.join(translation.get(ord(ch), ch) for ch in text)
+    text = re.sub(r"([A-Za-z])\s+'\s+s\b", r"\1's", text)
+    text = re.sub(r"\b([A-Za-z]+n)\s+'\s+t\b", r"\1't", text)
+    text = re.sub(r"\s+", ' ', text).strip()
     return text
 
 
