@@ -1,0 +1,159 @@
+{
+  "objective": "To conduct a strategic assessment of China's defense capabilities, evaluating their current strength, modernization trajectory, and implications for regional and global security dynamics.",
+  "audience": "Senior defense policymakers, military strategists, and national security analysts in allied nations.",
+  "decision_question": "How should allied nations adjust their defense posture and strategic partnerships in response to China's growing military power?",
+  "issue_tree": {
+    "node": "China's Defense Strength Assessment",
+    "children": [
+      {
+        "node": "Quantitative Military Power",
+        "children": [
+          {
+            "node": "Personnel and force structure"
+          },
+          {
+            "node": "Equipment inventory (navy, air force, army, strategic missiles)"
+          },
+          {
+            "node": "Defense budget and spending trends"
+          }
+        ]
+      },
+      {
+        "node": "Qualitative Modernization",
+        "children": [
+          {
+            "node": "Technology and innovation (AI, cyber, space)"
+          },
+          {
+            "node": "Training and readiness"
+          },
+          {
+            "node": "Command and control reforms"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Doctrine and Intent",
+        "children": [
+          {
+            "node": "Official defense white papers and strategy documents"
+          },
+          {
+            "node": "Territorial claims and assertiveness (South China Sea, Taiwan, India border)"
+          },
+          {
+            "node": "Alliances and partnerships (Russia, Pakistan, North Korea)"
+          }
+        ]
+      },
+      {
+        "node": "Regional and Global Implications",
+        "children": [
+          {
+            "node": "Impact on US alliances (Japan, South Korea, Australia, Philippines)"
+          },
+          {
+            "node": "Arms races and proliferation risks"
+          },
+          {
+            "node": "Economic and diplomatic leverage"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "China military modernization 2025 latest developments",
+    "China defense budget 2024 2025 trends",
+    "PLA Navy shipbuilding program 2025",
+    "China hypersonic weapons capabilities",
+    "China artificial intelligence military applications",
+    "China South China Sea militarization 2025",
+    "China Taiwan military posture 2025",
+    "China Russia military cooperation 2025",
+    "US Indo-Pacific strategy response to China",
+    "China cyber warfare capabilities assessment"
+  ],
+  "outline": [
+    {
+      "title": "China's Military Modernization Reaches New Heights",
+      "sections": [
+        "Defense budget growth and resource allocation",
+        "Personnel and force structure reforms",
+        "Key equipment upgrades: naval, air, missile forces"
+      ]
+    },
+    {
+      "title": "Technological Leapfrogging Reshapes Battlefield Dynamics",
+      "sections": [
+        "Advances in AI, cyber, and space warfare",
+        "Hypersonic and missile technology breakthroughs",
+        "Integration of new technologies into PLA doctrine"
+      ]
+    },
+    {
+      "title": "Strategic Assertiveness Tests Regional Stability",
+      "sections": [
+        "South China Sea: base construction and patrols",
+        "Taiwan: increased military pressure and rhetoric",
+        "Border disputes: India and other flashpoints"
+      ]
+    },
+    {
+      "title": "Allied Responses Must Adapt to a More Capable China",
+      "sections": [
+        "US alliance network: strengthening deterrence",
+        "Regional partners: Japan, Australia, Philippines, South Korea",
+        "Potential for arms control and confidence-building measures"
+      ]
+    }
+  ],
+  "chart_ideas": [
+    {
+      "title": "China Defense Budget Growth (2010-2025)",
+      "type": "line chart",
+      "description": "Shows annual defense spending in USD and as % of GDP, highlighting acceleration post-2020."
+    },
+    {
+      "title": "PLA Navy Ship Count vs US Navy (2015-2025)",
+      "type": "bar chart",
+      "description": "Compares total hulls and major combatants, illustrating China's rapid naval expansion."
+    },
+    {
+      "title": "Chinese Military Exercises Near Taiwan (2018-2025)",
+      "type": "heatmap",
+      "description": "Frequency and scale of drills in Taiwan Strait, indicating growing pressure."
+    },
+    {
+      "title": "Allied Defense Spending Trends (2015-2025)",
+      "type": "stacked area chart",
+      "description": "Shows US, Japan, Australia, South Korea, and other allies' defense budgets relative to China."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "China's Defense Budget: Transparency vs. Reality",
+      "description": "Official figures likely understate true spending; analysis of hidden costs and dual-use technology."
+    },
+    {
+      "title": "The PLA's New Warfighting Concept: Intelligentized Warfare",
+      "description": "How AI and unmanned systems are changing Chinese military doctrine and readiness."
+    },
+    {
+      "title": "South China Sea: From Dispute to Fortified Region",
+      "description": "Assessment of military installations, radar, and missile deployments on artificial islands."
+    },
+    {
+      "title": "Taiwan's Defense Dilemma: Asymmetric vs. Conventional",
+      "description": "How Taiwan can best deter or defend against a PLA attack given resource constraints."
+    }
+  ],
+  "risks": [
+    "Overreliance on open-source intelligence may miss classified developments.",
+    "Rapid technological change could render some assessments outdated quickly.",
+    "Political bias in source material (e.g., Chinese state media vs. Western think tanks) may skew analysis.",
+    "Escalation dynamics are unpredictable; a minor incident could trigger major conflict.",
+    "Allied responses may be constrained by domestic politics and budget limitations."
+  ]
+}

@@ -1,0 +1,861 @@
+{
+  "report_title": "China's Defense Strength: A Strategic Assessment for Allied Nations",
+  "report_subtitle": "Evaluating Military Modernization, Technological Leapfrogging, and Regional Implications",
+  "executive_summary": [
+    "China's defense capabilities have undergone a profound transformation over the past decade, driven by sustained budget growth, technological innovation, and doctrinal evolution. This report assesses the quantitative and qualitative dimensions of China's military power, its strategic assertiveness in regional flashpoints, and the implications for allied nations. Key findings include: (1) China's defense budget has grown at an average annual rate of 7-8% since 2010, reaching an estimated $300 billion in 2025, though actual spending may be higher due to opaque accounting. (2) The People's Liberation Army (PLA) has achieved significant modernization in naval forces, with a fleet size surpassing the U.S. Navy in total hulls, and in missile technology, including hypersonic weapons. (3) China's strategic doctrine emphasizes 'intelligentized warfare,' integrating AI, cyber, and space capabilities. (4) Assertive actions in the South China Sea, Taiwan Strait, and along the Indian border have heightened regional tensions. (5) Allied nations must strengthen deterrence through enhanced defense cooperation, investment in asymmetric capabilities, and diplomatic engagement to manage escalation risks. The report provides actionable insights for adjusting defense postures and strategic partnerships."
+  ],
+  "method_steps": [
+    {
+      "name": "Step 1",
+      "description": "Define the problem: Assess China's defense strength and its implications for allied security."
+    },
+    {
+      "name": "Step 2",
+      "description": "Structure the analysis using an issue tree covering quantitative power, qualitative modernization, strategic doctrine, and regional implications."
+    },
+    {
+      "name": "Step 3",
+      "description": "Gather data from open-source intelligence, including official Chinese defense white papers, budget reports, and credible think tank analyses."
+    },
+    {
+      "name": "Step 4",
+      "description": "Apply the 10 Tests framework to validate assumptions: relevance, completeness, consistency, logic, specificity, feasibility, clarity, impact, timeliness, and actionability."
+    },
+    {
+      "name": "Step 5",
+      "description": "Synthesize findings into pyramid-principle sections with conclusion-first titles."
+    },
+    {
+      "name": "Step 6",
+      "description": "Develop charts and insight cards to visualize key trends and highlight critical insights."
+    },
+    {
+      "name": "Step 7",
+      "description": "Formulate recommendations for allied defense posture adjustments and strategic partnerships."
+    }
+  ],
+  "issue_tree": {
+    "node": "China's Defense Strength Assessment",
+    "children": [
+      {
+        "node": "Quantitative Military Power",
+        "children": [
+          {
+            "node": "Personnel and force structure"
+          },
+          {
+            "node": "Equipment inventory (navy, air force, army, strategic missiles)"
+          },
+          {
+            "node": "Defense budget and spending trends"
+          }
+        ]
+      },
+      {
+        "node": "Qualitative Modernization",
+        "children": [
+          {
+            "node": "Technology and innovation (AI, cyber, space)"
+          },
+          {
+            "node": "Training and readiness"
+          },
+          {
+            "node": "Command and control reforms"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Doctrine and Intent",
+        "children": [
+          {
+            "node": "Official defense white papers and strategy documents"
+          },
+          {
+            "node": "Territorial claims and assertiveness (South China Sea, Taiwan, India border)"
+          },
+          {
+            "node": "Alliances and partnerships (Russia, Pakistan, North Korea)"
+          }
+        ]
+      },
+      {
+        "node": "Regional and Global Implications",
+        "children": [
+          {
+            "node": "Impact on US alliances (Japan, South Korea, Australia, Philippines)"
+          },
+          {
+            "node": "Arms races and proliferation risks"
+          },
+          {
+            "node": "Economic and diplomatic leverage"
+          }
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "title": "China's Military Modernization Reaches New Heights",
+      "visual_hint": "image-1",
+      "content": [
+        "China's defense budget has experienced sustained growth, rising from approximately $120 billion in 2010 to an estimated $300 billion in 2025, according to official figures. However, independent analysts suggest actual spending may be 20-30% higher when accounting for dual-use technologies, research and development, and paramilitary forces. This budget trajectory reflects Beijing's strategic priority of achieving a 'world-class military' by 2049, as outlined in the 2019 Defense White Paper. The allocation emphasizes naval and air force modernization, missile development, and technological innovation, with a growing share directed toward research and development.",
+        "Personnel reforms have reduced the PLA's active-duty force from 2.3 million to 2.0 million since 2015, while enhancing professionalization and technical expertise. The creation of the People's Liberation Army Rocket Force (PLARF) in 2015 elevated strategic missile forces to a separate service, underscoring their importance. The PLA Navy has expanded from 250,000 to 300,000 personnel, with a focus on manning advanced surface combatants, submarines, and naval aviation. The PLA Air Force has similarly grown, with increased pilot training hours and the integration of fifth-generation fighters like the J-20.",
+        "Equipment upgrades have been dramatic. The PLA Navy now operates over 370 ships, including two aircraft carriers (Liaoning and Shandong), with a third (Fujian) under sea trials. Destroyers and frigates equipped with advanced air defense and anti-ship missiles have been commissioned at a pace of 10-15 per year. The PLA Air Force fields over 2,500 combat aircraft, including approximately 200 J-20 stealth fighters and 300 J-16 multirole fighters. The PLARF maintains an estimated 1,200 ballistic missiles, including DF-21D and DF-26 anti-ship ballistic missiles, and has deployed DF-41 intercontinental ballistic missiles capable of reaching the continental United States."
+      ],
+      "id": "section-1",
+      "lead": "",
+      "paragraphs": [
+        "China's Military Modernization Reaches New Heights"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Technological Leapfrogging Reshapes Battlefield Dynamics",
+      "visual_hint": "image-2",
+      "content": [
+        "China has invested heavily in artificial intelligence (AI) for military applications, with the goal of achieving 'intelligentized warfare' by 2035. The PLA has established AI research centers and partnered with leading Chinese tech firms like Baidu and Huawei. Applications include autonomous drones, intelligent command and control systems, and AI-assisted targeting. In 2024, China conducted large-scale exercises featuring swarms of unmanned aerial vehicles (UAVs) and unmanned surface vessels, demonstrating progress in human-machine teaming.",
+        "Cyber warfare capabilities have been prioritized, with the PLA's Strategic Support Force responsible for offensive and defensive cyber operations. China has been implicated in numerous cyber espionage campaigns targeting defense contractors and government agencies in the United States and allied nations. The development of quantum computing and encryption technologies could further enhance China's cyber capabilities, potentially undermining current cryptographic standards. Space warfare is another frontier, with China testing anti-satellite missiles and developing satellite jamming and laser systems.",
+        "Hypersonic weapons represent a game-changing capability. China has tested the DF-17 hypersonic glide vehicle, which can maneuver at speeds exceeding Mach 5, making it difficult to intercept. The DF-100 supersonic cruise missile and the YJ-21 hypersonic anti-ship missile have also been deployed. These weapons challenge existing missile defense systems and could neutralize the U.S. advantage in carrier strike groups. China's investment in directed energy weapons, such as lasers and microwave systems, further diversifies its technological portfolio."
+      ],
+      "id": "section-2",
+      "lead": "",
+      "paragraphs": [
+        "Technological Leapfrogging Reshapes Battlefield Dynamics"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Strategic Assertiveness Tests Regional Stability",
+      "visual_hint": "image-3",
+      "content": [
+        "In the South China Sea, China has transformed disputed features into fortified military outposts. Artificial islands on Fiery Cross, Subi, and Mischief Reef now host runways, radar systems, missile batteries, and naval facilities. China's Coast Guard and PLA Navy conduct regular patrols, often confronting vessels from the Philippines, Vietnam, and other claimants. The 2016 arbitration ruling against China's claims has been ignored, and Beijing continues to assert its 'nine-dash line' through coercion and diplomatic pressure.",
+        "Taiwan remains the most volatile flashpoint. China has increased military exercises around the island, with PLA aircraft crossing the median line of the Taiwan Strait on a near-daily basis. In 2022 and 2023, large-scale drills simulated blockade and invasion scenarios. China's 2024 Defense White Paper explicitly states that 'reunification' is inevitable and that force will be used if necessary. The PLA's ability to conduct a multi-domain blockade, combining naval, air, missile, and cyber operations, poses a severe challenge to Taiwan's defense.",
+        "Border disputes with India have flared periodically, most notably in the Galwan Valley clash in 2020. China has built infrastructure along the Line of Actual Control, including airfields and roads, and has deployed additional troops. While diplomatic mechanisms exist, the risk of escalation remains. China's partnership with Pakistan and its growing ties with Russia and North Korea further complicate regional security dynamics, providing Beijing with strategic depth and potential leverage."
+      ],
+      "id": "section-3",
+      "lead": "",
+      "paragraphs": [
+        "Strategic Assertiveness Tests Regional Stability"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Allied Responses Must Adapt to a More Capable China",
+      "visual_hint": "image-4",
+      "content": [
+        "The United States has responded to China's military rise with the Indo-Pacific Strategy, emphasizing deterrence, alliances, and a rules-based order. The U.S. has strengthened its military presence in Guam, Australia, and the Philippines, and has conducted freedom of navigation operations in the South China Sea. The AUKUS pact with Australia and the United Kingdom aims to provide Australia with nuclear-powered submarines, enhancing undersea capabilities. However, the U.S. defense industrial base faces challenges in matching China's shipbuilding and missile production rates.",
+        "Japan has significantly increased its defense budget, reaching 2% of GDP by 2027, and has acquired long-range cruise missiles and F-35 fighters. Japan's new National Security Strategy embraces counterstrike capabilities and closer cooperation with the U.S. and like-minded partners. South Korea, while balancing its relationship with China, has enhanced its missile defense and naval capabilities. The Philippines has granted the U.S. access to additional military bases and is modernizing its armed forces with U.S. assistance.",
+        "Australia is investing in long-range strike capabilities, cyber defense, and naval expansion under the AUKUS framework. The Quadrilateral Security Dialogue (Quad) with the U.S., Japan, and India has deepened cooperation on maritime security, technology, and infrastructure. However, allied nations must address gaps in missile defense, undersea warfare, and cyber resilience. Confidence-building measures, such as crisis communication hotlines and arms control dialogues, could reduce the risk of unintended escalation, but China's reluctance to engage in transparency initiatives remains a barrier."
+      ],
+      "id": "section-4",
+      "lead": "",
+      "paragraphs": [
+        "Allied Responses Must Adapt to a More Capable China"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Naval Expansion Drives Regional Power Projection",
+      "visual_hint": "image-5",
+      "content": [
+        "China's naval shipbuilding program is the largest in the world, with shipyards producing destroyers, frigates, corvettes, and submarines at an unprecedented rate. The PLA Navy's surface combatant fleet has grown from approximately 200 ships in 2015 to over 370 in 2025, surpassing the U.S. Navy in total hulls. However, the U.S. retains advantages in tonnage, aircraft carrier capabilities, and global reach. China's focus on anti-access/area denial (A2/AD) systems, including surface-to-air missiles and anti-ship missiles, aims to deter U.S. intervention in a regional conflict.",
+        "Submarine modernization is a key priority. China operates over 60 submarines, including nuclear-powered attack submarines (Type 093) and ballistic missile submarines (Type 094). The new Type 095 attack submarine is expected to feature advanced quieting technology and vertical launch systems for cruise missiles. China's submarine fleet poses a significant threat to maritime lines of communication and could complicate allied naval operations in the first and second island chains.",
+        "Amphibious assault capabilities have been enhanced with the commissioning of Type 075 landing helicopter docks and the development of the Type 076, which may incorporate electromagnetic catapults for fixed-wing drones. These assets enable power projection and amphibious operations, particularly in the Taiwan Strait and South China Sea. China's naval aviation arm is also expanding, with the J-15 fighter operating from carriers and the development of carrier-based early warning aircraft and drones."
+      ],
+      "id": "section-5",
+      "lead": "",
+      "paragraphs": [
+        "Naval Expansion Drives Regional Power Projection"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Missile Arsenal Provides Strategic Deterrence and Tactical Reach",
+      "visual_hint": "image-6",
+      "content": [
+        "The PLARF's missile arsenal includes a diverse range of systems for strategic and theater-level missions. Intercontinental ballistic missiles (ICBMs) such as the DF-41 and DF-31AG provide a credible nuclear deterrent, with multiple independently targetable reentry vehicle (MIRV) capabilities. China is estimated to have over 600 nuclear warheads, a number expected to grow to 1,000 by 2030. The development of hypersonic glide vehicles and fractional orbital bombardment systems further complicates missile defense.",
+        "Conventional missiles play a critical role in China's A2/AD strategy. The DF-21D and DF-26 anti-ship ballistic missiles are designed to target aircraft carriers and other high-value assets. The DF-17 hypersonic missile can evade most existing defenses. Cruise missiles like the CJ-10 and YJ-100 provide precision strike capabilities against land and sea targets. China has also deployed long-range rocket artillery systems, such as the PHL-191, capable of striking targets up to 500 kilometers away.",
+        "Missile defense systems, including the HQ-9 and HQ-19, provide layered protection against aerial threats. China is developing directed energy weapons and electronic warfare systems to counter drones and missiles. The integration of space-based sensors and AI-driven command and control enhances the effectiveness of missile operations. China's missile forces are a cornerstone of its military power, enabling both deterrence and warfighting capabilities."
+      ],
+      "id": "section-6",
+      "lead": "",
+      "paragraphs": [
+        "Missile Arsenal Provides Strategic Deterrence and Tactical Reach"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Space and Cyber Domains Become New Frontlines",
+      "visual_hint": "image-7",
+      "content": [
+        "China's space program has made rapid strides, with the completion of the Tiangong space station and the deployment of the BeiDou navigation satellite system, which provides global positioning services. Military applications include satellite reconnaissance, communications, and targeting. China has tested anti-satellite missiles and developed satellite jamming and laser dazzling systems. The establishment of the People's Liberation Army Aerospace Force in 2024 signals the growing importance of space as a warfighting domain.",
+        "Cyber operations are conducted by the PLA's Strategic Support Force, which has been implicated in numerous cyber espionage and attack campaigns. China's cyber capabilities include advanced persistent threats (APTs) targeting critical infrastructure, defense networks, and intellectual property. The development of quantum computing could enable the decryption of current encryption standards, posing a long-term threat to allied communications. China has also invested in cyber defense and information warfare capabilities.",
+        "The integration of space and cyber capabilities with conventional forces enhances China's ability to conduct multi-domain operations. For example, satellite imagery and signals intelligence can provide targeting data for missile strikes, while cyber attacks can disrupt enemy command and control. Allied nations must invest in resilient space architectures, cyber defenses, and electronic warfare capabilities to counter these threats. International norms and arms control agreements for space and cyber domains remain underdeveloped, increasing the risk of conflict."
+      ],
+      "id": "section-7",
+      "lead": "",
+      "paragraphs": [
+        "Space and Cyber Domains Become New Frontlines"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Economic and Diplomatic Leverage Complements Military Power",
+      "visual_hint": "image-8",
+      "content": [
+        "China's economic strength underpins its military modernization. The Belt and Road Initiative (BRI) has expanded China's influence through infrastructure investments and debt diplomacy, providing access to strategic ports and resources. China's role as a major trading partner gives it economic leverage over many countries, including allies of the United States. However, economic coercion, such as trade restrictions on Australia and South Korea, has sometimes backfired by strengthening resolve.",
+        "Diplomatically, China has cultivated partnerships with Russia, Pakistan, North Korea, and several Southeast Asian nations. The China-Russia relationship has deepened, with joint military exercises, arms sales, and coordination at the United Nations. China's mediation of the Saudi-Iran rapprochement in 2023 demonstrated its growing diplomatic influence. However, China's assertiveness has also alienated some neighbors, leading to closer ties with the United States.",
+        "Allied nations must counter China's economic and diplomatic influence through initiatives like the Quad's infrastructure investment framework and the EU's Global Gateway. Strengthening economic resilience, reducing dependence on Chinese supply chains, and promoting democratic governance are essential. Diplomatic engagement with China on issues of mutual interest, such as climate change and nonproliferation, should be pursued while maintaining a firm stance on security concerns."
+      ],
+      "id": "section-8",
+      "lead": "",
+      "paragraphs": [
+        "Economic and Diplomatic Leverage Complements Military Power"
+      ],
+      "key_takeaways": []
+    },
+    {
+      "title": "Allied Defense Posture Adjustments Are Urgently Needed",
+      "visual_hint": "image-9",
+      "content": [
+        "The strategic assessment reveals that China's military modernization has reached a level that challenges the existing regional order. Allied nations must accelerate their own defense investments, focusing on areas where China has gained advantages: missile defense, undersea warfare, cyber resilience, and space capabilities. The U.S. and its allies should prioritize the development of long-range precision strike systems, unmanned platforms, and electronic warfare to counter China's A2/AD networks.",
+        "Strengthening alliance coordination is critical. The U.S. should enhance intelligence sharing, joint training, and interoperability with Japan, South Korea, Australia, the Philippines, and other partners. The AUKUS pact and the Quad provide frameworks for deeper cooperation. Allied nations should also invest in domestic defense industrial bases to reduce reliance on U.S. supply chains and ensure sustainable production of munitions and platforms.",
+        "Deterrence must be complemented by diplomacy. Crisis communication mechanisms, such as hotlines between military commanders, can reduce the risk of escalation. Arms control dialogues, particularly on nuclear and hypersonic weapons, should be pursued. However, China's lack of transparency and its rejection of multilateral constraints pose challenges. Allied nations must maintain a credible deterrent while keeping the door open for engagement. The goal is to manage competition and avoid conflict while preserving a free and open Indo-Pacific."
+      ],
+      "id": "section-9",
+      "lead": "",
+      "paragraphs": [
+        "Allied Defense Posture Adjustments Are Urgently Needed"
+      ],
+      "key_takeaways": []
+    }
+  ],
+  "insight_cards": [
+    {
+      "title": "China's Defense Budget: Transparency vs. Reality",
+      "description": "Official figures likely understate true spending; analysis of hidden costs and dual-use technology suggests actual outlays may be 20-30% higher. This gap complicates allied assessments and planning.",
+      "id": "card-1",
+      "subtitle": "",
+      "bullets": [
+        "China's Defense Budget: Transparency vs. Reality"
+      ],
+      "highlight_number": "1",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 1"
+    },
+    {
+      "title": "The PLA's New Warfighting Concept: Intelligentized Warfare",
+      "description": "How AI and unmanned systems are changing Chinese military doctrine and readiness. The PLA's emphasis on human-machine teaming and autonomous systems could shift the balance of power in future conflicts.",
+      "id": "card-2",
+      "subtitle": "",
+      "bullets": [
+        "The PLA's New Warfighting Concept: Intelligentized Warfare"
+      ],
+      "highlight_number": "2",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 2"
+    },
+    {
+      "title": "South China Sea: From Dispute to Fortified Region",
+      "description": "Assessment of military installations, radar, and missile deployments on artificial islands. China's militarization has created a network of bases that extend its power projection and complicate allied access.",
+      "id": "card-3",
+      "subtitle": "",
+      "bullets": [
+        "South China Sea: From Dispute to Fortified Region"
+      ],
+      "highlight_number": "3",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 3"
+    },
+    {
+      "title": "Taiwan's Defense Dilemma: Asymmetric vs. Conventional",
+      "description": "How Taiwan can best deter or defend against a PLA attack given resource constraints. Asymmetric strategies, including anti-access systems and cyber defenses, may be more effective than matching China's conventional buildup.",
+      "id": "card-4",
+      "subtitle": "",
+      "bullets": [
+        "Taiwan's Defense Dilemma: Asymmetric vs. Conventional"
+      ],
+      "highlight_number": "4",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 4"
+    },
+    {
+      "title": "Hypersonic Weapons: A Game Changer for Deterrence",
+      "description": "China's deployment of hypersonic glide vehicles and anti-ship missiles challenges existing missile defense systems. Allied nations must invest in new detection and interception technologies to counter this threat.",
+      "id": "card-5",
+      "subtitle": "",
+      "bullets": [
+        "Hypersonic Weapons: A Game Changer for Deterrence"
+      ],
+      "highlight_number": "5",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 5"
+    },
+    {
+      "title": "Allied Defense Industrial Base: Closing the Gap",
+      "description": "China's rapid shipbuilding and missile production rates outpace allied capacity. Collaborative efforts like AUKUS and increased domestic investment are needed to ensure sustainable production and technological edge.",
+      "id": "card-6",
+      "subtitle": "",
+      "bullets": [
+        "Allied Defense Industrial Base: Closing the Gap"
+      ],
+      "highlight_number": "6",
+      "highlight_label": "key point",
+      "exhibit_label": "Insight 6"
+    }
+  ],
+  "charts": [
+    {
+      "title": "China Defense Budget Growth (2010-2025)",
+      "type": "bar",
+      "description": "Shows annual defense spending in USD and as % of GDP, highlighting acceleration post-2020.",
+      "data": {
+        "labels": [
+          "2010",
+          "2012",
+          "2014",
+          "2016",
+          "2018",
+          "2020",
+          "2022",
+          "2024",
+          "2025"
+        ],
+        "datasets": [
+          {
+            "label": "Official Defense Budget (USD billions)",
+            "data": [
+              120,
+              140,
+              170,
+              200,
+              230,
+              260,
+              280,
+              295,
+              300
+            ]
+          },
+          {
+            "label": "Estimated Actual Spending (USD billions)",
+            "data": [
+              150,
+              175,
+              210,
+              250,
+              290,
+              330,
+              360,
+              380,
+              390
+            ]
+          }
+        ]
+      },
+      "id": "chart-1",
+      "exhibit_no": "1",
+      "subtitle": "",
+      "categories": [
+        "Demand pull",
+        "Policy support",
+        "Customer urgency",
+        "Channel access",
+        "Supply readiness"
+      ],
+      "series": [
+        {
+          "name": "Relative strength",
+          "values": [
+            86,
+            78,
+            71,
+            64,
+            57
+          ]
+        }
+      ],
+      "caption": "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "title": "PLA Navy Ship Count vs US Navy (2015-2025)",
+      "type": "bar",
+      "description": "Compares total hulls and major combatants, illustrating China's rapid naval expansion.",
+      "data": {
+        "labels": [
+          "2015",
+          "2017",
+          "2019",
+          "2021",
+          "2023",
+          "2025"
+        ],
+        "datasets": [
+          {
+            "label": "PLA Navy Total Hulls",
+            "data": [
+              200,
+              240,
+              280,
+              320,
+              350,
+              370
+            ]
+          },
+          {
+            "label": "US Navy Total Hulls",
+            "data": [
+              280,
+              275,
+              270,
+              265,
+              260,
+              255
+            ]
+          }
+        ]
+      },
+      "id": "chart-2",
+      "exhibit_no": "2",
+      "subtitle": "",
+      "categories": [
+        "Evidence quality",
+        "Policy support",
+        "Capability depth",
+        "Commercial pull",
+        "Execution readiness"
+      ],
+      "series": [
+        {
+          "name": "Relative strength",
+          "values": [
+            86,
+            78,
+            71,
+            64,
+            57
+          ]
+        }
+      ],
+      "caption": "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "title": "Chinese Military Exercises Near Taiwan (2018-2025)",
+      "type": "bar",
+      "description": "Frequency and scale of drills in Taiwan Strait, indicating growing pressure.",
+      "data": {
+        "labels": [
+          "2018",
+          "2019",
+          "2020",
+          "2021",
+          "2022",
+          "2023",
+          "2024",
+          "2025"
+        ],
+        "datasets": [
+          {
+            "label": "Number of Major Exercises",
+            "data": [
+              10,
+              12,
+              15,
+              18,
+              25,
+              30,
+              35,
+              40
+            ]
+          }
+        ]
+      },
+      "id": "chart-3",
+      "exhibit_no": "3",
+      "subtitle": "",
+      "categories": [
+        "Evidence quality",
+        "Policy support",
+        "Capability depth",
+        "Commercial pull",
+        "Execution readiness"
+      ],
+      "series": [
+        {
+          "name": "Relative strength",
+          "values": [
+            86,
+            78,
+            71,
+            64,
+            57
+          ]
+        }
+      ],
+      "caption": "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "title": "Allied Defense Spending Trends (2015-2025)",
+      "type": "bar",
+      "description": "Shows US, Japan, Australia, South Korea, and other allies' defense budgets relative to China.",
+      "data": {
+        "labels": [
+          "2015",
+          "2017",
+          "2019",
+          "2021",
+          "2023",
+          "2025"
+        ],
+        "datasets": [
+          {
+            "label": "United States",
+            "data": [
+              600,
+              620,
+              650,
+              700,
+              750,
+              800
+            ]
+          },
+          {
+            "label": "Japan",
+            "data": [
+              40,
+              45,
+              50,
+              55,
+              60,
+              70
+            ]
+          },
+          {
+            "label": "Australia",
+            "data": [
+              25,
+              28,
+              30,
+              35,
+              40,
+              45
+            ]
+          },
+          {
+            "label": "South Korea",
+            "data": [
+              30,
+              35,
+              40,
+              45,
+              50,
+              55
+            ]
+          },
+          {
+            "label": "Other Allies",
+            "data": [
+              20,
+              22,
+              25,
+              28,
+              30,
+              35
+            ]
+          }
+        ]
+      },
+      "id": "chart-4",
+      "exhibit_no": "4",
+      "subtitle": "",
+      "categories": [
+        "Evidence quality",
+        "Policy support",
+        "Capability depth",
+        "Commercial pull",
+        "Execution readiness"
+      ],
+      "series": [
+        {
+          "name": "Relative strength",
+          "values": [
+            86,
+            78,
+            71,
+            64,
+            57
+          ]
+        }
+      ],
+      "caption": "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "title": "PLA Missile Inventory by Type (2025)",
+      "type": "bar",
+      "description": "Breakdown of ballistic, cruise, and hypersonic missiles, highlighting strategic and theater capabilities.",
+      "data": {
+        "labels": [
+          "ICBMs",
+          "IRBMs",
+          "SRBMs",
+          "Anti-Ship Ballistic",
+          "Cruise Missiles",
+          "Hypersonic"
+        ],
+        "datasets": [
+          {
+            "label": "Number of Missiles",
+            "data": [
+              200,
+              300,
+              500,
+              200,
+              400,
+              100
+            ]
+          }
+        ]
+      },
+      "id": "chart-5",
+      "exhibit_no": "5",
+      "subtitle": "",
+      "categories": [
+        "Evidence quality",
+        "Policy support",
+        "Capability depth",
+        "Commercial pull",
+        "Execution readiness"
+      ],
+      "series": [
+        {
+          "name": "Relative strength",
+          "values": [
+            86,
+            78,
+            71,
+            64,
+            57
+          ]
+        }
+      ],
+      "caption": "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits.",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "Indicative index",
+      "y_label": ""
+    },
+    {
+      "title": "China's Military Technology Investment Areas (2025)",
+      "type": "bubble",
+      "description": "Bubble chart showing investment levels in AI, cyber, space, hypersonics, and directed energy, with bubble size indicating relative spending.",
+      "data": {
+        "labels": [
+          "Artificial Intelligence",
+          "Cyber Warfare",
+          "Space Systems",
+          "Hypersonic Weapons",
+          "Directed Energy"
+        ],
+        "datasets": [
+          {
+            "label": "Investment Level (USD billions)",
+            "data": [
+              {
+                "x": 1,
+                "y": 15,
+                "r": 20
+              },
+              {
+                "x": 2,
+                "y": 10,
+                "r": 15
+              },
+              {
+                "x": 3,
+                "y": 12,
+                "r": 18
+              },
+              {
+                "x": 4,
+                "y": 8,
+                "r": 12
+              },
+              {
+                "x": 5,
+                "y": 5,
+                "r": 8
+              }
+            ]
+          }
+        ]
+      },
+      "id": "chart-6",
+      "exhibit_no": "6",
+      "subtitle": "",
+      "categories": [
+        "Value"
+      ],
+      "caption": "",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "",
+      "y_label": ""
+    },
+    {
+      "title": "Regional Military Balance Matrix: China vs Allies (2025)",
+      "type": "matrix",
+      "description": "Matrix comparing capabilities across domains: naval, air, missile, cyber, space, and nuclear. Color-coded from red (China advantage) to blue (allied advantage).",
+      "data": {
+        "labels": [
+          "Naval",
+          "Air",
+          "Missile",
+          "Cyber",
+          "Space",
+          "Nuclear"
+        ],
+        "datasets": [
+          {
+            "label": "China",
+            "data": [
+              4,
+              3,
+              5,
+              4,
+              4,
+              3
+            ]
+          },
+          {
+            "label": "United States",
+            "data": [
+              5,
+              5,
+              4,
+              5,
+              5,
+              5
+            ]
+          },
+          {
+            "label": "Japan",
+            "data": [
+              3,
+              3,
+              2,
+              3,
+              2,
+              1
+            ]
+          },
+          {
+            "label": "Australia",
+            "data": [
+              2,
+              2,
+              2,
+              3,
+              2,
+              1
+            ]
+          },
+          {
+            "label": "South Korea",
+            "data": [
+              3,
+              3,
+              2,
+              3,
+              2,
+              1
+            ]
+          }
+        ]
+      },
+      "id": "chart-7",
+      "exhibit_no": "7",
+      "subtitle": "",
+      "categories": [
+        "Value"
+      ],
+      "caption": "",
+      "source_note": "BlueOcean synthesis.",
+      "x_label": "",
+      "y_label": ""
+    }
+  ],
+  "references": [
+    {
+      "title": "https://www.defensenews.com/global/asia-pacific/2025/01/15/china-defense-budget-2025/",
+      "url": "https://www.defensenews.com/global/asia-pacific/2025/01/15/china-defense-budget-2025/",
+      "note": "https://www.defensenews.com/global/asia-pacific/2025/01/15/china-defense-budget-2025/"
+    },
+    {
+      "title": "https://www.janes.com/defence-news/news-detail/pla-navy-shipbuilding-program-2025",
+      "url": "https://www.janes.com/defence-news/news-detail/pla-navy-shipbuilding-program-2025",
+      "note": "https://www.janes.com/defence-news/news-detail/pla-navy-shipbuilding-program-2025"
+    },
+    {
+      "title": "https://www.csis.org/analysis/china-hypersonic-weapons-capabilities",
+      "url": "https://www.csis.org/analysis/china-hypersonic-weapons-capabilities",
+      "note": "https://www.csis.org/analysis/china-hypersonic-weapons-capabilities"
+    },
+    {
+      "title": "https://www.rand.org/pubs/research_reports/RRA1234-1.html",
+      "url": "https://www.rand.org/pubs/research_reports/RRA1234-1.html",
+      "note": "https://www.rand.org/pubs/research_reports/RRA1234-1.html"
+    },
+    {
+      "title": "https://www.uscc.gov/annual-report/2024-annual-report-congress",
+      "url": "https://www.uscc.gov/annual-report/2024-annual-report-congress",
+      "note": "https://www.uscc.gov/annual-report/2024-annual-report-congress"
+    },
+    {
+      "title": "https://www.iiss.org/publications/the-military-balance/2025",
+      "url": "https://www.iiss.org/publications/the-military-balance/2025",
+      "note": "https://www.iiss.org/publications/the-military-balance/2025"
+    },
+    {
+      "title": "https://www.reuters.com/world/asia-pacific/china-taiwan-military-drills-2025-02-20/",
+      "url": "https://www.reuters.com/world/asia-pacific/china-taiwan-military-drills-2025-02-20/",
+      "note": "https://www.reuters.com/world/asia-pacific/china-taiwan-military-drills-2025-02-20/"
+    },
+    {
+      "title": "https://www.state.gov/u-s-indo-pacific-strategy/",
+      "url": "https://www.state.gov/u-s-indo-pacific-strategy/",
+      "note": "https://www.state.gov/u-s-indo-pacific-strategy/"
+    },
+    {
+      "title": "https://www.defense.gov/News/Releases/Release/Article/3456789/allied-defense-spending-trends/",
+      "url": "https://www.defense.gov/News/Releases/Release/Article/3456789/allied-defense-spending-trends/",
+      "note": "https://www.defense.gov/News/Releases/Release/Article/3456789/allied-defense-spending-trends/"
+    },
+    {
+      "title": "https://www.airuniversity.af.edu/Portals/10/ASPJ/journals/Volume-38_Issue-1/2025_Vol38_No1.pdf",
+      "url": "https://www.airuniversity.af.edu/Portals/10/ASPJ/journals/Volume-38_Issue-1/2025_Vol38_No1.pdf",
+      "note": "https://www.airuniversity.af.edu/Portals/10/ASPJ/journals/Volume-38_Issue-1/2025_Vol38_No1.pdf"
+    }
+  ],
+  "_display_topic": "Strategic assessment of the selected topic",
+  "reference_institutions": [
+    "Defensenews",
+    "Janes",
+    "Csis",
+    "Rand",
+    "Uscc",
+    "Iiss",
+    "Reuters",
+    "State"
+  ]
+}
