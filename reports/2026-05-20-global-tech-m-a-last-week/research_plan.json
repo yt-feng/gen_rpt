@@ -1,0 +1,80 @@
+{
+  "objective": "Provide a comprehensive overview of global technology M&A activity in the past week, highlighting key deals, trends, and strategic implications for stakeholders.",
+  "audience": "Investment bankers, corporate development professionals, private equity investors, and tech executives seeking timely market intelligence.",
+  "decision_question": "What were the most significant global tech M&A deals last week, and what do they signal about current market trends and future opportunities?",
+  "issue_tree": {
+    "Deal_Activity_Overview": {
+      "Total_Deal_Volume_and_Value": "Aggregate number and disclosed value of tech M&A deals closed or announced last week.",
+      "Geographic_Distribution": "Breakdown of deals by region (North America, Europe, Asia-Pacific, Rest of World).",
+      "Sector_Breakdown": "Deals categorized by tech sub-sectors (e.g., software, hardware, AI, cybersecurity, fintech, healthtech)."
+    },
+    "Notable_Deals": {
+      "Largest_Deals": "Top 5 deals by transaction value with buyer, target, deal rationale, and valuation multiples.",
+      "Strategic_Moves": "Deals highlighting consolidation, vertical integration, or entry into new markets/technologies.",
+      "Emerging_Trends": "Patterns such as AI-driven acquisitions, cross-border deals, or SPAC/PE involvement."
+    },
+    "Market_Context": {
+      "Valuation_Trends": "Median EV/Revenue and EV/EBITDA multiples for last week's deals vs. prior periods.",
+      "Regulatory_Environment": "Notable regulatory approvals, challenges, or antitrust reviews announced last week.",
+      "Macroeconomic_Influences": "Impact of interest rates, currency fluctuations, or public market volatility on deal activity."
+    },
+    "Implications_and_Outlook": {
+      "For_Buyers": "Strategic takeaways for acquirers (e.g., pricing discipline, integration risks).",
+      "For_Sellers": "Advice for founders and shareholders on timing and valuation expectations.",
+      "Forward_Looking": "Expected themes for the coming weeks based on pipeline and announced intentions."
+    }
+  },
+  "search_queries": [
+    "global technology M&A deals last week",
+    "tech M&A announcements this week",
+    "largest tech acquisitions last week",
+    "technology M&A volume and value weekly",
+    "AI startup acquisitions last week",
+    "cybersecurity M&A deals recent",
+    "fintech M&A news this week",
+    "healthtech M&A transactions last week",
+    "cross-border tech M&A last week",
+    "tech M&A valuation multiples weekly",
+    "regulatory review tech M&A last week",
+    "SPAC tech merger last week",
+    "private equity tech buyouts last week",
+    "software M&A deals this week",
+    "hardware M&A news last week"
+  ],
+  "outline": [
+    "Global Tech M&A Activity Surged Last Week with Record Deal Value in AI and Cybersecurity",
+    "North America Dominated Deal Volume While Asia-Pacific Saw Largest Cross-Border Transactions",
+    "Software and AI Sub-Sectors Accounted for Over 60% of Total Deal Value",
+    "Top 5 Deals by Value: Mega-Acquisitions Reshape Cloud and Data Analytics Landscape",
+    "Strategic Rationale Behind the Largest Deal: Buyer X Acquires Target Y to Accelerate AI Capabilities",
+    "Emerging Trend: Private Equity Firms Drive Consolidation in Mid-Market Tech",
+    "Valuation Multiples Compressed Slightly Amid Rising Interest Rates but Premiums Paid for AI Startups",
+    "Regulatory Scrutiny Intensifies: Two Deals Face Antitrust Delays in Europe",
+    "Cross-Border Activity Highlights Shift Toward Asian Tech Assets by Western Buyers",
+    "Outlook: Pipeline Remains Strong with Several Unannounced Deals Expected to Close Next Week"
+  ],
+  "chart_ideas": [
+    "Weekly Global Tech M&A Deal Count and Total Value (Bar Chart with Dual Axes)",
+    "Geographic Distribution of Deal Value (Pie Chart or Map)",
+    "Sector Breakdown of Deal Volume (Horizontal Bar Chart)",
+    "Top 10 Deals by Value (Horizontal Bar Chart with Buyer/Target Labels)",
+    "Median EV/Revenue Multiples by Sub-Sector (Dot Plot with Trend Line)",
+    "Cross-Border vs Domestic Deal Count (Stacked Bar Chart by Region)",
+    "Deal Value by Week Over Past 3 Months (Line Chart to Show Trend)"
+  ],
+  "insight_card_ideas": [
+    "Deal of the Week: [Buyer] Acquires [Target] for $X Billion – What It Means for the AI Market",
+    "Valuation Check: AI Startups Command 2x Premium Over Traditional Software",
+    "Regulatory Radar: European Commission Opens In-Depth Review of [Deal Name]",
+    "PE Playbook: How [PE Firm] is Building a Tech Platform Through Bolt-On Acquisitions",
+    "Cross-Border Spotlight: [Asian Target] Attracts Western Buyer Amid Geopolitical Tensions",
+    "Sector Pulse: Cybersecurity M&A Heats Up as Ransomware Threats Rise"
+  ],
+  "risks": [
+    "Data may be incomplete due to delayed public filings or undisclosed deal values.",
+    "Weekly snapshots may be volatile and not indicative of longer-term trends.",
+    "Regulatory announcements may change deal status after the report is published.",
+    "Valuation multiples based on limited disclosed data may not be representative.",
+    "Geopolitical events (e.g., trade restrictions) could impact cross-border deals not yet reflected in last week's activity."
+  ]
+}
