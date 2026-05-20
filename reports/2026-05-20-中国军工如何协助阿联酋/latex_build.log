@@ -1,0 +1,209 @@
+rning: Reference `chap:1:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:5' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:5:end' on page 2 undefined on input line 69.
+
+[2]
+Underfull \hbox (badness 1348) in paragraph at lines 78--78
+\TU/NotoSansCJKSC(0)/m/n/9 Over the past five years, the UAE has become one of 
+China’s top
+
+Underfull \hbox (badness 3219) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 States and Russia. The UAE’s procurement strategy in
+creasingly
+
+Underfull \hbox (badness 2165) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 favors Chinese systems for their cost-effectiveness,
+ lack of political
+
+Underfull \hbox (badness 1005) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 conditionality, and willingness to transfer technolo
+gy. This trend is
+
+Underfull \hbox (badness 3108) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 The cooperation also includes training, maintenance,
+ and logistics
+[3] [4]
+Underfull \hbox (badness 4886) in paragraph at lines 111--111
+[]\TU/NotoSansCJKSC(0)/m/n/9 The influx of Chinese defense systems has signific
+antly enhanced
+
+Underfull \hbox (badness 1142) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 vis-à-vis Iran and non-state actors in Yemen. The UA
+E’s ability to
+
+Underfull \hbox (badness 1960) in paragraph at lines 113--113
+\TU/NotoSansCJKSC(0)/m/n/9 a direct challenge to its long-standing role as the 
+primary security
+
+Underfull \hbox (badness 1253) in paragraph at lines 113--113
+\TU/NotoSansCJKSC(0)/m/n/9 technologies. However, the UAE has pushed back, argu
+ing that its
+[5] [6]
+Underfull \hbox (badness 1168) in paragraph at lines 145--145
+[]\TU/NotoSansCJKSC(0)/m/n/9 However, the pace and depth of future cooperation 
+will depend on
+
+Underfull \hbox (badness 1824) in paragraph at lines 145--145
+\TU/NotoSansCJKSC(0)/m/n/9 how both nations manage the risks outlined above. Th
+e UAE will
+
+Underfull \hbox (badness 2582) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/m/n/9 clear rules and safeguards. In a pessimistic scenari
+o, geopolitical
+
+Underfull \hbox (badness 4899) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/m/n/9 parties’ interests. A middle-ground scenario involve
+s continued
+[7] [8]
+Underfull \hbox (badness 2717) in paragraph at lines 177--177
+\TU/NotoSansCJKSC(0)/m/n/9 engineers are being trained in China, and Chinese te
+chnicians are
+
+Underfull \hbox (badness 1286) in paragraph at lines 179--179
+\TU/NotoSansCJKSC(0)/m/n/9 to circumvent export restrictions on complete system
+s by exporting
+[9] [10]
+Underfull \hbox (badness 2707) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 eration with the UAE is embedding Chinese firms into
+ the Gulf’s
+
+Underfull \hbox (badness 1342) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 defense infrastructure. Chinese companies are involv
+ed in building
+
+Underfull \hbox (badness 1902) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 For example, China Harbour Engineering Company has c
+onstructed
+
+Underfull \hbox (badness 1502) in paragraph at lines 212--212
+\TU/NotoSansCJKSC(0)/m/n/9 the potential for Chinese espionage and the vulnerab
+ility of critical
+[11] [12] [13] (./report_latex.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (13 pages).
+Transcript written on report_latex.log.
+ist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 1348) in paragraph at lines 78--78
+\TU/NotoSansCJKSC(0)/m/n/9 Over the past five years, the UAE has become one of 
+China’s top
+
+Underfull \hbox (badness 3219) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 States and Russia. The UAE’s procurement strategy in
+creasingly
+
+Underfull \hbox (badness 2165) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 favors Chinese systems for their cost-effectiveness,
+ lack of political
+
+Underfull \hbox (badness 1005) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 conditionality, and willingness to transfer technolo
+gy. This trend is
+
+Underfull \hbox (badness 3108) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 The cooperation also includes training, maintenance,
+ and logistics
+[3] [4]
+Underfull \hbox (badness 4886) in paragraph at lines 111--111
+[]\TU/NotoSansCJKSC(0)/m/n/9 The influx of Chinese defense systems has signific
+antly enhanced
+
+Underfull \hbox (badness 1142) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 vis-à-vis Iran and non-state actors in Yemen. The UA
+E’s ability to
+
+Underfull \hbox (badness 1960) in paragraph at lines 113--113
+\TU/NotoSansCJKSC(0)/m/n/9 a direct challenge to its long-standing role as the 
+primary security
+
+Underfull \hbox (badness 1253) in paragraph at lines 113--113
+\TU/NotoSansCJKSC(0)/m/n/9 technologies. However, the UAE has pushed back, argu
+ing that its
+[5] [6]
+Underfull \hbox (badness 1168) in paragraph at lines 145--145
+[]\TU/NotoSansCJKSC(0)/m/n/9 However, the pace and depth of future cooperation 
+will depend on
+
+Underfull \hbox (badness 1824) in paragraph at lines 145--145
+\TU/NotoSansCJKSC(0)/m/n/9 how both nations manage the risks outlined above. Th
+e UAE will
+
+Underfull \hbox (badness 2582) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/m/n/9 clear rules and safeguards. In a pessimistic scenari
+o, geopolitical
+
+Underfull \hbox (badness 4899) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/m/n/9 parties’ interests. A middle-ground scenario involve
+s continued
+[7] [8]
+Underfull \hbox (badness 2717) in paragraph at lines 177--177
+\TU/NotoSansCJKSC(0)/m/n/9 engineers are being trained in China, and Chinese te
+chnicians are
+
+Underfull \hbox (badness 1286) in paragraph at lines 179--179
+\TU/NotoSansCJKSC(0)/m/n/9 to circumvent export restrictions on complete system
+s by exporting
+[9] [10]
+Underfull \hbox (badness 2707) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 eration with the UAE is embedding Chinese firms into
+ the Gulf’s
+
+Underfull \hbox (badness 1342) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 defense infrastructure. Chinese companies are involv
+ed in building
+
+Underfull \hbox (badness 1902) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 For example, China Harbour Engineering Company has c
+onstructed
+
+Underfull \hbox (badness 1502) in paragraph at lines 212--212
+\TU/NotoSansCJKSC(0)/m/n/9 the potential for Chinese espionage and the vulnerab
+ility of critical
+[11] [12] [13] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (13 pages).
+Transcript written on report_latex.log.
