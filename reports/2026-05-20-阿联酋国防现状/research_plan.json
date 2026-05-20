@@ -1,0 +1,112 @@
+{
+  "objective": "Assess the current state of UAE defense capabilities, strategic posture, and future outlook to inform strategic decision-making.",
+  "audience": "Senior defense analysts, policymakers, and strategic planners in allied nations or defense organizations.",
+  "decision_question": "What are the key strengths, vulnerabilities, and strategic priorities of the UAE's defense sector, and how should allied nations adjust their engagement and cooperation strategies?",
+  "issue_tree": {
+    "node": "UAE Defense Strategic Assessment",
+    "children": [
+      {
+        "node": "Threat Environment",
+        "children": [
+          {
+            "node": "Regional threats (Iran, Houthis, terrorism)"
+          },
+          {
+            "node": "Non-traditional threats (cyber, maritime security)"
+          }
+        ]
+      },
+      {
+        "node": "Military Capabilities",
+        "children": [
+          {
+            "node": "Force structure and modernization"
+          },
+          {
+            "node": "Defense industry and self-sufficiency"
+          },
+          {
+            "node": "Personnel and training"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Partnerships",
+        "children": [
+          {
+            "node": "US alliance and security cooperation"
+          },
+          {
+            "node": "European and Asian defense ties"
+          },
+          {
+            "node": "Multilateral engagements (GCC, Arab League)"
+          }
+        ]
+      },
+      {
+        "node": "Defense Spending and Economy",
+        "children": [
+          {
+            "node": "Budget trends and fiscal sustainability"
+          },
+          {
+            "node": "Offset programs and economic diversification"
+          }
+        ]
+      },
+      {
+        "node": "Future Outlook",
+        "children": [
+          {
+            "node": "Emerging technologies (AI, drones, space)"
+          },
+          {
+            "node": "Strategic autonomy vs. reliance on allies"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "UAE defense budget 2025",
+    "UAE military modernization programs",
+    "UAE threat assessment Iran Houthis",
+    "UAE defense industry capabilities",
+    "UAE US security cooperation",
+    "UAE cyber defense strategy",
+    "UAE drone warfare capabilities",
+    "UAE space defense program",
+    "UAE military personnel training",
+    "UAE offset program defense"
+  ],
+  "outline": [
+    "UAE defense sector is robust but faces growing regional threats",
+    "Military modernization focuses on air power, missile defense, and naval capabilities",
+    "Defense industry is expanding but still reliant on foreign technology",
+    "Strategic partnerships with US and others remain central but are being diversified",
+    "Defense spending is high and sustainable due to economic diversification",
+    "Emerging technologies and strategic autonomy are key future priorities"
+  ],
+  "chart_ideas": [
+    "Line chart: UAE defense spending trend (2015-2025)",
+    "Bar chart: UAE military equipment imports by country (top 5)",
+    "Pie chart: UAE defense budget allocation by service branch",
+    "Map: UAE military bases and deployment locations",
+    "Radar chart: UAE defense capability assessment (air, land, sea, cyber, space)"
+  ],
+  "insight_card_ideas": [
+    "Insight: UAE's reliance on foreign military sales creates vulnerability",
+    "Insight: UAE is a leader in drone warfare in the region",
+    "Insight: UAE's defense industry is a key pillar of economic diversification",
+    "Insight: UAE's strategic autonomy is increasing but not yet fully realized",
+    "Insight: Cyber threats are a growing concern for UAE defense"
+  ],
+  "risks": [
+    "Overreliance on US security guarantees may limit strategic flexibility",
+    "Regional escalation (e.g., Iran conflict) could overwhelm UAE defenses",
+    "Defense industry growth may be hampered by technology transfer restrictions",
+    "Budget pressures from low oil prices could affect defense spending",
+    "Personnel shortages and retention challenges in specialized fields"
+  ]
+}

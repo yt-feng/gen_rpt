@@ -1,0 +1,203 @@
+ode.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1]
+
+LaTeX Warning: Reference `chap:1' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:1:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:5' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:5:end' on page 2 undefined on input line 69.
+
+[2]
+Underfull \hbox (badness 1275) in paragraph at lines 78--78
+\TU/NotoSansCJKSC(0)/m/n/9 characterized by significant investment in moderniza
+tion, a growing
+
+Underfull \hbox (badness 2237) in paragraph at lines 78--78
+\TU/NotoSansCJKSC(0)/m/n/9 indigenous defense industry, and a diversified netwo
+rk of strategic
+
+Underfull \hbox (badness 4366) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 80--80
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[3] [4]
+Underfull \hbox (badness 4366) in paragraph at lines 108--108
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 109--109
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[5] [6]
+Underfull \hbox (badness 4403) in paragraph at lines 135--135
+[]\TU/NotoSansCJKSC(0)/m/n/9 Emerging technologies in artificial intelligence, 
+drones, and space
+
+Underfull \hbox (badness 4366) in paragraph at lines 136--136
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 137--137
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[7] [8]
+Underfull \hbox (badness 1242) in paragraph at lines 164--164
+\TU/NotoSansCJKSC(0)/m/n/9 its growing pursuit of self-reliance and diversifica
+tion necessitates a
+
+Underfull \hbox (badness 4366) in paragraph at lines 165--165
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 166--166
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[9] [10]
+Underfull \hbox (badness 4366) in paragraph at lines 194--194
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 195--195
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[11] [12] (./report_latex.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (12 pages).
+Transcript written on report_latex.log.
+re/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 1275) in paragraph at lines 78--78
+\TU/NotoSansCJKSC(0)/m/n/9 characterized by significant investment in moderniza
+tion, a growing
+
+Underfull \hbox (badness 2237) in paragraph at lines 78--78
+\TU/NotoSansCJKSC(0)/m/n/9 indigenous defense industry, and a diversified netwo
+rk of strategic
+
+Underfull \hbox (badness 4366) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 80--80
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[3] [4]
+Underfull \hbox (badness 4366) in paragraph at lines 108--108
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 109--109
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[5] [6]
+Underfull \hbox (badness 4403) in paragraph at lines 135--135
+[]\TU/NotoSansCJKSC(0)/m/n/9 Emerging technologies in artificial intelligence, 
+drones, and space
+
+Underfull \hbox (badness 4366) in paragraph at lines 136--136
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 137--137
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[7] [8]
+Underfull \hbox (badness 1242) in paragraph at lines 164--164
+\TU/NotoSansCJKSC(0)/m/n/9 its growing pursuit of self-reliance and diversifica
+tion necessitates a
+
+Underfull \hbox (badness 4366) in paragraph at lines 165--165
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 166--166
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[9] [10]
+Underfull \hbox (badness 4366) in paragraph at lines 194--194
+\TU/NotoSansCJKSC(0)/m/n/9 Vulnerabilities, and Future Priorities is moving fro
+m a science-led
+
+Underfull \hbox (badness 3657) in paragraph at lines 195--195
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[11] [12] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (12 pages).
+Transcript written on report_latex.log.
