@@ -1,0 +1,84 @@
+{
+  "objective": "Assess the current state, trends, and future outlook of the private equity market in China, including regulatory changes, fundraising, deal activity, and exit environment.",
+  "audience": "Senior investment professionals, institutional investors, and corporate strategists evaluating opportunities and risks in China's private equity landscape.",
+  "decision_question": "Should our firm increase, maintain, or reduce exposure to China's private equity market over the next 12-24 months?",
+  "issue_tree": {
+    "Market Size and Growth": {
+      "AUM and Fundraising Trends": "How have total assets under management and annual fundraising volumes changed in recent years?",
+      "Deal Activity": "What are the trends in deal count, deal value, and average deal size across sectors?",
+      "Exit Environment": "What are the primary exit channels (IPO, trade sale, secondary) and their performance?"
+    },
+    "Regulatory and Policy Landscape": {
+      "Recent Regulatory Changes": "What new rules (e.g., on foreign investment, data security, antitrust) affect PE activity?",
+      "Government Influence": "How do state-owned enterprises and policy priorities (e.g., tech self-sufficiency) shape the market?",
+      "Tax and Legal Framework": "What are the key tax considerations and legal structures for foreign PE investors?"
+    },
+    "Sector Dynamics": {
+      "Technology and Healthcare": "What are the investment opportunities and risks in these high-growth sectors?",
+      "Consumer and Industrials": "How are changing consumption patterns and supply chain shifts impacting deals?",
+      "Real Estate and Infrastructure": "What is the outlook given the property sector downturn and infrastructure spending?"
+    },
+    "Competitive Landscape": {
+      "Domestic vs. Foreign Firms": "How are local PE firms (e.g., Hillhouse, CDH) competing with global players?",
+      "GP Performance and Track Record": "What are the return profiles and key success factors for top-quartile funds?",
+      "LP Sentiment and Capital Flows": "What are institutional investors' current views on China PE allocations?"
+    },
+    "Risk Factors": {
+      "Geopolitical Tensions": "How do US-China relations and technology restrictions affect dealmaking?",
+      "Economic Slowdown": "What is the impact of slower GDP growth, deflationary pressures, and corporate defaults?",
+      "Liquidity and Currency Risks": "How do capital controls and RMB volatility affect repatriation and valuations?"
+    }
+  },
+  "search_queries": [
+    "China private equity market size 2024 2025 AUM fundraising",
+    "China PE deal activity 2024 sector breakdown technology healthcare",
+    "China private equity exit environment IPO secondary trade sale 2024",
+    "China PE regulatory changes 2024 foreign investment data security antitrust",
+    "China private equity tax legal framework foreign investors",
+    "China PE competitive landscape Hillhouse CDH global firms comparison",
+    "China private equity returns IRR top quartile performance 2024",
+    "China PE LP sentiment institutional investor allocation 2024",
+    "US China geopolitical impact private equity technology restrictions",
+    "China economic slowdown private equity risk defaults deflation",
+    "China capital controls currency risk private equity repatriation",
+    "China private equity outlook 2025 forecast trends"
+  ],
+  "outline": [
+    "China Private Equity Market Remains Large but Faces Headwinds from Regulation and Economy",
+    "Fundraising Has Slowed but AUM Continues to Grow as Existing Funds Deploy Capital",
+    "Deal Activity Is Shifting Toward Technology, Healthcare, and Green Energy Sectors",
+    "Exit Channels Are Constrained by Weak IPO Markets and Geopolitical Uncertainty",
+    "Regulatory Changes Are Reshaping the Landscape for Foreign and Domestic Investors",
+    "Domestic PE Firms Are Gaining Market Share While Global Players Face New Barriers",
+    "LP Sentiment Is Cautious but Selective Allocations Persist for Top-Tier Managers",
+    "Key Risks Include Geopolitical Tensions, Economic Slowdown, and Liquidity Constraints",
+    "Outlook for 2025 Suggests a Bifurcated Market with Opportunities in Niche Sectors"
+  ],
+  "chart_ideas": [
+    "China PE AUM and Annual Fundraising (2019-2024)",
+    "China PE Deal Count and Value by Quarter (2020-2024)",
+    "Sector Distribution of China PE Deals (2024 vs 2020)",
+    "China PE Exit Value by Channel (IPO, Trade Sale, Secondary) (2020-2024)",
+    "Comparison of China PE Fund IRRs by Vintage Year",
+    "Foreign vs Domestic PE Fundraising Share in China (2019-2024)",
+    "China PE Regulatory Timeline (2020-2024)",
+    "China GDP Growth vs PE Deal Volume (2019-2024)"
+  ],
+  "insight_card_ideas": [
+    "China PE Market at a Glance: Key Metrics and Trends",
+    "Regulatory Wave: How New Rules Are Reshaping PE in China",
+    "Sector Spotlight: Technology and Healthcare Drive Deal Activity",
+    "Exit Squeeze: Why IPOs Are No Longer a Sure Path",
+    "Domestic vs Foreign: The Shifting Competitive Balance",
+    "LP View: Why Some Investors Are Staying the Course",
+    "Risk Radar: Geopolitics, Economy, and Liquidity in China PE"
+  ],
+  "risks": [
+    "Geopolitical escalation (e.g., sanctions, decoupling) could severely limit deal flow and exits.",
+    "Prolonged economic slowdown or deflation may depress valuations and increase defaults.",
+    "Regulatory unpredictability (e.g., sudden crackdowns) could disrupt existing investments.",
+    "Capital controls and currency depreciation may hinder capital repatriation and reduce returns.",
+    "Intense competition for quality assets could compress returns and increase execution risk.",
+    "Data and technology transfer restrictions may limit due diligence and operational improvements."
+  ]
+}
