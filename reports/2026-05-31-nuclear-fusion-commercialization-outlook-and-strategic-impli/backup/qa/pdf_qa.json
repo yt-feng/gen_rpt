@@ -1,0 +1,94 @@
+{
+  "passed": false,
+  "pdf_path": "/home/runner/work/gen_rpt/gen_rpt/reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/report.pdf",
+  "html_path": "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/report.html",
+  "checks": [
+    {
+      "code": "page_count",
+      "message": "PDF has 13 pages."
+    },
+    {
+      "code": "text_extractability",
+      "message": "PDF text extraction looks healthy."
+    }
+  ],
+  "issues": [
+    {
+      "code": "font_too_small",
+      "message": "Page 2: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 3: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 4: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "text_block_overlap",
+      "message": "Page 5: possible text overlap between 'Key engineering hurdles must' and 'BlueOcean | Confidential\n5'.",
+      "recommendation": "increase_page_count_or_adjust_layout"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 6: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "text_block_overlap",
+      "message": "Page 7: possible text overlap between 'Regulatory and licensing pat' and 'BlueOcean | Confidential\n7'.",
+      "recommendation": "increase_page_count_or_adjust_layout"
+    },
+    {
+      "code": "text_block_overlap",
+      "message": "Page 8: possible text overlap between 'Market disruption risks are ' and 'BlueOcean | Confidential\n8'.",
+      "recommendation": "increase_page_count_or_adjust_layout"
+    },
+    {
+      "code": "text_block_overlap",
+      "message": "Page 9: possible text overlap between 'Risk mitigation requires cle' and 'BlueOcean | Confidential\n9'.",
+      "recommendation": "increase_page_count_or_adjust_layout"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 10: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 11: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 12: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    },
+    {
+      "code": "font_too_small",
+      "message": "Page 13: text below 4.2pt detected.",
+      "recommendation": "increase_min_font_or_add_pages"
+    }
+  ],
+  "recommendations": [
+    "increase_min_font_or_add_pages",
+    "increase_page_count_or_adjust_layout"
+  ],
+  "page_count": 13,
+  "screenshots": [
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_001.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_002.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_003.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_004.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_005.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_006.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_007.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_008.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_009.png",
+    "reports/2026-05-31-nuclear-fusion-commercialization-outlook-and-strategic-impli/backup/qa/page_010.png"
+  ]
+}

@@ -1,0 +1,210 @@
+ry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1]
+
+LaTeX Warning: Reference `chap:1' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:1:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:5' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:5:end' on page 2 undefined on input line 69.
+
+[2]
+Underfull \hbox (badness 5862) in paragraph at lines 79--79
+[]\TU/NotoSansCJKSC(0)/m/n/9 The most mature approach is magnetic confinement, 
+particularly
+
+Underfull \hbox (badness 2790) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 and cost overruns; its first plasma is now expected 
+in 2035, with
+
+Underfull \hbox (badness 6592) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 Energy are developing compact tokamaks using high-te
+mperature
+
+Underfull \hbox (badness 3009) in paragraph at lines 80--80
+\TU/NotoSansCJKSC(0)/m/n/9 net energy gain at scale, and their engineering chal
+lenges remain
+[3] [4] [5]
+Underfull \hbox (badness 1308) in paragraph at lines 111--111
+[]\TU/NotoSansCJKSC(0)/m/n/9 The levelized cost of energy (LCOE) from fusion is
+ highly uncertain,
+
+Underfull \hbox (badness 1117) in paragraph at lines 112--112
+[]\TU/NotoSansCJKSC(0)/m/n/9 Capital costs are the dominant factor in fusion LC
+OE. A commercial
+
+Underfull \hbox (badness 4013) in paragraph at lines 112--112
+\TU/NotoSansCJKSC(0)/m/n/9 fusion plant is expected to cost $5-10 billion for a
+ 1 GW facility,
+
+Underfull \hbox (badness 1859) in paragraph at lines 113--113
+\TU/NotoSansCJKSC(0)/m/n/9 to variable renewables, reducing the need for storag
+e and backup.
+[6] [7] [8]
+Underfull \hbox (badness 3098) in paragraph at lines 144--144
+\TU/NotoSansCJKSC(0)/m/n/9 diversified investment strategy is recommended. Inve
+stors should
+
+Underfull \hbox (badness 2781) in paragraph at lines 144--144
+\TU/NotoSansCJKSC(0)/m/n/9 confinement (tokamaks and stellarators), inertial co
+nfinement, and
+[9] [10]
+Underfull \hbox (badness 2158) in paragraph at lines 178--178
+\TU/NotoSansCJKSC(0)/m/n/9 breeding blankets face significant engineering chall
+enges, including
+
+Underfull \hbox (badness 1701) in paragraph at lines 178--178
+\TU/NotoSansCJKSC(0)/m/n/9 concepts are being studied, including solid lithium 
+ceramics, liquid
+[11] [12]
+Underfull \hbox (badness 2875) in paragraph at lines 210--210
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion technology has dual-use potential, as the s
+ame knowledge
+
+Underfull \hbox (badness 3281) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 and equipment used for civilian fusion can be applie
+d to nuclear
+
+Underfull \hbox (badness 1521) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 the development of nuclear weapons by states or non-
+state actors.
+
+Underfull \hbox (badness 1762) in paragraph at lines 211--211
+\TU/NotoSansCJKSC(0)/m/n/9 the Nuclear Suppliers Group (NSG) guidelines. Howeve
+r, as fusion
+
+Underfull \hbox (badness 2744) in paragraph at lines 211--211
+\TU/NotoSansCJKSC(0)/m/n/9 could be used to produce tritium or other materials 
+for weapons.
+
+Underfull \hbox (badness 1975) in paragraph at lines 211--211
+\TU/NotoSansCJKSC(0)/m/n/9 The international community will need to develop new
+ norms and
+[13] [14] [15] (./report_latex.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (15 pages).
+Transcript written on report_latex.log.
+texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 5862) in paragraph at lines 79--79
+[]\TU/NotoSansCJKSC(0)/m/n/9 The most mature approach is magnetic confinement, 
+particularly
+
+Underfull \hbox (badness 2790) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 and cost overruns; its first plasma is now expected 
+in 2035, with
+
+Underfull \hbox (badness 6592) in paragraph at lines 79--79
+\TU/NotoSansCJKSC(0)/m/n/9 Energy are developing compact tokamaks using high-te
+mperature
+
+Underfull \hbox (badness 3009) in paragraph at lines 80--80
+\TU/NotoSansCJKSC(0)/m/n/9 net energy gain at scale, and their engineering chal
+lenges remain
+[3] [4] [5]
+Underfull \hbox (badness 1308) in paragraph at lines 111--111
+[]\TU/NotoSansCJKSC(0)/m/n/9 The levelized cost of energy (LCOE) from fusion is
+ highly uncertain,
+
+Underfull \hbox (badness 1117) in paragraph at lines 112--112
+[]\TU/NotoSansCJKSC(0)/m/n/9 Capital costs are the dominant factor in fusion LC
+OE. A commercial
+
+Underfull \hbox (badness 4013) in paragraph at lines 112--112
+\TU/NotoSansCJKSC(0)/m/n/9 fusion plant is expected to cost $5-10 billion for a
+ 1 GW facility,
+
+Underfull \hbox (badness 1859) in paragraph at lines 113--113
+\TU/NotoSansCJKSC(0)/m/n/9 to variable renewables, reducing the need for storag
+e and backup.
+[6] [7] [8]
+Underfull \hbox (badness 3098) in paragraph at lines 144--144
+\TU/NotoSansCJKSC(0)/m/n/9 diversified investment strategy is recommended. Inve
+stors should
+
+Underfull \hbox (badness 2781) in paragraph at lines 144--144
+\TU/NotoSansCJKSC(0)/m/n/9 confinement (tokamaks and stellarators), inertial co
+nfinement, and
+[9] [10]
+Underfull \hbox (badness 2158) in paragraph at lines 178--178
+\TU/NotoSansCJKSC(0)/m/n/9 breeding blankets face significant engineering chall
+enges, including
+
+Underfull \hbox (badness 1701) in paragraph at lines 178--178
+\TU/NotoSansCJKSC(0)/m/n/9 concepts are being studied, including solid lithium 
+ceramics, liquid
+[11] [12]
+Underfull \hbox (badness 2875) in paragraph at lines 210--210
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion technology has dual-use potential, as the s
+ame knowledge
+
+Underfull \hbox (badness 3281) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 and equipment used for civilian fusion can be applie
+d to nuclear
+
+Underfull \hbox (badness 1521) in paragraph at lines 210--210
+\TU/NotoSansCJKSC(0)/m/n/9 the development of nuclear weapons by states or non-
+state actors.
+
+Underfull \hbox (badness 1762) in paragraph at lines 211--211
+\TU/NotoSansCJKSC(0)/m/n/9 the Nuclear Suppliers Group (NSG) guidelines. Howeve
+r, as fusion
+
+Underfull \hbox (badness 2744) in paragraph at lines 211--211
+\TU/NotoSansCJKSC(0)/m/n/9 could be used to produce tritium or other materials 
+for weapons.
+
+Underfull \hbox (badness 1975) in paragraph at lines 211--211
+\TU/NotoSansCJKSC(0)/m/n/9 The international community will need to develop new
+ norms and
+[13] [14] [15] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (15 pages).
+Transcript written on report_latex.log.
