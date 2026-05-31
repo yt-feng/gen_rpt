@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List
@@ -13,6 +14,13 @@ from .pdf_qa import apply_pdf_qa_fixes, run_pdf_qa
 from .pdf_renderer import render_pdf_from_html
 from .ppt_renderer import render_pptx
 from .presentation_renderer import render_presentation_html
+from .research_quality import (
+    ResearchFactPack,
+    apply_deterministic_report_fixes,
+    build_research_fact_pack,
+    build_revision_messages,
+    validate_report,
+)
 from .report_renderer import render_report_html, render_report_markdown
 from .web_fetch import SourceDocument, collect_sources
 
@@ -36,16 +44,25 @@ class ResearchPipeline:
             plan = self._fallback_plan(display_topic, raw_topic=topic, reason=str(exc))
 
         queries = plan.get("search_queries", [])[:6]
-        sources = collect_sources(queries, per_query=3, max_sources=12)
+        per_query = int(os.getenv("GEN_RPT_PER_QUERY", "4"))
+        max_sources = int(os.getenv("GEN_RPT_MAX_SOURCES", "16"))
+        sources = collect_sources(queries, per_query=per_query, max_sources=max_sources)
         source_dicts = [source.__dict__ for source in sources]
+        fact_pack = build_research_fact_pack(display_topic, plan, sources)
 
         try:
-            report = self._synthesize_report(display_topic, plan, sources, raw_topic=topic)
+            report = self._synthesize_report(display_topic, plan, sources, fact_pack=fact_pack, raw_topic=topic)
         except Exception as exc:
             (output_dir / "synthesis_error.txt").write_text(str(exc), encoding="utf-8")
             report = self._fallback_report(display_topic, plan, sources, reason=str(exc))
 
         self._post_process_report(report, display_topic)
+        report, content_quality = self._validate_and_revise_report(
+            report,
+            display_topic,
+            fact_pack,
+            raw_topic=topic,
+        )
         report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), source_dicts)
         self._ensure_visual_hints(report)
 
@@ -56,26 +73,49 @@ class ResearchPipeline:
 
         html_path, markdown_path, pdf_path = self._render_report_pack(report, asset_map, output_dir, display_topic)
         qa_dir = output_dir / "backup" / "qa"
-        qa_result = run_pdf_qa(pdf_path, html_path, qa_dir)
-
         final_report = report
-        if not qa_result.get("passed", False):
-            final_report = apply_pdf_qa_fixes(report, qa_result)
+        qa_result = {}
+        layout_rounds = []
+        max_layout_rounds = max(1, int(os.getenv("REPORT_MAX_LAYOUT_QA_ROUNDS", "2")))
+        for round_idx in range(max_layout_rounds):
+            round_dir = qa_dir if round_idx == 0 else qa_dir / f"round_{round_idx + 1}"
+            qa_result = run_pdf_qa(pdf_path, html_path, round_dir)
+            layout_rounds.append(
+                {
+                    "round": round_idx + 1,
+                    "passed": bool(qa_result.get("passed")),
+                    "issue_count": len(qa_result.get("issues", [])),
+                    "recommendations": qa_result.get("recommendations", []),
+                }
+            )
+            if qa_result.get("passed", False) or round_idx == max_layout_rounds - 1:
+                break
+            if round_idx == 0:
+                (output_dir / "report_payload_prefixed.json").write_text(json.dumps(final_report, ensure_ascii=False, indent=2), encoding="utf-8")
+            final_report = apply_pdf_qa_fixes(final_report, qa_result)
+            self._post_process_report(final_report, display_topic)
+            final_report = apply_deterministic_report_fixes(final_report, fact_pack, language=self.language)
             self._post_process_report(final_report, display_topic)
             self._ensure_visual_hints(final_report)
-            (output_dir / "report_payload_prefixed.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
             html_path, markdown_path, pdf_path = self._render_report_pack(final_report, asset_map, output_dir, display_topic)
-            qa_result = run_pdf_qa(pdf_path, html_path, qa_dir / "after_fix")
+        post_layout_issues = validate_report(final_report, fact_pack, language=self.language)
 
         pptx_path = render_pptx(final_report, asset_map, output_dir / "report.pptx", display_topic, self.language)
         presentation_path = render_presentation_html(final_report, asset_map, output_dir / "presentation.html", display_topic, self.language)
 
         (output_dir / "report_payload.json").write_text(json.dumps(final_report, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "qa_result.json").write_text(json.dumps(qa_result, ensure_ascii=False, indent=2), encoding="utf-8")
+        quality_payload = {
+            "content": content_quality,
+            "layout_rounds": layout_rounds,
+            "post_layout_content_issues": post_layout_issues,
+        }
+        (output_dir / "report_quality.json").write_text(json.dumps(quality_payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
-        return {"plan": plan, "sources": source_dicts, "report": final_report, "asset_map": asset_map, "output_dir": str(output_dir), "backup_dir": str(backup_dir), "language": self.language, "target_length": self.target_length, "html_path": str(html_path), "markdown_path": str(markdown_path), "pdf_path": str(pdf_path), "pptx_path": str(pptx_path), "presentation_path": str(presentation_path), "qa_result": qa_result}
+        return {"plan": plan, "fact_pack": fact_pack.to_dict(), "sources": source_dicts, "report": final_report, "asset_map": asset_map, "output_dir": str(output_dir), "backup_dir": str(backup_dir), "language": self.language, "target_length": self.target_length, "html_path": str(html_path), "markdown_path": str(markdown_path), "pdf_path": str(pdf_path), "pptx_path": str(pptx_path), "presentation_path": str(presentation_path), "qa_result": qa_result, "report_quality": quality_payload}
 
     def _render_report_pack(self, report: Dict, asset_map: Dict[str, str], output_dir: Path, topic: str):
         html_path = render_report_html(report=report, assets=asset_map, output_file=output_dir / "report.html", topic=topic, language=self.language)
@@ -143,11 +183,11 @@ JSON 字段要求：objective、audience、decision_question、issue_tree、sear
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}])
 
-    def _synthesize_report(self, topic: str, plan: Dict, sources: List[SourceDocument], *, raw_topic: str = "") -> Dict:
+    def _synthesize_report(self, topic: str, plan: Dict, sources: List[SourceDocument], *, fact_pack: ResearchFactPack, raw_topic: str = "") -> Dict:
         source_blocks = []
         for idx, src in enumerate(sources[:10], start=1):
             excerpt = src.content[:1800]
-            source_blocks.append(f"[Source {idx}]\nTitle: {src.title}\nURL: {src.url}\nSearch Query: {src.query}\nSnippet: {src.snippet}\nExcerpt:\n{excerpt}")
+            source_blocks.append(f"[Source {idx}]\nTitle: {src.title}\nURL: {src.url}\nType: {src.source_type}\nDomain: {src.domain}\nSearch Query: {src.query}\nSnippet: {src.snippet}\nExcerpt:\n{excerpt}")
         source_text = "\n\n".join(source_blocks) or ("Insufficient web evidence was fetched." if self.language == "en" else "暂无抓取到足够网页资料。")
         system = "You are an elite strategy consultant and research writer. Return one valid JSON object only. No markdown."
         if self.language == "en":
@@ -162,6 +202,8 @@ Rules:
 {self._method_instruction()}
 Research plan:
 {json.dumps(plan, ensure_ascii=False, indent=2)}
+Evidence pack extracted before generation:
+{fact_pack.digest()}
 Sources:
 {source_text}
 Required fields: report_title, report_subtitle, executive_summary, method_steps, issue_tree, sections, insight_cards, charts, references.
@@ -172,6 +214,8 @@ Hard constraints:
 - Chart titles and categories must be specific to the topic, not generic labels such as Policy, Platforms, Creators, Commerce or Technology.
 - Do not show Chinese text in the final report.
 - references may only use real URLs present in Sources.
+- Use the evidence pack as the factual boundary. Include dated and numeric facts when available. If a fact is not supported by the evidence pack or source excerpts, state the evidence boundary instead of inventing a number or event.
+- Avoid unsupported forecasts. Label scenarios as directional and evidence-based.
 - no ellipses, no visible methodology page, no meta labels.
 """
         else:
@@ -180,11 +224,62 @@ Hard constraints:
 选题：{topic}
 要求：{self._lang_instruction()} {self._scope_instruction()} {self._title_style_instruction()} {self._method_instruction()}
 研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
+生成前抽取的证据包：{fact_pack.digest()}
 资料：{source_text}
 必须包含字段：report_title、report_subtitle、executive_summary、method_steps、issue_tree、sections、insight_cards、charts、references。
 sections 7-10 项；charts 5-7 项，混合使用 bar、stacked_bar、line、matrix、bubble，不要使用 pie/donut。每个 section 的 visual_hint 尽量使用对应 image-N。
+事实边界：只能基于证据包和资料摘录写作；有可核验日期、数字、金额、份额、产能、财务或政策节点时必须纳入；资料未支持的判断要写清证据边界，不能编造数字或事件。
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.15)
+
+    def _validate_and_revise_report(
+        self,
+        report: Dict,
+        topic: str,
+        fact_pack: ResearchFactPack,
+        *,
+        raw_topic: str = "",
+    ) -> tuple[Dict, Dict[str, Any]]:
+        max_rounds = max(1, int(os.getenv("REPORT_MAX_CONTENT_QA_ROUNDS", os.getenv("REPORT_MAX_REVISIONS", "2"))))
+        rounds: List[Dict[str, Any]] = []
+        current = report
+        for round_idx in range(max_rounds):
+            self._post_process_report(current, topic)
+            issues = validate_report(current, fact_pack, language=self.language)
+            rounds.append({"round": round_idx + 1, "issue_count": len(issues), "issues": issues})
+            if not issues:
+                break
+            if round_idx == max_rounds - 1:
+                break
+            try:
+                current = self.client.chat_json(
+                    build_revision_messages(
+                        topic=topic,
+                        raw_topic=raw_topic,
+                        language=self.language,
+                        fact_pack=fact_pack,
+                        issues=issues,
+                        previous_report=current,
+                    ),
+                    temperature=0.0,
+                )
+            except Exception as exc:
+                rounds[-1]["revision_error"] = str(exc)
+                break
+
+        current = apply_deterministic_report_fixes(current, fact_pack, language=self.language)
+        self._post_process_report(current, topic)
+        self._ensure_visual_hints(current)
+        final_issues = validate_report(current, fact_pack, language=self.language)
+        return current, {
+            "max_rounds": max_rounds,
+            "rounds": rounds,
+            "final_issue_count": len(final_issues),
+            "final_issues": final_issues,
+            "fact_pack_validation_issues": fact_pack.validation_issues,
+            "source_count": fact_pack.source_count,
+            "authoritative_source_count": fact_pack.authoritative_source_count,
+        }
 
     def _fallback_report(self, topic: str, plan: Dict, sources: List[SourceDocument], *, reason: str = "") -> Dict:
         english = self.language == "en"
@@ -210,13 +305,37 @@ sections 7-10 项；charts 5-7 项，混合使用 bar、stacked_bar、line、mat
                 ("The next leadership agenda should focus on membranes, service models and evidence quality", "Sustained advantage will depend on converting manufacturing strength into trusted operating performance.", ["The innovation agenda should focus on membrane durability, electrolyte cost, stack reliability and digital monitoring. These improvements directly affect lifecycle economics and customer confidence.", "Equally important is evidence quality. Dali should publish clearer operating data, third-party validation and customer references where possible, because global buyers will discount unsupported performance claims.", "Management should treat proof generation as a strategic workstream: select lighthouse projects, define measurable KPIs, and turn field performance into sales and financing collateral."], "image-8"),
             ]
         else:
-            return self._fallback_report(self._display_topic(topic), plan, sources, reason=reason)
+            summary = [
+                f"{topic}的判断应从公开证据、产业位置和执行约束三条线同时展开。",
+                "资料不足处需要保留证据边界，不能用模型推断替代来源核验。",
+                "管理层最需要的是把市场趋势翻译成可验证的决策问题、资源配置和阶段性动作。",
+                "竞争格局不应只看单点技术或单年增速，而要看供给能力、客户验证和商业闭环。",
+                "图表和结论应服务于决策，而不是重复资料摘要。",
+                "后续工作应围绕权威来源、关键数字、时间线和反例持续补充验证。",
+            ]
+            subtitle = "基于公开资料、来源底稿和管理咨询问题拆解形成的研究初稿。"
+            sections = [
+                (f"{topic}需要先建立可核验的事实边界", "报告优先区分公开资料已经支持的事实、方向性判断和仍需复核的信息缺口。", ["本报告的兜底版本保留来源底稿，并把公开证据作为写作边界。对于资料没有直接披露的市场规模、财务数据、政策节点或企业经营指标，正文不把推断写成确定事实。", "这种处理方式适合在模型生成失败或资料抓取不足时维持报告可读性，同时避免把未经核验的信息放入正式判断。", "后续应优先补充政府、监管、交易所、公司公告、年报、国际组织和行业协会等来源，以提高事实密度和结论可信度。"], "image-1"),
+                ("管理层问题应从趋势判断转向行动排序", "真正有用的研究不是罗列趋势，而是把趋势转成资源配置、进入节奏和风险控制。", ["围绕该选题，管理层需要判断哪些变化已经具备公开证据，哪些仍是情景假设。只有把这两类信息分开，报告才能支持决策而不是制造噪音。", "行动排序应优先关注可以被验证的指标，例如政策发布时间、市场规模、供需变化、客户采纳、产能建设、融资成本和竞争对手动作。", "当公开资料不足时，报告应把缺口写出来，并把补充调研列为下一步动作。"], "image-2"),
+                ("竞争格局要同时看规模、能力和商业闭环", "单一技术指标或单一市场份额不足以解释长期竞争优势。", ["竞争优势通常来自多个要素的组合，包括供应链、产品成熟度、客户验证、渠道能力、服务体系、融资可得性和监管适配。", "研究报告应把这些要素拆成可比较维度，而不是用笼统的领先、增长、潜力等词替代分析。", "图表部分也应围绕这些维度组织，避免使用泛化分类。"], "image-3"),
+                ("数字和时间线是报告可信度的底座", "有年份、金额、比例、产能、收入和政策节点，判断才有复核入口。", ["事实包中的数字和日期应优先进入正文，因为它们能帮助读者判断事件顺序、规模量级和变化速度。", "如果来源无法支持关键数字，报告需要明确说明公开资料不足，并把该数字列入后续核验清单。", "这种写法比补充未经来源支持的估算更稳健。"], "image-4"),
+                ("图表应表达判断，而不是装饰页面", "每一张图都应对应一个管理问题或关键结论。", ["图表标题要具体到选题，不应停留在政策、市场、技术、增长等泛化标签。", "当模型提出的图表数据过于稀薄时，系统会把低质量图表转成更稳健的方向性指数或矩阵。", "正式使用前仍应结合来源底稿复核每个图表的数据口径。"], "image-5"),
+                ("输出质量依赖反复校验，而不是一次生成", "内容、来源、结构和排版都需要独立检查。", ["生成后应检查章节数量、每章段落深度、引用来源、数字密度、时间线、语言混杂、元标签和重复句式。", "PDF 输出还需要检查文本重叠、字体异常、页面过密和可见截断。", "只有内容 QA 和排版 QA 都通过，报告才适合进入分发或进一步人工编辑。"], "image-6"),
+                ("下一步是把证据缺口转成调研清单", "报告初稿的价值在于明确哪些判断已经可用，哪些需要继续验证。", ["如果资料抓取不足，下一步应优先补权威来源，而不是扩大模型重写轮次。", "对于高风险判断，应保留来源、截图、PDF 摘录和时间戳，确保后续复核有据可依。", "这一流程能把生成式报告从一次性文本变成可持续迭代的研究工作底稿。"], "image-7"),
+            ]
 
         charts = _fallback_charts()
-        cards = [{"id": "card-1", "title": summary[0], "subtitle": subtitle, "bullets": summary[:3], "highlight_number": "6", "highlight_label": "strategic levers", "exhibit_label": "Strategic position"}, {"id": "card-2", "title": summary[1], "subtitle": "Leadership must be translated into credible customer proof.", "bullets": summary[3:6], "highlight_number": "3", "highlight_label": "proof points", "exhibit_label": "Management agenda"}]
+        label_a = "strategic levers" if english else "关键抓手"
+        label_b = "proof points" if english else "验证点"
+        exhibit_a = "Strategic position" if english else "战略位置"
+        exhibit_b = "Management agenda" if english else "管理议题"
+        card_2_subtitle = "Leadership must be translated into credible customer proof." if english else "判断必须转化为可核验的证据与行动。"
+        cards = [{"id": "card-1", "title": summary[0], "subtitle": subtitle, "bullets": summary[:3], "highlight_number": "6", "highlight_label": label_a, "exhibit_label": exhibit_a}, {"id": "card-2", "title": summary[1], "subtitle": card_2_subtitle, "bullets": summary[3:6], "highlight_number": "3", "highlight_label": label_b, "exhibit_label": exhibit_b}]
         section_payload = []
+        takeaway_2 = "Translate the claim into measurable project evidence." if english else "把判断转化为可复核的证据。"
+        takeaway_3 = "Prioritize customer segments where duration and safety create clear value." if english else "优先处理能改变决策的关键证据。"
         for idx, (title, lead, paragraphs, visual_hint) in enumerate(sections, start=1):
-            section_payload.append({"id": f"section-{idx}", "title": title, "lead": lead, "paragraphs": paragraphs, "key_takeaways": [summary[(idx - 1) % len(summary)], "Translate the claim into measurable project evidence.", "Prioritize customer segments where duration and safety create clear value."], "visual_hint": visual_hint})
+            section_payload.append({"id": f"section-{idx}", "title": title, "lead": lead, "paragraphs": paragraphs, "key_takeaways": [summary[(idx - 1) % len(summary)], takeaway_2, takeaway_3], "visual_hint": visual_hint})
         return {"report_title": topic, "report_subtitle": subtitle, "executive_summary": summary, "method_steps": [{"name": f"Step {i}", "description": "Used internally to structure the analysis."} for i in range(1, 8)], "issue_tree": plan.get("issue_tree", []), "sections": section_payload, "insight_cards": cards, "charts": charts, "references": refs, "_fallback_used": True, "_fallback_reason": reason[:2000]}
 
     def _post_process_report(self, report: Dict, display_topic: str) -> None:

@@ -48,6 +48,8 @@ def main() -> None:
     pptx_path = output_dir / "report.pptx"
     presentation_path = output_dir / "presentation.html"
     qa_path = output_dir / "qa_result.json"
+    quality_path = output_dir / "report_quality.json"
+    fact_pack_path = output_dir / "research_fact_pack.json"
 
     latex_result = render_latex_pdf(
         report=result.get("report", {}),
@@ -70,6 +72,8 @@ def main() -> None:
     print(f"PPTX generated at: {pptx_path}")
     print(f"HTML presentation generated at: {presentation_path}")
     print(f"QA result generated at: {qa_path}")
+    print(f"Report quality log generated at: {quality_path}")
+    print(f"Research fact pack generated at: {fact_pack_path}")
 
     step_summary = os.getenv("GITHUB_STEP_SUMMARY")
     if step_summary:
@@ -87,6 +91,8 @@ def main() -> None:
             f.write(f"- HTML Presentation: `{presentation_path}`\n")
             f.write(f"- QA passed: `{qa_result.get('passed')}`\n")
             f.write(f"- QA issues: `{len(qa_result.get('issues', []))}`\n")
+            f.write(f"- Content/format QA: `{quality_path}`\n")
+            f.write(f"- Research fact pack: `{fact_pack_path}`\n")
             f.write(f"- Assets: {len(result['asset_map'])}\n")
 
 

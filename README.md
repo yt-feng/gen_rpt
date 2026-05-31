@@ -5,13 +5,15 @@
 你可以在 GitHub Actions 里输入一段“选题描述”，然后自动完成这条链路：
 
 1. 用 DeepSeek 生成研究计划
-2. 自动做公开网页检索与资料抓取
-3. 按 Deep Research + 管理咨询问题拆解方式组织内容
-4. 自动生成品牌化洞察图卡与统一视觉风格图表
-5. 自动生成封面页、目录、免责声明
-6. 自动执行 PDF QA；若发现排版风险，会压缩内容并重新渲染
-7. 同步输出 `HTML + Markdown + PDF + PPTX + HTML 演讲稿`
-8. 把结果直接写回当前 repo 的 `reports/` 目录
+2. 自动做公开网页、PDF、公告/报告页面检索与资料抓取
+3. 把资料预处理成 evidence / fact pack，先校验来源数量、权威来源、数字事实和时间线
+4. 按 Deep Research + 管理咨询问题拆解方式组织内容
+5. 对报告结构、事实密度、引用来源、图表、语言和模板化风险做多轮内容 QA 与定向修订
+6. 自动生成品牌化洞察图卡与统一视觉风格图表
+7. 自动生成封面页、目录、免责声明
+8. 自动执行多轮 PDF QA；若发现排版风险，会清理元标签、重渲染并再次校验
+9. 同步输出 `HTML + Markdown + PDF + PPTX + HTML 演讲稿`
+10. 把结果直接写回当前 repo 的 `reports/` 目录
 
 ## 现在已经支持什么
 
@@ -26,8 +28,10 @@
 - **战略十问思维**：融合市场竞胜力、优势来源、趋势、不确定性、执行决心等维度
 - **Reference 弱化**：正式文件不直接列参考链接，只保留机构来源说明
 - **Reference backup**：完整来源底稿自动进入 `backup/` 文件夹
+- **Evidence / fact pack**：生成正文前先抽取事实包，记录来源、权威来源数量、关键事实句、数字事实和时间线
+- **内容多轮 QA**：检查章节数量、段落深度、数字/时间密度、引用是否来自抓取来源、图表是否泛化、语言是否混杂
 - **PDF QA**：自动检查 PDF 文本重叠、字体过小、异常大字、元标签泄露、页面密度风险
-- **自动修复**：QA 不通过时，会自动截短标题/正文/图表标签，切换 compact profile 并重渲染
+- **自动修复**：QA 不通过时，会执行内容定向修订、确定性清理、PDF 重渲染和再次校验
 - **多格式输出**：自动生成 `report.html`、`report.md`、`report.pdf`、`report.pptx`、`presentation.html`
 - **写回 repo**：不是 artifact，而是直接 commit 到仓库
 - **中文图表字体修复**：workflow 会安装 CJK 字体，并在 Matplotlib 中自动 fallback
@@ -81,6 +85,8 @@ reports/YYYY-MM-DD-your-topic-slug/
   report.pptx
   presentation.html
   qa_result.json
+  report_quality.json
+  research_fact_pack.json
   report_payload.json
   research_plan.json
   sources.json
@@ -99,17 +105,61 @@ reports/YYYY-MM-DD-your-topic-slug/
       page_002.png
 ```
 
+## 事实包、内容 QA 与 PDF QA
+
+生成正文前会先生成：
+
+```text
+research_fact_pack.json
+```
+
+这个文件保留：
+
+- 抓取来源数量和来源域名
+- 政府、交易所、监管、国际组织、公司公告等权威来源数量
+- 可核验的事实句
+- 数字事实、金额、比例、产能、市场/财务指标
+- 年份、季度、政策或事件时间线
+- 来源不足、数字不足、时间线不足等 validation issues
+
+正文生成后会输出：
+
+```text
+report_quality.json
+```
+
+它记录内容 QA 的轮次、每轮 issues、最终剩余问题，以及 PDF 排版 QA 的轮次。内容 QA 会检查：
+
+- sections 是否为 7-10 个，每章是否有 lead、3 段以上正文和 visual_hint
+- executive summary 是否足够
+- 数字和时间线密度是否匹配事实包
+- references 是否只使用已抓取资料里的真实 URL
+- charts 是否为 5-7 个，且不用 pie/donut，标题和分类不能泛化
+- 是否出现内部元标签、省略号、语言混杂或模板化段落开头
+
+可配置环境变量：
+
+```bash
+GEN_RPT_PER_QUERY=4
+GEN_RPT_MAX_SOURCES=16
+REPORT_MAX_CONTENT_QA_ROUNDS=2
+REPORT_MAX_LAYOUT_QA_ROUNDS=2
+```
+
 ## PDF QA 与自动修复
 
 生成流程现在是：
 
 ```text
-render HTML/MD/PDF
+collect/search/fetch sources and PDFs
+→ build research_fact_pack.json
+→ synthesize report JSON with evidence pack
+→ validate_report()
+→ 如果内容 QA 不通过：带 issues 做定向修订，最多多轮
+→ render HTML/MD/PDF
 → run_pdf_qa(report.pdf)
-→ 如果通过：继续生成 PPTX 与 HTML 演讲稿
-→ 如果不通过：apply_pdf_qa_fixes()
-→ 重新渲染 HTML/MD/PDF
-→ 再跑一次 QA
+→ 如果 PDF QA 不通过：apply_pdf_qa_fixes()
+→ 重新渲染 HTML/MD/PDF 并再次 QA，最多多轮
 → 生成 PPTX 与 HTML 演讲稿
 ```
 

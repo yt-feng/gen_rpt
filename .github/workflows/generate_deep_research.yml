@@ -52,9 +52,13 @@ jobs:
   generate-report:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Add generated deep research report')) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 70
     env:
       REPORT_PAGE_FORMAT: A4
+      GEN_RPT_PER_QUERY: 4
+      GEN_RPT_MAX_SOURCES: 16
+      REPORT_MAX_CONTENT_QA_ROUNDS: 2
+      REPORT_MAX_LAYOUT_QA_ROUNDS: 2
       MAX_AI_SECTION_IMAGES: 12
       AI_IMAGE_TIMEOUT: 45
       AI_IMAGE_RETRIES: 3

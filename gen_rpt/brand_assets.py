@@ -138,6 +138,9 @@ def write_reference_backup(output_dir: Path, references: List[Any], sources: Lis
         lines = [
             f"Title: {source.get('title', '')}",
             f"URL: {source.get('url', '')}",
+            f"Source Type: {source.get('source_type', '')}",
+            f"Domain: {source.get('domain', '')}",
+            f"Content Type: {source.get('content_type', '')}",
             f"Search Query: {source.get('query', '')}",
             "",
             str(source.get('content', '')),

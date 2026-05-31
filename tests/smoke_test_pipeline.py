@@ -13,7 +13,9 @@ from gen_rpt.brand_assets import copy_or_generate_brand_assets, summarize_refere
 from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.graphics import create_chart, create_insight_card
 from gen_rpt.latex_renderer import render_latex_pdf
+from gen_rpt.research_quality import apply_deterministic_report_fixes, build_research_fact_pack, validate_report
 from gen_rpt.report_renderer import render_report_html, render_report_markdown
+from gen_rpt.web_fetch import SourceDocument
 
 
 def main() -> None:
@@ -44,6 +46,25 @@ def main() -> None:
         "references": ["BloombergNEF 2024", {"title": "IEA report", "url": "https://www.iea.org/", "note": "Source"}],
     }
     report = normalize_structured_payload(payload)
+    fact_pack = build_research_fact_pack(
+        "Smoke topic",
+        {"objective": "Smoke topic", "decision_question": "Can the pipeline validate structure?"},
+        [
+            SourceDocument(
+                title="Example source",
+                url="https://example.gov/report",
+                query="smoke query",
+                snippet="In 2024, the market reached USD 12 billion with 18% growth.",
+                content="In 2024, the market reached USD 12 billion with 18% growth. The source states that capacity increased to 45 GW in 2025 and should be independently validated.",
+                source_type="html",
+                content_type="text/html",
+                domain="example.gov",
+            )
+        ],
+    )
+    validation_issues = validate_report(report, fact_pack, language="en")
+    assert validation_issues
+    report = apply_deterministic_report_fixes(report, fact_pack, language="en")
     report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), [])
 
     asset_map = copy_or_generate_brand_assets(assets)
