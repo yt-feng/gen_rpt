@@ -1,0 +1,20 @@
+{
+  "topic": "Nuclear fusion commercialization outlook and strategic implications",
+  "objective": "Assess the current state and future trajectory of nuclear fusion commercialization, and evaluate its strategic implications for energy markets, geopolitics, and technology investment.",
+  "decision_question": "Should our organization invest in or prepare for nuclear fusion technology, and what strategic moves are warranted given the projected commercialization timeline and competitive landscape?",
+  "source_count": 0,
+  "authoritative_source_count": 0,
+  "source_domains": [],
+  "source_refs": [],
+  "high_confidence_facts": [],
+  "numeric_facts": [],
+  "dated_facts": [],
+  "validation_issues": [
+    "资料来源偏少，当前仅0个。",
+    "来源域名多样性不足，当前0个。",
+    "缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。",
+    "可抽取事实句不足，生成时必须显式说明证据边界。",
+    "可核验数字事实不足，需继续收集市场规模、财务、交易、产能、份额或时间数据。",
+    "可核验时间线不足，需补充年份、季度、政策发布时间或交易节点。"
+  ]
+}
