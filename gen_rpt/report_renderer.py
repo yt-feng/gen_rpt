@@ -34,8 +34,8 @@ body {{ font-family:{FONT_FAMILY}; color:var(--ink); font-size:10.2pt; line-heig
 .cover-date {{ font-size:7.8pt; line-height:1.35; color:var(--ink); font-weight:bold; }}
 .cover-brand {{ position:absolute; right:.45in; bottom:.34in; z-index:2; color:#fff; font-size:18pt; font-weight:bold; letter-spacing:.01em; }}
 .logo-fixed {{ position:absolute; top:.14in; right:.28in; width:.48in; z-index:10; }}
-.page-header {{ position:absolute; top:.14in; left:{PAD_X}in; right:.92in; color:#9BA4AA; font-size:5.5pt; text-transform:uppercase; letter-spacing:.06em; }}
-.page-footer {{ position:absolute; bottom:.10in; left:{PAD_X}in; right:{PAD_X}in; display:flex; justify-content:space-between; color:#A9B0B5; font-size:5.5pt; }}
+.page-header {{ position:absolute; top:.14in; left:{PAD_X}in; right:.92in; color:#9BA4AA; font-size:7pt; text-transform:uppercase; letter-spacing:.06em; }}
+.page-footer {{ position:absolute; bottom:.10in; left:{PAD_X}in; right:{PAD_X}in; display:flex; justify-content:space-between; color:#A9B0B5; font-size:7pt; }}
 .kicker {{ color:var(--accent2); font-size:6.5pt; font-weight:bold; letter-spacing:.08em; text-transform:uppercase; margin-bottom:.045in; }}
 h1, h2, h3 {{ margin:0; letter-spacing:0; }}
 h2 {{ font-size:20pt; line-height:1.12; font-weight:400; color:var(--navy); margin-bottom:.10in; }}
