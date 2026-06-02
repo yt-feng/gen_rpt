@@ -1,0 +1,128 @@
+{
+  "objective": "Assess the current state and future trajectory of nuclear fusion commercialization, identify key strategic implications for stakeholders, and provide actionable insights for decision-makers.",
+  "audience": "Senior executives in energy and technology sectors, government policymakers, and strategic investors evaluating fusion energy opportunities.",
+  "decision_question": "What is the realistic timeline and competitive landscape for nuclear fusion commercialization, and what strategic moves should stakeholders make now to position themselves for success?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook",
+    "children": [
+      {
+        "node": "Technology Readiness",
+        "children": [
+          {
+            "node": "Magnetic confinement (tokamaks, stellarators) progress"
+          },
+          {
+            "node": "Inertial confinement and alternative approaches"
+          },
+          {
+            "node": "Key engineering challenges (materials, tritium breeding, heat extraction)"
+          }
+        ]
+      },
+      {
+        "node": "Market & Economics",
+        "children": [
+          {
+            "node": "Levelized cost of fusion energy projections"
+          },
+          {
+            "node": "Comparison with renewables, fission, and fossil fuels"
+          },
+          {
+            "node": "Regulatory and grid integration hurdles"
+          }
+        ]
+      },
+      {
+        "node": "Competitive & Investment Landscape",
+        "children": [
+          {
+            "node": "Major private fusion companies and their timelines"
+          },
+          {
+            "node": "Public-private partnerships (e.g., ITER, SPARC, STEP)"
+          },
+          {
+            "node": "Government funding and policy support"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Impact on energy security and geopolitics"
+          },
+          {
+            "node": "Implications for climate goals and decarbonization"
+          },
+          {
+            "node": "Opportunities for early movers and risk of delay"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025",
+    "private fusion companies latest milestones 2025",
+    "ITER project status and delays 2025",
+    "SPARC fusion reactor progress Commonwealth Fusion Systems",
+    "levelized cost of fusion energy projections 2030",
+    "fusion energy regulatory framework challenges",
+    "tritium breeding technology fusion reactors",
+    "fusion energy investment trends 2025",
+    "geopolitical implications of fusion energy",
+    "fusion vs renewables cost comparison 2025"
+  ],
+  "outline": [
+    "Fusion commercialization is advancing but faces a decade-long path to grid-scale power",
+    "Magnetic confinement leads in maturity, but alternative approaches show promise",
+    "Cost competitiveness remains uncertain; fusion likely to complement renewables",
+    "Private investment surges, but public funding remains critical for infrastructure",
+    "Strategic implications: energy independence, climate mitigation, and first-mover advantages"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion Technology Readiness Levels by Approach (2025)",
+      "type": "bar chart",
+      "description": "Compare TRL of magnetic confinement, inertial confinement, and other approaches."
+    },
+    {
+      "title": "Projected Levelized Cost of Fusion vs Other Energy Sources (2030-2050)",
+      "type": "line chart",
+      "description": "Show cost ranges for fusion, solar, wind, nuclear fission, and natural gas."
+    },
+    {
+      "title": "Global Fusion Investment by Source (Public vs Private, 2015-2025)",
+      "type": "stacked area chart",
+      "description": "Track funding trends from governments and private investors."
+    },
+    {
+      "title": "Timeline of Key Fusion Milestones (2025-2040)",
+      "type": "Gantt chart",
+      "description": "Map expected dates for major experiments, demo plants, and first commercial reactors."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "Fusion's 'Valley of Death'",
+      "content": "Despite technical progress, fusion faces a funding gap between demonstration and commercial deployment. Public-private risk-sharing mechanisms are essential."
+    },
+    {
+      "title": "Tritium Supply: The Hidden Bottleneck",
+      "content": "Current tritium production is insufficient for multiple fusion plants. Breeding blanket technology and alternative sources are critical."
+    },
+    {
+      "title": "First-Mover Advantage in Fusion",
+      "content": "Countries and companies that invest early in fusion supply chains and workforce development may capture significant economic and strategic benefits."
+    }
+  ],
+  "risks": [
+    "Technical risk: Unforeseen physics or engineering challenges delay commercialization beyond 2040.",
+    "Market risk: Rapid cost declines in renewables and storage erode fusion's competitive edge.",
+    "Regulatory risk: Lack of clear licensing frameworks for fusion reactors slows deployment.",
+    "Investment risk: Over-reliance on private capital may lead to boom-bust cycles.",
+    "Geopolitical risk: International collaboration (e.g., ITER) may fracture, slowing progress."
+  ]
+}
