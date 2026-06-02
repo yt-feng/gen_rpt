@@ -106,9 +106,28 @@ def main() -> None:
     assert (out / "report.md").exists()
     assert (out / "report_latex.tex").exists()
     html_text = (out / "report.html").read_text(encoding="utf-8")
-    assert "Management action plan" in html_text
-    assert "Risk register" in html_text
-    assert "CEO decision scenario" in html_text
+    markdown_text = (out / "report.md").read_text(encoding="utf-8")
+    latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
+    for text in [html_text, markdown_text, latex_text]:
+        lowered = text.lower()
+        assert "future action agenda" in lowered
+        assert "signals to watch" in lowered
+        assert "a concrete executive choice" in lowered
+        for internal_label in [
+            "Management action plan",
+            "Risk register",
+            "CEO decision scenario",
+            "Method and team",
+            "Executive summary",
+            "Key findings",
+            "Evidence:",
+            "Management implication:",
+            "internal framework",
+            "stress test",
+            "McKinsey",
+            "Mck",
+        ]:
+            assert internal_label.lower() not in lowered
     assert any((assets / f"chart-{idx}.png").exists() for idx in range(1, 5))
     if not latex_result.get("pdf_path"):
         error_path = out / "latex_error.txt"

@@ -19,18 +19,23 @@ HEADER = r'''
 \usepackage{array}
 \usepackage{fancyhdr}
 \usepackage{needspace}
+\usepackage{multicol}
+\usepackage{enumitem}
 \defaultfontfeatures{Ligatures=NoCommon}
 \IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
-\definecolor{BOBlue}{HTML}{0055A4}
-\definecolor{BOBright}{HTML}{3273F6}
-\definecolor{BONavy}{HTML}{051C2C}
-\definecolor{BOMuted}{HTML}{6F7F8F}
-\definecolor{BOLine}{HTML}{DCE3EA}
-\definecolor{BOLight}{HTML}{F4F8FC}
+\definecolor{BOBlue}{HTML}{0E6B72}
+\definecolor{BOBright}{HTML}{20A66A}
+\definecolor{BOGreen}{HTML}{00A651}
+\definecolor{BONavy}{HTML}{1B2A34}
+\definecolor{BOText}{HTML}{24323A}
+\definecolor{BOMuted}{HTML}{7C878E}
+\definecolor{BOLine}{HTML}{D9E1E6}
+\definecolor{BOLight}{HTML}{F2F6F4}
 \setlength{\parindent}{0pt}
-\setlength{\parskip}{4.2pt}
+\setlength{\parskip}{3.2pt}
 \setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.16}
+\setlist[itemize]{leftmargin=12pt,itemsep=1.5pt,topsep=2pt,parsep=0pt}
+\renewcommand{\arraystretch}{1.12}
 \hyphenpenalty=9000
 \exhyphenpenalty=9000
 \emergencystretch=2em
@@ -39,8 +44,10 @@ HEADER = r'''
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
-\fancyhead[L]{\scriptsize\color{BOMuted} BLUEOCEAN | CONFIDENTIAL}
-\fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean | Confidential}
+\fancyhead[L]{\scriptsize\color{BOMuted} BlueOcean}
+\fancyhead[R]{\scriptsize\color{BOMuted} Deep Research Report \hspace{6pt} \thepage}
+\fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean}
+\fancyfoot[C]{\scriptsize\color{BOMuted} This document is intended for strategy discussion.}
 \fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 '''
@@ -75,58 +82,92 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     title = _tex(title_text)
     summary = _summary_items(report.get('executive_summary', []))
     sections = _repair_sections(report, _safe_sections(report.get('sections', [])), topic, summary)
+    charts = _safe_charts(report.get('charts', []))
     refs = report.get('reference_institutions', []) or []
     parts = [HEADER, '\\begin{document}', '\\raggedright']
     parts.append(_cover_page(title, _asset_path(assets.get('cover-background', '')), topic))
     parts.append(_agenda_and_contents_page(summary, sections))
-    parts.append(_executive_summary_page(report, summary))
-    parts.append(_key_findings_page(report))
-    parts.append(_action_plan_page(report))
-    parts.append(_risk_register_page(report))
-    parts.append(_scenario_page(report))
-    parts.append(_methodology_page(report, refs))
+    parts.append(_opening_page(report, summary, sections, assets, topic))
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
+        if idx <= len(charts):
+            parts.append(_exhibit_page(charts[idx - 1], assets, idx))
+        if idx == 2:
+            parts.append(_decision_story_page(report))
+    parts.append(_leadership_agenda_page(report, sections))
     parts.append(_disclaimer_page(refs))
+    parts.append(_back_cover_page(_asset_path(assets.get('cover-background', ''))))
     parts.append('\\end{document}\n')
     return '\n'.join(parts)
 
 
 def _cover_page(title: str, cover: str, topic: str) -> str:
     if cover:
-        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.18] (current page.south west) rectangle (current page.north east);'
+        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.10] (current page.south west) rectangle (current page.north east);'
     else:
         bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
-    prepared = _tex('Prepared by BlueOcean | ' + date.today().isoformat())
+    prepared = _tex(date.today().isoformat())
     topic_line = _tex(_shorten(topic, 180))
     return r'''
 \thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
 ''' + bg + r'''
-\fill[white,opacity=.96] ([xshift=17mm,yshift=-28mm]current page.north west) rectangle ++(150mm,-62mm);
-\fill[BOBright] ([xshift=17mm,yshift=-28mm]current page.north west) rectangle ++(150mm,-2.1mm);
-\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-37mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOBlue} BLUEOCEAN\\DEEP RESEARCH REPORT};
-\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-53mm]current page.north west) {\parbox{132mm}{\raggedright\sffamily\fontsize{22}{25}\selectfont\color{BONavy} ''' + title + r'''}};
-\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-78mm]current page.north west) {\sffamily\scriptsize\color{BOMuted} ''' + prepared + r'''\\''' + topic_line + r'''};
+\fill[white,opacity=.96] ([xshift=16mm,yshift=-27mm]current page.north west) rectangle ++(126mm,-82mm);
+\fill[BOGreen] ([xshift=16mm,yshift=-27mm]current page.north west) rectangle ++(126mm,-2mm);
+\node[anchor=north west,text width=108mm] at ([xshift=24mm,yshift=-37mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH};
+\node[anchor=north west,text width=108mm] at ([xshift=24mm,yshift=-51mm]current page.north west) {\parbox{108mm}{\raggedright\sffamily\fontsize{23}{27}\selectfont\color{BONavy} ''' + title + r'''}};
+\node[anchor=north west,text width=108mm] at ([xshift=24mm,yshift=-94mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''\\\vspace{2pt}\color{BOMuted}''' + prepared + r'''};
+\node[anchor=south east] at ([xshift=-10mm,yshift=8mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
 \end{tikzpicture}
 \clearpage
 '''
 
 
 def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]) -> str:
-    heading = _agenda_heading(summary, sections)
-    summary_rows = []
-    for idx, item in enumerate(summary[:5], start=1):
-        summary_rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\footnotesize ' + _tex(_shorten(item, 245)) + '} \\\\[4pt]\n')
-    if not summary_rows:
-        summary_rows.append('\\textcolor{BOBlue}{\\bfseries 01} & {\\footnotesize Leadership should align resources to the few facts that change strategic choices.} \\\\[4pt]\n')
-
-    content_rows = []
+    rows = []
+    rows.append('\\textcolor{BOGreen}{\\bfseries 03} & ' + _tex(_shorten(_agenda_heading(summary, sections), 95)) + ' \\\\[7pt]\n')
+    start_page = 4
     for idx, section in enumerate(sections, start=1):
-        title = _tex(_strip_number_prefix(section.get('title', 'Section')))
-        content_rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + title + ' & {\\color{BOMuted}pp.~\\pageref{chap:' + str(idx) + '}--\\pageref{chap:' + str(idx) + ':end}} \\\\[3pt]\n')
+        title = _tex(_shorten(_strip_number_prefix(section.get('title', 'Section')), 100))
+        page_no = f'{start_page + (idx - 1) * 2:02d}'
+        rows.append('\\textcolor{BOGreen}{\\bfseries ' + page_no + '} & ' + title + ' \\\\[5pt]\n')
+        for sub in _section_content_hints(section)[:3]:
+            rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_shorten(sub, 72)) + '} \\\\[1pt]\n')
+    rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{start_page + len(sections) * 2 + 1:02d}' + '} & ' + _tex('Future action agenda') + ' \\\\[5pt]\n')
+    rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{start_page + len(sections) * 2 + 2:02d}' + '} & ' + _tex('About this research') + ' \\\\[5pt]\n')
+    return (
+        '\\clearpage\n'
+        '{\\sffamily\\fontsize{26}{31}\\selectfont\\color{BONavy} Contents}\\par\\vspace{10pt}\n'
+        '\\begin{tabularx}{\\linewidth}{p{14mm}Y}\n'
+        + ''.join(rows)
+        + '\\end{tabularx}\n\\clearpage\n'
+    )
 
-    return _kicker('Executive conclusions and contents') + _heading(heading) + _rule() + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n' + ''.join(summary_rows) + '\\end{tabularx}\n\\vspace{6pt}\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries CONTENTS}}\\par\\vspace{2pt}\n\\begin{tabularx}{\\linewidth}{p{8mm}Yp{29mm}}\n' + ''.join(content_rows) + '\\end{tabularx}\n\\clearpage\n'
+
+def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
+    title = _tex(_shorten(_agenda_heading(summary, sections), 92))
+    narrative = _normalize_punctuation(str(report.get('executive_summary_text') or '').strip())
+    if not narrative:
+        narrative = ' '.join(summary[:3])
+    narrative = _tex(_shorten(narrative, 1200))
+    visual = _asset_path(assets.get('image-1', '')) or _asset_path(assets.get('cover-background', ''))
+    image = _full_width_image(visual, '0.47\\paperwidth', '39mm') if visual else ''
+    bullets = summary[:4] or [_strip_number_prefix(x.get('title', '')) for x in sections[:4]]
+    bullet_block = ''.join('\\item ' + _tex(_shorten(item, 145)) + '\n' for item in bullets if str(item).strip())
+    if bullet_block:
+        bullet_block = '\\begin{itemize}\n' + bullet_block + '\\end{itemize}\n'
+    return (
+        '\\clearpage\n'
+        + (image + '\\vspace{6pt}\n' if image else '')
+        + '{\\sffamily\\fontsize{22}{27}\\selectfont\\color{BONavy} ' + title + '}\\par\\vspace{4pt}\n'
+        + '{\\sffamily\\fontsize{12}{16}\\selectfont\\color{BOGreen} ' + _tex(_shorten(topic, 150)) + '}\\par\\vspace{8pt}\n'
+        + '\\begin{minipage}[t]{0.48\\linewidth}\n'
+        + '{\\small\\color{BOText} ' + narrative + '}\\par\n'
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries WHAT CHANGES FOR LEADERS}}\\par\\vspace{3pt}\n'
+        + '{\\footnotesize ' + bullet_block + '}'
+        + '\\end{minipage}\n\\clearpage\n'
+    )
 
 
 def _executive_summary_page(report: Dict[str, Any], summary: List[str]) -> str:
@@ -229,19 +270,27 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     lead_raw = str(section.get('lead', '') or '').strip()
     lead = _tex(_shorten(lead_raw, 320))
     paras = _paras(section)
-    visual = _image_block(_resolve_image(section, assets, idx), '64mm', '45mm')
-    chart_path = _resolve_chart(assets, idx)
-    chart = _center_image(chart_path, '0.88\\linewidth', '62mm') if chart_path else ''
+    visual_path = _resolve_image(section, assets, idx)
+    visual = _full_width_image(visual_path, '\\linewidth', '43mm') if visual_path else ''
 
-    chapter = '\\clearpage\n\\label{chap:' + str(idx) + '}\n' + _kicker('Chapter ' + str(idx)) + _heading(title)
+    chapter = '\\clearpage\n\\label{chap:' + str(idx) + '}\n'
+    if idx % 2 == 1 and visual:
+        chapter += visual + '\\vspace{5pt}\n'
+    chapter += _kicker('Chapter ' + str(idx)) + _heading(title)
     if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
-        chapter += '{\\textcolor{BOBlue}{\\normalsize ' + lead + '}}\\par\\vspace{3pt}\n'
-    chapter += '\\begin{minipage}[t]{0.58\\linewidth}\n' + _para(paras[0]) + _para(paras[1]) + _para(paras[2]) + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n\\vspace{0pt}\n' + visual + '\n\\end{minipage}\\par\\vspace{5pt}\n'
-    for paragraph in paras[3:6]:
-        chapter += _para(paragraph)
-    if chart:
-        chapter += '\\vspace{5pt}\n' + chart + '\\vspace{4pt}\n'
-    chapter += _subsection_blocks(section, paras[6:])
+        chapter += '{\\sffamily\\fontsize{12}{15}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{6pt}\n'
+    if idx % 2 == 0:
+        chapter += (
+            '\\begin{minipage}[t]{0.55\\linewidth}\n'
+            + _paragraph_group(paras[:4])
+            + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.39\\linewidth}\n\\vspace{0pt}\n'
+            + (visual if visual else _callout_box(_section_content_hints(section)[:3]))
+            + '\\end{minipage}\\par\\vspace{4pt}\n'
+        )
+        chapter += _paragraph_group(paras[4:8])
+    else:
+        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:8]) + '\\end{multicols}\n'
+    chapter += _subsection_blocks(section, paras[8:])
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
@@ -272,19 +321,134 @@ def _subhead(text: str) -> str:
     return '\\vspace{4pt}{\\color{BOBlue}\\sffamily\\bfseries\\small ' + _tex(text) + '}\\par\\vspace{1pt}\n'
 
 
+def _full_width_image(path: str, width: str, height: str) -> str:
+    if not path:
+        return ''
+    return '\\includegraphics[width=' + width + ',height=' + height + ',keepaspectratio]{' + path + '}'
+
+
+def _paragraph_group(paragraphs: List[str]) -> str:
+    return ''.join(_para(p) for p in paragraphs if str(p).strip())
+
+
+def _callout_box(items: List[str]) -> str:
+    bullets = ''.join('\\item ' + _tex(_shorten(item, 130)) + '\n' for item in items if str(item).strip())
+    if not bullets:
+        bullets = '\\item Focus on the few facts that change the management decision.\n'
+    return (
+        '\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}[t][44mm][t]{0.95\\linewidth}'
+        '\\vspace{4pt}{\\textcolor{BOGreen}{\\scriptsize\\bfseries WHAT TO WATCH}}\\par'
+        '\\vspace{2pt}{\\footnotesize\\begin{itemize}\n' + bullets + '\\end{itemize}}'
+        '\\end{minipage}}'
+    )
+
+
+def _exhibit_page(chart: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
+    title = _tex(_shorten(chart.get('title') or f'Figure {idx}', 125))
+    subtitle = _tex(_shorten(chart.get('subtitle') or chart.get('caption') or '', 210))
+    caption = _tex(_shorten(chart.get('caption') or '', 260))
+    source = _tex(_shorten(chart.get('source_note') or 'Source: public sources and BlueOcean synthesis.', 180))
+    path = _asset_path(assets.get(str(chart.get('id') or f'chart-{idx}'), '')) or _resolve_chart(assets, idx)
+    visual = _center_image(path, '0.95\\linewidth', '98mm') if path else _callout_box([caption or subtitle])
+    return (
+        '\\clearpage\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries FIGURE ' + str(idx) + '}}\\par\\vspace{3pt}\n'
+        + '{\\sffamily\\fontsize{15}{19}\\selectfont\\color{BONavy} ' + title + '}\\par\n'
+        + ('{\\small\\color{BOMuted} ' + subtitle + '}\\par\\vspace{6pt}\n' if subtitle else '\\vspace{6pt}\n')
+        + visual
+        + ('\\vspace{3pt}{\\footnotesize\\color{BOText} ' + caption + '}\\par\n' if caption else '')
+        + '{\\scriptsize\\color{BOMuted} ' + source + '}\\par\n'
+    )
+
+
+def _decision_story_page(report: Dict[str, Any]) -> str:
+    scenarios = _as_list(report.get('scenario_vignettes'))[:1]
+    if scenarios and isinstance(scenarios[0], dict):
+        item = scenarios[0]
+        title = _field(item, 'title') or 'A boardroom question'
+        situation = _field(item, 'situation')
+        question = _field(item, 'ceo_question')
+        move = _field(item, 'recommended_move')
+        watchouts = _field(item, 'watchouts')
+    else:
+        title = 'A boardroom question'
+        situation = 'Leadership must decide which moves can be made now and which should wait for stronger evidence.'
+        question = 'What should be done before the next major commitment?'
+        move = 'Keep learning options open while reserving larger commitments for verified proof points.'
+        watchouts = 'Avoid treating market enthusiasm as a substitute for validated economics.'
+    if _looks_like_internal_label(title):
+        title = 'A concrete executive choice'
+    return (
+        '\\clearpage\n'
+        + '{\\sffamily\\fontsize{21}{26}\\selectfont\\color{BONavy} ' + _tex(_shorten(title, 100)) + '}\\par\\vspace{7pt}\n'
+        + '\\begin{minipage}[t]{0.47\\linewidth}\n'
+        + _para(_tex(_shorten(situation, 620)))
+        + _para(_tex(_shorten(move, 520)))
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries DECISION QUESTION}}\\par\\vspace{3pt}\n'
+        + '{\\sffamily\\fontsize{14}{18}\\selectfont\\color{BOText} ' + _tex(_shorten(question, 260)) + '}\\par\\vspace{8pt}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries WATCHOUT}}\\par\\vspace{3pt}\n'
+        + '{\\footnotesize\\color{BOMuted} ' + _tex(_shorten(watchouts, 320)) + '}\\par'
+        + '\\end{minipage}\n'
+    )
+
+
+def _leadership_agenda_page(report: Dict[str, Any], sections: List[Dict[str, Any]]) -> str:
+    actions = _as_list(report.get('action_plan'))[:4]
+    risks = _as_list(report.get('risk_register'))[:4]
+    action_items = []
+    for item in actions:
+        action_items.append(_field(item, 'action') or _field(item, 'recommended_move') or _item_to_text(item))
+    if not action_items:
+        action_items = [_strip_number_prefix(section.get('lead') or section.get('title') or '') for section in sections[:4]]
+    risk_items = []
+    for item in risks:
+        trigger = _field(item, 'trigger')
+        action = _field(item, 'management_action')
+        risk = _field(item, 'risk')
+        risk_items.append('; '.join(x for x in [risk, trigger, action] if x))
+    left = ''.join('\\item ' + _tex(_shorten(x, 170)) + '\n' for x in action_items if str(x).strip())
+    right = ''.join('\\item ' + _tex(_shorten(x, 170)) + '\n' for x in risk_items if str(x).strip())
+    return (
+        '\\clearpage\n'
+        + '{\\sffamily\\fontsize{21}{26}\\selectfont\\color{BONavy} Future action agenda}\\par\\vspace{7pt}\n'
+        + '\\begin{minipage}[t]{0.47\\linewidth}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries PRIORITIES}}\\par\\vspace{3pt}\n'
+        + '{\\small\\begin{itemize}\n' + (left or '\\item Convert the report into a short list of decisions, owners and proof points.\n') + '\\end{itemize}}\n'
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries SIGNALS TO WATCH}}\\par\\vspace{3pt}\n'
+        + '{\\small\\begin{itemize}\n' + (right or '\\item Revisit the thesis when the public evidence base, economics or regulatory path changes.\n') + '\\end{itemize}}\n'
+        + '\\end{minipage}\n'
+    )
+
+
 def _disclaimer_page(refs: List[Any]) -> str:
     reference_note = ''
     if refs:
         reference_note = 'This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. The detailed source backup is retained in the backup folder rather than reproduced in the client-facing document. '
     body = (
-        'This document has been prepared by BlueOcean for strategy discussion, industry analysis and executive decision support. It is not intended to constitute investment advice, securities research, legal advice, tax advice, audit assurance, fairness opinion, valuation opinion, or a recommendation to buy or sell any security, financial instrument, company, project or asset. '
-        'The analysis relies on public sources, model-assisted synthesis and management-consulting judgment. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. '
-        'Any forward-looking views are inherently uncertain and may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. BlueOcean does not guarantee the completeness, accuracy or timeliness of third-party information and accepts no responsibility for decisions made solely on the basis of this document. '
+        'This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. '
+        'Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. '
+        'Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. '
         + reference_note +
-        'Recipients should perform their own diligence, consult professional advisers where appropriate, and treat this report as one input into a broader decision process rather than as a definitive factual record.'
+        'Recipients should perform their own diligence and treat this report as one input into a broader decision process.'
     )
-    filler = body + ' ' + body
-    return '\\clearpage\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries DISCLAIMER}}\\par\\vspace{3pt}\n{\\Large\\sffamily\\bfseries\\color{BONavy} Disclaimer}\\par\\vspace{4pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + filler + '}\n'
+    return '\\clearpage\n{\\sffamily\\fontsize{20}{25}\\selectfont\\color{BONavy} About this research}\\par\\vspace{6pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + body + '}\n'
+
+
+def _back_cover_page(cover: str) -> str:
+    if cover:
+        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[black,opacity=.45] (current page.south west) rectangle (current page.north east);'
+    else:
+        bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
+    return r'''
+\clearpage
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+''' + bg + r'''
+\node[anchor=south east] at ([xshift=-11mm,yshift=10mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
+\end{tikzpicture}
+'''
 
 
 def _repair_sections(report: Dict[str, Any], sections: List[Dict[str, Any]], topic: str, summary: List[str]) -> List[Dict[str, Any]]:
@@ -424,9 +588,9 @@ def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
             continue
         if cleaned.lower().startswith(('this report', 'the report', 'our analysis')):
             continue
-        return _tex(_shorten(cleaned, 118))
+        return _shorten(cleaned, 118)
     if sections:
-        return _tex(_shorten(_strip_number_prefix(sections[0].get('title', 'Management agenda')), 118))
+        return _shorten(_strip_number_prefix(sections[0].get('title', 'Management agenda')), 118)
     return 'Management should focus on the few moves that can change the outcome'
 
 
@@ -498,12 +662,46 @@ def _safe_sections(value: Any) -> List[Dict[str, Any]]:
     return [{'title': 'Executive priorities and implications', 'lead': 'The analysis should be translated into a concise management agenda.', 'paragraphs': ['The evidence should be organized around decision quality, execution timing and management implications.'], 'key_takeaways': ['Prioritize actionability.'], 'visual_hint': 'image-1'}]
 
 
+def _safe_charts(value: Any) -> List[Dict[str, Any]]:
+    charts = []
+    for idx, item in enumerate(_as_list(value), start=1):
+        if not isinstance(item, dict):
+            continue
+        chart = dict(item)
+        chart['id'] = str(chart.get('id') or f'chart-{idx}')
+        charts.append(chart)
+    return charts[:8]
+
+
+def _section_content_hints(section: Dict[str, Any]) -> List[str]:
+    hints = []
+    for item in _as_list(section.get('key_takeaways')):
+        text = _normalize_punctuation(str(item or '').strip())
+        if text:
+            hints.append(text)
+    for item in _as_list(section.get('paragraphs')):
+        text = _normalize_punctuation(str(item or '').strip())
+        if text and len(text) > 35:
+            hints.append(_title_from_sentence(text))
+        if len(hints) >= 4:
+            break
+    return _dedupe(hints)[:4]
+
+
 def _as_list(value: Any) -> List[Any]:
     if value is None:
         return []
     if isinstance(value, list):
         return value
     return [value]
+
+
+def _item_to_text(value: Any) -> str:
+    if isinstance(value, dict):
+        return ' '.join(str(v) for v in value.values() if isinstance(v, (str, int, float)) and str(v).strip())
+    if isinstance(value, list):
+        return ' '.join(_item_to_text(x) for x in value)
+    return str(value or '')
 
 
 def _field(item: Any, key: str, default: str = '') -> str:
@@ -517,6 +715,20 @@ def _summary_items(value: Any) -> List[str]:
     if len(raw) <= 2 and raw and len(' '.join(raw)) > 450:
         raw = [s.strip() for s in re.split(r'(?<=[.!?])\s+', ' '.join(raw)) if len(s.strip()) > 20]
     return [_normalize_punctuation(x) for x in raw[:8]]
+
+
+def _looks_like_internal_label(text: str) -> bool:
+    cleaned = _normalize_punctuation(text).strip().lower()
+    labels = {
+        'executive summary',
+        'key findings',
+        'management action plan',
+        'risk register',
+        'ceo decision scenario',
+        'method and team',
+        'methodology',
+    }
+    return cleaned in labels or cleaned.startswith(('ceo decision', 'management action', 'risk register'))
 
 
 def _strip_number_prefix(text: str) -> str:
@@ -544,8 +756,36 @@ def _normalize_punctuation(text: str) -> str:
     return text
 
 
+def _reader_clean(text: str) -> str:
+    text = _normalize_punctuation(text)
+    replacements = [
+        (r'\bCEO decision scenario\b', 'A concrete executive choice'),
+        (r'\bManagement action plan\b', 'Future action agenda'),
+        (r'\bRisk register\b', 'Signals to watch'),
+        (r'\bMethod and team\b', 'About this research'),
+        (r'\bKey findings\b', 'Main conclusions'),
+        (r'\bExecutive summary\b', 'Opening view'),
+        (r'\bEvidence:\s*', ''),
+        (r'\bManagement implication:\s*', ''),
+        (r'\bCEO question:\s*', 'Decision question: '),
+        (r'\bRecommended move:\s*', 'Recommended move: '),
+        (r'\bpublic-evidence boundary\b', 'available public record'),
+        (r'\bevidence boundary\b', 'available public record'),
+        (r'\bsource backup\b', 'supporting sources'),
+        (r'\bevidence gates\b', 'verified milestones'),
+        (r'\bdecision gates\b', 'decision milestones'),
+        (r'\bvalidation gaps\b', 'open questions'),
+        (r'\bmodel-assisted synthesis\b', 'research synthesis'),
+        (r'\binternal executive strategy stress test\b', ''),
+        (r'\binternal framework\b', ''),
+    ]
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.I)
+    return re.sub(r'\s+', ' ', text).strip()
+
+
 def _tex(value: Any) -> str:
     text = str(value or '').replace('\u00ad', '').replace('\ufffe', '').replace('\ufeff', '')
-    text = _normalize_punctuation(' '.join(text.replace('\n', ' ').split()))
+    text = _reader_clean(' '.join(text.replace('\n', ' ').split()))
     mapping = {'\\': r'\textbackslash{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
     return ''.join(mapping.get(ch, ch) for ch in text)

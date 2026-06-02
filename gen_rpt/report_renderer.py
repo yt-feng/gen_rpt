@@ -3,6 +3,8 @@ from __future__ import annotations
 import html
 import os
 import re
+import unicodedata
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -15,85 +17,108 @@ REPORT_LABEL = THEME.get("report_label", "Deep Research Report")
 FONT_FAMILY = THEME.get("font_family", "Trebuchet MS, Aptos, Arial, sans-serif")
 PAGE_FORMAT = os.getenv("REPORT_PAGE_FORMAT", "A4").upper()
 PAGE_W, PAGE_H = (8.27, 11.69) if PAGE_FORMAT == "A4" else (6.93, 9.84)
-PAD_X, PAD_TOP, PAD_BOTTOM = (0.42, 0.38, 0.30) if PAGE_FORMAT == "A4" else (0.30, 0.30, 0.24)
+PAD_X, PAD_TOP, PAD_BOTTOM = (0.46, 0.42, 0.34) if PAGE_FORMAT == "A4" else (0.34, 0.34, 0.27)
 
 CSS = f"""
 @page {{ size:{PAGE_W}in {PAGE_H}in; margin:0; }}
-:root {{ --accent:{PALETTE['accent']}; --accent2:{PALETTE.get('bright_blue', PALETTE['accent'])}; --ink:{PALETTE['ink']}; --muted:{PALETTE['subtle']}; --line:{PALETTE['line']}; --paper:{PALETTE['paper']}; --panel:{PALETTE['panel']}; }}
+:root {{ --accent:#00A651; --accent2:#0E6B72; --navy:#1B2A34; --ink:#24323A; --muted:#7C878E; --line:#D9E1E6; --paper:#FFFFFF; --panel:#F2F6F4; --brand:{PALETTE.get('accent', '#003087')}; }}
 * {{ box-sizing:border-box; }}
 html, body {{ width:{PAGE_W}in; margin:0; padding:0; background:#fff; }}
-body {{ font-family:{FONT_FAMILY}; color:var(--ink); font-size:10.6pt; line-height:1.34; }}
+body {{ font-family:{FONT_FAMILY}; color:var(--ink); font-size:10.2pt; line-height:1.36; }}
 .page {{ width:{PAGE_W}in; height:{PAGE_H}in; margin:0; background:var(--paper); position:relative; padding:{PAD_TOP}in {PAD_X}in {PAD_BOTTOM}in {PAD_X}in; page-break-after:always; overflow:hidden; }}
 .cover {{ padding:0; background-size:cover; background-position:center; }}
-.cover::after {{ content:""; position:absolute; inset:0; background:linear-gradient(90deg, rgba(5,28,44,.88), rgba(5,28,44,.52), rgba(5,28,44,.06)); }}
-.cover-panel {{ position:absolute; left:.48in; top:.62in; width:5.25in; background:rgba(255,255,255,.95); color:var(--ink); padding:.24in .28in; z-index:2; border-top:.055in solid var(--accent2); }}
-.cover-panel .eyebrow {{ font-size:7pt; color:var(--accent); font-weight:bold; letter-spacing:.06em; text-transform:uppercase; }}
-.cover-panel h1 {{ font-size:22pt; line-height:1.07; font-weight:400; margin:.14in 0 .13in; }}
-.cover-date {{ font-size:7.6pt; color:#5f666e; font-weight:bold; }}
-.logo-fixed {{ position:absolute; top:.12in; right:.28in; width:.50in; z-index:10; }}
-.page-header {{ position:absolute; top:.12in; left:{PAD_X}in; right:.92in; color:#98A1AA; font-size:5.4pt; text-transform:uppercase; letter-spacing:.05em; }}
-.page-footer {{ position:absolute; bottom:.09in; left:{PAD_X}in; right:{PAD_X}in; display:flex; justify-content:space-between; color:#A8B0B8; font-size:5.4pt; }}
-.kicker {{ color:var(--accent); font-size:6.6pt; font-weight:bold; letter-spacing:.08em; text-transform:uppercase; margin-bottom:.05in; }}
-h1, h2, h3 {{ margin:0; }} h2 {{ font-size:17pt; line-height:1.12; font-weight:400; color:var(--ink); margin-bottom:.10in; }}
-.lead {{ font-size:12pt; line-height:1.20; color:var(--accent); font-weight:400; margin:.045in 0 .10in; }}
-p {{ margin:0 0 .062in; }} ul, ol {{ margin:.02in 0 .04in .16in; padding:0; }} li {{ margin-bottom:.03in; }}
-.contents-list {{ margin-top:.15in; font-size:9.2pt; line-height:1.35; }} .contents-list li {{ margin-bottom:.055in; }}
-.highlight-grid {{ display:grid; grid-template-columns:repeat(2,1fr); gap:.08in .11in; margin-top:.10in; }}
-.highlight-card {{ border-left:3px solid var(--accent); background:#fff; padding:.06in .075in; min-height:.55in; box-shadow:0 0 0 1px var(--line); }}
-.highlight-card .num {{ color:var(--accent); font-size:7.8pt; font-weight:bold; margin-bottom:.016in; }} .highlight-card .text {{ color:var(--ink); font-size:7.5pt; line-height:1.20; }}
-.narrative {{ font-size:10.8pt; line-height:1.34; color:var(--ink); margin:.08in 0 .11in; }}
-.module-grid {{ display:grid; grid-template-columns:repeat(2,1fr); gap:.10in .12in; margin-top:.08in; }}
-.module-card {{ background:#fff; border-left:3px solid var(--accent); box-shadow:0 0 0 1px var(--line); padding:.075in .09in; min-height:.88in; page-break-inside:avoid; }}
-.module-card .label {{ color:var(--accent); font-size:6.6pt; font-weight:bold; text-transform:uppercase; margin-bottom:.03in; }}
-.module-card .title {{ font-size:8.7pt; line-height:1.18; color:var(--ink); font-weight:bold; margin-bottom:.03in; }}
-.module-card .meta {{ font-size:7.1pt; line-height:1.24; color:var(--muted); }}
-.table-lite {{ width:100%; border-collapse:collapse; margin-top:.08in; font-size:7.2pt; line-height:1.20; }}
-.table-lite th {{ color:var(--accent); text-align:left; border-bottom:1px solid var(--line); padding:.045in; font-size:6.5pt; text-transform:uppercase; }}
-.table-lite td {{ vertical-align:top; border-bottom:1px solid var(--line); padding:.045in; }}
-.scenario-box {{ background:#fff; border-top:3px solid var(--accent2); box-shadow:0 0 0 1px var(--line); padding:.13in .16in; margin-top:.10in; }}
-.scenario-box h3 {{ font-size:12pt; line-height:1.15; color:var(--ink); margin-bottom:.07in; }}
-.section-grid {{ display:grid; grid-template-columns:1.02fr .98fr; gap:.20in; align-items:start; }}
-.section-visual {{ width:100%; height:3.95in; object-fit:cover; display:block; border:0; }} .chart-inline {{ width:100%; max-height:3.85in; object-fit:contain; border:none; margin:.06in 0; }}
-.placeholder {{ height:3.95in; background:linear-gradient(135deg,#F5F9FC,#E6F1FA); border:1px solid var(--line); position:relative; }}
-.placeholder::before {{ content:""; position:absolute; left:.25in; right:.25in; top:1.6in; height:.035in; background:var(--accent2); transform:rotate(-14deg); }}
-.placeholder::after {{ content:"Strategic visual"; position:absolute; left:.25in; bottom:.25in; color:var(--muted); font-size:7pt; }}
-.takeaway {{ border-left:3px solid var(--accent); background:#F6FAFD; padding:.065in .085in; margin:.075in 0 .06in; page-break-inside:avoid; font-size:7.3pt; line-height:1.20; }} .takeaway strong {{ display:block; margin-bottom:.02in; }}
-.reference-note, .disclaimer-text, .small-note {{ color:var(--muted); font-size:7.8pt; line-height:1.36; }} .reference-note {{ border-top:1px solid var(--line); padding-top:.07in; }}
+.cover::after {{ content:""; position:absolute; inset:0; background:rgba(27,42,52,.10); }}
+.cover-panel {{ position:absolute; left:.63in; top:.72in; width:4.95in; min-height:3.20in; background:rgba(255,255,255,.96); padding:.28in .32in .26in; z-index:2; border-top:.06in solid var(--accent); }}
+.cover-panel .eyebrow {{ font-size:7pt; color:var(--muted); font-weight:bold; letter-spacing:.08em; text-transform:uppercase; }}
+.cover-panel h1 {{ font-size:23pt; line-height:1.10; font-weight:400; color:var(--navy); margin:.18in 0 .20in; }}
+.cover-date {{ font-size:7.8pt; line-height:1.35; color:var(--ink); font-weight:bold; }}
+.cover-brand {{ position:absolute; right:.45in; bottom:.34in; z-index:2; color:#fff; font-size:18pt; font-weight:bold; letter-spacing:.01em; }}
+.logo-fixed {{ position:absolute; top:.14in; right:.28in; width:.48in; z-index:10; }}
+.page-header {{ position:absolute; top:.14in; left:{PAD_X}in; right:.92in; color:#9BA4AA; font-size:5.5pt; text-transform:uppercase; letter-spacing:.06em; }}
+.page-footer {{ position:absolute; bottom:.10in; left:{PAD_X}in; right:{PAD_X}in; display:flex; justify-content:space-between; color:#A9B0B5; font-size:5.5pt; }}
+.kicker {{ color:var(--accent2); font-size:6.5pt; font-weight:bold; letter-spacing:.08em; text-transform:uppercase; margin-bottom:.045in; }}
+h1, h2, h3 {{ margin:0; letter-spacing:0; }}
+h2 {{ font-size:20pt; line-height:1.12; font-weight:400; color:var(--navy); margin-bottom:.10in; }}
+h3 {{ font-size:12.2pt; line-height:1.18; font-weight:bold; color:var(--navy); margin-bottom:.055in; }}
+p {{ margin:0 0 .068in; }}
+ul, ol {{ margin:.02in 0 .05in .17in; padding:0; }}
+li {{ margin-bottom:.034in; }}
+.contents-table {{ width:100%; border-collapse:collapse; margin-top:.10in; }}
+.contents-table td {{ vertical-align:top; padding:.030in 0; }}
+.contents-page {{ width:.52in; color:var(--accent); font-weight:bold; font-size:9.5pt; }}
+.contents-title {{ color:var(--ink); font-size:10.5pt; line-height:1.22; }}
+.contents-sub {{ color:var(--muted); font-size:7.1pt; line-height:1.18; padding-top:.010in; }}
+.opening-visual, .chapter-visual {{ width:100%; height:1.72in; object-fit:cover; display:block; margin-bottom:.18in; }}
+.opening-title {{ font-size:22pt; line-height:1.12; color:var(--navy); font-weight:400; margin-bottom:.05in; }}
+.lead {{ font-size:12.1pt; line-height:1.22; color:var(--accent2); font-weight:400; margin:.045in 0 .12in; }}
+.two-col {{ display:grid; grid-template-columns:1fr 1fr; gap:.28in; align-items:start; }}
+.two-col p {{ font-size:9.4pt; line-height:1.34; }}
+.side-note {{ border-left:.035in solid var(--accent); padding-left:.10in; color:var(--ink); font-size:8.0pt; line-height:1.24; }}
+.side-note b {{ color:var(--accent2); display:block; font-size:6.6pt; letter-spacing:.07em; text-transform:uppercase; margin-bottom:.03in; }}
+.chapter-grid {{ display:grid; grid-template-columns:.54fr .46fr; gap:.25in; align-items:start; }}
+.chapter-grid.reverse {{ grid-template-columns:.48fr .52fr; }}
+.body-copy p {{ font-size:9.15pt; line-height:1.34; }}
+.section-visual {{ width:100%; height:3.72in; object-fit:cover; display:block; }}
+.takeaway {{ border-left:.035in solid var(--accent); background:var(--panel); padding:.075in .095in; margin:.085in 0 .065in; page-break-inside:avoid; font-size:7.4pt; line-height:1.22; }}
+.takeaway strong {{ display:block; color:var(--accent2); font-size:6.4pt; letter-spacing:.06em; text-transform:uppercase; margin-bottom:.025in; }}
+.exhibit-img {{ width:100%; height:6.82in; object-fit:contain; display:block; margin:.12in 0 .08in; }}
+.figure-note {{ color:var(--muted); font-size:7.4pt; line-height:1.28; }}
+.scenario-box {{ border-top:.055in solid var(--accent); background:#fff; box-shadow:0 0 0 1px var(--line); padding:.18in .20in; min-height:3.9in; }}
+.scenario-box p {{ font-size:9.2pt; line-height:1.35; }}
+.scenario-label {{ color:var(--accent2); font-size:6.5pt; font-weight:bold; letter-spacing:.07em; text-transform:uppercase; margin:.10in 0 .03in; }}
+.agenda-cols {{ display:grid; grid-template-columns:1fr 1fr; gap:.28in; margin-top:.12in; }}
+.agenda-list {{ border-top:.035in solid var(--accent); padding-top:.09in; }}
+.agenda-list h3 {{ font-size:10.5pt; color:var(--accent2); text-transform:uppercase; letter-spacing:.05em; }}
+.agenda-list li {{ font-size:8.55pt; line-height:1.27; margin-bottom:.055in; }}
+.about-text {{ color:var(--muted); font-size:8.45pt; line-height:1.42; column-count:2; column-gap:.32in; }}
+.reference-note {{ color:var(--muted); font-size:7.6pt; line-height:1.35; border-top:1px solid var(--line); padding-top:.08in; margin-top:.16in; }}
+.placeholder {{ width:100%; height:3.72in; background:linear-gradient(135deg,#F5F9FC,#E7F1EA); border:1px solid var(--line); position:relative; }}
+.placeholder::before {{ content:""; position:absolute; left:.30in; right:.30in; top:1.58in; height:.035in; background:var(--accent); transform:rotate(-14deg); }}
+.placeholder::after {{ content:"Strategic visual"; position:absolute; left:.30in; bottom:.26in; color:var(--muted); font-size:7pt; }}
+.back-cover {{ padding:0; background-size:cover; background-position:center; }}
+.back-cover::after {{ content:""; position:absolute; inset:0; background:rgba(0,0,0,.45); }}
+.back-cover .cover-brand {{ color:#fff; }}
 @media print {{ html, body {{ width:{PAGE_W}in; }} .page {{ margin:0; box-shadow:none; }} }}
 """
 
 LABELS = {
     "en": {
         "lang": "en",
-        "summary": "Executive summary",
-        "highlights": "Key highlights",
+        "opening": "Opening view",
         "toc": "Contents",
-        "findings": "Key findings",
-        "actions": "Management action plan",
-        "risks": "Risk register",
-        "scenario": "CEO decision scenario",
-        "method": "Method and team",
-        "disclaimer": "Disclaimer",
-        "takeaways": "Takeaways",
+        "chapter": "Chapter",
+        "figure": "Figure",
+        "leader_changes": "What changes for leaders",
+        "what_to_watch": "What to watch",
+        "decision_question": "Decision question",
+        "recommended_move": "Recommended move",
+        "watchout": "Watchout",
+        "agenda": "Future action agenda",
+        "priorities": "Priorities",
+        "signals": "Signals to watch",
+        "about": "About this research",
         "reference_note": "This report was informed by public research and data from:",
-        "formal_note": "The full source backup is archived in the backup folder.",
-        "disclaimer_text": "This document is a management consulting and research analysis deliverable for strategy discussion only. It is not professional advisory guidance.",
+        "formal_note": "Detailed supporting sources are retained in the backup folder.",
+        "disclaimer_text": "This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. Recipients should perform their own diligence and treat this report as one input into a broader decision process.",
     },
     "zh": {
         "lang": "zh-CN",
-        "summary": "执行摘要",
-        "highlights": "关键结论",
+        "opening": "开篇观点",
         "toc": "目录",
-        "findings": "关键发现",
-        "actions": "管理层行动计划",
-        "risks": "风险台账",
-        "scenario": "CEO 决策场景",
-        "method": "方法与团队",
-        "disclaimer": "免责声明",
-        "takeaways": "要点",
+        "chapter": "章节",
+        "figure": "图",
+        "leader_changes": "对管理层意味着什么",
+        "what_to_watch": "需要持续观察",
+        "decision_question": "决策问题",
+        "recommended_move": "建议动作",
+        "watchout": "需要注意",
+        "agenda": "未来行动议程",
+        "priorities": "优先事项",
+        "signals": "需要观察的信号",
+        "about": "关于本研究",
         "reference_note": "参考机构：",
-        "formal_note": "完整来源底稿已归档在 backup 文件夹。",
-        "disclaimer_text": "本文档仅用于管理研究和战略讨论，不构成专业建议。",
+        "formal_note": "详细支持来源保留在 backup 文件夹。",
+        "disclaimer_text": "本报告用于战略讨论与高管决策支持，不构成投资、法律、税务、审计或估值建议。市场估计、预测和情景判断均为方向性内容，在用于投资、融资、交易、监管或运营决策前应独立核验。前瞻性观点会随技术、政策、融资、监管、竞争、供应链和宏观环境变化而调整。读者应进行独立尽调，并将本报告作为更广泛决策流程中的一个输入。",
     },
 }
 
@@ -101,90 +126,47 @@ LABELS = {
 def render_report_html(report: Dict[str, Any], assets: Dict[str, str], output_file: Path, topic: str, language: str = "en") -> Path:
     labels = _labels(language)
     sections = _safe_sections(report.get("sections", []))
-    institutions = report.get("reference_institutions", []) or []
+    summary = _summary_items(report.get("executive_summary", []))
+    charts = _safe_charts(report.get("charts", []))
+    institutions = [_reader_text(x) for x in (report.get("reference_institutions", []) or []) if _reader_text(x)]
     logo_path = assets.get("brand-logo", "")
     cover_path = assets.get("cover-background", "")
-    title = str(report.get("report_title") or topic)
+    title = _reader_text(report.get("report_title") or topic)
+    topic_text = _reader_text(topic)
     page_no = 1
-    parts: List[str] = ["<!DOCTYPE html>", f"<html lang='{labels['lang']}'>", "<head>", "<meta charset='utf-8' />", f"<title>{html.escape(title)}</title>", f"<style>{CSS}</style>", "</head>", "<body>"]
+    parts: List[str] = [
+        "<!DOCTYPE html>",
+        f"<html lang='{labels['lang']}'>",
+        "<head>",
+        "<meta charset='utf-8' />",
+        f"<title>{html.escape(title)}</title>",
+        f"<style>{CSS}</style>",
+        "</head>",
+        "<body>",
+    ]
 
-    bg = f"background-image:url('{html.escape(cover_path)}');" if cover_path else "background:#051C2C;"
-    parts.append(f"<section class='page cover' style=\"{bg}\"><div class='cover-panel'><div class='eyebrow'>{html.escape(BRAND_NAME)}</div><div class='eyebrow'>{html.escape(REPORT_LABEL)}</div><h1>{html.escape(title)}</h1><div class='cover-date'>{html.escape(topic)}</div></div></section>")
+    _render_cover(parts, title, topic_text, cover_path)
     page_no += 1
-
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{labels['summary']}</div><h2>{html.escape(_summary_heading(language))}</h2>")
-    summary_text = str(report.get("executive_summary_text") or "").strip()
-    if summary_text:
-        parts.append(f"<p class='narrative'>{html.escape(_shorten(summary_text, 1050))}</p>")
-    parts.append("<div class='highlight-grid'>")
-    summary = [_clean_summary_item(x) for x in (report.get("executive_summary", []) or [])[:8]] or ["Evidence should be translated into a focused management agenda."]
-    for idx, item in enumerate(summary[:8], start=1):
-        parts.append(f"<div class='highlight-card'><div class='num'>{idx:02d}</div><div class='text'>{html.escape(_shorten(item, 210))}</div></div>")
-    parts.append("</div></section>")
+    _render_contents(parts, sections, summary, logo_path, page_no, labels)
     page_no += 1
-
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{labels['toc']}</div><h2>{labels['toc']}</h2><ol class='contents-list'>")
-    for section in sections:
-        parts.append(f"<li>{html.escape(_strip_number_prefix(section.get('title', 'Section')))}</li>")
-    parts.append("</ol></section>")
-    page_no += 1
-
-    page_no = _render_findings_page(parts, report, labels, logo_path, page_no)
-    page_no = _render_action_plan_page(parts, report, labels, logo_path, page_no)
-    page_no = _render_risk_page(parts, report, labels, logo_path, page_no)
-    page_no = _render_scenario_page(parts, report, labels, logo_path, page_no)
-    page_no = _render_method_page(parts, report, labels, logo_path, institutions, page_no)
-
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{labels['disclaimer']}</div><h2>{labels['disclaimer']}</h2><p class='disclaimer-text'>{html.escape(labels['disclaimer_text'])}</p>")
-    if institutions:
-        parts.append(f"<p class='small-note'>{html.escape(labels['reference_note'])} {html.escape(', '.join(str(x) for x in institutions))}.</p>")
-    parts.append(f"<p class='small-note'>{html.escape(labels['formal_note'])}</p></section>")
+    _render_opening(parts, report, summary, sections, assets, logo_path, page_no, labels, topic_text)
     page_no += 1
 
     for idx, section in enumerate(sections, start=1):
-        parts.append("<section class='page'>")
-        _page_header(parts, logo_path, page_no)
-        title_text = _strip_number_prefix(section.get("title", f"Section {idx}"))
-        lead = str(section.get("lead", ""))
-        paragraphs = [str(p) for p in (section.get("paragraphs", []) or [])]
-        while len(paragraphs) < 3:
-            paragraphs.append("Evidence should be validated against the source backup and translated into management implications.")
-        takeaways = [str(x) for x in (section.get("key_takeaways", []) or [])[:3]]
-        visual = _resolve_visual(section, idx, assets)
-        parts.append(f"<div class='kicker'>Chapter {idx}</div><h2>{html.escape(title_text)}</h2>")
-        if lead:
-            parts.append(f"<div class='lead'>{html.escape(_shorten(lead, 260))}</div>")
-        parts.append("<div class='section-grid'><div>")
-        for p in paragraphs[:2]:
-            parts.append(f"<p>{html.escape(_shorten(p, 650))}</p>")
-        if takeaways:
-            parts.append(f"<div class='takeaway'><strong>{html.escape(labels['takeaways'])}</strong><ul>")
-            for item in takeaways:
-                parts.append(f"<li>{html.escape(_shorten(item, 150))}</li>")
-            parts.append("</ul></div>")
-        parts.append("</div><div>")
-        if visual:
-            cls = "chart-inline" if visual.startswith("chart-") else "section-visual"
-            parts.append(f"<img class='{cls}' src='{html.escape(assets[visual])}' alt='{html.escape(visual)}' />")
-        else:
-            parts.append("<div class='placeholder'></div>")
-        parts.append("</div></div>")
-        for p in paragraphs[2:4]:
-            parts.append(f"<p>{html.escape(_shorten(p, 520))}</p>")
-        parts.append("</section>")
+        _render_chapter(parts, section, assets, logo_path, page_no, labels, idx)
         page_no += 1
+        if idx <= len(charts):
+            _render_exhibit(parts, charts[idx - 1], assets, logo_path, page_no, labels, idx)
+            page_no += 1
+        if idx == 2:
+            _render_decision_story(parts, report, logo_path, page_no, labels)
+            page_no += 1
 
-    if institutions:
-        parts.append("<section class='page'>")
-        _page_header(parts, logo_path, page_no)
-        parts.append(f"<div class='reference-note'>{html.escape(labels['reference_note'])} {html.escape(', '.join(str(x) for x in institutions))}. {html.escape(labels['formal_note'])}</div>")
-        parts.append("</section>")
+    _render_leadership_agenda(parts, report, sections, logo_path, page_no, labels)
+    page_no += 1
+    _render_about(parts, institutions, logo_path, page_no, labels)
+    page_no += 1
+    _render_back_cover(parts, cover_path)
     parts.append("</body></html>")
     output_file.write_text("\n".join(parts), encoding="utf-8")
     return output_file
@@ -193,165 +175,406 @@ def render_report_html(report: Dict[str, Any], assets: Dict[str, str], output_fi
 def render_report_markdown(report: Dict[str, Any], assets: Dict[str, str], output_file: Path, topic: str, language: str = "en") -> Path:
     labels = _labels(language)
     sections = _safe_sections(report.get("sections", []))
-    lines: List[str] = [f"# {report.get('report_title', topic)}", "", f"**Prepared by**: {BRAND_NAME}", "", f"**Topic**: {topic}", "", f"## {labels['summary']}", ""]
-    if report.get("executive_summary_text"):
-        lines.extend([str(report.get("executive_summary_text")), ""])
-    for item in report.get("executive_summary", []) or []:
-        lines.append(f"- {_clean_summary_item(item)}")
-    lines.extend(["", f"## {labels['findings']}", ""])
-    for item in _as_list(report.get("key_findings")):
-        lines.append(f"- **{_field(item, 'finding')}** Evidence: {_field(item, 'evidence')}. Implication: {_field(item, 'management_implication')}")
-    lines.extend(["", f"## {labels['actions']}", ""])
-    for item in _as_list(report.get("action_plan")):
-        lines.append(f"- **{_field(item, 'horizon')}**: {_field(item, 'action')} Owner: {_field(item, 'owner')}. Gate: {_field(item, 'decision_gate')}")
-    lines.extend(["", f"## {labels['risks']}", ""])
-    for item in _as_list(report.get("risk_register")):
-        lines.append(f"- **{_field(item, 'risk')}** Trigger: {_field(item, 'trigger')}. Management action: {_field(item, 'management_action')}")
-    lines.extend(["", f"## {labels['scenario']}", ""])
-    for item in _as_list(report.get("scenario_vignettes")):
-        lines.append(f"- **{_field(item, 'title')}** {_field(item, 'situation')} CEO question: {_field(item, 'ceo_question')} Recommended move: {_field(item, 'recommended_move')}")
-    lines.extend(["", f"## {labels['method']}", ""])
-    if report.get("methodology_note"):
-        lines.extend([str(report.get("methodology_note")), ""])
-    for item in _as_list(report.get("author_credentials")):
-        lines.append(f"- **{_field(item, 'name')}** {_field(item, 'role')}: {_field(item, 'credentials')}")
+    summary = _summary_items(report.get("executive_summary", []))
+    title = _reader_text(report.get("report_title") or topic)
+    topic_text = _reader_text(topic)
+    lines: List[str] = [
+        f"# {title}",
+        "",
+        f"**Prepared by**: {BRAND_NAME}",
+        f"**Topic**: {topic_text}",
+        f"**Date**: {date.today().isoformat()}",
+        "",
+        f"## {labels['opening']}",
+        "",
+    ]
+    opening = _reader_text(report.get("executive_summary_text") or " ".join(summary[:3]))
+    if opening:
+        lines.extend([opening, ""])
+    for item in summary[:5]:
+        lines.append(f"- {_shorten(item, 230)}")
+
     lines.extend(["", f"## {labels['toc']}", ""])
-    for section in sections:
-        lines.append(f"- {_strip_number_prefix(section.get('title', 'Section'))}")
-    lines.extend(["", f"## {labels['disclaimer']}", "", labels['disclaimer_text'], ""])
-    for section in sections:
-        lines.extend([f"## {_strip_number_prefix(section.get('title', 'Section'))}", ""])
-        if section.get("lead"):
-            lines.extend([f"> {section.get('lead')}", ""])
-        for paragraph in section.get("paragraphs", []):
-            lines.extend([str(paragraph), ""])
+    for idx, section in enumerate(sections, start=1):
+        lines.append(f"{idx}. {_strip_number_prefix(section.get('title', 'Section'))}")
+
+    for idx, section in enumerate(sections, start=1):
+        default_title = f"{labels['chapter']} {idx}"
+        lines.extend(["", f"## {_strip_number_prefix(section.get('title', default_title))}", ""])
+        lead = _reader_text(section.get("lead", ""))
+        if lead:
+            lines.extend([lead, ""])
+        for paragraph in _section_paragraphs(section)[:5]:
+            lines.extend([paragraph, ""])
+        hints = _section_content_hints(section)[:3]
+        if hints:
+            lines.append(f"**{labels['what_to_watch']}**")
+            for item in hints:
+                lines.append(f"- {_shorten(item, 170)}")
+
+    scenario = _scenario_payload(report)
+    if scenario:
+        lines.extend(["", "## " + scenario["title"], "", scenario["situation"], ""])
+        if scenario["question"]:
+            lines.extend([f"**{labels['decision_question']}**: {scenario['question']}", ""])
+        if scenario["move"]:
+            lines.extend([f"**{labels['recommended_move']}**: {scenario['move']}", ""])
+        if scenario["watchouts"]:
+            lines.extend([f"**{labels['watchout']}**: {scenario['watchouts']}", ""])
+
+    actions, risks = _agenda_payload(report, sections)
+    lines.extend(["", f"## {labels['agenda']}", "", f"**{labels['priorities']}**"])
+    for item in actions:
+        lines.append(f"- {_shorten(item, 210)}")
+    lines.extend(["", f"**{labels['signals']}**"])
+    for item in risks:
+        lines.append(f"- {_shorten(item, 210)}")
+
+    lines.extend(["", f"## {labels['about']}", "", labels["disclaimer_text"], ""])
+    institutions = [_reader_text(x) for x in (report.get("reference_institutions", []) or []) if _reader_text(x)]
+    if institutions:
+        lines.extend([f"{labels['reference_note']} {', '.join(institutions)}.", ""])
+    lines.append(labels["formal_note"])
     output_file.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     return output_file
 
 
+def _render_cover(parts: List[str], title: str, topic: str, cover_path: str) -> None:
+    bg = f"background-image:url('{html.escape(cover_path)}');" if cover_path else "background:#1B2A34;"
+    parts.append(
+        f"<section class='page cover' style=\"{bg}\">"
+        "<div class='cover-panel'>"
+        f"<div class='eyebrow'>{html.escape(BRAND_NAME)} Research</div>"
+        f"<div class='eyebrow'>{html.escape(REPORT_LABEL)}</div>"
+        f"<h1>{html.escape(title)}</h1>"
+        f"<div class='cover-date'>{html.escape(_shorten(topic, 180))}<br>{date.today().isoformat()}</div>"
+        "</div>"
+        f"<div class='cover-brand'>{html.escape(BRAND_NAME)}</div>"
+        "</section>"
+    )
+
+
+def _render_contents(parts: List[str], sections: List[Dict[str, Any]], summary: List[str], logo_path: str, page_no: int, labels: Dict[str, str]) -> None:
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<h2>{html.escape(labels['toc'])}</h2><table class='contents-table'>")
+    rows: List[tuple[str, str, List[str]]] = [("03", _agenda_heading(summary, sections), [])]
+    start_page = 4
+    for idx, section in enumerate(sections, start=1):
+        rows.append((f"{start_page + (idx - 1) * 2:02d}", _strip_number_prefix(section.get("title", "Section")), _section_content_hints(section)[:3]))
+    rows.append((f"{start_page + len(sections) * 2 + 1:02d}", labels["agenda"], []))
+    rows.append((f"{start_page + len(sections) * 2 + 2:02d}", labels["about"], []))
+    for page, title, subs in rows:
+        sub_html = "".join(f"<div class='contents-sub'>{html.escape(_shorten(x, 78))}</div>" for x in subs)
+        parts.append(f"<tr><td class='contents-page'>{html.escape(page)}</td><td><div class='contents-title'>{html.escape(_shorten(title, 115))}</div>{sub_html}</td></tr>")
+    parts.append("</table></section>")
+
+
+def _render_opening(parts: List[str], report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], topic: str) -> None:
+    visual = _asset_for_key(assets, "image-1") or _asset_for_key(assets, "cover-background")
+    heading = _agenda_heading(summary, sections)
+    narrative = _reader_text(report.get("executive_summary_text") or " ".join(summary[:3]))
+    bullets = summary[:4] or [_strip_number_prefix(x.get("title", "")) for x in sections[:4]]
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    if visual:
+        parts.append(f"<img class='opening-visual' src='{html.escape(visual)}' alt='' />")
+    parts.append(f"<div class='kicker'>{html.escape(labels['opening'])}</div>")
+    parts.append(f"<div class='opening-title'>{html.escape(_shorten(heading, 105))}</div>")
+    parts.append(f"<div class='lead'>{html.escape(_shorten(topic, 165))}</div>")
+    parts.append("<div class='two-col'><div>")
+    if narrative:
+        parts.append(f"<p>{html.escape(_shorten(narrative, 1180))}</p>")
+    parts.append("</div><div class='side-note'>")
+    parts.append(f"<b>{html.escape(labels['leader_changes'])}</b><ul>")
+    for item in bullets[:4]:
+        parts.append(f"<li>{html.escape(_shorten(item, 165))}</li>")
+    parts.append("</ul></div></div></section>")
+
+
+def _render_chapter(parts: List[str], section: Dict[str, Any], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], idx: int) -> None:
+    title = _strip_number_prefix(section.get("title", f"{labels['chapter']} {idx}"))
+    lead = _reader_text(section.get("lead", ""))
+    paragraphs = _section_paragraphs(section)
+    visual = _resolve_visual(section, idx, assets)
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    if idx % 2 == 1 and visual:
+        parts.append(f"<img class='chapter-visual' src='{html.escape(visual)}' alt='' />")
+    parts.append(f"<div class='kicker'>{html.escape(labels['chapter'])} {idx}</div>")
+    parts.append(f"<h2>{html.escape(_shorten(title, 118))}</h2>")
+    if lead and _normalize_punctuation(lead).lower() != _normalize_punctuation(title).lower():
+        parts.append(f"<div class='lead'>{html.escape(_shorten(lead, 290))}</div>")
+    reverse = " reverse" if idx % 2 == 0 else ""
+    parts.append(f"<div class='chapter-grid{reverse}'>")
+    first, second = ("<div class='body-copy'>", "<div>")
+    if idx % 2 == 0:
+        first, second = "<div>", "<div class='body-copy'>"
+    parts.append(first)
+    if idx % 2 == 0:
+        _append_visual(parts, visual)
+    else:
+        for paragraph in paragraphs[:3]:
+            parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
+        _append_takeaways(parts, _section_content_hints(section), labels)
+    parts.append("</div>")
+    parts.append(second)
+    if idx % 2 == 0:
+        for paragraph in paragraphs[:4]:
+            parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
+        _append_takeaways(parts, _section_content_hints(section), labels)
+    else:
+        _append_visual(parts, visual)
+    parts.append("</div></div>")
+    trailing = paragraphs[3:6] if idx % 2 == 1 else paragraphs[4:6]
+    for paragraph in trailing:
+        parts.append(f"<p>{html.escape(_shorten(paragraph, 520))}</p>")
+    parts.append("</section>")
+
+
+def _render_exhibit(parts: List[str], chart: Dict[str, Any], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], idx: int) -> None:
+    title = _reader_text(chart.get("title") or f"{labels['figure']} {idx}")
+    subtitle = _reader_text(chart.get("subtitle") or chart.get("caption") or "")
+    caption = _reader_text(chart.get("caption") or "")
+    source = _reader_text(chart.get("source_note") or f"Source: public sources and {BRAND_NAME} synthesis.")
+    path = _asset_for_key(assets, str(chart.get("id") or f"chart-{idx}")) or _asset_for_key(assets, f"chart-{idx}")
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<div class='kicker'>{html.escape(labels['figure'])} {idx}</div>")
+    parts.append(f"<h2>{html.escape(_shorten(title, 125))}</h2>")
+    if subtitle:
+        parts.append(f"<p class='figure-note'>{html.escape(_shorten(subtitle, 230))}</p>")
+    if path:
+        parts.append(f"<img class='exhibit-img' src='{html.escape(path)}' alt='' />")
+    else:
+        parts.append("<div class='placeholder'></div>")
+    if caption:
+        parts.append(f"<p>{html.escape(_shorten(caption, 300))}</p>")
+    parts.append(f"<p class='figure-note'>{html.escape(_shorten(source, 210))}</p>")
+    parts.append("</section>")
+
+
+def _render_decision_story(parts: List[str], report: Dict[str, Any], logo_path: str, page_no: int, labels: Dict[str, str]) -> None:
+    scenario = _scenario_payload(report)
+    if not scenario:
+        return
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<h2>{html.escape(_shorten(scenario['title'], 110))}</h2>")
+    parts.append("<div class='two-col'><div>")
+    if scenario["situation"]:
+        parts.append(f"<p>{html.escape(_shorten(scenario['situation'], 620))}</p>")
+    if scenario["move"]:
+        parts.append(f"<p>{html.escape(_shorten(scenario['move'], 540))}</p>")
+    parts.append("</div><div class='scenario-box'>")
+    if scenario["question"]:
+        parts.append(f"<div class='scenario-label'>{html.escape(labels['decision_question'])}</div><h3>{html.escape(_shorten(scenario['question'], 260))}</h3>")
+    if scenario["watchouts"]:
+        parts.append(f"<div class='scenario-label'>{html.escape(labels['watchout'])}</div><p>{html.escape(_shorten(scenario['watchouts'], 360))}</p>")
+    parts.append("</div></div></section>")
+
+
+def _render_leadership_agenda(parts: List[str], report: Dict[str, Any], sections: List[Dict[str, Any]], logo_path: str, page_no: int, labels: Dict[str, str]) -> None:
+    actions, risks = _agenda_payload(report, sections)
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<h2>{html.escape(labels['agenda'])}</h2>")
+    parts.append("<div class='agenda-cols'>")
+    for heading, items in [(labels["priorities"], actions), (labels["signals"], risks)]:
+        parts.append("<div class='agenda-list'>")
+        parts.append(f"<h3>{html.escape(heading)}</h3><ul>")
+        for item in items[:6]:
+            parts.append(f"<li>{html.escape(_shorten(item, 210))}</li>")
+        parts.append("</ul></div>")
+    parts.append("</div></section>")
+
+
+def _render_about(parts: List[str], institutions: List[str], logo_path: str, page_no: int, labels: Dict[str, str]) -> None:
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<h2>{html.escape(labels['about'])}</h2>")
+    parts.append(f"<div class='about-text'>{html.escape(labels['disclaimer_text'])}</div>")
+    if institutions:
+        parts.append(f"<div class='reference-note'>{html.escape(labels['reference_note'])} {html.escape(', '.join(institutions))}. {html.escape(labels['formal_note'])}</div>")
+    else:
+        parts.append(f"<div class='reference-note'>{html.escape(labels['formal_note'])}</div>")
+    parts.append("</section>")
+
+
+def _render_back_cover(parts: List[str], cover_path: str) -> None:
+    bg = f"background-image:url('{html.escape(cover_path)}');" if cover_path else "background:#1B2A34;"
+    parts.append(f"<section class='page back-cover' style=\"{bg}\"><div class='cover-brand'>{html.escape(BRAND_NAME)}</div></section>")
+
+
+def _append_visual(parts: List[str], visual: str) -> None:
+    if visual:
+        parts.append(f"<img class='section-visual' src='{html.escape(visual)}' alt='' />")
+    else:
+        parts.append("<div class='placeholder'></div>")
+
+
+def _append_takeaways(parts: List[str], items: List[str], labels: Dict[str, str]) -> None:
+    if not items:
+        return
+    parts.append(f"<div class='takeaway'><strong>{html.escape(labels['what_to_watch'])}</strong><ul>")
+    for item in items[:3]:
+        parts.append(f"<li>{html.escape(_shorten(item, 150))}</li>")
+    parts.append("</ul></div>")
+
+
 def _page_header(parts: List[str], logo_path: str, page_no: int) -> None:
     if logo_path and not logo_path.lower().endswith(".svg"):
-        parts.append(f"<img class='logo-fixed' src='{html.escape(logo_path)}' alt='brand logo' />")
-    parts.append(f"<div class='page-header'>{html.escape(BRAND_NAME)} | CONFIDENTIAL</div>")
-    parts.append(f"<div class='page-footer'><span>{html.escape(BRAND_NAME)} | Confidential</span><span>{page_no}</span></div>")
-
-
-def _render_findings_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
-    findings = _as_list(report.get("key_findings"))[:6]
-    if not findings:
-        return page_no
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{html.escape(labels['findings'])}</div><h2>{html.escape(labels['findings'])}</h2><div class='module-grid'>")
-    for idx, item in enumerate(findings, start=1):
-        parts.append(
-            "<div class='module-card'>"
-            f"<div class='label'>{idx:02d}</div>"
-            f"<div class='title'>{html.escape(_shorten(_field(item, 'finding'), 155))}</div>"
-            f"<div class='meta'>{html.escape(_shorten(_field(item, 'evidence'), 175))}</div>"
-            f"<div class='meta'>{html.escape(_shorten(_field(item, 'management_implication'), 175))}</div>"
-            "</div>"
-        )
-    parts.append("</div></section>")
-    return page_no + 1
-
-
-def _render_action_plan_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
-    actions = _as_list(report.get("action_plan"))[:5]
-    if not actions:
-        return page_no
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{html.escape(labels['actions'])}</div><h2>{html.escape(labels['actions'])}</h2>")
-    parts.append("<table class='table-lite'><thead><tr><th>Horizon</th><th>Action</th><th>Owner</th><th>Gate</th></tr></thead><tbody>")
-    for item in actions:
-        parts.append(
-            "<tr>"
-            f"<td>{html.escape(_shorten(_field(item, 'horizon'), 80))}</td>"
-            f"<td>{html.escape(_shorten(_field(item, 'action'), 210))}<br><span class='small-note'>{html.escape(_shorten(_field(item, 'success_metric'), 140))}</span></td>"
-            f"<td>{html.escape(_shorten(_field(item, 'owner'), 80))}</td>"
-            f"<td>{html.escape(_shorten(_field(item, 'decision_gate'), 170))}</td>"
-            "</tr>"
-        )
-    parts.append("</tbody></table></section>")
-    return page_no + 1
-
-
-def _render_risk_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
-    risks = _as_list(report.get("risk_register"))[:6]
-    if not risks:
-        return page_no
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{html.escape(labels['risks'])}</div><h2>{html.escape(labels['risks'])}</h2>")
-    parts.append("<table class='table-lite'><thead><tr><th>Risk</th><th>Trigger</th><th>Management action</th><th>Boundary</th></tr></thead><tbody>")
-    for item in risks:
-        parts.append(
-            "<tr>"
-            f"<td>{html.escape(_shorten(_field(item, 'risk'), 150))}</td>"
-            f"<td>{html.escape(_shorten(_field(item, 'trigger'), 150))}</td>"
-            f"<td>{html.escape(_shorten(_field(item, 'management_action'), 170))}</td>"
-            f"<td>{html.escape(_shorten(_field(item, 'evidence_boundary'), 150))}</td>"
-            "</tr>"
-        )
-    parts.append("</tbody></table></section>")
-    return page_no + 1
-
-
-def _render_scenario_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
-    scenarios = _as_list(report.get("scenario_vignettes"))[:2]
-    if not scenarios:
-        return page_no
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{html.escape(labels['scenario'])}</div><h2>{html.escape(labels['scenario'])}</h2>")
-    for item in scenarios:
-        parts.append(
-            "<div class='scenario-box'>"
-            f"<h3>{html.escape(_shorten(_field(item, 'title'), 120))}</h3>"
-            f"<p>{html.escape(_shorten(_field(item, 'situation'), 360))}</p>"
-            f"<p><strong>CEO question:</strong> {html.escape(_shorten(_field(item, 'ceo_question'), 220))}</p>"
-            f"<p><strong>Recommended move:</strong> {html.escape(_shorten(_field(item, 'recommended_move'), 260))}</p>"
-            f"<p class='small-note'>{html.escape(_shorten(_field(item, 'watchouts'), 260))}</p>"
-            "</div>"
-        )
-    parts.append("</section>")
-    return page_no + 1
-
-
-def _render_method_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, institutions: List[Any], page_no: int) -> int:
-    note = str(report.get("methodology_note") or "").strip()
-    authors = _as_list(report.get("author_credentials"))[:4]
-    if not note and not authors and not institutions:
-        return page_no
-    parts.append("<section class='page'>")
-    _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{html.escape(labels['method'])}</div><h2>{html.escape(labels['method'])}</h2>")
-    if note:
-        parts.append(f"<p class='narrative'>{html.escape(_shorten(note, 900))}</p>")
-    if authors:
-        parts.append("<div class='module-grid'>")
-        for item in authors:
-            parts.append(
-                "<div class='module-card'>"
-                f"<div class='title'>{html.escape(_shorten(_field(item, 'name'), 90))}</div>"
-                f"<div class='meta'>{html.escape(_shorten(_field(item, 'role'), 120))}</div>"
-                f"<div class='meta'>{html.escape(_shorten(_field(item, 'credentials'), 220))}</div>"
-                "</div>"
-            )
-        parts.append("</div>")
-    if institutions:
-        parts.append(f"<p class='small-note'>{html.escape(labels['reference_note'])} {html.escape(', '.join(str(x) for x in institutions))}. {html.escape(labels['formal_note'])}</p>")
-    parts.append("</section>")
-    return page_no + 1
+        parts.append(f"<img class='logo-fixed' src='{html.escape(logo_path)}' alt='' />")
+    parts.append(f"<div class='page-header'>{html.escape(BRAND_NAME)}</div>")
+    parts.append(f"<div class='page-footer'><span>{html.escape(BRAND_NAME)} | {html.escape(REPORT_LABEL)}</span><span>{page_no}</span></div>")
 
 
 def _labels(language: str) -> Dict[str, str]:
     return LABELS["en"] if str(language).lower().startswith("en") else LABELS["zh"]
 
 
-def _summary_heading(language: str) -> str:
-    return "What the CEO should take away before reading the body" if str(language).lower().startswith("en") else "先给 CEO 的结论、证据边界与下一步"
+def _scenario_payload(report: Dict[str, Any]) -> Dict[str, str]:
+    scenarios = _as_list(report.get("scenario_vignettes"))[:1]
+    if scenarios and isinstance(scenarios[0], dict):
+        item = scenarios[0]
+        title = _field(item, "title") or "A concrete executive choice"
+        if _looks_like_internal_label(title):
+            title = "A concrete executive choice"
+        return {
+            "title": title,
+            "situation": _field(item, "situation"),
+            "question": _field(item, "ceo_question"),
+            "move": _field(item, "recommended_move"),
+            "watchouts": _field(item, "watchouts"),
+        }
+    return {
+        "title": "A concrete executive choice",
+        "situation": "Leadership must decide which moves can be made now and which should wait for stronger evidence.",
+        "question": "What should be done before the next major commitment?",
+        "move": "Keep learning options open while reserving larger commitments for verified proof points.",
+        "watchouts": "Avoid treating market enthusiasm as a substitute for validated economics.",
+    }
+
+
+def _agenda_payload(report: Dict[str, Any], sections: List[Dict[str, Any]]) -> tuple[List[str], List[str]]:
+    actions = []
+    for item in _as_list(report.get("action_plan"))[:6]:
+        action = _field(item, "action") or _item_to_text(item)
+        horizon = _field(item, "horizon")
+        decision = _field(item, "decision_gate")
+        actions.append(" - ".join(x for x in [horizon, action, decision] if x))
+    if not actions:
+        actions = [_strip_number_prefix(section.get("lead") or section.get("title") or "") for section in sections[:4]]
+    risks = []
+    for item in _as_list(report.get("risk_register"))[:6]:
+        risk = _field(item, "risk")
+        trigger = _field(item, "trigger")
+        action = _field(item, "management_action")
+        risks.append("; ".join(x for x in [risk, trigger, action] if x))
+    if not risks:
+        risks = ["Revisit the thesis when the public evidence base, economics or regulatory path changes."]
+    return [_reader_text(x) for x in actions if _reader_text(x)], [_reader_text(x) for x in risks if _reader_text(x)]
+
+
+def _section_paragraphs(section: Dict[str, Any]) -> List[str]:
+    paragraphs = [_reader_text(x) for x in _as_list(section.get("paragraphs")) if _reader_text(x)]
+    fallback = [
+        "The available record should be translated into a small number of executive choices, each tied to a clear proof point and a practical timing question.",
+        "Open questions should remain visible as diligence items instead of being converted into unsupported certainty.",
+        "For senior leadership, the practical test is whether the evidence changes resource allocation, partner selection, customer focus or risk appetite.",
+        "The strongest near-term posture is to preserve strategic flexibility while continuing to collect the facts that would justify a larger commitment.",
+    ]
+    while len(paragraphs) < 4:
+        paragraphs.append(fallback[len(paragraphs) % len(fallback)])
+    return _dedupe(paragraphs)
+
+
+def _section_content_hints(section: Dict[str, Any]) -> List[str]:
+    hints = []
+    for item in _as_list(section.get("key_takeaways")):
+        text = _reader_text(item)
+        if text:
+            hints.append(text)
+    for item in _as_list(section.get("paragraphs")):
+        text = _reader_text(item)
+        if text and len(text) > 35:
+            hints.append(_title_from_sentence(text))
+        if len(hints) >= 4:
+            break
+    return _dedupe(hints)[:4]
+
+
+def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
+    for item in summary:
+        cleaned = _reader_text(item)
+        if not cleaned:
+            continue
+        if cleaned.lower().startswith(("this report", "the report", "our analysis")):
+            continue
+        return _shorten(cleaned, 118)
+    if sections:
+        return _shorten(_strip_number_prefix(sections[0].get("title", "Management agenda")), 118)
+    return "Management should focus on the few moves that can change the outcome"
+
+
+def _title_from_sentence(text: str) -> str:
+    cleaned = _reader_text(text).strip()
+    cleaned = re.sub(r"^main conclusions?:\s*", "", cleaned, flags=re.I)
+    cleaned = cleaned.split(";")[0].strip()
+    if len(cleaned) > 118:
+        cleaned = cleaned[:117].rsplit(" ", 1)[0].strip()
+    return cleaned or "The management agenda should be staged around evidence quality"
+
+
+def _resolve_visual(section: Dict[str, Any], idx: int, assets: Dict[str, str]) -> str:
+    for key in [f"image-{idx}", str(section.get("visual_hint", "")), f"chart-{idx}", "cover-background"]:
+        path = _asset_for_key(assets, key)
+        if path:
+            return path
+    return ""
+
+
+def _asset_for_key(assets: Dict[str, str], key: str) -> str:
+    if not key:
+        return ""
+    path = assets.get(key, "")
+    return "" if str(path).lower().endswith(".svg") else str(path or "")
+
+
+def _safe_sections(value: Any) -> List[Dict[str, Any]]:
+    if isinstance(value, list) and value:
+        return [x if isinstance(x, dict) else {"title": str(x), "paragraphs": [str(x)]} for x in value]
+    return [
+        {
+            "title": "Executive priorities and implications",
+            "lead": "The analysis should be translated into a concise management agenda.",
+            "paragraphs": [
+                "The available record should be organized around decision quality, execution timing and leadership implications.",
+                "The most useful output is a short list of actions that can be tested against public evidence and client constraints.",
+                "Follow-up work should validate the assumptions against the supporting sources.",
+            ],
+            "key_takeaways": ["Focus on actionability."],
+            "visual_hint": "image-1",
+        }
+    ]
+
+
+def _safe_charts(value: Any) -> List[Dict[str, Any]]:
+    charts = []
+    for idx, item in enumerate(_as_list(value), start=1):
+        if not isinstance(item, dict):
+            continue
+        chart = dict(item)
+        chart["id"] = str(chart.get("id") or f"chart-{idx}")
+        charts.append(chart)
+    return charts[:8]
+
+
+def _summary_items(value: Any) -> List[str]:
+    raw = [str(x).strip() for x in value if str(x).strip()] if isinstance(value, list) else ([str(value).strip()] if str(value).strip() else [])
+    if len(raw) <= 2 and raw and len(" ".join(raw)) > 450:
+        raw = [s.strip() for s in re.split(r"(?<=[.!?])\s+", " ".join(raw)) if len(s.strip()) > 20]
+    return [_reader_text(x) for x in raw[:8] if _reader_text(x)]
 
 
 def _as_list(value: Any) -> List[Any]:
@@ -364,31 +587,136 @@ def _as_list(value: Any) -> List[Any]:
 
 def _field(item: Any, key: str, default: str = "") -> str:
     if isinstance(item, dict):
-        return " ".join(str(item.get(key) or default).split())
-    return " ".join(str(item or default).split())
+        return _reader_text(item.get(key) or default)
+    return _reader_text(item or default)
 
 
-def _resolve_visual(section: Dict[str, Any], idx: int, assets: Dict[str, str]) -> str:
-    for key in [f"image-{idx}", str(section.get("visual_hint", "")), f"chart-{idx}", "cover-background"]:
-        if key and key in assets:
-            return key
-    return ""
-
-
-def _safe_sections(value: Any) -> List[Dict[str, Any]]:
-    if isinstance(value, list) and value:
-        return [x if isinstance(x, dict) else {"title": str(x), "paragraphs": [str(x)]} for x in value]
-    return [{"title": "Executive priorities and implications", "lead": "The analysis should be translated into a concise management agenda.", "paragraphs": ["The available evidence should be organized around decision quality, execution risk and near-term management implications.", "The most useful output is a short list of actions that can be tested against public evidence and client constraints.", "Follow-up work should validate the assumptions against the source backup."], "key_takeaways": ["Focus on actionability."], "visual_hint": "image-1"}]
+def _item_to_text(value: Any) -> str:
+    if isinstance(value, dict):
+        return " ".join(_reader_text(v) for v in value.values() if isinstance(v, (str, int, float)) and _reader_text(v))
+    if isinstance(value, list):
+        return " ".join(_item_to_text(x) for x in value)
+    return _reader_text(value)
 
 
 def _strip_number_prefix(text: str) -> str:
-    return re.sub(r"^\s*\d+[\.)、]\s*", "", str(text or "")).strip()
-
-
-def _clean_summary_item(item: str) -> str:
-    return " ".join(str(item or "").split())
+    return re.sub(r"^\s*\d+[\.)、]\s*", "", _reader_text(text)).strip()
 
 
 def _shorten(value: Any, max_chars: int) -> str:
-    text = " ".join(str(value or "").replace("\n", " ").split())
+    text = _reader_text(value)
     return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + "."
+
+
+def _dedupe(values: List[str]) -> List[str]:
+    result: List[str] = []
+    seen = set()
+    for value in values:
+        normalized = _reader_text(value)
+        if not normalized:
+            continue
+        key = re.sub(r"\W+", "", normalized.lower())[:180]
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(normalized)
+    return result
+
+
+def _looks_like_internal_label(text: str) -> bool:
+    cleaned = _normalize_punctuation(text).strip().lower()
+    labels = {
+        "executive summary",
+        "key findings",
+        "management action plan",
+        "risk register",
+        "ceo decision scenario",
+        "method and team",
+        "methodology",
+        "执行摘要",
+        "管理层行动计划",
+        "风险台账",
+        "方法与团队",
+    }
+    return cleaned in labels or cleaned.startswith(("ceo decision", "management action", "risk register"))
+
+
+def _reader_text(value: Any) -> str:
+    text = str(value or "").replace("\u00ad", "").replace("\ufffe", "").replace("\ufeff", "")
+    text = _reader_clean(" ".join(text.replace("\n", " ").split()))
+    return text
+
+
+def _reader_clean(text: str) -> str:
+    text = _normalize_punctuation(text)
+    replacements = [
+        (r"\bCEO decision scenario\b", "A concrete executive choice"),
+        (r"\bCEO investment committee scenario\b", "A concrete executive choice"),
+        (r"\bManagement action plan\b", "Future action agenda"),
+        (r"\bRisk register\b", "Signals to watch"),
+        (r"\bMethod and team\b", "About this research"),
+        (r"\bKey findings\b", "Main conclusions"),
+        (r"\bExecutive summary\b", "Opening view"),
+        (r"\bEvidence:\s*", ""),
+        (r"\bManagement implication:\s*", ""),
+        (r"\bManagement implications\b", "Leadership implications"),
+        (r"\bCEO question:\s*", "Decision question: "),
+        (r"\bRecommended move:\s*", "Recommended move: "),
+        (r"\bpublic-evidence boundary\b", "available public record"),
+        (r"\bevidence-boundary\b", "available public record"),
+        (r"\bevidence boundary\b", "available public record"),
+        (r"\bsource backup\b", "supporting sources"),
+        (r"\bevidence gates\b", "verified milestones"),
+        (r"\bdecision gates\b", "decision milestones"),
+        (r"\bvalidation gaps\b", "open questions"),
+        (r"\bmodel-assisted synthesis\b", "research synthesis"),
+        (r"\binternal executive strategy stress test\b", ""),
+        (r"\binternal framework\b", ""),
+        (r"\bstress test\b", "review"),
+        (r"执行摘要", "开篇观点"),
+        (r"管理层行动计划", "未来行动议程"),
+        (r"风险台账", "需要观察的信号"),
+        (r"CEO\s*决策场景", "一个具体的高管选择"),
+        (r"方法与团队", "关于本研究"),
+    ]
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.I)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def _normalize_punctuation(text: str) -> str:
+    text = unicodedata.normalize("NFKC", str(text or ""))
+    translation = {
+        0x2018: "'",
+        0x2019: "'",
+        0x201A: "'",
+        0x201B: "'",
+        0x2032: "'",
+        0xFF07: "'",
+        0x201C: '"',
+        0x201D: '"',
+        0x201E: '"',
+        0x201F: '"',
+        0x2033: '"',
+        0xFF02: '"',
+        0x2010: "-",
+        0x2011: "-",
+        0x2012: "-",
+        0x2013: "-",
+        0x2014: "-",
+        0x2212: "-",
+        0x00A0: " ",
+        0x202F: " ",
+        0x3000: " ",
+        0xFF0C: ",",
+        0xFF0E: ".",
+        0xFF1A: ":",
+        0xFF1B: ";",
+        0xFF08: "(",
+        0xFF09: ")",
+    }
+    text = "".join(translation.get(ord(ch), ch) for ch in text)
+    text = re.sub(r"([A-Za-z])\s+'\s+s\b", r"\1's", text)
+    text = re.sub(r"\b([A-Za-z]+n)\s+'\s+t\b", r"\1't", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    return text
