@@ -1,0 +1,211 @@
+xlive/texmf-dist/tex/latex/needspace/needspace.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1]
+
+LaTeX Warning: Reference `chap:1' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:1:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:2:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:3:end' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4' on page 2 undefined on input line 69.
+
+
+LaTeX Warning: Reference `chap:4:end' on page 2 undefined on input line 69.
+
+[2] [3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Medium-term (2-5
+
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Medium-term (2-5
+
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Long-term (5-10
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Technological risk: Key
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 physics and engineering
+
+Underfull \hbox (badness 3029) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Regulatory risk: Licensing
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 costs of renewables and
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 storage erode fusion’s
+
+Underfull \hbox (badness 1472) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Supply chain risk: Depen-
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Public acceptance risk:
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 Opposition to nuclear
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 technologies slows
+
+Underfull \hbox (badness 2253) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Investment risk: High up-
+
+Underfull \hbox (badness 4872) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 front capital requirements
+[6] [7]
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+[]|\TU/NotoSansCJKSC(0)/b/n/9 This report was
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/b/n/9 prepared by the
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/b/n/9 Strategic Energy
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/b/n/9 Research Team, a
+[8]
+Underfull \hbox (badness 3657) in paragraph at lines 156--156
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[9] [10]
+Underfull \hbox (badness 3657) in paragraph at lines 185--185
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[11] [12]
+Underfull \hbox (badness 3657) in paragraph at lines 214--214
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[13] [14]
+Underfull \hbox (badness 3492) in paragraph at lines 241--241
+\TU/NotoSansCJKSC(0)/m/n/9 missing diligence items before committing capital, p
+artnerships or
+
+Underfull \hbox (badness 3657) in paragraph at lines 243--243
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[15] [16] [17] (./report_latex.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (17 pages).
+Transcript written on report_latex.log.
+xmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2] [3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Medium-term (2-5
+
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Medium-term (2-5
+
+Underfull \hbox (badness 10000) in paragraph at lines 111--111
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Long-term (5-10
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Technological risk: Key
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 physics and engineering
+
+Underfull \hbox (badness 3029) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Regulatory risk: Licensing
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 costs of renewables and
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 storage erode fusion’s
+
+Underfull \hbox (badness 1472) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Supply chain risk: Depen-
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Public acceptance risk:
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 Opposition to nuclear
+
+Underfull \hbox (badness 10000) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 technologies slows
+
+Underfull \hbox (badness 2253) in paragraph at lines 126--126
+[]|\TU/NotoSansCJKSC(0)/m/n/7 Investment risk: High up-
+
+Underfull \hbox (badness 4872) in paragraph at lines 126--126
+\TU/NotoSansCJKSC(0)/m/n/7 front capital requirements
+[6] [7]
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+[]|\TU/NotoSansCJKSC(0)/b/n/9 This report was
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/b/n/9 prepared by the
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/b/n/9 Strategic Energy
+
+Underfull \hbox (badness 10000) in paragraph at lines 146--146
+\TU/NotoSansCJKSC(0)/b/n/9 Research Team, a
+[8]
+Underfull \hbox (badness 3657) in paragraph at lines 156--156
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[9] [10]
+Underfull \hbox (badness 3657) in paragraph at lines 185--185
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[11] [12]
+Underfull \hbox (badness 3657) in paragraph at lines 214--214
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[13] [14]
+Underfull \hbox (badness 3492) in paragraph at lines 241--241
+\TU/NotoSansCJKSC(0)/m/n/9 missing diligence items before committing capital, p
+artnerships or
+
+Underfull \hbox (badness 3657) in paragraph at lines 243--243
+\TU/NotoSansCJKSC(0)/m/n/9 operating performance, because commercial buyers wil
+l ultimately
+[15] [16] [17] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (17 pages).
+Transcript written on report_latex.log.
