@@ -112,11 +112,11 @@ def _cover_page(title: str, cover: str, topic: str) -> str:
 \thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
 ''' + bg + r'''
-\fill[white,opacity=.96] ([xshift=16mm,yshift=-27mm]current page.north west) rectangle ++(126mm,-82mm);
-\fill[BOGreen] ([xshift=16mm,yshift=-27mm]current page.north west) rectangle ++(126mm,-2mm);
-\node[anchor=north west,text width=108mm] at ([xshift=24mm,yshift=-37mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH};
-\node[anchor=north west,text width=108mm] at ([xshift=24mm,yshift=-51mm]current page.north west) {\parbox{108mm}{\raggedright\sffamily\fontsize{23}{27}\selectfont\color{BONavy} ''' + title + r'''}};
-\node[anchor=north west,text width=108mm] at ([xshift=24mm,yshift=-94mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''\\\vspace{2pt}\color{BOMuted}''' + prepared + r'''};
+\fill[white,opacity=.96] ([xshift=14mm,yshift=-24mm]current page.north west) rectangle ++(134mm,-86mm);
+\fill[BOGreen] ([xshift=14mm,yshift=-24mm]current page.north west) rectangle ++(134mm,-2mm);
+\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-35mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH};
+\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-49mm]current page.north west) {\parbox{114mm}{\raggedright\sffamily\fontsize{21}{25}\selectfont\color{BONavy} ''' + title + r'''}};
+\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-93mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''\\\vspace{2pt}\color{BOMuted}''' + prepared + r'''};
 \node[anchor=south east] at ([xshift=-10mm,yshift=8mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
 \end{tikzpicture}
 \clearpage
@@ -125,14 +125,14 @@ def _cover_page(title: str, cover: str, topic: str) -> str:
 
 def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]) -> str:
     rows = []
-    rows.append('\\textcolor{BOGreen}{\\bfseries 03} & ' + _tex(_shorten(_agenda_heading(summary, sections), 95)) + ' \\\\[7pt]\n')
+    rows.append('\\textcolor{BOGreen}{\\bfseries 03} & ' + _tex(_shorten(_agenda_heading(summary, sections), 160)) + ' \\\\[7pt]\n')
     start_page = 4
     for idx, section in enumerate(sections, start=1):
-        title = _tex(_shorten(_strip_number_prefix(section.get('title', 'Section')), 100))
+        title = _tex(_shorten(_strip_number_prefix(section.get('title', 'Section')), 160))
         page_no = f'{start_page + (idx - 1) * 2:02d}'
         rows.append('\\textcolor{BOGreen}{\\bfseries ' + page_no + '} & ' + title + ' \\\\[5pt]\n')
-        for sub in _section_content_hints(section)[:3]:
-            rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_shorten(sub, 72)) + '} \\\\[1pt]\n')
+        for sub in _section_content_hints(section)[:2]:
+            rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_display_bullet(sub, 140)) + '} \\\\[1pt]\n')
     rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{start_page + len(sections) * 2 + 1:02d}' + '} & ' + _tex('Future action agenda') + ' \\\\[5pt]\n')
     rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{start_page + len(sections) * 2 + 2:02d}' + '} & ' + _tex('About this research') + ' \\\\[5pt]\n')
     return (
@@ -145,15 +145,15 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
 
 
 def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
-    title = _tex(_shorten(_agenda_heading(summary, sections), 92))
+    title = _tex(_shorten(_agenda_heading(summary, sections), 135))
     narrative = _normalize_punctuation(str(report.get('executive_summary_text') or '').strip())
     if not narrative:
         narrative = ' '.join(summary[:3])
     narrative = _tex(_shorten(narrative, 1200))
     visual = _asset_path(assets.get('image-1', '')) or _asset_path(assets.get('cover-background', ''))
-    image = _full_width_image(visual, '0.47\\paperwidth', '39mm') if visual else ''
+    image = _image_strip(visual, '48mm') if visual else ''
     bullets = summary[:4] or [_strip_number_prefix(x.get('title', '')) for x in sections[:4]]
-    bullet_block = ''.join('\\item ' + _tex(_shorten(item, 145)) + '\n' for item in bullets if str(item).strip())
+    bullet_block = ''.join('\\item ' + _tex(_display_bullet(item, 185)) + '\n' for item in bullets if str(item).strip())
     if bullet_block:
         bullet_block = '\\begin{itemize}\n' + bullet_block + '\\end{itemize}\n'
     return (
@@ -271,26 +271,20 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     lead = _tex(_shorten(lead_raw, 320))
     paras = _paras(section)
     visual_path = _resolve_image(section, assets, idx)
-    visual = _full_width_image(visual_path, '\\linewidth', '43mm') if visual_path else ''
 
     chapter = '\\clearpage\n\\label{chap:' + str(idx) + '}\n'
-    if idx % 2 == 1 and visual:
-        chapter += visual + '\\vspace{5pt}\n'
+    if visual_path:
+        chapter += _image_strip(visual_path, '46mm') + '\\vspace{5pt}\n'
     chapter += _kicker('Chapter ' + str(idx)) + _heading(title)
     if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
         chapter += '{\\sffamily\\fontsize{12}{15}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{6pt}\n'
-    if idx % 2 == 0:
-        chapter += (
-            '\\begin{minipage}[t]{0.55\\linewidth}\n'
-            + _paragraph_group(paras[:4])
-            + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.39\\linewidth}\n\\vspace{0pt}\n'
-            + (visual if visual else _callout_box(_section_content_hints(section)[:3]))
-            + '\\end{minipage}\\par\\vspace{4pt}\n'
-        )
-        chapter += _paragraph_group(paras[4:8])
+    if len(paras) >= 2:
+        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:4]) + '\\end{multicols}\n'
     else:
-        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:8]) + '\\end{multicols}\n'
-    chapter += _subsection_blocks(section, paras[8:])
+        chapter += _paragraph_group(paras)
+    hints = _section_content_hints(section)
+    if hints:
+        chapter += _inline_watchouts(hints[:3])
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
@@ -327,8 +321,32 @@ def _full_width_image(path: str, width: str, height: str) -> str:
     return '\\includegraphics[width=' + width + ',height=' + height + ',keepaspectratio]{' + path + '}'
 
 
+def _image_strip(path: str, height: str) -> str:
+    if not path:
+        return ''
+    return (
+        '\\noindent\\begin{tikzpicture}\n'
+        '\\path[use as bounding box] (0,0) rectangle (\\linewidth,' + height + ');\n'
+        '\\clip (0,0) rectangle (\\linewidth,' + height + ');\n'
+        '\\node[anchor=north west,inner sep=0] at (0,' + height + ') {\\includegraphics[width=\\linewidth]{' + path + '}};\n'
+        '\\end{tikzpicture}\n'
+    )
+
+
 def _paragraph_group(paragraphs: List[str]) -> str:
     return ''.join(_para(p) for p in paragraphs if str(p).strip())
+
+
+def _inline_watchouts(items: List[str]) -> str:
+    bullets = ''.join('\\item ' + _tex(_shorten(item, 180)) + '\n' for item in items if str(item).strip())
+    if not bullets:
+        return ''
+    return (
+        '\\vspace{4pt}\\noindent\\begin{minipage}{\\linewidth}\n'
+        '{\\textcolor{BOGreen}{\\scriptsize\\bfseries WHAT TO WATCH}}\\par\\vspace{2pt}\n'
+        '{\\footnotesize\\begin{itemize}\n' + bullets + '\\end{itemize}}\n'
+        '\\end{minipage}\n'
+    )
 
 
 def _callout_box(items: List[str]) -> str:
@@ -345,8 +363,12 @@ def _callout_box(items: List[str]) -> str:
 
 def _exhibit_page(chart: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
     title = _tex(_shorten(chart.get('title') or f'Figure {idx}', 125))
-    subtitle = _tex(_shorten(chart.get('subtitle') or chart.get('caption') or '', 210))
-    caption = _tex(_shorten(chart.get('caption') or '', 260))
+    subtitle_raw = _normalize_punctuation(str(chart.get('subtitle') or chart.get('caption') or ''))
+    caption_raw = _normalize_punctuation(str(chart.get('caption') or ''))
+    if caption_raw.lower() == subtitle_raw.lower():
+        caption_raw = ''
+    subtitle = _tex(_shorten(subtitle_raw, 210))
+    caption = _tex(_shorten(caption_raw, 260))
     source = _tex(_shorten(chart.get('source_note') or 'Source: public sources and BlueOcean synthesis.', 180))
     path = _asset_path(assets.get(str(chart.get('id') or f'chart-{idx}'), '')) or _resolve_chart(assets, idx)
     visual = _center_image(path, '0.95\\linewidth', '98mm') if path else _callout_box([caption or subtitle])
@@ -380,14 +402,12 @@ def _decision_story_page(report: Dict[str, Any]) -> str:
         title = 'A concrete executive choice'
     return (
         '\\clearpage\n'
-        + '{\\sffamily\\fontsize{21}{26}\\selectfont\\color{BONavy} ' + _tex(_shorten(title, 100)) + '}\\par\\vspace{7pt}\n'
-        + '\\begin{minipage}[t]{0.47\\linewidth}\n'
+        + '{\\sffamily\\fontsize{22}{27}\\selectfont\\color{BONavy} ' + _tex(_shorten(title, 100)) + '}\\par\\vspace{10pt}\n'
+        + '\\begin{minipage}[t]{0.43\\linewidth}\n'
+        + '{\\sffamily\\fontsize{17}{22}\\selectfont\\color{BOGreen} ' + _tex(_shorten(question, 300)) + '}\\par\n'
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.50\\linewidth}\n'
         + _para(_tex(_shorten(situation, 620)))
-        + _para(_tex(_shorten(move, 520)))
-        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries DECISION QUESTION}}\\par\\vspace{3pt}\n'
-        + '{\\sffamily\\fontsize{14}{18}\\selectfont\\color{BOText} ' + _tex(_shorten(question, 260)) + '}\\par\\vspace{8pt}\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries WATCHOUT}}\\par\\vspace{3pt}\n'
+        + '{\\small\\bfseries\\color{BOText} ' + _tex(_shorten(move, 360)) + '}\\par\\vspace{5pt}\n'
         + '{\\footnotesize\\color{BOMuted} ' + _tex(_shorten(watchouts, 320)) + '}\\par'
         + '\\end{minipage}\n'
     )
@@ -406,9 +426,16 @@ def _leadership_agenda_page(report: Dict[str, Any], sections: List[Dict[str, Any
         trigger = _field(item, 'trigger')
         action = _field(item, 'management_action')
         risk = _field(item, 'risk')
-        risk_items.append('; '.join(x for x in [risk, trigger, action] if x))
-    left = ''.join('\\item ' + _tex(_shorten(x, 170)) + '\n' for x in action_items if str(x).strip())
-    right = ''.join('\\item ' + _tex(_shorten(x, 170)) + '\n' for x in risk_items if str(x).strip())
+        parts = []
+        if risk:
+            parts.append(risk)
+        if trigger:
+            parts.append('Watch for ' + trigger[0].lower() + trigger[1:] if len(trigger) > 1 else trigger.lower())
+        if action:
+            parts.append(action)
+        risk_items.append('. '.join(parts))
+    left = ''.join('\\item ' + _tex(_shorten(x, 230)) + '\n' for x in action_items if str(x).strip())
+    right = ''.join('\\item ' + _tex(_shorten(x, 230)) + '\n' for x in risk_items if str(x).strip())
     return (
         '\\clearpage\n'
         + '{\\sffamily\\fontsize{21}{26}\\selectfont\\color{BONavy} Future action agenda}\\par\\vspace{7pt}\n'
@@ -465,16 +492,13 @@ def _repair_sections(report: Dict[str, Any], sections: List[Dict[str, Any]], top
         lead = str(section.get('lead') or '').strip()
         if not lead or _is_generic_title(lead) or _normalize_punctuation(lead).lower() == _normalize_punctuation(current_title).lower():
             section['lead'] = _derive_lead(idx, current_title, report_title, summary)
-        paragraphs = [str(x).strip() for x in section.get('paragraphs', []) if str(x).strip()]
-        if _paragraphs_are_weak(paragraphs):
-            paragraphs = _generated_paragraphs(idx, current_title, report_title, summary)
-        elif len(paragraphs) < 10:
-            paragraphs = _dedupe(paragraphs + _generated_paragraphs(idx, current_title, report_title, summary))[:10]
-        else:
-            paragraphs = _dedupe(paragraphs)
-        section['paragraphs'] = [_normalize_punctuation(p) for p in paragraphs[:12]]
+        paragraphs = _dedupe([str(x).strip() for x in section.get('paragraphs', []) if str(x).strip()])
+        paragraphs = [p for p in paragraphs if not _is_bad_template_text(p)]
+        if len(paragraphs) < 2:
+            paragraphs = _dedupe(paragraphs + _section_fallback_paragraphs(idx, current_title, report_title, summary))
+        section['paragraphs'] = [_normalize_punctuation(p) for p in paragraphs[:5]]
         repaired.append(section)
-    return _merge_sections(repaired, max_sections=6, report_title=report_title, summary=summary)
+    return repaired[:10]
 
 
 def _merge_sections(sections: List[Dict[str, Any]], max_sections: int, report_title: str, summary: List[str]) -> List[Dict[str, Any]]:
@@ -496,7 +520,7 @@ def _merge_sections(sections: List[Dict[str, Any]], max_sections: int, report_ti
             paragraphs.extend(item_paras[:5])
             if item_title and not _is_generic_title(item_title):
                 subsections.append({'title': item_title, 'paragraphs': item_paras[:6]})
-        paragraphs = _dedupe(paragraphs + _generated_paragraphs(idx, merged_title, report_title, summary))[:14]
+        paragraphs = _dedupe(paragraphs + _section_fallback_paragraphs(idx, merged_title, report_title, summary))[:10]
         merged.append({'id': primary.get('id', f'section-{idx}'), 'title': merged_title, 'lead': merged_lead, 'paragraphs': paragraphs, 'subsections': subsections[:4], 'visual_hint': primary.get('visual_hint', f'image-{idx}')})
     return merged[:max_sections]
 
@@ -532,22 +556,33 @@ def _derive_lead(idx: int, title: str, report_title: str, summary: List[str]) ->
 
 
 def _generated_paragraphs(idx: int, title: str, report_title: str, summary: List[str]) -> List[str]:
+    return _section_fallback_paragraphs(idx, title, report_title, summary)
+
+
+def _section_fallback_paragraphs(idx: int, title: str, report_title: str, summary: List[str]) -> List[str]:
     topic = _normalize_punctuation(report_title)
-    thesis = _normalize_punctuation(summary[(idx - 1) % len(summary)]) if summary else title
+    thesis = _normalize_punctuation(summary[(idx - 1) % len(summary)]) if summary else _normalize_punctuation(title)
+    if not thesis:
+        thesis = 'The question for leadership is where the evidence is strong enough to support action.'
     return [
         thesis,
-        'The issue matters because ' + topic + ' is moving from a science-led narrative into a capital-allocation question. Executives need to know which milestones alter decision quality and which milestones merely improve market sentiment.',
-        'The first lens is technology readiness. Progress in laboratories, pilots and private-company demonstrations should be separated from repeatable operating performance, because commercial buyers will ultimately underwrite uptime, maintainability, safety case, supply availability and lifecycle economics rather than headline breakthroughs.',
-        'The second lens is economics. Even when technical performance improves, the commercial case depends on capital intensity, construction duration, financing cost, utilization, regulatory treatment and the availability of credible offtake or procurement pathways. These factors can widen or narrow the gap between promise and adoption.',
-        'The third lens is ecosystem readiness. Suppliers, talent pools, standards bodies, regulators, insurers and customers all need to mature in parallel. A bottleneck in any one of these areas can delay deployment even if the core technology continues to advance.',
-        'The implication is that leadership teams should avoid binary conclusions. A more robust posture is to treat the opportunity as a staged option: participate early enough to learn and secure access, but reserve heavy commitments for moments when the evidence base becomes more bankable.',
-        'Partnerships will be especially important. Collaboration with technology developers, utilities, industrial customers, laboratories and public agencies can reduce learning cost while preserving strategic flexibility. The best partnerships are those that create observable proof points rather than broad memoranda of understanding.',
-        'Capital should therefore be sequenced around milestones. The most useful milestones are not generic announcements; they are measurable changes in cost, performance, reliability, permitting clarity, supply-chain depth and customer willingness to sign binding commercial arrangements.',
-        'For senior executives, the practical agenda is to identify the few assumptions that would change the decision. Those assumptions should be monitored through a dashboard, reviewed quarterly and linked to clear escalation triggers for partnerships, investment or market entry.',
-        'The risk of moving too slowly is losing access to scarce partners and capabilities. The risk of moving too quickly is committing capital before the market has resolved its most material uncertainties. The strategic answer is disciplined optionality rather than passive observation.',
-        'This chapter therefore frames the topic as a management choice, not a technology forecast. The objective is to define where conviction is already sufficient, where more evidence is required, and where a low-cost option should be maintained.',
-        'The conclusion is that management should prioritize evidence quality, milestone discipline and partner access over headline excitement. Those levers are more likely to determine value creation than any single technical announcement.',
+        'For a CEO, the practical test is whether this changes timing, partner selection, capital exposure or the next decision milestone. The answer should be staged around verified operating evidence rather than broad market enthusiasm.',
+        'The stronger posture is to keep learning options open while reserving larger commitments for facts that would change the business case: cost, reliability, supply depth, regulatory clarity and customer willingness to sign binding commitments.',
+        'In the context of ' + topic + ', management should separate moves that create privileged learning from moves that only create headline exposure. That distinction keeps the organization close to the opportunity without forcing premature conviction.',
     ]
+
+
+def _is_bad_template_text(text: str) -> bool:
+    cleaned = _normalize_punctuation(text).lower()
+    bad_markers = [
+        'the issue matters because',
+        'the first lens is technology readiness',
+        'the second lens is economics',
+        'the third lens is ecosystem readiness',
+        'this chapter therefore frames the topic',
+        'management should prioritize evidence quality',
+    ]
+    return any(marker in cleaned for marker in bad_markers)
 
 
 def _paragraphs_are_weak(paragraphs: List[str]) -> bool:
@@ -573,6 +608,8 @@ def _dedupe(values: List[str]) -> List[str]:
         normalized = _normalize_punctuation(str(value).strip())
         if not normalized:
             continue
+        if _is_bad_template_text(normalized):
+            continue
         key = re.sub(r'\W+', '', normalized.lower())[:180]
         if key in seen:
             continue
@@ -588,21 +625,43 @@ def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
             continue
         if cleaned.lower().startswith(('this report', 'the report', 'our analysis')):
             continue
-        return _shorten(cleaned, 118)
+        return _compact_headline(cleaned)
     if sections:
-        return _shorten(_strip_number_prefix(sections[0].get('title', 'Management agenda')), 118)
+        return _shorten(_strip_number_prefix(sections[0].get('title', 'Management agenda')), 135)
     return 'Management should focus on the few moves that can change the outcome'
+
+
+def _compact_headline(text: str) -> str:
+    cleaned = _normalize_punctuation(text)
+    cleaned = re.split(r'(?<=[.!?])\s+', cleaned, maxsplit=1)[0].strip()
+    for pattern in [r',\s+with\b', r',\s+but\b', r',\s+while\b', r';', r'\s+but\s+', r'\s+while\s+']:
+        parts = re.split(pattern, cleaned, maxsplit=1, flags=re.I)
+        if len(parts) > 1 and 35 <= len(parts[0]) <= 145:
+            return parts[0].strip()
+    return _shorten(cleaned, 110)
+
+
+def _display_bullet(text: str, max_chars: int) -> str:
+    cleaned = _normalize_punctuation(text)
+    if len(cleaned) <= max_chars:
+        return cleaned
+    compact = _compact_headline(cleaned)
+    if compact and len(compact) < len(cleaned):
+        cleaned = compact
+    return _shorten(cleaned, max_chars)
 
 
 def _paras(section: Dict[str, Any]) -> List[str]:
     raw = [str(x) for x in section.get('paragraphs', []) if str(x).strip()]
-    title = _strip_number_prefix(section.get('title', 'the issue'))
-    expansions = _generated_paragraphs(1, title, title, [section.get('lead') or title])
     raw = _dedupe(raw)
-    while len(raw) < 12:
-        raw.append(expansions[(len(raw) - 1) % len(expansions)])
+    if not raw:
+        for subsection in section.get('subsections', []) or []:
+            if isinstance(subsection, dict):
+                raw.extend(str(x) for x in subsection.get('paragraphs', []) if str(x).strip())
         raw = _dedupe(raw)
-    return [_tex(x) for x in raw[:12]]
+    if not raw and section.get('lead'):
+        raw = [str(section.get('lead'))]
+    return [_tex(x) for x in raw[:5]]
 
 
 def _para(text: str) -> str:
@@ -679,10 +738,14 @@ def _section_content_hints(section: Dict[str, Any]) -> List[str]:
         text = _normalize_punctuation(str(item or '').strip())
         if text:
             hints.append(text)
-    for item in _as_list(section.get('paragraphs')):
-        text = _normalize_punctuation(str(item or '').strip())
-        if text and len(text) > 35:
-            hints.append(_title_from_sentence(text))
+    for subsection in _as_list(section.get('subsections')):
+        if isinstance(subsection, dict):
+            text = _strip_number_prefix(subsection.get('title', ''))
+        else:
+            text = str(subsection or '')
+        text = _normalize_punctuation(text)
+        if text and not _is_generic_title(text):
+            hints.append(text)
         if len(hints) >= 4:
             break
     return _dedupe(hints)[:4]
@@ -738,7 +801,12 @@ def _strip_number_prefix(text: str) -> str:
 def _shorten(value: Any, max_chars: int) -> str:
     text = ' '.join(str(value or '').replace('\n', ' ').split())
     text = _normalize_punctuation(text)
-    return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + '.'
+    if len(text) <= max_chars:
+        return text
+    shortened = text[:max_chars].rsplit(' ', 1)[0].strip()
+    if not shortened:
+        shortened = text[:max_chars].strip()
+    return shortened.rstrip('.,;:')
 
 
 def _normalize_punctuation(text: str) -> str:

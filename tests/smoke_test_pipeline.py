@@ -126,6 +126,11 @@ def main() -> None:
             "stress test",
             "McKinsey",
             "Mck",
+            "The issue matters because",
+            "The first lens is technology readiness",
+            "The second lens is economics",
+            "The third lens is ecosystem readiness",
+            "This chapter therefore frames the topic",
         ]:
             assert internal_label.lower() not in lowered
     assert any((assets / f"chart-{idx}.png").exists() for idx in range(1, 5))
