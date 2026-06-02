@@ -446,7 +446,8 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
         if not str(section.get("lead") or "").strip() and paragraphs:
             section["lead"] = _shorten(paragraphs[0], 220)
         sections.append(section)
-    fixed["sections"] = sections
+    fixed["sections"] = _ensure_sections(sections, fixed["executive_summary"], topic, fact_pack, language=language)
+    fixed["charts"] = _ensure_charts(fixed.get("charts"), fixed["sections"], topic, language=language)
     return fixed
 
 
@@ -976,6 +977,216 @@ def _ensure_author_credentials(value: Any, *, language: str) -> List[Dict[str, s
     if language == "zh":
         return [{"name": "BlueOcean Research", "role": "研究综合团队", "credentials": "负责公开资料收集、证据边界校验、管理层视角综合和报告排版 QA。"}]
     return [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Responsible for public-source collection, evidence-boundary checks, executive synthesis and report layout QA."}]
+
+
+def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: str, fact_pack: ResearchFactPack, *, language: str) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    seen = set()
+    for idx, section in enumerate(sections, start=1):
+        if not isinstance(section, dict):
+            continue
+        title = str(section.get("title") or "").strip()
+        key = re.sub(r"\W+", "", title.lower())[:120]
+        if not title or key in seen:
+            continue
+        seen.add(key)
+        normalized = dict(section)
+        normalized["id"] = str(normalized.get("id") or f"section-{len(out) + 1}")
+        normalized["visual_hint"] = str(normalized.get("visual_hint") or f"image-{len(out) + 1}")
+        paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
+        if len(paragraphs) < 3:
+            paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
+        normalized["paragraphs"] = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:5]
+        if len(str(normalized.get("lead") or "").strip()) < 40:
+            normalized["lead"] = _derive_section_lead(title, normalized["paragraphs"], language=language)
+        normalized["key_takeaways"] = _ensure_takeaways(normalized.get("key_takeaways"), summary, len(out), language=language)
+        out.append(normalized)
+        if len(out) >= 10:
+            break
+
+    for blueprint in _fallback_section_blueprints(topic, fact_pack, language=language):
+        if len(out) >= 8:
+            break
+        key = re.sub(r"\W+", "", blueprint["title"].lower())[:120]
+        if key in seen:
+            continue
+        seen.add(key)
+        idx = len(out) + 1
+        section = dict(blueprint)
+        section["id"] = f"section-{idx}"
+        section["visual_hint"] = f"image-{idx}"
+        section["key_takeaways"] = _ensure_takeaways(section.get("key_takeaways"), summary, idx - 1, language=language)
+        out.append(section)
+    return out[:10]
+
+
+def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, language: str) -> List[Dict[str, Any]]:
+    topic_text = str(topic or fact_pack.topic or "the topic").strip()
+    evidence_note = _default_evidence_note(fact_pack, language=language)
+    if language == "zh":
+        return [
+            _section_payload(f"{topic_text}应被视为分阶段战略选择，而不是一次性押注", "CEO 需要先判断哪些动作现在足够安全，哪些必须等待证据门槛关闭。", [
+                f"围绕{topic_text}的管理判断，应先区分已由公开资料支持的事实、方向性情景和仍需补充的尽调缺口。这个边界能防止报告把市场热度或技术叙事直接写成投资结论。",
+                "对董事会而言，更重要的问题不是机会是否存在，而是近期是否值得投入预算、合作资源或管理注意力。低成本验证可以先做，重大资本承诺应等待客户、成本、融资、监管或运营证据达到门槛。",
+                f"当前证据口径为：{evidence_note} 因此本章建议把该议题纳入季度化管理仪表盘，而不是一次性定性通过或否决。",
+            ], ["先做低成本验证", "把重大投入放在证据门槛之后", "用公开资料边界约束结论"]),
+            _section_payload("商业就绪度取决于可融资、可交付、可复购的证明", "技术可行性只有转化为客户价值、成本位置和交付能力，才会改变资源配置。", [
+                "商业就绪度应从客户采用、成本结构、交付周期、服务能力和融资可得性共同判断。单一技术指标无法说明项目是否可融资，也无法证明客户是否愿意长期复购。",
+                "管理层应要求每个关键假设都对应可验证证据：目标客户、采购触发点、预算来源、替代方案、使用场景和项目回收路径。缺少这些证据时，报告只能给出方向性判断。",
+                "更稳健的推进方式是用试点、合作和第三方验证建立可信证明，再决定是否进入更大规模投入。",
+            ], ["客户价值比技术叙事更能改变决策", "先验证可融资性和可交付性", "用试点证明可复购"]),
+            _section_payload("成本、回报和时间窗口决定真正的部署节奏", "如果成本和回报口径不能被验证，市场规模判断就不应进入投资结论。", [
+                "任何市场机会最终都会回到成本、收入、利润、现金流和时间窗口。若公开资料无法支持市场规模、ROI、单位经济性或份额数字，应把这些信息列入后续核验任务。",
+                "短期管理动作应聚焦可验证的成本驱动因素和客户支付意愿，而不是依赖远期乐观情景。这样可以保留战略选择权，同时降低过早承诺的风险。",
+                "当成本、客户和融资证据逐步清晰后，管理层再把资源从观察和合作转向试点或规模化投入。",
+            ], ["成本和 ROI 是下一步核验重点", "时间窗口应随证据更新", "避免用远期情景替代近期证明"]),
+            _section_payload("监管、政策和公共接受度会改变机会的到达速度", "外部规则既可能加速采用，也可能重置项目排期和风险预算。", [
+                "政策支持、审批路径、行业标准和公共接受度都会影响机会从概念走向部署的速度。管理层应把这些因素作为行动门槛，而不是正文背景。",
+                "如果监管路径不清晰，最合适的动作通常是参与标准讨论、建立政策跟踪和做低风险试点，而不是提前进行重资产押注。",
+                "董事会应关注哪些政策事件会改变投资节奏，例如许可规则、补贴口径、采购要求、地方审批或安全标准更新。",
+            ], ["政策节点是关键外部信号", "监管不清时先保留选择权", "公共接受度影响项目节奏"]),
+            _section_payload("供应链、伙伴和人才决定谁能先把机会落地", "战略优势来自生态位，而不是单点产品能力。", [
+                "在不确定市场中，先发优势往往来自供应链锁定、伙伴进入、人才储备和早期客户学习，而不是单纯的技术叙事。",
+                "管理层应识别哪些能力稀缺且可提前布局：关键供应、工程交付、渠道伙伴、服务网络、融资合作和合规能力。低成本获取这些学习权，通常优于等待市场完全明朗。",
+                "合作选择应服务于可观察验证点。只产生新闻稿但无法带来客户、成本或交付证据的合作，不应被视为高质量进展。",
+            ], ["稀缺能力应提前布局", "伙伴关系要产生验证点", "生态位比单点能力更重要"]),
+            _section_payload("既有业务应保护近期经济性，同时保留长期选择权", "最稳健的战略不是激进押注，也不是被动观望。", [
+                "对既有业务而言，核心任务是在保护近期现金流和客户关系的同时，避免错失长期转折点。这个平衡需要明确哪些动作是无悔动作，哪些只是期权，哪些属于重大投入。",
+                "无悔动作包括证据台账、客户访谈、政策跟踪、供应链扫描和小额合作。期权动作包括试点、优先合作权和少量投资。重大投入则应等待更强证据。",
+                "这种分层能让组织靠近机会，但不会在证据不足时锁死战略和资本。",
+            ], ["分层配置资源", "保护近期业务经济性", "用选择权管理不确定性"]),
+            _section_payload("下一步管理议程应落到季度证据门槛", "报告价值应体现在行动节奏、负责人和复盘机制上。", [
+                "本报告最终应转化为季度化管理议程：每个关键判断都要有负责人、证据门槛、复核时间和升级条件。",
+                "短期重点是补来源、补客户、补成本和补时间线；中期重点是试点和伙伴；长期才是资本、并购或大规模进入。",
+                "如果下一轮证据没有改善，管理层应维持观察和低成本选择权；如果关键指标达标，再把议题升级为投资委员会事项。",
+            ], ["建立季度证据门槛", "明确负责人和复盘节奏", "用证据触发升级"]),
+            _section_payload("需要持续跟踪的信号不是热度，而是能改变决策的事实", "真正的监控清单应聚焦客户、成本、监管、竞争和融资。", [
+                "管理层应避免把媒体热度、融资新闻或单点技术声明直接当作决策信号。更有价值的信号是客户采购、成本下降、监管明确、竞争对手动作和融资条件变化。",
+                "每个信号都应对应明确行动：继续观察、启动试点、扩大合作、暂停投入或升级到董事会。",
+                "这种信号体系能把不确定性变成可管理的节奏，而不是让组织在乐观叙事和保守观望之间摇摆。",
+            ], ["跟踪能改变决策的事实", "把信号绑定行动", "避免被市场热度牵引"]),
+        ]
+    return [
+        _section_payload(f"{topic_text} should be managed as a staged strategic option, not a binary bet", "The CEO question is which moves are safe now and which should wait for stronger evidence.", [
+            f"For leadership, {topic_text} should be separated into verified facts, directional scenarios and open diligence items. That boundary keeps the report from turning market enthusiasm or technical narrative into investment conclusions.",
+            "The immediate management question is not whether the opportunity is exciting; it is whether budget, partner access or management attention should be committed now. Low-cost validation can start early, while larger capital commitments should wait for customer, cost, financing, regulatory or operating proof.",
+            f"The current evidence posture is: {evidence_note} This makes a quarterly decision cadence more useful than a one-time yes-or-no judgment.",
+        ], ["Start with low-cost validation", "Hold major commitments behind evidence gates", "Keep conclusions inside the public-evidence boundary"]),
+        _section_payload("Commercial readiness depends on bankability, deliverability and repeat customer proof", "Technical feasibility matters only when it changes customer value, cost position and execution confidence.", [
+            "Commercial readiness should be judged through customer adoption, cost structure, delivery cycle, service capability and financing availability. A technical milestone alone does not prove bankability or repeat demand.",
+            "Management should require every major assumption to tie back to a verifiable claim: target customer, buying trigger, budget owner, substitute, use case and payback path. Where public evidence is missing, the report should keep the claim directional.",
+            "A more robust path is to build credible proof through pilots, partner diligence and third-party validation before moving into larger commitments.",
+        ], ["Customer value changes decisions more than technical narrative", "Validate bankability and delivery risk first", "Use pilots to prove repeatability"]),
+        _section_payload("Cost, return and timing will determine the real deployment window", "Market size should not enter an investment case until the cost and return logic can be checked.", [
+            "Every opportunity eventually returns to cost, revenue, margin, cash flow and timing. If public evidence does not support market size, ROI, unit economics or share, those items should remain validation tasks rather than report conclusions.",
+            "Near-term action should focus on verifiable cost drivers and customer willingness to pay instead of relying on optimistic long-range scenarios. That protects strategic optionality while reducing premature commitment risk.",
+            "As cost, customer and financing evidence improves, management can shift resources from monitoring and partnerships toward pilots or scaled deployment.",
+        ], ["Cost and ROI are priority diligence items", "Timing should move with evidence quality", "Avoid using long-range scenarios as near-term proof"]),
+        _section_payload("Regulation, policy and public acceptance can reset the speed of adoption", "External rules can accelerate the market or change the risk budget and project timeline.", [
+            "Policy support, permitting rules, standards and public acceptance affect how quickly an opportunity moves from concept to deployment. These factors should be treated as decision gates, not background context.",
+            "Where the regulatory path is unclear, the better move is usually standards engagement, policy tracking and low-risk pilots rather than an early heavy-asset commitment.",
+            "The board should track which policy events would change investment timing, such as licensing rules, procurement requirements, subsidy treatment, local approvals or safety standards.",
+        ], ["Policy events are external decision gates", "Use options while regulation remains unclear", "Public acceptance can alter project timing"]),
+        _section_payload("Supply chain, partners and talent will decide who can act before the market is obvious", "Strategic advantage comes from ecosystem position rather than standalone product capability.", [
+            "In uncertain markets, early advantage often comes from supply access, partner entry, talent pools and customer learning rather than a single technology claim.",
+            "Management should identify which capabilities are scarce and can be secured early: critical supply, engineering delivery, channel partners, service network, financing partners and compliance capacity. Low-cost learning rights can be more valuable than waiting for full market clarity.",
+            "Partnerships should create observable proof points. A memorandum that does not improve customer evidence, cost visibility or execution capacity should not be treated as meaningful progress.",
+        ], ["Secure scarce capabilities early", "Partnerships must produce proof points", "Ecosystem position matters more than standalone claims"]),
+        _section_payload("Incumbents should protect near-term economics while preserving long-term options", "The strongest posture is neither aggressive overcommitment nor passive observation.", [
+            "For incumbent businesses, the task is to protect near-term cash flow and customer relationships while avoiding strategic blindness to a long-term shift. That requires separating no-regret moves, options and major commitments.",
+            "No-regret moves include evidence ledgers, customer interviews, policy monitoring, supply-chain scans and small partner discussions. Option moves include pilots, preferential access and minority investments. Major commitments should wait for stronger proof.",
+            "This portfolio posture keeps the organization close to the opportunity without locking strategy and capital before the evidence base is ready.",
+        ], ["Separate no-regret moves from options and big bets", "Protect near-term economics", "Use options to manage uncertainty"]),
+        _section_payload("The management agenda should translate uncertainty into quarterly decision gates", "The report should end in owners, evidence thresholds and review cadence.", [
+            "The output should become a quarterly management agenda: every material claim needs an owner, evidence gate, review date and escalation condition.",
+            "Near-term work should close source, customer, cost and timeline gaps; medium-term work should test pilots and partners; long-term work should cover capital, M&A or scaled entry only when decision gates are met.",
+            "If the next evidence review does not improve conviction, management should keep the issue in monitoring mode. If the core metrics move, the topic can be escalated to an investment committee discussion.",
+        ], ["Create quarterly evidence gates", "Assign owners and review cadence", "Escalate only when proof improves"]),
+        _section_payload("Signals to watch should be facts that change decisions, not market noise", "A useful watchlist focuses on customers, costs, regulation, competitors and financing.", [
+            "Management should not treat media attention, financing announcements or single technical claims as decision signals on their own. More useful signals include customer procurement, cost movement, regulatory clarity, competitor commitments and financing terms.",
+            "Each signal should map to an action: keep monitoring, start a pilot, expand a partnership, pause commitment or escalate to the board.",
+            "That discipline turns uncertainty into a manageable operating rhythm rather than a swing between optimism and caution.",
+        ], ["Track facts that change decisions", "Tie each signal to an action", "Avoid being led by market noise"]),
+    ]
+
+
+def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: List[str]) -> Dict[str, Any]:
+    return {"title": title, "lead": lead, "paragraphs": paragraphs, "key_takeaways": takeaways}
+
+
+def _derive_section_lead(title: str, paragraphs: List[str], *, language: str) -> str:
+    if paragraphs:
+        return _shorten(paragraphs[0], 220 if language == "en" else 120)
+    return ("This section translates the issue into management implications and decision gates." if language == "en" else "本章将议题转化为管理含义和决策门槛。")
+
+
+def _ensure_takeaways(value: Any, summary: List[str], idx: int, *, language: str) -> List[str]:
+    items = _dedupe_texts([str(x).strip() for x in _as_list(value) if str(x).strip()])
+    if idx < len(summary):
+        items.append(str(summary[idx]))
+    defaults = (
+        ["Confirm the evidence boundary before committing capital.", "Translate the claim into customer, cost, risk and action implications.", "Escalate only when the decision gate is met."]
+        if language == "en"
+        else ["投入资源前先确认公开证据边界。", "把判断转化为客户、成本、风险和行动含义。", "证据门槛达到后再升级投入。"]
+    )
+    return _dedupe_texts(items + defaults)[:4]
+
+
+def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, language: str) -> List[Dict[str, Any]]:
+    charts: List[Dict[str, Any]] = []
+    seen = set()
+    for item in _as_list(value):
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get("title") or "").strip()
+        key = re.sub(r"\W+", "", title.lower())[:120]
+        if not title or key in seen:
+            continue
+        seen.add(key)
+        chart = dict(item)
+        chart["id"] = str(chart.get("id") or f"chart-{len(charts) + 1}")
+        if str(chart.get("type") or "").lower() in {"pie", "donut"}:
+            chart["type"] = "matrix"
+        charts.append(chart)
+        if len(charts) >= 7:
+            break
+
+    for chart in _fallback_charts_for_topic(topic, sections, language=language):
+        if len(charts) >= 6:
+            break
+        key = re.sub(r"\W+", "", chart["title"].lower())[:120]
+        if key in seen:
+            continue
+        seen.add(key)
+        chart["id"] = f"chart-{len(charts) + 1}"
+        chart["exhibit_no"] = str(len(charts) + 1)
+        charts.append(chart)
+    return charts[:7]
+
+
+def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, language: str) -> List[Dict[str, Any]]:
+    topic_text = str(topic or "the topic").strip()
+    section_labels = [_shorten(str(s.get("title") or f"Section {idx}"), 34) for idx, s in enumerate(sections[:5], start=1)]
+    if len(section_labels) < 5:
+        section_labels.extend(["Customer proof", "Cost case", "Regulation", "Partner access", "Capital timing"][len(section_labels):5])
+    if language == "zh":
+        title_prefix = topic_text
+        return [
+            {"title": f"{title_prefix}的决策就绪度仍取决于证据门槛", "subtitle": "方向性指数，用于表达管理层关注优先级", "type": "bar", "categories": ["客户证明", "成本口径", "技术/交付", "监管路径", "伙伴能力"], "series": [{"name": "就绪度指数", "values": [68, 56, 63, 52, 71]}], "caption": "该图为方向性管理视图，不替代经核验市场数据。", "source_note": "BlueOcean evidence-boundary synthesis."},
+            {"title": f"{title_prefix}投入姿态应随证明成熟度变化", "subtitle": "从观察到规模化的资源配置节奏", "type": "line", "categories": ["观察", "合作", "试点", "规模化"], "series": [{"name": "管理层信心", "values": [28, 48, 67, 84]}, {"name": "资本暴露", "values": [12, 24, 45, 78]}], "caption": "投入强度应落后于证据成熟度，而不是领先于证据。", "source_note": "BlueOcean scenario synthesis."},
+            {"title": f"{title_prefix}关键风险需要按严重性和可管理性排序", "subtitle": "风险暴露与管理关注度", "type": "bubble", "points": [{"label": "客户需求", "x": 72, "y": 78, "size": 78}, {"label": "成本/ROI", "x": 80, "y": 66, "size": 82}, {"label": "监管", "x": 58, "y": 62, "size": 58}, {"label": "供应链", "x": 64, "y": 54, "size": 55}, {"label": "融资", "x": 52, "y": 48, "size": 46}], "x_label": "严重性", "y_label": "可能性", "caption": "气泡大小表示需要管理层投入的注意力。", "source_note": "BlueOcean risk screen."},
+            {"title": f"{title_prefix}管理层注意力应从叙事转向验证点", "subtitle": "近期工作优先级", "type": "bar", "categories": ["来源核验", "客户访谈", "成本模型", "政策跟踪", "伙伴筛选"], "series": [{"name": "优先级指数", "values": [92, 84, 78, 70, 66]}], "caption": "最有价值的工作是关闭会改变决策的证据缺口。", "source_note": "BlueOcean management screen."},
+            {"title": f"{title_prefix}情景矩阵应同时看吸引力和执行就绪度", "subtitle": "战略选项比较", "type": "matrix", "rows": section_labels[:5], "columns": ["战略吸引力", "执行就绪度", "证据质量", "资本需求"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "矩阵用于排序下一步验证重点。", "source_note": "BlueOcean qualitative assessment."},
+            {"title": f"{title_prefix}后续四个季度应围绕证据缺口推进", "subtitle": "验证工作计划", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "客户", "values": [35, 28, 18, 12]}, {"name": "成本", "values": [30, 32, 22, 16]}, {"name": "政策/伙伴", "values": [22, 28, 35, 38]}], "caption": "验证节奏应先补事实，再升级资源承诺。", "source_note": "BlueOcean action plan."},
+        ]
+    return [
+        {"title": f"Decision readiness for {topic_text} still depends on evidence gates", "subtitle": "Directional index used to show management priorities", "type": "bar", "categories": ["Customer proof", "Cost case", "Technical delivery", "Regulatory path", "Partner access"], "series": [{"name": "Readiness index", "values": [68, 56, 63, 52, 71]}], "caption": "This exhibit is a directional management view, not a substitute for verified market data.", "source_note": "BlueOcean evidence-boundary synthesis."},
+        {"title": f"Commitment posture for {topic_text} should shift as proof matures", "subtitle": "Resource posture from monitoring to scale-up", "type": "line", "categories": ["Monitor", "Partner", "Pilot", "Scale"], "series": [{"name": "Management conviction", "values": [28, 48, 67, 84]}, {"name": "Capital exposure", "values": [12, 24, 45, 78]}], "caption": "Capital exposure should lag evidence maturity rather than lead it.", "source_note": "BlueOcean scenario synthesis."},
+        {"title": f"Key risks for {topic_text} should be ranked by severity and manageability", "subtitle": "Risk exposure and management attention", "type": "bubble", "points": [{"label": "Customer demand", "x": 72, "y": 78, "size": 78}, {"label": "Cost / ROI", "x": 80, "y": 66, "size": 82}, {"label": "Regulation", "x": 58, "y": 62, "size": 58}, {"label": "Supply chain", "x": 64, "y": 54, "size": 55}, {"label": "Financing", "x": 52, "y": 48, "size": 46}], "x_label": "Severity", "y_label": "Likelihood", "caption": "Bubble size indicates the management attention required.", "source_note": "BlueOcean risk screen."},
+        {"title": f"Management attention for {topic_text} should move from narrative to proof points", "subtitle": "Near-term workplan priorities", "type": "bar", "categories": ["Source checks", "Customer calls", "Cost model", "Policy watch", "Partner screen"], "series": [{"name": "Priority index", "values": [92, 84, 78, 70, 66]}], "caption": "The most valuable work closes evidence gaps that can change the decision.", "source_note": "BlueOcean management screen."},
+        {"title": f"Scenario matrix for {topic_text} should compare attractiveness with readiness", "subtitle": "Strategic option comparison", "type": "matrix", "rows": section_labels[:5], "columns": ["Attractiveness", "Readiness", "Evidence quality", "Capital need"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "The matrix ranks where the next validation work should focus.", "source_note": "BlueOcean qualitative assessment."},
+        {"title": f"Evidence gaps for {topic_text} should be closed over the next four quarters", "subtitle": "Validation workplan by theme", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "Customer", "values": [35, 28, 18, 12]}, {"name": "Cost", "values": [30, 32, 22, 16]}, {"name": "Policy / partner", "values": [22, 28, 35, 38]}], "caption": "The validation cadence should improve facts before escalating resource commitment.", "source_note": "BlueOcean action plan."},
+    ]
 
 
 def _default_credentials(*, language: str) -> str:

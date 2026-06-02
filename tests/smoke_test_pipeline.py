@@ -82,6 +82,8 @@ def main() -> None:
     report = apply_deterministic_report_fixes(report, fact_pack, language="en")
     for required_key in ["executive_summary_text", "key_findings", "action_plan", "risk_register", "scenario_vignettes", "methodology_note", "author_credentials"]:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
+    assert len(report.get("sections", [])) >= 7
+    assert len(report.get("charts", [])) >= 5
     report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), [])
 
     asset_map = copy_or_generate_brand_assets(assets)
