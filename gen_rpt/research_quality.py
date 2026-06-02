@@ -447,6 +447,7 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
             section["lead"] = _shorten(paragraphs[0], 220)
         sections.append(section)
     fixed["sections"] = _ensure_sections(sections, fixed["executive_summary"], topic, fact_pack, language=language)
+    _vary_section_paragraph_openings(fixed["sections"], language=language)
     fixed["charts"] = _ensure_charts(fixed.get("charts"), fixed["sections"], topic, language=language)
     return fixed
 
@@ -1108,6 +1109,99 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
             "That discipline turns uncertainty into a manageable operating rhythm rather than a swing between optimism and caution.",
         ], ["Track facts that change decisions", "Tie each signal to an action", "Avoid being led by market noise"]),
     ]
+
+
+def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language: str) -> None:
+    prefixes = (
+        [
+            "For leadership teams, ",
+            "The management implication is clear: ",
+            "A practical reading is that ",
+            "The decision lens is that ",
+            "For capital allocation, ",
+            "The operating takeaway is that ",
+            "From a board perspective, ",
+            "The next management move is clear: ",
+        ]
+        if language == "en"
+        else [
+            "对管理层而言，",
+            "从资源配置看，",
+            "更实际的判断是，",
+            "放到董事会视角，",
+            "短期动作应当是，",
+            "从执行角度看，",
+            "这意味着，",
+            "后续管理重点是，",
+        ]
+    )
+    evidence_prefixes = (
+        [
+            "This should remain a directional conclusion because ",
+            "The supporting record is still incomplete: ",
+            "This point should be validated further because ",
+            "The current source base supports only a bounded conclusion: ",
+            "Before a major commitment, management should verify that ",
+            "The diligence gap is that ",
+            "The available record suggests caution: ",
+            "This assumption should stay on the watchlist because ",
+        ]
+        if language == "en"
+        else [
+            "该判断仍应保持方向性，因为",
+            "当前来源仍不完整：",
+            "该点需要继续核验，因为",
+            "现有来源只能支持边界内结论：",
+            "进入重大承诺前，应先核验",
+            "待尽调缺口在于",
+            "现有资料提示应保持谨慎：",
+            "该假设应纳入观察清单，因为",
+        ]
+    )
+    seen_counts: Dict[str, int] = {}
+    for section_idx, section in enumerate(sections):
+        paragraphs = [str(x) for x in _as_list(section.get("paragraphs"))]
+        revised = []
+        for para_idx, para in enumerate(paragraphs):
+            text = para.strip()
+            lower = text.lower()
+            if language == "en":
+                if lower.startswith("for executives, "):
+                    stem = re.sub(r"(?i)^for executives,\s*", "", text).strip()
+                    stem = re.sub(r"(?i)^the key implication is that\s*", "", stem).strip()
+                    stem = re.sub(r"(?i)^the implication is that\s*", "", stem).strip()
+                    stem = re.sub(r"(?i)^the implication is to\s*", "", stem).strip()
+                    text = prefixes[section_idx % len(prefixes)] + _lower_first(stem)
+                elif lower.startswith("the evidence boundary is that "):
+                    stem = re.sub(r"(?i)^the evidence boundary is that\s*", "", text).strip()
+                    text = evidence_prefixes[(section_idx + para_idx) % len(evidence_prefixes)] + _lower_first(stem)
+                elif lower.startswith("the evidence boundary for "):
+                    stem = re.sub(r"(?i)^the evidence boundary for\s*", "", text).strip()
+                    stem = re.sub(r"(?i)^(.+?)\s+is that\s+it\s+is\s+", r"\1 remains ", stem).strip()
+                    stem = re.sub(r"(?i)^(.+?)\s+is that\s+", r"\1 remains ", stem).strip()
+                    text = evidence_prefixes[(section_idx + para_idx) % len(evidence_prefixes)] + _lower_first(stem)
+            else:
+                if text.startswith("对管理层而言，"):
+                    text = prefixes[section_idx % len(prefixes)] + text[len("对管理层而言，"):]
+                elif text.startswith("当前证据边界是"):
+                    text = evidence_prefixes[(section_idx + para_idx) % len(evidence_prefixes)] + text[len("当前证据边界是"):]
+
+            opening = re.sub(r"^\W+", "", text)[:18].lower()
+            count = seen_counts.get(opening, 0)
+            if opening and count >= 2:
+                alt = prefixes[(section_idx + para_idx + count) % len(prefixes)]
+                if language == "en":
+                    text = alt + text[0].lower() + text[1:] if text else text
+                else:
+                    text = alt + text
+                opening = re.sub(r"^\W+", "", text)[:18].lower()
+            seen_counts[opening] = seen_counts.get(opening, 0) + 1
+            revised.append(_clean_visible_text(text))
+        section["paragraphs"] = revised
+
+
+def _lower_first(text: str) -> str:
+    return text[:1].lower() + text[1:] if text else text
 
 
 def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: List[str]) -> Dict[str, Any]:
