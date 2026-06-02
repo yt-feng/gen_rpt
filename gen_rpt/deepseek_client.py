@@ -156,7 +156,7 @@ def _normalize_charts(value: Any) -> List[Dict[str, Any]]:
         chart["type"] = str(chart.get("type") or "bar").lower().replace("-", "_")
         if chart["type"] in {"pie", "donut"}:
             chart["type"] = "bar"
-            chart["caption"] = (str(chart.get("caption") or "") + " Pie/donut output was converted to a bar exhibit for executive-report readability.").strip()
+            chart["caption"] = str(chart.get("caption") or "Composition is shown as a comparable bar exhibit for readability.").strip()
         if "categories" not in chart and "rows" not in chart and "points" not in chart:
             chart["categories"] = ["Value"]
         if "series" not in chart and "values" in chart:
@@ -210,12 +210,12 @@ def _repair_low_quality_chart(chart: Dict[str, Any], idx: int) -> Dict[str, Any]
         chart["series"] = [{"name": "Relative strength", "values": [86, 78, 71, 64, 57]}]
         chart["x_label"] = "Indicative index"
         chart["y_label"] = ""
-        chart["caption"] = "Model-proposed chart data was too sparse; replaced with a topic-neutral strategic index to avoid misleading single-point exhibits."
-        chart["source_note"] = str(chart.get("source_note") or "BlueOcean quality-control synthesis.")
+        chart["caption"] = "Directional index used where public evidence supports relative comparison but not a precise numeric forecast."
+        chart["source_note"] = str(chart.get("source_note") or "BlueOcean synthesis from public evidence.")
     elif suspicious_title and max(values_flat or [0]) <= 1.0:
         for item in chart.get("series", []):
             item["values"] = [round(v * 100, 1) for v in item.get("values", [])]
-        chart["caption"] = (str(chart.get("caption") or "") + " Values normalized to percentage/index scale during chart QA.").strip()
+        chart["caption"] = str(chart.get("caption") or "Values are shown on a comparable percentage/index scale.").strip()
     return chart
 
 

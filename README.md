@@ -24,8 +24,9 @@
 - **目录页**：自动生成章节目录
 - **免责声明**：自动生成“不构成投资建议”等正式声明
 - **金字塔原理**：标题和导语要求结论先行、crisp & sharp
-- **七步法与 issue tree**：先拆问题，再收集证据、定位要害、形成建议
-- **战略十问思维**：融合市场竞胜力、优势来源、趋势、不确定性、执行决心等维度
+- **结构化问题拆解与 issue tree**：先拆问题，再收集证据、定位要害、形成建议
+- **内部高管策略压力测试**：在生成前检查市场竞胜力、真实优势、趋势、不确定性、偏见、执行决心和行动落地；正式报告不展示内部框架名
+- **CEO-facing 模块**：自动生成结构化执行摘要、总关键发现、风险台账、行动计划、CEO 决策场景、方法与团队说明
 - **Reference 弱化**：正式文件不直接列参考链接，只保留机构来源说明
 - **Reference backup**：完整来源底稿自动进入 `backup/` 文件夹
 - **Evidence / fact pack**：生成正文前先抽取事实包，记录来源、权威来源数量、关键事实句、数字事实和时间线
@@ -131,7 +132,8 @@ report_quality.json
 它记录内容 QA 的轮次、每轮 issues、最终剩余问题，以及 PDF 排版 QA 的轮次。内容 QA 会检查：
 
 - sections 是否为 7-10 个，每章是否有 lead、3 段以上正文和 visual_hint
-- executive summary 是否足够
+- executive summary、key findings、action plan、risk register、scenario vignette、methodology note 和 author credentials 是否齐全
+- 技术内容是否已经转化为收入、成本、投资回报、融资、竞争优势、风险和行动含义
 - 数字和时间线密度是否匹配事实包
 - references 是否只使用已抓取资料里的真实 URL
 - charts 是否为 5-7 个，且不用 pie/donut，标题和分类不能泛化
@@ -171,7 +173,7 @@ QA 会检查：
 - 是否存在文本块重叠
 - 是否存在过小字体
 - 是否存在异常大字
-- 是否泄露 `BCG-style`、`McKinsey-style`、`sample card` 等内部元标签
+- 是否泄露 `BCG-style`、`consulting-style`、`sample card`、内部策略框架名或图表修复痕迹等元标签
 - HTML 页面是否存在文字过密 + 图片同页的溢出风险
 
 QA 截图会保存在：

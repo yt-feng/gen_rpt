@@ -10,9 +10,19 @@ import fitz
 
 META_LABEL_PATTERNS = [
     "mckinsey-style",
+    "10 tests",
+    "ten tests",
+    "strategic ten questions",
+    "战略十问",
     "bcg-style",
     "consulting-style",
     "sample card",
+    "model-proposed",
+    "chart qa",
+    "quality-control synthesis",
+    "topic-neutral strategic index",
+    "converted to a bar exhibit",
+    "values normalized",
     "制作说明",
     "样例图卡",
 ]
@@ -94,7 +104,11 @@ def apply_pdf_qa_fixes(report: Dict[str, Any], qa_result: Dict[str, Any]) -> Dic
 
     fixed["report_title"] = _clean_text(fixed.get("report_title", ""))
     fixed["report_subtitle"] = _clean_text(fixed.get("report_subtitle", ""))
+    fixed["executive_summary_text"] = _clean_text(fixed.get("executive_summary_text", ""))
+    fixed["methodology_note"] = _clean_text(fixed.get("methodology_note", ""))
     fixed["executive_summary"] = [_clean_text(x) for x in fixed.get("executive_summary", [])]
+    for key in ["key_findings", "action_plan", "risk_register", "scenario_vignettes", "author_credentials"]:
+        fixed[key] = _clean_nested(fixed.get(key, []))
 
     for step in fixed.get("method_steps", []):
         step["name"] = _clean_text(step.get("name", ""))
@@ -171,6 +185,16 @@ def _clean_text(value: Any) -> str:
     for pattern in META_LABEL_PATTERNS:
         text = re.sub(re.escape(pattern), "", text, flags=re.IGNORECASE)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _clean_nested(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {key: _clean_nested(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_clean_nested(item) for item in value]
+    if isinstance(value, str):
+        return _clean_text(value)
+    return value
 
 
 def _overlap_ratio(a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]) -> float:

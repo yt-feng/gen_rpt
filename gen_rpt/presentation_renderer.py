@@ -66,11 +66,11 @@ def render_presentation_html(report: Dict, assets: Dict[str, str], output_file: 
         cards.append(f"<div class='card'><div class='num'>{idx}</div><p>{html.escape(item)}</p></div>")
     _slide(parts, "", f"<div class='kicker'>Key highlights</div><h2>The research narrows the agenda to a few high-conviction issues</h2><div class='grid-3'>{''.join(cards)}</div>", "Highlights", 2)
 
-    steps = []
-    for idx, step in enumerate(report.get("method_steps", [])[:7], start=1):
-        steps.append(f"<div class='step'><b>{idx}. {html.escape(step.get('name',''))}</b><span>{html.escape(step.get('description',''))}</span></div>")
-    if steps:
-        _slide(parts, "", f"<div class='kicker'>Approach</div><h2>Seven-step problem solving structures the work before synthesis</h2><div class='process'>{''.join(steps)}</div>", "Approach", 3)
+    actions = []
+    for idx, item in enumerate(report.get("action_plan", [])[:6], start=1):
+        actions.append(f"<div class='step'><b>{html.escape(item.get('horizon', f'Phase {idx}'))}</b><span>{html.escape(item.get('action', 'Translate evidence into a management decision.'))}</span></div>")
+    if actions:
+        _slide(parts, "", f"<div class='kicker'>Management agenda</div><h2>Actions are sequenced by evidence gates and decision readiness</h2><div class='process'>{''.join(actions)}</div>", "Management agenda", 3)
 
     slide_no = 4
     for section in report.get("sections", [])[:6]:

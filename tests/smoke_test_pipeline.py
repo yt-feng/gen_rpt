@@ -29,6 +29,21 @@ def main() -> None:
         "report_title": "Smoke Test Report",
         "report_subtitle": "Testing malformed model payload normalization.",
         "executive_summary": ["Summary one", "Summary two"],
+        "executive_summary_text": "The CEO-level issue is whether the source-backed facts are strong enough to support action, investment and risk decisions.",
+        "key_findings": [
+            {"finding": "Evidence quality changes the pace of commitment.", "evidence": "Public source backup and fact pack.", "management_implication": "Fund validation before major allocation."}
+        ],
+        "action_plan": [
+            {"horizon": "Near term, 0-90 days", "action": "Build an evidence ledger for management decisions.", "owner": "Strategy", "success_metric": "Claims have sources and dates.", "decision_gate": "Do not use unsupported numbers."}
+        ],
+        "risk_register": [
+            {"risk": "Evidence remains too thin.", "trigger": "Few authoritative sources or numeric facts.", "management_action": "Add source validation before investment use.", "evidence_boundary": "Public source backup."}
+        ],
+        "scenario_vignettes": [
+            {"title": "CEO decision scenario", "situation": "Management is deciding whether to fund a next step.", "ceo_question": "What can be done now?", "recommended_move": "Fund validation first.", "watchouts": "Do not treat narrative as ROI proof."}
+        ],
+        "methodology_note": "The smoke report uses public source backup, evidence-boundary checks and validation gaps to test rendering.",
+        "author_credentials": [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Evidence checks and report QA."}],
         "sections": [
             {"title": "1. Numbered title should be cleaned", "lead": "Lead", "paragraphs": ["Paragraph A", "Paragraph B"], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
             "A string section should not break rendering",
@@ -65,6 +80,8 @@ def main() -> None:
     validation_issues = validate_report(report, fact_pack, language="en")
     assert validation_issues
     report = apply_deterministic_report_fixes(report, fact_pack, language="en")
+    for required_key in ["executive_summary_text", "key_findings", "action_plan", "risk_register", "scenario_vignettes", "methodology_note", "author_credentials"]:
+        assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), [])
 
     asset_map = copy_or_generate_brand_assets(assets)
@@ -88,9 +105,16 @@ def main() -> None:
     assert (out / "report.html").exists()
     assert (out / "report.md").exists()
     assert (out / "report_latex.tex").exists()
+    html_text = (out / "report.html").read_text(encoding="utf-8")
+    assert "Management action plan" in html_text
+    assert "Risk register" in html_text
+    assert "CEO decision scenario" in html_text
     assert any((assets / f"chart-{idx}.png").exists() for idx in range(1, 5))
     if not latex_result.get("pdf_path"):
         error_path = out / "latex_error.txt"
+        if error_path.exists() and "xelatex not found" in error_path.read_text(encoding="utf-8").lower():
+            print(json.dumps({"ok": True, "assets": len(asset_map), "cards": len(report.get("insight_cards", [])), "charts": len(report.get("charts", [])), "latex_pdf": False, "latex_note": "xelatex not found"}))
+            return
         if error_path.exists():
             raise RuntimeError(error_path.read_text(encoding="utf-8")[-1200:])
         raise RuntimeError("LaTeX PDF was not generated and no latex_error.txt was written")

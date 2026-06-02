@@ -41,6 +41,17 @@ p {{ margin:0 0 .062in; }} ul, ol {{ margin:.02in 0 .04in .16in; padding:0; }} l
 .highlight-grid {{ display:grid; grid-template-columns:repeat(2,1fr); gap:.08in .11in; margin-top:.10in; }}
 .highlight-card {{ border-left:3px solid var(--accent); background:#fff; padding:.06in .075in; min-height:.55in; box-shadow:0 0 0 1px var(--line); }}
 .highlight-card .num {{ color:var(--accent); font-size:7.8pt; font-weight:bold; margin-bottom:.016in; }} .highlight-card .text {{ color:var(--ink); font-size:7.5pt; line-height:1.20; }}
+.narrative {{ font-size:10.8pt; line-height:1.34; color:var(--ink); margin:.08in 0 .11in; }}
+.module-grid {{ display:grid; grid-template-columns:repeat(2,1fr); gap:.10in .12in; margin-top:.08in; }}
+.module-card {{ background:#fff; border-left:3px solid var(--accent); box-shadow:0 0 0 1px var(--line); padding:.075in .09in; min-height:.88in; page-break-inside:avoid; }}
+.module-card .label {{ color:var(--accent); font-size:6.6pt; font-weight:bold; text-transform:uppercase; margin-bottom:.03in; }}
+.module-card .title {{ font-size:8.7pt; line-height:1.18; color:var(--ink); font-weight:bold; margin-bottom:.03in; }}
+.module-card .meta {{ font-size:7.1pt; line-height:1.24; color:var(--muted); }}
+.table-lite {{ width:100%; border-collapse:collapse; margin-top:.08in; font-size:7.2pt; line-height:1.20; }}
+.table-lite th {{ color:var(--accent); text-align:left; border-bottom:1px solid var(--line); padding:.045in; font-size:6.5pt; text-transform:uppercase; }}
+.table-lite td {{ vertical-align:top; border-bottom:1px solid var(--line); padding:.045in; }}
+.scenario-box {{ background:#fff; border-top:3px solid var(--accent2); box-shadow:0 0 0 1px var(--line); padding:.13in .16in; margin-top:.10in; }}
+.scenario-box h3 {{ font-size:12pt; line-height:1.15; color:var(--ink); margin-bottom:.07in; }}
 .section-grid {{ display:grid; grid-template-columns:1.02fr .98fr; gap:.20in; align-items:start; }}
 .section-visual {{ width:100%; height:3.95in; object-fit:cover; display:block; border:0; }} .chart-inline {{ width:100%; max-height:3.85in; object-fit:contain; border:none; margin:.06in 0; }}
 .placeholder {{ height:3.95in; background:linear-gradient(135deg,#F5F9FC,#E6F1FA); border:1px solid var(--line); position:relative; }}
@@ -52,8 +63,38 @@ p {{ margin:0 0 .062in; }} ul, ol {{ margin:.02in 0 .04in .16in; padding:0; }} l
 """
 
 LABELS = {
-    "en": {"lang": "en", "summary": "Key highlights", "toc": "Contents", "disclaimer": "Disclaimer", "takeaways": "Takeaways", "reference_note": "This report was informed by public research and data from:", "formal_note": "The full source backup is archived in the backup folder.", "disclaimer_text": "This document is a management consulting and research analysis deliverable for strategy discussion only. It is not professional advisory guidance."},
-    "zh": {"lang": "zh-CN", "summary": "Key highlights", "toc": "Contents", "disclaimer": "Disclaimer", "takeaways": "Takeaways", "reference_note": "Reference institutions:", "formal_note": "Source backup is archived in the backup folder.", "disclaimer_text": "This document is for management research and strategy discussion only."},
+    "en": {
+        "lang": "en",
+        "summary": "Executive summary",
+        "highlights": "Key highlights",
+        "toc": "Contents",
+        "findings": "Key findings",
+        "actions": "Management action plan",
+        "risks": "Risk register",
+        "scenario": "CEO decision scenario",
+        "method": "Method and team",
+        "disclaimer": "Disclaimer",
+        "takeaways": "Takeaways",
+        "reference_note": "This report was informed by public research and data from:",
+        "formal_note": "The full source backup is archived in the backup folder.",
+        "disclaimer_text": "This document is a management consulting and research analysis deliverable for strategy discussion only. It is not professional advisory guidance.",
+    },
+    "zh": {
+        "lang": "zh-CN",
+        "summary": "执行摘要",
+        "highlights": "关键结论",
+        "toc": "目录",
+        "findings": "关键发现",
+        "actions": "管理层行动计划",
+        "risks": "风险台账",
+        "scenario": "CEO 决策场景",
+        "method": "方法与团队",
+        "disclaimer": "免责声明",
+        "takeaways": "要点",
+        "reference_note": "参考机构：",
+        "formal_note": "完整来源底稿已归档在 backup 文件夹。",
+        "disclaimer_text": "本文档仅用于管理研究和战略讨论，不构成专业建议。",
+    },
 }
 
 
@@ -73,7 +114,11 @@ def render_report_html(report: Dict[str, Any], assets: Dict[str, str], output_fi
 
     parts.append("<section class='page'>")
     _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{labels['summary']}</div><h2>The report opens with decision-relevant conclusions</h2><div class='highlight-grid'>")
+    parts.append(f"<div class='kicker'>{labels['summary']}</div><h2>{html.escape(_summary_heading(language))}</h2>")
+    summary_text = str(report.get("executive_summary_text") or "").strip()
+    if summary_text:
+        parts.append(f"<p class='narrative'>{html.escape(_shorten(summary_text, 1050))}</p>")
+    parts.append("<div class='highlight-grid'>")
     summary = [_clean_summary_item(x) for x in (report.get("executive_summary", []) or [])[:8]] or ["Evidence should be translated into a focused management agenda."]
     for idx, item in enumerate(summary[:8], start=1):
         parts.append(f"<div class='highlight-card'><div class='num'>{idx:02d}</div><div class='text'>{html.escape(_shorten(item, 210))}</div></div>")
@@ -87,6 +132,12 @@ def render_report_html(report: Dict[str, Any], assets: Dict[str, str], output_fi
         parts.append(f"<li>{html.escape(_strip_number_prefix(section.get('title', 'Section')))}</li>")
     parts.append("</ol></section>")
     page_no += 1
+
+    page_no = _render_findings_page(parts, report, labels, logo_path, page_no)
+    page_no = _render_action_plan_page(parts, report, labels, logo_path, page_no)
+    page_no = _render_risk_page(parts, report, labels, logo_path, page_no)
+    page_no = _render_scenario_page(parts, report, labels, logo_path, page_no)
+    page_no = _render_method_page(parts, report, labels, logo_path, institutions, page_no)
 
     parts.append("<section class='page'>")
     _page_header(parts, logo_path, page_no)
@@ -143,8 +194,27 @@ def render_report_markdown(report: Dict[str, Any], assets: Dict[str, str], outpu
     labels = _labels(language)
     sections = _safe_sections(report.get("sections", []))
     lines: List[str] = [f"# {report.get('report_title', topic)}", "", f"**Prepared by**: {BRAND_NAME}", "", f"**Topic**: {topic}", "", f"## {labels['summary']}", ""]
+    if report.get("executive_summary_text"):
+        lines.extend([str(report.get("executive_summary_text")), ""])
     for item in report.get("executive_summary", []) or []:
         lines.append(f"- {_clean_summary_item(item)}")
+    lines.extend(["", f"## {labels['findings']}", ""])
+    for item in _as_list(report.get("key_findings")):
+        lines.append(f"- **{_field(item, 'finding')}** Evidence: {_field(item, 'evidence')}. Implication: {_field(item, 'management_implication')}")
+    lines.extend(["", f"## {labels['actions']}", ""])
+    for item in _as_list(report.get("action_plan")):
+        lines.append(f"- **{_field(item, 'horizon')}**: {_field(item, 'action')} Owner: {_field(item, 'owner')}. Gate: {_field(item, 'decision_gate')}")
+    lines.extend(["", f"## {labels['risks']}", ""])
+    for item in _as_list(report.get("risk_register")):
+        lines.append(f"- **{_field(item, 'risk')}** Trigger: {_field(item, 'trigger')}. Management action: {_field(item, 'management_action')}")
+    lines.extend(["", f"## {labels['scenario']}", ""])
+    for item in _as_list(report.get("scenario_vignettes")):
+        lines.append(f"- **{_field(item, 'title')}** {_field(item, 'situation')} CEO question: {_field(item, 'ceo_question')} Recommended move: {_field(item, 'recommended_move')}")
+    lines.extend(["", f"## {labels['method']}", ""])
+    if report.get("methodology_note"):
+        lines.extend([str(report.get("methodology_note")), ""])
+    for item in _as_list(report.get("author_credentials")):
+        lines.append(f"- **{_field(item, 'name')}** {_field(item, 'role')}: {_field(item, 'credentials')}")
     lines.extend(["", f"## {labels['toc']}", ""])
     for section in sections:
         lines.append(f"- {_strip_number_prefix(section.get('title', 'Section'))}")
@@ -166,8 +236,136 @@ def _page_header(parts: List[str], logo_path: str, page_no: int) -> None:
     parts.append(f"<div class='page-footer'><span>{html.escape(BRAND_NAME)} | Confidential</span><span>{page_no}</span></div>")
 
 
+def _render_findings_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
+    findings = _as_list(report.get("key_findings"))[:6]
+    if not findings:
+        return page_no
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<div class='kicker'>{html.escape(labels['findings'])}</div><h2>{html.escape(labels['findings'])}</h2><div class='module-grid'>")
+    for idx, item in enumerate(findings, start=1):
+        parts.append(
+            "<div class='module-card'>"
+            f"<div class='label'>{idx:02d}</div>"
+            f"<div class='title'>{html.escape(_shorten(_field(item, 'finding'), 155))}</div>"
+            f"<div class='meta'>{html.escape(_shorten(_field(item, 'evidence'), 175))}</div>"
+            f"<div class='meta'>{html.escape(_shorten(_field(item, 'management_implication'), 175))}</div>"
+            "</div>"
+        )
+    parts.append("</div></section>")
+    return page_no + 1
+
+
+def _render_action_plan_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
+    actions = _as_list(report.get("action_plan"))[:5]
+    if not actions:
+        return page_no
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<div class='kicker'>{html.escape(labels['actions'])}</div><h2>{html.escape(labels['actions'])}</h2>")
+    parts.append("<table class='table-lite'><thead><tr><th>Horizon</th><th>Action</th><th>Owner</th><th>Gate</th></tr></thead><tbody>")
+    for item in actions:
+        parts.append(
+            "<tr>"
+            f"<td>{html.escape(_shorten(_field(item, 'horizon'), 80))}</td>"
+            f"<td>{html.escape(_shorten(_field(item, 'action'), 210))}<br><span class='small-note'>{html.escape(_shorten(_field(item, 'success_metric'), 140))}</span></td>"
+            f"<td>{html.escape(_shorten(_field(item, 'owner'), 80))}</td>"
+            f"<td>{html.escape(_shorten(_field(item, 'decision_gate'), 170))}</td>"
+            "</tr>"
+        )
+    parts.append("</tbody></table></section>")
+    return page_no + 1
+
+
+def _render_risk_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
+    risks = _as_list(report.get("risk_register"))[:6]
+    if not risks:
+        return page_no
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<div class='kicker'>{html.escape(labels['risks'])}</div><h2>{html.escape(labels['risks'])}</h2>")
+    parts.append("<table class='table-lite'><thead><tr><th>Risk</th><th>Trigger</th><th>Management action</th><th>Boundary</th></tr></thead><tbody>")
+    for item in risks:
+        parts.append(
+            "<tr>"
+            f"<td>{html.escape(_shorten(_field(item, 'risk'), 150))}</td>"
+            f"<td>{html.escape(_shorten(_field(item, 'trigger'), 150))}</td>"
+            f"<td>{html.escape(_shorten(_field(item, 'management_action'), 170))}</td>"
+            f"<td>{html.escape(_shorten(_field(item, 'evidence_boundary'), 150))}</td>"
+            "</tr>"
+        )
+    parts.append("</tbody></table></section>")
+    return page_no + 1
+
+
+def _render_scenario_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, page_no: int) -> int:
+    scenarios = _as_list(report.get("scenario_vignettes"))[:2]
+    if not scenarios:
+        return page_no
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<div class='kicker'>{html.escape(labels['scenario'])}</div><h2>{html.escape(labels['scenario'])}</h2>")
+    for item in scenarios:
+        parts.append(
+            "<div class='scenario-box'>"
+            f"<h3>{html.escape(_shorten(_field(item, 'title'), 120))}</h3>"
+            f"<p>{html.escape(_shorten(_field(item, 'situation'), 360))}</p>"
+            f"<p><strong>CEO question:</strong> {html.escape(_shorten(_field(item, 'ceo_question'), 220))}</p>"
+            f"<p><strong>Recommended move:</strong> {html.escape(_shorten(_field(item, 'recommended_move'), 260))}</p>"
+            f"<p class='small-note'>{html.escape(_shorten(_field(item, 'watchouts'), 260))}</p>"
+            "</div>"
+        )
+    parts.append("</section>")
+    return page_no + 1
+
+
+def _render_method_page(parts: List[str], report: Dict[str, Any], labels: Dict[str, str], logo_path: str, institutions: List[Any], page_no: int) -> int:
+    note = str(report.get("methodology_note") or "").strip()
+    authors = _as_list(report.get("author_credentials"))[:4]
+    if not note and not authors and not institutions:
+        return page_no
+    parts.append("<section class='page'>")
+    _page_header(parts, logo_path, page_no)
+    parts.append(f"<div class='kicker'>{html.escape(labels['method'])}</div><h2>{html.escape(labels['method'])}</h2>")
+    if note:
+        parts.append(f"<p class='narrative'>{html.escape(_shorten(note, 900))}</p>")
+    if authors:
+        parts.append("<div class='module-grid'>")
+        for item in authors:
+            parts.append(
+                "<div class='module-card'>"
+                f"<div class='title'>{html.escape(_shorten(_field(item, 'name'), 90))}</div>"
+                f"<div class='meta'>{html.escape(_shorten(_field(item, 'role'), 120))}</div>"
+                f"<div class='meta'>{html.escape(_shorten(_field(item, 'credentials'), 220))}</div>"
+                "</div>"
+            )
+        parts.append("</div>")
+    if institutions:
+        parts.append(f"<p class='small-note'>{html.escape(labels['reference_note'])} {html.escape(', '.join(str(x) for x in institutions))}. {html.escape(labels['formal_note'])}</p>")
+    parts.append("</section>")
+    return page_no + 1
+
+
 def _labels(language: str) -> Dict[str, str]:
     return LABELS["en"] if str(language).lower().startswith("en") else LABELS["zh"]
+
+
+def _summary_heading(language: str) -> str:
+    return "What the CEO should take away before reading the body" if str(language).lower().startswith("en") else "先给 CEO 的结论、证据边界与下一步"
+
+
+def _as_list(value: Any) -> List[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _field(item: Any, key: str, default: str = "") -> str:
+    if isinstance(item, dict):
+        return " ".join(str(item.get(key) or default).split())
+    return " ".join(str(item or default).split())
 
 
 def _resolve_visual(section: Dict[str, Any], idx: int, assets: Dict[str, str]) -> str:

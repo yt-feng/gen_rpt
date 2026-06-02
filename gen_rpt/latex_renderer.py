@@ -4,6 +4,7 @@ import re
 import shutil
 import subprocess
 import unicodedata
+from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -76,8 +77,14 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     sections = _repair_sections(report, _safe_sections(report.get('sections', [])), topic, summary)
     refs = report.get('reference_institutions', []) or []
     parts = [HEADER, '\\begin{document}', '\\raggedright']
-    parts.append(_cover_page(title, _asset_path(assets.get('cover-background', ''))))
+    parts.append(_cover_page(title, _asset_path(assets.get('cover-background', '')), topic))
     parts.append(_agenda_and_contents_page(summary, sections))
+    parts.append(_executive_summary_page(report, summary))
+    parts.append(_key_findings_page(report))
+    parts.append(_action_plan_page(report))
+    parts.append(_risk_register_page(report))
+    parts.append(_scenario_page(report))
+    parts.append(_methodology_page(report, refs))
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
     parts.append(_disclaimer_page(refs))
@@ -85,11 +92,13 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     return '\n'.join(parts)
 
 
-def _cover_page(title: str, cover: str) -> str:
+def _cover_page(title: str, cover: str, topic: str) -> str:
     if cover:
         bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.18] (current page.south west) rectangle (current page.north east);'
     else:
         bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
+    prepared = _tex('Prepared by BlueOcean | ' + date.today().isoformat())
+    topic_line = _tex(_shorten(topic, 180))
     return r'''
 \thispagestyle{empty}
 \begin{tikzpicture}[remember picture,overlay]
@@ -98,6 +107,7 @@ def _cover_page(title: str, cover: str) -> str:
 \fill[BOBright] ([xshift=17mm,yshift=-28mm]current page.north west) rectangle ++(150mm,-2.1mm);
 \node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-37mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOBlue} BLUEOCEAN\\DEEP RESEARCH REPORT};
 \node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-53mm]current page.north west) {\parbox{132mm}{\raggedright\sffamily\fontsize{22}{25}\selectfont\color{BONavy} ''' + title + r'''}};
+\node[anchor=north west,text width=132mm] at ([xshift=25mm,yshift=-78mm]current page.north west) {\sffamily\scriptsize\color{BOMuted} ''' + prepared + r'''\\''' + topic_line + r'''};
 \end{tikzpicture}
 \clearpage
 '''
@@ -117,6 +127,100 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
         content_rows.append('\\textcolor{BOBlue}{\\bfseries ' + str(idx) + '} & ' + title + ' & {\\color{BOMuted}pp.~\\pageref{chap:' + str(idx) + '}--\\pageref{chap:' + str(idx) + ':end}} \\\\[3pt]\n')
 
     return _kicker('Executive conclusions and contents') + _heading(heading) + _rule() + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n' + ''.join(summary_rows) + '\\end{tabularx}\n\\vspace{6pt}\n{\\textcolor{BOBlue}{\\scriptsize\\bfseries CONTENTS}}\\par\\vspace{2pt}\n\\begin{tabularx}{\\linewidth}{p{8mm}Yp{29mm}}\n' + ''.join(content_rows) + '\\end{tabularx}\n\\clearpage\n'
+
+
+def _executive_summary_page(report: Dict[str, Any], summary: List[str]) -> str:
+    narrative = str(report.get('executive_summary_text') or '').strip()
+    if not narrative and not summary:
+        return ''
+    body = '\\clearpage\n' + _kicker('Executive summary') + _heading('What the CEO should take away before reading the body') + _rule()
+    if narrative:
+        body += '{\\normalsize\\color{BONavy} ' + _tex(_shorten(narrative, 1400)) + '}\\par\\vspace{6pt}\n'
+    rows = []
+    for idx, item in enumerate(summary[:6], start=1):
+        rows.append('\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\footnotesize ' + _tex(_shorten(item, 260)) + '} \\\\[5pt]\n')
+    if rows:
+        body += '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n' + ''.join(rows) + '\\end{tabularx}\n'
+    return body
+
+
+def _key_findings_page(report: Dict[str, Any]) -> str:
+    findings = _as_list(report.get('key_findings'))[:6]
+    if not findings:
+        return ''
+    body = '\\clearpage\n' + _kicker('Key findings') + _heading('The evidence points to a small set of management implications') + _rule()
+    body += '\\begin{tabularx}{\\linewidth}{p{9mm}Y}\n'
+    for idx, item in enumerate(findings, start=1):
+        finding = _tex(_shorten(_field(item, 'finding'), 220))
+        evidence = _tex(_shorten(_field(item, 'evidence'), 230))
+        implication = _tex(_shorten(_field(item, 'management_implication'), 230))
+        body += '\\textcolor{BOBlue}{\\bfseries ' + f'{idx:02d}' + '} & {\\small\\bfseries ' + finding + '}\\par{\\scriptsize\\color{BOMuted} Evidence: ' + evidence + '}\\par{\\scriptsize\\color{BOMuted} Management implication: ' + implication + '} \\\\[6pt]\n'
+    return body + '\\end{tabularx}\n'
+
+
+def _action_plan_page(report: Dict[str, Any]) -> str:
+    actions = _as_list(report.get('action_plan'))[:5]
+    if not actions:
+        return ''
+    body = '\\clearpage\n' + _kicker('Management action plan') + _heading('Management action plan') + '{\\small\\color{BOMuted} Actions should be sequenced by evidence gates, not by market excitement.}\\par\\vspace{4pt}\n' + _rule()
+    body += '\\begin{tabularx}{\\linewidth}{p{24mm}Yp{25mm}Y}\n{\\scriptsize\\bfseries\\color{BOBlue} HORIZON} & {\\scriptsize\\bfseries\\color{BOBlue} ACTION} & {\\scriptsize\\bfseries\\color{BOBlue} OWNER} & {\\scriptsize\\bfseries\\color{BOBlue} DECISION GATE} \\\\[3pt]\n'
+    for item in actions:
+        body += (
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'horizon'), 80)) + '} & '
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'action'), 240)) + '\\par\\textcolor{BOMuted}{' + _tex(_shorten(_field(item, 'success_metric'), 150)) + '}} & '
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'owner'), 80)) + '} & '
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'decision_gate'), 180)) + '} \\\\[6pt]\n'
+        )
+    return body + '\\end{tabularx}\n'
+
+
+def _risk_register_page(report: Dict[str, Any]) -> str:
+    risks = _as_list(report.get('risk_register'))[:6]
+    if not risks:
+        return ''
+    body = '\\clearpage\n' + _kicker('Risk register') + _heading('Risk register') + '{\\small\\color{BOMuted} The board should track the assumptions that can break the case.}\\par\\vspace{4pt}\n' + _rule()
+    body += '\\begin{tabularx}{\\linewidth}{p{32mm}Y Y}\n{\\scriptsize\\bfseries\\color{BOBlue} RISK} & {\\scriptsize\\bfseries\\color{BOBlue} TRIGGER} & {\\scriptsize\\bfseries\\color{BOBlue} MANAGEMENT ACTION} \\\\[3pt]\n'
+    for item in risks:
+        body += (
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'risk'), 150)) + '} & '
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'trigger'), 170)) + '} & '
+            '{\\scriptsize ' + _tex(_shorten(_field(item, 'management_action'), 190)) + '\\par\\textcolor{BOMuted}{' + _tex(_shorten(_field(item, 'evidence_boundary'), 160)) + '}} \\\\[6pt]\n'
+        )
+    return body + '\\end{tabularx}\n'
+
+
+def _scenario_page(report: Dict[str, Any]) -> str:
+    scenarios = _as_list(report.get('scenario_vignettes'))[:2]
+    if not scenarios:
+        return ''
+    body = '\\clearpage\n' + _kicker('CEO decision scenario') + _heading('The analysis must land in a concrete executive decision') + _rule()
+    for item in scenarios:
+        body += (
+            '{\\color{BOBlue}\\sffamily\\bfseries ' + _tex(_shorten(_field(item, 'title'), 120)) + '}\\par\\vspace{2pt}\n'
+            + _para(_tex(_shorten(_field(item, 'situation'), 420)))
+            + '{\\small\\textbf{CEO question:} ' + _tex(_shorten(_field(item, 'ceo_question'), 240)) + '}\\par\n'
+            + '{\\small\\textbf{Recommended move:} ' + _tex(_shorten(_field(item, 'recommended_move'), 280)) + '}\\par\n'
+            + '{\\scriptsize\\color{BOMuted} ' + _tex(_shorten(_field(item, 'watchouts'), 260)) + '}\\par\\vspace{8pt}\n'
+        )
+    return body
+
+
+def _methodology_page(report: Dict[str, Any], refs: List[Any]) -> str:
+    note = str(report.get('methodology_note') or '').strip()
+    authors = _as_list(report.get('author_credentials'))[:4]
+    if not note and not authors and not refs:
+        return ''
+    body = '\\clearpage\n' + _kicker('Method and team') + _heading('Method and team') + '{\\small\\color{BOMuted} Source boundary, validation approach and team credentials.}\\par\\vspace{4pt}\n' + _rule()
+    if note:
+        body += _para(_tex(_shorten(note, 1100)))
+    if authors:
+        body += '\\vspace{4pt}\\begin{tabularx}{\\linewidth}{p{35mm}Y}\n'
+        for item in authors:
+            body += '{\\small\\bfseries ' + _tex(_shorten(_field(item, 'name'), 80)) + '}\\par{\\scriptsize\\color{BOMuted} ' + _tex(_shorten(_field(item, 'role'), 110)) + '} & {\\scriptsize ' + _tex(_shorten(_field(item, 'credentials'), 260)) + '} \\\\[6pt]\n'
+        body += '\\end{tabularx}\n'
+    if refs:
+        body += '\\vspace{5pt}{\\scriptsize\\color{BOMuted} This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Full source backup is retained separately.}\\par\n'
+    return body
 
 
 def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
@@ -392,6 +496,20 @@ def _safe_sections(value: Any) -> List[Dict[str, Any]]:
     if isinstance(value, list) and value:
         return [x if isinstance(x, dict) else {'title': str(x), 'paragraphs': [str(x)]} for x in value]
     return [{'title': 'Executive priorities and implications', 'lead': 'The analysis should be translated into a concise management agenda.', 'paragraphs': ['The evidence should be organized around decision quality, execution timing and management implications.'], 'key_takeaways': ['Prioritize actionability.'], 'visual_hint': 'image-1'}]
+
+
+def _as_list(value: Any) -> List[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
+
+
+def _field(item: Any, key: str, default: str = '') -> str:
+    if isinstance(item, dict):
+        return ' '.join(str(item.get(key) or default).split())
+    return ' '.join(str(item or default).split())
 
 
 def _summary_items(value: Any) -> List[str]:

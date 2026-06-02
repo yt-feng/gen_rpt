@@ -143,7 +143,12 @@ class ResearchPipeline:
         return "Use pyramid-principle writing. Titles must be conclusion-first, crisp and executive-ready. Avoid generic headings and do not prefix titles with numbering." if self.language == "en" else "遵循金字塔原理。标题必须是结论，不是标签；不要在标题前手动加编号。"
 
     def _method_instruction(self) -> str:
-        return "Use seven-step problem solving, issue trees, and 10 Tests as internal writing discipline only. Do not create a visible methodology page." if self.language == "en" else "把七步法、issue tree、战略十问作为内部写作心法融入分析，不要在正式报告里单独写成 Approach 或方法论页面。"
+        return (
+            "Use structured problem solving, issue trees, evidence triangulation and an internal executive strategy stress test as writing discipline only. "
+            "Do not name internal frameworks in the report; render only concise source-boundary and decision-readiness notes."
+            if self.language == "en"
+            else "把结构化问题拆解、issue tree、证据交叉校验和内部高管战略压力测试作为写作心法；正式报告不得展示或命名内部框架，只输出来源边界和决策就绪度说明。"
+        )
 
     def _fallback_plan(self, topic: str, *, raw_topic: str = "", reason: str = "") -> Dict[str, Any]:
         if self.language == "en":
@@ -206,8 +211,17 @@ Evidence pack extracted before generation:
 {fact_pack.digest()}
 Sources:
 {source_text}
-Required fields: report_title, report_subtitle, executive_summary, method_steps, issue_tree, sections, insight_cards, charts, references.
+Required fields: report_title, report_subtitle, executive_summary, executive_summary_text, key_findings, action_plan, risk_register, scenario_vignettes, methodology_note, author_credentials, method_steps, issue_tree, sections, insight_cards, charts, references.
 Hard constraints:
+- Write for a CEO and board audience. The report must answer: what matters commercially, what changes capital allocation, what risks can break the case, and what management should do next.
+- Use an internal executive strategy stress test before writing: market outperformance, true advantage, granular where-to-play, trend timing, privileged evidence, uncertainty, commitment versus flexibility, bias checks, conviction to act, and action translation. Do not name or expose this internal framework.
+- executive_summary_text: one tight narrative paragraph that states the decision, commercial implication, evidence boundary, risk and immediate next step.
+- key_findings: 4-6 items, each with finding, evidence, management_implication.
+- action_plan: 3-5 items, each with horizon, action, owner, success_metric, decision_gate. Cover near-term, medium-term and long-term actions.
+- risk_register: 4-6 items, each with risk, trigger, management_action, evidence_boundary.
+- scenario_vignettes: at least 1 CEO decision scenario with title, situation, ceo_question, recommended_move, watchouts.
+- methodology_note: describe public source collection, evidence boundary, cross-checking and validation gaps. Do not describe internal consulting frameworks.
+- author_credentials: 1-3 team/institution credentials for the final report.
 - sections: 7-10 items, each with 3-5 coherent paragraphs and distinct analysis.
 - charts: 5-7 items, using a mix of bar, stacked_bar, line, matrix and bubble only. Do not use pie or donut charts.
 - Every section must have visual_hint set to image-N matching the section number whenever possible (image-1, image-2, ...). This lets the renderer use topic-specific Pollinations visuals.
@@ -215,8 +229,10 @@ Hard constraints:
 - Do not show Chinese text in the final report.
 - references may only use real URLs present in Sources.
 - Use the evidence pack as the factual boundary. Include dated and numeric facts when available. If a fact is not supported by the evidence pack or source excerpts, state the evidence boundary instead of inventing a number or event.
+- If data needed for ROI, market size, cost or share is missing, use a clearly labeled placeholder such as [insert verified cost data] and explain the validation task; do not fabricate numbers.
+- Avoid technical encyclopedia prose. Any technical detail must translate into customer value, cost, investment return, financing, competitive advantage, risk or action.
 - Avoid unsupported forecasts. Label scenarios as directional and evidence-based.
-- no ellipses, no visible methodology page, no meta labels.
+- no ellipses, no visible internal framework names, no meta labels.
 """
         else:
             user = f"""
@@ -226,9 +242,13 @@ Hard constraints:
 研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
 生成前抽取的证据包：{fact_pack.digest()}
 资料：{source_text}
-必须包含字段：report_title、report_subtitle、executive_summary、method_steps、issue_tree、sections、insight_cards、charts、references。
+必须包含字段：report_title、report_subtitle、executive_summary、executive_summary_text、key_findings、action_plan、risk_register、scenario_vignettes、methodology_note、author_credentials、method_steps、issue_tree、sections、insight_cards、charts、references。
+写给 CEO/董事会读者：所有技术事实都必须转化为商业价值、成本、投资回报、客户价值、融资、竞争优势、风险或行动含义。
+写作前使用内部高管战略压力测试：市场竞胜、真实优势、竞争场景颗粒度、趋势时点、独到证据、不确定性、承诺与灵活性、偏见、执行决心和行动落地。正式报告不得展示或命名该内部框架。
+executive_summary_text 写成一段结论先行的执行摘要；key_findings 4-6 条，每条包含 finding、evidence、management_implication；action_plan 3-5 条，每条包含 horizon、action、owner、success_metric、decision_gate；risk_register 4-6 条，每条包含 risk、trigger、management_action、evidence_boundary；scenario_vignettes 至少 1 个 CEO 决策场景。
+methodology_note 只说明公开资料、来源边界、交叉校验和待核验缺口，不展示内部咨询框架。
 sections 7-10 项；charts 5-7 项，混合使用 bar、stacked_bar、line、matrix、bubble，不要使用 pie/donut。每个 section 的 visual_hint 尽量使用对应 image-N。
-事实边界：只能基于证据包和资料摘录写作；有可核验日期、数字、金额、份额、产能、财务或政策节点时必须纳入；资料未支持的判断要写清证据边界，不能编造数字或事件。
+事实边界：只能基于证据包和资料摘录写作；有可核验日期、数字、金额、份额、产能、财务或政策节点时必须纳入；资料未支持的判断要写清证据边界，不能编造数字或事件。若 ROI、市场规模、成本或份额数据缺失，用 [插入经核验数据] 这类占位符和核验任务表达，不要编造。
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.15)
 
@@ -336,7 +356,84 @@ sections 7-10 项；charts 5-7 项，混合使用 bar、stacked_bar、line、mat
         takeaway_3 = "Prioritize customer segments where duration and safety create clear value." if english else "优先处理能改变决策的关键证据。"
         for idx, (title, lead, paragraphs, visual_hint) in enumerate(sections, start=1):
             section_payload.append({"id": f"section-{idx}", "title": title, "lead": lead, "paragraphs": paragraphs, "key_takeaways": [summary[(idx - 1) % len(summary)], takeaway_2, takeaway_3], "visual_hint": visual_hint})
-        return {"report_title": topic, "report_subtitle": subtitle, "executive_summary": summary, "method_steps": [{"name": f"Step {i}", "description": "Used internally to structure the analysis."} for i in range(1, 8)], "issue_tree": plan.get("issue_tree", []), "sections": section_payload, "insight_cards": cards, "charts": charts, "references": refs, "_fallback_used": True, "_fallback_reason": reason[:2000]}
+        if english:
+            executive_summary_text = (
+                f"The CEO-level conclusion is that {topic} should be managed as a staged strategic option, not a single binary bet. "
+                "The available public evidence supports a focused management agenda around commercial proof, cost position, financing readiness, customer adoption and execution risk. "
+                "Where source evidence is incomplete, the report preserves the gap as a diligence task rather than converting it into an unsupported forecast. "
+                "Management should fund near-term validation, protect medium-term options and reserve larger commitments for decision gates tied to verified operating, customer and financial evidence."
+            )
+            key_findings = [
+                {"finding": summary[0], "evidence": "Synthesized from fetched public sources and retained source backup.", "management_implication": "Treat the opportunity as a capital-allocation question and tie conviction to evidence quality."},
+                {"finding": summary[1], "evidence": "Fallback synthesis prioritizes project, customer and financing proof over technical claims.", "management_implication": "Shift the CEO discussion from product capability to bankability and repeatable execution."},
+                {"finding": summary[2], "evidence": "Public evidence should be used to validate cost, supply and resilience assumptions before commitment.", "management_implication": "Build a diligence ledger for cost structure, sourcing, contract model and margin exposure."},
+                {"finding": summary[4], "evidence": "International growth assumptions remain directional until local partners, customers and financing paths are verified.", "management_implication": "Sequence market entry around reference projects and partner access, not headline demand size."},
+            ]
+            action_plan = [
+                {"horizon": "Near term, 0-90 days", "action": "Build a CEO evidence ledger for market size, customer demand, cost, revenue, policy and financing claims.", "owner": "Strategy lead", "success_metric": "Every material claim has a source, date, confidence level and open validation item.", "decision_gate": "No unsupported number is used for investment or board decisions."},
+                {"horizon": "Medium term, 1-2 quarters", "action": "Run targeted customer, partner and cost diligence to separate no-regret moves from option-building moves.", "owner": "Business owner", "success_metric": "Priority moves have named customers or partners, budget ranges and validation metrics.", "decision_gate": "Scale only when customer pull, cost position and execution feasibility are evidenced."},
+                {"horizon": "Long term, 2-4 quarters", "action": "Commit larger capital, partnership or market-entry resources only after evidence gates are met.", "owner": "CEO / board", "success_metric": "ROI, risk exposure and execution milestones enter the quarterly management dashboard.", "decision_gate": "Pause or preserve optionality if core assumptions remain unverified."},
+            ]
+            risk_register = [
+                {"risk": "Public evidence remains too thin for high-conviction capital decisions.", "trigger": "Source count, authoritative sources, numeric facts or timeline evidence fall below threshold.", "management_action": "Classify claims as verified, directional or open diligence and add authoritative sources.", "evidence_boundary": "Use only fetched public sources and source backup."},
+                {"risk": "Technical claims are mistaken for commercial readiness.", "trigger": "Discussion centers on specifications rather than customer value, cost, financing and deployment proof.", "management_action": "Rewrite claims into bankability, margin, customer adoption and execution implications.", "evidence_boundary": "Unsupported performance claims require third-party or customer validation."},
+                {"risk": "Market-entry timing runs ahead of local execution capacity.", "trigger": "No verified partner, customer, regulatory pathway or service model exists for the target market.", "management_action": "Use option-building pilots before major expansion commitments.", "evidence_boundary": "Local market claims remain directional until validated by sources or direct diligence."},
+                {"risk": "Commodity, supply-chain or policy volatility resets the economics.", "trigger": "Input price, tariff, subsidy, permitting or financing assumptions move outside planned ranges.", "management_action": "Add contractual protections, scenario thresholds and quarterly risk review.", "evidence_boundary": "Scenario values should be independently validated before investment use."},
+            ]
+            scenario_vignettes = [
+                {"title": "CEO investment committee scenario", "situation": "Management is deciding whether to allocate budget and partner capacity before all public-evidence gaps are closed.", "ceo_question": "Which decisions are safe now, and which should wait for customer, cost, financing or policy validation?", "recommended_move": "Approve low-cost validation and partner discussions while holding larger commitments behind evidence gates.", "watchouts": "Do not treat market enthusiasm or technical narrative as proof of ROI, bankability or scalable demand."}
+            ]
+            methodology_note = f"This fallback report is based on {len(sources)} fetched public sources retained in the source backup. It distinguishes verified public evidence, directional synthesis and open validation gaps; unsupported market size, ROI, cost or share assumptions should be replaced with verified data before investment use."
+            author_credentials = [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Responsible for public-source collection, evidence-boundary checks, executive synthesis and report QA."}]
+            method_steps = [{"name": "Evidence boundary", "description": "Identify public-source support and open validation gaps."}, {"name": "Commercial translation", "description": "Convert technical facts into CEO decisions, risks and actions."}, {"name": "Decision readiness", "description": "Sequence no-regret moves, options and major commitments."}]
+        else:
+            executive_summary_text = (
+                f"{topic}应被管理层视为分阶段战略选择，而不是一次性押注。公开资料已经足以形成围绕商业证明、成本位置、融资可得性、客户采纳和执行风险的管理议题；"
+                "但缺少来源支持的市场规模、ROI、成本或份额数字应作为待核验缺口保留。CEO 应先投入低成本验证和关键合作讨论，把重大资源承诺放在证据门槛之后。"
+            )
+            key_findings = [
+                {"finding": summary[0], "evidence": "基于已抓取公开资料和来源底稿综合。", "management_implication": "把机会判断转成资源配置、风险偏好和验证门槛。"},
+                {"finding": summary[1], "evidence": "资料不足处保留证据边界，不用模型推断替代核验。", "management_implication": "董事会材料中应区分已验证、方向性和待核验判断。"},
+                {"finding": summary[2], "evidence": "管理层最需要可验证的客户、成本、收入、融资和时间线证据。", "management_implication": "近期优先建立证据台账和验证节奏。"},
+                {"finding": summary[3], "evidence": "竞争优势需要同时看规模、能力、客户验证和商业闭环。", "management_implication": "不要用单点技术指标替代商业回报判断。"},
+            ]
+            action_plan = [
+                {"horizon": "近期 0-90 天", "action": "建立 CEO 证据台账，复核市场规模、客户需求、成本、收入、政策和融资判断。", "owner": "战略负责人", "success_metric": "每个关键判断均有来源、日期、置信度和待核验项", "decision_gate": "未经来源支持的数字不进入投资或董事会判断"},
+                {"horizon": "中期 1-2 个季度", "action": "做客户、合作伙伴和成本尽调，区分无悔动作、选择权和重大投入。", "owner": "业务负责人", "success_metric": "优先事项均有客户/伙伴、预算区间和验证指标", "decision_gate": "客户拉动、成本位置和执行可行性被验证后再扩大投入"},
+                {"horizon": "长期 2-4 个季度", "action": "证据门槛达成后再推进重大资本、合作或市场进入资源。", "owner": "CEO/董事会", "success_metric": "投资回报、风险暴露和执行里程碑进入季度管理仪表盘", "decision_gate": "核心假设未验证时保留选择权并暂停重大投入"},
+            ]
+            risk_register = [
+                {"risk": "公开证据不足导致过度确定", "trigger": "来源数量、权威来源、数字事实或时间线不足", "management_action": "把判断分为已验证、方向性和待核验，并补充权威来源", "evidence_boundary": "仅使用已抓取公开来源和来源底稿"},
+                {"risk": "技术叙事被误认为商业就绪", "trigger": "讨论集中于规格而非客户价值、成本、融资和项目证明", "management_action": "把技术判断改写为可融资性、毛利、客户采纳和执行含义", "evidence_boundary": "未支持的性能判断需要第三方或客户核验"},
+                {"risk": "市场进入节奏快于本地执行能力", "trigger": "目标市场缺少已验证伙伴、客户、监管路径或服务模型", "management_action": "先用小规模试点保留选择权，再进入重大扩张", "evidence_boundary": "本地市场判断在来源或直接尽调前保持方向性"},
+                {"risk": "供应链、政策或融资变化重置经济性", "trigger": "原材料、关税、补贴、审批或融资假设超出计划区间", "management_action": "设置合同保护、情景阈值和季度风险复盘", "evidence_boundary": "情景数字用于投资前必须独立核验"},
+            ]
+            scenario_vignettes = [
+                {"title": "CEO 投资委员会场景", "situation": "管理层正在判断是否在证据缺口完全关闭前投入预算和合作资源。", "ceo_question": "哪些动作可以现在做，哪些必须等待客户、成本、融资或政策证据？", "recommended_move": "先批准低成本验证和伙伴讨论，把重大投入放在证据门槛之后。", "watchouts": "不要把市场热度或技术叙事等同于投资回报、可融资性或可规模化需求。"}
+            ]
+            methodology_note = f"本兜底报告基于{len(sources)}个已抓取公开来源和来源底稿，区分已验证公开证据、方向性综合和待核验缺口；未经来源支持的市场规模、ROI、成本或份额假设应在投资使用前替换为经核验数据。"
+            author_credentials = [{"name": "BlueOcean Research", "role": "研究综合团队", "credentials": "负责公开资料收集、证据边界校验、管理层视角综合和报告 QA。"}]
+            method_steps = [{"name": "证据边界", "description": "识别公开来源支持和待核验缺口。"}, {"name": "商业翻译", "description": "把技术事实转成 CEO 决策、风险和行动。"}, {"name": "决策就绪", "description": "区分无悔动作、选择权和重大承诺。"}]
+        return {
+            "report_title": topic,
+            "report_subtitle": subtitle,
+            "executive_summary": summary,
+            "executive_summary_text": executive_summary_text,
+            "key_findings": key_findings,
+            "action_plan": action_plan,
+            "risk_register": risk_register,
+            "scenario_vignettes": scenario_vignettes,
+            "methodology_note": methodology_note,
+            "author_credentials": author_credentials,
+            "method_steps": method_steps,
+            "issue_tree": plan.get("issue_tree", []),
+            "sections": section_payload,
+            "insight_cards": cards,
+            "charts": charts,
+            "references": refs,
+            "_fallback_used": True,
+            "_fallback_reason": reason[:2000],
+        }
 
     def _post_process_report(self, report: Dict, display_topic: str) -> None:
         report["_display_topic"] = display_topic
