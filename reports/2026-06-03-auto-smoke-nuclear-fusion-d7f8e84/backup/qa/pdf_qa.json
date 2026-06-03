@@ -1,0 +1,30 @@
+{
+  "passed": true,
+  "pdf_path": "/home/runner/work/gen_rpt/gen_rpt/reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/report.pdf",
+  "html_path": "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/report.html",
+  "checks": [
+    {
+      "code": "page_count",
+      "message": "PDF has 20 pages."
+    },
+    {
+      "code": "text_extractability",
+      "message": "PDF text extraction looks healthy."
+    }
+  ],
+  "issues": [],
+  "recommendations": [],
+  "page_count": 20,
+  "screenshots": [
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_001.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_002.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_003.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_004.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_005.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_006.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_007.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_008.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_009.png",
+    "reports/2026-06-03-auto-smoke-nuclear-fusion-d7f8e84/backup/qa/page_010.png"
+  ]
+}

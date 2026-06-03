@@ -1,0 +1,175 @@
+/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 approaching technical
+
+Underfull \hbox (badness 4819) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion is approaching technical feasibilit
+y,
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 with SPARC and ITER as critical milestones, but
+
+Underfull \hbox (badness 1448) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 due to unresolved engineering challenges and high
+
+Underfull \hbox (badness 4366) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 suggest fusion LCOE could reach $50-100/MWh by
+
+Underfull \hbox (badness 1077) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 2040-2050, but first-of-a-kind plants may cost $5-10
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 billion, requiring public-private partnerships to
+
+Underfull \hbox (badness 3895) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 share risk. Regulatory frameworks for fusion are
+
+Underfull \hbox (badness 7433) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 to issue fusion-specific rules by 2027-2028; early
+
+Underfull \hbox (badness 6125) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 engagement with regulators is essential to shape
+
+Underfull \hbox (badness 1596) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 favorable conditions. Fusion\TU/DejaVuSans(0)/m/n/9 
+'\TU/NotoSansCJKSC(0)/m/n/9 s climate benefits are
+
+Underfull \hbox (badness 3229) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 long-term complement to renewables and storage,
+
+Underfull \hbox (badness 3078) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 capabilities for a potential long-term disruption to
+
+
+Underfull \hbox (badness 5924) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 LCOE could reach $50-100/MWh by 2040-2050, but
+
+Underfull \hbox (badness 1028) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 public-private partnerships to share risk. Regulator
+y
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+[19] [20] (./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (20 pages).
+Transcript written on report_latex.log.
+mf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 approaching technical
+
+Underfull \hbox (badness 4819) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion is approaching technical feasibilit
+y,
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 with SPARC and ITER as critical milestones, but
+
+Underfull \hbox (badness 1448) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 due to unresolved engineering challenges and high
+
+Underfull \hbox (badness 4366) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 suggest fusion LCOE could reach $50-100/MWh by
+
+Underfull \hbox (badness 1077) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 2040-2050, but first-of-a-kind plants may cost $5-10
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 billion, requiring public-private partnerships to
+
+Underfull \hbox (badness 3895) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 share risk. Regulatory frameworks for fusion are
+
+Underfull \hbox (badness 7433) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 to issue fusion-specific rules by 2027-2028; early
+
+Underfull \hbox (badness 6125) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 engagement with regulators is essential to shape
+
+Underfull \hbox (badness 1596) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 favorable conditions. Fusion\TU/DejaVuSans(0)/m/n/9 
+'\TU/NotoSansCJKSC(0)/m/n/9 s climate benefits are
+
+Underfull \hbox (badness 3229) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 long-term complement to renewables and storage,
+
+Underfull \hbox (badness 3078) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 capabilities for a potential long-term disruption to
+
+
+Underfull \hbox (badness 5924) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 LCOE could reach $50-100/MWh by 2040-2050, but
+
+Underfull \hbox (badness 1028) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 public-private partnerships to share risk. Regulator
+y
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+[19] [20] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (20 pages).
+Transcript written on report_latex.log.

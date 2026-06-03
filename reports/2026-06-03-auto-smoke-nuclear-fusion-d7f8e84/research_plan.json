@@ -1,0 +1,171 @@
+{
+  "objective": "Assess the current state and future timeline of nuclear fusion commercialization, identify key technological, economic, and regulatory milestones, and analyze strategic implications for energy markets, national security, and climate policy.",
+  "audience": "Senior executives in energy and technology sectors, policymakers, and strategic investors seeking to understand fusion's potential impact and investment landscape.",
+  "decision_question": "Should our organization invest in or partner with nuclear fusion ventures now, or wait for further technological and market maturation?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook",
+    "children": [
+      {
+        "node": "Technology Readiness",
+        "children": [
+          {
+            "node": "Magnetic confinement (tokamaks, stellarators) – current status and breakthroughs"
+          },
+          {
+            "node": "Inertial confinement and alternative approaches (laser, hybrid)"
+          },
+          {
+            "node": "Key engineering challenges: materials, tritium breeding, heat extraction"
+          }
+        ]
+      },
+      {
+        "node": "Economic Viability",
+        "children": [
+          {
+            "node": "Levelized cost of electricity (LCOE) projections vs. renewables, fission, and fossil fuels"
+          },
+          {
+            "node": "Capital expenditure and operational cost estimates"
+          },
+          {
+            "node": "Financing models and public-private partnerships"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory and Safety Landscape",
+        "children": [
+          {
+            "node": "Licensing frameworks for fusion vs. fission"
+          },
+          {
+            "node": "Radiation safety, waste management, and public perception"
+          },
+          {
+            "node": "International treaties and non-proliferation concerns"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Impact on global energy markets and geopolitics"
+          },
+          {
+            "node": "National security and energy independence"
+          },
+          {
+            "node": "Climate change mitigation potential and policy alignment"
+          }
+        ]
+      },
+      {
+        "node": "Competitive Landscape",
+        "children": [
+          {
+            "node": "Key private ventures (Commonwealth Fusion Systems, TAE Technologies, Helion, etc.)"
+          },
+          {
+            "node": "National and international projects (ITER, SPARC, DEMO)"
+          },
+          {
+            "node": "Talent, supply chain, and intellectual property dynamics"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025",
+    "fusion energy levelized cost of electricity projections",
+    "ITER project status and delays 2025",
+    "Commonwealth Fusion Systems SPARC progress",
+    "Helion Energy fusion reactor timeline",
+    "TAE Technologies fusion progress",
+    "fusion reactor licensing regulatory framework",
+    "tritium breeding technology challenges",
+    "fusion energy investment funding rounds 2025",
+    "nuclear fusion vs renewables cost comparison",
+    "fusion energy national security implications",
+    "fusion waste management safety comparison fission",
+    "DEMO fusion reactor design timeline",
+    "fusion energy public perception survey",
+    "fusion energy supply chain critical materials"
+  ],
+  "outline": [
+    "Nuclear fusion is approaching technical feasibility but commercial viability remains a decade away",
+    "Magnetic confinement leads the race with SPARC and ITER as key milestones",
+    "Alternative approaches like inertial confinement show promise but lag in engineering readiness",
+    "Economic projections suggest fusion LCOE could be competitive with fission and renewables by 2040s",
+    "Capital costs remain the largest barrier; public-private partnerships are essential",
+    "Regulatory frameworks are evolving but still lack clarity for fusion-specific licensing",
+    "Safety and waste advantages over fission could ease public acceptance but require proactive communication",
+    "Fusion could reshape global energy geopolitics by reducing dependence on fossil fuels and uranium",
+    "National security implications include energy independence and non-proliferation risks from dual-use technologies",
+    "Climate benefits are significant but fusion's timeline may be too late for 2050 net-zero targets",
+    "Private ventures are attracting billions in investment but face technical and financial risks",
+    "International collaboration through ITER is critical but also introduces schedule and cost uncertainties",
+    "Strategic recommendations: monitor key milestones, invest in enabling technologies, and prepare for long-term disruption"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion Commercialization Timeline Comparison",
+      "type": "Gantt chart",
+      "description": "Compare projected milestones for major fusion projects (ITER, SPARC, DEMO, Helion, TAE) from 2025 to 2050."
+    },
+    {
+      "title": "Projected LCOE of Fusion vs. Other Energy Sources",
+      "type": "Line chart",
+      "description": "Show LCOE ranges for fusion (2025-2050) alongside solar, wind, nuclear fission, and natural gas."
+    },
+    {
+      "title": "Global Fusion Investment by Year",
+      "type": "Bar chart",
+      "description": "Annual private and public investment in fusion from 2015 to 2025, with projections."
+    },
+    {
+      "title": "Fusion Technology Readiness Levels (TRL)",
+      "type": "Radar chart",
+      "description": "Compare TRL for magnetic confinement, inertial confinement, and alternative approaches across key subsystems."
+    },
+    {
+      "title": "Regulatory Landscape Heatmap",
+      "type": "Heatmap",
+      "description": "Show regulatory readiness for fusion in top 10 countries (licensing, safety, waste rules)."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "SPARC: The Bellwether for Magnetic Fusion",
+      "content": "Commonwealth Fusion Systems' SPARC aims to demonstrate net energy gain by 2025-2027. Success would validate tokamak design and de-risk subsequent commercial plants."
+    },
+    {
+      "title": "Tritium Supply: The Hidden Bottleneck",
+      "content": "Fusion reactors require tritium, which is scarce. Breeding blankets are unproven at scale; without a solution, commercial deployment could be delayed by decades."
+    },
+    {
+      "title": "Fusion's Geopolitical Impact: Winners and Losers",
+      "content": "Countries with fusion expertise (US, China, EU, Japan) could gain energy independence, while fossil fuel exporters face stranded assets. Non-proliferation risks from dual-use technology need governance."
+    },
+    {
+      "title": "Public Perception: Fusion's Clean Image vs. Reality",
+      "content": "Surveys show fusion is viewed positively, but low awareness. Proactive communication about safety and waste advantages is needed to avoid backlash similar to fission."
+    },
+    {
+      "title": "Investment Landscape: Hype vs. Reality",
+      "content": "Private fusion investment exceeded $5B by 2025, but most ventures are pre-revenue. Investors should focus on milestones like plasma performance and component testing."
+    }
+  ],
+  "risks": [
+    "Technical risk: Key engineering challenges (materials, tritium breeding, heat extraction) may not be solved within projected timelines.",
+    "Economic risk: Fusion LCOE may remain higher than renewables + storage, limiting market adoption.",
+    "Regulatory risk: Lack of clear licensing frameworks could delay deployment and increase costs.",
+    "Geopolitical risk: International collaboration (ITER) may face political or funding disruptions.",
+    "Competitive risk: Rapid advances in renewables, storage, or advanced fission could reduce fusion's urgency.",
+    "Public acceptance risk: Incidents or misinformation could erode support, similar to fission.",
+    "Talent risk: Shortage of skilled engineers and scientists could slow progress.",
+    "Supply chain risk: Dependence on rare materials (e.g., beryllium, niobium-tin) could create bottlenecks."
+  ]
+}
