@@ -547,7 +547,7 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
     x_label = _tex(_shorten(chart.get('x_label') or 'Likelihood', 24))
     y_label = _tex(_shorten(chart.get('y_label') or 'Impact', 24))
     body.append(f'\\node[anchor=north east] at ({left + chart_w:.2f},{bottom - .12:.2f}) {{\\scriptsize {x_label}}};\n')
-    body.append(f'\\node[anchor=south west,rotate=90] at ({left - .18:.2f},{bottom + chart_h:.2f}) {{\\scriptsize {y_label}}};\n')
+    body.append(f'\\node[anchor=center,rotate=90] at ({left - .30:.2f},{bottom + chart_h / 2:.2f}) {{\\scriptsize {y_label}}};\n')
     body.append(_tikz_end())
     return ''.join(body)
 
