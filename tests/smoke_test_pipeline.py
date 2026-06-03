@@ -46,7 +46,7 @@ def main() -> None:
         "methodology_note": "The smoke report uses public source backup, evidence-boundary checks and validation gaps to test rendering.",
         "author_credentials": [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Evidence checks and report QA."}],
         "sections": [
-            {"title": "Section 1", "lead": "Section 1", "paragraphs": ["Generic section title should be replaced.", "The replacement should preserve useful section prose."], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
+            {"title": "Section 1", "lead": "Section 1", "paragraphs": ["Generic section title should be replaced.", "The replacement should preserve useful section prose.", "Fusion's timetable should not render with extra apostrophe spacing."], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
             {"title": "1. Numbered title should be cleaned", "lead": "Lead", "paragraphs": ["Paragraph A", "Paragraph B"], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
             "A string section should not break rendering",
         ],
@@ -117,6 +117,7 @@ def main() -> None:
     html_text = (out / "report.html").read_text(encoding="utf-8")
     markdown_text = (out / "report.md").read_text(encoding="utf-8")
     latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
+    assert r"Fusion\char" + '"0027{}s timetable' in latex_text
     for text in [html_text, markdown_text, latex_text]:
         lowered = text.lower()
         assert "future action agenda" in lowered

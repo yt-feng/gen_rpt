@@ -855,5 +855,5 @@ def _reader_clean(text: str) -> str:
 def _tex(value: Any) -> str:
     text = str(value or '').replace('\u00ad', '').replace('\ufffe', '').replace('\ufeff', '')
     text = _reader_clean(' '.join(text.replace('\n', ' ').split()))
-    mapping = {'\\': r'\textbackslash{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
+    mapping = {'\\': r'\textbackslash{}', "'": r'\char"0027{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
     return ''.join(mapping.get(ch, ch) for ch in text)
