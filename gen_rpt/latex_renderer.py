@@ -538,12 +538,22 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
     body.append(f'\\draw[BOLine] ({left:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom + chart_h:.2f});\n')
     body.append(f'\\draw[BOLine,dashed] ({left:.2f},{bottom + chart_h / 2:.2f}) -- ({left + chart_w:.2f},{bottom + chart_h / 2:.2f});\n')
     body.append(f'\\draw[BOLine,dashed] ({left + chart_w / 2:.2f},{bottom:.2f}) -- ({left + chart_w / 2:.2f},{bottom + chart_h:.2f});\n')
-    for point in points:
+    label_offsets = [
+        (.12, .10, 'west', 'left'),
+        (.12, -.10, 'west', 'left'),
+        (-.12, .10, 'east', 'right'),
+        (-.12, -.10, 'east', 'right'),
+        (.12, .23, 'west', 'left'),
+        (-.12, -.23, 'east', 'right'),
+    ]
+    for point_idx, point in enumerate(points):
         x = left + _num(point.get('x'), 50) / 100 * chart_w
         y = bottom + _num(point.get('y'), 50) / 100 * chart_h
         radius = .08 + min(80, max(10, _num(point.get('size'), 35))) / 500
         body.append(f'\\fill[BOGreen,opacity=.65] ({x:.2f},{y:.2f}) circle ({radius:.2f});\n')
-        body.append(f'\\node[anchor=west,text width=2.7cm] at ({x + radius + .04:.2f},{y:.2f}) {{\\scriptsize {_tex(_shorten(point.get("label", ""), 28))}}};\n')
+        dx, dy, anchor, align = label_offsets[point_idx % len(label_offsets)]
+        dx = dx + radius if anchor == 'west' else dx - radius
+        body.append(f'\\node[anchor={anchor},align={align},text width=2.45cm] at ({x + dx:.2f},{y + dy:.2f}) {{\\scriptsize {_tex(_shorten(point.get("label", ""), 24))}}};\n')
     x_label = _tex(_shorten(chart.get('x_label') or 'Likelihood', 24))
     y_label = _tex(_shorten(chart.get('y_label') or 'Impact', 24))
     body.append(f'\\node[anchor=north east] at ({left + chart_w:.2f},{bottom - .12:.2f}) {{\\scriptsize {x_label}}};\n')
