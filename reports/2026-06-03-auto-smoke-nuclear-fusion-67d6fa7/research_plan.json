@@ -1,0 +1,133 @@
+{
+  "objective": "Assess the commercialization outlook for nuclear fusion energy and analyze its strategic implications for energy markets, geopolitics, and technology investment.",
+  "audience": "Senior executives in energy and technology sectors, policy makers, and strategic investors.",
+  "decision_question": "Should our organization invest in or partner with nuclear fusion ventures now, or wait for further technological and market maturation?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook & Strategic Implications",
+    "children": [
+      {
+        "node": "Technology Readiness & Roadmaps",
+        "children": [
+          {
+            "node": "Current fusion reactor designs (tokamak, stellarator, inertial confinement)"
+          },
+          {
+            "node": "Key milestones and timelines from leading projects (ITER, SPARC, private ventures)"
+          },
+          {
+            "node": "Critical engineering challenges (materials, tritium breeding, plasma control)"
+          }
+        ]
+      },
+      {
+        "node": "Economic & Market Viability",
+        "children": [
+          {
+            "node": "Levelized cost of energy (LCOE) projections for fusion vs. renewables and fission"
+          },
+          {
+            "node": "Capital expenditure and operational cost estimates"
+          },
+          {
+            "node": "Market size and adoption scenarios (2030–2050)"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory & Policy Landscape",
+        "children": [
+          {
+            "node": "Licensing frameworks and safety standards"
+          },
+          {
+            "node": "Government funding and public-private partnerships"
+          },
+          {
+            "node": "International cooperation and treaties (e.g., ITER, IAEA)"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Impact on energy security and geopolitics"
+          },
+          {
+            "node": "Disruption risks for incumbent energy industries"
+          },
+          {
+            "node": "Opportunities for first movers and technology leaders"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025",
+    "fusion energy LCOE projections vs renewables",
+    "ITER project status and milestones 2025",
+    "SPARC fusion reactor timeline Commonwealth Fusion Systems",
+    "private fusion startups funding rounds 2025",
+    "fusion reactor licensing regulations NRC",
+    "tritium breeding technology challenges fusion",
+    "geopolitical implications of fusion energy",
+    "fusion energy market size forecast 2030 2050",
+    "fusion vs fission cost comparison"
+  ],
+  "outline": [
+    "Fusion commercialization is accelerating but remains a decade away from grid-scale deployment",
+    "Private ventures and public projects are converging on similar technological pathways",
+    "Economic viability hinges on achieving cost parity with renewables and fission by the 2040s",
+    "Regulatory frameworks are nascent but evolving, with first-of-a-kind licensing expected by 2030",
+    "Strategic implications include reduced fossil fuel dependence, new energy alliances, and disruption of traditional utilities"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion LCOE Projections vs. Renewables and Fission (2025–2050)",
+      "type": "line chart",
+      "description": "Compare projected levelized cost of energy for fusion (various designs) with solar, wind, and nuclear fission over time."
+    },
+    {
+      "title": "Global Fusion Funding by Source (Public vs. Private, 2015–2025)",
+      "type": "stacked bar chart",
+      "description": "Show annual investment in fusion R&D from government programs and private investors."
+    },
+    {
+      "title": "Fusion Reactor Development Timeline: Key Milestones",
+      "type": "Gantt chart",
+      "description": "Map expected milestones for ITER, SPARC, and other leading projects from 2025 to 2050."
+    },
+    {
+      "title": "Adoption Scenarios for Fusion Energy Capacity (2030–2050)",
+      "type": "area chart",
+      "description": "Illustrate optimistic, moderate, and pessimistic scenarios for installed fusion capacity globally."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "Fusion's 'Holy Grail' Status: Why It Matters",
+      "content": "Nuclear fusion promises near-limitless, clean energy with no long-lived radioactive waste. This card explains the fundamental physics and why it is considered a game-changer."
+    },
+    {
+      "title": "The Private Fusion Boom: Key Players and Funding",
+      "content": "Overview of leading private fusion companies (Commonwealth Fusion Systems, TAE Technologies, Helion Energy) and their funding milestones."
+    },
+    {
+      "title": "Regulatory Hurdles: Licensing the First Fusion Plant",
+      "content": "Challenges in creating a regulatory framework for fusion, including safety standards and public acceptance."
+    },
+    {
+      "title": "Geopolitical Shifts: How Fusion Could Reshape Energy Alliances",
+      "content": "Analysis of how widespread fusion adoption could reduce dependence on fossil fuel exporters and alter global power dynamics."
+    }
+  ],
+  "risks": [
+    "Technological risk: Fusion may fail to achieve net-positive energy or sustained operation at commercial scale.",
+    "Timeline risk: Commercial deployment may slip beyond 2050, reducing investor returns.",
+    "Cost risk: Fusion LCOE may remain higher than renewables, limiting market adoption.",
+    "Regulatory risk: Delays in licensing and safety approvals could stall projects.",
+    "Geopolitical risk: International collaboration may fracture, slowing progress.",
+    "Market risk: Incumbent energy industries may resist or lobby against fusion deployment."
+  ]
+}

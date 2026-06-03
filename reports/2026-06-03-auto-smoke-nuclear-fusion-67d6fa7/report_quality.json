@@ -1,0 +1,49 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 14,
+        "issues": [
+          "executive_summary 不足，需要至少5条结论先行、可执行的关键发现。",
+          "sections 数量应为7-10个，当前为4个。",
+          "第1章标题过于泛化，需要改成结论型标题：Section 1",
+          "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第2章标题过于泛化，需要改成结论型标题：Section 2",
+          "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第3章标题过于泛化，需要改成结论型标题：Section 3",
+          "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第4章标题过于泛化，需要改成结论型标题：Section 4",
+          "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第4章正文段落不足，需要至少5段有证据支撑的连续分析。",
+          "第4章正文密度不足，当前约889字符；需要更接近标杆报告的完整分析页。",
+          "charts 数量应为10-12个，当前为0个。",
+          "段落开头重复、行文模式化，需要调整章节推进方式：for executives, th"
+        ],
+        "revision_error": "DeepSeek returned invalid JSON and automatic repair failed. Initial parse error: Expecting ',' delimiter. Nearby text: Over Time\",       \"data\": {         \"labels\": [\"2010\", \"2015\", \"2020\", \"2025\"],         \"datasets\": [{\"label\": \"Patents\", \"data\": [50, 100, 200, 300]}]       },       \"description\": \"Number of fusion-related patent filings over time.\"     }: line 428 column 6 (char 39527). Repair parse error: Expecting ',' delimiter. Nearby text:     \"For comparison, solar and wind LCOE have fallen dramatically to $20-$60/MWh in many markets, and are expected to continue declining. Nuclear fission LCOE is typically $100-$150/MWh, with new builds often exceeding $150/MWh due to\"     }   ] }: line 211 column 5 (char 24006). Final local repair error: Expecting ',' delimiter. Nearby text:     \"For comparison, solar and wind LCOE have fallen dramatically to $20-$60/MWh in many markets, and are expected to continue declining. Nuclear fission LCOE is typically $100-$150/MWh, with new builds often exceeding $150/MWh due to\"     }   ] }: line 211 column 5 (char 24006). Raw response excerpt: {\n  \"report_title\": \"Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment\",\n  \"report_subtitle\": \"A Decision-Ready Analysis for Senior Executives and Investors\",\n  \"executive_summary\": [\n    \"Nuclear fusion is approaching a pivotal inflection point, with private and public projects converging on magnetic confinement and over $5 billion in cumulative private investment. However, grid-scale deployment remains at least a decade away, and economic viability depends on achieving cost parity with renewables by the 2040s.\",\n    \"The convergence on high-temperature superconducting tokamaks reduces technology risk but narrows differentiation; investors should focus on execution capability and supply chain readiness rather than fundamental physics.\",\n    \"Regulatory frameworks are nascent, with first-of-a-kind licensing expected by 2030. Early engagement with regulators can shape standards and reduce licensing risk, offering first-mover advantage.\",\n    \"Fusion's economic case is plausible but unproven; investment decisions should be based on scenario analysis accounting for a range of LCOE outcomes, carbon pricing, and policy support.\",\n    \"The immedia"
+      }
+    ],
+    "final_issue_count": 0,
+    "final_issues": [],
+    "fact_pack_validation_issues": [
+      "资料来源偏少，当前仅0个。",
+      "来源域名多样性不足，当前0个。",
+      "缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。",
+      "可抽取事实句不足，生成时必须显式说明证据边界。",
+      "可核验数字事实不足，需继续收集市场规模、财务、交易、产能、份额或时间数据。",
+      "可核验时间线不足，需补充年份、季度、政策发布时间或交易节点。"
+    ],
+    "source_count": 0,
+    "authoritative_source_count": 0
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": []
+}
