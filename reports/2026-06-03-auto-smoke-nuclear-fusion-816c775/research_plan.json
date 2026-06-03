@@ -1,0 +1,120 @@
+{
+  "objective": "Assess the commercialization outlook for nuclear fusion energy and analyze its strategic implications for energy markets, geopolitics, and technology investment.",
+  "audience": "Senior executives in energy and technology sectors, policy makers, and strategic investors.",
+  "decision_question": "Should our organization invest in or prepare for nuclear fusion technology, and what strategic moves are needed to capitalize on or mitigate its impact?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook & Strategic Implications",
+    "children": [
+      {
+        "node": "Technology Readiness & Roadmaps",
+        "children": [
+          {
+            "node": "Current fusion approaches (tokamak, stellarator, inertial, etc.)"
+          },
+          {
+            "node": "Key milestones and timelines from leading projects (ITER, SPARC, etc.)"
+          },
+          {
+            "node": "Critical engineering challenges (materials, tritium breeding, etc.)"
+          }
+        ]
+      },
+      {
+        "node": "Economic & Market Viability",
+        "children": [
+          {
+            "node": "Levelized cost of fusion vs. renewables, fission, and fossil fuels"
+          },
+          {
+            "node": "Capital expenditure and financing models"
+          },
+          {
+            "node": "Market size and adoption scenarios (2030-2050)"
+          }
+        ]
+      },
+      {
+        "node": "Strategic & Geopolitical Implications",
+        "children": [
+          {
+            "node": "Impact on energy security and independence"
+          },
+          {
+            "node": "Shifts in global energy trade and geopolitical power dynamics"
+          },
+          {
+            "node": "Implications for climate policy and decarbonization pathways"
+          }
+        ]
+      },
+      {
+        "node": "Investment & Competitive Landscape",
+        "children": [
+          {
+            "node": "Key public and private players (startups, national labs, big tech)"
+          },
+          {
+            "node": "Funding trends and government support"
+          },
+          {
+            "node": "Intellectual property and technology race"
+          }
+        ]
+      },
+      {
+        "node": "Risks & Uncertainties",
+        "children": [
+          {
+            "node": "Technical and regulatory risks"
+          },
+          {
+            "node": "Public acceptance and safety concerns"
+          },
+          {
+            "node": "Competition from other low-carbon technologies"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization outlook 2025",
+    "fusion energy levelized cost comparison 2025",
+    "ITER project timeline and milestones 2025",
+    "SPARC fusion reactor progress 2025",
+    "private fusion startups funding 2025",
+    "nuclear fusion geopolitical implications",
+    "fusion energy market size forecast 2030 2050",
+    "fusion vs renewables cost competitiveness",
+    "tritium breeding challenges fusion",
+    "fusion energy policy support by country"
+  ],
+  "outline": [
+    "Nuclear fusion is approaching technical feasibility but commercialization remains a decade away",
+    "Fusion's levelized cost will initially be high but could become competitive by 2040s",
+    "Strategic implications include energy independence, reduced fossil fuel dependence, and new geopolitical alignments",
+    "Investment landscape is dominated by private startups and national programs with significant funding",
+    "Key risks include technical hurdles, regulatory uncertainty, and competition from cheaper renewables"
+  ],
+  "chart_ideas": [
+    "Timeline of major fusion projects and expected commercial operation dates",
+    "Projected levelized cost of fusion vs. other energy sources (2025-2050)",
+    "Global fusion investment by source (public vs. private) over time",
+    "Map of fusion research facilities and startup locations worldwide",
+    "Adoption scenarios for fusion in electricity generation under different policy assumptions"
+  ],
+  "insight_card_ideas": [
+    "Fusion's 'hype cycle' and realistic milestones",
+    "Why fusion could disrupt the energy trilemma (security, equity, sustainability)",
+    "The role of AI and machine learning in accelerating fusion research",
+    "How fusion changes the calculus for nuclear non-proliferation",
+    "Lessons from fission commercialization for fusion"
+  ],
+  "risks": [
+    "Technical risk: sustained net energy gain and materials durability not yet proven",
+    "Regulatory risk: licensing and safety frameworks for fusion are immature",
+    "Market risk: rapid cost declines in solar, wind, and batteries may erode fusion's competitive window",
+    "Geopolitical risk: international collaboration may fracture, slowing progress",
+    "Public acceptance risk: fear of nuclear accidents or waste could hinder deployment"
+  ]
+}
