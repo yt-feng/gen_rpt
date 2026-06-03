@@ -174,6 +174,18 @@ def main() -> int:
                     "PDF exhibit pages look visually sparse compared with the benchmark style: "
                     + ", ".join(f"p{page}" for page in sparse_pages[:8])
                 )
+            weak_cover_pages = visual_metrics.get("weak_full_bleed_pages", [])
+            if weak_cover_pages:
+                issues.append(
+                    "PDF cover/back-cover pages are not rendering as full-bleed visual pages: "
+                    + ", ".join(f"p{page}" for page in weak_cover_pages[:4])
+                )
+            sparse_text_pages = visual_metrics.get("sparse_text_pages", [])
+            if sparse_text_pages:
+                issues.append(
+                    "PDF has sparse non-exhibit pages that look like layout overflow or thin back matter: "
+                    + ", ".join(f"p{page}" for page in sparse_text_pages[:8])
+                )
 
     if args.benchmark_pdf:
         metrics["benchmark_pdf"] = pdf_metrics(args.benchmark_pdf)
@@ -396,8 +408,11 @@ def pdf_visual_metrics(path: Path) -> Dict[str, Any]:
         doc = fitz.open(str(path))
         page_metrics = []
         sparse_exhibit_pages: List[int] = []
+        sparse_text_pages: List[int] = []
+        weak_full_bleed_pages: List[int] = []
         for page_index, page in enumerate(doc, start=1):
             text = page.get_text("text")
+            text_chars = len(text.strip())
             pix = page.get_pixmap(matrix=fitz.Matrix(0.15, 0.15), alpha=False)
             samples = pix.samples
             pixel_count = max(1, pix.width * pix.height)
@@ -417,15 +432,25 @@ def pdf_visual_metrics(path: Path) -> Dict[str, Any]:
                     "page": page_index,
                     "nonwhite": round(nonwhite_ratio, 3),
                     "color": round(color_ratio, 3),
+                    "chars": text_chars,
                     "exhibit": is_exhibit,
                 }
             )
             if is_exhibit and nonwhite_ratio < 0.14:
                 sparse_exhibit_pages.append(page_index)
+            if page_index in {1, len(doc)} and nonwhite_ratio < 0.22:
+                weak_full_bleed_pages.append(page_index)
+            elif not is_exhibit and (
+                (text_chars < 420 and nonwhite_ratio < 0.12)
+                or (text_chars < 900 and nonwhite_ratio < 0.075)
+            ):
+                sparse_text_pages.append(page_index)
         return {
             "available": True,
             "page_count": len(doc),
             "sparse_exhibit_pages": sparse_exhibit_pages,
+            "sparse_text_pages": sparse_text_pages,
+            "weak_full_bleed_pages": weak_full_bleed_pages,
             "pages": page_metrics,
         }
     except Exception as exc:

@@ -196,6 +196,10 @@ def main() -> None:
     assert f"<td class='contents-page'>{html_about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text
     assert "EXHIBIT 1" in latex_text
     assert "\\draw[BOLine]" in latex_text
+    assert "\\AddToShipoutPictureBG*" in latex_text
+    assert "remember picture,overlay" not in latex_text
+    assert "SENIOR-LEADERSHIP QUESTIONS" in latex_text
+    assert "Research basis and limitations" in latex_text
     problem_headline = "Fusion commercialization is advancing faster than expected, driven by private startups that have raised over $5 billion in investment."
     assert latex_compact_headline(problem_headline) == "Fusion commercialization is advancing faster than expected"
     weak_tail = "Management should separate verified facts, directional scenarios and missing diligence items before"

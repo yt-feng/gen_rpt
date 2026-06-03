@@ -24,6 +24,7 @@ HEADER = r'''
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{tikz}
+\usepackage{eso-pic}
 \usepackage{tabularx}
 \usepackage{array}
 \usepackage{fancyhdr}
@@ -131,40 +132,69 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
 
 
 def _cover_page(title: str, cover: str, topic: str) -> str:
-    if cover:
-        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[BONavy,opacity=.10] (current page.south west) rectangle (current page.north east);'
-    else:
-        bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
     prepared = _tex(date.today().isoformat())
     topic_line = _tex(_shorten(topic, 180))
-    return r'''
-\thispagestyle{empty}
-\begin{tikzpicture}[remember picture,overlay]
-''' + bg + r'''
-\fill[white,opacity=.96] ([xshift=14mm,yshift=-24mm]current page.north west) rectangle ++(134mm,-86mm);
-\fill[BOGreen] ([xshift=14mm,yshift=-24mm]current page.north west) rectangle ++(134mm,-2mm);
-\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-35mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH};
-\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-49mm]current page.north west) {\parbox{114mm}{\raggedright\sffamily\fontsize{21}{25}\selectfont\color{BONavy} ''' + title + r'''}};
-\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-93mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''\\\vspace{2pt}\color{BOMuted}''' + prepared + r'''};
-\node[anchor=south east] at ([xshift=-10mm,yshift=8mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
-\end{tikzpicture}
+    return (
+        '\n\\clearpage\n\\thispagestyle{empty}\n'
+        + _page_background(cover)
+        + r'''
+\vspace*{7mm}
+\noindent\hspace*{2mm}{\setlength{\fboxsep}{7mm}\fcolorbox{white}{white}{\begin{minipage}{118mm}
+{\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH}\par\vspace{5pt}
+{\textcolor{BOGreen}{\rule{118mm}{1.5pt}}}\par\vspace{8pt}
+{\sffamily\fontsize{24}{29}\selectfont\color{BONavy} ''' + title + r'''}\par\vspace{10pt}
+{\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''}\par\vspace{3pt}
+{\sffamily\scriptsize\color{BOMuted} ''' + prepared + r'''}
+\end{minipage}}}
+\vfill
+\begin{flushright}
+{\sffamily\bfseries\Large\color{white} BlueOcean}\hspace*{3mm}
+\end{flushright}
+\vspace*{7mm}
 \clearpage
 '''
+    )
+
+
+def _page_background(path: str) -> str:
+    if path:
+        return '\\AddToShipoutPictureBG*{\\AtPageLowerLeft{\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + path + '}}}\n'
+    return '\\AddToShipoutPictureBG*{\\AtPageLowerLeft{\\color{BONavy}\\rule{\\paperwidth}{\\paperheight}}}\n'
 
 
 def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]]) -> str:
     rows = []
     for page_no, title_raw, hints in _content_page_rows(summary, sections, charts):
-        title = _tex(_shorten(title_raw, 160))
-        rows.append('\\textcolor{BOGreen}{\\bfseries ' + page_no + '} & ' + title + ' \\\\[5pt]\n')
-        for sub in hints[:2]:
-            rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_display_bullet(sub, 140)) + '} \\\\[1pt]\n')
+        title = _tex(_shorten(title_raw, 150))
+        rows.append('\\textcolor{BOGreen}{\\bfseries ' + page_no + '} & {\\footnotesize ' + title + '} \\\\[4pt]\n')
+        for sub in hints[:1]:
+            rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_display_bullet(sub, 118)) + '} \\\\[1pt]\n')
+    focus_items = summary[:4]
+    if len(focus_items) < 3:
+        focus_items.extend(_strip_number_prefix(section.get('lead') or section.get('title') or '') for section in sections[:4])
+    focus = ''.join(
+        '\\textcolor{BOGreen}{\\bfseries ' + f'{idx:02d}' + '} & {\\scriptsize ' + _tex(_shorten(item, 170)) + '} \\\\[6pt]\n'
+        for idx, item in enumerate([x for x in focus_items if str(x).strip()][:5], start=1)
+    )
+    chart_types = ', '.join(sorted({str(chart.get('type') or '').replace('_', ' ') for chart in charts if chart.get('type')})) or 'native exhibits'
     return (
         '\\clearpage\n'
-        '{\\sffamily\\fontsize{26}{31}\\selectfont\\color{BONavy} Contents}\\par\\vspace{10pt}\n'
-        '\\begin{tabularx}{\\linewidth}{p{14mm}Y}\n'
+        + _green_rule('42mm')
+        + '{\\sffamily\\fontsize{26}{31}\\selectfont\\color{BONavy} Contents}\\par\\vspace{10pt}\n'
+        + '\\begin{minipage}[t]{0.57\\linewidth}\n'
+        + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n'
         + ''.join(rows)
-        + '\\end{tabularx}\n\\clearpage\n'
+        + '\\end{tabularx}\n'
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n'
+        + '\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}{0.91\\linewidth}\\vspace{5pt}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries SENIOR-LEADERSHIP QUESTIONS}}\\par\\vspace{5pt}\n'
+        + '\\begin{tabularx}{\\linewidth}{p{8mm}Y}\n'
+        + (focus or '\\textcolor{BOGreen}{\\bfseries 01} & {\\scriptsize Separate decisions that can be made now from commitments that need stronger proof.} \\\\[6pt]\n')
+        + '\\end{tabularx}\\vspace{4pt}\n'
+        + '{\\scriptsize\\color{BOMuted} The report uses ' + _tex(str(len(charts))) + ' exhibits across ' + _tex(chart_types) + ' to keep the narrative anchored in comparable facts.}\\par\\vspace{5pt}\n'
+        + '\\end{minipage}}\n'
+        + '\\end{minipage}\n'
+        + '\\clearpage\n'
     )
 
 
@@ -172,9 +202,9 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     chart_groups = _chart_groups(charts)
     front_group_count = min(2, len(chart_groups))
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
-    rows.append(('04', 'The case should be read through proof, economics and timing', []))
+    rows.append(('04', 'Proof, economics and timing determine whether fusion changes capital allocation', []))
     if chart_groups:
-        rows.append(('05', 'The first evidence pages frame decision readiness before the narrative', []))
+        rows.append(('05', 'Decision readiness still depends on verified proof points', []))
     page_no = 5 + front_group_count
     chart_pages_needed = (len(charts) + 1) // 2
     chart_pages = front_group_count
@@ -372,7 +402,6 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
         chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:8]) + '\\end{multicols}\n'
     else:
         chapter += _paragraph_group(paras)
-    chapter += _section_takeaway_grid(section)
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
@@ -1097,17 +1126,47 @@ def _leadership_agenda_page(report: Dict[str, Any], sections: List[Dict[str, Any
 
 
 def _disclaimer_page(refs: List[Any]) -> str:
-    reference_note = ''
-    if refs:
-        reference_note = 'This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Detailed references are retained separately rather than reproduced in the client-facing document. '
+    source_rows = []
+    for idx, ref in enumerate([str(x) for x in refs if str(x).strip()][:10], start=1):
+        source_rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{idx:02d}' + '} & {\\scriptsize ' + _tex(_shorten(ref, 68)) + '} \\\\[4pt]\n')
+    if not source_rows:
+        source_rows = [
+            '\\textcolor{BOGreen}{\\bfseries 01} & {\\scriptsize Public company, policy and market materials} \\\\[4pt]\n',
+            '\\textcolor{BOGreen}{\\bfseries 02} & {\\scriptsize Public research and institutional publications} \\\\[4pt]\n',
+        ]
     body = (
         'This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. '
         'Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. '
         'Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. '
-        + reference_note +
         'Recipients should perform their own diligence and treat this report as one input into a broader decision process.'
     )
-    return '\\clearpage\n{\\sffamily\\fontsize{20}{25}\\selectfont\\color{BONavy} About the research}\\par\\vspace{6pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + body + '}\n'
+    principles = [
+        ('Use', 'Use the report to clarify timing, partner selection, capital exposure and the next management decision.'),
+        ('Do not use', 'Do not treat directional market views as a substitute for transaction diligence, technical verification or legal advice.'),
+        ('Update trigger', 'Refresh the view when public milestones, cost curves, regulation, financing or customer commitments materially change.'),
+    ]
+    principle_rows = ''.join(
+        '{\\textcolor{BOGreen}{\\scriptsize\\bfseries ' + _tex(label.upper()) + '}}\\par{\\scriptsize ' + _tex(text) + '}'
+        + (' & ' if idx < len(principles) else ' \\\\\n')
+        for idx, (label, text) in enumerate(principles, start=1)
+    )
+    return (
+        '\\clearpage\n'
+        + _green_rule('46mm')
+        + '{\\sffamily\\fontsize{22}{27}\\selectfont\\color{BONavy} Research basis and limitations}\\par\\vspace{9pt}\n'
+        + '\\begin{minipage}[t]{0.47\\linewidth}\n'
+        + '{\\sffamily\\fontsize{15}{20}\\selectfont\\color{BOGreen} Public materials support a strategic view, not a transaction recommendation.}\\par\\vspace{7pt}\n'
+        + '{\\footnotesize\\color{BOText} ' + _tex(body) + '}\\par\n'
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.46\\linewidth}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries PUBLIC MATERIALS REFERENCED}}\\par\\vspace{5pt}\n'
+        + '\\begin{tabularx}{\\linewidth}{p{8mm}Y}\n'
+        + ''.join(source_rows)
+        + '\\end{tabularx}\n'
+        + '\\end{minipage}\\par\\vspace{12pt}\n'
+        + '\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}{0.96\\linewidth}\\vspace{5pt}\\begin{tabularx}{\\linewidth}{Y Y Y}\n'
+        + principle_rows
+        + '\\end{tabularx}\\vspace{5pt}\\end{minipage}}\n'
+    )
 
 
 def _about_blueocean_page(report: Dict[str, Any], refs: List[Any]) -> str:
@@ -1122,15 +1181,30 @@ def _about_blueocean_page(report: Dict[str, Any], refs: List[Any]) -> str:
     if not rows:
         rows.append('{\\small\\bfseries BlueOcean Research}\\par{\\scriptsize\\color{BOGreen} Research synthesis team} & {\\footnotesize Executive research, evidence synthesis and report QA for senior-management discussion.} \\\\[7pt]\n')
     institutions = ', '.join(str(x) for x in refs[:8]) if refs else 'public research, company materials, policy sources and market evidence'
+    capability_rows = [
+        ('Strategy research', 'Decision-focused market, technology and competitive research for senior leadership.'),
+        ('Evidence synthesis', 'Structured comparison of public materials, company claims, policy signals and market data.'),
+        ('Executive output', 'Reader-ready reports, exhibits and board materials designed for fast management discussion.'),
+        ('Quality control', 'Source retention, language cleanup and layout checks before publication.'),
+    ]
+    capabilities = ''.join(
+        '\\textcolor{BOGreen}{\\bfseries ' + f'{idx:02d}' + '} & {\\scriptsize\\bfseries ' + _tex(label) + '}\\par{\\scriptsize ' + _tex(text) + '} \\\\[6pt]\n'
+        for idx, (label, text) in enumerate(capability_rows, start=1)
+    )
     return (
         '\\clearpage\n'
-        + _green_rule('32mm')
+        + _green_rule('38mm')
         + '{\\sffamily\\fontsize{24}{30}\\selectfont\\color{BONavy} About BlueOcean}\\par\\vspace{10pt}\n'
         + '\\begin{minipage}[t]{0.44\\linewidth}\n'
         + '{\\sffamily\\fontsize{16}{22}\\selectfont\\color{BOGreen} Research is most useful when it changes a management decision.}\\par\\vspace{8pt}\n'
         + '{\\footnotesize\\color{BOText} BlueOcean prepares decision-focused research for executives who need to separate credible evidence from market noise, translate technology shifts into commercial implications and stage commitments around proof.}\\par\\vspace{7pt}\n'
         + '{\\footnotesize\\color{BOMuted} This report draws on ' + _tex(_shorten(institutions, 360)) + '.}\\par\n'
+        + '\\vspace{10pt}\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}{0.90\\linewidth}\\vspace{5pt}{\\scriptsize\\color{BOText} The work is designed for CEOs and leadership teams who need a concise view of what changes now, what waits for stronger proof and which external facts would change the answer.}\\vspace{5pt}\\end{minipage}}\n'
         + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.48\\linewidth}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries HOW BLUEOCEAN SUPPORTS EXECUTIVE TEAMS}}\\par\\vspace{5pt}\n'
+        + '\\begin{tabularx}{\\linewidth}{p{8mm}Y}\n'
+        + capabilities
+        + '\\end{tabularx}\\vspace{6pt}\n'
         + '\\begin{tabularx}{\\linewidth}{p{31mm}Y}\n'
         + ''.join(rows)
         + '\\end{tabularx}\n'
@@ -1139,18 +1213,17 @@ def _about_blueocean_page(report: Dict[str, Any], refs: List[Any]) -> str:
 
 
 def _back_cover_page(cover: str) -> str:
-    if cover:
-        bg = '\\node[anchor=south west,inner sep=0] at (current page.south west) {\\includegraphics[width=\\paperwidth,height=\\paperheight]{' + cover + '}};\n\\fill[black,opacity=.45] (current page.south west) rectangle (current page.north east);'
-    else:
-        bg = '\\fill[BONavy] (current page.south west) rectangle (current page.north east);'
-    return r'''
-\clearpage
-\thispagestyle{empty}
-\begin{tikzpicture}[remember picture,overlay]
-''' + bg + r'''
-\node[anchor=south east] at ([xshift=-11mm,yshift=10mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
-\end{tikzpicture}
+    return (
+        '\\clearpage\n\\thispagestyle{empty}\n'
+        + _page_background(cover)
+        + r'''
+\vspace*{\fill}
+\begin{flushright}
+{\sffamily\bfseries\Large\color{white} BlueOcean}\hspace*{3mm}
+\end{flushright}
+\vspace*{8mm}
 '''
+    )
 
 
 def _repair_sections(report: Dict[str, Any], sections: List[Dict[str, Any]], topic: str, summary: List[str]) -> List[Dict[str, Any]]:
