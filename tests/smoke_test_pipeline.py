@@ -63,6 +63,7 @@ def main() -> None:
         "charts": [
             {"title": "Stacked chart without id", "type": "stacked_bar", "categories": ["2024", "2025"], "series": [{"name": "A", "values": [1, 2]}, {"name": "B", "values": [2, 3]}]},
             {"title": "Chart.js bar payload should keep model data", "type": "bar", "data": {"labels": ["2024", "2025", "2026"], "datasets": [{"label": "Validated spend", "values": [12, 18, 27]}]}},
+            {"title": "Top-level Chart.js bar payload should keep labels", "type": "bar", "labels": ["Solar", "Wind", "Fusion"], "datasets": [{"label": "LCOE", "data": [30, 40, 95]}]},
             {"title": "Matrix chart", "type": "matrix", "rows": ["Cost", "Supply"], "columns": ["A", "B"], "values": [[5, 3], [4, 2]]},
             {"title": "Nested bubble payload should keep model points", "type": "bubble", "data": {"datasets": [{"label": "Private ventures", "points": [{"x": 8, "y": 9, "label": "CFS"}, {"x": 7, "y": 8, "label": "Helion"}, {"x": 6, "y": 7, "label": "TAE"}]}, {"label": "Public projects", "points": [{"x": 4, "y": 5, "label": "ITER"}]}]}},
             {"title": "Bubble chart", "type": "bubble", "points": [{"label": "A", "x": 40, "y": 70, "size": 50}]},
@@ -97,6 +98,9 @@ def main() -> None:
     chartjs_bar = next(chart for chart in report.get("charts", []) if chart.get("title") == "Chart.js bar payload should keep model data")
     assert chartjs_bar.get("categories") == ["2024", "2025", "2026"]
     assert chartjs_bar.get("series", [])[0].get("values") == [12.0, 18.0, 27.0]
+    top_level_bar = next(chart for chart in report.get("charts", []) if chart.get("title") == "Top-level Chart.js bar payload should keep labels")
+    assert top_level_bar.get("categories") == ["Solar", "Wind", "Fusion"]
+    assert top_level_bar.get("series", [])[0].get("values") == [30.0, 40.0, 95.0]
     nested_bubble = next(chart for chart in report.get("charts", []) if chart.get("title") == "Nested bubble payload should keep model points")
     nested_labels = {point.get("label") for point in nested_bubble.get("points", [])}
     assert {"CFS", "Helion", "TAE", "ITER"}.issubset(nested_labels)

@@ -1470,12 +1470,15 @@ def _normalize_chart_payload(chart: Dict[str, Any], idx: int, topic: str, sectio
 def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, language: str) -> Dict[str, Any]:
     categories = _string_list(chart.get("categories"))
     series = _series_list(chart.get("series"))
+    top_categories, top_series = _series_from_top_level_chartjs(chart)
     data_categories, data_series = _series_from_data(chart.get("data"))
-    if data_categories and data_series and _looks_like_placeholder_series(categories, series):
+    if top_categories and top_series and _looks_like_placeholder_series(categories, series):
+        categories, series = top_categories, top_series
+    elif data_categories and data_series and _looks_like_placeholder_series(categories, series):
         categories, series = data_categories, data_series
     elif not categories or not series:
-        categories = categories or data_categories
-        series = series or data_series
+        categories = categories or top_categories or data_categories
+        series = series or top_series or data_series
     if not series:
         values = [_to_number(x, 0.0) for x in _as_list(chart.get("values"))]
         if values:
@@ -1609,6 +1612,12 @@ def _series_from_data(value: Any) -> tuple[List[str], List[Dict[str, Any]]]:
     return categories, series
 
 
+def _series_from_top_level_chartjs(chart: Dict[str, Any]) -> tuple[List[str], List[Dict[str, Any]]]:
+    if not isinstance(chart, dict) or not (chart.get("labels") or chart.get("datasets")):
+        return [], []
+    return _series_from_data({"labels": chart.get("labels"), "datasets": chart.get("datasets")})
+
+
 def _dataset_numeric_values(dataset: Dict[str, Any]) -> List[float]:
     raw_values = dataset.get("values")
     if raw_values is None:
@@ -1661,11 +1670,14 @@ def _points_from_data(value: Any) -> List[Dict[str, Any]]:
 def _best_bubble_points(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
     explicit_points = [dict(x) for x in _as_list(chart.get("points")) if isinstance(x, dict)]
     data_points = _points_from_data(chart.get("data")) if chart.get("data") else []
+    top_level_points = _points_from_data({"datasets": chart.get("datasets")}) if chart.get("datasets") else []
     if explicit_points and not _weak_bubble_points(explicit_points):
         return explicit_points
+    if top_level_points and not _weak_bubble_points(top_level_points):
+        return top_level_points
     if data_points and not _weak_bubble_points(data_points):
         return data_points
-    return explicit_points or data_points
+    return explicit_points or top_level_points or data_points
 
 
 def _point_rows_from_data(value: Any) -> List[Dict[str, Any]]:

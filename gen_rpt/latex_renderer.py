@@ -565,6 +565,12 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
 def _bubble_points(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
     points = [dict(p) for p in _as_list(chart.get('points')) if isinstance(p, dict)]
     converted: List[Dict[str, Any]] = []
+    for row in _point_rows_from_chart_data({'datasets': chart.get('datasets')} if chart.get('datasets') else None):
+        label = row.get('label') or row.get('risk') or row.get('name') or row.get('category') or row.get('driver') or ''
+        x = row.get('x', row.get('likelihood', row.get('probability', row.get('readiness', row.get('attractiveness', 50)))))
+        y = row.get('y', row.get('impact', row.get('severity', row.get('importance', row.get('return', 50)))))
+        size = row.get('size', row.get('impact', row.get('severity', row.get('importance', 45))))
+        converted.append({'label': label, 'x': _scale_point(x), 'y': _scale_point(y), 'size': _scale_point(size)})
     for row in _point_rows_from_chart_data(chart.get('data')):
         label = row.get('label') or row.get('risk') or row.get('name') or row.get('category') or row.get('driver') or ''
         x = row.get('x', row.get('likelihood', row.get('probability', row.get('readiness', row.get('attractiveness', 50)))))
@@ -631,6 +637,9 @@ def _legend(series: List[Dict[str, Any]], colors: List[str], *, y: float) -> Lis
 
 
 def _series_payload(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
+    top_payload = _series_from_chart_data({'datasets': chart.get('datasets')} if chart.get('datasets') else None)
+    if top_payload:
+        return top_payload
     payload: List[Dict[str, Any]] = []
     for idx, item in enumerate(_as_list(chart.get('series')), start=1):
         if not isinstance(item, dict):
@@ -649,6 +658,9 @@ def _series_payload(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 
 def _chart_categories(chart: Dict[str, Any], limit: int) -> List[str]:
+    label_categories = [str(x) for x in _as_list(chart.get('labels')) if str(x).strip()]
+    if label_categories:
+        return label_categories[:limit]
     categories = [str(x) for x in _as_list(chart.get('categories')) if str(x).strip()]
     data = chart.get('data')
     if not categories and isinstance(data, dict):
