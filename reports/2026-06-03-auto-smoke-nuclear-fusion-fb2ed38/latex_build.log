@@ -1,0 +1,172 @@
+re/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 commercialization is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 unlikely before the 2040s
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 despite recent technical
+
+Underfull \hbox (badness 2384) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion commercialization is unlikely befor
+e
+
+Underfull \hbox (badness 5893) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 the 2040s despite recent technical breakthroughs.
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 Private ventures are accelerating timelines but
+
+Underfull \hbox (badness 1755) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 face significant engineering and cost hurdles. The
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 renewables in a decarbonized grid, not replace
+
+Underfull \hbox (badness 4084) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 them, and first-mover advantages are limited due
+
+Underfull \hbox (badness 1622) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 to long development cycles and high capital costs.
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 Source-supported uncertainty remains high: key
+
+Underfull \hbox (badness 1881) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 tritium breeding) are unresolved, and no complete
+
+Underfull \hbox (badness 4621) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 regulatory framework exists. The primary risk is
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 that fusion may remain uneconomical compared
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 to rapidly falling renewables and storage costs.
+
+Underfull \hbox (badness 1584) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 strategic partnerships and monitor milestones from
+
+Underfull \hbox (badness 2653) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 materials, tritium breeding) are unresolved, and no
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+(./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (18 pages).
+Transcript written on report_latex.log.
+re/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 commercialization is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 unlikely before the 2040s
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 despite recent technical
+
+Underfull \hbox (badness 2384) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion commercialization is unlikely befor
+e
+
+Underfull \hbox (badness 5893) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 the 2040s despite recent technical breakthroughs.
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 Private ventures are accelerating timelines but
+
+Underfull \hbox (badness 1755) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 face significant engineering and cost hurdles. The
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 renewables in a decarbonized grid, not replace
+
+Underfull \hbox (badness 4084) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 them, and first-mover advantages are limited due
+
+Underfull \hbox (badness 1622) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 to long development cycles and high capital costs.
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 Source-supported uncertainty remains high: key
+
+Underfull \hbox (badness 1881) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 tritium breeding) are unresolved, and no complete
+
+Underfull \hbox (badness 4621) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 regulatory framework exists. The primary risk is
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 that fusion may remain uneconomical compared
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 to rapidly falling renewables and storage costs.
+
+Underfull \hbox (badness 1584) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 strategic partnerships and monitor milestones from
+
+Underfull \hbox (badness 2653) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 materials, tritium breeding) are unresolved, and no
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+(./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (18 pages).
+Transcript written on report_latex.log.
