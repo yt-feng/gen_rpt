@@ -1,0 +1,42 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 1,
+        "issues": [
+          "charts 数量应为10-12个，当前为6个。"
+        ]
+      },
+      {
+        "round": 2,
+        "issue_count": 1,
+        "issues": [
+          "段落开头重复、行文模式化，需要调整章节推进方式：management should "
+        ]
+      }
+    ],
+    "final_issue_count": 0,
+    "final_issues": [],
+    "fact_pack_validation_issues": [
+      "资料来源偏少，当前仅0个。",
+      "来源域名多样性不足，当前0个。",
+      "缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。",
+      "可抽取事实句不足，生成时必须显式说明证据边界。",
+      "可核验数字事实不足，需继续收集市场规模、财务、交易、产能、份额或时间数据。",
+      "可核验时间线不足，需补充年份、季度、政策发布时间或交易节点。"
+    ],
+    "source_count": 0,
+    "authoritative_source_count": 0
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": []
+}

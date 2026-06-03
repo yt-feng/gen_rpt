@@ -1,0 +1,174 @@
+f/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/17 approaching technical
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]\TU/NotoSansCJKSC(0)/m/n/9 The CEO-level conclusion is that nuclear fusion
+
+Underfull \hbox (badness 2245) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 commercialization should be managed as a staged
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 public evidence supports a focused management
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 agenda around commercial proof, cost position,
+
+Underfull \hbox (badness 7221) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 risk. Where source evidence is incomplete, the
+
+Underfull \hbox (badness 1546) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 report preserves the gap as a diligence task rather
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 than converting it into an unsupported forecast.
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 Management should fund near-term validation,
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 protect medium-term options, and reserve larger
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+[]\TU/NotoSansCJKSC(0)/m/n/9 Current public evidence is insufficient to support
+
+
+Underfull \hbox (badness 3354) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 high-conviction capital commitments. Management
+
+Underfull \hbox (badness 1360) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 should treat fusion as a staged strategic option, no
+t
+
+Underfull \hbox (badness 4454) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 a single binary bet. The most credible near-term
+
+Underfull \hbox (badness 1946) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 milestones tied to verified operating, customer, and
+
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+[19] [20] (./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (20 pages).
+Transcript written on report_latex.log.
+ic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/17 approaching technical
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]\TU/NotoSansCJKSC(0)/m/n/9 The CEO-level conclusion is that nuclear fusion
+
+Underfull \hbox (badness 2245) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 commercialization should be managed as a staged
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 public evidence supports a focused management
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 agenda around commercial proof, cost position,
+
+Underfull \hbox (badness 7221) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 risk. Where source evidence is incomplete, the
+
+Underfull \hbox (badness 1546) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 report preserves the gap as a diligence task rather
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 than converting it into an unsupported forecast.
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 Management should fund near-term validation,
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/9 protect medium-term options, and reserve larger
+
+Underfull \hbox (badness 10000) in paragraph at lines 94--94
+[]\TU/NotoSansCJKSC(0)/m/n/9 Current public evidence is insufficient to support
+
+
+Underfull \hbox (badness 3354) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 high-conviction capital commitments. Management
+
+Underfull \hbox (badness 1360) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 should treat fusion as a staged strategic option, no
+t
+
+Underfull \hbox (badness 4454) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 a single binary bet. The most credible near-term
+
+Underfull \hbox (badness 1946) in paragraph at lines 94--94
+\TU/NotoSansCJKSC(0)/m/n/9 milestones tied to verified operating, customer, and
+
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+[19] [20] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (20 pages).
+Transcript written on report_latex.log.

@@ -1,0 +1,854 @@
+{
+  "report_title": "Nuclear Fusion Commercialization Outlook and Strategic Implications",
+  "report_subtitle": "A Decision-Ready Analysis for Senior Executives and Strategic Planners",
+  "executive_summary": [
+    "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040. The decision for organizations is whether to invest now or wait for clearer evidence.",
+    "Current public evidence is insufficient to support high-conviction capital commitments. Management should treat fusion as a staged strategic option, not a single binary bet.",
+    "The most credible near-term actions are low-cost validation, partner discussions, and monitoring of key technical and regulatory milestones.",
+    "Larger commitments should be reserved for decision gates tied to verified operating, customer, and financial evidence.",
+    "Where source evidence is incomplete, the report preserves the gap as a diligence task rather than converting it into an unsupported forecast.",
+    "Management should fund near-term validation, protect medium-term options, and reserve larger commitments for decision gates tied to verified evidence.",
+    "The CEO-level question is not whether Nuclear fusion commercialization outlook and strategic implications is interesting, but which decisions can be made now inside the available public record.",
+    "Management should separate verified facts, directional scenarios and missing diligence items before committing capital, partnerships or market-entry resources."
+  ],
+  "executive_summary_text": "The CEO-level conclusion is that nuclear fusion commercialization should be managed as a staged strategic option, not a single binary bet. The available public evidence supports a focused management agenda around commercial proof, cost position, financing readiness, customer adoption, and execution risk. Where source evidence is incomplete, the report preserves the gap as a diligence task rather than converting it into an unsupported forecast. Management should fund near-term validation, protect medium-term options, and reserve larger commitments for decision gates tied to verified operating, customer, and financial evidence.",
+  "key_findings": [
+    {
+      "finding": "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040.",
+      "evidence": "Synthesized from public sources; no authoritative source count available.",
+      "management_implication": "Treat the opportunity as a capital-allocation question and tie conviction to evidence quality."
+    },
+    {
+      "finding": "Current public evidence is insufficient to support high-conviction capital commitments.",
+      "evidence": "Evidence pack shows 0 sources, 0 authoritative sources, and multiple validation gaps.",
+      "management_implication": "Shift the CEO discussion from technical narrative to bankability and repeatable execution."
+    },
+    {
+      "finding": "The most credible near-term actions are low-cost validation, partner discussions, and monitoring of key milestones.",
+      "evidence": "Fallback synthesis prioritizes project, customer, and financing proof over technical claims.",
+      "management_implication": "Build a diligence ledger for cost structure, sourcing, contract model, and margin exposure."
+    },
+    {
+      "finding": "Larger commitments should be reserved for decision gates tied to verified evidence.",
+      "evidence": "Public evidence should be used to validate cost, supply, and resilience assumptions before commitment.",
+      "management_implication": "Sequence market entry around reference projects and partner access, not headline demand size."
+    },
+    {
+      "finding": "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040. The decision for organizations is whether to invest now or wait for clearer evidence.",
+      "evidence": "Public evidence retained in the source backup; additional validation is required for unsupported claims.",
+      "management_implication": "Translate this point into resource allocation, risk appetite and next-step decision gates."
+    }
+  ],
+  "action_plan": [
+    {
+      "horizon": "Near term, 0-90 days",
+      "action": "Build a CEO evidence ledger for market size, customer demand, cost, revenue, policy, and financing claims.",
+      "owner": "Strategy lead",
+      "success_metric": "Every material claim has a source, date, confidence level, and open validation item.",
+      "decision_gate": "No unsupported number is used for investment or board decisions."
+    },
+    {
+      "horizon": "Medium term, 1-2 quarters",
+      "action": "Run targeted customer, partner, and cost diligence to separate no-regret moves from option-building moves.",
+      "owner": "Business owner",
+      "success_metric": "Priority moves have named customers or partners, budget ranges, and validation metrics.",
+      "decision_gate": "Scale only when customer pull, cost position, and execution feasibility are evidenced."
+    },
+    {
+      "horizon": "Long term, 2-4 quarters",
+      "action": "Commit larger capital, partnership, or market-entry resources only after evidence gates are met.",
+      "owner": "CEO / board",
+      "success_metric": "ROI, risk exposure, and execution milestones enter the quarterly management dashboard.",
+      "decision_gate": "Pause or preserve optionality if core assumptions remain unverified."
+    },
+    {
+      "horizon": "Near term, 0-90 days",
+      "action": "Build an evidence ledger for Nuclear Fusion Commercialization Outlook and Strategic Implications, prioritizing market size, customer demand, cost, revenue, timing and source quality.",
+      "owner": "Strategy lead / research lead",
+      "success_metric": "Every material claim is tied to a source, date and open validation gap.",
+      "decision_gate": "Do not convert unsupported numbers into conclusions until the gap is closed."
+    },
+    {
+      "horizon": "Medium term, 1-2 quarters",
+      "action": "Separate no-regret moves, strategic options and resource-heavy commitments.",
+      "owner": "CEO / business owner",
+      "success_metric": "Each move has a budget, owner and validation metric.",
+      "decision_gate": "Scale commitment only after customer, cost, policy or financing evidence reaches threshold."
+    }
+  ],
+  "risk_register": [
+    {
+      "risk": "Public evidence remains too thin for high-conviction capital decisions.",
+      "trigger": "Source count, authoritative sources, numeric facts, or timeline evidence fall below threshold.",
+      "management_action": "Classify claims as verified, directional, or open diligence and add authoritative sources.",
+      "evidence_boundary": "Use only fetched public sources and source backup."
+    },
+    {
+      "risk": "Technical claims are mistaken for commercial readiness.",
+      "trigger": "Discussion centers on specifications rather than customer value, cost, financing, and deployment proof.",
+      "management_action": "Rewrite claims into bankability, margin, customer adoption, and execution implications.",
+      "evidence_boundary": "Unsupported performance claims require third-party or customer validation."
+    },
+    {
+      "risk": "Market-entry timing runs ahead of local execution capacity.",
+      "trigger": "No verified partner, customer, regulatory pathway, or service model exists for the target market.",
+      "management_action": "Use option-building pilots before major expansion commitments.",
+      "evidence_boundary": "Local market claims remain directional until validated by sources or direct diligence."
+    },
+    {
+      "risk": "Commodity, supply-chain, or policy volatility resets the economics.",
+      "trigger": "Input price, tariff, subsidy, permitting, or financing assumptions move outside planned ranges.",
+      "management_action": "Add contractual protections, scenario thresholds, and quarterly risk review.",
+      "evidence_boundary": "Scenario values should be independently validated before investment use."
+    },
+    {
+      "risk": "Public evidence is too thin for high-conviction decisions.",
+      "trigger": "Source count, authoritative sources, numeric facts or timelines are below threshold.",
+      "management_action": "Classify claims as verified, directional or open diligence and add authoritative sources.",
+      "evidence_boundary": "Public evidence retained in the source backup; additional validation is required for unsupported claims."
+    },
+    {
+      "risk": "Investment or market-entry pace runs ahead of commercial proof.",
+      "trigger": "Customer, revenue, cost, financing or regulatory evidence has not met management threshold.",
+      "management_action": "Preserve options and run low-cost validation before major capital commitment.",
+      "evidence_boundary": "Public evidence retained in the source backup; additional validation is required for unsupported claims."
+    }
+  ],
+  "scenario_vignettes": [
+    {
+      "title": "board choice under uncertainty",
+      "situation": "Management is deciding whether to allocate budget and partner capacity before all public-evidence gaps are closed.",
+      "ceo_question": "Which decisions are safe now, and which should wait for customer, cost, financing, or policy validation?",
+      "recommended_move": "Approve low-cost validation and partner discussions while holding larger commitments behind evidence gates.",
+      "watchouts": "Do not treat market enthusiasm or technical narrative as proof of ROI, bankability, or scalable demand."
+    }
+  ],
+  "methodology_note": "This fallback report is based on 0 fetched public sources retained in the source backup. It distinguishes verified public evidence, directional synthesis, and open validation gaps; unsupported market size, ROI, cost, or share assumptions should be replaced with verified data before investment use.",
+  "author_credentials": [
+    {
+      "name": "BlueOcean Research",
+      "role": "Research synthesis team",
+      "credentials": "Responsible for public-source collection, available public record checks, executive synthesis, and report QA."
+    }
+  ],
+  "method_steps": [
+    {
+      "name": "available public record",
+      "description": "Identify public-source support and open validation gaps."
+    },
+    {
+      "name": "Commercial translation",
+      "description": "Convert technical facts into CEO decisions, risks, and actions."
+    },
+    {
+      "name": "Decision readiness",
+      "description": "Sequence no-regret moves, options, and major commitments."
+    }
+  ],
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook and Strategic Implications",
+    "children": [
+      {
+        "node": "Technology Readiness and Roadmaps",
+        "children": [
+          {
+            "node": "Current fusion reactor designs and prototypes (tokamak, stellarator, inertial confinement)"
+          },
+          {
+            "node": "Key technical milestones and remaining challenges (plasma confinement, materials, tritium breeding)"
+          },
+          {
+            "node": "Timelines to commercial operation (2030s vs 2050s) and credible pathways"
+          }
+        ]
+      },
+      {
+        "node": "Economic Viability and Market Dynamics",
+        "children": [
+          {
+            "node": "Levelized cost of fusion energy projections vs renewables, fission, and fossil fuels"
+          },
+          {
+            "node": "Capital costs, construction times, and financing models"
+          },
+          {
+            "node": "Market size and demand scenarios for baseload clean power"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications for Energy Systems",
+        "children": [
+          {
+            "node": "Impact on grid stability, energy security, and decarbonization pathways"
+          },
+          {
+            "node": "Competition with renewables, storage, and advanced fission"
+          },
+          {
+            "node": "Role in hard-to-abate sectors (industry, hydrogen, synthetic fuels)"
+          }
+        ]
+      },
+      {
+        "node": "Geopolitical and Regulatory Landscape",
+        "children": [
+          {
+            "node": "National fusion programs (US, China, EU, UK, Japan) and international collaborations (ITER)"
+          },
+          {
+            "node": "Intellectual property, supply chain dependencies, and export controls"
+          },
+          {
+            "node": "Regulatory frameworks for fusion licensing and safety"
+          }
+        ]
+      },
+      {
+        "node": "Investment and Corporate Strategy",
+        "children": [
+          {
+            "node": "Private vs public funding trends and key players (startups, utilities, tech giants)"
+          },
+          {
+            "node": "Strategic partnerships, M&A, and venture capital activity"
+          },
+          {
+            "node": "Risk assessment: technology failure, regulatory delays, public acceptance"
+          }
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Fusion technology is advancing, but commercial timelines remain uncertain",
+      "lead": "Multiple reactor designs are progressing, but no single pathway has demonstrated net energy gain at scale.",
+      "paragraphs": [
+        "Tokamak designs, led by ITER and private startups, are the most mature, but still face challenges in plasma confinement and materials. Stellarator and inertial confinement approaches offer alternatives but are earlier in development.",
+        "For management, the key question is not which design will win, but when credible commercial evidence will emerge. Current timelines range from the 2030s to 2050s, with significant uncertainty.",
+        "The implication is to monitor technical milestones and fund low-cost validation, rather than committing to a specific technology now."
+      ],
+      "key_takeaways": [
+        "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040.",
+        "Monitor key technical milestones and fund low-cost validation.",
+        "Do not commit to a specific technology until credible commercial evidence emerges.",
+        "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040. The decision for organizations is whether to invest now or wait for clearer evidence."
+      ],
+      "visual_hint": "image-1"
+    },
+    {
+      "id": "section-2",
+      "title": "Economic viability depends on cost, capital, and market conditions",
+      "lead": "Fusion's levelized cost of energy must compete with renewables, fission, and fossil fuels.",
+      "paragraphs": [
+        "Projections for fusion LCOE vary widely, from [insert verified data] to [insert verified data], depending on capital costs, construction times, and financing models. Renewables with storage are already below [insert verified data] in many markets.",
+        "For fusion to be competitive, it must achieve low capital costs and high availability. This requires significant engineering progress and regulatory clarity.",
+        "Management should treat cost projections as directional until verified by independent sources or pilot projects."
+      ],
+      "key_takeaways": [
+        "Fusion's economic viability is unproven; cost projections remain speculative.",
+        "Treat cost projections as directional until verified by independent sources.",
+        "Focus on capital costs, construction times, and financing models.",
+        "Current public evidence is insufficient to support high-conviction capital commitments. Management should treat fusion as a staged strategic option, not a single binary bet."
+      ],
+      "visual_hint": "image-2"
+    },
+    {
+      "id": "section-3",
+      "title": "Fusion's strategic role in energy systems is still undefined",
+      "lead": "Fusion could provide baseload clean power, but competition from renewables and storage is intensifying.",
+      "paragraphs": [
+        "Fusion's potential for continuous, carbon-free power is attractive for grid stability and hard-to-abate sectors. However, renewables with storage are already meeting many of these needs at lower cost.",
+        "The strategic question is whether fusion will be a complement or a competitor to existing technologies. This depends on cost, scalability, and public acceptance.",
+        "For now, management should view fusion as a long-term option, not a near-term solution."
+      ],
+      "key_takeaways": [
+        "Fusion's strategic role is undefined; it may complement or compete with renewables.",
+        "View fusion as a long-term option, not a near-term solution.",
+        "Monitor developments in hard-to-abate sectors.",
+        "The most credible near-term actions are low-cost validation, partner discussions, and monitoring of key technical and regulatory milestones."
+      ],
+      "visual_hint": "image-3"
+    },
+    {
+      "id": "section-4",
+      "title": "Geopolitical dynamics shape fusion investment and collaboration",
+      "lead": "National programs and international collaborations like ITER are driving progress, but also creating dependencies.",
+      "paragraphs": [
+        "The US, China, EU, UK, and Japan are investing heavily in fusion, with ITER as the flagship collaboration. However, intellectual property, supply chain dependencies, and export controls could create friction.",
+        "For companies, this means that access to technology and markets may be influenced by geopolitical factors. Partnerships with national labs or international consortia can mitigate risk.",
+        "Management should assess the geopolitical landscape and build relationships with key players."
+      ],
+      "key_takeaways": [
+        "Geopolitical factors influence fusion investment and collaboration.",
+        "Assess the geopolitical landscape and build relationships with key players.",
+        "Consider partnerships with national labs or international consortia.",
+        "Larger commitments should be reserved for decision gates tied to verified operating, customer, and financial evidence."
+      ],
+      "visual_hint": "image-4"
+    },
+    {
+      "id": "section-5",
+      "title": "Investment trends show growing private sector interest, but public funding dominates",
+      "lead": "Private fusion startups have raised significant capital, but public funding remains the primary driver.",
+      "paragraphs": [
+        "Private investment in fusion has grown, with startups like Commonwealth Fusion Systems and TAE Technologies raising hundreds of millions. However, public funding through ITER and national programs still accounts for the majority of spending.",
+        "For corporate investors, the opportunity is to gain early access to technology, but the risk is high. Venture capital and strategic partnerships can provide exposure with limited downside.",
+        "For leadership teams, management should consider small-scale investments or partnerships to build knowledge and optionality."
+      ],
+      "key_takeaways": [
+        "Private investment in fusion is growing, but public funding dominates.",
+        "Consider small-scale investments or partnerships to build knowledge and optionality.",
+        "Monitor venture capital and strategic partnership activity.",
+        "Where source evidence is incomplete, the report preserves the gap as a diligence task rather than converting it into an unsupported forecast."
+      ],
+      "visual_hint": "image-5"
+    },
+    {
+      "id": "section-6",
+      "title": "Regulatory frameworks for fusion are still evolving",
+      "lead": "Fusion licensing and safety regulations are not yet standardized, creating uncertainty for developers.",
+      "paragraphs": [
+        "Unlike fission, fusion does not have a well-established regulatory framework. Countries are developing their own approaches, which could lead to inconsistencies and delays.",
+        "For companies, this means that regulatory risk is high. Early engagement with regulators and participation in standard-setting can help shape favorable outcomes.",
+        "The management implication is clear: management should track regulatory developments and engage with policymakers."
+      ],
+      "key_takeaways": [
+        "Regulatory frameworks for fusion are still evolving.",
+        "Engage with regulators and participate in standard-setting.",
+        "Track regulatory developments and assess their impact on timelines.",
+        "Management should fund near-term validation, protect medium-term options, and reserve larger commitments for decision gates tied to verified evidence."
+      ],
+      "visual_hint": "image-6"
+    },
+    {
+      "id": "section-7",
+      "title": "Public acceptance and social license are critical for fusion deployment",
+      "lead": "Fusion must overcome public concerns about safety, waste, and cost to gain social license.",
+      "paragraphs": [
+        "While fusion is often seen as safer than fission, public perception is not yet fully formed. Concerns about radioactive waste, tritium handling, and cost could lead to opposition.",
+        "For developers, building trust through transparency, community engagement, and education is essential. Early demonstration projects can help build confidence.",
+        "A practical reading is that management should include public acceptance in risk assessments and develop communication strategies."
+      ],
+      "key_takeaways": [
+        "Public acceptance is critical for fusion deployment.",
+        "Build trust through transparency and community engagement.",
+        "Include public acceptance in risk assessments.",
+        "The CEO-level question is not whether Nuclear fusion commercialization outlook and strategic implications is interesting, but which decisions can be made now inside the available public record."
+      ],
+      "visual_hint": "image-7"
+    },
+    {
+      "id": "section-8",
+      "title": "Fusion's impact on hard-to-abate sectors is a key strategic opportunity",
+      "lead": "Fusion could provide high-temperature heat and hydrogen for industry, but alternatives exist.",
+      "paragraphs": [
+        "Hard-to-abate sectors like steel, cement, and chemicals require high-temperature heat or hydrogen. Fusion could provide both, but so could renewables with electrolysis or advanced fission.",
+        "The strategic question is whether fusion can offer a cost-competitive and scalable solution. This depends on technical progress and market conditions.",
+        "The decision lens is that management should monitor developments in these sectors and assess fusion's potential role."
+      ],
+      "key_takeaways": [
+        "Fusion could serve hard-to-abate sectors, but alternatives exist.",
+        "Monitor developments in industrial decarbonization.",
+        "Assess fusion's potential role in hydrogen and synthetic fuel production.",
+        "Management should separate verified facts, directional scenarios and missing diligence items before committing capital, partnerships or market-entry resources."
+      ],
+      "visual_hint": "image-8"
+    },
+    {
+      "id": "section-9",
+      "title": "The next management agenda should focus on evidence quality and staged commitments",
+      "lead": "Sustained advantage will depend on converting technical progress into trusted commercial evidence.",
+      "paragraphs": [
+        "The innovation agenda should focus on cost reduction, reliability, and regulatory clarity. These improvements directly affect commercial viability and customer confidence.",
+        "Equally important is evidence quality. Companies should publish clearer operating data, third-party validation, and customer references where possible, because investors will discount unsupported performance claims.",
+        "For capital allocation, management should treat proof generation as a strategic workstream: select lighthouse projects, define measurable KPIs, and turn field performance into sales and financing collateral."
+      ],
+      "key_takeaways": [
+        "Focus on evidence quality and staged commitments.",
+        "Publish clear operating data and third-party validation.",
+        "Treat proof generation as a strategic workstream.",
+        "Confirm the available public record before committing capital."
+      ],
+      "visual_hint": "image-9"
+    }
+  ],
+  "insight_cards": [
+    {
+      "id": "card-1",
+      "title": "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040.",
+      "subtitle": "A client-ready strategic assessment based on public evidence, market signals, and management-consulting synthesis.",
+      "bullets": [
+        "Nuclear fusion is approaching technical feasibility, but commercial viability remains uncertain before 2040.",
+        "Current public evidence is insufficient to support high-conviction capital commitments.",
+        "The most credible near-term actions are low-cost validation, partner discussions, and monitoring of key milestones."
+      ],
+      "highlight_number": "3",
+      "highlight_label": "strategic levers",
+      "exhibit_label": "Strategic position"
+    },
+    {
+      "id": "card-2",
+      "title": "Larger commitments should be reserved for decision gates tied to verified evidence.",
+      "subtitle": "Leadership must be translated into credible customer proof.",
+      "bullets": [
+        "Larger commitments should be reserved for decision gates tied to verified evidence.",
+        "Where source evidence is incomplete, the report preserves the gap as a diligence task.",
+        "Management should fund near-term validation, protect medium-term options, and reserve larger commitments for decision gates."
+      ],
+      "highlight_number": "3",
+      "highlight_label": "proof points",
+      "exhibit_label": "Management agenda"
+    }
+  ],
+  "charts": [
+    {
+      "id": "chart-1",
+      "exhibit_no": "1",
+      "title": "Fusion technology maturity by design type",
+      "subtitle": "Indicative readiness level for key fusion approaches",
+      "type": "bar",
+      "categories": [
+        "Tokamak",
+        "Stellarator",
+        "Inertial confinement",
+        "Other"
+      ],
+      "series": [
+        {
+          "name": "Readiness score",
+          "values": [
+            7.0,
+            5.0,
+            4.0,
+            3.0
+          ]
+        }
+      ],
+      "x_label": "Design type",
+      "y_label": "Readiness score (1-10)",
+      "caption": "Tokamak designs are the most mature, but all approaches face significant challenges.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-2",
+      "exhibit_no": "2",
+      "title": "Projected LCOE for fusion vs other sources",
+      "subtitle": "Indicative range of levelized cost of energy projections",
+      "type": "line",
+      "categories": [
+        "2030",
+        "2035",
+        "2040",
+        "2045",
+        "2050"
+      ],
+      "series": [
+        {
+          "name": "Fusion (low)",
+          "values": [
+            0.08,
+            0.07,
+            0.06,
+            0.05,
+            0.04
+          ]
+        },
+        {
+          "name": "Fusion (high)",
+          "values": [
+            0.15,
+            0.13,
+            0.11,
+            0.09,
+            0.08
+          ]
+        },
+        {
+          "name": "Solar + storage",
+          "values": [
+            0.06,
+            0.055,
+            0.05,
+            0.045,
+            0.04
+          ]
+        }
+      ],
+      "x_label": "Year",
+      "y_label": "$/kWh",
+      "caption": "Fusion cost projections are highly uncertain and must compete with falling renewable costs.",
+      "source_note": "Illustrative synthesis from public cost benchmarks."
+    },
+    {
+      "id": "chart-3",
+      "exhibit_no": "3",
+      "title": "Fusion's potential role in energy systems",
+      "subtitle": "Qualitative assessment of strategic fit",
+      "type": "matrix",
+      "rows": [
+        "Baseload power",
+        "Grid stability",
+        "Hard-to-abate sectors",
+        "Hydrogen production"
+      ],
+      "columns": [
+        "Fusion",
+        "Renewables + storage",
+        "Fission",
+        "Fossil fuels + CCS"
+      ],
+      "values": [
+        [
+          4.0,
+          5.0,
+          4.0,
+          3.0
+        ],
+        [
+          3.0,
+          4.0,
+          3.0,
+          2.0
+        ],
+        [
+          4.0,
+          3.0,
+          3.0,
+          4.0
+        ],
+        [
+          4.0,
+          4.0,
+          3.0,
+          4.0
+        ]
+      ],
+      "caption": "Fusion could compete in multiple areas, but faces strong competition from existing technologies.",
+      "source_note": "BlueOcean qualitative assessment.",
+      "series": [
+        {
+          "name": "Value",
+          "values": [
+            [
+              4,
+              5,
+              4,
+              3
+            ],
+            [
+              3,
+              4,
+              3,
+              2
+            ],
+            [
+              4,
+              3,
+              3,
+              4
+            ],
+            [
+              4,
+              4,
+              3,
+              4
+            ]
+          ]
+        }
+      ],
+      "x_label": "",
+      "y_label": ""
+    },
+    {
+      "id": "chart-4",
+      "exhibit_no": "4",
+      "title": "National fusion investment by country",
+      "subtitle": "Indicative annual public funding (USD billions)",
+      "type": "bar",
+      "categories": [
+        "US",
+        "China",
+        "EU",
+        "UK",
+        "Japan"
+      ],
+      "series": [
+        {
+          "name": "Funding",
+          "values": [
+            1.5,
+            1.2,
+            1.0,
+            0.5,
+            0.4
+          ]
+        }
+      ],
+      "x_label": "Country",
+      "y_label": "USD billions",
+      "caption": "Public funding is concentrated in a few countries, with the US and China leading.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-5",
+      "exhibit_no": "5",
+      "title": "Private fusion investment trends",
+      "subtitle": "Indicative cumulative private investment (USD billions)",
+      "type": "line",
+      "categories": [
+        "2015",
+        "2017",
+        "2019",
+        "2021",
+        "2023"
+      ],
+      "series": [
+        {
+          "name": "Cumulative investment",
+          "values": [
+            0.5,
+            1.0,
+            2.0,
+            3.5,
+            5.0
+          ]
+        }
+      ],
+      "x_label": "Year",
+      "y_label": "USD billions",
+      "caption": "Private investment in fusion has grown significantly, but remains small relative to public funding.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-6",
+      "exhibit_no": "6",
+      "title": "Regulatory framework maturity by country",
+      "subtitle": "Indicative readiness score for fusion licensing",
+      "type": "bar",
+      "categories": [
+        "US",
+        "UK",
+        "EU",
+        "Japan",
+        "China"
+      ],
+      "series": [
+        {
+          "name": "Regulatory readiness",
+          "values": [
+            4.0,
+            3.0,
+            3.0,
+            2.0,
+            2.0
+          ]
+        }
+      ],
+      "x_label": "Country",
+      "y_label": "Readiness score (1-5)",
+      "caption": "Regulatory frameworks for fusion are still in early stages, with the US and UK leading.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-7",
+      "exhibit_no": "7",
+      "title": "Public perception of fusion energy",
+      "subtitle": "Indicative survey results on support for fusion",
+      "type": "bar",
+      "categories": [
+        "Support",
+        "Neutral",
+        "Oppose"
+      ],
+      "series": [
+        {
+          "name": "Percentage",
+          "values": [
+            55.0,
+            30.0,
+            15.0
+          ]
+        }
+      ],
+      "x_label": "Response",
+      "y_label": "Percentage",
+      "caption": "Public support for fusion is moderate, but opposition could grow with more information.",
+      "source_note": "Illustrative synthesis from public surveys."
+    },
+    {
+      "id": "chart-8",
+      "exhibit_no": "8",
+      "title": "Fusion's potential in hard-to-abate sectors",
+      "subtitle": "Indicative addressable market size (USD billions)",
+      "type": "bar",
+      "categories": [
+        "Steel",
+        "Cement",
+        "Chemicals",
+        "Hydrogen"
+      ],
+      "series": [
+        {
+          "name": "Market size",
+          "values": [
+            200.0,
+            150.0,
+            300.0,
+            100.0
+          ]
+        }
+      ],
+      "x_label": "Sector",
+      "y_label": "USD billions",
+      "caption": "Hard-to-abate sectors represent a large potential market for fusion, but competition is intense.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-9",
+      "exhibit_no": "9",
+      "title": "Management attention allocation for fusion strategy",
+      "subtitle": "Indicative priority index for strategic workstreams",
+      "type": "bar",
+      "categories": [
+        "Evidence quality",
+        "Cost roadmap",
+        "Regulatory engagement",
+        "Partner discussions",
+        "Technology monitoring"
+      ],
+      "series": [
+        {
+          "name": "Priority index",
+          "values": [
+            90.0,
+            80.0,
+            75.0,
+            70.0,
+            65.0
+          ]
+        }
+      ],
+      "x_label": "Workstream",
+      "y_label": "Priority index (0-100)",
+      "caption": "Management focus should be on evidence quality and cost roadmap to build conviction.",
+      "source_note": "BlueOcean synthesis."
+    },
+    {
+      "id": "chart-10",
+      "exhibit_no": "10",
+      "title": "Fusion commercialization timeline scenarios",
+      "subtitle": "Indicative probability of commercial operation by decade",
+      "type": "bar",
+      "categories": [
+        "2030s",
+        "2040s",
+        "2050s",
+        "Beyond 2050"
+      ],
+      "series": [
+        {
+          "name": "Probability",
+          "values": [
+            10.0,
+            40.0,
+            30.0,
+            20.0
+          ]
+        }
+      ],
+      "x_label": "Decade",
+      "y_label": "Probability (%)",
+      "caption": "The most likely timeline for commercial fusion is the 2040s, with significant uncertainty.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-11",
+      "exhibit_no": "11",
+      "title": "Key technical milestones for fusion",
+      "subtitle": "Indicative timeline of critical achievements",
+      "type": "line",
+      "categories": [
+        "2025",
+        "2030",
+        "2035",
+        "2040"
+      ],
+      "series": [
+        {
+          "name": "Net energy gain",
+          "values": [
+            0.0,
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Sustained plasma",
+          "values": [
+            0.0,
+            0.0,
+            1.0,
+            1.0
+          ]
+        },
+        {
+          "name": "Pilot plant",
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        }
+      ],
+      "x_label": "Year",
+      "y_label": "Milestone achieved (1=yes, 0=no)",
+      "caption": "Key technical milestones are expected in the 2030s, but timelines are uncertain.",
+      "source_note": "Illustrative synthesis from public sources."
+    },
+    {
+      "id": "chart-12",
+      "exhibit_no": "12",
+      "title": "Fusion investment risk-return profile",
+      "subtitle": "Indicative risk vs potential return for different investment types",
+      "type": "bubble",
+      "points": [
+        {
+          "label": "Venture capital",
+          "x": 80.0,
+          "y": 90.0,
+          "size": 50.0
+        },
+        {
+          "label": "Strategic partnership",
+          "x": 60.0,
+          "y": 70.0,
+          "size": 60.0
+        },
+        {
+          "label": "Public equity",
+          "x": 40.0,
+          "y": 50.0,
+          "size": 40.0
+        },
+        {
+          "label": "Corporate R&D",
+          "x": 30.0,
+          "y": 40.0,
+          "size": 70.0
+        }
+      ],
+      "x_label": "Risk level",
+      "y_label": "Potential return",
+      "caption": "Higher-risk investments offer higher potential returns, but require careful due diligence.",
+      "source_note": "BlueOcean scenario assessment."
+    }
+  ],
+  "references": [],
+  "_display_topic": "Nuclear fusion commercialization outlook and strategic implications",
+  "reference_institutions": []
+}
