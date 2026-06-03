@@ -1,0 +1,175 @@
+re/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 approaching technical
+
+Underfull \hbox (badness 4819) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion is approaching technical feasibilit
+y,
+
+Underfull \hbox (badness 3323) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 with several private ventures targeting commercial
+
+Underfull \hbox (badness 6708) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 demonstration by the early 2030s, yet significant
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 engineering, economic, and regulatory hurdles
+
+Underfull \hbox (badness 1496) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 remain. The commercial implication is that fusion
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 could provide baseload clean energy, potentially
+
+Underfull \hbox (badness 1584) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 disrupting renewables, fission, and fossil fuels, bu
+t
+
+Underfull \hbox (badness 1635) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 capital allocation decisions today must account for
+
+Underfull \hbox (badness 7631) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 a 10-20 year horizon to commercial deployment.
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 The primary risk is that fusion fails to achieve
+
+Underfull \hbox (badness 2970) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 cost parity with rapidly improving renewables and
+
+Underfull \hbox (badness 1609) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 leading private ventures for pilot partnerships, and
+
+
+Underfull \hbox (badness 1509) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 prepare a phased investment framework with clear
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+[]\TU/NotoSansCJKSC(0)/m/n/9 The commercial implication is that fusion could
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 renewables, fission, and fossil fuels, but capital
+
+Underfull \hbox (badness 1874) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 allocation decisions today must account for a 10-20
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+(./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (18 pages).
+Transcript written on report_latex.log.
+1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 approaching technical
+
+Underfull \hbox (badness 4819) in paragraph at lines 91--91
+[]\TU/NotoSansCJKSC(0)/m/n/9 Nuclear fusion is approaching technical feasibilit
+y,
+
+Underfull \hbox (badness 3323) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 with several private ventures targeting commercial
+
+Underfull \hbox (badness 6708) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 demonstration by the early 2030s, yet significant
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 engineering, economic, and regulatory hurdles
+
+Underfull \hbox (badness 1496) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 remain. The commercial implication is that fusion
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 could provide baseload clean energy, potentially
+
+Underfull \hbox (badness 1584) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 disrupting renewables, fission, and fossil fuels, bu
+t
+
+Underfull \hbox (badness 1635) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 capital allocation decisions today must account for
+
+Underfull \hbox (badness 7631) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 a 10-20 year horizon to commercial deployment.
+
+Underfull \hbox (badness 10000) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 The primary risk is that fusion fails to achieve
+
+Underfull \hbox (badness 2970) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 cost parity with rapidly improving renewables and
+
+Underfull \hbox (badness 1609) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 leading private ventures for pilot partnerships, and
+
+
+Underfull \hbox (badness 1509) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 prepare a phased investment framework with clear
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+[]\TU/NotoSansCJKSC(0)/m/n/9 The commercial implication is that fusion could
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 renewables, fission, and fossil fuels, but capital
+
+Underfull \hbox (badness 1874) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 allocation decisions today must account for a 10-20
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+(./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (18 pages).
+Transcript written on report_latex.log.
