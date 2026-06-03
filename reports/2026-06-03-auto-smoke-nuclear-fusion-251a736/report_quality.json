@@ -1,0 +1,54 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 15,
+        "issues": [
+          "executive_summary 不足，需要至少5条结论先行、可执行的关键发现。",
+          "sections 数量应为7-10个，当前为4个。",
+          "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第1章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第1章正文密度不足，当前约95字符；需要更接近标杆报告的完整分析页。",
+          "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第2章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第2章正文密度不足，当前约98字符；需要更接近标杆报告的完整分析页。",
+          "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第3章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第3章正文密度不足，当前约92字符；需要更接近标杆报告的完整分析页。",
+          "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第4章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第4章正文密度不足，当前约86字符；需要更接近标杆报告的完整分析页。",
+          "charts 数量应为14个，当前为0个。"
+        ],
+        "revision_error": "DeepSeek returned invalid JSON and automatic repair failed. Initial parse error: Expecting ',' delimiter. Nearby text:  ],       \"key_takeaways\": [\"Fusion could disrupt fossil fuels and nuclear fission.\", \"Incumbents should diversify and engage with fusion now.\", \"The extended timeline allows for strategic adaptation.\"],       \"visual_hint\": \"image-9\"     }: line 303 column 6 (char 42025). Repair parse error: Expecting ',' delimiter. Nearby text: tive for baseload applications. Fusion's advantage lies in its high capacity factor (potentially above 90%) and its ability to provide consistent power regardless of weather. This makes it a strong candidate for baseload generation an\"     }   ] }: line 191 column 5 (char 24006). Final local repair error: Expecting ',' delimiter. Nearby text: tive for baseload applications. Fusion's advantage lies in its high capacity factor (potentially above 90%) and its ability to provide consistent power regardless of weather. This makes it a strong candidate for baseload generation an\"     }   ] }: line 191 column 5 (char 24006). Raw response excerpt: {\n  \"report_title\": \"Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment\",\n  \"report_subtitle\": \"A CEO-Ready Assessment of Technology Readiness, Economic Viability, and Geopolitical Shifts\",\n  \"executive_summary\": [\n    \"Nuclear fusion energy is approaching a pivotal inflection point, with multiple private and public projects targeting net-energy gain and pilot plants by the early 2030s. The commercial implication is profound: fusion could provide abundant, low-carbon baseload power, reshaping electricity markets, industrial decarbonization, and energy geopolitics. However, evidence remains limited—key cost and timeline data are unverified, and engineering challenges persist. The primary risk is that fusion may not achieve cost parity with renewables and storage before 2050, or that regulatory and tritium supply bottlenecks delay deployment. Management should immediately form partnerships with leading private fusion firms, monitor milestone achievements, and prepare for a phased capital allocation strategy that balances near-term flexibility with long-term conviction.\",\n    \"Fusion technology readiness is advancing but remains below commercial"
+      }
+    ],
+    "final_issue_count": 1,
+    "final_issues": [
+      "段落开头重复、行文模式化，需要调整章节推进方式：for leadership tea、the commercial imp、the board-level qu、a practical readin"
+    ],
+    "fact_pack_validation_issues": [
+      "资料来源偏少，当前仅0个。",
+      "来源域名多样性不足，当前0个。",
+      "缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。",
+      "可抽取事实句不足，生成时必须显式说明证据边界。",
+      "可核验数字事实不足，需继续收集市场规模、财务、交易、产能、份额或时间数据。",
+      "可核验时间线不足，需补充年份、季度、政策发布时间或交易节点。"
+    ],
+    "source_count": 0,
+    "authoritative_source_count": 0
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": [
+    "段落开头重复、行文模式化，需要调整章节推进方式：for leadership tea、the commercial imp、the board-level qu、a practical readin"
+  ]
+}
