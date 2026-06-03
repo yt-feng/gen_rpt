@@ -367,8 +367,8 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
             issues.append(f"第{idx}章标题过于泛化，需要改成结论型标题：{title[:80]}")
         if len(lead) < 40:
             issues.append(f"第{idx}章 lead 过短，需要一句话说明该章结论和管理含义。")
-        min_paragraphs = 5 if language == "en" else 4
-        min_chars = 1700 if language == "en" else 850
+        min_paragraphs = 6 if language == "en" else 4
+        min_chars = 1900 if language == "en" else 850
         section_text_len = len(lead) + sum(len(p) for p in paragraphs)
         if len(paragraphs) < min_paragraphs:
             issues.append(f"第{idx}章正文段落不足，需要至少{min_paragraphs}段有证据支撑的连续分析。")
@@ -393,8 +393,8 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
     elif fact_pack.source_refs:
         issues.append("references 为空，需要引用已抓取资料中的真实来源。")
 
-    if len(charts) < 12 or len(charts) > 14:
-        issues.append(f"charts 数量应为12-14个，当前为{len(charts)}个。")
+    if len(charts) != 14:
+        issues.append(f"charts 数量应为14个，当前为{len(charts)}个。")
     chart_types = {str(chart.get("type") or "").lower() for chart in charts if isinstance(chart, dict)}
     if len(charts) >= 12 and len(chart_types & {"stacked_bar", "line", "matrix", "bubble"}) < 3:
         issues.append("charts 类型过于单一，需要混合使用 stacked_bar、line、matrix、bubble 等 LaTeX 原生图表。")
@@ -542,7 +542,7 @@ def build_revision_messages(
                 "action_plan must contain horizon, action, owner, success_metric, decision_gate. "
                 "risk_register must contain risk, trigger, management_action, evidence_boundary. "
                 "scenario_vignettes must contain title, situation, ceo_question, recommended_move, watchouts. "
-                "Charts must be 10-12 items, use only bar, stacked_bar, line, matrix or bubble, and must include LaTeX-renderable data arrays. References may only use URLs from the evidence pack."
+                "Charts must be exactly 14 items, use only bar, stacked_bar, line, matrix or bubble, and must include LaTeX-renderable data arrays. References may only use URLs from the evidence pack."
             ),
         },
     ]
@@ -1160,18 +1160,18 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         paragraphs = [p for p in raw_paragraphs if not _is_placeholder_section_paragraph(p, title)]
         if len(paragraphs) < 5:
             paragraphs.extend(_supplement_paragraphs(fact_pack, title=title, language=language, needed=5 - len(paragraphs)))
-        normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:7]
+        normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:8]
         used_blueprint_paragraphs = False
         if blueprint and _section_paragraphs_are_placeholder(normalized_paragraphs):
-            normalized_paragraphs = [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()][:7]
+            normalized_paragraphs = [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()][:8]
             used_blueprint_paragraphs = True
         if blueprint:
             normalized_paragraphs = _dedupe_texts(normalized_paragraphs + [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()])
-        target_paragraphs = 5 if language == "en" else 4
+        target_paragraphs = 6 if language == "en" else 4
         while len(normalized_paragraphs) < target_paragraphs:
             normalized_paragraphs.append(_completion_paragraph(title, len(normalized_paragraphs), language=language))
         normalized_paragraphs = _ensure_section_depth(title, normalized_paragraphs, fact_pack, language=language)
-        normalized["paragraphs"] = normalized_paragraphs[:7]
+        normalized["paragraphs"] = normalized_paragraphs[:8]
         lead = str(normalized.get("lead") or "").strip()
         if used_blueprint_paragraphs and blueprint and str(blueprint.get("lead") or "").strip():
             lead = str(blueprint.get("lead") or "").strip()
@@ -1196,7 +1196,7 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         section["id"] = f"section-{idx}"
         section["visual_hint"] = f"image-{idx}"
         section["key_takeaways"] = _ensure_takeaways(section.get("key_takeaways"), summary, idx - 1, language=language)
-        section["paragraphs"] = _ensure_section_depth(section["title"], [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()], fact_pack, language=language)[:7]
+        section["paragraphs"] = _ensure_section_depth(section["title"], [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()], fact_pack, language=language)[:8]
         section["lead"] = _clean_visible_text(str(section.get("lead") or ""))
         out.append(section)
     return out[:10]
@@ -1423,8 +1423,8 @@ def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: Li
 
 
 def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: ResearchFactPack, *, language: str) -> List[str]:
-    target_count = 5 if language == "en" else 4
-    target_chars = 1700 if language == "en" else 850
+    target_count = 6 if language == "en" else 4
+    target_chars = 1900 if language == "en" else 850
     cleaned = [p for p in _dedupe_texts(paragraphs) if not _is_placeholder_section_paragraph(p, title)]
     additions = _section_depth_additions(title, fact_pack, language=language)
     add_idx = 0
@@ -1433,6 +1433,8 @@ def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: Research
         add_idx += 1
     while len(cleaned) < target_count:
         cleaned.append(_completion_paragraph(title, len(cleaned), language=language))
+    while sum(len(p) for p in cleaned) < target_chars and len(cleaned) < 8:
+        cleaned = _dedupe_texts(cleaned + [_completion_paragraph(title, len(cleaned), language=language)])
     return _dedupe_texts(cleaned)
 
 

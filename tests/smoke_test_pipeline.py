@@ -95,7 +95,7 @@ def main() -> None:
     for required_key in ["executive_summary_text", "key_findings", "action_plan", "risk_register", "scenario_vignettes", "methodology_note", "author_credentials"]:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
-    assert len(report.get("charts", [])) >= 12
+    assert len(report.get("charts", [])) >= 14
     chart_types = {chart.get("type") for chart in report.get("charts", [])}
     assert {"line", "bubble", "matrix", "stacked_bar"} & chart_types
     assert len(chart_types) >= 3
@@ -140,8 +140,8 @@ def main() -> None:
         assert len(title) >= 12, f"section title is too thin: {title}"
         assert len(lead) >= 40 and not generic_title.match(lead), f"weak section lead survived: {lead}"
         paragraphs = [str(x or "").strip() for x in section.get("paragraphs", []) if str(x or "").strip()]
-        assert len(paragraphs) >= 5, f"section is too short: {title}"
-        assert len(lead) + sum(len(x) for x in paragraphs) >= 1550, f"section lacks benchmark-like depth: {title}"
+        assert len(paragraphs) >= 6, f"section is too short: {title}"
+        assert len(lead) + sum(len(x) for x in paragraphs) >= 1900, f"section lacks benchmark-like depth: {title}"
         for text in paragraphs:
             assert not generic_title.match(text), f"placeholder paragraph survived: {text}"
             assert not re.search(r"\bthis\s+(chapter|section)\s+(concludes|finds|shows|frames|explains|argues|will|is about)", text, re.I)
@@ -177,7 +177,7 @@ def main() -> None:
     latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
     assert r"Fusion\BOApos{}s timetable" in latex_text
     section_count = len(report.get("sections", []))
-    chart_pages = len(report.get("charts", []))
+    chart_pages = (len(report.get("charts", [])) + 1) // 2
     about_page = 4 + section_count + chart_pages
     assert f"\\bfseries {about_page:02d}" in latex_text and "About the research" in latex_text
     assert f"<td class='contents-page'>{about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text

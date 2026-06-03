@@ -102,11 +102,13 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
         if chart_index < len(charts):
-            parts.append(_exhibit_page([charts[chart_index]], assets, chart_index + 1))
-            chart_index += 1
+            group = charts[chart_index:chart_index + 2]
+            parts.append(_exhibit_page(group, assets, chart_index + 1))
+            chart_index += len(group)
     while chart_index < len(charts):
-        parts.append(_exhibit_page([charts[chart_index]], assets, chart_index + 1))
-        chart_index += 1
+        group = charts[chart_index:chart_index + 2]
+        parts.append(_exhibit_page(group, assets, chart_index + 1))
+        chart_index += len(group)
     parts.append(_disclaimer_page(refs))
     parts.append(_back_cover_page(_asset_path(assets.get('cover-background', ''))))
     parts.append('\\end{document}\n')
@@ -154,15 +156,15 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
 def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]]) -> List[tuple[str, str, List[str]]]:
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
     page_no = 4
-    chart_count = len(charts)
+    chart_pages_needed = (len(charts) + 1) // 2
     chart_pages = 0
     for idx, section in enumerate(sections, start=1):
         rows.append((f'{page_no:02d}', _strip_number_prefix(section.get('title', 'Section')), []))
         page_no += 1
-        if chart_pages < chart_count:
+        if chart_pages < chart_pages_needed:
             page_no += 1
             chart_pages += 1
-    while chart_pages < chart_count:
+    while chart_pages < chart_pages_needed:
         page_no += 1
         chart_pages += 1
     rows.append((f'{page_no:02d}', 'About the research', []))
@@ -304,7 +306,7 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
         chapter += '{\\sffamily\\fontsize{15}{20}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{9pt}\n'
     if len(paras) >= 2:
-        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:6]) + '\\end{multicols}\n'
+        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:8]) + '\\end{multicols}\n'
     else:
         chapter += _paragraph_group(paras)
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
@@ -427,12 +429,19 @@ def _exhibit_block(chart: Dict[str, Any], assets: Dict[str, str], idx: int, *, c
 
 
 def _exhibit_detail_block(chart: Dict[str, Any], caption: str, subtitle: str, *, compact: bool) -> str:
-    if compact:
-        return ''
     notes = _exhibit_notes(chart, caption, subtitle)
     table = _exhibit_value_table(chart)
     if not notes and not table:
         return ''
+    if compact:
+        note = notes[0] if notes else ''
+        if not note:
+            return ''
+        return (
+            '\\vspace{1pt}\\noindent\\begin{minipage}[t]{0.92\\linewidth}\n'
+            '{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 210)) + '}\\par\n'
+            '\\end{minipage}\\par\\vspace{1pt}\n'
+        )
     note_text = ''.join('{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 260)) + '}\\par\\vspace{2pt}\n' for note in notes[:2])
     if table:
         return (
@@ -559,7 +568,7 @@ def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
     if not categories or not series:
         return ''
     max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
-    width, height = (13.2, 3.4) if compact else (16.2, 9.2)
+    width, height = (13.2, 4.4) if compact else (16.2, 9.2)
     chart_h = height - 1.35
     left = 0.7
     group_w = (width - left - .35) / max(1, len(categories))
@@ -592,7 +601,7 @@ def _native_stacked_bar(chart: Dict[str, Any], *, compact: bool) -> str:
         return ''
     totals = [sum(max(0.0, item['values'][ci] if ci < len(item['values']) else 0.0) for item in series) for ci in range(len(categories))]
     max_value = max(totals + [1.0])
-    width, height = (13.2, 3.5) if compact else (16.2, 9.0)
+    width, height = (13.2, 4.4) if compact else (16.2, 9.0)
     chart_h = height - 1.35
     left = 0.8
     group_w = (width - left - .4) / max(1, len(categories))
@@ -622,7 +631,7 @@ def _native_line(chart: Dict[str, Any], *, compact: bool) -> str:
     if len(categories) < 2 or not series:
         return ''
     max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
-    width, height = (13.2, 3.6) if compact else (16.2, 9.0)
+    width, height = (13.2, 4.4) if compact else (16.2, 9.0)
     left, bottom = .8, .78
     chart_w, chart_h = width - 1.25, height - 1.45
     colors = ['BOGreen', 'BOBlue', 'BONavy']
@@ -656,7 +665,7 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
     points = _bubble_points(chart)[:6 if compact else 8]
     if not points:
         return ''
-    width, height = (13.2, 3.5) if compact else (15.6, 6.6)
+    width, height = (13.2, 4.3) if compact else (15.6, 6.6)
     left, bottom = .85, .65
     chart_w, chart_h = width - 1.35, height - 1.25
     body = [_tikz_begin(width, height)]

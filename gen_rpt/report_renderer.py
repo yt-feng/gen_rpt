@@ -71,6 +71,7 @@ li {{ margin-bottom:.034in; }}
 .takeaway {{ border-left:.035in solid var(--accent); background:var(--panel); padding:.075in .095in; margin:.085in 0 .065in; page-break-inside:avoid; font-size:7.4pt; line-height:1.22; }}
 .takeaway strong {{ display:block; color:var(--accent2); font-size:6.4pt; letter-spacing:.06em; text-transform:uppercase; margin-bottom:.025in; }}
 .exhibit-img {{ width:100%; height:6.82in; object-fit:contain; display:block; margin:.12in 0 .08in; }}
+.exhibit-img.compact {{ height:2.62in; margin:.045in 0 .035in; }}
 .figure-note {{ color:var(--muted); font-size:7.4pt; line-height:1.28; }}
 .scenario-box {{ border-top:.055in solid var(--accent); background:#fff; box-shadow:0 0 0 1px var(--line); padding:.18in .20in; min-height:3.9in; }}
 .scenario-box p {{ font-size:9.2pt; line-height:1.35; }}
@@ -256,15 +257,15 @@ def _render_contents(parts: List[str], sections: List[Dict[str, Any]], summary: 
 def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]], labels: Dict[str, str]) -> List[tuple[str, str, List[str]]]:
     rows: List[tuple[str, str, List[str]]] = [("03", _agenda_heading(summary, sections), [])]
     page_no = 4
-    chart_count = len(charts)
+    chart_pages_needed = (len(charts) + 1) // 2
     chart_pages = 0
     for idx, section in enumerate(sections, start=1):
         rows.append((f"{page_no:02d}", _strip_number_prefix(section.get("title", "Section")), []))
         page_no += 1
-        if chart_pages < chart_count:
+        if chart_pages < chart_pages_needed:
             page_no += 1
             chart_pages += 1
-    while chart_pages < chart_count:
+    while chart_pages < chart_pages_needed:
         page_no += 1
         chart_pages += 1
     rows.append((f"{page_no:02d}", labels["about"], []))
@@ -342,7 +343,8 @@ def _render_exhibit(parts: List[str], charts: List[Dict[str, Any]], assets: Dict
         if subtitle:
             parts.append(f"<p class='figure-note'>{html.escape(_shorten(subtitle, 230))}</p>")
         if path:
-            parts.append(f"<img class='exhibit-img' src='{html.escape(path)}' alt='' />")
+            compact_class = " compact" if len(charts) > 1 else ""
+            parts.append(f"<img class='exhibit-img{compact_class}' src='{html.escape(path)}' alt='' />")
         else:
             parts.append("<div class='placeholder'></div>")
         if caption:

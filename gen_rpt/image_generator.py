@@ -232,6 +232,7 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
             draw.ellipse((x - 14, y - 14, x + 14, y + 14), fill=node_color)
 
     if kind == "section":
+        draw.rectangle((0, 0, width, int(height * 0.66)), fill=(246, 249, 252, 176))
         _draw_scene_overlay(draw, scene_type, width, height, line_color, node_color, electric, variant)
 
     img = img.filter(ImageFilter.SMOOTH_MORE)
@@ -274,7 +275,7 @@ def _draw_scene_overlay(draw: ImageDraw.ImageDraw, scene: str, width: int, heigh
     accent = electric
     jitter = (variant % 31) - 15
     if scene == "boardroom":
-        table_y = int(height * 0.72)
+        table_y = int(height * 0.48)
         draw.rounded_rectangle((150, table_y, 1040, table_y + 78), radius=18, outline=ink, width=4, fill=(255, 255, 255, 42))
         for i, x in enumerate([230, 390, 560, 730, 900]):
             y = table_y - 72 + (i % 2) * 18
@@ -282,29 +283,29 @@ def _draw_scene_overlay(draw: ImageDraw.ImageDraw, scene: str, width: int, heigh
             draw.line((x, y + 24, x + jitter, table_y - 4), fill=ink, width=4)
         draw.rectangle((505, table_y + 14, 690, table_y + 50), outline=accent, width=3)
     elif scene == "economics":
-        base = int(height * 0.78)
+        base = int(height * 0.58)
         for i, x in enumerate(range(180, 1030, 120)):
             h = 70 + ((i * 37 + variant) % 210)
             draw.rectangle((x, base - h, x + 58, base), fill=(0, 166, 81, 94), outline=ink, width=2)
         draw.line((140, base, 1110, base), fill=ink, width=4)
         draw.line((170, base - 260, 1040, base - 80), fill=accent, width=5)
     elif scene == "policy":
-        ground = int(height * 0.76)
+        ground = int(height * 0.58)
         draw.rectangle((220, ground - 180, 980, ground - 130), outline=ink, width=4, fill=(255, 255, 255, 46))
         for x in range(280, 940, 110):
             draw.rectangle((x, ground - 130, x + 45, ground + 40), outline=ink, width=4)
         draw.polygon([(170, ground - 180), (600, ground - 300), (1030, ground - 180)], outline=ink, fill=(255, 255, 255, 32))
         draw.line((180, ground + 42, 1040, ground + 42), fill=accent, width=4)
     elif scene == "network":
-        nodes = [(170, 610), (330, 470), (500, 560), (690, 390), (860, 540), (1040, 430), (1110, 640)]
+        nodes = [(170, 405), (330, 285), (500, 365), (690, 230), (860, 350), (1040, 275), (1110, 430)]
         nodes = [(x, y + ((variant + i * 13) % 25) - 12) for i, (x, y) in enumerate(nodes)]
         for a, b in zip(nodes, nodes[1:]):
             draw.line((*a, *b), fill=ink, width=5)
         for x, y in nodes:
             draw.ellipse((x - 26, y - 26, x + 26, y + 26), fill=fill, outline=accent, width=3)
-        draw.rounded_rectangle((410, 690, 770, 760), radius=15, outline=ink, width=4, fill=(255, 255, 255, 48))
+        draw.rounded_rectangle((410, 465, 770, 535), radius=15, outline=ink, width=4, fill=(255, 255, 255, 48))
     elif scene == "infrastructure":
-        horizon = int(height * 0.72)
+        horizon = int(height * 0.54)
         for x in [180, 420, 670, 930]:
             draw.line((x, horizon + 90, x + 70, horizon - 170), fill=ink, width=5)
             draw.line((x + 70, horizon - 170, x + 140, horizon + 90), fill=ink, width=5)
@@ -312,13 +313,13 @@ def _draw_scene_overlay(draw: ImageDraw.ImageDraw, scene: str, width: int, heigh
         for y in [horizon - 120, horizon - 70, horizon - 20]:
             draw.line((120, y, 1160, y + ((variant % 21) - 10)), fill=ink, width=2)
     elif scene == "dashboard":
-        for i, (x, y) in enumerate([(150, 510), (430, 430), (710, 530), (960, 450)]):
+        for i, (x, y) in enumerate([(150, 275), (430, 215), (710, 300), (960, 235)]):
             draw.rounded_rectangle((x, y, x + 210, y + 150), radius=18, outline=ink, width=4, fill=(255, 255, 255, 48))
             draw.line((x + 24, y + 105, x + 72, y + 70, x + 120, y + 88, x + 176, y + 44), fill=accent, width=5)
             draw.ellipse((x + 158, y + 28, x + 188, y + 58), fill=fill)
     elif scene == "evidence":
         for i, x in enumerate([160, 370, 580, 790, 1000]):
-            y = 430 + (i % 2) * 70
+            y = 250 + (i % 2) * 55
             draw.rounded_rectangle((x, y, x + 145, y + 220), radius=16, outline=ink, width=4, fill=(255, 255, 255, 50))
             draw.line((x + 24, y + 56, x + 118, y + 56), fill=accent, width=5)
             draw.line((x + 24, y + 106, x + 100, y + 106), fill=ink, width=3)

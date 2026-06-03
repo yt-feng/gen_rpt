@@ -42,9 +42,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Fast local quality audit for generated gen_rpt reports.")
     parser.add_argument("report_dir", type=Path, help="Report output directory containing report_payload.json and report_latex.tex.")
     parser.add_argument("--benchmark-pdf", type=Path, default=None, help="Optional benchmark PDF for page/text-density metrics.")
-    parser.add_argument("--min-section-chars", type=int, default=1550)
-    parser.add_argument("--min-section-paragraphs", type=int, default=5)
-    parser.add_argument("--min-charts", type=int, default=12)
+    parser.add_argument("--min-section-chars", type=int, default=1900)
+    parser.add_argument("--min-section-paragraphs", type=int, default=6)
+    parser.add_argument("--min-charts", type=int, default=14)
     parser.add_argument("--warn-only", action="store_true")
     args = parser.parse_args()
 
@@ -113,8 +113,18 @@ def main() -> int:
     metrics["html_exists"] = html_path.exists()
     metrics["markdown_exists"] = md_path.exists()
     metrics["tex_exhibits"] = len(re.findall(r"\bEXHIBIT\s+\d+", rendered_text, flags=re.I))
+    if tex_path.exists():
+        tex_text = tex_path.read_text(encoding="utf-8", errors="ignore")
+        exhibit_pages = [len(re.findall(r"\bEXHIBIT\s+\d+", page, flags=re.I)) for page in tex_text.split("\\clearpage")]
+        metrics["tex_exhibit_pages"] = sum(1 for count in exhibit_pages if count > 0)
+        metrics["tex_single_exhibit_pages"] = sum(1 for count in exhibit_pages if count == 1)
     if tex_path.exists() and metrics["tex_exhibits"] < len(charts):
         issues.append(f"TeX exhibit count is below chart count ({metrics['tex_exhibits']} < {len(charts)})")
+    if len(charts) >= args.min_charts and metrics.get("tex_single_exhibit_pages", 0) > max(1, metrics.get("tex_exhibit_pages", 0) // 3):
+        issues.append(
+            f"TeX exhibit pages are too sparse: {metrics.get('tex_single_exhibit_pages')} single-exhibit pages across "
+            f"{metrics.get('tex_exhibit_pages')} exhibit pages"
+        )
     lower_rendered = rendered_text.lower()
     leaked_labels = [label for label in META_LABELS if label in lower_rendered]
     if leaked_labels:
@@ -128,6 +138,15 @@ def main() -> int:
         report_pdf = report_dir / "report_latex.pdf"
         if report_pdf.exists():
             metrics["report_pdf"] = pdf_metrics(report_pdf)
+            benchmark = metrics["benchmark_pdf"]
+            report = metrics["report_pdf"]
+            if benchmark.get("available") and report.get("available"):
+                min_median = int(benchmark.get("median_chars_per_page", 0) * 0.88)
+                if min_median and report.get("median_chars_per_page", 0) < min_median:
+                    issues.append(
+                        "PDF text density is below benchmark threshold: "
+                        f"{report.get('median_chars_per_page')} median chars/page < {min_median}"
+                    )
 
     return emit(issues, metrics, args.warn_only)
 

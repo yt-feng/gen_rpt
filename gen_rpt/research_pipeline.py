@@ -222,8 +222,8 @@ Hard constraints:
 - scenario_vignettes: at least 1 CEO decision scenario with title, situation, ceo_question, recommended_move, watchouts.
 - methodology_note: describe public source collection, source limits, cross-checking and validation gaps. Do not describe internal consulting frameworks.
 - author_credentials: 1-3 team/institution credentials for the final report.
-- sections: 7-10 items, each with 5-7 coherent paragraphs and distinct analysis. Later sections must be as complete as earlier sections.
-- charts: 12-14 items, using a mix of bar, stacked_bar, line, matrix and bubble only. Do not use pie or donut charts. Every bar, stacked_bar and line chart must include at least 3 categories and multiple non-zero data points; avoid single-bar or single-point charts. Every chart must include concrete data arrays, categories, labels and source_note; do not provide decorative or generic visuals.
+- sections: 7-10 items, each with 6-8 coherent paragraphs and distinct analysis. Later sections must be as complete as earlier sections.
+- charts: exactly 14 items, using a mix of bar, stacked_bar, line, matrix and bubble only. Do not use pie or donut charts. Every bar, stacked_bar and line chart must include at least 3 categories and multiple non-zero data points; avoid single-bar or single-point charts. Every chart must include concrete data arrays, categories, labels and source_note; do not provide decorative or generic visuals.
 - Do not output visible process labels such as Future action agenda, What to watch, risk register, action plan, management implication, evidence boundary, internal framework or stress test. Use organic CEO-facing prose only.
 - Do not write self-referential process language such as "This chapter concludes", "This section concludes", "This chapter shows", "This section finds", "this chapter frames the topic" or similar wording. Write the conclusion directly from the reader's perspective.
 - Every section must have visual_hint set to image-N matching the section number whenever possible (image-1, image-2, ...). This lets the renderer use topic-specific Pollinations visuals.
@@ -249,7 +249,7 @@ Hard constraints:
 写作前使用内部高管战略压力测试：市场竞胜、真实优势、竞争场景颗粒度、趋势时点、独到证据、不确定性、承诺与灵活性、偏见、执行决心和行动落地。正式报告不得展示或命名该内部框架。
 executive_summary_text 写成一段结论先行的执行摘要；key_findings 4-6 条，每条包含 finding、evidence、management_implication；action_plan 3-5 条，每条包含 horizon、action、owner、success_metric、decision_gate；risk_register 4-6 条，每条包含 risk、trigger、management_action、evidence_boundary；scenario_vignettes 至少 1 个 CEO 决策场景。
 methodology_note 只说明公开资料、来源边界、交叉校验和待核验缺口，不展示内部咨询框架。
-sections 7-10 项；charts 10-12 项，混合使用 bar、stacked_bar、line、matrix、bubble，不要使用 pie/donut。每个 chart 必须包含具体数据数组、分类、标签和 source_note，不要生成装饰性或泛化图片。每个 section 的 visual_hint 尽量使用对应 image-N。
+sections 7-10 项，每节 6-8 段且后半部分不能变薄；charts 固定 14 项，混合使用 bar、stacked_bar、line、matrix、bubble，不要使用 pie/donut。每个 chart 必须包含具体数据数组、分类、标签和 source_note，不要生成装饰性或泛化图片。每个 section 的 visual_hint 尽量使用对应 image-N。
 正式报告不得出现 Future action agenda、What to watch、risk register、action plan、management implication、evidence boundary、internal framework、stress test 等显性过程标签；只用自然的 CEO 读者视角表达。
 事实边界：只能基于证据包和资料摘录写作；有可核验日期、数字、金额、份额、产能、财务或政策节点时必须纳入；资料未支持的判断要写清证据边界，不能编造数字或事件。若 ROI、市场规模、成本或份额数据缺失，用 [插入经核验数据] 这类占位符和核验任务表达，不要编造。
 """
