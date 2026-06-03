@@ -398,10 +398,11 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
     chapter += _heading(title)
     if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
         chapter += '{\\sffamily\\fontsize{15}{20}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{9pt}\n'
-    if len(paras) >= 2:
-        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:8]) + '\\end{multicols}\n'
+    chapter_paras = paras[:6]
+    if len(chapter_paras) >= 2:
+        chapter += '\\begin{multicols}{2}\n' + _paragraph_group(chapter_paras) + '\\end{multicols}\n'
     else:
-        chapter += _paragraph_group(paras)
+        chapter += _paragraph_group(chapter_paras)
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
