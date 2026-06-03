@@ -447,7 +447,8 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
             section = {"title": str(section), "lead": "", "paragraphs": [str(section)]}
         section["id"] = str(section.get("id") or f"section-{idx}")
         section["visual_hint"] = str(section.get("visual_hint") or f"image-{idx}")
-        paragraphs = [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()]
+        raw_paragraphs = [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()]
+        paragraphs = [p for p in raw_paragraphs if not _is_placeholder_section_paragraph(p, str(section.get("title") or ""))]
         if len(paragraphs) < 3:
             paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
         paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)
@@ -1097,6 +1098,7 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         title = str(section.get("title") or "").strip()
         if _is_generic_title(title):
             title = _fallback_section_title(idx, blueprints, topic, fact_pack, language=language)
+        blueprint = _section_blueprint_for_title(title, blueprints, idx)
         key = re.sub(r"\W+", "", title.lower())[:120]
         if not title or key in seen:
             continue
@@ -1105,16 +1107,25 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         normalized["title"] = title
         normalized["id"] = str(normalized.get("id") or f"section-{len(out) + 1}")
         normalized["visual_hint"] = str(normalized.get("visual_hint") or f"image-{len(out) + 1}")
-        paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
+        raw_paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
+        paragraphs = [p for p in raw_paragraphs if not _is_placeholder_section_paragraph(p, title)]
         if len(paragraphs) < 3:
             paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
         normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:5]
+        used_blueprint_paragraphs = False
+        if blueprint and _section_paragraphs_are_placeholder(normalized_paragraphs):
+            normalized_paragraphs = [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()][:5]
+            used_blueprint_paragraphs = True
         while len(normalized_paragraphs) < 3:
             normalized_paragraphs.append(_completion_paragraph(title, len(normalized_paragraphs), language=language))
         normalized["paragraphs"] = normalized_paragraphs[:5]
         lead = str(normalized.get("lead") or "").strip()
+        if used_blueprint_paragraphs and blueprint and str(blueprint.get("lead") or "").strip():
+            lead = str(blueprint.get("lead") or "").strip()
         if len(lead) < 40 or _is_generic_title(lead):
             normalized["lead"] = _derive_section_lead(title, normalized["paragraphs"], language=language)
+        else:
+            normalized["lead"] = lead
         normalized["key_takeaways"] = _ensure_takeaways(normalized.get("key_takeaways"), summary, len(out), language=language)
         out.append(normalized)
         if len(out) >= 10:
@@ -1143,6 +1154,30 @@ def _fallback_section_title(idx: int, blueprints: List[Dict[str, Any]], topic: s
     if language == "zh":
         return f"{topic_text}应转化为分阶段管理判断"
     return f"{topic_text} should be translated into staged management decisions"
+
+
+def _section_blueprint_for_title(title: str, blueprints: List[Dict[str, Any]], idx: int) -> Dict[str, Any]:
+    title_key = re.sub(r"\W+", "", str(title or "").lower())[:120]
+    for blueprint in blueprints:
+        if re.sub(r"\W+", "", str(blueprint.get("title") or "").lower())[:120] == title_key:
+            return blueprint
+    if blueprints:
+        return blueprints[(idx - 1) % len(blueprints)]
+    return {}
+
+
+def _section_paragraphs_are_placeholder(paragraphs: List[str]) -> bool:
+    if not paragraphs:
+        return True
+    weak_markers = (
+        "source backup should be used",
+        "validate this section before it is used for a decision",
+        "until stronger source support is available",
+        "directional input rather than a trigger",
+        "public source backup should be used",
+    )
+    weak_count = sum(1 for paragraph in paragraphs if any(marker in str(paragraph).lower() for marker in weak_markers))
+    return weak_count >= max(2, len(paragraphs) - 1)
 
 
 def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, language: str) -> List[Dict[str, Any]]:
@@ -1312,7 +1347,7 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
 
             opening = re.sub(r"^\W+", "", text)[:18].lower()
             count = seen_counts.get(opening, 0)
-            if opening and count >= 2:
+            if opening and count >= 1:
                 alt = prefixes[(section_idx + para_idx + count) % len(prefixes)]
                 if language == "en":
                     text = alt + text[0].lower() + text[1:] if text else text
@@ -1333,9 +1368,25 @@ def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: Li
 
 
 def _derive_section_lead(title: str, paragraphs: List[str], *, language: str) -> str:
+    if language == "en":
+        subject = _lower_first(_shorten(str(title or "this issue").rstrip("."), 110))
+        return _shorten(f"The CEO lens is how {subject} changes timing, capital exposure and the next validation gate.", 220)
     if paragraphs:
-        return _shorten(paragraphs[0], 220 if language == "en" else 120)
+        candidate = next((p for p in paragraphs if len(p) >= 30 and not _is_placeholder_section_paragraph(p, title)), "")
+        if candidate:
+            return _shorten(candidate, 120)
     return ("This section translates the issue into management implications and decision gates." if language == "en" else "本章将议题转化为管理含义和决策门槛。")
+
+
+def _is_placeholder_section_paragraph(text: str, title: str = "") -> bool:
+    cleaned = str(text or "").strip()
+    if not cleaned:
+        return True
+    normalized = re.sub(r"\W+", "", cleaned.lower())
+    title_key = re.sub(r"\W+", "", str(title or "").lower())
+    if title_key and normalized == title_key:
+        return True
+    return bool(re.fullmatch(r"(section|chapter)[\s_#-]*\d*", cleaned, flags=re.I))
 
 
 def _ensure_takeaways(value: Any, summary: List[str], idx: int, *, language: str) -> List[str]:

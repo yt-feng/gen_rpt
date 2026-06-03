@@ -106,10 +106,20 @@ def main() -> None:
             assert len(labels) >= 3
             assert not all(re.match(r"^(point|item|a)([\s_#-]*\d*)?$", label, re.I) for label in labels)
     generic_title = re.compile(r"^(section|chapter)\s*\d*$", re.I)
+    long_para_keys = set()
     for section in report.get("sections", []):
         title = str(section.get("title") or "").strip()
+        lead = str(section.get("lead") or "").strip()
         assert not generic_title.match(title), f"generic section title survived: {title}"
         assert len(title) >= 12, f"section title is too thin: {title}"
+        assert len(lead) >= 40 and not generic_title.match(lead), f"weak section lead survived: {lead}"
+        for paragraph in section.get("paragraphs", []):
+            text = str(paragraph or "").strip()
+            assert not generic_title.match(text), f"placeholder paragraph survived: {text}"
+            if len(text) >= 120:
+                key = re.sub(r"\W+", "", text.lower())[:220]
+                assert key not in long_para_keys, f"duplicate long paragraph survived: {text[:90]}"
+                long_para_keys.add(key)
     report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), [])
 
     asset_map = copy_or_generate_brand_assets(assets)
