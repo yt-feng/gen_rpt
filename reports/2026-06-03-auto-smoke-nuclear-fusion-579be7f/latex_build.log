@@ -1,0 +1,185 @@
+f/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 2689) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 pursuit to a commercially relevant energy option, wi
+th
+
+Underfull \hbox (badness 1968) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 as plasma confinement and materials durability persi
+st,
+
+Underfull \hbox (badness 1297) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 the pace of progress suggests that fusion could achi
+eve
+
+Underfull \hbox (badness 2626) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 ing fossil fuels and fission. For senior executives,
+ the
+
+Underfull \hbox (badness 1803) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 high-reward opportunity that requires strategic pati
+ence
+[3] [4] [5] [6] [7]
+Underfull \hbox (badness 2181) in paragraph at lines 186--186
+[]\TU/NotoSansCJKSC(0)/m/n/17 Should we make a signifi-
+
+Underfull \hbox (badness 2351) in paragraph at lines 188--188
+\TU/NotoSansCJKSC(0)/m/n/9 consortia to secure technology licenses. Your compan
+y\TU/DejaVuSans(0)/m/n/9 '\TU/NotoSansCJKSC(0)/m/n/9 s
+
+Underfull \hbox (badness 1281) in paragraph at lines 189--189
+\TU/NotoSansCJKSC(0)/b/n/9 milestone-based funding, while simultaneously buildi
+ng
+
+Underfull \hbox (badness 4429) in paragraph at lines 190--190
+[]\TU/NotoSansCJKSC(0)/m/n/8 Avoid over-committing to a single technology appro
+ach; ensure
+
+Underfull \hbox (badness 1248) in paragraph at lines 190--190
+\TU/NotoSansCJKSC(0)/m/n/8 regulatory developments closely, as licensing delays
+ could extend
+[8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 5302) in paragraph at lines 383--384
+[]\TU/NotoSansCJKSC(0)/m/n/9 Evaluate and pilot a partnership with one or two
+
+Underfull \hbox (badness 1558) in paragraph at lines 383--384
+\TU/NotoSansCJKSC(0)/m/n/9 leading fusion startups for technology access or co-
+
+
+Underfull \hbox (badness 1394) in paragraph at lines 389--390
+[]\TU/NotoSansCJKSC(0)/m/n/9 Technical risk: Key physics and engineering chal-
+
+Underfull \hbox (badness 2961) in paragraph at lines 389--390
+\TU/NotoSansCJKSC(0)/m/n/9 lenges may delay or prevent commercial fusion..
+
+Underfull \hbox (badness 1655) in paragraph at lines 390--391
+[]\TU/NotoSansCJKSC(0)/m/n/9 Economic risk: Fusion may not achieve cost par-
+
+Underfull \hbox (badness 3000) in paragraph at lines 390--391
+\TU/NotoSansCJKSC(0)/m/n/9 ity with renewables and storage, limiting market
+
+Underfull \hbox (badness 2027) in paragraph at lines 390--391
+\TU/NotoSansCJKSC(0)/m/n/9 adoption.. Watch for lCOE projections for fusion
+
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
+\TU/NotoSansCJKSC(0)/m/n/9 standards could slow deployment and increase
+
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
+\TU/NotoSansCJKSC(0)/m/n/9 framework adopted in key markets by 2030..
+
+Underfull \hbox (badness 1558) in paragraph at lines 392--393
+\TU/NotoSansCJKSC(0)/m/n/9 new dependencies.. Watch for fusion technology
+[19] [20] [21] (./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
+ric/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 2689) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 pursuit to a commercially relevant energy option, wi
+th
+
+Underfull \hbox (badness 1968) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 as plasma confinement and materials durability persi
+st,
+
+Underfull \hbox (badness 1297) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 the pace of progress suggests that fusion could achi
+eve
+
+Underfull \hbox (badness 2626) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 ing fossil fuels and fission. For senior executives,
+ the
+
+Underfull \hbox (badness 1803) in paragraph at lines 105--105
+\TU/NotoSansCJKSC(0)/m/n/9 high-reward opportunity that requires strategic pati
+ence
+[3] [4] [5] [6] [7]
+Underfull \hbox (badness 2181) in paragraph at lines 186--186
+[]\TU/NotoSansCJKSC(0)/m/n/17 Should we make a signifi-
+
+Underfull \hbox (badness 2351) in paragraph at lines 188--188
+\TU/NotoSansCJKSC(0)/m/n/9 consortia to secure technology licenses. Your compan
+y\TU/DejaVuSans(0)/m/n/9 '\TU/NotoSansCJKSC(0)/m/n/9 s
+
+Underfull \hbox (badness 1281) in paragraph at lines 189--189
+\TU/NotoSansCJKSC(0)/b/n/9 milestone-based funding, while simultaneously buildi
+ng
+
+Underfull \hbox (badness 4429) in paragraph at lines 190--190
+[]\TU/NotoSansCJKSC(0)/m/n/8 Avoid over-committing to a single technology appro
+ach; ensure
+
+Underfull \hbox (badness 1248) in paragraph at lines 190--190
+\TU/NotoSansCJKSC(0)/m/n/8 regulatory developments closely, as licensing delays
+ could extend
+[8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 5302) in paragraph at lines 383--384
+[]\TU/NotoSansCJKSC(0)/m/n/9 Evaluate and pilot a partnership with one or two
+
+Underfull \hbox (badness 1558) in paragraph at lines 383--384
+\TU/NotoSansCJKSC(0)/m/n/9 leading fusion startups for technology access or co-
+
+
+Underfull \hbox (badness 1394) in paragraph at lines 389--390
+[]\TU/NotoSansCJKSC(0)/m/n/9 Technical risk: Key physics and engineering chal-
+
+Underfull \hbox (badness 2961) in paragraph at lines 389--390
+\TU/NotoSansCJKSC(0)/m/n/9 lenges may delay or prevent commercial fusion..
+
+Underfull \hbox (badness 1655) in paragraph at lines 390--391
+[]\TU/NotoSansCJKSC(0)/m/n/9 Economic risk: Fusion may not achieve cost par-
+
+Underfull \hbox (badness 3000) in paragraph at lines 390--391
+\TU/NotoSansCJKSC(0)/m/n/9 ity with renewables and storage, limiting market
+
+Underfull \hbox (badness 2027) in paragraph at lines 390--391
+\TU/NotoSansCJKSC(0)/m/n/9 adoption.. Watch for lCOE projections for fusion
+
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
+\TU/NotoSansCJKSC(0)/m/n/9 standards could slow deployment and increase
+
+Underfull \hbox (badness 10000) in paragraph at lines 391--392
+\TU/NotoSansCJKSC(0)/m/n/9 framework adopted in key markets by 2030..
+
+Underfull \hbox (badness 1558) in paragraph at lines 392--393
+\TU/NotoSansCJKSC(0)/m/n/9 new dependencies.. Watch for fusion technology
+[19] [20] [21] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
