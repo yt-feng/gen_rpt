@@ -192,6 +192,10 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
             except Exception:
                 fetched = FetchedPage("", result.url, "", "error", "")
             if len(fetched.content) < 200:
+                fallback_content = _snippet_content(result)
+                if fallback_content:
+                    fetched = FetchedPage(result.title, result.url, fallback_content, "snippet", "text/plain")
+            if len(fetched.content) < 200:
                 continue
             source_url = fetched.url or result.url
             docs.append(
@@ -236,11 +240,13 @@ def _direct_source_candidates(query: str) -> List[SearchResult]:
         candidates.extend(
             [
                 ("U.S. DOE Fusion Energy Sciences", "https://science.osti.gov/fes", "Authoritative public source on U.S. fusion research programs."),
-                ("DOE Milestone-Based Fusion Development Program", "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program", "Public program page for private fusion commercialization milestones."),
-                ("IAEA Fusion Energy", "https://www.iaea.org/topics/energy/fusion", "International Atomic Energy Agency overview of fusion energy and development status."),
-                ("ITER project", "https://www.iter.org/", "International fusion project source for tokamak construction, milestones and technical scope."),
-                ("National Academies: Bringing Fusion to the U.S. Grid", "https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid", "Independent study program on fusion commercialization and grid deployment."),
-                ("Fusion Industry Association reports", "https://www.fusionindustryassociation.org/reports/", "Industry report archive covering private fusion financing and company progress."),
+                ("DOE Milestone-Based Fusion Development Program", "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program", "U.S. public-private milestone program focused on resolving technical and commercialization risks for fusion pilot plants."),
+                ("IAEA Fusion Energy", "https://www.iaea.org/topics/energy/fusion", "International Atomic Energy Agency source describing fusion's long-term low-carbon energy potential, technical status and international coordination."),
+                ("ITER project", "https://www.iter.org/", "International fusion project source for tokamak construction, the experimental step between research machines and future power plants."),
+                ("National Academies: Bringing Fusion to the U.S. Grid", "https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid", "Independent study program on the scientific, engineering, regulatory and market issues required to bring fusion-generated electricity to the U.S. grid."),
+                ("Fusion Industry Association reports", "https://www.fusionindustryassociation.org/reports/", "Industry report archive covering private fusion financing, company progress and commercialization milestones."),
+                ("Lawrence Livermore fusion ignition", "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition", "National-lab source on fusion ignition, a key scientific milestone that raised investor and policy attention."),
+                ("ARPA-E fusion programs", "https://arpa-e.energy.gov/technologies/programs/betthe", "U.S. innovation-program source focused on enabling commercially viable fusion energy technology paths."),
             ]
         )
     if any(token in lower for token in ("battery", "storage", "grid", "hydrogen", "power")):
@@ -254,6 +260,14 @@ def _direct_source_candidates(query: str) -> List[SearchResult]:
     for title, url, snippet in candidates:
         out.append(SearchResult(title=title, url=url, snippet=snippet, query=query))
     return out
+
+
+def _snippet_content(result: SearchResult) -> str:
+    title = re.sub(r"\s+", " ", str(result.title or "")).strip()
+    snippet = re.sub(r"\s+", " ", str(result.snippet or "")).strip()
+    if len(snippet) < 80:
+        return ""
+    return f"{title}\n\n{snippet}"
 
 
 def _read_limited_content(response: requests.Response, max_bytes: int = MAX_DOWNLOAD_BYTES) -> bytes:

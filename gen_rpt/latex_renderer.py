@@ -120,6 +120,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
         remaining_group_index += 1
         chart_index += len(group)
     parts.append(_disclaimer_page(refs))
+    parts.append(_about_blueocean_page(report, refs))
     parts.append(_back_cover_page(_asset_path(assets.get('cover-background', ''))))
     parts.append('\\end{document}\n')
     return '\n'.join(parts)
@@ -1038,6 +1039,34 @@ def _disclaimer_page(refs: List[Any]) -> str:
         'Recipients should perform their own diligence and treat this report as one input into a broader decision process.'
     )
     return '\\clearpage\n{\\sffamily\\fontsize{20}{25}\\selectfont\\color{BONavy} About the research}\\par\\vspace{6pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + body + '}\n'
+
+
+def _about_blueocean_page(report: Dict[str, Any], refs: List[Any]) -> str:
+    authors = _as_list(report.get('author_credentials'))[:4]
+    rows = []
+    if authors:
+        for item in authors:
+            name = _tex(_shorten(_field(item, 'name') or 'BlueOcean Research', 80))
+            role = _tex(_shorten(_field(item, 'role') or 'Research synthesis team', 100))
+            credentials = _tex(_shorten(_field(item, 'credentials') or 'Executive research, evidence synthesis and report QA.', 360))
+            rows.append('{\\small\\bfseries ' + name + '}\\par{\\scriptsize\\color{BOGreen} ' + role + '} & {\\footnotesize ' + credentials + '} \\\\[7pt]\n')
+    if not rows:
+        rows.append('{\\small\\bfseries BlueOcean Research}\\par{\\scriptsize\\color{BOGreen} Research synthesis team} & {\\footnotesize Executive research, evidence synthesis and report QA for senior-management discussion.} \\\\[7pt]\n')
+    institutions = ', '.join(str(x) for x in refs[:8]) if refs else 'public research, company materials, policy sources and market evidence'
+    return (
+        '\\clearpage\n'
+        + _green_rule('32mm')
+        + '{\\sffamily\\fontsize{24}{30}\\selectfont\\color{BONavy} About BlueOcean}\\par\\vspace{10pt}\n'
+        + '\\begin{minipage}[t]{0.44\\linewidth}\n'
+        + '{\\sffamily\\fontsize{16}{22}\\selectfont\\color{BOGreen} Research is most useful when it changes a management decision.}\\par\\vspace{8pt}\n'
+        + '{\\footnotesize\\color{BOText} BlueOcean prepares decision-focused research for executives who need to separate credible evidence from market noise, translate technology shifts into commercial implications and stage commitments around proof.}\\par\\vspace{7pt}\n'
+        + '{\\footnotesize\\color{BOMuted} This report draws on ' + _tex(_shorten(institutions, 360)) + '.}\\par\n'
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.48\\linewidth}\n'
+        + '\\begin{tabularx}{\\linewidth}{p{31mm}Y}\n'
+        + ''.join(rows)
+        + '\\end{tabularx}\n'
+        + '\\end{minipage}\n'
+    )
 
 
 def _back_cover_page(cover: str) -> str:
