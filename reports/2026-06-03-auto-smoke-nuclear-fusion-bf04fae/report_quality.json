@@ -1,0 +1,83 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 28,
+        "issues": [
+          "资料包仍有待核验事项，报告需要显式标注证据边界并避免补充未披露事实：资料来源偏少，当前仅0个。；来源域名多样性不足，当前0个。；缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。；可抽取事实句不足，生成时必须显式说明证据边界。",
+          "executive_summary 不足，需要至少5条结论先行、可执行的关键发现。",
+          "executive_summary_text 不足，需要一段 CEO 可直接阅读的结构化执行摘要，先给结论、商业含义、风险和下一步。",
+          "第1章标题过于泛化，需要改成结论型标题：Section 1",
+          "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第1章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第2章标题过于泛化，需要改成结论型标题：Section 2",
+          "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第2章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第3章标题过于泛化，需要改成结论型标题：Section 3",
+          "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第3章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第4章标题过于泛化，需要改成结论型标题：Section 4",
+          "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第4章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第5章标题过于泛化，需要改成结论型标题：Section 5",
+          "第5章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第5章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第6章标题过于泛化，需要改成结论型标题：Section 6",
+          "第6章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第6章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第7章标题过于泛化，需要改成结论型标题：Section 7",
+          "第7章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第7章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "第8章标题过于泛化，需要改成结论型标题：Section 8",
+          "第8章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第8章正文段落不足，需要至少3段有证据支撑的连续分析。",
+          "charts 数量应为10-12个，当前为0个。"
+        ],
+        "revision_error": "DeepSeek returned invalid JSON and automatic repair failed. Initial parse error: Expecting ',' delimiter. Nearby text:        \"data\": [200, 150, 100, 70, 50]           }         ]       },       \"latex_data\": \"\\\\begin{axis}[xlabel={Year},ylabel={LCOE (USD/MWh)}] \\\\addplot coordinates {(2030,200) (2035,150) (2040,100) (2045,70) (2050,50)}; \\\\end{axis}\"     }: line 493 column 6 (char 37165). Repair parse error: Expecting ',' delimiter. Nearby text:  essential. Partnerships with leading nations may provide access to technology and markets. However, geopolitical tensions could also restrict sharing of critical materials or intellectual property, creating supply chain risks. Divers\"     }   ] }: line 269 column 5 (char 24006). Final local repair error: Expecting ',' delimiter. Nearby text:  essential. Partnerships with leading nations may provide access to technology and markets. However, geopolitical tensions could also restrict sharing of critical materials or intellectual property, creating supply chain risks. Divers\"     }   ] }: line 269 column 5 (char 24006). Raw response excerpt: {\n  \"report_title\": \"Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Capital Allocation\",\n  \"report_subtitle\": \"A Decision-Ready Assessment for Senior Executives and Policymakers\",\n  \"executive_summary\": [\n    \"Nuclear fusion energy is not commercially viable within the next 10 years, but significant progress since 2020 suggests a credible path to first-of-a-kind plants by 2040.\",\n    \"The strategic value of fusion lies in baseload decarbonization and energy independence, not near-term cost parity with solar and wind.\",\n    \"Private investment has surged, yet fundamental physics hurdles, unresolved tritium supply, and underdeveloped regulatory frameworks remain.\",\n    \"For organizations, the decision is not whether to invest now, but how to position for asymmetric upside while avoiding overcommitment.\",\n    \"Immediate next steps: monitor key milestones (SPARC, ITER), engage in regulatory dialogue, and prepare for a long-duration, high-risk portfolio allocation.\"\n  ],\n  \"executive_summary_text\": \"Nuclear fusion is a long-duration strategic option, not a near-term solution. Commercial deployment is likely 15–20 years away, with first-of-a-kind plants e"
+      }
+    ],
+    "final_issue_count": 9,
+    "final_issues": [
+      "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第5章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第6章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第7章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "第8章 lead 过短，需要一句话说明该章结论和管理含义。",
+      "章节之间存在重复段落，需要合并或改写，避免跨页重复：Until stronger source support is available, management should treat the conclusion as directional input rather than a t."
+    ],
+    "fact_pack_validation_issues": [
+      "资料来源偏少，当前仅0个。",
+      "来源域名多样性不足，当前0个。",
+      "缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。",
+      "可抽取事实句不足，生成时必须显式说明证据边界。",
+      "可核验数字事实不足，需继续收集市场规模、财务、交易、产能、份额或时间数据。",
+      "可核验时间线不足，需补充年份、季度、政策发布时间或交易节点。"
+    ],
+    "source_count": 0,
+    "authoritative_source_count": 0
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": [
+    "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第5章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第6章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第7章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "第8章 lead 过短，需要一句话说明该章结论和管理含义。",
+    "章节之间存在重复段落，需要合并或改写，避免跨页重复：Until stronger source support is available, management should treat the conclusion as directional input rather than a t."
+  ]
+}
