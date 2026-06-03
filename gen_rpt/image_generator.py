@@ -4,10 +4,11 @@ import json
 import hashlib
 import math
 import os
+import subprocess
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-from urllib.parse import quote
+from urllib.parse import quote, urlencode
 
 import requests
 from PIL import Image, ImageDraw, ImageFilter
@@ -189,7 +190,11 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         response.raise_for_status()
         pages = list((response.json().get("query", {}).get("pages", {}) or {}).values())
     except Exception as exc:
-        return "", f"wikimedia search failed: {str(exc)[:180]}"
+        try:
+            raw = _curl_bytes(api + "?" + urlencode(params), timeout_seconds)
+            pages = list((json.loads(raw.decode("utf-8")).get("query", {}).get("pages", {}) or {}).values())
+        except Exception as curl_exc:
+            return "", f"wikimedia search failed: {str(exc)[:120]}; curl: {str(curl_exc)[:120]}"
     candidates = []
     for page in pages:
         info = (page.get("imageinfo") or [{}])[0]
@@ -209,8 +214,15 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         try:
             image_response = requests.get(url, timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
             image_response.raise_for_status()
+            content = image_response.content
+        except Exception:
+            try:
+                content = _curl_bytes(url, timeout_seconds)
+            except Exception:
+                continue
+        try:
             tmp = output_path.with_suffix(".wiki")
-            tmp.write_bytes(image_response.content)
+            tmp.write_bytes(content)
             with Image.open(tmp) as image:
                 image = image.convert("RGB")
                 image = _cover_crop(image, 1280, 900)
@@ -220,6 +232,19 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         except Exception:
             continue
     return "", "wikimedia downloads failed"
+
+
+def _curl_bytes(url: str, timeout_seconds: int) -> bytes:
+    run = subprocess.run(
+        ["curl", "-L", "--max-time", str(max(3, timeout_seconds)), "-s", url],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        timeout=max(6, timeout_seconds + 5),
+    )
+    if not run.stdout:
+        raise RuntimeError((run.stderr or b"empty curl response").decode("utf-8", errors="ignore")[:180])
+    return run.stdout
 
 
 def _wikimedia_query(prompt: str) -> str:
