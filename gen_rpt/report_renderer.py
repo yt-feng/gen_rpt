@@ -148,7 +148,7 @@ def render_report_html(report: Dict[str, Any], assets: Dict[str, str], output_fi
 
     _render_cover(parts, title, topic_text, cover_path)
     page_no += 1
-    _render_contents(parts, sections, summary, logo_path, page_no, labels)
+    _render_contents(parts, sections, summary, charts, logo_path, page_no, labels)
     page_no += 1
     _render_opening(parts, report, summary, sections, assets, logo_path, page_no, labels, topic_text)
     page_no += 1
@@ -255,20 +255,30 @@ def _render_cover(parts: List[str], title: str, topic: str, cover_path: str) -> 
     )
 
 
-def _render_contents(parts: List[str], sections: List[Dict[str, Any]], summary: List[str], logo_path: str, page_no: int, labels: Dict[str, str]) -> None:
+def _render_contents(parts: List[str], sections: List[Dict[str, Any]], summary: List[str], charts: List[Dict[str, Any]], logo_path: str, page_no: int, labels: Dict[str, str]) -> None:
     parts.append("<section class='page'>")
     _page_header(parts, logo_path, page_no)
     parts.append(f"<h2>{html.escape(labels['toc'])}</h2><table class='contents-table'>")
-    rows: List[tuple[str, str, List[str]]] = [("03", _agenda_heading(summary, sections), [])]
-    start_page = 4
-    for idx, section in enumerate(sections, start=1):
-        rows.append((f"{start_page + (idx - 1) * 2:02d}", _strip_number_prefix(section.get("title", "Section")), _section_content_hints(section)[:3]))
-    rows.append((f"{start_page + len(sections) * 2 + 1:02d}", labels["agenda"], []))
-    rows.append((f"{start_page + len(sections) * 2 + 2:02d}", labels["about"], []))
-    for page, title, subs in rows:
-        sub_html = "".join(f"<div class='contents-sub'>{html.escape(_shorten(x, 78))}</div>" for x in subs)
+    for page, title, subs in _content_page_rows(summary, sections, charts, labels):
+        sub_html = "".join(f"<div class='contents-sub'>{html.escape(_display_bullet(x, 110))}</div>" for x in subs)
         parts.append(f"<tr><td class='contents-page'>{html.escape(page)}</td><td><div class='contents-title'>{html.escape(_shorten(title, 115))}</div>{sub_html}</td></tr>")
     parts.append("</table></section>")
+
+
+def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]], labels: Dict[str, str]) -> List[tuple[str, str, List[str]]]:
+    rows: List[tuple[str, str, List[str]]] = [("03", _agenda_heading(summary, sections), [])]
+    page_no = 4
+    chart_count = len(charts)
+    for idx, section in enumerate(sections, start=1):
+        rows.append((f"{page_no:02d}", _strip_number_prefix(section.get("title", "Section")), _section_content_hints(section)[:2]))
+        page_no += 1
+        if idx <= chart_count:
+            page_no += 1
+        if idx == 2:
+            page_no += 1
+    rows.append((f"{page_no:02d}", labels["agenda"], []))
+    rows.append((f"{page_no + 1:02d}", labels["about"], []))
+    return rows
 
 
 def _render_opening(parts: List[str], report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], topic: str) -> None:
@@ -289,7 +299,7 @@ def _render_opening(parts: List[str], report: Dict[str, Any], summary: List[str]
     parts.append("</div><div class='side-note'>")
     parts.append(f"<b>{html.escape(labels['leader_changes'])}</b><ul>")
     for item in bullets[:4]:
-        parts.append(f"<li>{html.escape(_shorten(item, 165))}</li>")
+        parts.append(f"<li>{html.escape(_display_bullet(item, 165))}</li>")
     parts.append("</ul></div></div></section>")
 
 
@@ -415,7 +425,7 @@ def _append_takeaways(parts: List[str], items: List[str], labels: Dict[str, str]
         return
     parts.append(f"<div class='takeaway'><strong>{html.escape(labels['what_to_watch'])}</strong><ul>")
     for item in items[:3]:
-        parts.append(f"<li>{html.escape(_shorten(item, 150))}</li>")
+        parts.append(f"<li>{html.escape(_display_bullet(item, 150))}</li>")
     parts.append("</ul></div>")
 
 
@@ -508,7 +518,7 @@ def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
             continue
         if cleaned.lower().startswith(("this report", "the report", "our analysis")):
             continue
-        return _shorten(cleaned, 118)
+        return _compact_headline(cleaned)
     if sections:
         return _shorten(_strip_number_prefix(sections[0].get("title", "Management agenda")), 118)
     return "Management should focus on the few moves that can change the outcome"
@@ -519,8 +529,44 @@ def _title_from_sentence(text: str) -> str:
     cleaned = re.sub(r"^main conclusions?:\s*", "", cleaned, flags=re.I)
     cleaned = cleaned.split(";")[0].strip()
     if len(cleaned) > 118:
-        cleaned = cleaned[:117].rsplit(" ", 1)[0].strip()
+        cleaned = _compact_headline(cleaned)
     return cleaned or "The management agenda should be staged around evidence quality"
+
+
+def _compact_headline(text: str) -> str:
+    cleaned = _reader_text(text)
+    cleaned = re.split(r"(?<=[.!?])\s+", cleaned, maxsplit=1)[0].strip()
+    for pattern in [
+        r",\s+driven\s+by\b",
+        r",\s+supported\s+by\b",
+        r",\s+requiring\b",
+        r",\s+creating\b",
+        r",\s+with\b",
+        r",\s+but\b",
+        r",\s+while\b",
+        r";",
+        r"\s+because\s+",
+        r"\s+but\s+",
+        r"\s+while\s+",
+    ]:
+        parts = re.split(pattern, cleaned, maxsplit=1, flags=re.I)
+        if len(parts) > 1 and 35 <= len(parts[0]) <= 145:
+            return _clean_sentence_fragment(parts[0])
+    return _shorten(cleaned, 110)
+
+
+def _display_bullet(text: str, max_chars: int) -> str:
+    cleaned = _reader_text(text)
+    if len(cleaned) <= max_chars:
+        return cleaned
+    compact = _compact_headline(cleaned)
+    if compact and len(compact) < len(cleaned):
+        cleaned = compact
+    return _shorten(cleaned, max_chars)
+
+
+def _clean_sentence_fragment(text: str) -> str:
+    return _reader_text(text).rstrip(".,;: ")
 
 
 def _resolve_visual(section: Dict[str, Any], idx: int, assets: Dict[str, str]) -> str:
@@ -602,7 +648,14 @@ def _strip_number_prefix(text: str) -> str:
 
 def _shorten(value: Any, max_chars: int) -> str:
     text = _reader_text(value)
-    return text if len(text) <= max_chars else text[: max_chars - 1].rstrip() + "."
+    if len(text) <= max_chars:
+        return text
+    window = text[:max_chars]
+    sentence_cut = max(window.rfind("."), window.rfind("?"), window.rfind("!"))
+    if sentence_cut >= max(35, int(max_chars * 0.45)):
+        return window[: sentence_cut + 1].strip()
+    shortened = window.rsplit(" ", 1)[0].strip()
+    return (shortened or window.strip()).rstrip(".,;:")
 
 
 def _dedupe(values: List[str]) -> List[str]:

@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 from gen_rpt.brand_assets import copy_or_generate_brand_assets, summarize_reference_institutions, write_reference_backup
 from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.graphics import create_chart, create_insight_card
+from gen_rpt.latex_renderer import _compact_headline as latex_compact_headline
 from gen_rpt.latex_renderer import render_latex_pdf
 from gen_rpt.research_quality import apply_deterministic_report_fixes, build_research_fact_pack, validate_report
 from gen_rpt.report_renderer import render_report_html, render_report_markdown
@@ -121,6 +122,20 @@ def main() -> None:
     markdown_text = (out / "report.md").read_text(encoding="utf-8")
     latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
     assert r"Fusion\BOApos{}s timetable" in latex_text
+    section_count = len(report.get("sections", []))
+    chart_count = min(section_count, len(report.get("charts", [])))
+    decision_story_pages = 1 if section_count >= 2 else 0
+    agenda_page = 4 + section_count + chart_count + decision_story_pages
+    about_page = agenda_page + 1
+    old_agenda_page = 4 + section_count * 2 + 1
+    assert f"{{\\bfseries {agenda_page:02d}}} & Future action agenda" in latex_text
+    assert f"{{\\bfseries {about_page:02d}}} & About this research" in latex_text
+    assert f"<td class='contents-page'>{agenda_page:02d}</td><td><div class='contents-title'>Future action agenda</div>" in html_text
+    assert f"<td class='contents-page'>{about_page:02d}</td><td><div class='contents-title'>About this research</div>" in html_text
+    if old_agenda_page != agenda_page:
+        assert f"{{\\bfseries {old_agenda_page:02d}}} & Future action agenda" not in latex_text
+    problem_headline = "Fusion commercialization is advancing faster than expected, driven by private startups that have raised over $5 billion in investment."
+    assert latex_compact_headline(problem_headline) == "Fusion commercialization is advancing faster than expected"
     for text in [html_text, markdown_text, latex_text]:
         lowered = text.lower()
         assert "future action agenda" in lowered

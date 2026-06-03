@@ -38,9 +38,9 @@ HEADER = r'''
 \setlength{\tabcolsep}{5pt}
 \setlist[itemize]{leftmargin=12pt,itemsep=1.5pt,topsep=2pt,parsep=0pt}
 \renewcommand{\arraystretch}{1.12}
-\hyphenpenalty=9000
-\exhyphenpenalty=9000
-\emergencystretch=2em
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=4em
 \sloppy
 \pagestyle{fancy}
 \fancyhf{}
@@ -88,7 +88,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     refs = report.get('reference_institutions', []) or []
     parts = [HEADER, '\\begin{document}', '\\raggedright']
     parts.append(_cover_page(title, _asset_path(assets.get('cover-background', '')), topic))
-    parts.append(_agenda_and_contents_page(summary, sections))
+    parts.append(_agenda_and_contents_page(summary, sections, charts))
     parts.append(_opening_page(report, summary, sections, assets, topic))
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
@@ -125,18 +125,13 @@ def _cover_page(title: str, cover: str, topic: str) -> str:
 '''
 
 
-def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]) -> str:
+def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]]) -> str:
     rows = []
-    rows.append('\\textcolor{BOGreen}{\\bfseries 03} & ' + _tex(_shorten(_agenda_heading(summary, sections), 160)) + ' \\\\[7pt]\n')
-    start_page = 4
-    for idx, section in enumerate(sections, start=1):
-        title = _tex(_shorten(_strip_number_prefix(section.get('title', 'Section')), 160))
-        page_no = f'{start_page + (idx - 1) * 2:02d}'
+    for page_no, title_raw, hints in _content_page_rows(summary, sections, charts):
+        title = _tex(_shorten(title_raw, 160))
         rows.append('\\textcolor{BOGreen}{\\bfseries ' + page_no + '} & ' + title + ' \\\\[5pt]\n')
-        for sub in _section_content_hints(section)[:2]:
+        for sub in hints[:2]:
             rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_display_bullet(sub, 140)) + '} \\\\[1pt]\n')
-    rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{start_page + len(sections) * 2 + 1:02d}' + '} & ' + _tex('Future action agenda') + ' \\\\[5pt]\n')
-    rows.append('\\textcolor{BOGreen}{\\bfseries ' + f'{start_page + len(sections) * 2 + 2:02d}' + '} & ' + _tex('About this research') + ' \\\\[5pt]\n')
     return (
         '\\clearpage\n'
         '{\\sffamily\\fontsize{26}{31}\\selectfont\\color{BONavy} Contents}\\par\\vspace{10pt}\n'
@@ -144,6 +139,22 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
         + ''.join(rows)
         + '\\end{tabularx}\n\\clearpage\n'
     )
+
+
+def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]]) -> List[tuple[str, str, List[str]]]:
+    rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
+    page_no = 4
+    chart_count = len(charts)
+    for idx, section in enumerate(sections, start=1):
+        rows.append((f'{page_no:02d}', _strip_number_prefix(section.get('title', 'Section')), _section_content_hints(section)[:2]))
+        page_no += 1
+        if idx <= chart_count:
+            page_no += 1
+        if idx == 2:
+            page_no += 1
+    rows.append((f'{page_no:02d}', 'Future action agenda', []))
+    rows.append((f'{page_no + 1:02d}', 'About this research', []))
+    return rows
 
 
 def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
@@ -435,7 +446,7 @@ def _leadership_agenda_page(report: Dict[str, Any], sections: List[Dict[str, Any
             parts.append('Watch for ' + trigger[0].lower() + trigger[1:] if len(trigger) > 1 else trigger.lower())
         if action:
             parts.append(action)
-        risk_items.append('. '.join(parts))
+        risk_items.append(_join_sentence_fragments(parts))
     left = ''.join('\\item ' + _tex(_shorten(x, 230)) + '\n' for x in action_items if str(x).strip())
     right = ''.join('\\item ' + _tex(_shorten(x, 230)) + '\n' for x in risk_items if str(x).strip())
     return (
@@ -547,7 +558,7 @@ def _title_from_sentence(text: str) -> str:
     cleaned = re.sub(r'^key findings?:\s*', '', cleaned, flags=re.I)
     cleaned = cleaned.split(';')[0].strip()
     if len(cleaned) > 118:
-        cleaned = cleaned[:117].rsplit(' ', 1)[0].strip()
+        cleaned = _compact_headline(cleaned)
     return cleaned or 'The management agenda should be staged around evidence quality'
 
 
@@ -636,11 +647,36 @@ def _agenda_heading(summary: List[str], sections: List[Dict[str, Any]]) -> str:
 def _compact_headline(text: str) -> str:
     cleaned = _normalize_punctuation(text)
     cleaned = re.split(r'(?<=[.!?])\s+', cleaned, maxsplit=1)[0].strip()
-    for pattern in [r',\s+with\b', r',\s+but\b', r',\s+while\b', r';', r'\s+but\s+', r'\s+while\s+']:
+    for pattern in [
+        r',\s+driven\s+by\b',
+        r',\s+supported\s+by\b',
+        r',\s+requiring\b',
+        r',\s+creating\b',
+        r',\s+with\b',
+        r',\s+but\b',
+        r',\s+while\b',
+        r';',
+        r'\s+because\s+',
+        r'\s+but\s+',
+        r'\s+while\s+',
+    ]:
         parts = re.split(pattern, cleaned, maxsplit=1, flags=re.I)
         if len(parts) > 1 and 35 <= len(parts[0]) <= 145:
-            return parts[0].strip()
+            return _clean_sentence_fragment(parts[0])
     return _shorten(cleaned, 110)
+
+
+def _clean_sentence_fragment(text: str) -> str:
+    cleaned = _normalize_punctuation(text).strip()
+    cleaned = re.sub(r'\s+', ' ', cleaned)
+    return cleaned.rstrip('.,;: ')
+
+
+def _join_sentence_fragments(parts: List[str]) -> str:
+    fragments = [_clean_sentence_fragment(part) for part in parts if _clean_sentence_fragment(part)]
+    if not fragments:
+        return ''
+    return '. '.join(fragments) + '.'
 
 
 def _display_bullet(text: str, max_chars: int) -> str:
