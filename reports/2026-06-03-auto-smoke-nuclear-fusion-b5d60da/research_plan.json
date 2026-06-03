@@ -1,0 +1,144 @@
+{
+  "objective": "Assess the current state and future trajectory of nuclear fusion commercialization, identify key strategic implications for stakeholders, and provide actionable insights for decision-makers.",
+  "audience": "Senior executives in energy and technology sectors, government policymakers, and strategic investors evaluating fusion energy opportunities.",
+  "decision_question": "What is the realistic timeline and strategic impact of nuclear fusion commercialization, and how should stakeholders position themselves to capitalize on or mitigate risks from this emerging technology?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook",
+    "children": [
+      {
+        "node": "Technology Readiness & Roadmaps",
+        "children": [
+          {
+            "node": "Current reactor designs (tokamak, stellarator, inertial confinement)"
+          },
+          {
+            "node": "Key milestones: ITER, SPARC, private ventures"
+          },
+          {
+            "node": "Critical engineering challenges (materials, tritium breeding, heat extraction)"
+          }
+        ]
+      },
+      {
+        "node": "Economic & Market Viability",
+        "children": [
+          {
+            "node": "Levelized cost of fusion vs. renewables, fission, fossil fuels"
+          },
+          {
+            "node": "Capital costs, construction timelines, and financing models"
+          },
+          {
+            "node": "Market size and demand scenarios (grid, industrial heat, hydrogen)"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory & Policy Landscape",
+        "children": [
+          {
+            "node": "Licensing frameworks (e.g., NRC, IAEA guidelines)"
+          },
+          {
+            "node": "Government funding and public-private partnerships"
+          },
+          {
+            "node": "International cooperation vs. national security concerns"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Energy security and geopolitical shifts"
+          },
+          {
+            "node": "Impact on existing energy industries (nuclear fission, renewables)"
+          },
+          {
+            "node": "Investment strategies and risk assessment"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025",
+    "fusion energy levelized cost comparison 2025",
+    "ITER project status and delays 2025",
+    "SPARC fusion reactor progress Commonwealth Fusion Systems",
+    "private fusion companies funding rounds 2025",
+    "fusion regulatory framework NRC licensing",
+    "fusion energy strategic implications geopolitics",
+    "fusion vs renewables cost competitiveness 2030",
+    "tritium breeding technology challenges fusion",
+    "fusion energy market size forecast 2040"
+  ],
+  "outline": [
+    "Fusion commercialization is accelerating but faces a decade-long path to grid-scale viability",
+    "Private fusion ventures are outpacing public projects in speed and innovation",
+    "Economic competitiveness hinges on achieving cost parity with renewables by 2035-2040",
+    "Regulatory frameworks remain a critical bottleneck for deployment",
+    "Strategic implications include energy independence, industrial decarbonization, and geopolitical realignment",
+    "Investment risks are high but asymmetric: early movers may capture outsized returns"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion Commercialization Timeline Comparison",
+      "type": "Gantt chart",
+      "description": "Compare projected milestones for major fusion projects (ITER, SPARC, others) against historical fission and renewable energy deployment timelines."
+    },
+    {
+      "title": "Levelized Cost of Fusion vs. Other Energy Sources",
+      "type": "Line chart",
+      "description": "Projected LCOE for fusion (2025-2050) compared to solar, wind, natural gas, and nuclear fission, with uncertainty bands."
+    },
+    {
+      "title": "Global Fusion Investment by Year and Source",
+      "type": "Stacked bar chart",
+      "description": "Annual fusion investment (public vs. private) from 2015 to 2025, highlighting key funding rounds."
+    },
+    {
+      "title": "Fusion Energy Market Size by Application",
+      "type": "Pie chart",
+      "description": "Estimated market share for grid electricity, industrial heat, hydrogen production, and other applications in 2040."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "The Fusion Tipping Point",
+      "content": "When fusion achieves Q>10 sustained operation, it will trigger a wave of investment and regulatory acceleration, similar to the solar PV tipping point in 2010."
+    },
+    {
+      "title": "Tritium Supply: The Hidden Bottleneck",
+      "content": "Current tritium production is insufficient for commercial fusion; breeding technology and alternative fuel cycles (e.g., D-D, p-B11) are critical to scalability."
+    },
+    {
+      "title": "Fusion's Geopolitical Chessboard",
+      "content": "Countries with advanced fusion programs (US, China, UK, Japan) may gain energy independence and export advantages, reshaping global energy alliances."
+    }
+  ],
+  "risks": [
+    {
+      "risk": "Technical risk: sustained ignition and plasma confinement remain unproven at commercial scale",
+      "mitigation": "Diversify investment across multiple reactor designs and support parallel R&D pathways"
+    },
+    {
+      "risk": "Economic risk: fusion may not achieve cost parity with renewables and storage by 2040",
+      "mitigation": "Focus on high-value applications (industrial heat, hydrogen) where fusion's baseload advantage is strongest"
+    },
+    {
+      "risk": "Regulatory risk: licensing delays and public opposition could stall deployment",
+      "mitigation": "Engage early with regulators and communities; develop standardized licensing frameworks"
+    },
+    {
+      "risk": "Geopolitical risk: technology transfer and export controls may fragment the market",
+      "mitigation": "Foster international consortia and secure supply chains for critical components"
+    },
+    {
+      "risk": "Market risk: incumbent energy sources (renewables, fission) may improve faster than expected",
+      "mitigation": "Maintain flexible investment thesis and monitor competing technology curves"
+    }
+  ]
+}
