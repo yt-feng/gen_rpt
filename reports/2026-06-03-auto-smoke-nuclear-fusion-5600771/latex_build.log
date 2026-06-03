@@ -1,0 +1,173 @@
+exmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 transitioning from
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 laboratory science to
+
+Underfull \hbox (badness 1436) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 advantages could give it a social license edge over
+
+Underfull \hbox (badness 2245) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 storage investments. The risk of overcommitment
+
+Underfull \hbox (badness 1533) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 is high; flexibility and patience are essential. Thi
+s
+
+Underfull \hbox (badness 4036) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 energy markets by providing abundant, low-carbon
+
+Underfull \hbox (badness 6141) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 achieving levelized costs below $50/MWh, a target
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 unverified by current data. For executives, the
+
+Underfull \hbox (badness 3557) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 immediate next step is to monitor fusion ventures,
+
+Underfull \hbox (badness 1033) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 available evidence, highlighting where data is robus
+t
+
+Underfull \hbox (badness 1521) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 and where uncertainty remains. The evidence pack
+
+Underfull \hbox (badness 4454) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 on general knowledge and should be verified with
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+(./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (18 pages).
+Transcript written on report_latex.log.
+/texmf-dist/tex/generic/pgf/basiclayer/pgfcoreexternal.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorelayers.code.te
+x)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcoretransparency.c
+ode.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorepatterns.code.
+tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/basiclayer/pgfcorerdf.code.tex))
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 transitioning from
+
+Underfull \hbox (badness 10000) in paragraph at lines 90--90
+\TU/NotoSansCJKSC(0)/m/n/17 laboratory science to
+
+Underfull \hbox (badness 1436) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 advantages could give it a social license edge over
+
+Underfull \hbox (badness 2245) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 storage investments. The risk of overcommitment
+
+Underfull \hbox (badness 1533) in paragraph at lines 91--91
+\TU/NotoSansCJKSC(0)/m/n/9 is high; flexibility and patience are essential. Thi
+s
+
+Underfull \hbox (badness 4036) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 energy markets by providing abundant, low-carbon
+
+Underfull \hbox (badness 6141) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 achieving levelized costs below $50/MWh, a target
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 unverified by current data. For executives, the
+
+Underfull \hbox (badness 3557) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 immediate next step is to monitor fusion ventures,
+
+Underfull \hbox (badness 1033) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 available evidence, highlighting where data is robus
+t
+
+Underfull \hbox (badness 1521) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 and where uncertainty remains. The evidence pack
+
+Underfull \hbox (badness 4454) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 on general knowledge and should be verified with
+[3] [4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+(./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (18 pages).
+Transcript written on report_latex.log.
