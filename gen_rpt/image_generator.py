@@ -141,6 +141,10 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
             last_error = str(exc)[:300]
             time.sleep(min(2.5 * (attempt + 1), 8.0))
 
+    wiki_status, wiki_reason = _download_wikimedia_fallback(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
+    if wiki_status:
+        return "wikimedia", wiki_reason or last_error
+
     if allow_fallback:
         _fallback_image(output_path, kind=kind, prompt=prompt)
         return "fallback", last_error
@@ -161,6 +165,91 @@ def _sanitize(prompt: str) -> str:
     if "avoid ocean waves" not in lower:
         prompt += ", avoid generic ocean waves and abstract blue filler"
     return prompt[:1100]
+
+
+def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seconds: int) -> Tuple[str, str]:
+    query = _wikimedia_query(prompt)
+    if not query:
+        return "", "no wikimedia query"
+    api = "https://commons.wikimedia.org/w/api.php"
+    params = {
+        "action": "query",
+        "generator": "search",
+        "gsrnamespace": "6",
+        "gsrsearch": query,
+        "gsrlimit": "10",
+        "prop": "imageinfo",
+        "iiprop": "url|mime",
+        "iiurlwidth": "1280",
+        "format": "json",
+        "origin": "*",
+    }
+    try:
+        response = requests.get(api, params=params, timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
+        response.raise_for_status()
+        pages = list((response.json().get("query", {}).get("pages", {}) or {}).values())
+    except Exception as exc:
+        return "", f"wikimedia search failed: {str(exc)[:180]}"
+    candidates = []
+    for page in pages:
+        info = (page.get("imageinfo") or [{}])[0]
+        url = info.get("thumburl") or info.get("url")
+        mime = str(info.get("mime") or "")
+        title = str(page.get("title") or "")
+        if not url or "svg" in mime.lower() or url.lower().endswith(".svg"):
+            continue
+        if any(token in title.lower() for token in ("logo", "icon", "map", "diagram", "chart")):
+            continue
+        candidates.append(url)
+    if not candidates:
+        return "", "no suitable wikimedia image"
+    start = int(hashlib.sha1(prompt.encode("utf-8", errors="ignore")).hexdigest()[:6], 16) % len(candidates)
+    ordered = candidates[start:] + candidates[:start]
+    for url in ordered:
+        try:
+            image_response = requests.get(url, timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
+            image_response.raise_for_status()
+            tmp = output_path.with_suffix(".wiki")
+            tmp.write_bytes(image_response.content)
+            with Image.open(tmp) as image:
+                image = image.convert("RGB")
+                image = _cover_crop(image, 1280, 900)
+                image.save(output_path, format="PNG")
+            tmp.unlink(missing_ok=True)
+            return "wikimedia", query
+        except Exception:
+            continue
+    return "", "wikimedia downloads failed"
+
+
+def _wikimedia_query(prompt: str) -> str:
+    lower = prompt.lower()
+    if any(token in lower for token in ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
+        if any(token in lower for token in ["construction", "cost", "capital", "lcoe", "timing"]):
+            return "ITER tokamak construction"
+        if any(token in lower for token in ["control", "customer", "commercial", "bankability", "readiness"]):
+            return "tokamak control room fusion"
+        if any(token in lower for token in ["policy", "regulation", "government", "licensing"]):
+            return "nuclear fusion research facility"
+        return "tokamak fusion reactor"
+    if any(token in lower for token in ["battery", "storage", "grid", "power", "hydrogen"]):
+        return "energy storage power grid"
+    if any(token in lower for token in ["rail", "railway", "train", "logistics"]):
+        return "railway logistics terminal"
+    if any(token in lower for token in ["manufacturing", "factory", "industrial", "supply chain"]):
+        return "industrial manufacturing facility"
+    return "business meeting technology"
+
+
+def _cover_crop(image: Image.Image, target_w: int, target_h: int) -> Image.Image:
+    width, height = image.size
+    if width <= 0 or height <= 0:
+        return Image.new("RGB", (target_w, target_h), "white")
+    scale = max(target_w / width, target_h / height)
+    resized = image.resize((max(1, int(width * scale)), max(1, int(height * scale))), Image.LANCZOS)
+    left = max(0, (resized.width - target_w) // 2)
+    top = max(0, (resized.height - target_h) // 2)
+    return resized.crop((left, top, left + target_w, top + target_h))
 
 
 def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
