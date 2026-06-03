@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 import re
 from dataclasses import asdict, dataclass
@@ -640,6 +641,74 @@ def _as_list(value: Any) -> List[Any]:
     return [value]
 
 
+def _coerce_reader_text(value: Any, *, preferred_keys: Iterable[str] = ()) -> str:
+    """Extract reader-facing prose from model values that may be nested or stringified."""
+    if value is None:
+        return ""
+    keys = tuple(preferred_keys) + ("body", "narrative", "description", "title")
+    if isinstance(value, dict):
+        for key in keys:
+            if key in value:
+                text = _coerce_reader_text(value.get(key), preferred_keys=preferred_keys)
+                if text:
+                    return text
+        pieces = [_coerce_reader_text(item, preferred_keys=preferred_keys) for item in value.values()]
+        return _clean_visible_text(" ".join(piece for piece in pieces if piece))
+    if isinstance(value, list):
+        pieces = [_coerce_reader_text(item, preferred_keys=preferred_keys) for item in value]
+        return _clean_visible_text(" ".join(piece for piece in pieces if piece))
+
+    text = str(value or "").strip()
+    parsed = _parse_literal_prefix(text)
+    if parsed:
+        obj, remainder = parsed
+        extracted = _coerce_reader_text(obj, preferred_keys=preferred_keys)
+        remainder = _clean_visible_text(remainder)
+        if extracted and remainder and not remainder.lower().startswith(extracted[:80].lower()):
+            return _clean_visible_text(f"{extracted} {remainder}")
+        if extracted:
+            return extracted
+    return _clean_visible_text(text)
+
+
+def _parse_literal_prefix(text: str):
+    text = str(text or "").strip()
+    if not text or text[0] not in "{[":
+        return None
+    pairs = {"{": "}", "[": "]"}
+    quote = ""
+    escaped = False
+    stack: List[str] = []
+    for idx, ch in enumerate(text):
+        if quote:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == quote:
+                quote = ""
+            continue
+        if ch in ("'", '"'):
+            quote = ch
+            continue
+        if ch in pairs:
+            stack.append(pairs[ch])
+            continue
+        if stack and ch == stack[-1]:
+            stack.pop()
+            if not stack:
+                prefix = text[: idx + 1]
+                remainder = text[idx + 1 :].strip()
+                try:
+                    return ast.literal_eval(prefix), remainder
+                except Exception:
+                    try:
+                        return json.loads(prefix), remainder
+                    except Exception:
+                        return None
+    return None
+
+
 def _is_generic_title(title: str) -> bool:
     normalized = re.sub(r"^\s*\d+[\.)、]\s*", "", title or "").strip().lower()
     return normalized in GENERIC_SECTION_TITLES or len(normalized) < 12
@@ -715,7 +784,12 @@ def _fallback_references(source_refs: List[str]) -> List[Dict[str, str]]:
 
 
 def _ensure_summary_items(value: Any, fact_pack: ResearchFactPack, *, language: str) -> List[str]:
-    items = _dedupe_texts([str(x).strip() for x in _as_list(value) if str(x).strip()])
+    items = []
+    for item in _as_list(value):
+        text = _coerce_reader_text(item, preferred_keys=("executive_summary_text", "summary", "text", "content", "finding"))
+        if text:
+            items.append(text)
+    items = _dedupe_texts(items)
     fallback = _fallback_summary_items(fact_pack, language=language)
     items = _dedupe_texts(items + fallback)
     return items[:8]
@@ -745,7 +819,10 @@ def _fallback_summary_items(fact_pack: ResearchFactPack, *, language: str) -> Li
 
 
 def _ensure_executive_summary_text(report: Dict[str, Any], fact_pack: ResearchFactPack, *, language: str) -> str:
-    existing = str(report.get("executive_summary_text") or "").strip()
+    existing = _coerce_reader_text(
+        report.get("executive_summary_text"),
+        preferred_keys=("executive_summary_text", "summary", "text", "content"),
+    )
     minimum = 220 if language == "en" else 120
     if len(existing) >= minimum:
         return existing

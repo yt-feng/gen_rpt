@@ -29,8 +29,11 @@ def main() -> None:
     payload = {
         "report_title": "Smoke Test Report",
         "report_subtitle": "Testing malformed model payload normalization.",
-        "executive_summary": ["Summary one", "Summary two"],
-        "executive_summary_text": "The CEO-level issue is whether the source-backed facts are strong enough to support action, investment and risk decisions.",
+        "executive_summary": [
+            "{'title': 'Executive Summary', 'executive_summary_text': 'Structured summary values should become plain reader prose before rendering.'}",
+            "Summary two",
+        ],
+        "executive_summary_text": "{'title': 'Executive Summary', 'executive_summary_text': 'The CEO-level issue is whether the source-backed facts are strong enough to support action, investment and risk decisions. This malformed value intentionally mimics a model response that wrapped the narrative in a dict-like string, and the deterministic cleanup must extract only the prose for a board reader before rendering.'}",
         "key_findings": [
             {"finding": "Evidence quality changes the pace of commitment.", "evidence": "Public source backup and fact pack.", "management_implication": "Fund validation before major allocation."}
         ],
@@ -143,6 +146,8 @@ def main() -> None:
             "This chapter therefore frames the topic",
         ]:
             assert internal_label.lower() not in lowered
+        for structured_artifact in ["executive_summary_text", "{'title'", r"\boapos{}title"]:
+            assert structured_artifact not in lowered
     assert any((assets / f"chart-{idx}.png").exists() for idx in range(1, 5))
     if not latex_result.get("pdf_path"):
         error_path = out / "latex_error.txt"
