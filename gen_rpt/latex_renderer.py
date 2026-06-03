@@ -23,6 +23,8 @@ HEADER = r'''
 \usepackage{enumitem}
 \defaultfontfeatures{Ligatures=NoCommon}
 \IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
+\IfFontExistsTF{DejaVu Sans}{\newfontfamily\BOQuoteFont{DejaVu Sans}}{\newfontfamily\BOQuoteFont{Latin Modern Sans}}
+\newcommand{\BOApos}{{\BOQuoteFont\char"0027}}
 \definecolor{BOBlue}{HTML}{0E6B72}
 \definecolor{BOBright}{HTML}{20A66A}
 \definecolor{BOGreen}{HTML}{00A651}
@@ -855,5 +857,5 @@ def _reader_clean(text: str) -> str:
 def _tex(value: Any) -> str:
     text = str(value or '').replace('\u00ad', '').replace('\ufffe', '').replace('\ufeff', '')
     text = _reader_clean(' '.join(text.replace('\n', ' ').split()))
-    mapping = {'\\': r'\textbackslash{}', "'": r'\char"0027{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
+    mapping = {'\\': r'\textbackslash{}', "'": r'\BOApos{}', '&': r'\&', '%': r'\%', '$': r'\$', '#': r'\#', '_': r'\_', '{': r'\{', '}': r'\}', '~': r'\textasciitilde{}', '^': r'\textasciicircum{}'}
     return ''.join(mapping.get(ch, ch) for ch in text)

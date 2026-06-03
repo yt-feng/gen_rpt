@@ -117,7 +117,7 @@ def main() -> None:
     html_text = (out / "report.html").read_text(encoding="utf-8")
     markdown_text = (out / "report.md").read_text(encoding="utf-8")
     latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
-    assert r"Fusion\char" + '"0027{}s timetable' in latex_text
+    assert r"Fusion\BOApos{}s timetable" in latex_text
     for text in [html_text, markdown_text, latex_text]:
         lowered = text.lower()
         assert "future action agenda" in lowered
