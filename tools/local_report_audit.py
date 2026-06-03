@@ -125,6 +125,13 @@ def main() -> int:
             f"TeX exhibit pages are too sparse: {metrics.get('tex_single_exhibit_pages')} single-exhibit pages across "
             f"{metrics.get('tex_exhibit_pages')} exhibit pages"
         )
+    image_stats = section_image_metrics(report_dir)
+    if image_stats:
+        metrics["section_images"] = image_stats
+        if image_stats.get("count", 0) >= 4 and image_stats.get("avg_stddev", 0) < 12:
+            issues.append(f"section images are too flat/abstract; avg RGB stddev {image_stats.get('avg_stddev')}")
+        if image_stats.get("near_duplicate_pairs", 0) >= max(2, image_stats.get("count", 0) // 2):
+            issues.append(f"section images are too repetitive; near-duplicate adjacent pairs {image_stats.get('near_duplicate_pairs')}")
     lower_rendered = rendered_text.lower()
     leaked_labels = [label for label in META_LABELS if label in lower_rendered]
     if leaked_labels:
@@ -253,6 +260,45 @@ def collect_rendered_text(*paths: Path) -> str:
         if path.exists():
             parts.append(path.read_text(encoding="utf-8", errors="ignore"))
     return "\n".join(parts)
+
+
+def section_image_metrics(report_dir: Path) -> Dict[str, Any]:
+    image_paths = sorted((report_dir / "assets").glob("image-*.png"))
+    if not image_paths:
+        return {}
+    try:
+        from PIL import Image, ImageStat  # type: ignore
+    except Exception:
+        return {"count": len(image_paths), "available": False, "error": "Pillow is not installed"}
+    hashes: List[str] = []
+    stddevs: List[float] = []
+    for path in image_paths:
+        try:
+            image = Image.open(path).convert("RGB")
+            stat = ImageStat.Stat(image)
+            stddevs.append(round(sum(float(x) for x in stat.stddev) / 3, 2))
+            gray = image.convert("L").resize((16, 16))
+            pixels = list(gray.getdata())
+            avg = sum(pixels) / max(1, len(pixels))
+            hashes.append("".join("1" if value > avg else "0" for value in pixels))
+        except Exception:
+            continue
+    near_duplicate_pairs = 0
+    for left, right in zip(hashes, hashes[1:]):
+        if hamming(left, right) <= 3:
+            near_duplicate_pairs += 1
+    return {
+        "count": len(image_paths),
+        "available": True,
+        "avg_stddev": round(sum(stddevs) / len(stddevs), 2) if stddevs else 0,
+        "min_stddev": min(stddevs) if stddevs else 0,
+        "unique_hashes": len(set(hashes)),
+        "near_duplicate_pairs": near_duplicate_pairs,
+    }
+
+
+def hamming(left: str, right: str) -> int:
+    return sum(a != b for a, b in zip(left, right)) + abs(len(left) - len(right))
 
 
 def pdf_metrics(path: Path) -> Dict[str, Any]:

@@ -194,6 +194,13 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
     node_color = (255, 255, 255, 110) if kind == "cover" else (0, 48, 135, 100)
     electric = (*accent, 145)
 
+    if kind == "section":
+        _draw_section_backdrop(draw, topic_type, width, height, line_color, node_color, electric, variant)
+        _draw_scene_overlay(draw, scene_type, width, height, line_color, node_color, electric, variant)
+        img = img.filter(ImageFilter.SMOOTH_MORE)
+        img.save(output_path, format="PNG")
+        return
+
     if topic_type == "fusion":
         cx = int(width * (0.60 + (variant % 9) * 0.012))
         cy = int(height * (0.42 + ((variant // 9) % 7) * 0.012))
@@ -231,10 +238,6 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
         for x, y in points:
             draw.ellipse((x - 14, y - 14, x + 14, y + 14), fill=node_color)
 
-    if kind == "section":
-        draw.rectangle((0, 0, width, int(height * 0.66)), fill=(246, 249, 252, 176))
-        _draw_scene_overlay(draw, scene_type, width, height, line_color, node_color, electric, variant)
-
     img = img.filter(ImageFilter.SMOOTH_MORE)
     img.save(output_path, format="PNG")
 
@@ -267,6 +270,48 @@ def _fallback_scene_type(prompt: str) -> str:
     if any(token in lower for token in ["facts", "noise", "evidence", "signal"]):
         return "evidence"
     return "boardroom"
+
+
+def _draw_section_backdrop(draw: ImageDraw.ImageDraw, topic: str, width: int, height: int, line_color: tuple[int, int, int, int], node_color: tuple[int, int, int, int], electric: tuple[int, int, int, int], variant: int) -> None:
+    draw.rectangle((0, 0, width, int(height * 0.66)), fill=(244, 248, 252, 232))
+    draw.rectangle((0, int(height * 0.66), width, height), fill=(225, 234, 243, 238))
+    draw.polygon([(0, height), (width, height), (width, int(height * 0.72)), (0, int(height * 0.88))], fill=(211, 224, 238, 210))
+
+    if topic == "fusion":
+        cx = int(width * (0.70 + (variant % 5) * 0.012))
+        cy = int(height * 0.39)
+        draw.rounded_rectangle((120, 500, 1160, 650), radius=22, outline=line_color, width=4, fill=(255, 255, 255, 70))
+        draw.ellipse((cx - 230, cy - 190, cx + 230, cy + 190), outline=(0, 85, 164, 96), width=12)
+        draw.ellipse((cx - 135, cy - 105, cx + 135, cy + 105), outline=(50, 115, 246, 116), width=8)
+        draw.ellipse((cx - 52, cy - 52, cx + 52, cy + 52), fill=electric)
+        for x in range(170, 1110, 120):
+            draw.line((x, 500, x + 72, 650), fill=(0, 85, 164, 54), width=3)
+    elif topic == "energy":
+        for x in range(120, 1180, 150):
+            draw.line((x, 535, x + 70, 235), fill=line_color, width=5)
+            draw.line((x + 70, 235, x + 140, 535), fill=line_color, width=5)
+            draw.line((x + 25, 390, x + 115, 390), fill=electric, width=3)
+        for y in (260, 340, 420):
+            draw.line((80, y, 1200, y + ((variant % 19) - 9)), fill=(0, 85, 164, 45), width=2)
+    else:
+        for x in range(120, 1140, 135):
+            h = 120 + ((x + variant) % 170)
+            draw.rectangle((x, 560 - h, x + 82, 560), outline=line_color, width=4, fill=(255, 255, 255, 60))
+        draw.line((80, 560, 1200, 560), fill=line_color, width=4)
+
+    _draw_people(draw, width, height, line_color, node_color, electric, variant)
+
+
+def _draw_people(draw: ImageDraw.ImageDraw, width: int, height: int, line_color: tuple[int, int, int, int], node_color: tuple[int, int, int, int], electric: tuple[int, int, int, int], variant: int) -> None:
+    base = int(height * 0.69)
+    positions = [210, 300, 405, 525]
+    for idx, x in enumerate(positions):
+        y = base - 45 + ((variant + idx * 11) % 22)
+        draw.ellipse((x - 18, y - 72, x + 18, y - 36), fill=node_color)
+        draw.rounded_rectangle((x - 26, y - 34, x + 26, y + 48), radius=12, fill=(0, 85, 164, 72), outline=line_color, width=2)
+        draw.line((x - 20, y + 48, x - 42, y + 118), fill=line_color, width=5)
+        draw.line((x + 20, y + 48, x + 42, y + 118), fill=line_color, width=5)
+    draw.rounded_rectangle((155, base + 62, 590, base + 105), radius=14, outline=electric, width=3, fill=(255, 255, 255, 54))
 
 
 def _draw_scene_overlay(draw: ImageDraw.ImageDraw, scene: str, width: int, height: int, line_color: tuple[int, int, int, int], node_color: tuple[int, int, int, int], electric: tuple[int, int, int, int], variant: int) -> None:
