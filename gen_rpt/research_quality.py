@@ -311,8 +311,8 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
     charts = _as_list(report.get("charts"))
     references = _as_list(report.get("references"))
 
-    if fact_pack.validation_issues and not _mentions_evidence_boundary(text, language=language):
-        issues.append("资料包仍有待核验事项，报告需要显式标注证据边界并避免补充未披露事实：" + "；".join(fact_pack.validation_issues[:4]))
+    # Fact-pack collection gaps are audited separately in report_quality.json.
+    # They should not force internal "evidence boundary" wording into the reader-facing report.
     if len(summary) < 5:
         issues.append("executive_summary 不足，需要至少5条结论先行、可执行的关键发现。")
     if len(executive_summary_text) < (220 if language == "en" else 120):
