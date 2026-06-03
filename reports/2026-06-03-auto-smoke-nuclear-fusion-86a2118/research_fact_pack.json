@@ -1,0 +1,68 @@
+{
+  "topic": "Nuclear fusion commercialization outlook and strategic implications",
+  "objective": "Assess the commercialization outlook for nuclear fusion energy and analyze its strategic implications for energy markets, geopolitics, and technology investment.",
+  "decision_question": "Should our organization invest in or develop a strategic position in nuclear fusion technology, and what are the key milestones and risks to monitor over the next 5-15 years?",
+  "source_count": 4,
+  "authoritative_source_count": 2,
+  "source_domains": [
+    "science.osti.gov",
+    "iter.org",
+    "nationalacademies.org",
+    "llnl.gov"
+  ],
+  "source_refs": [
+    "[Source 1][authoritative][html] U.S. DOE Fusion Energy Sciences | https://science.osti.gov/fes",
+    "[Source 2][supplement][html] ITER project | https://www.iter.org/",
+    "[Source 3][supplement][snippet] National Academies: Bringing Fusion to the U.S. Grid | https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid",
+    "[Source 4][authoritative][html] Lawrence Livermore fusion ignition | https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition"
+  ],
+  "high_confidence_facts": [
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.",
+    "[Source 4: Lawrence Livermore fusion ignition] 13) announced the achievement of fusion ignition at Lawrence Livermore National Laboratory (LLNL) — a major scientific breakthrough decades in the making that will pave the way for advancements in national defense and the future of clean power.",
+    "[Source 2: ITER project] Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary The Machine The Machine One million components, ten million parts — find out more about the ITER Tokamak and its systems.",
+    "[Source 4: Lawrence Livermore fusion ignition] “Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility.",
+    "[Source 4: Lawrence Livermore fusion ignition] ” “I am thrilled that NIF — the United States’ most cutting-edge nuclear research facility — has achieved fusion ignition, potentially providing for a new clean and sustainable energy source in the future.",
+    "[Source 4: Lawrence Livermore fusion ignition] National-lab source on fusion ignition, a key scientific milestone that raised investor and policy attention.",
+    "[Source 4: Lawrence Livermore fusion ignition] “I commend the scientists and researchers for their hard work and dedication that led to this monumental scientific achievement, and I will continue to push for robust funding for NIF to support advancements in fusion research.",
+    "[Source 4: Lawrence Livermore fusion ignition] 5, a team at LLNL’s National Ignition Facility (NIF) conducted the first controlled fusion experiment in history to reach this milestone, also known as scientific energy breakeven, meaning it produced more energy from fusion than the laser energy used to drive it.",
+    "[Source 4: Lawrence Livermore fusion ignition] “Crossing this threshold is the vision that has driven 60 years of dedicated pursuit — a continual process of learning, building, expanding knowledge and capability, and then finding ways to overcome the new challenges that emerged.",
+    "[Source 4: Lawrence Livermore fusion ignition] That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.",
+    "[Source 4: Lawrence Livermore fusion ignition] ” LLNL’s experiment surpassed the fusion threshold by delivering 2.",
+    "[Source 4: Lawrence Livermore fusion ignition] 15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The DOE Fusion Energy Sciences (FES) program’s mission is to drive the scientific and technological foundation for a fusion energy source and support the development of a competitive U.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] In service of these drivers, FES supports fusion facilities in both the public and private sectors.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Building on a foundation of research in academia, industry, and national laboratories, FES supports nationally coordinated public-private partnership programs to cultivate a growing fusion power industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Fusion Energy Sciences program is guided by the Fusion Science and Technology Roadmap .",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] This strategy describes how the fusion community can \"Build,\" \"Innovate,\" and \"Grow\" to create a leading, robust American fusion energy industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Using some of the most advanced experimental capabilities, the most powerful supercomputers, and the fastest networks in the world today, DOE-supported scientists are undertaking research and development towards fundamental progress to establish fusion energy’s viability.",
+    "[Source 4: Lawrence Livermore fusion ignition] Nuclear, Chemical & Isotopic Science and Technology Learn How We Make Science and Technology Happen We support diverse research activities with talented staff, state-of-the-art facilities and core competencies.",
+    "[Source 4: Lawrence Livermore fusion ignition] Department of Energy (DOE) and DOE’s National Nuclear Security Administration (NNSA) today (Dec.",
+    "[Source 4: Lawrence Livermore fusion ignition] This first-of-its-kind feat will provide unprecedented capability to support NNSA’s Stockpile Stewardship Program and will provide invaluable insights into the prospects of clean fusion energy, which would be a game-changer for efforts to achieve President Biden’s goal of a net-zero carbon economy.",
+    "[Source 4: Lawrence Livermore fusion ignition] “This is a landmark achievement for the researchers and staff at the National Ignition Facility who have dedicated their careers to seeing fusion ignition become a reality, and this milestone will undoubtedly spark even more discovery,” said U.",
+    "[Source 4: Lawrence Livermore fusion ignition] “The Biden-Harris Administration is committed to supporting our world-class scientists — like the team at NIF — whose work will help us solve humanity’s most complex and pressing problems, like providing clean power to combat climate change and maintaining a nuclear deterrent without nuclear testing.",
+    "[Source 4: Lawrence Livermore fusion ignition] ” “We have had a theoretical understanding of fusion for over a century, but the journey from knowing to doing can be long and arduous."
+  ],
+  "numeric_facts": [
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.",
+    "[Source 4: Lawrence Livermore fusion ignition] 13) announced the achievement of fusion ignition at Lawrence Livermore National Laboratory (LLNL) — a major scientific breakthrough decades in the making that will pave the way for advancements in national defense and the future of clean power.",
+    "[Source 2: ITER project] Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary The Machine The Machine One million components, ten million parts — find out more about the ITER Tokamak and its systems.",
+    "[Source 4: Lawrence Livermore fusion ignition] “Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility.",
+    "[Source 4: Lawrence Livermore fusion ignition] ” “I am thrilled that NIF — the United States’ most cutting-edge nuclear research facility — has achieved fusion ignition, potentially providing for a new clean and sustainable energy source in the future.",
+    "[Source 4: Lawrence Livermore fusion ignition] National-lab source on fusion ignition, a key scientific milestone that raised investor and policy attention.",
+    "[Source 4: Lawrence Livermore fusion ignition] “I commend the scientists and researchers for their hard work and dedication that led to this monumental scientific achievement, and I will continue to push for robust funding for NIF to support advancements in fusion research.",
+    "[Source 4: Lawrence Livermore fusion ignition] 5, a team at LLNL’s National Ignition Facility (NIF) conducted the first controlled fusion experiment in history to reach this milestone, also known as scientific energy breakeven, meaning it produced more energy from fusion than the laser energy used to drive it.",
+    "[Source 4: Lawrence Livermore fusion ignition] “Crossing this threshold is the vision that has driven 60 years of dedicated pursuit — a continual process of learning, building, expanding knowledge and capability, and then finding ways to overcome the new challenges that emerged.",
+    "[Source 4: Lawrence Livermore fusion ignition] That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.",
+    "[Source 4: Lawrence Livermore fusion ignition] ” LLNL’s experiment surpassed the fusion threshold by delivering 2.",
+    "[Source 4: Lawrence Livermore fusion ignition] 15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The DOE Fusion Energy Sciences (FES) program’s mission is to drive the scientific and technological foundation for a fusion energy source and support the development of a competitive U.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] In service of these drivers, FES supports fusion facilities in both the public and private sectors.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Building on a foundation of research in academia, industry, and national laboratories, FES supports nationally coordinated public-private partnership programs to cultivate a growing fusion power industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Fusion Energy Sciences program is guided by the Fusion Science and Technology Roadmap ."
+  ],
+  "dated_facts": [
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.",
+    "[Source 4: Lawrence Livermore fusion ignition] “Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility."
+  ],
+  "validation_issues": []
+}

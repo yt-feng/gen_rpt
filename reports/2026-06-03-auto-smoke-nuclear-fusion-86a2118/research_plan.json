@@ -1,0 +1,105 @@
+{
+  "objective": "Assess the commercialization outlook for nuclear fusion energy and analyze its strategic implications for energy markets, geopolitics, and technology investment.",
+  "audience": "Senior executives in energy and technology sectors, policy makers, and strategic investors.",
+  "decision_question": "Should our organization invest in or develop a strategic position in nuclear fusion technology, and what are the key milestones and risks to monitor over the next 5-15 years?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook",
+    "children": [
+      {
+        "node": "Technology Readiness",
+        "children": [
+          {
+            "node": "Current reactor designs and approaches (tokamak, stellarator, inertial confinement, etc.)"
+          },
+          {
+            "node": "Key technical hurdles (plasma confinement, materials, tritium breeding, etc.)"
+          },
+          {
+            "node": "Timeline estimates for net energy gain and pilot plants"
+          }
+        ]
+      },
+      {
+        "node": "Economic Viability",
+        "children": [
+          {
+            "node": "Levelized cost of electricity (LCOE) projections vs. renewables and fission"
+          },
+          {
+            "node": "Capital expenditure and operational costs"
+          },
+          {
+            "node": "Market size and demand scenarios"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory and Safety Landscape",
+        "children": [
+          {
+            "node": "Licensing frameworks and regulatory bodies"
+          },
+          {
+            "node": "Safety, waste, and proliferation risks"
+          },
+          {
+            "node": "Public perception and acceptance"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Impact on global energy mix and decarbonization"
+          },
+          {
+            "node": "Geopolitical shifts (energy independence, resource competition)"
+          },
+          {
+            "node": "Investment opportunities and risks for incumbents and startups"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025",
+    "fusion energy levelized cost of electricity projections",
+    "private fusion companies progress 2025",
+    "ITER project status and delays",
+    "fusion regulatory framework licensing",
+    "nuclear fusion safety waste management",
+    "fusion energy geopolitical implications",
+    "fusion vs renewables cost comparison",
+    "fusion investment trends venture capital",
+    "tritium supply chain fusion reactors"
+  ],
+  "outline": [
+    "Nuclear fusion is approaching net energy gain but commercialization remains a decade away",
+    "Economic viability hinges on cost reductions and scale-up, with LCOE uncertain vs. renewables",
+    "Regulatory and safety frameworks are nascent but critical for public acceptance",
+    "Strategic implications include potential disruption of energy markets and shifts in geopolitical power",
+    "Investment should focus on key milestones: net energy demonstration, pilot plant, and regulatory progress"
+  ],
+  "chart_ideas": [
+    "Timeline of major fusion milestones (historical and projected) with confidence intervals",
+    "Comparison of LCOE projections for fusion, fission, solar, wind, and natural gas (2025-2050)",
+    "Global fusion investment by year and source (public vs. private) over the past decade",
+    "Map of fusion startups and their technology approaches (tokamak, stellarator, etc.)",
+    "Risk matrix: likelihood vs. impact of key technical, economic, and regulatory risks"
+  ],
+  "insight_card_ideas": [
+    "Key insight: Fusion's 'always 30 years away' narrative is shifting; multiple private firms target 2030s pilot plants",
+    "Surprising finding: Tritium supply is a critical bottleneck that could delay commercialization",
+    "Controversial view: Fusion may never compete on cost with solar+storage, but could serve baseload and industrial heat",
+    "Strategic takeaway: Early movers in fusion supply chain (magnets, lasers, tritium) may capture value even if reactors lag"
+  ],
+  "risks": [
+    "Technical risk: Plasma confinement and materials challenges may delay net energy gain beyond 2035",
+    "Economic risk: Rapid cost declines in renewables and storage could erode fusion's market case",
+    "Regulatory risk: Licensing frameworks may take longer to develop than technology",
+    "Geopolitical risk: Fusion could exacerbate energy inequality if only a few nations control the technology",
+    "Investment risk: Overvaluation of private fusion companies may lead to a bubble and capital flight"
+  ]
+}
