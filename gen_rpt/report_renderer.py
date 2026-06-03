@@ -90,14 +90,14 @@ LABELS = {
         "chapter": "Chapter",
         "figure": "Figure",
         "leader_changes": "What changes for leaders",
-        "what_to_watch": "What to watch",
+        "what_to_watch": "Data note",
         "decision_question": "Decision question",
         "recommended_move": "Recommended move",
         "watchout": "Watchout",
-        "agenda": "Future action agenda",
+        "agenda": "Board implications",
         "priorities": "Priorities",
-        "signals": "Signals to watch",
-        "about": "About this research",
+        "signals": "External facts",
+        "about": "About the research",
         "reference_note": "This report was informed by public research and data from:",
         "formal_note": "Detailed supporting sources are retained in the backup folder.",
         "disclaimer_text": "This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. Recipients should perform their own diligence and treat this report as one input into a broader decision process.",
@@ -153,18 +153,21 @@ def render_report_html(report: Dict[str, Any], assets: Dict[str, str], output_fi
     _render_opening(parts, report, summary, sections, assets, logo_path, page_no, labels, topic_text)
     page_no += 1
 
+    chart_index = 0
     for idx, section in enumerate(sections, start=1):
         _render_chapter(parts, section, assets, logo_path, page_no, labels, idx)
         page_no += 1
-        if idx <= len(charts):
-            _render_exhibit(parts, charts[idx - 1], assets, logo_path, page_no, labels, idx)
+        if chart_index < len(charts):
+            group = charts[chart_index:chart_index + 2]
+            _render_exhibit(parts, group, assets, logo_path, page_no, labels, chart_index + 1)
+            chart_index += len(group)
             page_no += 1
-        if idx == 2:
-            _render_decision_story(parts, report, logo_path, page_no, labels)
-            page_no += 1
+    while chart_index < len(charts):
+        group = charts[chart_index:chart_index + 2]
+        _render_exhibit(parts, group, assets, logo_path, page_no, labels, chart_index + 1)
+        chart_index += len(group)
+        page_no += 1
 
-    _render_leadership_agenda(parts, report, sections, logo_path, page_no, labels)
-    page_no += 1
     _render_about(parts, institutions, logo_path, page_no, labels)
     page_no += 1
     _render_back_cover(parts, cover_path)
@@ -207,29 +210,6 @@ def render_report_markdown(report: Dict[str, Any], assets: Dict[str, str], outpu
             lines.extend([lead, ""])
         for paragraph in _section_paragraphs(section)[:5]:
             lines.extend([paragraph, ""])
-        hints = _section_content_hints(section)[:3]
-        if hints:
-            lines.append(f"**{labels['what_to_watch']}**")
-            for item in hints:
-                lines.append(f"- {_shorten(item, 170)}")
-
-    scenario = _scenario_payload(report)
-    if scenario:
-        lines.extend(["", "## " + scenario["title"], "", scenario["situation"], ""])
-        if scenario["question"]:
-            lines.extend([f"**{labels['decision_question']}**: {scenario['question']}", ""])
-        if scenario["move"]:
-            lines.extend([f"**{labels['recommended_move']}**: {scenario['move']}", ""])
-        if scenario["watchouts"]:
-            lines.extend([f"**{labels['watchout']}**: {scenario['watchouts']}", ""])
-
-    actions, risks = _agenda_payload(report, sections)
-    lines.extend(["", f"## {labels['agenda']}", "", f"**{labels['priorities']}**"])
-    for item in actions:
-        lines.append(f"- {_shorten(item, 210)}")
-    lines.extend(["", f"**{labels['signals']}**"])
-    for item in risks:
-        lines.append(f"- {_shorten(item, 210)}")
 
     lines.extend(["", f"## {labels['about']}", "", labels["disclaimer_text"], ""])
     institutions = [_reader_text(x) for x in (report.get("reference_institutions", []) or []) if _reader_text(x)]
@@ -269,15 +249,17 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     rows: List[tuple[str, str, List[str]]] = [("03", _agenda_heading(summary, sections), [])]
     page_no = 4
     chart_count = len(charts)
+    chart_pages = 0
     for idx, section in enumerate(sections, start=1):
-        rows.append((f"{page_no:02d}", _strip_number_prefix(section.get("title", "Section")), _section_content_hints(section)[:2]))
+        rows.append((f"{page_no:02d}", _strip_number_prefix(section.get("title", "Section")), []))
         page_no += 1
-        if idx <= chart_count:
+        if chart_pages * 2 < chart_count:
             page_no += 1
-        if idx == 2:
-            page_no += 1
-    rows.append((f"{page_no:02d}", labels["agenda"], []))
-    rows.append((f"{page_no + 1:02d}", labels["about"], []))
+            chart_pages += 1
+    while chart_pages * 2 < chart_count:
+        page_no += 1
+        chart_pages += 1
+    rows.append((f"{page_no:02d}", labels["about"], []))
     return rows
 
 
@@ -324,7 +306,6 @@ def _render_chapter(parts: List[str], section: Dict[str, Any], assets: Dict[str,
         parts.append("</div><div class='body-copy'>")
         for paragraph in paragraphs[:3]:
             parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
-        _append_takeaways(parts, _section_content_hints(section), labels)
         parts.append("</div></div>")
     else:
         parts.append("<div class='chapter-grid text-grid'>")
@@ -334,30 +315,31 @@ def _render_chapter(parts: List[str], section: Dict[str, Any], assets: Dict[str,
         parts.append("</div><div class='body-copy'>")
         for paragraph in paragraphs[2:4]:
             parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
-        _append_takeaways(parts, _section_content_hints(section), labels)
         parts.append("</div></div>")
     parts.append("</section>")
 
 
-def _render_exhibit(parts: List[str], chart: Dict[str, Any], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], idx: int) -> None:
-    title = _chart_title(chart.get("title") or f"{labels['figure']} {idx}", 125)
-    subtitle = _reader_text(chart.get("subtitle") or chart.get("caption") or "")
-    caption = _reader_text(chart.get("caption") or "")
-    source = _reader_text(chart.get("source_note") or f"Source: public sources and {BRAND_NAME} synthesis.")
-    path = _asset_for_key(assets, str(chart.get("id") or f"chart-{idx}")) or _asset_for_key(assets, f"chart-{idx}")
+def _render_exhibit(parts: List[str], charts: List[Dict[str, Any]], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], start_idx: int) -> None:
     parts.append("<section class='page'>")
     _page_header(parts, logo_path, page_no)
-    parts.append(f"<div class='kicker'>{html.escape(labels['figure'])} {idx}</div>")
-    parts.append(f"<h2>{html.escape(_shorten(title, 125))}</h2>")
-    if subtitle:
-        parts.append(f"<p class='figure-note'>{html.escape(_shorten(subtitle, 230))}</p>")
-    if path:
-        parts.append(f"<img class='exhibit-img' src='{html.escape(path)}' alt='' />")
-    else:
-        parts.append("<div class='placeholder'></div>")
-    if caption:
-        parts.append(f"<p>{html.escape(_shorten(caption, 300))}</p>")
-    parts.append(f"<p class='figure-note'>{html.escape(_shorten(source, 210))}</p>")
+    for offset, chart in enumerate(charts):
+        idx = start_idx + offset
+        title = _chart_title(chart.get("title") or f"{labels['figure']} {idx}", 125)
+        subtitle = _reader_text(chart.get("subtitle") or chart.get("caption") or "")
+        caption = _reader_text(chart.get("caption") or "")
+        source = _reader_text(chart.get("source_note") or f"Source: public sources and {BRAND_NAME} synthesis.")
+        path = _asset_for_key(assets, str(chart.get("id") or f"chart-{idx}")) or _asset_for_key(assets, f"chart-{idx}")
+        parts.append(f"<div class='kicker'>{html.escape(labels['figure'])} {idx}</div>")
+        parts.append(f"<h2>{html.escape(_shorten(title, 125))}</h2>")
+        if subtitle:
+            parts.append(f"<p class='figure-note'>{html.escape(_shorten(subtitle, 230))}</p>")
+        if path:
+            parts.append(f"<img class='exhibit-img' src='{html.escape(path)}' alt='' />")
+        else:
+            parts.append("<div class='placeholder'></div>")
+        if caption:
+            parts.append(f"<p>{html.escape(_shorten(caption, 300))}</p>")
+        parts.append(f"<p class='figure-note'>{html.escape(_shorten(source, 210))}</p>")
     parts.append("</section>")
 
 
@@ -582,7 +564,7 @@ def _chart_title(value: Any, max_chars: int) -> str:
 
 def _clean_sentence_fragment(text: str) -> str:
     cleaned = _reader_text(text).rstrip(".,;: ")
-    weak_tail = r"\s+(?:before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$"
+    weak_tail = r"\s+(?:a|an|the|not|before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$"
     while re.search(weak_tail, cleaned, flags=re.I):
         cleaned = re.sub(weak_tail, "", cleaned, flags=re.I).rstrip(".,;: ")
     return cleaned
@@ -629,7 +611,7 @@ def _safe_charts(value: Any) -> List[Dict[str, Any]]:
         chart = dict(item)
         chart["id"] = str(chart.get("id") or f"chart-{idx}")
         charts.append(chart)
-    return charts[:8]
+    return charts[:12]
 
 
 def _summary_items(value: Any) -> List[str]:
@@ -719,13 +701,14 @@ def _reader_text(value: Any) -> str:
 def _reader_clean(text: str) -> str:
     text = _normalize_punctuation(text)
     replacements = [
-        (r"\bCEO decision scenario\b", "A concrete executive choice"),
-        (r"\bCEO investment committee scenario\b", "A concrete executive choice"),
-        (r"\bManagement action plan\b", "Future action agenda"),
-        (r"\bRisk register\b", "Signals to watch"),
-        (r"\bMethod and team\b", "About this research"),
+        (r"\bCEO decision scenario\b", "Board choice under uncertainty"),
+        (r"\bCEO investment committee scenario\b", "Board choice under uncertainty"),
+        (r"\bManagement action plan\b", "Near-term management moves"),
+        (r"\bRisk register\b", "Risk implications"),
+        (r"\bMethod and team\b", "About the research"),
         (r"\bKey findings\b", "Main conclusions"),
         (r"\bExecutive summary\b", "Opening view"),
+        (r"\bEvidence boundary:\s*", "The public record shows that "),
         (r"\bEvidence:\s*", ""),
         (r"\bManagement implication:\s*", ""),
         (r"\bManagement implications\b", "Leadership implications"),
@@ -742,10 +725,11 @@ def _reader_clean(text: str) -> str:
         (r"\binternal executive strategy stress test\b", ""),
         (r"\binternal framework\b", ""),
         (r"\bstress test\b", "review"),
+        (r"\bavailable public record:\s*", "The public record shows that "),
         (r"执行摘要", "开篇观点"),
-        (r"管理层行动计划", "未来行动议程"),
-        (r"风险台账", "需要观察的信号"),
-        (r"CEO\s*决策场景", "一个具体的高管选择"),
+        (r"管理层行动计划", "近期管理动作"),
+        (r"风险台账", "风险含义"),
+        (r"CEO\s*决策场景", "董事会选择"),
         (r"方法与团队", "关于本研究"),
     ]
     for pattern, replacement in replacements:

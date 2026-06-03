@@ -46,10 +46,10 @@ HEADER = r'''
 \fancyhf{}
 \renewcommand{\headrulewidth}{0pt}
 \renewcommand{\footrulewidth}{0pt}
-\fancyhead[L]{\scriptsize\color{BOMuted} BlueOcean}
-\fancyhead[R]{\scriptsize\color{BOMuted} Deep Research Report \hspace{6pt} \thepage}
+\fancyhead[L]{}
+\fancyhead[R]{}
 \fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean}
-\fancyfoot[C]{\scriptsize\color{BOMuted} This document is intended for strategy discussion.}
+\fancyfoot[C]{\scriptsize\color{BOMuted} Deep Research Report}
 \fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
 '''
@@ -90,13 +90,17 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     parts.append(_cover_page(title, _asset_path(assets.get('cover-background', '')), topic))
     parts.append(_agenda_and_contents_page(summary, sections, charts))
     parts.append(_opening_page(report, summary, sections, assets, topic))
+    chart_index = 0
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
-        if idx <= len(charts):
-            parts.append(_exhibit_page(charts[idx - 1], assets, idx))
-        if idx == 2:
-            parts.append(_decision_story_page(report))
-    parts.append(_leadership_agenda_page(report, sections))
+        if chart_index < len(charts):
+            group = charts[chart_index:chart_index + 2]
+            parts.append(_exhibit_page(group, assets, chart_index + 1))
+            chart_index += len(group)
+    while chart_index < len(charts):
+        group = charts[chart_index:chart_index + 2]
+        parts.append(_exhibit_page(group, assets, chart_index + 1))
+        chart_index += len(group)
     parts.append(_disclaimer_page(refs))
     parts.append(_back_cover_page(_asset_path(assets.get('cover-background', ''))))
     parts.append('\\end{document}\n')
@@ -145,15 +149,17 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
     page_no = 4
     chart_count = len(charts)
+    chart_pages = 0
     for idx, section in enumerate(sections, start=1):
-        rows.append((f'{page_no:02d}', _strip_number_prefix(section.get('title', 'Section')), _section_content_hints(section)[:2]))
+        rows.append((f'{page_no:02d}', _strip_number_prefix(section.get('title', 'Section')), []))
         page_no += 1
-        if idx <= chart_count:
+        if chart_pages * 2 < chart_count:
             page_no += 1
-        if idx == 2:
-            page_no += 1
-    rows.append((f'{page_no:02d}', 'Future action agenda', []))
-    rows.append((f'{page_no + 1:02d}', 'About this research', []))
+            chart_pages += 1
+    while chart_pages * 2 < chart_count:
+        page_no += 1
+        chart_pages += 1
+    rows.append((f'{page_no:02d}', 'About the research', []))
     return rows
 
 
@@ -164,22 +170,21 @@ def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dic
         narrative = ' '.join(summary[:3])
     narrative = _tex(_shorten(narrative, 1200))
     visual = _asset_path(assets.get('image-1', '')) or _asset_path(assets.get('cover-background', ''))
-    image = _image_strip(visual, '48mm') if visual else ''
-    bullets = summary[:4] or [_strip_number_prefix(x.get('title', '')) for x in sections[:4]]
-    bullet_block = ''.join('\\item ' + _tex(_display_bullet(item, 185)) + '\n' for item in bullets if str(item).strip())
-    if bullet_block:
-        bullet_block = '\\begin{itemize}\n' + bullet_block + '\\end{itemize}\n'
+    image = _image_strip(visual, '58mm') if visual else ''
+    left = narrative
+    right_source = ' '.join(summary[1:4]) or ' '.join(_strip_number_prefix(x.get('lead') or x.get('title') or '') for x in sections[:3])
+    right = _tex(_shorten(right_source, 950))
     return (
         '\\clearpage\n'
-        + (image + '\\vspace{6pt}\n' if image else '')
-        + '{\\sffamily\\fontsize{22}{27}\\selectfont\\color{BONavy} ' + title + '}\\par\\vspace{4pt}\n'
-        + '{\\sffamily\\fontsize{12}{16}\\selectfont\\color{BOGreen} ' + _tex(_shorten(topic, 150)) + '}\\par\\vspace{8pt}\n'
-        + '\\begin{minipage}[t]{0.48\\linewidth}\n'
-        + '{\\small\\color{BOText} ' + narrative + '}\\par\n'
+        + (image + '\\vspace{0pt}\n' if image else '')
+        + _green_rule('88mm')
+        + '{\\sffamily\\fontsize{24}{30}\\selectfont\\color{BONavy} ' + title + '}\\par\\vspace{11pt}\n'
+        + '\\begin{minipage}[t]{0.44\\linewidth}\n'
+        + '{\\sffamily\\fontsize{17}{23}\\selectfont\\color{BOGreen} ' + _tex(_shorten(_agenda_heading(summary, sections), 190)) + '}\\par\\vspace{10pt}\n'
+        + '{\\small\\color{BOText} ' + left + '}\\par\n'
         + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries WHAT CHANGES FOR LEADERS}}\\par\\vspace{3pt}\n'
-        + '{\\footnotesize ' + bullet_block + '}'
-        + '\\end{minipage}\n\\clearpage\n'
+        + '{\\small\\color{BOText} ' + right + '}\\par\n'
+        + '\\end{minipage}\n'
     )
 
 
@@ -287,17 +292,15 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
 
     chapter = '\\clearpage\n\\label{chap:' + str(idx) + '}\n'
     if visual_path:
-        chapter += _image_strip(visual_path, '46mm') + '\\vspace{5pt}\n'
-    chapter += _kicker('Chapter ' + str(idx)) + _heading(title)
+        chapter += _image_strip(visual_path, '70mm') + '\\vspace{0pt}\n'
+    chapter += _green_rule('96mm')
+    chapter += _heading(title)
     if lead and _normalize_punctuation(lead_raw).lower() != _normalize_punctuation(title_raw).lower():
-        chapter += '{\\sffamily\\fontsize{12}{15}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{6pt}\n'
+        chapter += '{\\sffamily\\fontsize{16}{21}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{11pt}\n'
     if len(paras) >= 2:
         chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:4]) + '\\end{multicols}\n'
     else:
         chapter += _paragraph_group(paras)
-    hints = _section_content_hints(section)
-    if hints:
-        chapter += _inline_watchouts(hints[:3])
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
@@ -346,6 +349,14 @@ def _image_strip(path: str, height: str) -> str:
     )
 
 
+def _green_rule(width: str = '82mm') -> str:
+    return (
+        '\\noindent\\begin{tikzpicture}\n'
+        '\\fill[BOGreen] (0,0) rectangle (' + width + ',1.2pt);\n'
+        '\\end{tikzpicture}\\par\\vspace{8pt}\n'
+    )
+
+
 def _paragraph_group(paragraphs: List[str]) -> str:
     return ''.join(_para(p) for p in paragraphs if str(p).strip())
 
@@ -356,7 +367,7 @@ def _inline_watchouts(items: List[str]) -> str:
         return ''
     return (
         '\\vspace{4pt}\\noindent\\begin{minipage}{\\linewidth}\n'
-        '{\\textcolor{BOGreen}{\\scriptsize\\bfseries WHAT TO WATCH}}\\par\\vspace{2pt}\n'
+        '{\\textcolor{BOGreen}{\\scriptsize\\bfseries DATA NOTE}}\\par\\vspace{2pt}\n'
         '{\\footnotesize\\begin{itemize}\n' + bullets + '\\end{itemize}}\n'
         '\\end{minipage}\n'
     )
@@ -368,32 +379,284 @@ def _callout_box(items: List[str]) -> str:
         bullets = '\\item Focus on the few facts that change the management decision.\n'
     return (
         '\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}[t][44mm][t]{0.95\\linewidth}'
-        '\\vspace{4pt}{\\textcolor{BOGreen}{\\scriptsize\\bfseries WHAT TO WATCH}}\\par'
+        '\\vspace{4pt}{\\textcolor{BOGreen}{\\scriptsize\\bfseries DATA NOTE}}\\par'
         '\\vspace{2pt}{\\footnotesize\\begin{itemize}\n' + bullets + '\\end{itemize}}'
         '\\end{minipage}}'
     )
 
 
-def _exhibit_page(chart: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
-    title = _tex(_chart_title(chart.get('title') or f'Figure {idx}', 125))
+def _exhibit_page(charts: List[Dict[str, Any]], assets: Dict[str, str], start_idx: int) -> str:
+    blocks: List[str] = ['\\clearpage\n']
+    for offset, chart in enumerate(charts):
+        idx = start_idx + offset
+        blocks.append(_exhibit_block(chart, assets, idx, compact=len(charts) > 1))
+        if offset < len(charts) - 1:
+            blocks.append('\\vspace{9pt}\\textcolor{BOLine}{\\rule{\\linewidth}{0.3pt}}\\vspace{8pt}\n')
+    return ''.join(blocks)
+
+
+def _exhibit_block(chart: Dict[str, Any], assets: Dict[str, str], idx: int, *, compact: bool = False) -> str:
+    title = _tex(_chart_title(chart.get('title') or f'Exhibit {idx}', 130))
     subtitle_raw = _normalize_punctuation(str(chart.get('subtitle') or chart.get('caption') or ''))
     caption_raw = _normalize_punctuation(str(chart.get('caption') or ''))
     if caption_raw.lower() == subtitle_raw.lower():
         caption_raw = ''
-    subtitle = _tex(_shorten(subtitle_raw, 210))
-    caption = _tex(_shorten(caption_raw, 260))
-    source = _tex(_shorten(chart.get('source_note') or 'Source: public sources and BlueOcean synthesis.', 180))
-    path = _asset_path(assets.get(str(chart.get('id') or f'chart-{idx}'), '')) or _resolve_chart(assets, idx)
-    visual = _center_image(path, '0.95\\linewidth', '98mm') if path else _callout_box([caption or subtitle])
+    subtitle = _tex(_shorten(subtitle_raw, 220))
+    caption = _tex(_shorten(caption_raw, 280))
+    source = _tex(_shorten(chart.get('source_note') or 'Source: public sources and BlueOcean synthesis.', 190))
+    visual = _native_chart(chart, compact=compact)
+    if not visual:
+        path = _asset_path(assets.get(str(chart.get('id') or f'chart-{idx}'), '')) or _resolve_chart(assets, idx)
+        visual = _center_image(path, '0.92\\linewidth', '76mm' if compact else '104mm') if path else _callout_box([caption or subtitle])
     return (
-        '\\clearpage\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries FIGURE ' + str(idx) + '}}\\par\\vspace{3pt}\n'
+        '{\\textcolor{BOGreen}{\\scriptsize\\bfseries EXHIBIT ' + str(idx) + '}}\\par\\vspace{3pt}\n'
         + '{\\sffamily\\fontsize{15}{19}\\selectfont\\color{BONavy} ' + title + '}\\par\n'
-        + ('{\\small\\color{BOMuted} ' + subtitle + '}\\par\\vspace{6pt}\n' if subtitle else '\\vspace{6pt}\n')
+        + ('{\\small\\color{BOText} ' + subtitle + '}\\par\\vspace{4pt}\n' if subtitle else '\\vspace{4pt}\n')
         + visual
-        + ('\\vspace{3pt}{\\footnotesize\\color{BOText} ' + caption + '}\\par\n' if caption else '')
+        + ('\\vspace{2pt}{\\footnotesize\\color{BOText} ' + caption + '}\\par\n' if caption else '')
         + '{\\scriptsize\\color{BOMuted} ' + source + '}\\par\n'
     )
+
+
+def _native_chart(chart: Dict[str, Any], *, compact: bool) -> str:
+    chart_type = str(chart.get('type') or '').lower()
+    if chart_type in {'scatter', 'risk_matrix', 'quadrant'}:
+        chart_type = 'bubble'
+    elif chart_type in {'heatmap', 'table', 'scorecard'}:
+        chart_type = 'matrix'
+    elif chart_type in {'pie', 'donut', 'column'}:
+        chart_type = 'bar'
+    if chart_type == 'stacked_bar':
+        return _native_stacked_bar(chart, compact=compact)
+    if chart_type in {'bar', 'column'}:
+        return _native_bar(chart, compact=compact)
+    if chart_type == 'line':
+        return _native_line(chart, compact=compact)
+    if chart_type == 'matrix':
+        return _native_matrix(chart, compact=compact)
+    if chart_type == 'bubble':
+        return _native_bubble(chart, compact=compact)
+    if chart.get('series') and chart.get('categories'):
+        return _native_bar(chart, compact=compact)
+    if chart.get('rows') and chart.get('columns') and chart.get('values'):
+        return _native_matrix(chart, compact=compact)
+    return ''
+
+
+def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
+    categories = [str(x) for x in _as_list(chart.get('categories'))][:6 if compact else 8]
+    series = _series_payload(chart)[:3]
+    if not categories or not series:
+        return ''
+    max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
+    width, height = (13.2, 3.2) if compact else (15.6, 5.1)
+    chart_h = height - 1.0
+    left = 0.7
+    group_w = (width - left - .3) / max(1, len(categories))
+    bar_w = min(.34, group_w / max(1, len(series) + .8))
+    colors = ['BOGreen', 'BOBlue', 'BONavy']
+    body = [_tikz_begin(width, height), f'\\draw[BOLine] ({left:.2f},0.55) -- ({width - .2:.2f},0.55);\n']
+    for ci, category in enumerate(categories):
+        base_x = left + ci * group_w + .16
+        for si, item in enumerate(series):
+            value = item['values'][ci] if ci < len(item['values']) else 0.0
+            h = max(.04, abs(value) / max_value * chart_h)
+            x = base_x + si * bar_w
+            body.append(f'\\fill[{colors[si % len(colors)]}] ({x:.2f},0.55) rectangle ({x + bar_w * .76:.2f},{0.55 + h:.2f});\n')
+        body.append(f'\\node[anchor=north,align=center,text width={group_w * .92:.2f}cm] at ({base_x + group_w * .35:.2f},0.42) {{\\scriptsize {_tex(_shorten(category, 22))}}};\n')
+    body.extend(_legend(series, colors, y=height - .22))
+    body.append(_tikz_end())
+    return ''.join(body)
+
+
+def _native_stacked_bar(chart: Dict[str, Any], *, compact: bool) -> str:
+    categories = [str(x) for x in _as_list(chart.get('categories'))][:5 if compact else 7]
+    series = _series_payload(chart)[:5]
+    if not categories or not series:
+        return ''
+    totals = [sum(max(0.0, item['values'][ci] if ci < len(item['values']) else 0.0) for item in series) for ci in range(len(categories))]
+    max_value = max(totals + [1.0])
+    width, height = (13.2, 3.3) if compact else (15.6, 5.2)
+    chart_h = height - 1.0
+    left = 0.8
+    group_w = (width - left - .4) / max(1, len(categories))
+    bar_w = min(.62, group_w * .52)
+    colors = ['BOGreen', 'BOBlue', 'BONavy', 'BOMuted', 'BOLine']
+    body = [_tikz_begin(width, height), f'\\draw[BOLine] ({left:.2f},0.55) -- ({width - .2:.2f},0.55);\n']
+    for ci, category in enumerate(categories):
+        x = left + ci * group_w + group_w * .26
+        y = .55
+        for si, item in enumerate(series):
+            value = max(0.0, item['values'][ci] if ci < len(item['values']) else 0.0)
+            h = value / max_value * chart_h
+            if h > 0:
+                body.append(f'\\fill[{colors[si % len(colors)]}] ({x:.2f},{y:.2f}) rectangle ({x + bar_w:.2f},{y + h:.2f});\n')
+                y += h
+        body.append(f'\\node[anchor=north,align=center,text width={group_w * .92:.2f}cm] at ({x + bar_w / 2:.2f},0.42) {{\\scriptsize {_tex(_shorten(category, 22))}}};\n')
+    body.extend(_legend(series, colors, y=height - .22))
+    body.append(_tikz_end())
+    return ''.join(body)
+
+
+def _native_line(chart: Dict[str, Any], *, compact: bool) -> str:
+    categories = [str(x) for x in _as_list(chart.get('categories'))][:6 if compact else 8]
+    series = _series_payload(chart)[:3]
+    if len(categories) < 2 or not series:
+        return ''
+    max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
+    width, height = (13.2, 3.4) if compact else (15.6, 5.2)
+    left, bottom = .8, .65
+    chart_w, chart_h = width - 1.2, height - 1.25
+    colors = ['BOGreen', 'BOBlue', 'BONavy']
+    body = [_tikz_begin(width, height), f'\\draw[BOLine] ({left:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom:.2f});\n']
+    for si, item in enumerate(series):
+        pts = []
+        for ci in range(len(categories)):
+            value = item['values'][ci] if ci < len(item['values']) else 0.0
+            x = left + (chart_w * ci / max(1, len(categories) - 1))
+            y = bottom + (abs(value) / max_value * chart_h)
+            pts.append((x, y))
+        body.append('\\draw[' + colors[si % len(colors)] + ',line width=1.1pt] ' + ' -- '.join(f'({x:.2f},{y:.2f})' for x, y in pts) + ';\n')
+        for x, y in pts:
+            body.append(f'\\fill[{colors[si % len(colors)]}] ({x:.2f},{y:.2f}) circle (.045);\n')
+    for ci, category in enumerate(categories):
+        x = left + (chart_w * ci / max(1, len(categories) - 1))
+        body.append(f'\\node[anchor=north,align=center,text width=1.8cm] at ({x:.2f},{bottom - .12:.2f}) {{\\scriptsize {_tex(_shorten(category, 18))}}};\n')
+    body.extend(_legend(series, colors, y=height - .18))
+    body.append(_tikz_end())
+    return ''.join(body)
+
+
+def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
+    points = _bubble_points(chart)[:6 if compact else 8]
+    if not points:
+        return ''
+    width, height = (13.2, 3.5) if compact else (15.6, 5.2)
+    left, bottom = .85, .65
+    chart_w, chart_h = width - 1.35, height - 1.25
+    body = [_tikz_begin(width, height)]
+    body.append(f'\\draw[BOLine] ({left:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom + chart_h:.2f});\n')
+    body.append(f'\\draw[BOLine,dashed] ({left:.2f},{bottom + chart_h / 2:.2f}) -- ({left + chart_w:.2f},{bottom + chart_h / 2:.2f});\n')
+    body.append(f'\\draw[BOLine,dashed] ({left + chart_w / 2:.2f},{bottom:.2f}) -- ({left + chart_w / 2:.2f},{bottom + chart_h:.2f});\n')
+    for point in points:
+        x = left + _num(point.get('x'), 50) / 100 * chart_w
+        y = bottom + _num(point.get('y'), 50) / 100 * chart_h
+        radius = .08 + min(80, max(10, _num(point.get('size'), 35))) / 500
+        body.append(f'\\fill[BOGreen,opacity=.65] ({x:.2f},{y:.2f}) circle ({radius:.2f});\n')
+        body.append(f'\\node[anchor=west,text width=2.7cm] at ({x + radius + .04:.2f},{y:.2f}) {{\\scriptsize {_tex(_shorten(point.get("label", ""), 28))}}};\n')
+    x_label = _tex(_shorten(chart.get('x_label') or 'Likelihood', 24))
+    y_label = _tex(_shorten(chart.get('y_label') or 'Impact', 24))
+    body.append(f'\\node[anchor=north east] at ({left + chart_w:.2f},{bottom - .12:.2f}) {{\\scriptsize {x_label}}};\n')
+    body.append(f'\\node[anchor=south west,rotate=90] at ({left - .18:.2f},{bottom + chart_h:.2f}) {{\\scriptsize {y_label}}};\n')
+    body.append(_tikz_end())
+    return ''.join(body)
+
+
+def _bubble_points(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
+    points = [dict(p) for p in _as_list(chart.get('points')) if isinstance(p, dict)]
+    if points:
+        return points
+    converted: List[Dict[str, Any]] = []
+    for row in _as_list(chart.get('data')):
+        if not isinstance(row, dict):
+            continue
+        label = row.get('label') or row.get('risk') or row.get('name') or row.get('category') or row.get('driver') or ''
+        x = row.get('x', row.get('likelihood', row.get('probability', row.get('readiness', row.get('attractiveness', 50)))))
+        y = row.get('y', row.get('impact', row.get('severity', row.get('importance', row.get('return', 50)))))
+        size = row.get('size', row.get('impact', row.get('severity', row.get('importance', 45))))
+        converted.append({'label': label, 'x': _scale_point(x), 'y': _scale_point(y), 'size': _scale_point(size)})
+    return converted
+
+
+def _scale_point(value: Any) -> float:
+    number = _num(value, 50)
+    if number <= 5:
+        return number * 20
+    if number <= 10:
+        return number * 10
+    return max(0, min(100, number))
+
+
+def _native_matrix(chart: Dict[str, Any], *, compact: bool) -> str:
+    rows = [str(x) for x in _as_list(chart.get('rows'))][:5 if compact else 7]
+    cols = [str(x) for x in _as_list(chart.get('columns'))][:4]
+    values = _as_list(chart.get('values'))
+    if not rows or not cols:
+        return ''
+    col_spec = 'p{38mm}' + ''.join('>{\\centering\\arraybackslash}p{21mm}' for _ in cols)
+    lines = ['{\\scriptsize\\begin{tabular}{' + col_spec + '}\n']
+    lines.append(' & ' + ' & '.join('{\\bfseries ' + _tex(_shorten(c, 18)) + '}' for c in cols) + ' \\\\\n\\hline\n')
+    for ri, row in enumerate(rows):
+        row_values = values[ri] if ri < len(values) and isinstance(values[ri], list) else []
+        cells = []
+        for ci in range(len(cols)):
+            value = row_values[ci] if ci < len(row_values) else ''
+            cells.append(_matrix_cell(value))
+        lines.append('{\\bfseries ' + _tex(_shorten(row, 32)) + '} & ' + ' & '.join(cells) + ' \\\\\n')
+    lines.append('\\end{tabular}}\\par\\vspace{2pt}\n')
+    return ''.join(lines)
+
+
+def _tikz_begin(width: float, height: float) -> str:
+    return (
+        '\\noindent\\begin{tikzpicture}[x=1cm,y=1cm]\n'
+        f'\\path[use as bounding box] (0,0) rectangle ({width:.2f},{height:.2f});\n'
+    )
+
+
+def _tikz_end() -> str:
+    return '\\end{tikzpicture}\\par\\vspace{2pt}\n'
+
+
+def _legend(series: List[Dict[str, Any]], colors: List[str], *, y: float) -> List[str]:
+    items: List[str] = []
+    x = .8
+    for idx, item in enumerate(series[:4]):
+        name = _tex(_shorten(item.get('name') or f'Series {idx + 1}', 20))
+        color = colors[idx % len(colors)]
+        items.append(f'\\fill[{color}] ({x:.2f},{y:.2f}) rectangle ({x + .16:.2f},{y + .10:.2f});\n')
+        items.append(f'\\node[anchor=west] at ({x + .22:.2f},{y + .05:.2f}) {{\\scriptsize {name}}};\n')
+        x += min(3.2, .85 + len(str(item.get('name') or 'Series')) * .095)
+    return items
+
+
+def _series_payload(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
+    payload: List[Dict[str, Any]] = []
+    for idx, item in enumerate(_as_list(chart.get('series')), start=1):
+        if not isinstance(item, dict):
+            continue
+        values = [_num(x, 0.0) for x in _as_list(item.get('values'))]
+        if not values:
+            continue
+        payload.append({'name': str(item.get('name') or f'Series {idx}'), 'values': values})
+    if not payload:
+        values = [_num(x, 0.0) for x in _as_list(chart.get('values'))]
+        if values:
+            payload.append({'name': str(chart.get('name') or 'Value'), 'values': values})
+    return payload
+
+
+def _num(value: Any, default: float = 0.0) -> float:
+    try:
+        if isinstance(value, str):
+            cleaned = value.replace('%', '').replace('$', '').replace(',', '').strip()
+            return float(cleaned)
+        return float(value)
+    except Exception:
+        return default
+
+
+def _matrix_cell(value: Any) -> str:
+    number = _num(value, None)
+    if number is None:
+        return _tex(_shorten(value, 18))
+    if abs(number - round(number)) < 0.01:
+        label = str(int(round(number)))
+    else:
+        label = f'{number:.1f}'
+    color = 'BOGreen' if number >= 4 else ('BOBlue' if number >= 3 else 'BOLight')
+    text_color = 'white' if color in {'BOGreen', 'BOBlue'} else 'BOText'
+    return '\\colorbox{' + color + '}{\\textcolor{' + text_color + '}{\\strut\\hspace{5pt}' + _tex(label) + '\\hspace{5pt}}}'
 
 
 def _decision_story_page(report: Dict[str, Any]) -> str:
@@ -406,13 +669,13 @@ def _decision_story_page(report: Dict[str, Any]) -> str:
         move = _field(item, 'recommended_move')
         watchouts = _field(item, 'watchouts')
     else:
-        title = 'A boardroom question'
+        title = 'A boardroom choice'
         situation = 'Leadership must decide which moves can be made now and which should wait for stronger evidence.'
         question = 'What should be done before the next major commitment?'
         move = 'Keep learning options open while reserving larger commitments for verified proof points.'
         watchouts = 'Avoid treating market enthusiasm as a substitute for validated economics.'
     if _looks_like_internal_label(title):
-        title = 'A concrete executive choice'
+        title = 'A boardroom choice'
     return (
         '\\clearpage\n'
         + '{\\sffamily\\fontsize{22}{27}\\selectfont\\color{BONavy} ' + _tex(_shorten(title, 100)) + '}\\par\\vspace{10pt}\n'
@@ -451,12 +714,12 @@ def _leadership_agenda_page(report: Dict[str, Any], sections: List[Dict[str, Any
     right = ''.join('\\item ' + _tex(_shorten(x, 230)) + '\n' for x in risk_items if str(x).strip())
     return (
         '\\clearpage\n'
-        + '{\\sffamily\\fontsize{21}{26}\\selectfont\\color{BONavy} Future action agenda}\\par\\vspace{7pt}\n'
+        + '{\\sffamily\\fontsize{21}{26}\\selectfont\\color{BONavy} Board implications}\\par\\vspace{7pt}\n'
         + '\\begin{minipage}[t]{0.47\\linewidth}\n'
         + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries PRIORITIES}}\\par\\vspace{3pt}\n'
         + '{\\small\\begin{itemize}\n' + (left or '\\item Convert the report into a short list of decisions, owners and proof points.\n') + '\\end{itemize}}\n'
         + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries SIGNALS TO WATCH}}\\par\\vspace{3pt}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries EXTERNAL FACTS}}\\par\\vspace{3pt}\n'
         + '{\\small\\begin{itemize}\n' + (right or '\\item Revisit the thesis when the public evidence base, economics or regulatory path changes.\n') + '\\end{itemize}}\n'
         + '\\end{minipage}\n'
     )
@@ -473,7 +736,7 @@ def _disclaimer_page(refs: List[Any]) -> str:
         + reference_note +
         'Recipients should perform their own diligence and treat this report as one input into a broader decision process.'
     )
-    return '\\clearpage\n{\\sffamily\\fontsize{20}{25}\\selectfont\\color{BONavy} About this research}\\par\\vspace{6pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + body + '}\n'
+    return '\\clearpage\n{\\sffamily\\fontsize{20}{25}\\selectfont\\color{BONavy} About the research}\\par\\vspace{6pt}\n' + _rule() + '{\\footnotesize\\color{BOMuted} ' + body + '}\n'
 
 
 def _back_cover_page(cover: str) -> str:
@@ -670,7 +933,7 @@ def _clean_sentence_fragment(text: str) -> str:
     cleaned = _normalize_punctuation(text).strip()
     cleaned = re.sub(r'\s+', ' ', cleaned)
     cleaned = cleaned.rstrip('.,;: ')
-    weak_tail = r'\s+(?:before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$'
+    weak_tail = r'\s+(?:a|an|the|not|before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$'
     while re.search(weak_tail, cleaned, flags=re.I):
         cleaned = re.sub(weak_tail, '', cleaned, flags=re.I).rstrip('.,;: ')
     return cleaned
@@ -786,7 +1049,7 @@ def _safe_charts(value: Any) -> List[Dict[str, Any]]:
         chart = dict(item)
         chart['id'] = str(chart.get('id') or f'chart-{idx}')
         charts.append(chart)
-    return charts[:8]
+    return charts[:12]
 
 
 def _section_content_hints(section: Dict[str, Any]) -> List[str]:
@@ -884,17 +1147,19 @@ def _normalize_punctuation(text: str) -> str:
 def _reader_clean(text: str) -> str:
     text = _normalize_punctuation(text)
     replacements = [
-        (r'\bCEO decision scenario\b', 'A concrete executive choice'),
-        (r'\bManagement action plan\b', 'Future action agenda'),
-        (r'\bRisk register\b', 'Signals to watch'),
-        (r'\bMethod and team\b', 'About this research'),
+        (r'\bCEO decision scenario\b', 'Board choice under uncertainty'),
+        (r'\bManagement action plan\b', 'Near-term management moves'),
+        (r'\bRisk register\b', 'Risk implications'),
+        (r'\bMethod and team\b', 'About the research'),
         (r'\bKey findings\b', 'Main conclusions'),
         (r'\bExecutive summary\b', 'Opening view'),
+        (r'\bEvidence boundary:\s*', 'The public record shows that '),
         (r'\bEvidence:\s*', ''),
         (r'\bManagement implication:\s*', ''),
         (r'\bCEO question:\s*', 'Decision question: '),
         (r'\bRecommended move:\s*', 'Recommended move: '),
         (r'\bpublic-evidence boundary\b', 'available public record'),
+        (r'\bevidence-boundary\b', 'available public record'),
         (r'\bevidence boundary\b', 'available public record'),
         (r'\bsource backup\b', 'supporting sources'),
         (r'\bevidence gates\b', 'verified milestones'),
@@ -903,6 +1168,8 @@ def _reader_clean(text: str) -> str:
         (r'\bmodel-assisted synthesis\b', 'research synthesis'),
         (r'\binternal executive strategy stress test\b', ''),
         (r'\binternal framework\b', ''),
+        (r'\bstress test\b', 'review'),
+        (r'\bavailable public record:\s*', 'The public record shows that '),
     ]
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text, flags=re.I)

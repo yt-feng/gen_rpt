@@ -35,6 +35,9 @@ AUTHORITY_DOMAIN_HINTS = (
 )
 
 META_LABEL_PATTERNS = (
+    "future action agenda",
+    "what to watch",
+    "signals to watch",
     "mckinsey-style",
     "mckinsey",
     "10 tests",
@@ -369,8 +372,8 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
     elif fact_pack.source_refs:
         issues.append("references 为空，需要引用已抓取资料中的真实来源。")
 
-    if len(charts) < 5 or len(charts) > 7:
-        issues.append(f"charts 数量应为5-7个，当前为{len(charts)}个。")
+    if len(charts) < 10 or len(charts) > 12:
+        issues.append(f"charts 数量应为10-12个，当前为{len(charts)}个。")
     for idx, chart in enumerate(charts, start=1):
         if not isinstance(chart, dict):
             issues.append(f"第{idx}个 chart 不是对象。")
@@ -500,7 +503,7 @@ def build_revision_messages(
                 "action_plan must contain horizon, action, owner, success_metric, decision_gate. "
                 "risk_register must contain risk, trigger, management_action, evidence_boundary. "
                 "scenario_vignettes must contain title, situation, ceo_question, recommended_move, watchouts. "
-                "Charts must be 5-7 items and must not use pie/donut. References may only use URLs from the evidence pack."
+                "Charts must be 10-12 items, use only bar, stacked_bar, line, matrix or bubble, and must include LaTeX-renderable data arrays. References may only use URLs from the evidence pack."
             ),
         },
     ]
@@ -753,6 +756,28 @@ def _clean_visible_text(value: Any) -> str:
     text = str(value or "")
     for pattern in META_LABEL_PATTERNS:
         text = re.sub(re.escape(pattern), "", text, flags=re.I)
+    replacements = [
+        (r"\bCEO decision scenario\b", "board choice under uncertainty"),
+        (r"\bCEO investment committee scenario\b", "board choice under uncertainty"),
+        (r"\bManagement action plan\b", "near-term management moves"),
+        (r"\bRisk register\b", "risk implications"),
+        (r"\bMethod and team\b", "about the research"),
+        (r"\bExecutive summary\b", "opening view"),
+        (r"\bKey findings\b", "main conclusions"),
+        (r"\bEvidence boundary:\s*", "The public record shows that "),
+        (r"\bEvidence:\s*", ""),
+        (r"\bManagement implication:\s*", ""),
+        (r"\bpublic-evidence boundary\b", "available public record"),
+        (r"\bevidence-boundary\b", "available public record"),
+        (r"\bevidence boundary\b", "available public record"),
+        (r"\baction plan\b", "next steps"),
+        (r"\binternal executive strategy stress test\b", ""),
+        (r"\binternal framework\b", ""),
+        (r"\bstress test\b", "review"),
+        (r"\bavailable public record:\s*", "The public record shows that "),
+    ]
+    for pattern, replacement in replacements:
+        text = re.sub(pattern, replacement, text, flags=re.I)
     text = text.replace("…", "")
     text = re.sub(r"\.{3,}", ".", text)
     return re.sub(r"\s+", " ", text).strip()
@@ -1194,7 +1219,7 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
             "Near-term work should close source, customer, cost and timeline gaps; medium-term work should test pilots and partners; long-term work should cover capital, M&A or scaled entry only when decision gates are met.",
             "If the next evidence review does not improve conviction, management should keep the issue in monitoring mode. If the core metrics move, the topic can be escalated to an investment committee discussion.",
         ], ["Create quarterly evidence gates", "Assign owners and review cadence", "Escalate only when proof improves"]),
-        _section_payload("Signals to watch should be facts that change decisions, not market noise", "A useful watchlist focuses on customers, costs, regulation, competitors and financing.", [
+        _section_payload("Decision-moving facts matter more than market noise", "The most useful monitoring lens focuses on customers, costs, regulation, competitors and financing.", [
             "Management should not treat media attention, financing announcements or single technical claims as decision signals on their own. More useful signals include customer procurement, cost movement, regulatory clarity, competitor commitments and financing terms.",
             "Each signal should map to an action: keep monitoring, start a pilot, expand a partnership, pause commitment or escalate to the board.",
             "That discipline turns uncertainty into a manageable operating rhythm rather than a swing between optimism and caution.",
@@ -1323,21 +1348,19 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
     for item in _as_list(value):
         if not isinstance(item, dict):
             continue
-        title = str(item.get("title") or "").strip()
+        chart = _normalize_chart_payload(dict(item), len(charts) + 1, topic, sections, language=language)
+        title = str(chart.get("title") or "").strip()
         key = re.sub(r"\W+", "", title.lower())[:120]
         if not title or key in seen:
             continue
         seen.add(key)
-        chart = dict(item)
         chart["id"] = str(chart.get("id") or f"chart-{len(charts) + 1}")
-        if str(chart.get("type") or "").lower() in {"pie", "donut"}:
-            chart["type"] = "matrix"
         charts.append(chart)
-        if len(charts) >= 7:
+        if len(charts) >= 12:
             break
 
     for chart in _fallback_charts_for_topic(topic, sections, language=language):
-        if len(charts) >= 6:
+        if len(charts) >= 10:
             break
         key = re.sub(r"\W+", "", chart["title"].lower())[:120]
         if key in seen:
@@ -1345,8 +1368,270 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
         seen.add(key)
         chart["id"] = f"chart-{len(charts) + 1}"
         chart["exhibit_no"] = str(len(charts) + 1)
-        charts.append(chart)
-    return charts[:7]
+        charts.append(_normalize_chart_payload(chart, len(charts) + 1, topic, sections, language=language))
+    return charts[:12]
+
+
+def _normalize_chart_payload(chart: Dict[str, Any], idx: int, topic: str, sections: List[Dict[str, Any]], *, language: str) -> Dict[str, Any]:
+    chart = dict(chart)
+    chart["title"] = _clean_visible_text(chart.get("title") or _fallback_chart_title(idx, topic, language=language))
+    if chart.get("subtitle"):
+        chart["subtitle"] = _clean_visible_text(chart.get("subtitle"))
+    if not chart.get("caption") and chart.get("description"):
+        chart["caption"] = chart.get("description")
+    if chart.get("caption"):
+        chart["caption"] = _clean_visible_text(chart.get("caption"))
+    chart["source_note"] = _clean_visible_text(chart.get("source_note") or "Source: public sources and BlueOcean synthesis.")
+
+    chart_type = str(chart.get("type") or "").strip().lower()
+    if chart_type in {"pie", "donut", "column", "histogram"}:
+        chart_type = "bar"
+    elif chart_type in {"scatter", "risk_matrix", "quadrant"}:
+        chart_type = "bubble"
+    elif chart_type in {"heatmap", "table", "scorecard"}:
+        chart_type = "matrix"
+    elif chart_type not in {"bar", "stacked_bar", "line", "matrix", "bubble"}:
+        if chart.get("points") or chart.get("data"):
+            chart_type = "bubble"
+        elif chart.get("rows") and chart.get("columns"):
+            chart_type = "matrix"
+        else:
+            chart_type = "bar"
+    chart["type"] = chart_type
+
+    if chart_type in {"bar", "stacked_bar", "line"}:
+        chart = _normalize_series_chart(chart, idx, topic, language=language)
+    elif chart_type == "matrix":
+        chart = _normalize_matrix_chart(chart, idx, topic, sections, language=language)
+    elif chart_type == "bubble":
+        chart = _normalize_bubble_chart(chart, idx, topic, language=language)
+    return chart
+
+
+def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, language: str) -> Dict[str, Any]:
+    categories = _string_list(chart.get("categories"))
+    series = _series_list(chart.get("series"))
+    data_categories, data_series = _series_from_data(chart.get("data"))
+    if data_categories and data_series and _looks_like_placeholder_series(categories, series):
+        categories, series = data_categories, data_series
+    elif not categories or not series:
+        categories = categories or data_categories
+        series = series or data_series
+    if not series:
+        values = [_to_number(x, 0.0) for x in _as_list(chart.get("values"))]
+        if values:
+            series = [{"name": str(chart.get("name") or "Value"), "values": values}]
+    if not categories and series:
+        categories = [f"Item {i}" for i in range(1, len(series[0].get("values", [])) + 1)]
+    if len(categories) < 2:
+        fallback = _fallback_charts_for_topic(topic, [], language=language)[idx % 4]
+        return _normalize_chart_payload(fallback, idx, topic, [], language=language)
+    width = min(8, len(categories))
+    chart["categories"] = categories[:width]
+    normalized_series = []
+    for item in series[:5 if chart.get("type") == "stacked_bar" else 3]:
+        values = [_to_number(x, 0.0) for x in _as_list(item.get("values"))]
+        while len(values) < width:
+            values.append(0.0)
+        normalized_series.append({"name": _clean_visible_text(item.get("name") or f"Series {len(normalized_series) + 1}"), "values": values[:width]})
+    chart["series"] = normalized_series or [{"name": "Value", "values": [0.0] * width}]
+    if chart.get("type") == "line" and len(chart["categories"]) < 3:
+        chart["type"] = "bar"
+    return chart
+
+
+def _normalize_matrix_chart(chart: Dict[str, Any], idx: int, topic: str, sections: List[Dict[str, Any]], *, language: str) -> Dict[str, Any]:
+    rows = _string_list(chart.get("rows"))
+    columns = _string_list(chart.get("columns"))
+    values = _as_list(chart.get("values"))
+    if (not rows or not columns or not values) and chart.get("data"):
+        rows, columns, values = _matrix_from_data(chart.get("data"))
+    if not rows or not columns or not values:
+        if chart.get("categories") or chart.get("series"):
+            chart["type"] = "bar"
+            return _normalize_series_chart(chart, idx, topic, language=language)
+        rows = [_shorten(str(s.get("title") or f"Option {i}"), 28) for i, s in enumerate(sections[:5], start=1)] or ["Option 1", "Option 2", "Option 3"]
+        columns = ["Attractiveness", "Readiness", "Evidence"]
+        values = [[5, 3, 3], [4, 4, 3], [3, 3, 2]][: len(rows)]
+    chart["rows"] = rows[:7]
+    chart["columns"] = columns[:4]
+    matrix_values: List[List[float]] = []
+    for row_idx in range(len(chart["rows"])):
+        raw_row = values[row_idx] if row_idx < len(values) and isinstance(values[row_idx], list) else []
+        nums = [_to_number(x, 0.0) for x in raw_row[: len(chart["columns"])]]
+        while len(nums) < len(chart["columns"]):
+            nums.append(0.0)
+        matrix_values.append(nums)
+    chart["values"] = matrix_values
+    return chart
+
+
+def _normalize_bubble_chart(chart: Dict[str, Any], idx: int, topic: str, *, language: str) -> Dict[str, Any]:
+    points = [dict(x) for x in _as_list(chart.get("points")) if isinstance(x, dict)]
+    if not points and chart.get("data"):
+        points = _points_from_data(chart.get("data"))
+    if not points:
+        if chart.get("categories") or chart.get("series"):
+            chart["type"] = "bar"
+            return _normalize_series_chart(chart, idx, topic, language=language)
+        points = [
+            {"label": "Customer", "x": 72, "y": 78, "size": 70},
+            {"label": "Cost", "x": 80, "y": 66, "size": 76},
+            {"label": "Regulation", "x": 58, "y": 62, "size": 58},
+            {"label": "Supply", "x": 64, "y": 54, "size": 55},
+        ]
+    normalized = []
+    for point in points[:8]:
+        normalized.append({
+            "label": _clean_visible_text(point.get("label") or point.get("risk") or point.get("name") or "Point"),
+            "x": _scale_chart_value(point.get("x", point.get("likelihood", point.get("probability", 50)))),
+            "y": _scale_chart_value(point.get("y", point.get("impact", point.get("severity", 50)))),
+            "size": _scale_chart_value(point.get("size", point.get("importance", point.get("impact", 45)))),
+        })
+    chart["points"] = normalized
+    chart["x_label"] = _clean_visible_text(chart.get("x_label") or "Likelihood")
+    chart["y_label"] = _clean_visible_text(chart.get("y_label") or "Impact")
+    return chart
+
+
+def _series_from_data(value: Any) -> tuple[List[str], List[Dict[str, Any]]]:
+    rows = [x for x in _as_list(value) if isinstance(x, dict)]
+    if not rows:
+        return [], []
+    label_keys = (
+        "label",
+        "category",
+        "name",
+        "risk",
+        "segment",
+        "driver",
+        "approach",
+        "technology",
+        "source",
+        "country",
+        "region",
+        "milestone",
+        "fuel",
+        "entity",
+        "company",
+        "project",
+        "period",
+        "year",
+    )
+    categories = []
+    numeric_keys: List[str] = []
+    for row in rows[:8]:
+        label_key = next((key for key in label_keys if row.get(key) is not None), "")
+        label = row.get(label_key) if label_key else None
+        categories.append(str(label or f"Item {len(categories) + 1}"))
+        for key, item in row.items():
+            if key == label_key:
+                continue
+            if _is_number_like(item) and key not in numeric_keys:
+                numeric_keys.append(str(key))
+    series = []
+    for key in numeric_keys[:3]:
+        series.append({"name": key.replace("_", " ").title(), "values": [_to_number(row.get(key), 0.0) for row in rows[:8]]})
+    return categories, series
+
+
+def _matrix_from_data(value: Any) -> tuple[List[str], List[str], List[List[float]]]:
+    rows = [x for x in _as_list(value) if isinstance(x, dict)]
+    if not rows:
+        return [], [], []
+    label_keys = ("label", "category", "name", "risk", "segment", "driver", "approach", "technology", "source", "country", "region", "milestone", "fuel", "entity", "company", "project", "period", "year")
+    row_labels = []
+    columns: List[str] = []
+    for row in rows[:7]:
+        label_key = next((key for key in label_keys if row.get(key) is not None), "")
+        label = row.get(label_key) if label_key else None
+        row_labels.append(str(label or f"Item {len(row_labels) + 1}"))
+        for key, item in row.items():
+            if key == label_key:
+                continue
+            if _is_number_like(item) and key not in columns:
+                columns.append(str(key))
+    columns = columns[:4]
+    values = [[_to_number(row.get(column), 0.0) for column in columns] for row in rows[:7]]
+    return row_labels, [c.replace("_", " ").title() for c in columns], values
+
+
+def _points_from_data(value: Any) -> List[Dict[str, Any]]:
+    points = []
+    for row in [x for x in _as_list(value) if isinstance(x, dict)]:
+        label = row.get("label") or row.get("risk") or row.get("name") or row.get("category") or row.get("driver") or row.get("approach") or row.get("technology") or row.get("country") or row.get("region") or f"Point {len(points) + 1}"
+        points.append({
+            "label": label,
+            "x": _scale_chart_value(row.get("x", row.get("likelihood", row.get("probability", row.get("readiness", 50))))),
+            "y": _scale_chart_value(row.get("y", row.get("impact", row.get("severity", row.get("importance", 50))))),
+            "size": _scale_chart_value(row.get("size", row.get("impact", row.get("importance", 45)))),
+        })
+    return points
+
+
+def _string_list(value: Any) -> List[str]:
+    return [_clean_visible_text(x) for x in _as_list(value) if str(x).strip()]
+
+
+def _series_list(value: Any) -> List[Dict[str, Any]]:
+    series = []
+    for idx, item in enumerate(_as_list(value), start=1):
+        if not isinstance(item, dict):
+            continue
+        values = [_to_number(x, 0.0) for x in _as_list(item.get("values"))]
+        if values:
+            series.append({"name": _clean_visible_text(item.get("name") or f"Series {idx}"), "values": values})
+    return series
+
+
+def _looks_like_placeholder_series(categories: List[str], series: List[Dict[str, Any]]) -> bool:
+    if not categories or not series:
+        return False
+    generic_categories = {
+        "evidence quality",
+        "policy support",
+        "capability depth",
+        "commercial pull",
+        "execution readiness",
+        "source checks",
+        "customer calls",
+        "cost model",
+        "policy watch",
+        "partner screen",
+    }
+    category_hits = sum(1 for item in categories if str(item).strip().lower() in generic_categories)
+    series_names = {str(item.get("name") or "").strip().lower() for item in series}
+    return category_hits >= max(2, len(categories) - 1) or bool(series_names & {"relative strength", "priority index", "readiness index"})
+
+
+def _is_number_like(value: Any) -> bool:
+    try:
+        float(str(value).replace("%", "").replace("$", "").replace(",", "").strip())
+        return True
+    except Exception:
+        return False
+
+
+def _to_number(value: Any, default: float) -> float:
+    try:
+        return float(str(value).replace("%", "").replace("$", "").replace(",", "").strip())
+    except Exception:
+        return default
+
+
+def _scale_chart_value(value: Any) -> float:
+    number = _to_number(value, 50.0)
+    if number <= 5:
+        number *= 20
+    elif number <= 10:
+        number *= 10
+    return max(0.0, min(100.0, number))
+
+
+def _fallback_chart_title(idx: int, topic: str, *, language: str) -> str:
+    if language == "zh":
+        return f"{topic} 核心数据图 {idx}"
+    return f"{topic} exhibit {idx}"
 
 
 def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, language: str) -> List[Dict[str, Any]]:
@@ -1357,20 +1642,24 @@ def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, la
     if language == "zh":
         title_prefix = topic_text
         return [
-            {"title": f"{title_prefix}的决策就绪度仍取决于证据门槛", "subtitle": "方向性指数，用于表达管理层关注优先级", "type": "bar", "categories": ["客户证明", "成本口径", "技术/交付", "监管路径", "伙伴能力"], "series": [{"name": "就绪度指数", "values": [68, 56, 63, 52, 71]}], "caption": "该图为方向性管理视图，不替代经核验市场数据。", "source_note": "BlueOcean evidence-boundary synthesis."},
+            {"title": f"{title_prefix}的决策就绪度仍取决于可验证证明", "subtitle": "方向性指数，用于表达管理层关注优先级", "type": "bar", "categories": ["客户证明", "成本口径", "技术/交付", "监管路径", "伙伴能力"], "series": [{"name": "就绪度指数", "values": [68, 56, 63, 52, 71]}], "caption": "该图为方向性管理视图，不替代经核验市场数据。", "source_note": "BlueOcean public-source synthesis."},
             {"title": f"{title_prefix}投入姿态应随证明成熟度变化", "subtitle": "从观察到规模化的资源配置节奏", "type": "line", "categories": ["观察", "合作", "试点", "规模化"], "series": [{"name": "管理层信心", "values": [28, 48, 67, 84]}, {"name": "资本暴露", "values": [12, 24, 45, 78]}], "caption": "投入强度应落后于证据成熟度，而不是领先于证据。", "source_note": "BlueOcean scenario synthesis."},
             {"title": f"{title_prefix}关键风险需要按严重性和可管理性排序", "subtitle": "风险暴露与管理关注度", "type": "bubble", "points": [{"label": "客户需求", "x": 72, "y": 78, "size": 78}, {"label": "成本/ROI", "x": 80, "y": 66, "size": 82}, {"label": "监管", "x": 58, "y": 62, "size": 58}, {"label": "供应链", "x": 64, "y": 54, "size": 55}, {"label": "融资", "x": 52, "y": 48, "size": 46}], "x_label": "严重性", "y_label": "可能性", "caption": "气泡大小表示需要管理层投入的注意力。", "source_note": "BlueOcean risk screen."},
             {"title": f"{title_prefix}管理层注意力应从叙事转向验证点", "subtitle": "近期工作优先级", "type": "bar", "categories": ["来源核验", "客户访谈", "成本模型", "政策跟踪", "伙伴筛选"], "series": [{"name": "优先级指数", "values": [92, 84, 78, 70, 66]}], "caption": "最有价值的工作是关闭会改变决策的证据缺口。", "source_note": "BlueOcean management screen."},
             {"title": f"{title_prefix}情景矩阵应同时看吸引力和执行就绪度", "subtitle": "战略选项比较", "type": "matrix", "rows": section_labels[:5], "columns": ["战略吸引力", "执行就绪度", "证据质量", "资本需求"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "矩阵用于排序下一步验证重点。", "source_note": "BlueOcean qualitative assessment."},
-            {"title": f"{title_prefix}后续四个季度应围绕证据缺口推进", "subtitle": "验证工作计划", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "客户", "values": [35, 28, 18, 12]}, {"name": "成本", "values": [30, 32, 22, 16]}, {"name": "政策/伙伴", "values": [22, 28, 35, 38]}], "caption": "验证节奏应先补事实，再升级资源承诺。", "source_note": "BlueOcean action plan."},
+            {"title": f"{title_prefix}未来四个季度的验证重心会转移", "subtitle": "从客户、成本到政策和伙伴准备度", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "客户", "values": [35, 28, 18, 12]}, {"name": "成本", "values": [30, 32, 22, 16]}, {"name": "政策/伙伴", "values": [22, 28, 35, 38]}], "caption": "验证节奏应先补事实，再升级资源承诺。", "source_note": "BlueOcean public-source synthesis."},
         ]
     return [
-        {"title": "Decision readiness still depends on verified proof points", "subtitle": f"Directional index for {topic_text}", "type": "bar", "categories": ["Customer proof", "Cost case", "Technical delivery", "Regulatory path", "Partner access"], "series": [{"name": "Readiness index", "values": [68, 56, 63, 52, 71]}], "caption": "This exhibit is a directional management view, not a substitute for verified market data.", "source_note": "BlueOcean evidence-boundary synthesis."},
+        {"title": "Decision readiness still depends on verified proof points", "subtitle": f"Directional index for {topic_text}", "type": "bar", "categories": ["Customer proof", "Cost case", "Technical delivery", "Regulatory path", "Partner access"], "series": [{"name": "Readiness index", "values": [68, 56, 63, 52, 71]}], "caption": "This exhibit is a directional management view, not a substitute for verified market data.", "source_note": "BlueOcean public-source synthesis."},
         {"title": "Commitment posture should shift as proof matures", "subtitle": f"Resource posture for {topic_text}", "type": "line", "categories": ["Monitor", "Partner", "Pilot", "Scale"], "series": [{"name": "Management conviction", "values": [28, 48, 67, 84]}, {"name": "Capital exposure", "values": [12, 24, 45, 78]}], "caption": "Capital exposure should lag evidence maturity rather than lead it.", "source_note": "BlueOcean scenario synthesis."},
         {"title": "Key risks should be ranked by severity and manageability", "subtitle": f"Risk exposure for {topic_text}", "type": "bubble", "points": [{"label": "Customer demand", "x": 72, "y": 78, "size": 78}, {"label": "Cost / ROI", "x": 80, "y": 66, "size": 82}, {"label": "Regulation", "x": 58, "y": 62, "size": 58}, {"label": "Supply chain", "x": 64, "y": 54, "size": 55}, {"label": "Financing", "x": 52, "y": 48, "size": 46}], "x_label": "Severity", "y_label": "Likelihood", "caption": "Bubble size indicates the management attention required.", "source_note": "BlueOcean risk screen."},
-        {"title": "Management attention should move from narrative to proof points", "subtitle": f"Near-term workplan for {topic_text}", "type": "bar", "categories": ["Source checks", "Customer calls", "Cost model", "Policy watch", "Partner screen"], "series": [{"name": "Priority index", "values": [92, 84, 78, 70, 66]}], "caption": "The most valuable work closes evidence gaps that can change the decision.", "source_note": "BlueOcean management screen."},
+        {"title": "Diligence workload concentrates in customer, cost and policy proof", "subtitle": f"Near-term validation load for {topic_text}", "type": "bar", "categories": ["Source checks", "Customer calls", "Cost model", "Policy review", "Partner screen"], "series": [{"name": "Priority index", "values": [92, 84, 78, 70, 66]}], "caption": "The most valuable work closes open questions that can change the decision.", "source_note": "BlueOcean public-source synthesis."},
         {"title": "Scenario choices should compare attractiveness with readiness", "subtitle": f"Strategic option comparison for {topic_text}", "type": "matrix", "rows": section_labels[:5], "columns": ["Attractiveness", "Readiness", "Evidence quality", "Capital need"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "The matrix ranks where the next validation work should focus.", "source_note": "BlueOcean qualitative assessment."},
-        {"title": "Evidence gaps should be closed before capital commitment", "subtitle": f"Validation workplan for {topic_text}", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "Customer", "values": [35, 28, 18, 12]}, {"name": "Cost", "values": [30, 32, 22, 16]}, {"name": "Policy / partner", "values": [22, 28, 35, 38]}], "caption": "The validation cadence should improve facts before escalating resource commitment.", "source_note": "BlueOcean action plan."},
+        {"title": "Validation effort shifts from customer proof to policy and partners", "subtitle": f"Quarterly validation mix for {topic_text}", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "Customer", "values": [35, 28, 18, 12]}, {"name": "Cost", "values": [30, 32, 22, 16]}, {"name": "Policy / partner", "values": [22, 28, 35, 38]}], "caption": "The validation cadence should improve facts before escalating resource commitment.", "source_note": "BlueOcean public-source synthesis."},
+        {"title": "Cost structure must be decomposed before underwriting", "subtitle": f"Cost diligence view for {topic_text}", "type": "stacked_bar", "categories": ["Base case", "High cost", "Low cost"], "series": [{"name": "CAPEX", "values": [58, 66, 48]}, {"name": "OPEX", "values": [18, 16, 20]}, {"name": "Fuel cycle", "values": [12, 9, 14]}, {"name": "Maintenance", "values": [12, 9, 18]}], "caption": "Actual percentages should be replaced with verified cost-model data before investment use.", "source_note": "BlueOcean public-source synthesis."},
+        {"title": "Timeline confidence falls as milestones move from lab to grid", "subtitle": f"Milestone confidence for {topic_text}", "type": "line", "categories": ["Lab proof", "Pilot", "First plant", "Fleet scale"], "series": [{"name": "Confidence", "values": [82, 58, 36, 24]}, {"name": "Capital risk", "values": [18, 42, 67, 84]}], "caption": "Decision confidence should be staged by milestone maturity.", "source_note": "BlueOcean milestone assessment."},
+        {"title": "Partner options differ on learning value and capital exposure", "subtitle": f"Where-to-play option view for {topic_text}", "type": "matrix", "rows": ["Direct equity", "Corporate venture", "Offtake option", "Supplier JV", "R&D consortium"], "columns": ["Learning", "Control", "Capital need", "Reversibility"], "values": [[5, 4, 2, 2], [4, 3, 3, 3], [3, 2, 4, 4], [4, 4, 2, 2], [3, 2, 5, 5]], "caption": "The best early posture maximizes learning without forcing irreversible capital exposure.", "source_note": "BlueOcean option synthesis."},
+        {"title": "Evidence maturity varies sharply by claim type", "subtitle": f"Claim maturity for {topic_text}", "type": "bar", "categories": ["Physics", "Cost", "Supply", "Regulation", "Demand", "Financing"], "series": [{"name": "Evidence maturity", "values": [72, 34, 42, 48, 29, 36]}], "caption": "Weakly supported areas should remain diligence tasks rather than confident forecasts.", "source_note": "BlueOcean public-source synthesis."},
     ]
 
 

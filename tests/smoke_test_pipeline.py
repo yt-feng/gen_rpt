@@ -91,7 +91,7 @@ def main() -> None:
     for required_key in ["executive_summary_text", "key_findings", "action_plan", "risk_register", "scenario_vignettes", "methodology_note", "author_credentials"]:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
-    assert len(report.get("charts", [])) >= 5
+    assert len(report.get("charts", [])) >= 10
     generic_title = re.compile(r"^(section|chapter)\s*\d*$", re.I)
     for section in report.get("sections", []):
         title = str(section.get("title") or "").strip()
@@ -125,17 +125,12 @@ def main() -> None:
     latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
     assert r"Fusion\BOApos{}s timetable" in latex_text
     section_count = len(report.get("sections", []))
-    chart_count = min(section_count, len(report.get("charts", [])))
-    decision_story_pages = 1 if section_count >= 2 else 0
-    agenda_page = 4 + section_count + chart_count + decision_story_pages
-    about_page = agenda_page + 1
-    old_agenda_page = 4 + section_count * 2 + 1
-    assert f"{{\\bfseries {agenda_page:02d}}} & Future action agenda" in latex_text
-    assert f"{{\\bfseries {about_page:02d}}} & About this research" in latex_text
-    assert f"<td class='contents-page'>{agenda_page:02d}</td><td><div class='contents-title'>Future action agenda</div>" in html_text
-    assert f"<td class='contents-page'>{about_page:02d}</td><td><div class='contents-title'>About this research</div>" in html_text
-    if old_agenda_page != agenda_page:
-        assert f"{{\\bfseries {old_agenda_page:02d}}} & Future action agenda" not in latex_text
+    chart_pages = (len(report.get("charts", [])) + 1) // 2
+    about_page = 4 + section_count + chart_pages
+    assert f"\\bfseries {about_page:02d}" in latex_text and "About the research" in latex_text
+    assert f"<td class='contents-page'>{about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text
+    assert "EXHIBIT 1" in latex_text
+    assert "\\draw[BOLine]" in latex_text
     problem_headline = "Fusion commercialization is advancing faster than expected, driven by private startups that have raised over $5 billion in investment."
     assert latex_compact_headline(problem_headline) == "Fusion commercialization is advancing faster than expected"
     weak_tail = "Management should separate verified facts, directional scenarios and missing diligence items before"
@@ -146,9 +141,13 @@ def main() -> None:
         assert not re.search(r"\b(before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$", str(chart.get("title") or ""), re.I)
     for text in [html_text, markdown_text, latex_text]:
         lowered = text.lower()
-        assert "future action agenda" in lowered
-        assert "signals to watch" in lowered
-        assert "a concrete executive choice" in lowered
+        for removed_label in [
+            "future action agenda",
+            "signals to watch",
+            "what to watch",
+            "a concrete executive choice",
+        ]:
+            assert removed_label not in lowered
         for internal_label in [
             "Management action plan",
             "Risk register",
