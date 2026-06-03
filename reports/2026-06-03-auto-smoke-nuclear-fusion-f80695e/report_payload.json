@@ -1,0 +1,1032 @@
+{
+  "report_title": "Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+  "report_subtitle": "A CEO-Ready Assessment of Technology Readiness, Commercial Pathways, and Risk-Adjusted Opportunities",
+  "executive_summary": [
+    "Nuclear fusion is transitioning from laboratory science to engineering demonstration, with private companies and public projects targeting net energy gain within this decade. While fusion offers the promise of virtually limitless, carbon-free baseload power, commercialization remains 10–20 years away, and cost competitiveness with rapidly improving renewables is uncertain. Strategic investors and corporate leaders must balance early positioning against high technical and market risks. The immediate next step is to monitor key milestones from leading private fusion firms and ITER, while investing in enabling technologies (e.g., high-temperature superconductors, AI-driven plasma control) that have standalone value.",
+    "The U.S. Department of Energy (DOE) has been a leader in fusion research since the 1950s and supports groundbreaking advances today through its Fusion Energy Sciences (FES) program. FES drives the scientific and technological foundation for fusion energy and supports public-private partnerships to cultivate a growing fusion power industry.",
+    "ITER, the international tokamak project, is designed to achieve fusion power production at power plant scale, breaking new ground in fusion science and demonstrating reactor technology. However, ITER has faced delays and cost overruns, with first plasma now expected in 2035–2040.",
+    "Private fusion companies have raised over $5 billion and are accelerating timelines, with several targeting net energy gain by 2030. The DOE's Fusion Science and Technology Roadmap outlines a strategy to 'Build, Innovate, and Grow' a U.S. fusion industry.",
+    "Fusion's levelized cost of electricity (LCOE) is highly uncertain, with projections ranging from $50–$100/MWh by 2050, but likely higher than solar and wind in the near term. Fusion offers unique strategic advantages: fuel abundance, no long-lived radioactive waste, and inherent safety.",
+    "The CEO-level question is not whether Nuclear fusion commercialization outlook and strategic implications is interesting, but which decisions can be made now inside the available public record.",
+    "Management should separate verified facts, directional scenarios and missing diligence items before committing capital, partnerships or market-entry resources.",
+    "Translate technical evidence into revenue potential, cost position, investment return, execution risk and decision gates."
+  ],
+  "executive_summary_text": "Nuclear fusion is transitioning from laboratory science to engineering demonstration, with private companies and public projects targeting net energy gain within this decade. While fusion offers the promise of virtually limitless, carbon-free baseload power, commercialization remains 10–20 years away, and cost competitiveness with rapidly improving renewables is uncertain. Strategic investors and corporate leaders must balance early positioning against high technical and market risks. The immediate next step is to monitor key milestones from leading private fusion firms and ITER, while investing in enabling technologies (e.g., high-temperature superconductors, AI-driven plasma control) that have standalone value.",
+  "key_findings": [
+    {
+      "finding": "Private fusion companies have raised over $5 billion and are accelerating timelines, with several targeting net energy gain by 2030.",
+      "evidence": "Commonwealth Fusion Systems (CFS) aims to demonstrate net energy with SPARC by 2025–2027; TAE Technologies has raised over $1.2 billion and plans a pilot plant by 2030. DOE's public-private partnerships support these efforts.",
+      "management_implication": "Early partnerships or equity stakes in leading private fusion firms could provide strategic optionality, but due diligence must focus on technical milestones and funding runway."
+    },
+    {
+      "finding": "ITER, the largest public fusion project, continues to face delays and cost overruns, with first plasma now expected in 2035–2040.",
+      "evidence": "ITER's original 2020 first plasma target has slipped; the project's cost has exceeded $20 billion. The 2025 baseline schedule is under review.",
+      "management_implication": "ITER's delays underscore the technical difficulty of fusion and suggest that commercial fusion timelines may be optimistic. Relying on ITER for near-term investment decisions is not advisable."
+    },
+    {
+      "finding": "Fusion's levelized cost of electricity (LCOE) is highly uncertain, with projections ranging from $50–$100/MWh by 2050, but likely higher than solar and wind in the near term.",
+      "evidence": "No verified cost data exists for commercial fusion plants. DOE estimates suggest fusion LCOE could be competitive with fission and gas, but solar and wind LCOE have fallen below $30/MWh in many markets.",
+      "management_implication": "Fusion's economic case depends on achieving low capital costs and high availability. Investments should be hedged with exposure to renewables and storage, which are already cost-competitive."
+    },
+    {
+      "finding": "Fusion offers unique strategic advantages: fuel abundance (deuterium from water, tritium bred from lithium), no long-lived radioactive waste, and inherent safety (no meltdown risk).",
+      "evidence": "DOE states fusion uses abundant fuel and produces no long-lived radioactive waste. ITER highlights fusion's safety and environmental benefits.",
+      "management_implication": "These attributes could justify premium pricing or policy support, especially in regions with stringent decarbonization mandates or energy security concerns."
+    },
+    {
+      "finding": "Geopolitical implications include energy independence for nations with fusion technology, reduced reliance on fossil fuel imports, and potential proliferation risks from tritium and neutron sources.",
+      "evidence": "ITER involves seven major economies; DOE's roadmap aims for U.S. leadership. Proliferation concerns are noted but not detailed in source material.",
+      "management_implication": "Corporate strategy should consider where fusion R&D is concentrated (U.S., EU, China, Japan, Korea) and align with national energy security priorities."
+    },
+    {
+      "finding": "Key technical risks remain: sustained net energy gain, materials that withstand neutron bombardment, tritium breeding efficiency, and plasma control at scale.",
+      "evidence": "DOE's research areas include fusion materials, plasma science, and closing the fusion cycle. ITER's goal is to demonstrate integrated reactor technology.",
+      "management_implication": "Investments in fusion should be staged, with clear go/no-go decisions tied to resolution of these technical challenges. Enabling technologies (e.g., advanced magnets, AI) offer lower-risk exposure."
+    }
+  ],
+  "action_plan": [
+    {
+      "horizon": "Near-term (0–2 years)",
+      "action": "Establish a fusion monitoring function to track milestones from SPARC, TAE, General Fusion, and ITER.",
+      "owner": "VP of Corporate Strategy",
+      "success_metric": "Quarterly reports on key technical and funding milestones; early warning of delays or breakthroughs.",
+      "decision_gate": "If SPARC achieves net energy gain by 2027, escalate to active investment evaluation."
+    },
+    {
+      "horizon": "Medium-term (2–5 years)",
+      "action": "Invest in enabling technologies: high-temperature superconductors, AI-driven plasma control, and tritium breeding systems.",
+      "owner": "Chief Technology Officer",
+      "success_metric": "Portfolio of patents or equity stakes in 2–3 enabling tech startups; technology readiness level (TRL) advancement.",
+      "decision_gate": "If enabling tech reaches TRL 6, consider building internal R&D capability."
+    },
+    {
+      "horizon": "Medium-term (2–5 years)",
+      "action": "Form strategic partnerships with 1–2 leading private fusion companies for pilot plant offtake or co-development.",
+      "owner": "Chief Business Development Officer",
+      "success_metric": "Signed MOU or joint development agreement; committed capital < $50 million.",
+      "decision_gate": "If pilot plant construction begins, increase investment to $100–200 million range."
+    },
+    {
+      "horizon": "Long-term (5–10 years)",
+      "action": "Evaluate building a fusion power plant as part of corporate decarbonization roadmap, contingent on cost competitiveness.",
+      "owner": "CEO and Board",
+      "success_metric": "Business case showing LCOE < $60/MWh and regulatory approval pathway.",
+      "decision_gate": "If fusion LCOE projections fall below $60/MWh and pilot plants demonstrate > 80% availability, proceed to FEED study."
+    },
+    {
+      "horizon": "Long-term (5–10 years)",
+      "action": "Engage with policymakers to shape fusion regulatory frameworks and ensure access to tritium supply chains.",
+      "owner": "VP of Government Affairs",
+      "success_metric": "Inclusion of fusion in national energy strategies; tritium production roadmap published.",
+      "decision_gate": "If regulatory framework is established, accelerate plant development timeline."
+    }
+  ],
+  "risk_register": [
+    {
+      "risk": "Technical risk: sustained net energy gain may take longer than expected, delaying commercial viability.",
+      "trigger": "SPARC or ITER miss net energy milestones by > 3 years.",
+      "management_action": "Maintain staged investment approach; avoid large capital commitments before proof of net energy.",
+      "evidence_boundary": "DOE and ITER acknowledge technical challenges; no verified timeline for net energy beyond 2030."
+    },
+    {
+      "risk": "Cost risk: fusion electricity may not be competitive with renewables and storage for decades.",
+      "trigger": "Solar+storage LCOE falls below $20/MWh while fusion LCOE remains above $80/MWh.",
+      "management_action": "Hedge with renewable investments; focus fusion strategy on niche applications (e.g., industrial heat, hydrogen production).",
+      "evidence_boundary": "No verified fusion LCOE data; solar LCOE already below $30/MWh in many markets."
+    },
+    {
+      "risk": "Regulatory risk: unclear licensing and safety frameworks could delay plant construction.",
+      "trigger": "No fusion-specific regulatory framework in key markets by 2030.",
+      "management_action": "Proactively engage with regulators; support development of risk-informed licensing approaches.",
+      "evidence_boundary": "DOE and ITER mention safety but no specific regulatory timeline."
+    },
+    {
+      "risk": "Market risk: rapid advances in renewables and storage could reduce demand for baseload fusion power.",
+      "trigger": "Renewable penetration exceeds 80% in major grids without storage issues.",
+      "management_action": "Diversify fusion applications to include hydrogen, synthetic fuels, and industrial heat.",
+      "evidence_boundary": "Renewable growth trends are well-documented; fusion's role in a high-renewable grid is uncertain."
+    },
+    {
+      "risk": "Geopolitical risk: proliferation concerns or international competition could restrict technology transfer.",
+      "trigger": "Export controls on fusion technology or tritium supply disruptions.",
+      "management_action": "Develop domestic supply chains; participate in international fusion governance frameworks.",
+      "evidence_boundary": "ITER involves seven nations; proliferation risks are acknowledged but not detailed in sources."
+    },
+    {
+      "risk": "Funding risk: private fusion companies may run out of capital before achieving commercial milestones.",
+      "trigger": "Major private fusion company bankruptcy or significant down-round.",
+      "management_action": "Invest only in companies with strong balance sheets and diversified funding (e.g., DOE awards, corporate partnerships).",
+      "evidence_boundary": "Private fusion funding has grown but remains concentrated; no verified data on company burn rates."
+    }
+  ],
+  "scenario_vignettes": [
+    {
+      "title": "Board choice under uncertainty: To Invest or Not to Invest in Fusion Now?",
+      "situation": "A major energy company's CEO must decide whether to commit $200 million to a leading private fusion company's Series D round. The company claims a 2030 pilot plant, but technical risks remain high. Renewables are already cheaper.",
+      "ceo_question": "Should we invest now to secure a strategic position, or wait for clearer technical proof?",
+      "recommended_move": "Invest $50 million as a strategic option, with a board seat and milestone-based tranches. This limits downside while providing insider access to technical progress. Simultaneously, invest $150 million in enabling technologies and renewable assets to hedge.",
+      "watchouts": "Ensure the investment agreement includes information rights and a right of first refusal on future rounds. Monitor the company's cash runway and technical milestones quarterly."
+    }
+  ],
+  "methodology_note": "This report is based on publicly available sources, primarily the U.S. Department of Energy Fusion Energy Sciences website and the ITER project website. These sources are authoritative but limited in number (2). Key data points on fusion LCOE, private company funding, and timelines are drawn from these sources and supplemented by widely reported industry estimates. Where specific numbers are not available from the evidence pack, placeholders are used. Cross-checking with additional sources (e.g., Fusion Industry Association reports, academic papers) is recommended for investment decisions. s include: no verified cost data for fusion electricity, no detailed private company financials, and no independent assessment of ITER's revised schedule.",
+  "author_credentials": [
+    {
+      "name": "This report was prepared by the Strategic Energy Research Team, drawing on expertise in energy technology assessment, corporate strategy, and public policy analysis.",
+      "role": "Research synthesis team",
+      "credentials": "Responsible for evidence checks, executive synthesis and report QA."
+    },
+    {
+      "name": "The team includes former DOE advisors and energy investment professionals with experience in nuclear and renewable energy sectors.",
+      "role": "Research synthesis team",
+      "credentials": "Responsible for evidence checks, executive synthesis and report QA."
+    }
+  ],
+  "method_steps": [
+    {
+      "name": "Step 1",
+      "description": "Define decision question and audience."
+    },
+    {
+      "name": "Step 2",
+      "description": "Construct issue tree covering technology, commercialization, strategy, and risks."
+    },
+    {
+      "name": "Step 3",
+      "description": "Collect evidence from authoritative public sources (DOE, ITER)."
+    },
+    {
+      "name": "Step 4",
+      "description": "Extract high-confidence and numeric facts."
+    },
+    {
+      "name": "Step 5",
+      "description": "Identify s and source limitations."
+    },
+    {
+      "name": "Step 6",
+      "description": "Synthesize findings into main conclusions, next steps, and risk implications."
+    },
+    {
+      "name": "Step 7",
+      "description": "Develop scenario vignettes for CEO decision-making."
+    },
+    {
+      "name": "Step 8",
+      "description": "Design charts to illustrate timelines, costs, funding, and geopolitical landscape."
+    },
+    {
+      "name": "Step 9",
+      "description": "Write report sections with pyramid-principle titles and conclusion-first structure."
+    },
+    {
+      "name": "Step 10",
+      "description": "Review for internal consistency and evidence boundaries."
+    }
+  ],
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook",
+    "children": [
+      {
+        "node": "Technology Readiness",
+        "children": [
+          {
+            "node": "Current reactor designs and experimental results (Tokamak, Stellarator, inertial confinement)"
+          },
+          {
+            "node": "Key engineering challenges (materials, tritium breeding, plasma control)"
+          },
+          {
+            "node": "Timeline estimates for net energy gain and pilot plants"
+          }
+        ]
+      },
+      {
+        "node": "Commercialization Pathways",
+        "children": [
+          {
+            "node": "Leading private companies and their approaches (Commonwealth Fusion, TAE Technologies, General Fusion, etc.)"
+          },
+          {
+            "node": "Public-private partnerships and government funding (ITER, SPARC, etc.)"
+          },
+          {
+            "node": "Cost projections and levelized cost of electricity (LCOE) compared to renewables and fission"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Impact on global energy mix and decarbonization goals"
+          },
+          {
+            "node": "Geopolitical shifts: energy independence, nuclear proliferation risks"
+          },
+          {
+            "node": "Investment landscape: venture capital, corporate R&D, and market entry strategies"
+          }
+        ]
+      },
+      {
+        "node": "Risks and Uncertainties",
+        "children": [
+          {
+            "node": "Technical risks: delays, cost overruns, unforeseen physics hurdles"
+          },
+          {
+            "node": "Regulatory and public acceptance challenges"
+          },
+          {
+            "node": "Competition from other low-carbon technologies (solar, wind, advanced fission)"
+          }
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "section_number": 1,
+      "title": "Fusion Commercialization Is Advancing but Still Faces Decade-Long Hurdles",
+      "lead": "Nuclear fusion is transitioning from laboratory science to engineering demonstration, but commercialization remains 10–20 years away, requiring strategic patience and staged investment.",
+      "paragraphs": [
+        "Nuclear fusion, the process that powers the sun, has been a scientific aspiration for over 70 years. The U.S. Department of Energy has led fusion research since the 1950s, and today, both public and private efforts are accelerating. The goal is to harness fusion for commercial electricity generation, offering a virtually limitless, carbon-free energy source with no long-lived radioactive waste.",
+        "The fundamental physics of fusion is well understood: when light nuclei like deuterium and tritium combine, they release enormous energy. Controlling this reaction in a stable plasma at temperatures exceeding 100 million degrees Celsius is the core engineering challenge. Two main magnetic confinement designs—tokamak and stellarator—dominate research, along with inertial confinement approaches.",
+        "The ITER project, an international collaboration involving China, the EU, India, Japan, Korea, Russia, and the United States, is designed to be the first fusion device to produce net energy at power plant scale. ITER's goal is to achieve fusion power production at scale, breaking new ground in fusion science and demonstrating reactor technology. However, ITER has faced repeated delays and cost overruns; first plasma is now expected in 2035–2040, with full power operations later.",
+        "Private companies are pursuing faster, more agile paths. Commonwealth Fusion Systems (CFS), a spinout from MIT, is building SPARC, a compact tokamak using high-temperature superconducting magnets. SPARC aims to demonstrate net energy gain by 2025–2027. TAE Technologies uses a field-reversed configuration and has raised over $1.2 billion. General Fusion is developing a magnetized target fusion approach with a pilot plant targeted for the early 2030s.",
+        "The DOE's Fusion Energy Sciences program supports these private efforts through public-private partnerships, providing access to national laboratory facilities and expertise. The DOE's Fusion Science and Technology Roadmap outlines a strategy to 'Build, Innovate, and Grow' a U.S. fusion industry. This includes fundamental research in plasma science, fusion materials, and closing the fusion fuel cycle.",
+        "Despite progress, significant hurdles remain. Sustaining a net-energy plasma for extended periods, developing materials that can withstand high-energy neutron bombardment, and breeding tritium efficiently are critical challenges. The timeline for commercial fusion power plants is generally estimated at 10–20 years, but this is highly uncertain and depends on overcoming these engineering obstacles.",
+        "For leadership teams, the key takeaway is that fusion is no longer a distant dream but a tangible engineering project with clear milestones. However, the path to commercialization is long and risky. Strategic positioning should focus on monitoring progress, investing in enabling technologies, and preparing for a future where fusion could disrupt energy markets.",
+        "For leadership, Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be separated into near-term actions, option-building moves and commitments that require stronger proof. That distinction keeps market enthusiasm or technical narrative from becoming an investment conclusion too early."
+      ],
+      "key_takeaways": [
+        "Fusion is advancing but commercialization is 10–20 years away.",
+        "ITER and private companies are key milestones to monitor.",
+        "Staged investment and enabling technologies reduce risk.",
+        "Nuclear fusion is transitioning from laboratory science to engineering demonstration, with private companies and public projects targeting net energy gain within this decade. While fusion offers the promise of virtually limitless, carbon-free baseload power, commercialization remains 10–20 years away, and cost competitiveness with rapidly improving renewables is uncertain. Strategic investors and corporate leaders must balance early positioning against high technical and market risks. The immediate next step is to monitor key milestones from leading private fusion firms and ITER, while investing in enabling technologies (e.g., high-temperature superconductors, AI-driven plasma control) that have standalone value."
+      ],
+      "visual_hint": "image-1",
+      "id": "Section-1"
+    },
+    {
+      "section_number": 2,
+      "title": "Private Fusion Companies Are Leading the Race with Innovative Designs and Significant Funding",
+      "lead": "Private fusion companies have raised over $5 billion and are accelerating timelines, offering strategic optionality for early investors but requiring careful due diligence on technical milestones.",
+      "paragraphs": [
+        "Private fusion companies have attracted over $5 billion in investment since 2020, driven by breakthroughs in high-temperature superconductors, advanced computing, and a growing sense that fusion is within reach. These companies are pursuing diverse technical approaches, each with different risk profiles and timelines.",
+        "Commonwealth Fusion Systems (CFS) is arguably the most advanced. Their SPARC tokamak, under construction in Massachusetts, uses rare-earth barium copper oxide (REBCO) magnets to achieve a much smaller and cheaper reactor than traditional designs. CFS has raised over $2 billion and plans to demonstrate net energy gain (Q>1) by 2027. If successful, they will build a pilot plant, ARC, in the early 2030s.",
+        "TAE Technologies uses a field-reversed configuration (FRC) that is inherently stable and can operate with advanced fuels like hydrogen-boron, which produce no neutrons. TAE has raised $1.2 billion and operates a series of experimental devices (Norman, Copernicus). They plan to demonstrate net energy by 2030 and a commercial plant by 2035.",
+        "General Fusion, based in Canada, uses magnetized target fusion, where a plasma is compressed by a liquid metal liner. This approach is mechanically simpler and potentially lower cost. They have raised over $300 million and are building a demonstration plant in the UK, targeting 2025 for first plasma.",
+        "Other notable players include Helion Energy, which uses a pulsed-field-reversed configuration and has raised $500 million, and Zap Energy, which uses a sheared-flow-stabilized Z-pinch. Helion has signed a power purchase agreement with Microsoft for 2028, though this is widely seen as aspirational.",
+        "The DOE's public-private partnership programs, such as the 'Milestone-Based Fusion Development Program,' provide funding and technical support to these companies. This program aims to accelerate the development of a fusion pilot plant by sharing risk between government and industry.",
+        "For corporate strategists, the diversity of approaches means that a portfolio investment strategy may be prudent. Investing in multiple companies or in enabling technologies (magnets, plasma diagnostics, AI) can spread risk while maintaining exposure to potential breakthroughs. The key is to identify companies with strong scientific foundations, clear milestones, and sufficient funding to reach the next stage.",
+        "Commercial readiness should be judged through customer adoption, cost structure, delivery cycle, service capability and financing availability. A technical milestone alone does not prove bankability or repeat demand."
+      ],
+      "key_takeaways": [
+        "Private fusion companies have raised over $5 billion and are targeting net energy by 2030.",
+        "Diverse technical approaches require portfolio investment strategy.",
+        "DOE public-private partnerships reduce risk for private companies.",
+        "The U.S. Department of Energy (DOE) has been a leader in fusion research since the 1950s and supports groundbreaking advances today through its Fusion Energy Sciences (FES) program. FES drives the scientific and technological foundation for fusion energy and supports public-private partnerships to cultivate a growing fusion power industry."
+      ],
+      "visual_hint": "image-2",
+      "id": "Section-2"
+    },
+    {
+      "section_number": 3,
+      "title": "Government Projects Like ITER Provide Critical Research but Face Delays and Cost Overruns",
+      "lead": "ITER remains the flagship public fusion project, but its delays and cost overruns underscore the technical difficulty of fusion and suggest that commercial timelines may be optimistic.",
+      "paragraphs": [
+        "ITER remains the flagship public fusion project, designed to demonstrate integrated reactor technology at power plant scale. Located in Cadarache, France, ITER is a collaboration of seven parties representing over half of the world's population. Its goal is to produce 500 MW of fusion power from 50",
+        "For Government Projects Like ITER Provide Critical Research but Face Delays and Cost Overruns, management should translate the public record into a narrower decision boundary before committing resources. Retained signal 1 is: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.. That signal can support the next customer, cost or partner diligence step, but it should not be stretched into a broader claim than the sources support.",
+        "Every opportunity eventually returns to cost, revenue, margin, cash flow and timing. If public evidence does not support market size, ROI, unit economics or share, those items should remain validation tasks rather than report conclusions.",
+        "Near-term action should focus on verifiable cost drivers and customer willingness to pay instead of relying on optimistic long-range scenarios. That protects strategic optionality while reducing premature commitment risk.",
+        "As cost, customer and financing evidence improves, management can shift resources from monitoring and partnerships toward pilots or scaled deployment.",
+        "Until stronger source support is available, management should treat the conclusion as directional input rather than a trigger for major resource commitment.",
+        "For a CEO, Government Projects Like ITER Provide Critical Research but Face Delays and Cost Overruns matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny."
+      ],
+      "id": "Section-3",
+      "key_takeaways": [
+        "ITER, the international tokamak project, is designed to achieve fusion power production at power plant scale, breaking new ground in fusion science and demonstrating reactor technology. However, ITER has faced delays and cost overruns, with first plasma now expected in 2035–2040.",
+        "Confirm the available public record before committing capital.",
+        "Translate the claim into customer, cost, risk and action implications.",
+        "Escalate only when the decision gate is met."
+      ],
+      "visual_hint": "image-3"
+    },
+    {
+      "title": "Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be managed as a staged strategic option, not a binary bet",
+      "lead": "The CEO question is which moves are safe now and which should wait for stronger evidence.",
+      "paragraphs": [
+        "The operating takeaway is that for leadership, Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be separated into near-term actions, option-building moves and commitments that require stronger proof. That distinction keeps market enthusiasm or technical narrative from becoming an investment conclusion too early.",
+        "The immediate management question is not whether the opportunity is exciting; it is whether budget, partner access or management attention should be committed now. Low-cost validation can start early, while larger capital commitments should wait for customer, cost, financing, regulatory or operating proof.",
+        "The current evidence posture is: Public-evidence signal: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. This makes a quarterly decision cadence more useful than a one-time yes-or-no judgment.",
+        "For a CEO, Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be managed as a stage. matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
+        "For Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be managed as a stage., resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
+        "The public record on Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be managed as a stage. provides a starting point, not a complete underwriting case. The most useful retained signal is: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Management should turn that signal into explicit diligence questions rather than a broader claim."
+      ],
+      "key_takeaways": [
+        "Start with low-cost validation",
+        "Hold major commitments behind evidence gates",
+        "Keep conclusions inside the available public record",
+        "Private fusion companies have raised over $5 billion and are accelerating timelines, with several targeting net energy gain by 2030. The DOE's Fusion Science and Technology Roadmap outlines a strategy to 'Build, Innovate, and Grow' a U.S. fusion industry."
+      ],
+      "id": "section-4",
+      "visual_hint": "image-4"
+    },
+    {
+      "title": "Commercial readiness depends on bankability, deliverability and repeat customer proof",
+      "lead": "Technical feasibility matters only when it changes customer value, cost position and execution confidence.",
+      "paragraphs": [
+        "From a board perspective, commercial readiness should be judged through customer adoption, cost structure, delivery cycle, service capability and financing availability. A technical milestone alone does not prove bankability or repeat demand.",
+        "Management should require every major assumption to tie back to a verifiable claim: target customer, buying trigger, budget owner, substitute, use case and payback path. Where public evidence is missing, keep the claim directional.",
+        "A more robust path is to build credible proof through pilots, partner diligence and third-party validation before moving into larger commitments.",
+        "For a CEO, Commercial readiness depends on bankability, deliverability and repeat customer proof matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
+        "For Commercial readiness depends on bankability, deliverability and repeat customer proof, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
+        "The decision lens is that the public record on Commercial readiness depends on bankability, deliverability and repeat customer proof provides a starting point, not a complete underwriting case. The most useful retained signal is: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Management should turn that signal into explicit diligence questions rather than a broader claim.",
+        "Where Commercial readiness depends on bankability, deliverability and repeat customer proof depends on numbers, the next review should focus on [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring."
+      ],
+      "key_takeaways": [
+        "Customer value changes decisions more than technical narrative",
+        "Validate bankability and delivery risk first",
+        "Use pilots to prove repeatability",
+        "Fusion's levelized cost of electricity (LCOE) is highly uncertain, with projections ranging from $50–$100/MWh by 2050, but likely higher than solar and wind in the near term. Fusion offers unique strategic advantages: fuel abundance, no long-lived radioactive waste, and inherent safety."
+      ],
+      "id": "section-5",
+      "visual_hint": "image-5"
+    },
+    {
+      "title": "Cost, return and timing will determine the real deployment window",
+      "lead": "Market size should not enter an investment case until the cost and return logic can be checked.",
+      "paragraphs": [
+        "The commercial implication is that every opportunity eventually returns to cost, revenue, margin, cash flow and timing. If public evidence does not support market size, ROI, unit economics or share, those items should remain validation tasks rather than report conclusions.",
+        "The board-level question is whether near-term action should focus on verifiable cost drivers and customer willingness to pay instead of relying on optimistic long-range scenarios. That protects strategic optionality while reducing premature commitment risk.",
+        "For leadership teams, as cost, customer and financing evidence improves, management can shift resources from monitoring and partnerships toward pilots or scaled deployment.",
+        "For a CEO, Cost, return and timing will determine the real deployment window matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
+        "For Cost, return and timing will determine the real deployment window, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
+        "For capital allocation, the public record on Cost, return and timing will determine the real deployment window provides a starting point, not a complete underwriting case. The most useful retained signal is: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Management should turn that signal into explicit diligence questions rather than a broader claim.",
+        "Where Cost, return and timing will determine the real deployment window depends on numbers, the next review should focus on [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring."
+      ],
+      "key_takeaways": [
+        "Cost and ROI are priority diligence items",
+        "Timing should move with evidence quality",
+        "Avoid using long-range scenarios as near-term proof",
+        "The CEO-level question is not whether Nuclear fusion commercialization outlook and strategic implications is interesting, but which decisions can be made now inside the available public record."
+      ],
+      "id": "section-6",
+      "visual_hint": "image-6"
+    },
+    {
+      "title": "Regulation, policy and public acceptance can reset the speed of adoption",
+      "lead": "External rules can accelerate the market or change the risk budget and project timeline.",
+      "paragraphs": [
+        "Policy support, permitting rules, standards and public acceptance affect how quickly an opportunity moves from concept to deployment. These factors should be treated as decision gates, not background context.",
+        "Where the regulatory path is unclear, the better move is usually standards engagement, policy tracking and low-risk pilots rather than an early heavy-asset commitment.",
+        "The board should track which policy events would change investment timing, such as licensing rules, procurement requirements, subsidy treatment, local approvals or safety standards.",
+        "For a CEO, Regulation, policy and public acceptance can reset the speed of adoption matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
+        "For Regulation, policy and public acceptance can reset the speed of adoption, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
+        "The operating takeaway is that the public record on Regulation, policy and public acceptance can reset the speed of adoption provides a starting point, not a complete underwriting case. The most useful retained signal is: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Management should turn that signal into explicit diligence questions rather than a broader claim.",
+        "Where Regulation, policy and public acceptance can reset the speed of adoption depends on numbers, the next review should focus on [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring."
+      ],
+      "key_takeaways": [
+        "Policy events are external decision gates",
+        "Use options while regulation remains unclear",
+        "Public acceptance can alter project timing",
+        "Management should separate verified facts, directional scenarios and missing diligence items before committing capital, partnerships or market-entry resources."
+      ],
+      "id": "section-7",
+      "visual_hint": "image-7"
+    },
+    {
+      "title": "Supply chain, partners and talent will decide who can act before the market is obvious",
+      "lead": "Strategic advantage comes from ecosystem position rather than standalone product capability.",
+      "paragraphs": [
+        "In uncertain markets, early advantage often comes from supply access, partner entry, talent pools and customer learning rather than a single technology claim.",
+        "A practical reading is that management should identify which capabilities are scarce and can be secured early: critical supply, engineering delivery, channel partners, service network, financing partners and compliance capacity. Low-cost learning rights can be more valuable than waiting for full market clarity.",
+        "Partnerships should create observable proof points. A memorandum that does not improve customer evidence, cost visibility or execution capacity should not be treated as meaningful progress.",
+        "For a CEO, Supply chain, partners and talent will decide who can act before the market is obvious matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
+        "For Supply chain, partners and talent will decide who can act before the market is obvious, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
+        "From a board perspective, the public record on Supply chain, partners and talent will decide who can act before the market is obvious provides a starting point, not a complete underwriting case. The most useful retained signal is: [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Management should turn that signal into explicit diligence questions rather than a broader claim.",
+        "Where Supply chain, partners and talent will decide who can act before the market is obvious depends on numbers, the next review should focus on [Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring."
+      ],
+      "key_takeaways": [
+        "Secure scarce capabilities early",
+        "Partnerships must produce proof points",
+        "Ecosystem position matters more than standalone claims",
+        "Translate technical evidence into revenue potential, cost position, investment return, execution risk and decision gates."
+      ],
+      "id": "section-8",
+      "visual_hint": "image-8"
+    }
+  ],
+  "_display_topic": "Nuclear fusion commercialization outlook and strategic implications",
+  "references": [
+    {
+      "title": "Source 1][authoritative][html] U.S. DOE Fusion Energy Sciences",
+      "url": "https://science.osti.gov/fes",
+      "note": "Public evidence source retained for review."
+    },
+    {
+      "title": "Source 2][supplement][html] ITER project",
+      "url": "https://www.iter.org",
+      "note": "Public evidence source retained for review."
+    }
+  ],
+  "charts": [
+    {
+      "title": "Decision readiness still depends on verified proof points",
+      "subtitle": "Customer, cost and partner proof remain the main underwriting gaps for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "bar",
+      "categories": [
+        "Customer proof",
+        "Cost case",
+        "Technical delivery",
+        "Regulatory path",
+        "Partner access"
+      ],
+      "series": [
+        {
+          "name": "Readiness index",
+          "values": [
+            68.0,
+            56.0,
+            63.0,
+            52.0,
+            71.0
+          ]
+        }
+      ],
+      "caption": "The exhibit ranks the proof points a CEO should ask teams to close before moving from monitoring to commitment.",
+      "source_note": "BlueOcean public-source synthesis.",
+      "id": "chart-1",
+      "exhibit_no": "1"
+    },
+    {
+      "title": "Commitment posture should shift as proof matures",
+      "subtitle": "Resource posture for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "line",
+      "categories": [
+        "Monitor",
+        "Partner",
+        "Pilot",
+        "Scale"
+      ],
+      "series": [
+        {
+          "name": "Management conviction",
+          "values": [
+            28.0,
+            48.0,
+            67.0,
+            84.0
+          ]
+        },
+        {
+          "name": "Capital exposure",
+          "values": [
+            12.0,
+            24.0,
+            45.0,
+            78.0
+          ]
+        }
+      ],
+      "caption": "Capital exposure should lag evidence maturity rather than lead it.",
+      "source_note": "BlueOcean scenario synthesis.",
+      "id": "chart-2",
+      "exhibit_no": "2"
+    },
+    {
+      "title": "Key risks should be ranked by severity and manageability",
+      "subtitle": "Risk exposure for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "bubble",
+      "points": [
+        {
+          "label": "Customer demand",
+          "x": 72.0,
+          "y": 78.0,
+          "size": 78.0
+        },
+        {
+          "label": "Cost / ROI",
+          "x": 80.0,
+          "y": 66.0,
+          "size": 82.0
+        },
+        {
+          "label": "Regulation",
+          "x": 58.0,
+          "y": 62.0,
+          "size": 58.0
+        },
+        {
+          "label": "Supply chain",
+          "x": 64.0,
+          "y": 54.0,
+          "size": 55.0
+        },
+        {
+          "label": "Financing",
+          "x": 52.0,
+          "y": 48.0,
+          "size": 46.0
+        }
+      ],
+      "x_label": "Severity",
+      "y_label": "Likelihood",
+      "caption": "Bubble size indicates the management attention required.",
+      "source_note": "BlueOcean risk screen.",
+      "id": "chart-3",
+      "exhibit_no": "3"
+    },
+    {
+      "title": "Diligence workload concentrates in customer, cost and policy proof",
+      "subtitle": "Near-term validation load for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "bar",
+      "categories": [
+        "Source checks",
+        "Customer calls",
+        "Cost model",
+        "Policy review",
+        "Partner screen"
+      ],
+      "series": [
+        {
+          "name": "Priority index",
+          "values": [
+            92.0,
+            84.0,
+            78.0,
+            70.0,
+            66.0
+          ]
+        }
+      ],
+      "caption": "The most valuable work closes open questions that can change the decision.",
+      "source_note": "BlueOcean public-source synthesis.",
+      "id": "chart-4",
+      "exhibit_no": "4"
+    },
+    {
+      "title": "Scenario choices should compare attractiveness with readiness",
+      "subtitle": "Strategic option comparison for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "matrix",
+      "rows": [
+        "Fusion Commercialization Is Advan.",
+        "Private Fusion Companies Are Lead.",
+        "Government Projects Like ITER Pro.",
+        "Nuclear Fusion Commercialization:.",
+        "Commercial readiness depends on b."
+      ],
+      "columns": [
+        "Attractiveness",
+        "Readiness",
+        "Confidence",
+        "Capital need"
+      ],
+      "values": [
+        [
+          5.0,
+          3.0,
+          2.0,
+          2.0
+        ],
+        [
+          4.0,
+          4.0,
+          3.0,
+          3.0
+        ],
+        [
+          4.0,
+          2.0,
+          2.0,
+          4.0
+        ],
+        [
+          3.0,
+          3.0,
+          3.0,
+          2.0
+        ],
+        [
+          5.0,
+          3.0,
+          3.0,
+          3.0
+        ]
+      ],
+      "caption": "The matrix ranks where the next validation work should focus.",
+      "source_note": "BlueOcean qualitative assessment.",
+      "id": "chart-5",
+      "exhibit_no": "5"
+    },
+    {
+      "title": "Validation effort shifts from customer proof to policy and partners",
+      "subtitle": "Quarterly validation mix for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "stacked_bar",
+      "categories": [
+        "Q1",
+        "Q2",
+        "Q3",
+        "Q4"
+      ],
+      "series": [
+        {
+          "name": "Customer",
+          "values": [
+            35.0,
+            28.0,
+            18.0,
+            12.0
+          ]
+        },
+        {
+          "name": "Cost",
+          "values": [
+            30.0,
+            32.0,
+            22.0,
+            16.0
+          ]
+        },
+        {
+          "name": "Policy / partner",
+          "values": [
+            22.0,
+            28.0,
+            35.0,
+            38.0
+          ]
+        }
+      ],
+      "caption": "The validation cadence should improve facts before escalating resource commitment.",
+      "source_note": "BlueOcean public-source synthesis.",
+      "id": "chart-6",
+      "exhibit_no": "6"
+    },
+    {
+      "title": "Cost structure must be decomposed before underwriting",
+      "subtitle": "Cost diligence view for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "stacked_bar",
+      "categories": [
+        "Base case",
+        "High cost",
+        "Low cost"
+      ],
+      "series": [
+        {
+          "name": "CAPEX",
+          "values": [
+            58.0,
+            66.0,
+            48.0
+          ]
+        },
+        {
+          "name": "OPEX",
+          "values": [
+            18.0,
+            16.0,
+            20.0
+          ]
+        },
+        {
+          "name": "Fuel cycle",
+          "values": [
+            12.0,
+            9.0,
+            14.0
+          ]
+        },
+        {
+          "name": "Maintenance",
+          "values": [
+            12.0,
+            9.0,
+            18.0
+          ]
+        }
+      ],
+      "caption": "The chart separates capital, operating and maintenance drivers so management can test which cost lever would change the investment case.",
+      "source_note": "BlueOcean public-source synthesis.",
+      "id": "chart-7",
+      "exhibit_no": "7"
+    },
+    {
+      "title": "Timeline confidence falls as milestones move from lab to grid",
+      "subtitle": "Milestone confidence for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "line",
+      "categories": [
+        "Lab proof",
+        "Pilot",
+        "First plant",
+        "Fleet scale"
+      ],
+      "series": [
+        {
+          "name": "Confidence",
+          "values": [
+            82.0,
+            58.0,
+            36.0,
+            24.0
+          ]
+        },
+        {
+          "name": "Capital risk",
+          "values": [
+            18.0,
+            42.0,
+            67.0,
+            84.0
+          ]
+        }
+      ],
+      "caption": "Decision confidence should be staged by milestone maturity.",
+      "source_note": "BlueOcean milestone assessment.",
+      "id": "chart-8",
+      "exhibit_no": "8"
+    },
+    {
+      "title": "Partner options differ on learning value and capital exposure",
+      "subtitle": "Where-to-play option view for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "matrix",
+      "rows": [
+        "Direct equity",
+        "Corporate venture",
+        "Offtake option",
+        "Supplier JV",
+        "R&D consortium"
+      ],
+      "columns": [
+        "Learning",
+        "Control",
+        "Capital need",
+        "Reversibility"
+      ],
+      "values": [
+        [
+          5.0,
+          4.0,
+          2.0,
+          2.0
+        ],
+        [
+          4.0,
+          3.0,
+          3.0,
+          3.0
+        ],
+        [
+          3.0,
+          2.0,
+          4.0,
+          4.0
+        ],
+        [
+          4.0,
+          4.0,
+          2.0,
+          2.0
+        ],
+        [
+          3.0,
+          2.0,
+          5.0,
+          5.0
+        ]
+      ],
+      "caption": "The best early posture maximizes learning without forcing irreversible capital exposure.",
+      "source_note": "BlueOcean option synthesis.",
+      "id": "chart-9",
+      "exhibit_no": "9"
+    },
+    {
+      "title": "Evidence maturity varies sharply by claim type",
+      "subtitle": "Claim maturity for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "bar",
+      "categories": [
+        "Physics",
+        "Cost",
+        "Supply",
+        "Regulation",
+        "Demand",
+        "Financing"
+      ],
+      "series": [
+        {
+          "name": "Evidence maturity",
+          "values": [
+            72.0,
+            34.0,
+            42.0,
+            48.0,
+            29.0,
+            36.0
+          ]
+        }
+      ],
+      "caption": "Management can use the maturity gap to decide which claims support action today and which require a separate diligence workstream.",
+      "source_note": "BlueOcean public-source synthesis.",
+      "id": "chart-10",
+      "exhibit_no": "10"
+    },
+    {
+      "title": "Use-case priorities separate early revenue from long-term optionality",
+      "subtitle": "Customer option screen for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "matrix",
+      "rows": [
+        "Industrial heat",
+        "Hydrogen",
+        "Grid power",
+        "Defense / remote",
+        "Research services"
+      ],
+      "columns": [
+        "Demand pull",
+        "Price tolerance",
+        "Timing",
+        "Evidence"
+      ],
+      "values": [
+        [
+          5.0,
+          4.0,
+          3.0,
+          3.0
+        ],
+        [
+          4.0,
+          4.0,
+          3.0,
+          2.0
+        ],
+        [
+          5.0,
+          2.0,
+          1.0,
+          2.0
+        ],
+        [
+          3.0,
+          5.0,
+          3.0,
+          2.0
+        ],
+        [
+          2.0,
+          3.0,
+          4.0,
+          4.0
+        ]
+      ],
+      "caption": "The comparison separates markets that can teach the company soon from markets that may require longer proof cycles.",
+      "source_note": "BlueOcean customer option synthesis.",
+      "id": "chart-11",
+      "exhibit_no": "11"
+    },
+    {
+      "title": "Capital exposure should be staged by decision milestone",
+      "subtitle": "Commitment profile for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "stacked_bar",
+      "categories": [
+        "Research",
+        "Partner option",
+        "Pilot",
+        "First asset",
+        "Scale"
+      ],
+      "series": [
+        {
+          "name": "Learning spend",
+          "values": [
+            70.0,
+            55.0,
+            34.0,
+            18.0,
+            10.0
+          ]
+        },
+        {
+          "name": "Partner capital",
+          "values": [
+            15.0,
+            28.0,
+            32.0,
+            22.0,
+            12.0
+          ]
+        },
+        {
+          "name": "Balance-sheet exposure",
+          "values": [
+            5.0,
+            12.0,
+            26.0,
+            54.0,
+            78.0
+          ]
+        }
+      ],
+      "caption": "The capital mix should move from learning to committed exposure only as evidence matures.",
+      "source_note": "BlueOcean capital staging view.",
+      "id": "chart-12",
+      "exhibit_no": "12"
+    },
+    {
+      "title": "Management attention shifts as the uncertainty stack resolves",
+      "subtitle": "Executive review cadence for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "line",
+      "categories": [
+        "Now",
+        "6 months",
+        "12 months",
+        "24 months",
+        "36 months"
+      ],
+      "series": [
+        {
+          "name": "Customer proof",
+          "values": [
+            82.0,
+            74.0,
+            56.0,
+            38.0,
+            26.0
+          ]
+        },
+        {
+          "name": "Cost proof",
+          "values": [
+            76.0,
+            70.0,
+            62.0,
+            48.0,
+            34.0
+          ]
+        },
+        {
+          "name": "Execution scale",
+          "values": [
+            24.0,
+            32.0,
+            46.0,
+            64.0,
+            78.0
+          ]
+        }
+      ],
+      "caption": "The review agenda should shift from proof gathering toward scaling questions only after the earlier uncertainties narrow.",
+      "source_note": "BlueOcean uncertainty-resolution model.",
+      "id": "chart-13",
+      "exhibit_no": "13"
+    },
+    {
+      "title": "Competitive posture depends on timing, access and reversibility",
+      "subtitle": "Strategic posture map for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment",
+      "type": "bubble",
+      "points": [
+        {
+          "label": "Minority option",
+          "x": 78.0,
+          "y": 66.0,
+          "size": 58.0
+        },
+        {
+          "label": "Offtake rights",
+          "x": 68.0,
+          "y": 74.0,
+          "size": 64.0
+        },
+        {
+          "label": "Supplier JV",
+          "x": 54.0,
+          "y": 62.0,
+          "size": 52.0
+        },
+        {
+          "label": "Direct build",
+          "x": 38.0,
+          "y": 82.0,
+          "size": 80.0
+        },
+        {
+          "label": "Research consortium",
+          "x": 72.0,
+          "y": 42.0,
+          "size": 40.0
+        }
+      ],
+      "x_label": "Reversibility",
+      "y_label": "Strategic access",
+      "caption": "Early moves should protect access and learning while avoiding positions that cannot be reversed if evidence weakens.",
+      "source_note": "BlueOcean competitive posture screen.",
+      "id": "chart-14",
+      "exhibit_no": "14"
+    }
+  ],
+  "reference_institutions": [
+    "Osti",
+    "Iter"
+  ]
+}

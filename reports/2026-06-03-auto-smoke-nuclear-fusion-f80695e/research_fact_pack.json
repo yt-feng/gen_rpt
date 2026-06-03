@@ -1,0 +1,65 @@
+{
+  "topic": "Nuclear fusion commercialization outlook and strategic implications",
+  "objective": "Assess the current state and future trajectory of nuclear fusion commercialization, and analyze its strategic implications for energy markets, geopolitics, and technology investment.",
+  "decision_question": "Should our organization invest in or develop a strategic position in nuclear fusion technology, and what are the key risks and opportunities over the next 10–20 years?",
+  "source_count": 2,
+  "authoritative_source_count": 1,
+  "source_domains": [
+    "science.osti.gov",
+    "iter.org"
+  ],
+  "source_refs": [
+    "[Source 1][authoritative][html] U.S. DOE Fusion Energy Sciences | https://science.osti.gov/fes",
+    "[Source 2][supplement][html] ITER project | https://www.iter.org/"
+  ],
+  "high_confidence_facts": [
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.",
+    "[Source 2: ITER project] Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary The Machine The Machine One million components, ten million parts — find out more about the ITER Tokamak and its systems.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The DOE Fusion Energy Sciences (FES) program’s mission is to drive the scientific and technological foundation for a fusion energy source and support the development of a competitive U.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] In service of these drivers, FES supports fusion facilities in both the public and private sectors.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Building on a foundation of research in academia, industry, and national laboratories, FES supports nationally coordinated public-private partnership programs to cultivate a growing fusion power industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Fusion Energy Sciences program is guided by the Fusion Science and Technology Roadmap .",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] This strategy describes how the fusion community can \"Build,\" \"Innovate,\" and \"Grow\" to create a leading, robust American fusion energy industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Using some of the most advanced experimental capabilities, the most powerful supercomputers, and the fastest networks in the world today, DOE-supported scientists are undertaking research and development towards fundamental progress to establish fusion energy’s viability.",
+    "[Source 2: ITER project] Select your newsletters: Fusion, the nuclear reaction that powers the Sun and the stars, is a promising long-term option for sustainable, non-carbon-emitting energy.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Fusion occurs when two nuclei combine to form a new nucleus, a process that releases a huge amount of energy.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Controlling this process offers a possible long-term energy source that uses abundant resources for its fuel and does not produce long-lived radioactive waste.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] It also ensures that FES core research aligns with closing gaps along the critical path to fusion energy.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] We hope your visit was informative and enjoyable.",
+    "[Source 2: ITER project] International fusion project source for tokamak construction, milestones and technical scope.",
+    "[Source 2: ITER project] Harnessing fusion's power is the goal of ITER—designed as the key experimental step between today's fusion research machines and tomorrow's fusion power plants.",
+    "[Source 2: ITER project] The goal of ITER is to achieve fusion power production at power plant scale, breaking new ground in fusion science and demonstrating fusion reactor technology.",
+    "[Source 2: ITER project] China, the European Union, India, Japan, Korea, Russia and the United States are participating in the decades-long project to build and operate ITER, and to train the fusion scientists, engineers and operators of the future.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] gov website belongs to an official government organization in the United States.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] gov websites use HTTPS A lock ( ) or https:// means you’ve safely connected to the .",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Share sensitive information only on official, secure websites.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] To address these challenges, FES supports fundamental research in four major science areas.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Please click the following link to continue: Thank you for visiting our site."
+  ],
+  "numeric_facts": [
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today.",
+    "[Source 2: ITER project] Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary The Machine The Machine One million components, ten million parts — find out more about the ITER Tokamak and its systems.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The DOE Fusion Energy Sciences (FES) program’s mission is to drive the scientific and technological foundation for a fusion energy source and support the development of a competitive U.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] In service of these drivers, FES supports fusion facilities in both the public and private sectors.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Building on a foundation of research in academia, industry, and national laboratories, FES supports nationally coordinated public-private partnership programs to cultivate a growing fusion power industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Fusion Energy Sciences program is guided by the Fusion Science and Technology Roadmap .",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] This strategy describes how the fusion community can \"Build,\" \"Innovate,\" and \"Grow\" to create a leading, robust American fusion energy industry.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Using some of the most advanced experimental capabilities, the most powerful supercomputers, and the fastest networks in the world today, DOE-supported scientists are undertaking research and development towards fundamental progress to establish fusion energy’s viability.",
+    "[Source 2: ITER project] Select your newsletters: Fusion, the nuclear reaction that powers the Sun and the stars, is a promising long-term option for sustainable, non-carbon-emitting energy.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Fusion occurs when two nuclei combine to form a new nucleus, a process that releases a huge amount of energy.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] Controlling this process offers a possible long-term energy source that uses abundant resources for its fuel and does not produce long-lived radioactive waste.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] It also ensures that FES core research aligns with closing gaps along the critical path to fusion energy.",
+    "[Source 1: U.S. DOE Fusion Energy Sciences] We hope your visit was informative and enjoyable.",
+    "[Source 2: ITER project] International fusion project source for tokamak construction, milestones and technical scope.",
+    "[Source 2: ITER project] Harnessing fusion's power is the goal of ITER—designed as the key experimental step between today's fusion research machines and tomorrow's fusion power plants.",
+    "[Source 2: ITER project] The goal of ITER is to achieve fusion power production at power plant scale, breaking new ground in fusion science and demonstrating fusion reactor technology."
+  ],
+  "dated_facts": [
+    "[Source 1: U.S. DOE Fusion Energy Sciences] The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today."
+  ],
+  "validation_issues": [
+    "资料来源偏少，当前仅2个。",
+    "来源域名多样性不足，当前2个。",
+    "可核验时间线不足，需补充年份、季度、政策发布时间或交易节点。"
+  ]
+}

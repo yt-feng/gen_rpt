@@ -1,0 +1,183 @@
+c/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/17 transitioning from
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/17 laboratory science to
+
+Underfull \hbox (badness 5446) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 this decade. While fusion offers the promise of
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 virtually limitless, carbon-free baseload power,
+
+Underfull \hbox (badness 1286) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 ITER, while investing in enabling technologies (e.g.
+,
+
+Underfull \hbox (badness 5696) in paragraph at lines 95--95
+[]\TU/NotoSansCJKSC(0)/m/n/9 The U.S. Department of Energy (DOE) has been a
+
+Underfull \hbox (badness 6927) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 groundbreaking advances today through its Fusion
+
+Underfull \hbox (badness 2913) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 and technological foundation for fusion energy and
+
+Underfull \hbox (badness 10000) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 supports public-private partnerships to cultivate a
+
+Underfull \hbox (badness 3098) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 However, ITER has faced delays and cost overruns,
+[3]
+Underfull \hbox (badness 3058) in paragraph at lines 111--111
+[]\TU/NotoSansCJKSC(0)/m/n/9 Private fusion companies have raised over $5 billi
+on
+
+Underfull \hbox (badness 1275) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 (CFS) aims to demonstrate net energy with SPARC by
+
+Underfull \hbox (badness 1303) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 strategic optionality, but due diligence must focus 
+on
+
+Underfull \hbox (badness 4341) in paragraph at lines 112--112
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion\TU/DejaVuSans(0)/m/n/9 '\TU/NotoSansCJKSC(0
+)/m/n/9 s levelized cost of electricity (LCOE) is highly
+
+Underfull \hbox (badness 1389) in paragraph at lines 112--112
+\TU/NotoSansCJKSC(0)/m/n/9 plants. DOE estimates suggest fusion LCOE could be
+
+Underfull \hbox (badness 4353) in paragraph at lines 114--114
+\TU/NotoSansCJKSC(0)/m/n/9 that commercial fusion timelines may be optimistic.
+
+Underfull \hbox (badness 10000) in paragraph at lines 115--115
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion offers unique strategic advantages: fuel
+
+Underfull \hbox (badness 2126) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 abundance (deuterium from water, tritium bred from
+
+Underfull \hbox (badness 4886) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 safety (no meltdown risk). DOE states fusion uses
+
+Underfull \hbox (badness 1303) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 abundant fuel and produces no long-lived radioactive
+
+
+Underfull \hbox (badness 1286) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 or policy support, especially in regions with string
+ent
+[4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18] [19]
+[20] [21] (./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
+eneric/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+[]\TU/NotoSansCJKSC(0)/m/n/17 Nuclear fusion is
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/17 transitioning from
+
+Underfull \hbox (badness 10000) in paragraph at lines 92--92
+\TU/NotoSansCJKSC(0)/m/n/17 laboratory science to
+
+Underfull \hbox (badness 5446) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 this decade. While fusion offers the promise of
+
+Underfull \hbox (badness 10000) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 virtually limitless, carbon-free baseload power,
+
+Underfull \hbox (badness 1286) in paragraph at lines 93--93
+\TU/NotoSansCJKSC(0)/m/n/9 ITER, while investing in enabling technologies (e.g.
+,
+
+Underfull \hbox (badness 5696) in paragraph at lines 95--95
+[]\TU/NotoSansCJKSC(0)/m/n/9 The U.S. Department of Energy (DOE) has been a
+
+Underfull \hbox (badness 6927) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 groundbreaking advances today through its Fusion
+
+Underfull \hbox (badness 2913) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 and technological foundation for fusion energy and
+
+Underfull \hbox (badness 10000) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 supports public-private partnerships to cultivate a
+
+Underfull \hbox (badness 3098) in paragraph at lines 95--95
+\TU/NotoSansCJKSC(0)/m/n/9 However, ITER has faced delays and cost overruns,
+[3]
+Underfull \hbox (badness 3058) in paragraph at lines 111--111
+[]\TU/NotoSansCJKSC(0)/m/n/9 Private fusion companies have raised over $5 billi
+on
+
+Underfull \hbox (badness 1275) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 (CFS) aims to demonstrate net energy with SPARC by
+
+Underfull \hbox (badness 1303) in paragraph at lines 111--111
+\TU/NotoSansCJKSC(0)/m/n/9 strategic optionality, but due diligence must focus 
+on
+
+Underfull \hbox (badness 4341) in paragraph at lines 112--112
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion\TU/DejaVuSans(0)/m/n/9 '\TU/NotoSansCJKSC(0
+)/m/n/9 s levelized cost of electricity (LCOE) is highly
+
+Underfull \hbox (badness 1389) in paragraph at lines 112--112
+\TU/NotoSansCJKSC(0)/m/n/9 plants. DOE estimates suggest fusion LCOE could be
+
+Underfull \hbox (badness 4353) in paragraph at lines 114--114
+\TU/NotoSansCJKSC(0)/m/n/9 that commercial fusion timelines may be optimistic.
+
+Underfull \hbox (badness 10000) in paragraph at lines 115--115
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion offers unique strategic advantages: fuel
+
+Underfull \hbox (badness 2126) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 abundance (deuterium from water, tritium bred from
+
+Underfull \hbox (badness 4886) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 safety (no meltdown risk). DOE states fusion uses
+
+Underfull \hbox (badness 1303) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 abundant fuel and produces no long-lived radioactive
+
+
+Underfull \hbox (badness 1286) in paragraph at lines 115--115
+\TU/NotoSansCJKSC(0)/m/n/9 or policy support, especially in regions with string
+ent
+[4] [5] [6] [7] [8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18] [19]
+[20] [21] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
