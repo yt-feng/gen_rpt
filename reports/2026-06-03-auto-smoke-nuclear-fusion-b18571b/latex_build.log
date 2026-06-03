@@ -1,0 +1,190 @@
+ties/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 4303) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 in laboratory settings, but no plant has demonstrate
+d
+
+Underfull \hbox (badness 2781) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 cost of electricity (LCOE) for fusion is highly unce
+rtain,
+
+Underfull \hbox (badness 2443) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 by 2050, compared to $20-40/MWh for solar and wind;
+
+Underfull \hbox (badness 1400) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 to compete. Private fusion investment has surged pas
+t
+
+Underfull \hbox (badness 1565) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 valuations may be inflated and technology risks rema
+in
+
+Underfull \hbox (badness 2689) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 safety advantages; early engagement with regulators 
+is
+
+Underfull \hbox (badness 5817) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 immediate next step is to establish a cross-function
+al
+
+Underfull \hbox (badness 4108) in paragraph at lines 108--109
+[]\TU/NotoSansCJKSC(0)/m/n/8 Levelized cost of electricity (LCOE) for fusion is
+ highly
+
+Underfull \hbox (badness 1616) in paragraph at lines 110--111
+\TU/NotoSansCJKSC(0)/m/n/8 be less burdensome than fission due to inherent safe
+ty
+[3] [4] [5] [6] [7]
+Underfull \hbox (badness 3323) in paragraph at lines 190--190
+\TU/NotoSansCJKSC(0)/m/n/9 However, our internal analysis shows high uncertaint
+y in
+
+Underfull \hbox (badness 3000) in paragraph at lines 191--191
+[]\TU/NotoSansCJKSC(0)/b/n/9 Do not commit the full amount now. Instead, invest
+
+
+Underfull \hbox (badness 1924) in paragraph at lines 191--191
+\TU/NotoSansCJKSC(0)/b/n/9 $20 million in a convertible note with milestone-bas
+ed
+
+Underfull \hbox (badness 4634) in paragraph at lines 191--191
+\TU/NotoSansCJKSC(0)/b/n/9 conversion rights. This gives us a seat at the table
+
+
+Underfull \hbox (badness 1924) in paragraph at lines 192--192
+[]\TU/NotoSansCJKSC(0)/m/n/8 The startup may seek other investors if we do not 
+commit fully.
+[8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 2418) in paragraph at lines 397--398
+[]\TU/NotoSansCJKSC(0)/m/n/9 Timeline risk: Commercial fusion may not arrive
+
+Underfull \hbox (badness 1418) in paragraph at lines 397--398
+\TU/NotoSansCJKSC(0)/m/n/9 (2030-2040).. Watch for renewables+storage costs
+
+Underfull \hbox (badness 4595) in paragraph at lines 398--399
+\TU/NotoSansCJKSC(0)/m/n/9 adoption.. Watch for solar and wind LCOE fall
+
+Underfull \hbox (badness 4353) in paragraph at lines 399--400
+\TU/NotoSansCJKSC(0)/m/n/9 for regulatory bodies impose fission-like require-
+
+Underfull \hbox (badness 2582) in paragraph at lines 399--400
+\TU/NotoSansCJKSC(0)/m/n/9 ments on fusion, increasing costs and timelines..
+[19] [20] [21] (./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
+eneric/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 4303) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 in laboratory settings, but no plant has demonstrate
+d
+
+Underfull \hbox (badness 2781) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 cost of electricity (LCOE) for fusion is highly unce
+rtain,
+
+Underfull \hbox (badness 2443) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 by 2050, compared to $20-40/MWh for solar and wind;
+
+Underfull \hbox (badness 1400) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 to compete. Private fusion investment has surged pas
+t
+
+Underfull \hbox (badness 1565) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 valuations may be inflated and technology risks rema
+in
+
+Underfull \hbox (badness 2689) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 safety advantages; early engagement with regulators 
+is
+
+Underfull \hbox (badness 5817) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 immediate next step is to establish a cross-function
+al
+
+Underfull \hbox (badness 4108) in paragraph at lines 108--109
+[]\TU/NotoSansCJKSC(0)/m/n/8 Levelized cost of electricity (LCOE) for fusion is
+ highly
+
+Underfull \hbox (badness 1616) in paragraph at lines 110--111
+\TU/NotoSansCJKSC(0)/m/n/8 be less burdensome than fission due to inherent safe
+ty
+[3] [4] [5] [6] [7]
+Underfull \hbox (badness 3323) in paragraph at lines 190--190
+\TU/NotoSansCJKSC(0)/m/n/9 However, our internal analysis shows high uncertaint
+y in
+
+Underfull \hbox (badness 3000) in paragraph at lines 191--191
+[]\TU/NotoSansCJKSC(0)/b/n/9 Do not commit the full amount now. Instead, invest
+
+
+Underfull \hbox (badness 1924) in paragraph at lines 191--191
+\TU/NotoSansCJKSC(0)/b/n/9 $20 million in a convertible note with milestone-bas
+ed
+
+Underfull \hbox (badness 4634) in paragraph at lines 191--191
+\TU/NotoSansCJKSC(0)/b/n/9 conversion rights. This gives us a seat at the table
+
+
+Underfull \hbox (badness 1924) in paragraph at lines 192--192
+[]\TU/NotoSansCJKSC(0)/m/n/8 The startup may seek other investors if we do not 
+commit fully.
+[8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 2418) in paragraph at lines 397--398
+[]\TU/NotoSansCJKSC(0)/m/n/9 Timeline risk: Commercial fusion may not arrive
+
+Underfull \hbox (badness 1418) in paragraph at lines 397--398
+\TU/NotoSansCJKSC(0)/m/n/9 (2030-2040).. Watch for renewables+storage costs
+
+Underfull \hbox (badness 4595) in paragraph at lines 398--399
+\TU/NotoSansCJKSC(0)/m/n/9 adoption.. Watch for solar and wind LCOE fall
+
+Underfull \hbox (badness 4353) in paragraph at lines 399--400
+\TU/NotoSansCJKSC(0)/m/n/9 for regulatory bodies impose fission-like require-
+
+Underfull \hbox (badness 2582) in paragraph at lines 399--400
+\TU/NotoSansCJKSC(0)/m/n/9 ments on fusion, increasing costs and timelines..
+[19] [20] [21] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.

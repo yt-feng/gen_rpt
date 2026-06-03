@@ -1,0 +1,230 @@
+{
+  "objective": "Assess the commercialization outlook for nuclear fusion energy and analyze its strategic implications for energy markets, geopolitics, and technology investment.",
+  "audience": "Senior executives in energy and technology sectors, policy makers, and strategic investors.",
+  "decision_question": "Should our organization invest in or develop a strategic position in nuclear fusion technology, and if so, what timeline, technology pathway, and partnership model should we pursue?",
+  "issue_tree": {
+    "id": "root",
+    "name": "Nuclear Fusion Commercialization Outlook & Strategic Implications",
+    "children": [
+      {
+        "id": "tech_status",
+        "name": "Technology Maturity & Roadmaps",
+        "children": [
+          {
+            "id": "magnetic",
+            "name": "Magnetic confinement (tokamaks, stellarators)"
+          },
+          {
+            "id": "inertial",
+            "name": "Inertial confinement & laser fusion"
+          },
+          {
+            "id": "alternative",
+            "name": "Alternative approaches (e.g., field-reversed configuration, magnetized target fusion)"
+          },
+          {
+            "id": "timeline",
+            "name": "Projected milestones to net-positive energy and grid connection"
+          }
+        ]
+      },
+      {
+        "id": "economics",
+        "name": "Economic Viability & Cost Competitiveness",
+        "children": [
+          {
+            "id": "lcoe",
+            "name": "Levelized cost of electricity (LCOE) estimates"
+          },
+          {
+            "id": "capex_opex",
+            "name": "Capital and operational cost drivers"
+          },
+          {
+            "id": "comparison",
+            "name": "Comparison with renewables, fission, and fossil fuels"
+          }
+        ]
+      },
+      {
+        "id": "regulatory",
+        "name": "Regulatory & Safety Landscape",
+        "children": [
+          {
+            "id": "licensing",
+            "name": "Licensing frameworks and regulatory bodies"
+          },
+          {
+            "id": "safety",
+            "name": "Safety, waste, and proliferation risks"
+          },
+          {
+            "id": "public_perception",
+            "name": "Public acceptance and NIMBY dynamics"
+          }
+        ]
+      },
+      {
+        "id": "market",
+        "name": "Market Structure & Adoption Pathways",
+        "children": [
+          {
+            "id": "early_adopters",
+            "name": "Potential early adopters (e.g., data centers, industrial heat)"
+          },
+          {
+            "id": "grid_integration",
+            "name": "Grid integration and baseload vs. flexible operation"
+          },
+          {
+            "id": "hydrogen",
+            "name": "Synergies with hydrogen production and synthetic fuels"
+          }
+        ]
+      },
+      {
+        "id": "geopolitical",
+        "name": "Geopolitical & Strategic Implications",
+        "children": [
+          {
+            "id": "energy_independence",
+            "name": "Impact on energy independence and security"
+          },
+          {
+            "id": "supply_chains",
+            "name": "Critical materials and supply chain dependencies"
+          },
+          {
+            "id": "leadership",
+            "name": "National and corporate R&D leadership (US, China, EU, private sector)"
+          }
+        ]
+      },
+      {
+        "id": "investment",
+        "name": "Investment Landscape & Risk Assessment",
+        "children": [
+          {
+            "id": "funding",
+            "name": "Public vs. private funding trends"
+          },
+          {
+            "id": "players",
+            "name": "Key startups, incumbents, and consortia"
+          },
+          {
+            "id": "risks",
+            "name": "Technology, regulatory, and market risks"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025",
+    "fusion energy levelized cost of electricity estimate",
+    "ITER project status and milestones",
+    "Commonwealth Fusion Systems SPARC timeline",
+    "TAE Technologies fusion reactor progress",
+    "Helion Energy fusion commercial plant plans",
+    "nuclear fusion regulatory framework licensing",
+    "fusion energy safety waste proliferation risks",
+    "fusion energy early adopters data centers industrial heat",
+    "fusion hydrogen production synergy",
+    "geopolitical implications of fusion energy",
+    "fusion energy critical materials supply chain",
+    "fusion energy investment trends 2024 2025",
+    "private fusion companies funding rounds",
+    "fusion energy public perception survey",
+    "fusion vs renewables cost comparison 2030",
+    "fusion energy grid integration baseload",
+    "fusion energy national strategies US China EU",
+    "fusion energy risk assessment technology market",
+    "fusion energy net positive energy record"
+  ],
+  "outline": [
+    "Nuclear fusion is approaching technical breakeven but commercial viability remains a decade or more away",
+    "Magnetic confinement (tokamaks) leads in maturity, but alternative approaches may offer faster paths to market",
+    "Levelized cost of fusion electricity is highly uncertain, with estimates ranging from competitive to significantly higher than renewables",
+    "Regulatory and safety frameworks for fusion are nascent but likely to be less burdensome than fission",
+    "Early commercial applications will likely target industrial heat and data centers before grid-scale power",
+    "Fusion energy could reshape global energy geopolitics by reducing dependence on fossil fuel exporters and critical mineral supply chains",
+    "Private investment in fusion has surged past $6 billion, but technology and timeline risks remain substantial",
+    "Strategic positioning in fusion requires a portfolio approach: monitor leading startups, engage in policy advocacy, and prepare for long-term adoption"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion Technology Maturity Comparison",
+      "type": "radar chart",
+      "description": "Compare magnetic confinement, inertial confinement, and alternative approaches across metrics: TRL, net energy gain achieved, projected commercial date, capital cost, and regulatory readiness."
+    },
+    {
+      "title": "Fusion LCOE Projections vs. Other Energy Sources",
+      "type": "line chart with uncertainty bands",
+      "description": "Show range of LCOE estimates for fusion (2025-2050) alongside historical and projected LCOE for solar, wind, gas, coal, and nuclear fission."
+    },
+    {
+      "title": "Global Fusion Investment by Year and Source",
+      "type": "stacked bar chart",
+      "description": "Annual public and private fusion investment from 2015 to 2025, segmented by country/region and private vs. public."
+    },
+    {
+      "title": "Fusion Commercialization Timeline: Key Milestones",
+      "type": "Gantt chart",
+      "description": "Timeline of major fusion projects (ITER, SPARC, Helion, TAE, etc.) showing milestones: first plasma, net energy, pilot plant, commercial plant."
+    },
+    {
+      "title": "Geopolitical Impact Matrix: Fusion vs. Status Quo",
+      "type": "2x2 matrix",
+      "description": "Axes: Energy independence (low to high) vs. Supply chain vulnerability (low to high). Plot positions for fossil fuels, renewables, fission, and fusion."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "Fusion's 'Net Energy' Milestone: What It Really Means",
+      "content": "Explain the difference between scientific breakeven (Q>1), engineering breakeven (Q>10), and commercial breakeven. Highlight that recent achievements (e.g., NIF, KSTAR) are scientific but far from commercial."
+    },
+    {
+      "title": "The Fusion Startup Landscape: Who's Leading?",
+      "content": "Profile top private fusion companies (Commonwealth Fusion, Helion, TAE, General Fusion, Zap Energy) with their technology, funding, timeline, and key partnerships."
+    },
+    {
+      "title": "Why Data Centers Could Be Fusion's First Killer App",
+      "content": "Analyze the demand for 24/7 carbon-free power from hyperscale data centers and how fusion's compact, high-power characteristics fit. Compare with small modular reactors and hydrogen fuel cells."
+    },
+    {
+      "title": "Fusion and the Hydrogen Economy: A Natural Pair",
+      "content": "Describe how fusion's high-temperature heat can enable efficient hydrogen production via thermochemical cycles or high-temperature electrolysis, creating a synergy for decarbonizing hard-to-abate sectors."
+    },
+    {
+      "title": "Regulatory Hurdles: Fusion's Advantage Over Fission",
+      "content": "Explain why fusion reactors are inherently safer (no meltdown risk, low waste) and how this may lead to faster licensing and lower insurance costs. Discuss current regulatory efforts in the US, UK, and Japan."
+    }
+  ],
+  "risks": [
+    {
+      "category": "Technology Risk",
+      "description": "Fusion may fail to achieve sustained net-positive energy at commercial scale within projected timelines; materials degradation under neutron bombardment remains unsolved."
+    },
+    {
+      "category": "Timeline Risk",
+      "description": "Repeated delays in major projects (e.g., ITER) erode investor confidence; commercial fusion may not arrive before climate goals require deep decarbonization."
+    },
+    {
+      "category": "Economic Risk",
+      "description": "Fusion LCOE may remain higher than rapidly falling renewables+storage, limiting market adoption without carbon pricing or subsidies."
+    },
+    {
+      "category": "Regulatory Risk",
+      "description": "Uncertain or overly burdensome licensing frameworks could delay deployment; public opposition may arise despite safety advantages."
+    },
+    {
+      "category": "Geopolitical Risk",
+      "description": "Concentration of fusion intellectual property and supply chains in a few countries could create new dependencies; technology transfer restrictions may slow global adoption."
+    },
+    {
+      "category": "Investment Risk",
+      "description": "Overvaluation of private fusion companies could lead to a funding winter if milestones are missed; public funding may be redirected to other climate technologies."
+    }
+  ]
+}
