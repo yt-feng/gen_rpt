@@ -146,7 +146,12 @@ jobs:
             --model "$MODEL" \
             --out-root reports \
             $EXTRA_ARGS
-          echo "report_dir=reports/$SLUG" >> "$GITHUB_OUTPUT"
+          REPORT_DIR="$(find reports -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          if [ -z "$REPORT_DIR" ]; then
+            echo "Could not locate generated report directory" >&2
+            exit 1
+          fi
+          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Audit generated report
         run: |
