@@ -1103,7 +1103,10 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
         if len(paragraphs) < 3:
             paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
-        normalized["paragraphs"] = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:5]
+        normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:5]
+        while len(normalized_paragraphs) < 3:
+            normalized_paragraphs.append(_completion_paragraph(title, len(normalized_paragraphs), language=language))
+        normalized["paragraphs"] = normalized_paragraphs[:5]
         lead = str(normalized.get("lead") or "").strip()
         if len(lead) < 40 or _is_generic_title(lead):
             normalized["lead"] = _derive_section_lead(title, normalized["paragraphs"], language=language)
@@ -1689,6 +1692,22 @@ def _supplement_paragraphs(fact_pack: ResearchFactPack, *, language: str, needed
     while len(out) < needed:
         out.append("The source backup should be used to validate this section before it is used for a decision." if language == "en" else "该章节应结合来源底稿继续复核后再用于决策。")
     return out[:needed]
+
+
+def _completion_paragraph(title: str, idx: int, *, language: str) -> str:
+    if language == "zh":
+        variants = [
+            f"放到董事会视角，{title}需要进一步转化为资本节奏、伙伴选择、客户暴露和风险偏好的判断。",
+            "下一轮复盘应围绕客户证据、成本数据、政策时间和竞争动作更新投入门槛。",
+            "在缺少更强来源之前，管理层应把该判断作为方向性输入，而不是直接升级为重大资源承诺。",
+        ]
+    else:
+        variants = [
+            f"From a board perspective, {title} should be translated into capital timing, partner choice, customer exposure and risk appetite before resources are escalated.",
+            "The next review should test the chapter against customer evidence, cost data, policy timing and competitor movement, then update the investment threshold.",
+            "Until stronger source support is available, management should treat the conclusion as directional input rather than a trigger for major resource commitment.",
+        ]
+    return variants[idx % len(variants)]
 
 
 def _shorten(text: str, max_chars: int) -> str:
