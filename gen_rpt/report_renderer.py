@@ -340,7 +340,7 @@ def _render_chapter(parts: List[str], section: Dict[str, Any], assets: Dict[str,
 
 
 def _render_exhibit(parts: List[str], chart: Dict[str, Any], assets: Dict[str, str], logo_path: str, page_no: int, labels: Dict[str, str], idx: int) -> None:
-    title = _reader_text(chart.get("title") or f"{labels['figure']} {idx}")
+    title = _chart_title(chart.get("title") or f"{labels['figure']} {idx}", 125)
     subtitle = _reader_text(chart.get("subtitle") or chart.get("caption") or "")
     caption = _reader_text(chart.get("caption") or "")
     source = _reader_text(chart.get("source_note") or f"Source: public sources and {BRAND_NAME} synthesis.")
@@ -556,7 +556,7 @@ def _compact_headline(text: str) -> str:
 
 
 def _display_bullet(text: str, max_chars: int) -> str:
-    cleaned = _reader_text(text)
+    cleaned = _clean_sentence_fragment(str(text or ""))
     if len(cleaned) <= max_chars:
         return cleaned
     compact = _compact_headline(cleaned)
@@ -565,8 +565,27 @@ def _display_bullet(text: str, max_chars: int) -> str:
     return _shorten(cleaned, max_chars)
 
 
+def _chart_title(value: Any, max_chars: int) -> str:
+    cleaned = _clean_sentence_fragment(str(value or ""))
+    compact = re.sub(
+        r"^(.{8,60}?)\s+for\s+.+?\s+(should|must|will|still|depends|requires|needs|is|are)\s+(.+)$",
+        lambda match: f"{match.group(1)} {match.group(2)} {match.group(3)}",
+        cleaned,
+        flags=re.I,
+    )
+    if compact != cleaned:
+        cleaned = _clean_sentence_fragment(compact)
+    if len(cleaned) <= max_chars:
+        return cleaned
+    return _display_bullet(cleaned, max_chars)
+
+
 def _clean_sentence_fragment(text: str) -> str:
-    return _reader_text(text).rstrip(".,;: ")
+    cleaned = _reader_text(text).rstrip(".,;: ")
+    weak_tail = r"\s+(?:before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$"
+    while re.search(weak_tail, cleaned, flags=re.I):
+        cleaned = re.sub(weak_tail, "", cleaned, flags=re.I).rstrip(".,;: ")
+    return cleaned
 
 
 def _resolve_visual(section: Dict[str, Any], idx: int, assets: Dict[str, str]) -> str:
@@ -655,7 +674,7 @@ def _shorten(value: Any, max_chars: int) -> str:
     if sentence_cut >= max(35, int(max_chars * 0.45)):
         return window[: sentence_cut + 1].strip()
     shortened = window.rsplit(" ", 1)[0].strip()
-    return (shortened or window.strip()).rstrip(".,;:")
+    return _clean_sentence_fragment(shortened or window.strip())
 
 
 def _dedupe(values: List[str]) -> List[str]:

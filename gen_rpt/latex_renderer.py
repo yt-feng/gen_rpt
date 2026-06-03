@@ -375,7 +375,7 @@ def _callout_box(items: List[str]) -> str:
 
 
 def _exhibit_page(chart: Dict[str, Any], assets: Dict[str, str], idx: int) -> str:
-    title = _tex(_shorten(chart.get('title') or f'Figure {idx}', 125))
+    title = _tex(_chart_title(chart.get('title') or f'Figure {idx}', 125))
     subtitle_raw = _normalize_punctuation(str(chart.get('subtitle') or chart.get('caption') or ''))
     caption_raw = _normalize_punctuation(str(chart.get('caption') or ''))
     if caption_raw.lower() == subtitle_raw.lower():
@@ -669,7 +669,11 @@ def _compact_headline(text: str) -> str:
 def _clean_sentence_fragment(text: str) -> str:
     cleaned = _normalize_punctuation(text).strip()
     cleaned = re.sub(r'\s+', ' ', cleaned)
-    return cleaned.rstrip('.,;: ')
+    cleaned = cleaned.rstrip('.,;: ')
+    weak_tail = r'\s+(?:before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$'
+    while re.search(weak_tail, cleaned, flags=re.I):
+        cleaned = re.sub(weak_tail, '', cleaned, flags=re.I).rstrip('.,;: ')
+    return cleaned
 
 
 def _join_sentence_fragments(parts: List[str]) -> str:
@@ -680,13 +684,28 @@ def _join_sentence_fragments(parts: List[str]) -> str:
 
 
 def _display_bullet(text: str, max_chars: int) -> str:
-    cleaned = _normalize_punctuation(text)
+    cleaned = _clean_sentence_fragment(str(text or ''))
     if len(cleaned) <= max_chars:
         return cleaned
     compact = _compact_headline(cleaned)
     if compact and len(compact) < len(cleaned):
         cleaned = compact
     return _shorten(cleaned, max_chars)
+
+
+def _chart_title(value: Any, max_chars: int) -> str:
+    cleaned = _clean_sentence_fragment(str(value or ''))
+    compact = re.sub(
+        r'^(.{8,60}?)\s+for\s+.+?\s+(should|must|will|still|depends|requires|needs|is|are)\s+(.+)$',
+        lambda match: f"{match.group(1)} {match.group(2)} {match.group(3)}",
+        cleaned,
+        flags=re.I,
+    )
+    if compact != cleaned:
+        cleaned = _clean_sentence_fragment(compact)
+    if len(cleaned) <= max_chars:
+        return cleaned
+    return _display_bullet(cleaned, max_chars)
 
 
 def _paras(section: Dict[str, Any]) -> List[str]:
@@ -844,7 +863,7 @@ def _shorten(value: Any, max_chars: int) -> str:
     shortened = text[:max_chars].rsplit(' ', 1)[0].strip()
     if not shortened:
         shortened = text[:max_chars].strip()
-    return shortened.rstrip('.,;:')
+    return _clean_sentence_fragment(shortened)
 
 
 def _normalize_punctuation(text: str) -> str:

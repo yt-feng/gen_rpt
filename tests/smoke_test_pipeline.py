@@ -13,7 +13,9 @@ if str(ROOT) not in sys.path:
 from gen_rpt.brand_assets import copy_or_generate_brand_assets, summarize_reference_institutions, write_reference_backup
 from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.graphics import create_chart, create_insight_card
+from gen_rpt.latex_renderer import _chart_title as latex_chart_title
 from gen_rpt.latex_renderer import _compact_headline as latex_compact_headline
+from gen_rpt.latex_renderer import _display_bullet as latex_display_bullet
 from gen_rpt.latex_renderer import render_latex_pdf
 from gen_rpt.research_quality import apply_deterministic_report_fixes, build_research_fact_pack, validate_report
 from gen_rpt.report_renderer import render_report_html, render_report_markdown
@@ -136,6 +138,12 @@ def main() -> None:
         assert f"{{\\bfseries {old_agenda_page:02d}}} & Future action agenda" not in latex_text
     problem_headline = "Fusion commercialization is advancing faster than expected, driven by private startups that have raised over $5 billion in investment."
     assert latex_compact_headline(problem_headline) == "Fusion commercialization is advancing faster than expected"
+    weak_tail = "Management should separate verified facts, directional scenarios and missing diligence items before"
+    assert not latex_display_bullet(weak_tail, 140).lower().endswith(" before")
+    long_chart_title = "Key risks for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Investment should be ranked by severity and manageability"
+    assert latex_chart_title(long_chart_title, 125) == "Key risks should be ranked by severity and manageability"
+    for chart in report.get("charts", []):
+        assert not re.search(r"\b(before|after|with|and|or|of|for|to|in|at|by|from|as|but|while|because|requiring|including|than)$", str(chart.get("title") or ""), re.I)
     for text in [html_text, markdown_text, latex_text]:
         lowered = text.lower()
         assert "future action agenda" in lowered
