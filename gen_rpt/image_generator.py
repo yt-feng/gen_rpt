@@ -11,7 +11,7 @@ from typing import Any, Dict, List, Tuple
 from urllib.parse import quote, urlencode
 
 import requests
-from PIL import Image, ImageDraw, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter, ImageStat
 
 from .deepseek_client import DeepSeekClient
 from .theme import load_theme
@@ -142,9 +142,10 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
             last_error = str(exc)[:300]
             time.sleep(min(2.5 * (attempt + 1), 8.0))
 
-    wiki_status, wiki_reason = _download_wikimedia_fallback(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
-    if wiki_status:
-        return "wikimedia", wiki_reason or last_error
+    if kind != "cover":
+        wiki_status, wiki_reason = _download_wikimedia_fallback(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
+        if wiki_status:
+            return "wikimedia", wiki_reason or last_error
 
     if allow_fallback:
         _fallback_image(output_path, kind=kind, prompt=prompt)
@@ -178,9 +179,9 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         "generator": "search",
         "gsrnamespace": "6",
         "gsrsearch": query,
-        "gsrlimit": "10",
+        "gsrlimit": "20",
         "prop": "imageinfo",
-        "iiprop": "url|mime",
+        "iiprop": "url|mime|size",
         "iiurlwidth": "1280",
         "format": "json",
         "origin": "*",
@@ -195,22 +196,27 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
             pages = list((json.loads(raw.decode("utf-8")).get("query", {}).get("pages", {}) or {}).values())
         except Exception as curl_exc:
             return "", f"wikimedia search failed: {str(exc)[:120]}; curl: {str(curl_exc)[:120]}"
-    candidates = []
+    candidates: List[tuple[int, str, str]] = []
     for page in pages:
         info = (page.get("imageinfo") or [{}])[0]
         url = info.get("thumburl") or info.get("url")
         mime = str(info.get("mime") or "")
         title = str(page.get("title") or "")
+        width = int(info.get("thumbwidth") or info.get("width") or 0)
+        height = int(info.get("thumbheight") or info.get("height") or 0)
         if not url or "svg" in mime.lower() or url.lower().endswith(".svg"):
             continue
-        if any(token in title.lower() for token in ("logo", "icon", "map", "diagram", "chart")):
+        if width and height and (width < 500 or height < 350):
             continue
-        candidates.append(url)
+        if _bad_wikimedia_title(title):
+            continue
+        candidates.append((_wikimedia_title_score(title, query), url, title))
     if not candidates:
         return "", "no suitable wikimedia image"
+    candidates.sort(reverse=True, key=lambda item: item[0])
     start = int(hashlib.sha1(prompt.encode("utf-8", errors="ignore")).hexdigest()[:6], 16) % len(candidates)
     ordered = candidates[start:] + candidates[:start]
-    for url in ordered:
+    for _score, url, title in ordered:
         try:
             image_response = requests.get(url, timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
             image_response.raise_for_status()
@@ -225,6 +231,10 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
             tmp.write_bytes(content)
             with Image.open(tmp) as image:
                 image = image.convert("RGB")
+                quality_reason = _wikimedia_image_reject_reason(image, title)
+                if quality_reason:
+                    tmp.unlink(missing_ok=True)
+                    continue
                 image = _cover_crop(image, 1280, 900)
                 image.save(output_path, format="PNG")
             tmp.unlink(missing_ok=True)
@@ -232,6 +242,81 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         except Exception:
             continue
     return "", "wikimedia downloads failed"
+
+
+def _bad_wikimedia_title(title: str) -> bool:
+    lower = str(title or "").lower()
+    bad_tokens = (
+        "logo",
+        "icon",
+        "map",
+        "diagram",
+        "chart",
+        "graph",
+        "table",
+        "seal",
+        "hearing",
+        "treaty",
+        "report",
+        "serial",
+        "committee",
+        "document",
+        "cover",
+        "pdf",
+        "book",
+        "page",
+        "text",
+        "transcript",
+        "minutes",
+    )
+    return any(token in lower for token in bad_tokens)
+
+
+def _wikimedia_title_score(title: str, query: str) -> int:
+    lower = str(title or "").lower()
+    query_lower = str(query or "").lower()
+    positives = (
+        "tokamak",
+        "iter",
+        "fusion reactor",
+        "plasma",
+        "stellarator",
+        "facility",
+        "control room",
+        "reactor",
+        "construction",
+        "laboratory",
+        "power plant",
+    )
+    score = sum(10 for token in positives if token in lower)
+    for token in query_lower.split():
+        if len(token) >= 4 and token in lower:
+            score += 2
+    if lower.endswith((".jpg", ".jpeg", ".png")):
+        score += 1
+    return score
+
+
+def _wikimedia_image_reject_reason(image: Image.Image, title: str) -> str:
+    width, height = image.size
+    if width < 500 or height < 350:
+        return "too small"
+    stat = ImageStat.Stat(image)
+    mean = sum(float(x) for x in stat.mean) / 3
+    stddev = sum(float(x) for x in stat.stddev) / 3
+    gray = image.convert("L").resize((160, 112))
+    pixels = list(gray.getdata())
+    near_white = sum(1 for pixel in pixels if pixel >= 236) / max(1, len(pixels))
+    near_gray = sum(1 for pixel in pixels if 105 <= pixel <= 190) / max(1, len(pixels))
+    if stddev < 10:
+        return "flat image"
+    if mean > 218 and stddev < 42 and near_white > 0.48:
+        return "pale document-like image"
+    if near_gray > 0.68 and stddev < 34:
+        return "gray scan-like image"
+    if _bad_wikimedia_title(title):
+        return "bad title"
+    return ""
 
 
 def _curl_bytes(url: str, timeout_seconds: int) -> bytes:

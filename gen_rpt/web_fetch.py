@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from typing import List
-from urllib.parse import quote, urlparse
+from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import fitz
 import requests
@@ -46,6 +46,23 @@ class FetchedPage:
 
 
 def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
+    results: List[SearchResult] = []
+    seen = set()
+    for searcher in (_search_duckduckgo, _search_bing):
+        try:
+            for result in searcher(query, max_results=max_results):
+                if not result.url or result.url in seen:
+                    continue
+                seen.add(result.url)
+                results.append(result)
+                if len(results) >= max_results:
+                    return results
+        except Exception:
+            continue
+    return results
+
+
+def _search_duckduckgo(query: str, max_results: int = 5) -> List[SearchResult]:
     url = f"https://html.duckduckgo.com/html/?q={quote(query)}"
     response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30)
     response.raise_for_status()
@@ -70,6 +87,36 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
         if len(results) >= max_results:
             break
 
+    return results
+
+
+def _search_bing(query: str, max_results: int = 5) -> List[SearchResult]:
+    url = f"https://www.bing.com/search?q={quote(query)}"
+    response = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=30)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    results: List[SearchResult] = []
+    seen = set()
+    for node in soup.select("li.b_algo"):
+        anchor = node.select_one("h2 a") or node.find("a")
+        if not anchor:
+            continue
+        clean_url = _normalize_url(anchor.get("href", "").strip())
+        if not clean_url or clean_url in seen:
+            continue
+        seen.add(clean_url)
+        snippet_node = node.select_one(".b_caption p") or node.find("p")
+        results.append(
+            SearchResult(
+                title=anchor.get_text(" ", strip=True),
+                url=clean_url,
+                snippet=snippet_node.get_text(" ", strip=True) if snippet_node else "",
+                query=query,
+            )
+        )
+        if len(results) >= max_results:
+            break
     return results
 
 
@@ -133,7 +180,8 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
         try:
             search_results = search_web(query, max_results=per_query)
         except Exception:
-            continue
+            search_results = []
+        search_results.extend(_direct_source_candidates(query))
 
         for result in search_results:
             if result.url in seen:
@@ -167,10 +215,45 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
 def _normalize_url(url: str) -> str:
     if not url:
         return ""
+    if url.startswith("//"):
+        url = "https:" + url
+    if url.startswith("/"):
+        url = "https://duckduckgo.com" + url
     parsed = urlparse(url)
+    if parsed.netloc.endswith("duckduckgo.com") and parsed.path.startswith("/l/"):
+        uddg = parse_qs(parsed.query).get("uddg")
+        if uddg:
+            return _normalize_url(unquote(uddg[0]))
     if parsed.scheme not in {"http", "https"}:
         return ""
     return url
+
+
+def _direct_source_candidates(query: str) -> List[SearchResult]:
+    lower = str(query or "").lower()
+    candidates: List[tuple[str, str, str]] = []
+    if any(token in lower for token in ("fusion", "tokamak", "plasma", "tritium", "reactor")):
+        candidates.extend(
+            [
+                ("U.S. DOE Fusion Energy Sciences", "https://science.osti.gov/fes", "Authoritative public source on U.S. fusion research programs."),
+                ("DOE Milestone-Based Fusion Development Program", "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program", "Public program page for private fusion commercialization milestones."),
+                ("IAEA Fusion Energy", "https://www.iaea.org/topics/energy/fusion", "International Atomic Energy Agency overview of fusion energy and development status."),
+                ("ITER project", "https://www.iter.org/", "International fusion project source for tokamak construction, milestones and technical scope."),
+                ("National Academies: Bringing Fusion to the U.S. Grid", "https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid", "Independent study program on fusion commercialization and grid deployment."),
+                ("Fusion Industry Association reports", "https://www.fusionindustryassociation.org/reports/", "Industry report archive covering private fusion financing and company progress."),
+            ]
+        )
+    if any(token in lower for token in ("battery", "storage", "grid", "hydrogen", "power")):
+        candidates.extend(
+            [
+                ("IEA energy storage", "https://www.iea.org/energy-system/electricity/grid-scale-storage", "International Energy Agency source on grid-scale storage."),
+                ("U.S. DOE Office of Electricity", "https://www.energy.gov/oe/office-electricity", "Public source on grid modernization and storage programs."),
+            ]
+        )
+    out = []
+    for title, url, snippet in candidates:
+        out.append(SearchResult(title=title, url=url, snippet=snippet, query=query))
+    return out
 
 
 def _read_limited_content(response: requests.Response, max_bytes: int = MAX_DOWNLOAD_BYTES) -> bytes:

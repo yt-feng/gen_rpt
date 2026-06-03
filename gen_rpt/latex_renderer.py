@@ -98,16 +98,26 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     parts.append(_cover_page(title, _asset_path(assets.get('cover-background', '')), topic))
     parts.append(_agenda_and_contents_page(summary, sections, charts))
     parts.append(_opening_page(report, summary, sections, assets, topic))
+    parts.append(_evidence_opening_page(report, summary, sections, assets, topic))
+    chart_groups = _chart_groups(charts)
+    front_group_count = min(4, len(chart_groups))
     chart_index = 0
+    for group in chart_groups[:front_group_count]:
+        parts.append(_exhibit_page(group, assets, chart_index + 1))
+        chart_index += len(group)
+    remaining_groups = chart_groups[front_group_count:]
+    remaining_group_index = 0
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
-        if chart_index < len(charts):
-            group = charts[chart_index:chart_index + 2]
+        if idx % 2 == 0 and remaining_group_index < len(remaining_groups):
+            group = remaining_groups[remaining_group_index]
             parts.append(_exhibit_page(group, assets, chart_index + 1))
+            remaining_group_index += 1
             chart_index += len(group)
-    while chart_index < len(charts):
-        group = charts[chart_index:chart_index + 2]
+    while remaining_group_index < len(remaining_groups):
+        group = remaining_groups[remaining_group_index]
         parts.append(_exhibit_page(group, assets, chart_index + 1))
+        remaining_group_index += 1
         chart_index += len(group)
     parts.append(_disclaimer_page(refs))
     parts.append(_back_cover_page(_asset_path(assets.get('cover-background', ''))))
@@ -154,14 +164,19 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
 
 
 def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]]) -> List[tuple[str, str, List[str]]]:
+    chart_groups = _chart_groups(charts)
+    front_group_count = min(4, len(chart_groups))
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
-    page_no = 4
+    rows.append(('04', 'The case should be read through proof, economics and timing', []))
+    if chart_groups:
+        rows.append(('05', 'The first evidence pages frame decision readiness before the narrative', []))
+    page_no = 5 + front_group_count
     chart_pages_needed = (len(charts) + 1) // 2
-    chart_pages = 0
+    chart_pages = front_group_count
     for idx, section in enumerate(sections, start=1):
         rows.append((f'{page_no:02d}', _strip_number_prefix(section.get('title', 'Section')), []))
         page_no += 1
-        if chart_pages < chart_pages_needed:
+        if idx % 2 == 0 and chart_pages < chart_pages_needed:
             page_no += 1
             chart_pages += 1
     while chart_pages < chart_pages_needed:
@@ -169,6 +184,10 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
         chart_pages += 1
     rows.append((f'{page_no:02d}', 'About the research', []))
     return rows
+
+
+def _chart_groups(charts: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
+    return [charts[idx:idx + 2] for idx in range(0, len(charts), 2)]
 
 
 def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
@@ -192,6 +211,45 @@ def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dic
         + '{\\small\\color{BOText} ' + left + '}\\par\n'
         + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
         + '{\\small\\color{BOText} ' + right + '}\\par\n'
+        + '\\end{minipage}\n'
+    )
+
+
+def _evidence_opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
+    visual = _asset_path(assets.get('image-2', '')) or _asset_path(assets.get('cover-background', ''))
+    image = _image_strip(visual, '62mm') if visual else ''
+    findings = [item for item in _as_list(report.get('key_findings')) if isinstance(item, dict)]
+    section = sections[0] if sections else {}
+    title = _tex(_shorten(_strip_number_prefix(section.get('title') or _agenda_heading(summary, sections)), 135))
+    lead = _tex(_shorten(section.get('lead') or (summary[0] if summary else ''), 360))
+    left_bits: List[str] = []
+    right_bits: List[str] = []
+    for item in findings[:4]:
+        finding = _field(item, 'finding')
+        evidence = _field(item, 'evidence')
+        implication = _field(item, 'management_implication')
+        sentence = _join_sentence_fragments([finding, evidence, implication])
+        if sentence:
+            if len(left_bits) <= len(right_bits):
+                left_bits.append(sentence)
+            else:
+                right_bits.append(sentence)
+    if not left_bits and not right_bits:
+        paras = [_normalize_punctuation(str(x)) for x in _as_list(section.get('paragraphs')) if str(x).strip()]
+        left_bits = paras[:2]
+        right_bits = paras[2:4]
+    left = ''.join(_para(_tex(_shorten(item, 520))) for item in left_bits[:3])
+    right = ''.join(_para(_tex(_shorten(item, 520))) for item in right_bits[:3])
+    return (
+        '\\clearpage\n'
+        + (image + '\\vspace{0pt}\n' if image else '')
+        + _green_rule('82mm')
+        + '{\\sffamily\\fontsize{23}{29}\\selectfont\\color{BONavy} ' + title + '}\\par\\vspace{8pt}\n'
+        + ('{\\sffamily\\fontsize{16}{21}\\selectfont\\color{BOGreen} ' + lead + '}\\par\\vspace{9pt}\n' if lead else '')
+        + '\\begin{minipage}[t]{0.46\\linewidth}\n'
+        + (left or _para(_tex(_shorten(_agenda_heading(summary, sections), 520))))
+        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.46\\linewidth}\n'
+        + (right or _para(_tex(_shorten('The commercial question is how fast the evidence can support capital, customer and partner decisions.', 520))))
         + '\\end{minipage}\n'
     )
 
@@ -286,7 +344,7 @@ def _methodology_page(report: Dict[str, Any], refs: List[Any]) -> str:
             body += '{\\small\\bfseries ' + _tex(_shorten(_field(item, 'name'), 80)) + '}\\par{\\scriptsize\\color{BOMuted} ' + _tex(_shorten(_field(item, 'role'), 110)) + '} & {\\scriptsize ' + _tex(_shorten(_field(item, 'credentials'), 260)) + '} \\\\[6pt]\n'
         body += '\\end{tabularx}\n'
     if refs:
-        body += '\\vspace{5pt}{\\scriptsize\\color{BOMuted} This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Full source backup is retained separately.}\\par\n'
+        body += '\\vspace{5pt}{\\scriptsize\\color{BOMuted} This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Detailed references are retained separately.}\\par\n'
     return body
 
 
@@ -971,7 +1029,7 @@ def _leadership_agenda_page(report: Dict[str, Any], sections: List[Dict[str, Any
 def _disclaimer_page(refs: List[Any]) -> str:
     reference_note = ''
     if refs:
-        reference_note = 'This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. The detailed source backup is retained in the backup folder rather than reproduced in the client-facing document. '
+        reference_note = 'This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Detailed references are retained separately rather than reproduced in the client-facing document. '
     body = (
         'This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. '
         'Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. '
@@ -1015,7 +1073,7 @@ def _repair_sections(report: Dict[str, Any], sections: List[Dict[str, Any]], top
         paragraphs = [p for p in paragraphs if not _is_bad_template_text(p)]
         if len(paragraphs) < 2:
             paragraphs = _dedupe(paragraphs + _section_fallback_paragraphs(idx, current_title, report_title, summary))
-        section['paragraphs'] = [_normalize_punctuation(p) for p in paragraphs[:5]]
+        section['paragraphs'] = [_normalize_punctuation(p) for p in paragraphs[:8]]
         repaired.append(section)
     return repaired[:10]
 
@@ -1418,7 +1476,8 @@ def _reader_clean(text: str) -> str:
         (r'\bpublic-evidence boundary\b', 'available public record'),
         (r'\bevidence-boundary\b', 'available public record'),
         (r'\bevidence boundary\b', 'available public record'),
-        (r'\bsource backup\b', 'supporting sources'),
+        (r'\bsource backup\b', 'public record'),
+        (r'\bsupporting sources\b', 'public record'),
         (r'\bevidence gates\b', 'verified milestones'),
         (r'\bdecision gates\b', 'decision milestones'),
         (r'\bvalidation gaps\b', 'open questions'),

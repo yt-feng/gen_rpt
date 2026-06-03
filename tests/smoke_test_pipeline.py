@@ -38,18 +38,18 @@ def main() -> None:
         ],
         "executive_summary_text": "{'title': 'Executive Summary', 'executive_summary_text': 'The CEO-level issue is whether the source-backed facts are strong enough to support action, investment and risk decisions. This malformed value intentionally mimics a model response that wrapped the narrative in a dict-like string, and the deterministic cleanup must extract only the prose for a board reader before rendering.'}",
         "key_findings": [
-            {"finding": "Evidence quality changes the pace of commitment.", "evidence": "Public source backup and fact pack.", "management_implication": "Fund validation before major allocation."}
+            {"finding": "Evidence quality changes the pace of commitment.", "evidence": "Public record and fact pack.", "management_implication": "Fund validation before major allocation."}
         ],
         "action_plan": [
             {"horizon": "Near term, 0-90 days", "action": "Build an evidence ledger for management decisions.", "owner": "Strategy", "success_metric": "Claims have sources and dates.", "decision_gate": "Do not use unsupported numbers."}
         ],
         "risk_register": [
-            {"risk": "Evidence remains too thin.", "trigger": "Few authoritative sources or numeric facts.", "management_action": "Add source validation before investment use.", "evidence_boundary": "Public source backup."}
+            {"risk": "Evidence remains too thin.", "trigger": "Few authoritative sources or numeric facts.", "management_action": "Add source validation before investment use.", "evidence_boundary": "Public record."}
         ],
         "scenario_vignettes": [
             {"title": "CEO decision scenario", "situation": "Management is deciding whether to fund a next step.", "ceo_question": "What can be done now?", "recommended_move": "Fund validation first.", "watchouts": "Do not treat narrative as ROI proof."}
         ],
-        "methodology_note": "The smoke report uses public source backup, evidence-boundary checks and validation gaps to test rendering.",
+        "methodology_note": "The smoke report uses public records, evidence-boundary checks and open questions to test rendering.",
         "author_credentials": [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Evidence checks and report QA."}],
         "sections": [
             {"title": "Section 1", "lead": "Section 1", "paragraphs": ["Generic section title should be replaced.", "The replacement should preserve useful section prose.", "Fusion's timetable should not render with extra apostrophe spacing."], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
@@ -178,9 +178,10 @@ def main() -> None:
     assert r"Fusion\BOApos{}s timetable" in latex_text
     section_count = len(report.get("sections", []))
     chart_pages = (len(report.get("charts", [])) + 1) // 2
-    about_page = 4 + section_count + chart_pages
-    assert f"\\bfseries {about_page:02d}" in latex_text and "About the research" in latex_text
-    assert f"<td class='contents-page'>{about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text
+    latex_about_page = 5 + section_count + chart_pages
+    html_about_page = 4 + section_count + chart_pages
+    assert f"\\bfseries {latex_about_page:02d}" in latex_text and "About the research" in latex_text
+    assert f"<td class='contents-page'>{html_about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text
     assert "EXHIBIT 1" in latex_text
     assert "\\draw[BOLine]" in latex_text
     problem_headline = "Fusion commercialization is advancing faster than expected, driven by private startups that have raised over $5 billion in investment."

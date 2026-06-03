@@ -24,6 +24,15 @@ META_LABELS = (
     "management implication:",
     "evidence:",
     "evidence boundary",
+    "source backup",
+    "supporting sources",
+    "next useful work",
+    "evidence ledger",
+    "validation gap",
+    "validation gaps",
+    "open diligence items",
+    "test the chapter",
+    "the report should",
     "internal framework",
     "stress test",
     "mckinsey",
@@ -118,6 +127,14 @@ def main() -> int:
         exhibit_pages = [len(re.findall(r"\bEXHIBIT\s+\d+", page, flags=re.I)) for page in tex_text.split("\\clearpage")]
         metrics["tex_exhibit_pages"] = sum(1 for count in exhibit_pages if count > 0)
         metrics["tex_single_exhibit_pages"] = sum(1 for count in exhibit_pages if count == 1)
+        chapter_blocks = re.findall(r"\\label\{chap:(\d+)\}(.*?)\\label\{chap:\1:end\}", tex_text, flags=re.S)
+        chapter_paragraph_counts = [len(re.findall(r"\{\\small\s+", block)) for _idx, block in chapter_blocks]
+        metrics["tex_chapter_paragraphs"] = chapter_paragraph_counts
+        if chapter_paragraph_counts and min(chapter_paragraph_counts) < args.min_section_paragraphs:
+            issues.append(
+                "LaTeX output thins at least one chapter below the paragraph target: "
+                f"min {min(chapter_paragraph_counts)} < {args.min_section_paragraphs}"
+            )
     if tex_path.exists() and metrics["tex_exhibits"] < len(charts):
         issues.append(f"TeX exhibit count is below chart count ({metrics['tex_exhibits']} < {len(charts)})")
     if len(charts) >= args.min_charts and metrics.get("tex_single_exhibit_pages", 0) > max(1, metrics.get("tex_exhibit_pages", 0) // 3):
@@ -132,6 +149,11 @@ def main() -> int:
             issues.append(f"section images are too flat/abstract; avg RGB stddev {image_stats.get('avg_stddev')}")
         if image_stats.get("near_duplicate_pairs", 0) >= max(2, image_stats.get("count", 0) // 2):
             issues.append(f"section images are too repetitive; near-duplicate adjacent pairs {image_stats.get('near_duplicate_pairs')}")
+    cover_stats = cover_image_metrics(report_dir)
+    if cover_stats:
+        metrics["cover_image"] = cover_stats
+        if cover_stats.get("looks_document_like"):
+            issues.append("cover image looks document-like or too pale for a benchmark-style cover")
     lower_rendered = rendered_text.lower()
     leaked_labels = [label for label in META_LABELS if label in lower_rendered]
     if leaked_labels:
@@ -153,6 +175,12 @@ def main() -> int:
                     issues.append(
                         "PDF text density is below benchmark threshold: "
                         f"{report.get('median_chars_per_page')} median chars/page < {min_median}"
+                    )
+                min_pages = int(benchmark.get("pages", 0) * 0.80)
+                if min_pages and report.get("pages", 0) < min_pages:
+                    issues.append(
+                        "PDF page count is below benchmark rhythm threshold: "
+                        f"{report.get('pages')} pages < {min_pages}"
                     )
 
     return emit(issues, metrics, args.warn_only)
@@ -295,6 +323,34 @@ def section_image_metrics(report_dir: Path) -> Dict[str, Any]:
         "unique_hashes": len(set(hashes)),
         "near_duplicate_pairs": near_duplicate_pairs,
     }
+
+
+def cover_image_metrics(report_dir: Path) -> Dict[str, Any]:
+    path = report_dir / "assets" / "cover-ai.png"
+    if not path.exists():
+        return {}
+    try:
+        from PIL import Image, ImageStat  # type: ignore
+    except Exception:
+        return {"available": False, "error": "Pillow is not installed"}
+    try:
+        image = Image.open(path).convert("RGB")
+        stat = ImageStat.Stat(image)
+        mean = sum(float(x) for x in stat.mean) / 3
+        stddev = sum(float(x) for x in stat.stddev) / 3
+        gray = image.convert("L").resize((160, 112))
+        pixels = list(gray.getdata())
+        near_white = sum(1 for pixel in pixels if pixel >= 236) / max(1, len(pixels))
+        looks_document_like = mean > 218 and stddev < 42 and near_white > 0.48
+        return {
+            "available": True,
+            "mean": round(mean, 2),
+            "stddev": round(stddev, 2),
+            "near_white": round(near_white, 3),
+            "looks_document_like": looks_document_like,
+        }
+    except Exception as exc:
+        return {"available": False, "error": str(exc)}
 
 
 def hamming(left: str, right: str) -> int:

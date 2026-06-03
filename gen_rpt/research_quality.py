@@ -53,6 +53,15 @@ META_LABEL_PATTERNS = (
     "topic-neutral strategic index",
     "converted to a bar exhibit",
     "values normalized",
+    "source backup",
+    "supporting sources",
+    "next useful work",
+    "evidence ledger",
+    "validation gap",
+    "validation gaps",
+    "open diligence items",
+    "test the chapter",
+    "the report should",
     "制作说明",
     "样例图卡",
 )
@@ -793,6 +802,16 @@ def _normalize_url(url: str) -> str:
 
 def _clean_visible_text(value: Any) -> str:
     text = str(value or "")
+    pre_replacements = [
+        (
+            r"\bFor\s+(.{8,180}?),\s+the next useful work is to convert .*?main narrative\.?",
+            r"For \1, leadership should focus on the few facts that change capital timing, customer exposure or partner posture.",
+        ),
+        (r"\bsource backup\b", "public record"),
+        (r"\bsupporting sources\b", "public record"),
+    ]
+    for pattern, replacement in pre_replacements:
+        text = re.sub(pattern, replacement, text, flags=re.I)
     for pattern in META_LABEL_PATTERNS:
         text = re.sub(re.escape(pattern), "", text, flags=re.I)
     for pattern in PROCESS_LANGUAGE_PATTERNS:
@@ -814,6 +833,11 @@ def _clean_visible_text(value: Any) -> str:
         (r"\bThis point should be validated further because\s*", "Leadership should validate whether "),
         (r"\bThis assumption should stay on the watchlist because\s*", "This assumption needs continued scrutiny because "),
         (r"\bThe diligence gap is that\s*", "The unresolved commercial question is whether "),
+        (r"\bevidence ledger\b", "fact base"),
+        (r"\bvalidation gaps?\b", "open questions"),
+        (r"\bopen diligence items\b", "open questions"),
+        (r"\bthe next review should test the chapter against\b", "the next review should test the investment case against"),
+        (r"\btest the chapter\b", "test the investment case"),
         (r"\bpublic-evidence boundary\b", "available public record"),
         (r"\bevidence-boundary\b", "available public record"),
         (r"\bevidence boundary\b", "available public record"),
@@ -859,7 +883,7 @@ def _fallback_references(source_refs: List[str]) -> List[Dict[str, str]]:
         url_match = URL_RE.search(ref)
         url = url_match.group(0).rstrip("/") if url_match else ""
         title = ref.split("|", 1)[0].strip(" []")
-        refs.append({"title": title or f"Source {idx}", "url": url, "note": "Evidence source retained in source backup."})
+        refs.append({"title": title or f"Source {idx}", "url": url, "note": "Public evidence source retained for review."})
     return refs
 
 
@@ -913,7 +937,7 @@ def _ensure_executive_summary_text(report: Dict[str, Any], fact_pack: ResearchFa
         action_note = "CEO 应把本报告作为资源配置底稿：先确认哪些判断足以支持近期动作，再把高不确定性事项转成季度化验证门槛。"
         return _clean_visible_text(f"{joined}。{evidence_note}{action_note}")
     joined = " ".join(str(x).strip() for x in summary if str(x).strip())
-    evidence_note = "The analysis remains bounded by public evidence and source backup; unsupported numbers should be treated as diligence gaps, not conclusions."
+    evidence_note = "The analysis remains bounded by public evidence; unsupported numbers should be treated as open questions, not conclusions."
     action_note = "For a CEO or board reader, the practical implication is to fund no-regret validation, preserve options where uncertainty is high, and reserve larger commitments for verified decision gates."
     return _clean_visible_text(f"{joined} {evidence_note} {action_note}")
 
@@ -1111,7 +1135,7 @@ def _ensure_methodology_note(value: Any, fact_pack: ResearchFactPack, *, languag
             "正文只在来源支持范围内使用数字、日期和事件，未被公开资料支持的判断保留为待核验缺口。"
         )
     return (
-        "This report is based on public web, PDF, filing or research sources retained in the source backup and distilled into a pre-generation fact pack. "
+        "This report is based on public web, PDF, filing or research sources distilled into a pre-generation fact pack. "
         f"The current pack includes {fact_pack.source_count} sources and {fact_pack.authoritative_source_count} authoritative sources. "
         "Numbers, dates and events are used only inside that evidence boundary; unsupported claims are retained as validation gaps."
     )
@@ -1283,7 +1307,7 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
         ]
     return [
         _section_payload(f"{topic_text} should be managed as a staged strategic option, not a binary bet", "The CEO question is which moves are safe now and which should wait for stronger evidence.", [
-            f"For leadership, {topic_text} should be separated into verified facts, directional scenarios and open diligence items. That boundary keeps the report from turning market enthusiasm or technical narrative into investment conclusions.",
+            f"For leadership, {topic_text} should be separated into near-term actions, option-building moves and commitments that require stronger proof. That distinction keeps market enthusiasm or technical narrative from becoming an investment conclusion too early.",
             "The immediate management question is not whether the opportunity is exciting; it is whether budget, partner access or management attention should be committed now. Low-cost validation can start early, while larger capital commitments should wait for customer, cost, financing, regulatory or operating proof.",
             f"The current evidence posture is: {evidence_note} This makes a quarterly decision cadence more useful than a one-time yes-or-no judgment.",
         ], ["Start with low-cost validation", "Hold major commitments behind evidence gates", "Keep conclusions inside the public-evidence boundary"]),
@@ -1454,7 +1478,7 @@ def _section_depth_additions(title: str, fact_pack: ResearchFactPack, *, languag
     return [
         f"For a CEO, {title_text} matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
         f"For {title_text}, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
-        f"The public record on {title_text} provides a starting point, not a complete underwriting case. The most useful retained signal is: {evidence_fact or 'the source backup is retained, but stronger authoritative numbers and timelines are still needed.'} Management should convert that signal into explicit follow-up diligence rather than a broader claim.",
+        f"The public record on {title_text} provides a starting point, not a complete underwriting case. The most useful retained signal is: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} Management should turn that signal into explicit diligence questions rather than a broader claim.",
         f"Where {title_text} depends on numbers, the next review should focus on {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'}. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring.",
         f"The timing of {title_text} should also be managed as a decision variable. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new evidence changes capital exposure, partner strategy or customer-facing action.",
     ]
@@ -1989,7 +2013,7 @@ def _default_evidence_note(fact_pack: ResearchFactPack, *, language: str) -> str
     if fact_pack.high_confidence_facts:
         fact = _shorten(fact_pack.high_confidence_facts[0], 240)
         return f"Public-evidence signal: {fact}" if language == "en" else f"公开证据线索：{fact}"
-    return "Public evidence retained in the source backup; additional validation is required for unsupported claims." if language == "en" else "公开来源底稿已保留；未被来源支持的判断仍需补充核验。"
+    return "Public evidence remains incomplete; additional validation is required for unsupported claims." if language == "en" else "公开来源底稿已保留；未被来源支持的判断仍需补充核验。"
 
 
 def _default_implication(*, language: str) -> str:
@@ -2008,7 +2032,7 @@ def _supplement_paragraphs(fact_pack: ResearchFactPack, *, title: str = "", lang
             out.append(f"For {topic_text}, management should translate the public record into a narrower decision boundary before committing resources. Retained signal {idx + 1} is: {fact_text}. That signal can support the next customer, cost or partner diligence step, but it should not be stretched into a broader claim than the sources support.")
     while len(out) < needed:
         if language == "en":
-            out.append(f"For {topic_text}, the next useful work is to convert the source backup into a short list of claims that would change capital timing, customer exposure or partner posture. Claims that do not change those decisions should stay out of the main narrative.")
+            out.append(f"For {topic_text}, leadership should focus on the few facts that change capital timing, customer exposure or partner posture. Material that does not change those decisions should stay out of the executive narrative.")
         else:
             out.append(f"围绕{topic_text}，下一步应把来源底稿转成会改变资本节奏、客户暴露或伙伴姿态的少数判断。不能改变决策的材料不应占据正文主线。")
     return out[:needed]
@@ -2024,7 +2048,7 @@ def _completion_paragraph(title: str, idx: int, *, language: str) -> str:
     else:
         variants = [
             f"From a board perspective, {title} should be translated into capital timing, partner choice, customer exposure and risk appetite before resources are escalated.",
-            "The next review should test the chapter against customer evidence, cost data, policy timing and competitor movement, then update the investment threshold.",
+            "The next review should test the investment case against customer evidence, cost data, policy timing and competitor movement, then update the investment threshold.",
             "Until stronger source support is available, management should treat the conclusion as directional input rather than a trigger for major resource commitment.",
         ]
     return variants[idx % len(variants)]

@@ -31,11 +31,20 @@ class DeepSeekClient:
         *,
         temperature: float = 0.2,
         model: Optional[str] = None,
+        json_mode: bool = False,
     ) -> str:
         url = f"{self.base_url}/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         payload = {"model": model or self.model, "messages": messages, "temperature": temperature}
+        if json_mode:
+            payload["response_format"] = {"type": "json_object"}
+        max_tokens = _int_env("DEEPSEEK_MAX_TOKENS", 0)
+        if max_tokens > 0:
+            payload["max_tokens"] = max_tokens
         response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+        if json_mode and response.status_code in {400, 422}:
+            payload.pop("response_format", None)
+            response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
         response.raise_for_status()
         data = response.json()
         return data["choices"][0]["message"]["content"]
@@ -47,7 +56,7 @@ class DeepSeekClient:
         temperature: float = 0.2,
         model: Optional[str] = None,
     ) -> Dict[str, Any]:
-        raw = self.chat(messages, temperature=temperature, model=model)
+        raw = self.chat(messages, temperature=temperature, model=model, json_mode=_json_mode_enabled())
         try:
             return normalize_structured_payload(extract_json_object(raw))
         except Exception as first_error:
@@ -68,7 +77,7 @@ class DeepSeekClient:
                     ),
                 },
             ]
-            repaired = self.chat(repair_messages, temperature=0.0, model=model)
+            repaired = self.chat(repair_messages, temperature=0.0, model=model, json_mode=True)
             try:
                 return normalize_structured_payload(extract_json_object(repaired))
             except Exception as second_error:
@@ -356,3 +365,14 @@ def _error_snippet(text: str, pos: int, radius: int = 240) -> str:
     start = max(0, pos - radius)
     end = min(len(text), pos + radius)
     return text[start:end].replace("\n", " ")
+
+
+def _json_mode_enabled() -> bool:
+    return os.getenv("DEEPSEEK_JSON_MODE", "true").lower() not in {"0", "false", "no"}
+
+
+def _int_env(name: str, default: int) -> int:
+    try:
+        return int(os.getenv(name, str(default)))
+    except ValueError:
+        return default

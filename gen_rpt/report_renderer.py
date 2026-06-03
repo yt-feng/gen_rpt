@@ -108,7 +108,7 @@ LABELS = {
         "signals": "External facts",
         "about": "About the research",
         "reference_note": "This report was informed by public research and data from:",
-        "formal_note": "Detailed supporting sources are retained in the backup folder.",
+        "formal_note": "Detailed references are retained separately.",
         "disclaimer_text": "This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. Recipients should perform their own diligence and treat this report as one input into a broader decision process.",
     },
     "zh": {
@@ -605,7 +605,7 @@ def _safe_sections(value: Any) -> List[Dict[str, Any]]:
             "paragraphs": [
                 "The available record should be organized around decision quality, execution timing and leadership implications.",
                 "The most useful output is a short list of actions that can be tested against public evidence and client constraints.",
-                "Follow-up work should validate the assumptions against the supporting sources.",
+                "Follow-up work should validate the assumptions against the public record.",
             ],
             "key_takeaways": ["Focus on actionability."],
             "visual_hint": "image-1",
@@ -735,7 +735,8 @@ def _reader_clean(text: str) -> str:
         (r"\bpublic-evidence boundary\b", "available public record"),
         (r"\bevidence-boundary\b", "available public record"),
         (r"\bevidence boundary\b", "available public record"),
-        (r"\bsource backup\b", "supporting sources"),
+        (r"\bsource backup\b", "public record"),
+        (r"\bsupporting sources\b", "public record"),
         (r"\bevidence gates\b", "verified milestones"),
         (r"\bdecision gates\b", "decision milestones"),
         (r"\bvalidation gaps\b", "open questions"),
