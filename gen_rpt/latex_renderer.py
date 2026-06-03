@@ -860,7 +860,7 @@ def _native_matrix(chart: Dict[str, Any], *, compact: bool) -> str:
     if not rows or not cols:
         return ''
     col_spec = 'p{38mm}' + ''.join('>{\\centering\\arraybackslash}p{21mm}' for _ in cols)
-    lines = ['{\\scriptsize\\begin{tabular}{' + col_spec + '}\n']
+    lines = ['\\noindent\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}{0.96\\linewidth}\\vspace{4pt}{\\scriptsize\\begin{tabular}{' + col_spec + '}\n']
     lines.append(' & ' + ' & '.join('{\\bfseries ' + _tex(_shorten(c, 18)) + '}' for c in cols) + ' \\\\\n\\hline\n')
     for ri, row in enumerate(rows):
         row_values = values[ri] if ri < len(values) and isinstance(values[ri], list) else []
@@ -869,7 +869,7 @@ def _native_matrix(chart: Dict[str, Any], *, compact: bool) -> str:
             value = row_values[ci] if ci < len(row_values) else ''
             cells.append(_matrix_cell(value))
         lines.append('{\\bfseries ' + _tex(_shorten(row, 32)) + '} & ' + ' & '.join(cells) + ' \\\\\n')
-    lines.append('\\end{tabular}}\\par\\vspace{2pt}\n')
+    lines.append('\\end{tabular}}\\vspace{4pt}\\end{minipage}}\\par\\vspace{2pt}\n')
     return ''.join(lines)
 
 
@@ -877,6 +877,8 @@ def _tikz_begin(width: float, height: float) -> str:
     return (
         '\\noindent\\begin{tikzpicture}[x=1cm,y=1cm]\n'
         f'\\path[use as bounding box] (0,0) rectangle ({width:.2f},{height:.2f});\n'
+        f'\\fill[BOLight] (0,0) rectangle ({width:.2f},{height:.2f});\n'
+        f'\\draw[BOLine,line width=.35pt] (0,0) rectangle ({width:.2f},{height:.2f});\n'
     )
 
 
