@@ -1,0 +1,50 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 6,
+        "issues": [
+          "executive_summary 不足，需要至少5条结论先行、可执行的关键发现。",
+          "sections 数量应为7-10个，当前为2个。",
+          "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "references 为空，需要引用已抓取资料中的真实来源。",
+          "charts 数量应为14个，当前为0个。"
+        ]
+      },
+      {
+        "round": 2,
+        "issue_count": 7,
+        "issues": [
+          "sections 数量应为7-10个，当前为6个。",
+          "第2章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第4章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第5章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "references 为空，需要引用已抓取资料中的真实来源。",
+          "charts 数量应为14个，当前为0个。",
+          "段落开头重复、行文模式化，需要调整章节推进方式：for executives, th"
+        ]
+      }
+    ],
+    "final_issue_count": 1,
+    "final_issues": [
+      "段落开头重复、行文模式化，需要调整章节推进方式：the operating take、a practical readin"
+    ],
+    "fact_pack_validation_issues": [],
+    "source_count": 8,
+    "authoritative_source_count": 4
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": [
+    "段落开头重复、行文模式化，需要调整章节推进方式：the operating take、a practical readin"
+  ]
+}
