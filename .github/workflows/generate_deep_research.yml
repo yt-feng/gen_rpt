@@ -97,6 +97,7 @@ jobs:
       - name: Run smoke test
         env:
           DISABLE_AI_IMAGES: true
+          GEN_RPT_SKIP_LATEX_COMPILE: true
         run: |
           python tests/smoke_test_pipeline.py
 

@@ -265,9 +265,21 @@ def _direct_source_candidates(query: str) -> List[SearchResult]:
 def _snippet_content(result: SearchResult) -> str:
     title = re.sub(r"\s+", " ", str(result.title or "")).strip()
     snippet = re.sub(r"\s+", " ", str(result.snippet or "")).strip()
-    if len(snippet) < 80:
+    if len(snippet) < 40:
         return ""
-    return f"{title}\n\n{snippet}"
+    query = re.sub(r"\s+", " ", str(result.query or "")).strip()
+    parts = [
+        title,
+        snippet,
+        f"Source URL retained for public-source review: {result.url}",
+    ]
+    if query:
+        parts.append(f"Search context: {query}")
+    parts.append(
+        "The page body could not be fully extracted, so this source should be treated as a lower-confidence "
+        "public signal unless another fetched source confirms the same claim."
+    )
+    return "\n\n".join(part for part in parts if part)
 
 
 def _read_limited_content(response: requests.Response, max_bytes: int = MAX_DOWNLOAD_BYTES) -> bytes:

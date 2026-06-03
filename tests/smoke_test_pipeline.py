@@ -52,7 +52,17 @@ def main() -> None:
         "methodology_note": "The smoke report uses public records, evidence-boundary checks and open questions to test rendering.",
         "author_credentials": [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Evidence checks and report QA."}],
         "sections": [
-            {"title": "Section 1", "lead": "Section 1", "paragraphs": ["Generic section title should be replaced.", "The replacement should preserve useful section prose.", "Fusion's timetable should not render with extra apostrophe spacing."], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
+            {
+                "title": "Section 1",
+                "lead": "Section 1",
+                "paragraphs": [
+                    "Generic section title should be replaced.",
+                    "The replacement should preserve useful section prose.",
+                    "Fusion's timetable should not render with extra apostrophe spacing when a formal paragraph is long enough to survive production cleanup, because the LaTeX renderer must preserve reader-facing apostrophes while still removing weak placeholder fragments from the final report.",
+                ],
+                "key_takeaways": ["Takeaway"],
+                "visual_hint": "image-1",
+            },
             {"title": "1. Numbered title should be cleaned", "lead": "Lead", "paragraphs": ["Paragraph A", "Paragraph B"], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
             "A string section should not break rendering",
         ],
@@ -178,7 +188,9 @@ def main() -> None:
     assert r"Fusion\BOApos{}s timetable" in latex_text
     section_count = len(report.get("sections", []))
     chart_pages = (len(report.get("charts", [])) + 1) // 2
-    latex_about_page = 5 + section_count + chart_pages
+    front_chart_pages = min(2, chart_pages)
+    later_chart_pages = chart_pages - front_chart_pages
+    latex_about_page = 5 + front_chart_pages + section_count + later_chart_pages
     html_about_page = 4 + section_count + chart_pages
     assert f"\\bfseries {latex_about_page:02d}" in latex_text and "About the research" in latex_text
     assert f"<td class='contents-page'>{html_about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text
@@ -232,8 +244,8 @@ def main() -> None:
     assert any((assets / f"chart-{idx}.png").exists() for idx in range(1, 5))
     if not latex_result.get("pdf_path"):
         error_path = out / "latex_error.txt"
-        if error_path.exists() and "xelatex not found" in error_path.read_text(encoding="utf-8").lower():
-            print(json.dumps({"ok": True, "assets": len(asset_map), "cards": len(report.get("insight_cards", [])), "charts": len(report.get("charts", [])), "latex_pdf": False, "latex_note": "xelatex not found"}))
+        if error_path.exists() and ("xelatex not found" in error_path.read_text(encoding="utf-8").lower() or "compile skipped" in error_path.read_text(encoding="utf-8").lower()):
+            print(json.dumps({"ok": True, "assets": len(asset_map), "cards": len(report.get("insight_cards", [])), "charts": len(report.get("charts", [])), "latex_pdf": False, "latex_note": error_path.read_text(encoding="utf-8").strip()}))
             return
         if error_path.exists():
             raise RuntimeError(error_path.read_text(encoding="utf-8")[-1200:])

@@ -162,11 +162,22 @@ def main() -> int:
     if process_hits:
         issues.append(f"rendered report leaks process language ({len(process_hits)} hits)")
 
+    report_pdf = report_dir / "report_latex.pdf"
+    if report_pdf.exists():
+        metrics["report_pdf"] = pdf_metrics(report_pdf)
+        visual_metrics = pdf_visual_metrics(report_pdf)
+        if visual_metrics:
+            metrics["report_pdf_visual"] = visual_metrics
+            sparse_pages = visual_metrics.get("sparse_exhibit_pages", [])
+            if sparse_pages:
+                issues.append(
+                    "PDF exhibit pages look visually sparse compared with the benchmark style: "
+                    + ", ".join(f"p{page}" for page in sparse_pages[:8])
+                )
+
     if args.benchmark_pdf:
         metrics["benchmark_pdf"] = pdf_metrics(args.benchmark_pdf)
-        report_pdf = report_dir / "report_latex.pdf"
         if report_pdf.exists():
-            metrics["report_pdf"] = pdf_metrics(report_pdf)
             benchmark = metrics["benchmark_pdf"]
             report = metrics["report_pdf"]
             if benchmark.get("available") and report.get("available"):
@@ -374,6 +385,51 @@ def pdf_metrics(path: Path) -> Dict[str, Any]:
         }
     except Exception as exc:
         return {"path": str(path), "available": False, "error": str(exc)}
+
+
+def pdf_visual_metrics(path: Path) -> Dict[str, Any]:
+    try:
+        import fitz  # type: ignore
+    except Exception:
+        return {}
+    try:
+        doc = fitz.open(str(path))
+        page_metrics = []
+        sparse_exhibit_pages: List[int] = []
+        for page_index, page in enumerate(doc, start=1):
+            text = page.get_text("text")
+            pix = page.get_pixmap(matrix=fitz.Matrix(0.15, 0.15), alpha=False)
+            samples = pix.samples
+            pixel_count = max(1, pix.width * pix.height)
+            nonwhite = 0
+            color = 0
+            for offset in range(0, len(samples), 3):
+                red, green, blue = samples[offset], samples[offset + 1], samples[offset + 2]
+                if min(red, green, blue) < 245:
+                    nonwhite += 1
+                if max(red, green, blue) - min(red, green, blue) > 28 and min(red, green, blue) < 245:
+                    color += 1
+            nonwhite_ratio = nonwhite / pixel_count
+            color_ratio = color / pixel_count
+            is_exhibit = bool(re.search(r"\bEXHIBIT\s+\d+", text, flags=re.I))
+            page_metrics.append(
+                {
+                    "page": page_index,
+                    "nonwhite": round(nonwhite_ratio, 3),
+                    "color": round(color_ratio, 3),
+                    "exhibit": is_exhibit,
+                }
+            )
+            if is_exhibit and nonwhite_ratio < 0.14:
+                sparse_exhibit_pages.append(page_index)
+        return {
+            "available": True,
+            "page_count": len(doc),
+            "sparse_exhibit_pages": sparse_exhibit_pages,
+            "pages": page_metrics,
+        }
+    except Exception as exc:
+        return {"available": False, "error": str(exc)}
 
 
 def median(values: List[int]) -> int:

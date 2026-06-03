@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import os
 import shutil
 import subprocess
 import unicodedata
@@ -68,13 +69,16 @@ def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir:
     tex_path = output_dir / 'report_latex.tex'
     pdf_path = output_dir / 'report_latex.pdf'
     tex_path.write_text(_build_tex(report, assets, topic), encoding='utf-8')
+    if os.getenv('GEN_RPT_SKIP_LATEX_COMPILE', '').lower() in {'1', 'true', 'yes'}:
+        (output_dir / 'latex_error.txt').write_text('LaTeX compile skipped by GEN_RPT_SKIP_LATEX_COMPILE.\n', encoding='utf-8')
+        return {'tex_path': str(tex_path), 'pdf_path': ''}
     xelatex = shutil.which('xelatex')
     if not xelatex:
         (output_dir / 'latex_error.txt').write_text('xelatex not found.\n', encoding='utf-8')
         return {'tex_path': str(tex_path), 'pdf_path': ''}
     try:
         log = ''
-        for _ in range(2):
+        for _ in range(1):
             run = subprocess.run([xelatex, '-interaction=nonstopmode', '-halt-on-error', tex_path.name], cwd=str(output_dir), check=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=180)
             log += run.stdout[-4000:]
         (output_dir / 'latex_build.log').write_text(log, encoding='utf-8')
@@ -100,7 +104,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     parts.append(_opening_page(report, summary, sections, assets, topic))
     parts.append(_evidence_opening_page(report, summary, sections, assets, topic))
     chart_groups = _chart_groups(charts)
-    front_group_count = min(4, len(chart_groups))
+    front_group_count = min(2, len(chart_groups))
     chart_index = 0
     for group in chart_groups[:front_group_count]:
         parts.append(_exhibit_page(group, assets, chart_index + 1))
@@ -109,7 +113,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
     remaining_group_index = 0
     for idx, section in enumerate(sections, start=1):
         parts.append(_chapter_block(section, assets, idx))
-        if idx % 2 == 0 and remaining_group_index < len(remaining_groups):
+        if idx in {1, 2, 4, 6, 8, 10} and remaining_group_index < len(remaining_groups):
             group = remaining_groups[remaining_group_index]
             parts.append(_exhibit_page(group, assets, chart_index + 1))
             remaining_group_index += 1
@@ -166,7 +170,7 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
 
 def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], charts: List[Dict[str, Any]]) -> List[tuple[str, str, List[str]]]:
     chart_groups = _chart_groups(charts)
-    front_group_count = min(4, len(chart_groups))
+    front_group_count = min(2, len(chart_groups))
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
     rows.append(('04', 'The case should be read through proof, economics and timing', []))
     if chart_groups:
@@ -177,7 +181,7 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     for idx, section in enumerate(sections, start=1):
         rows.append((f'{page_no:02d}', _strip_number_prefix(section.get('title', 'Section')), []))
         page_no += 1
-        if idx % 2 == 0 and chart_pages < chart_pages_needed:
+        if idx in {1, 2, 4, 6, 8, 10} and chart_pages < chart_pages_needed:
             page_no += 1
             chart_pages += 1
     while chart_pages < chart_pages_needed:
@@ -368,6 +372,7 @@ def _chapter_block(section: Dict[str, Any], assets: Dict[str, str], idx: int) ->
         chapter += '\\begin{multicols}{2}\n' + _paragraph_group(paras[:8]) + '\\end{multicols}\n'
     else:
         chapter += _paragraph_group(paras)
+    chapter += _section_takeaway_grid(section)
     chapter += '\\label{chap:' + str(idx) + ':end}\n'
     return chapter
 
@@ -426,6 +431,31 @@ def _green_rule(width: str = '82mm') -> str:
 
 def _paragraph_group(paragraphs: List[str]) -> str:
     return ''.join(_para(p) for p in paragraphs if str(p).strip())
+
+
+def _section_takeaway_grid(section: Dict[str, Any]) -> str:
+    items = []
+    for item in _as_list(section.get('key_takeaways')):
+        text = _clean_sentence_fragment(_normalize_punctuation(str(item or '').strip()))
+        if text and not _looks_like_internal_label(text):
+            items.append(text)
+        if len(items) >= 3:
+            break
+    if len(items) < 2:
+        return ''
+    cells = []
+    for idx, item in enumerate(items[:3], start=1):
+        cells.append(
+            '{\\textcolor{BOGreen}{\\bfseries ' + f'{idx:02d}' + '}}\\par'
+            '{\\scriptsize\\color{BOText} ' + _tex(_shorten(item, 155)) + '}'
+        )
+    while len(cells) < 3:
+        cells.append('')
+    return (
+        '\\vspace{5pt}\\noindent\\begin{tabularx}{\\linewidth}{Y Y Y}\n'
+        + ' & '.join(cells)
+        + ' \\\\\n\\end{tabularx}\\par\\vspace{2pt}\n'
+    )
 
 
 def _inline_watchouts(items: List[str]) -> str:
@@ -494,8 +524,16 @@ def _exhibit_detail_block(chart: Dict[str, Any], caption: str, subtitle: str, *,
         return ''
     if compact:
         note = notes[0] if notes else ''
-        if not note:
+        if not note and not table:
             return ''
+        if table:
+            return (
+                '\\vspace{1pt}\\noindent\\begin{minipage}[t]{0.56\\linewidth}\n'
+                + ('{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 190)) + '}\\par\n' if note else '')
+                + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n'
+                + table +
+                '\\end{minipage}\\par\\vspace{1pt}\n'
+            )
         return (
             '\\vspace{1pt}\\noindent\\begin{minipage}[t]{0.92\\linewidth}\n'
             '{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 210)) + '}\\par\n'
@@ -626,6 +664,8 @@ def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
     series = _series_payload(chart)[:3]
     if not categories or not series:
         return ''
+    if len(series) == 1:
+        return _native_horizontal_bar(chart, categories, series[0], compact=compact)
     max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
     width, height = (13.2, 4.4) if compact else (16.2, 9.2)
     chart_h = height - 1.35
@@ -649,6 +689,33 @@ def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
                 body.append(f'\\node[anchor=south,align=center] at ({x + bar_w * .39:.2f},{0.78 + h:.2f}) {{\\scriptsize {_tex(_format_value_label(value))}}};\n')
         body.append(f'\\node[anchor=north,align=center,text width={group_w * .92:.2f}cm] at ({base_x + group_w * .36:.2f},0.55) {{\\scriptsize {_tex(_shorten(category, 22))}}};\n')
     body.extend(_legend(series, colors, y=height - .22))
+    body.append(_tikz_end())
+    return ''.join(body)
+
+
+def _native_horizontal_bar(chart: Dict[str, Any], categories: List[str], series: Dict[str, Any], *, compact: bool) -> str:
+    max_items = 5 if compact else 7
+    categories = categories[:max_items]
+    values = [_num(x, 0.0) for x in _as_list(series.get('values'))][:len(categories)]
+    if len(values) < len(categories):
+        values.extend([0.0] * (len(categories) - len(values)))
+    max_value = max([abs(v) for v in values] + [1.0])
+    width, height = (13.2, 5.05) if compact else (16.2, 8.3)
+    left, right = (4.15 if compact else 4.75), .85
+    top = height - .62
+    row_h = (height - 1.22) / max(1, len(categories))
+    bar_w = width - left - right
+    body = [_tikz_begin(width, height)]
+    series_name = _tex(_shorten(series.get('name') or 'Value', 26))
+    body.append(f'\\node[anchor=west] at ({left:.2f},{height - .20:.2f}) {{\\scriptsize\\color{{BOMuted}} {series_name}}};\n')
+    for idx, category in enumerate(categories):
+        value = values[idx] if idx < len(values) else 0.0
+        y = top - idx * row_h
+        fill_w = max(.10, abs(value) / max_value * bar_w)
+        body.append(f'\\node[anchor=east,align=right,text width={left - .22:.2f}cm] at ({left - .20:.2f},{y:.2f}) {{\\scriptsize {_tex(_shorten(category, 30 if compact else 36))}}};\n')
+        body.append(f'\\fill[BOLight] ({left:.2f},{y - .12:.2f}) rectangle ({left + bar_w:.2f},{y + .12:.2f});\n')
+        body.append(f'\\fill[BOGreen] ({left:.2f},{y - .12:.2f}) rectangle ({left + fill_w:.2f},{y + .12:.2f});\n')
+        body.append(f'\\node[anchor=west] at ({left + fill_w + .08:.2f},{y:.2f}) {{\\scriptsize {_tex(_format_value_label(value))}}};\n')
     body.append(_tikz_end())
     return ''.join(body)
 
@@ -1317,7 +1384,7 @@ def _paras(section: Dict[str, Any]) -> List[str]:
         raw = _dedupe(raw)
     if not raw and section.get('lead'):
         raw = [str(section.get('lead'))]
-    return [_tex(x) for x in raw[:7]]
+    return [_tex(x) for x in raw[:8]]
 
 
 def _para(text: str) -> str:

@@ -56,7 +56,6 @@ META_LABEL_PATTERNS = (
     "source backup",
     "supporting sources",
     "next useful work",
-    "evidence ledger",
     "validation gap",
     "validation gaps",
     "open diligence items",
@@ -501,6 +500,7 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
     fixed["sections"] = _ensure_sections(sections, fixed["executive_summary"], topic, fact_pack, language=language)
     _vary_section_paragraph_openings(fixed["sections"], language=language)
     fixed["charts"] = _ensure_charts(fixed.get("charts"), fixed["sections"], topic, language=language)
+    _walk_text(fixed, _clean_visible_text)
     return fixed
 
 
@@ -807,6 +807,10 @@ def _clean_visible_text(value: Any) -> str:
             r"\bFor\s+(.{8,180}?),\s+the next useful work is to convert .*?main narrative\.?",
             r"For \1, leadership should focus on the few facts that change capital timing, customer exposure or partner posture.",
         ),
+        (r"\bevidence ledgers?\b", "sourced fact base"),
+        (r"\bvalidation gaps?\b", "open questions"),
+        (r"\bevidence gates?\b", "verified milestones"),
+        (r"\bdecision gates?\b", "decision milestones"),
         (r"\bsource backup\b", "public record"),
         (r"\bsupporting sources\b", "public record"),
     ]
@@ -833,7 +837,7 @@ def _clean_visible_text(value: Any) -> str:
         (r"\bThis point should be validated further because\s*", "Leadership should validate whether "),
         (r"\bThis assumption should stay on the watchlist because\s*", "This assumption needs continued scrutiny because "),
         (r"\bThe diligence gap is that\s*", "The unresolved commercial question is whether "),
-        (r"\bevidence ledger\b", "fact base"),
+        (r"\bevidence ledgers?\b", "sourced fact base"),
         (r"\bvalidation gaps?\b", "open questions"),
         (r"\bopen diligence items\b", "open questions"),
         (r"\bthe next review should test the chapter against\b", "the next review should test the investment case against"),
@@ -866,7 +870,7 @@ def _walk_text(value: Any, fn) -> None:
     if isinstance(value, dict):
         for key, item in list(value.items()):
             if isinstance(item, str):
-                value[key] = fn(item)
+                value[key] = item if _is_structural_text_key(str(key)) else fn(item)
             else:
                 _walk_text(item, fn)
     elif isinstance(value, list):
@@ -875,6 +879,19 @@ def _walk_text(value: Any, fn) -> None:
                 value[idx] = fn(item)
             else:
                 _walk_text(item, fn)
+
+
+def _is_structural_text_key(key: str) -> bool:
+    return key in {
+        "id",
+        "type",
+        "url",
+        "visual_hint",
+        "source_type",
+        "content_type",
+        "x_label",
+        "y_label",
+    }
 
 
 def _fallback_references(source_refs: List[str]) -> List[Dict[str, str]]:
@@ -912,13 +929,13 @@ def _fallback_summary_items(fact_pack: ResearchFactPack, *, language: str) -> Li
         items.extend(f"资料包中的可核验线索：{fact}。" for fact in evidence)
         return items
     items = [
-        f"The CEO-level question is not whether {fact_pack.topic} is interesting, but which decisions can be made now inside the public-evidence boundary.",
-        "Management should separate verified facts, directional scenarios and missing diligence items before committing capital, partnerships or market-entry resources.",
-        "The report should translate technical evidence into revenue potential, cost position, investment return, execution risk and decision gates.",
-        "Where the evidence pack does not support a number, the right output is a validation placeholder and diligence task rather than an invented estimate.",
-        "The near-term agenda should prioritize no-regret evidence building, medium-term strategic options and long-term commitments only after decision gates are met.",
+        f"The CEO-level question is not whether {fact_pack.topic} is interesting, but which decisions the current facts can support now.",
+        "Management should separate verified facts, directional scenarios and open questions before committing capital, partnerships or market-entry resources.",
+        "Technical evidence only matters when it changes revenue potential, cost position, investment return, execution risk or the timing of a commitment.",
+        "Where sourced data is missing, the stronger conclusion is to keep the assumption explicit rather than invent a market, cost or share estimate.",
+        "The near-term posture should prioritize low-regret learning, medium-term strategic options and long-term commitments only after proof improves.",
     ]
-    items.extend(f"Retained evidence signal: {fact}." for fact in evidence)
+    items.extend(f"Retained source signal: {_clean_fact_text(fact)}." for fact in evidence)
     return items
 
 
@@ -937,8 +954,8 @@ def _ensure_executive_summary_text(report: Dict[str, Any], fact_pack: ResearchFa
         action_note = "CEO 应把本报告作为资源配置底稿：先确认哪些判断足以支持近期动作，再把高不确定性事项转成季度化验证门槛。"
         return _clean_visible_text(f"{joined}。{evidence_note}{action_note}")
     joined = " ".join(str(x).strip() for x in summary if str(x).strip())
-    evidence_note = "The analysis remains bounded by public evidence; unsupported numbers should be treated as open questions, not conclusions."
-    action_note = "For a CEO or board reader, the practical implication is to fund no-regret validation, preserve options where uncertainty is high, and reserve larger commitments for verified decision gates."
+    evidence_note = "The analysis stays close to the sourced record; unsupported numbers should be treated as open questions, not conclusions."
+    action_note = "For a CEO or board reader, the practical implication is to fund low-regret validation, preserve options where uncertainty is high, and reserve larger commitments for stronger proof."
     return _clean_visible_text(f"{joined} {evidence_note} {action_note}")
 
 
@@ -1022,9 +1039,9 @@ def _default_action_plan(topic: str, fact_pack: ResearchFactPack, *, language: s
             {"horizon": "长期 2-4 个季度", "action": "在证据达到门槛后推进合作、投资或市场进入，并建立季度复盘机制。", "owner": "CEO/董事会", "success_metric": "投资回报、风险暴露和执行里程碑进入管理层仪表盘", "decision_gate": "若关键假设未被验证，则保留选择权并暂停重大投入"},
         ]
     return [
-        {"horizon": "Near term, 0-90 days", "action": f"Build an evidence ledger for {topic}, prioritizing market size, customer demand, cost, revenue, timing and source quality.", "owner": "Strategy lead / research lead", "success_metric": "Every material claim is tied to a source, date and open validation gap.", "decision_gate": "Do not convert unsupported numbers into conclusions until the gap is closed."},
+        {"horizon": "Near term, 0-90 days", "action": f"Build a sourced fact base for {topic}, prioritizing market size, customer demand, cost, revenue, timing and source quality.", "owner": "Strategy lead / research lead", "success_metric": "Every material claim is tied to a source, date and open question.", "decision_gate": "Do not convert unsupported numbers into conclusions until the question is resolved."},
         {"horizon": "Medium term, 1-2 quarters", "action": "Separate no-regret moves, strategic options and resource-heavy commitments.", "owner": "CEO / business owner", "success_metric": "Each move has a budget, owner and validation metric.", "decision_gate": "Scale commitment only after customer, cost, policy or financing evidence reaches threshold."},
-        {"horizon": "Long term, 2-4 quarters", "action": "Advance partnerships, investments or market entry only after evidence gates are met, with quarterly review cadence.", "owner": "CEO / board", "success_metric": "ROI, risk exposure and execution milestones appear on the management dashboard.", "decision_gate": "If core assumptions remain unverified, preserve options and pause major capital commitment."},
+        {"horizon": "Long term, 2-4 quarters", "action": "Advance partnerships, investments or market entry only after the proof base improves, with quarterly review cadence.", "owner": "CEO / board", "success_metric": "ROI, risk exposure and execution milestones appear on the management dashboard.", "decision_gate": "If core assumptions remain unverified, preserve options and pause major capital commitment."},
     ]
 
 
@@ -1074,7 +1091,7 @@ def _default_risk_register(fact_pack: ResearchFactPack, *, language: str) -> Lis
             {"risk": "关键假设缺少反例校验", "trigger": "没有竞争对手、替代方案、政策逆风或需求下行情景", "management_action": "建立反例清单，并把反例作为季度复盘事项", "evidence_boundary": boundary},
         ]
     return [
-        {"risk": "Public evidence is too thin for high-conviction decisions.", "trigger": "Source count, authoritative sources, numeric facts or timelines are below threshold.", "management_action": "Classify claims as verified, directional or open diligence and add authoritative sources.", "evidence_boundary": boundary},
+        {"risk": "The public record is too thin for high-conviction decisions.", "trigger": "Source count, authoritative sources, numeric facts or timelines are below threshold.", "management_action": "Classify claims as verified, directional or open questions and add authoritative sources.", "evidence_boundary": boundary},
         {"risk": "Investment or market-entry pace runs ahead of commercial proof.", "trigger": "Customer, revenue, cost, financing or regulatory evidence has not met management threshold.", "management_action": "Preserve options and run low-cost validation before major capital commitment.", "evidence_boundary": boundary},
         {"risk": "Technical narrative obscures business return.", "trigger": "Technical terminology outweighs revenue, cost, risk and action implications.", "management_action": "Rewrite technical sections into customer value, cost position, ROI and execution implications.", "evidence_boundary": boundary},
         {"risk": "Key assumptions are not tested against counterevidence.", "trigger": "No explicit competitor, substitute, policy-downside or demand-downside challenge is present.", "management_action": "Create a counterevidence checklist and review it quarterly.", "evidence_boundary": boundary},
@@ -1169,6 +1186,7 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         if not isinstance(section, dict):
             continue
         title = str(section.get("title") or "").strip()
+        title = re.sub(r"^\s*\d+[\.)、]\s*", "", title).strip()
         if _is_generic_title(title):
             title = _fallback_section_title(idx, blueprints, topic, fact_pack, language=language)
         blueprint = _section_blueprint_for_title(title, blueprints, idx)
@@ -1181,7 +1199,10 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         normalized["id"] = str(normalized.get("id") or f"section-{len(out) + 1}")
         normalized["visual_hint"] = str(normalized.get("visual_hint") or f"image-{len(out) + 1}")
         raw_paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
-        paragraphs = [p for p in raw_paragraphs if not _is_placeholder_section_paragraph(p, title)]
+        paragraphs = [
+            p for p in raw_paragraphs
+            if not _is_placeholder_section_paragraph(p, title) and not _is_short_placeholder_paragraph(p)
+        ]
         if len(paragraphs) < 5:
             paragraphs.extend(_supplement_paragraphs(fact_pack, title=title, language=language, needed=5 - len(paragraphs)))
         normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:8]
@@ -1191,11 +1212,11 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
             used_blueprint_paragraphs = True
         if blueprint:
             normalized_paragraphs = _dedupe_texts(normalized_paragraphs + [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()])
-        target_paragraphs = 6 if language == "en" else 4
+        target_paragraphs = 7 if language == "en" else 4
         while len(normalized_paragraphs) < target_paragraphs:
             normalized_paragraphs.append(_completion_paragraph(title, len(normalized_paragraphs), language=language))
         normalized_paragraphs = _ensure_section_depth(title, normalized_paragraphs, fact_pack, language=language)
-        normalized["paragraphs"] = normalized_paragraphs[:8]
+        normalized["paragraphs"] = _select_report_paragraphs(normalized_paragraphs, limit=8, target_chars=2300 if language == "en" else 850)
         lead = str(normalized.get("lead") or "").strip()
         if used_blueprint_paragraphs and blueprint and str(blueprint.get("lead") or "").strip():
             lead = str(blueprint.get("lead") or "").strip()
@@ -1306,23 +1327,23 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
             ], ["跟踪能改变决策的事实", "把信号绑定行动", "避免被市场热度牵引"]),
         ]
     return [
-        _section_payload(f"{topic_text} should be managed as a staged strategic option, not a binary bet", "The CEO question is which moves are safe now and which should wait for stronger evidence.", [
-            f"For leadership, {topic_text} should be separated into near-term actions, option-building moves and commitments that require stronger proof. That distinction keeps market enthusiasm or technical narrative from becoming an investment conclusion too early.",
+        _section_payload(f"{topic_text} should be managed as a staged strategic option, not a binary bet", "The CEO question is which moves are safe now and which should wait for stronger proof.", [
+            f"{topic_text} is easier to misread when it is framed as a yes-or-no bet. The better reading separates near-term learning moves, option-building partnerships and commitments that would require stronger commercial proof.",
             "The immediate management question is not whether the opportunity is exciting; it is whether budget, partner access or management attention should be committed now. Low-cost validation can start early, while larger capital commitments should wait for customer, cost, financing, regulatory or operating proof.",
-            f"The current evidence posture is: {evidence_note} This makes a quarterly decision cadence more useful than a one-time yes-or-no judgment.",
-        ], ["Start with low-cost validation", "Hold major commitments behind evidence gates", "Keep conclusions inside the public-evidence boundary"]),
+            f"The current source base is useful but incomplete. {evidence_note} A quarterly review rhythm is more useful than a one-time verdict because the facts that matter will change as customers, regulators and suppliers move.",
+        ], ["Start with low-cost validation", "Reserve major commitments for stronger proof", "Keep conclusions close to sourced facts"]),
         _section_payload("Commercial readiness depends on bankability, deliverability and repeat customer proof", "Technical feasibility matters only when it changes customer value, cost position and execution confidence.", [
             "Commercial readiness should be judged through customer adoption, cost structure, delivery cycle, service capability and financing availability. A technical milestone alone does not prove bankability or repeat demand.",
-            "Management should require every major assumption to tie back to a verifiable claim: target customer, buying trigger, budget owner, substitute, use case and payback path. Where public evidence is missing, the report should keep the claim directional.",
+            "Every major assumption needs a verifiable claim behind it: target customer, buying trigger, budget owner, substitute, use case and payback path. Where sourced evidence is missing, the claim should remain directional.",
             "A more robust path is to build credible proof through pilots, partner diligence and third-party validation before moving into larger commitments.",
         ], ["Customer value changes decisions more than technical narrative", "Validate bankability and delivery risk first", "Use pilots to prove repeatability"]),
         _section_payload("Cost, return and timing will determine the real deployment window", "Market size should not enter an investment case until the cost and return logic can be checked.", [
-            "Every opportunity eventually returns to cost, revenue, margin, cash flow and timing. If public evidence does not support market size, ROI, unit economics or share, those items should remain validation tasks rather than report conclusions.",
+            "Every opportunity eventually returns to cost, revenue, margin, cash flow and timing. If sourced evidence does not support market size, ROI, unit economics or share, those items should remain explicit assumptions rather than conclusions.",
             "Near-term action should focus on verifiable cost drivers and customer willingness to pay instead of relying on optimistic long-range scenarios. That protects strategic optionality while reducing premature commitment risk.",
             "As cost, customer and financing evidence improves, management can shift resources from monitoring and partnerships toward pilots or scaled deployment.",
         ], ["Cost and ROI are priority diligence items", "Timing should move with evidence quality", "Avoid using long-range scenarios as near-term proof"]),
         _section_payload("Regulation, policy and public acceptance can reset the speed of adoption", "External rules can accelerate the market or change the risk budget and project timeline.", [
-            "Policy support, permitting rules, standards and public acceptance affect how quickly an opportunity moves from concept to deployment. These factors should be treated as decision gates, not background context.",
+            "Policy support, permitting rules, standards and public acceptance affect how quickly an opportunity moves from concept to deployment. These factors are part of the investment case, not background context.",
             "Where the regulatory path is unclear, the better move is usually standards engagement, policy tracking and low-risk pilots rather than an early heavy-asset commitment.",
             "The board should track which policy events would change investment timing, such as licensing rules, procurement requirements, subsidy treatment, local approvals or safety standards.",
         ], ["Policy events are external decision gates", "Use options while regulation remains unclear", "Public acceptance can alter project timing"]),
@@ -1333,14 +1354,14 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
         ], ["Secure scarce capabilities early", "Partnerships must produce proof points", "Ecosystem position matters more than standalone claims"]),
         _section_payload("Incumbents should protect near-term economics while preserving long-term options", "The strongest posture is neither aggressive overcommitment nor passive observation.", [
             "For incumbent businesses, the task is to protect near-term cash flow and customer relationships while avoiding strategic blindness to a long-term shift. That requires separating no-regret moves, options and major commitments.",
-            "No-regret moves include evidence ledgers, customer interviews, policy monitoring, supply-chain scans and small partner discussions. Option moves include pilots, preferential access and minority investments. Major commitments should wait for stronger proof.",
+            "No-regret moves include a sourced fact base, customer interviews, policy monitoring, supply-chain scans and small partner discussions. Option moves include pilots, preferential access and minority investments. Major commitments should wait for stronger proof.",
             "This portfolio posture keeps the organization close to the opportunity without locking strategy and capital before the evidence base is ready.",
         ], ["Separate no-regret moves from options and big bets", "Protect near-term economics", "Use options to manage uncertainty"]),
-        _section_payload("The management agenda should translate uncertainty into quarterly decision gates", "The report should end in owners, evidence thresholds and review cadence.", [
-            "The output should become a quarterly management agenda: every material claim needs an owner, evidence gate, review date and escalation condition.",
-            "Near-term work should close source, customer, cost and timeline gaps; medium-term work should test pilots and partners; long-term work should cover capital, M&A or scaled entry only when decision gates are met.",
+        _section_payload("The management rhythm should translate uncertainty into quarterly choices", "The useful output is an owner, a threshold for proof and a cadence for review.", [
+            "The output should become a quarterly management rhythm: every material claim needs an owner, a proof threshold, a review date and an escalation condition.",
+            "Near-term work should close source, customer, cost and timeline gaps; medium-term work should test pilots and partners; long-term work should cover capital, M&A or scaled entry only when proof is strong enough.",
             "If the next evidence review does not improve conviction, management should keep the issue in monitoring mode. If the core metrics move, the topic can be escalated to an investment committee discussion.",
-        ], ["Create quarterly evidence gates", "Assign owners and review cadence", "Escalate only when proof improves"]),
+        ], ["Create quarterly proof thresholds", "Assign owners and review cadence", "Escalate only when proof improves"]),
         _section_payload("Decision-moving facts matter more than market noise", "The most useful monitoring lens focuses on customers, costs, regulation, competitors and financing.", [
             "Management should not treat media attention, financing announcements or single technical claims as decision signals on their own. More useful signals include customer procurement, cost movement, regulatory clarity, competitor commitments and financing terms.",
             "Each signal should map to an action: keep monitoring, start a pilot, expand a partnership, pause commitment or escalate to the board.",
@@ -1447,8 +1468,8 @@ def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: Li
 
 
 def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: ResearchFactPack, *, language: str) -> List[str]:
-    target_count = 6 if language == "en" else 4
-    target_chars = 1900 if language == "en" else 850
+    target_count = 7 if language == "en" else 4
+    target_chars = 2300 if language == "en" else 850
     cleaned = [p for p in _dedupe_texts(paragraphs) if not _is_placeholder_section_paragraph(p, title)]
     additions = _section_depth_additions(title, fact_pack, language=language)
     add_idx = 0
@@ -1464,9 +1485,9 @@ def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: Research
 
 def _section_depth_additions(title: str, fact_pack: ResearchFactPack, *, language: str) -> List[str]:
     title_text = _shorten(str(title or "the opportunity"), 120)
-    numeric_fact = _shorten(fact_pack.numeric_facts[0], 300) if fact_pack.numeric_facts else ""
-    dated_fact = _shorten(fact_pack.dated_facts[0], 260) if fact_pack.dated_facts else ""
-    evidence_fact = _shorten(fact_pack.high_confidence_facts[0], 300) if fact_pack.high_confidence_facts else ""
+    numeric_fact = _shorten(_clean_fact_text(fact_pack.numeric_facts[0]), 300) if fact_pack.numeric_facts else ""
+    dated_fact = _shorten(_clean_fact_text(fact_pack.dated_facts[0]), 260) if fact_pack.dated_facts else ""
+    evidence_fact = _shorten(_clean_fact_text(fact_pack.high_confidence_facts[0]), 300) if fact_pack.high_confidence_facts else ""
     if language == "zh":
         return [
             f"放到 CEO 视角，{title_text}的价值不在于扩大叙事，而在于把不确定性拆成可以管理的投入节奏。管理层需要判断哪些事实已经足以支持客户沟通、伙伴筛选或小额试点，哪些仍然只能作为观察项。",
@@ -1476,11 +1497,11 @@ def _section_depth_additions(title: str, fact_pack: ResearchFactPack, *, languag
             f"{title_text}的时间窗口同样需要被管理。{dated_fact or '当公开时间线不足时，季度复盘比一次性结论更稳健。'} 每次复盘都应回答一个问题：哪些新事实足以改变资本、伙伴或客户动作。",
         ]
     return [
-        f"For a CEO, {title_text} matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
-        f"For {title_text}, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
-        f"The public record on {title_text} provides a starting point, not a complete underwriting case. The most useful retained signal is: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} Management should turn that signal into explicit diligence questions rather than a broader claim.",
-        f"Where {title_text} depends on numbers, the next review should focus on {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'}. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring.",
-        f"The timing of {title_text} should also be managed as a decision variable. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new evidence changes capital exposure, partner strategy or customer-facing action.",
+        "The executive question is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        "Capital should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        f"The sourced record provides a starting point, not a complete underwriting case. The strongest retained signal is: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} Treat that signal as context for diligence rather than standalone proof of commercial scale.",
+        f"Numeric assumptions need a stricter hurdle. The next review should focus on {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'}. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring.",
+        f"Timing should be treated as a portfolio variable rather than a headline forecast. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action.",
     ]
 
 
@@ -1504,6 +1525,45 @@ def _is_placeholder_section_paragraph(text: str, title: str = "") -> bool:
     if title_key and normalized == title_key:
         return True
     return bool(re.fullmatch(r"(section|chapter)[\s_#-]*\d*", cleaned, flags=re.I))
+
+
+def _is_short_placeholder_paragraph(text: str) -> bool:
+    cleaned = _clean_visible_text(text)
+    if len(cleaned) >= 85:
+        return False
+    lowered = cleaned.lower().strip(" .")
+    if re.fullmatch(r"paragraph\s+[a-z0-9]+", lowered):
+        return True
+    placeholder_markers = (
+        "generic section title",
+        "replacement should preserve",
+        "string section should not break",
+        "should not break rendering",
+        "takeaway",
+    )
+    return any(marker in lowered for marker in placeholder_markers)
+
+
+def _select_report_paragraphs(paragraphs: List[str], *, limit: int, target_chars: int) -> List[str]:
+    if len(paragraphs) <= limit:
+        return paragraphs
+
+    def score(item: tuple[int, str]) -> tuple[int, int, int]:
+        idx, text = item
+        number_bonus = 1 if NUMBER_RE.search(text) or MONEY_RE.search(text) else 0
+        business_bonus = min(5, _keyword_hits(text, BUSINESS_LENS_TERMS))
+        length_score = min(len(text), 420)
+        return (number_bonus * 120 + business_bonus * 20 + length_score, -idx, len(text))
+
+    ranked = sorted(enumerate(paragraphs), key=score, reverse=True)
+    chosen_indices = sorted(idx for idx, _text in ranked[:limit])
+    chosen = [paragraphs[idx] for idx in chosen_indices]
+    if sum(len(x) for x in chosen) >= target_chars:
+        return chosen
+
+    # If the strongest eight still fall short, prefer denser paragraphs over preserving original order.
+    dense = [text for _idx, text in ranked[:limit]]
+    return list(reversed(dense))
 
 
 def _ensure_takeaways(value: Any, summary: List[str], idx: int, *, language: str) -> List[str]:
@@ -2009,15 +2069,22 @@ def _default_credentials(*, language: str) -> str:
     return "Responsible for evidence checks, executive synthesis and report QA." if language == "en" else "负责证据校验、管理层综合和报告 QA。"
 
 
+def _clean_fact_text(text: Any) -> str:
+    cleaned = _clean_visible_text(text)
+    cleaned = re.sub(r"^\[Source\s+\d+:[^\]]+\]\s*", "", cleaned, flags=re.I).strip()
+    cleaned = re.sub(r"^\[Source\s+\d+\]\s*", "", cleaned, flags=re.I).strip()
+    return cleaned
+
+
 def _default_evidence_note(fact_pack: ResearchFactPack, *, language: str) -> str:
     if fact_pack.high_confidence_facts:
-        fact = _shorten(fact_pack.high_confidence_facts[0], 240)
-        return f"Public-evidence signal: {fact}" if language == "en" else f"公开证据线索：{fact}"
-    return "Public evidence remains incomplete; additional validation is required for unsupported claims." if language == "en" else "公开来源底稿已保留；未被来源支持的判断仍需补充核验。"
+        fact = _shorten(_clean_fact_text(fact_pack.high_confidence_facts[0]), 240)
+        return f"Retained source signal: {fact}" if language == "en" else f"公开证据线索：{fact}"
+    return "The sourced record remains incomplete; unsupported claims require additional validation." if language == "en" else "公开来源底稿已保留；未被来源支持的判断仍需补充核验。"
 
 
 def _default_implication(*, language: str) -> str:
-    return "Translate this point into resource allocation, risk appetite and next-step decision gates." if language == "en" else "将该判断转化为资源配置、风险偏好和下一步决策门槛。"
+    return "Translate this point into resource allocation, risk appetite and the next commitment milestone." if language == "en" else "将该判断转化为资源配置、风险偏好和下一步决策门槛。"
 
 
 def _supplement_paragraphs(fact_pack: ResearchFactPack, *, title: str = "", language: str, needed: int) -> List[str]:
@@ -2029,10 +2096,10 @@ def _supplement_paragraphs(fact_pack: ResearchFactPack, *, title: str = "", lang
         if language == "zh":
             out.append(f"围绕{topic_text}，管理层应先把公开来源转成可复核的判断边界。第{idx + 1}条保留线索是：{fact_text}。这条线索适合支持下一轮客户、成本或伙伴验证，但不应被单独升级为超出来源的确定结论。")
         else:
-            out.append(f"For {topic_text}, management should translate the public record into a narrower decision boundary before committing resources. Retained signal {idx + 1} is: {fact_text}. That signal can support the next customer, cost or partner diligence step, but it should not be stretched into a broader claim than the sources support.")
+            out.append(f"The sourced record should narrow the decision rather than broaden the narrative. Retained signal {idx + 1}: {_clean_fact_text(fact_text)}. That signal can support the next customer, cost or partner diligence step, but it should not be stretched into a broader claim than the sources support.")
     while len(out) < needed:
         if language == "en":
-            out.append(f"For {topic_text}, leadership should focus on the few facts that change capital timing, customer exposure or partner posture. Material that does not change those decisions should stay out of the executive narrative.")
+            out.append("Leadership should focus on the few facts that change capital timing, customer exposure or partner posture. Material that does not change those decisions should stay out of the executive narrative.")
         else:
             out.append(f"围绕{topic_text}，下一步应把来源底稿转成会改变资本节奏、客户暴露或伙伴姿态的少数判断。不能改变决策的材料不应占据正文主线。")
     return out[:needed]
@@ -2047,7 +2114,7 @@ def _completion_paragraph(title: str, idx: int, *, language: str) -> str:
         ]
     else:
         variants = [
-            f"From a board perspective, {title} should be translated into capital timing, partner choice, customer exposure and risk appetite before resources are escalated.",
+            "The board-level reading should connect the conclusion to capital timing, partner choice, customer exposure and risk appetite before resources are escalated.",
             "The next review should test the investment case against customer evidence, cost data, policy timing and competitor movement, then update the investment threshold.",
             "Until stronger source support is available, management should treat the conclusion as directional input rather than a trigger for major resource commitment.",
         ]
