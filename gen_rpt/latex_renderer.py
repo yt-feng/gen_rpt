@@ -444,7 +444,7 @@ def _native_chart(chart: Dict[str, Any], *, compact: bool) -> str:
 
 
 def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
-    categories = [str(x) for x in _as_list(chart.get('categories'))][:6 if compact else 8]
+    categories = _chart_categories(chart, 6 if compact else 8)
     series = _series_payload(chart)[:3]
     if not categories or not series:
         return ''
@@ -470,7 +470,7 @@ def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
 
 
 def _native_stacked_bar(chart: Dict[str, Any], *, compact: bool) -> str:
-    categories = [str(x) for x in _as_list(chart.get('categories'))][:5 if compact else 7]
+    categories = _chart_categories(chart, 5 if compact else 7)
     series = _series_payload(chart)[:5]
     if not categories or not series:
         return ''
@@ -499,7 +499,7 @@ def _native_stacked_bar(chart: Dict[str, Any], *, compact: bool) -> str:
 
 
 def _native_line(chart: Dict[str, Any], *, compact: bool) -> str:
-    categories = [str(x) for x in _as_list(chart.get('categories'))][:6 if compact else 8]
+    categories = _chart_categories(chart, 6 if compact else 8)
     series = _series_payload(chart)[:3]
     if len(categories) < 2 or not series:
         return ''
@@ -538,22 +538,22 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
     body.append(f'\\draw[BOLine] ({left:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom:.2f}) -- ({left + chart_w:.2f},{bottom + chart_h:.2f});\n')
     body.append(f'\\draw[BOLine,dashed] ({left:.2f},{bottom + chart_h / 2:.2f}) -- ({left + chart_w:.2f},{bottom + chart_h / 2:.2f});\n')
     body.append(f'\\draw[BOLine,dashed] ({left + chart_w / 2:.2f},{bottom:.2f}) -- ({left + chart_w / 2:.2f},{bottom + chart_h:.2f});\n')
-    label_offsets = [
-        (.12, .10, 'west', 'left'),
-        (.12, -.10, 'west', 'left'),
-        (-.12, .10, 'east', 'right'),
-        (-.12, -.10, 'east', 'right'),
-        (.12, .23, 'west', 'left'),
-        (-.12, -.23, 'east', 'right'),
-    ]
+    y_lanes = [-.34, -.16, .03, .21, .39, -.50, .56, -.66]
+    lane_by_index = {
+        original_idx: y_lanes[lane_idx % len(y_lanes)]
+        for lane_idx, (original_idx, _) in enumerate(sorted(enumerate(points), key=lambda item: (_num(item[1].get('y'), 50), _num(item[1].get('x'), 50))))
+    }
     for point_idx, point in enumerate(points):
         x = left + _num(point.get('x'), 50) / 100 * chart_w
         y = bottom + _num(point.get('y'), 50) / 100 * chart_h
         radius = .08 + min(80, max(10, _num(point.get('size'), 35))) / 500
         body.append(f'\\fill[BOGreen,opacity=.65] ({x:.2f},{y:.2f}) circle ({radius:.2f});\n')
-        dx, dy, anchor, align = label_offsets[point_idx % len(label_offsets)]
-        dx = dx + radius if anchor == 'west' else dx - radius
-        body.append(f'\\node[anchor={anchor},align={align},text width=2.45cm] at ({x + dx:.2f},{y + dy:.2f}) {{\\scriptsize {_tex(_shorten(point.get("label", ""), 24))}}};\n')
+        anchor = 'west' if x < left + chart_w * .70 else 'east'
+        align = 'left' if anchor == 'west' else 'right'
+        dx = (.18 + radius) if anchor == 'west' else -(.18 + radius)
+        dy = lane_by_index.get(point_idx, 0.0)
+        text_width = '2.10cm' if compact else '2.55cm'
+        body.append(f'\\node[anchor={anchor},align={align},text width={text_width}] at ({x + dx:.2f},{y + dy:.2f}) {{\\scriptsize {_tex(_shorten(point.get("label", ""), 24))}}};\n')
     x_label = _tex(_shorten(chart.get('x_label') or 'Likelihood', 24))
     y_label = _tex(_shorten(chart.get('y_label') or 'Impact', 24))
     body.append(f'\\node[anchor=north east] at ({left + chart_w:.2f},{bottom - .12:.2f}) {{\\scriptsize {x_label}}};\n')
@@ -564,18 +564,18 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
 
 def _bubble_points(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
     points = [dict(p) for p in _as_list(chart.get('points')) if isinstance(p, dict)]
-    if points:
-        return points
     converted: List[Dict[str, Any]] = []
-    for row in _as_list(chart.get('data')):
-        if not isinstance(row, dict):
-            continue
+    for row in _point_rows_from_chart_data(chart.get('data')):
         label = row.get('label') or row.get('risk') or row.get('name') or row.get('category') or row.get('driver') or ''
         x = row.get('x', row.get('likelihood', row.get('probability', row.get('readiness', row.get('attractiveness', 50)))))
         y = row.get('y', row.get('impact', row.get('severity', row.get('importance', row.get('return', 50)))))
         size = row.get('size', row.get('impact', row.get('severity', row.get('importance', 45))))
         converted.append({'label': label, 'x': _scale_point(x), 'y': _scale_point(y), 'size': _scale_point(size)})
-    return converted
+    if points and not _weak_bubble_points(points):
+        return points
+    if converted and not _weak_bubble_points(converted):
+        return converted
+    return points or converted
 
 
 def _scale_point(value: Any) -> float:
@@ -640,10 +640,88 @@ def _series_payload(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
             continue
         payload.append({'name': str(item.get('name') or f'Series {idx}'), 'values': values})
     if not payload:
+        payload = _series_from_chart_data(chart.get('data'))
+    if not payload:
         values = [_num(x, 0.0) for x in _as_list(chart.get('values'))]
         if values:
             payload.append({'name': str(chart.get('name') or 'Value'), 'values': values})
     return payload
+
+
+def _chart_categories(chart: Dict[str, Any], limit: int) -> List[str]:
+    categories = [str(x) for x in _as_list(chart.get('categories')) if str(x).strip()]
+    data = chart.get('data')
+    if not categories and isinstance(data, dict):
+        categories = [str(x) for x in _as_list(data.get('labels') or data.get('categories')) if str(x).strip()]
+    return categories[:limit]
+
+
+def _series_from_chart_data(value: Any) -> List[Dict[str, Any]]:
+    if not isinstance(value, dict):
+        return []
+    payload: List[Dict[str, Any]] = []
+    for idx, item in enumerate(_as_list(value.get('datasets') or value.get('series')), start=1):
+        if not isinstance(item, dict):
+            continue
+        raw_values = item.get('values')
+        if raw_values is None:
+            raw_values = item.get('data')
+        values = []
+        for raw in _as_list(raw_values):
+            if isinstance(raw, dict):
+                raw = raw.get('y', raw.get('value', raw.get('amount', raw.get('score'))))
+            if raw is not None:
+                values.append(_num(raw, 0.0))
+        if values:
+            payload.append({'name': str(item.get('label') or item.get('name') or f'Series {idx}'), 'values': values})
+    return payload
+
+
+def _point_rows_from_chart_data(value: Any) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+
+    def visit(node: Any, dataset_label: str = '') -> None:
+        if isinstance(node, list):
+            for item in node:
+                visit(item, dataset_label)
+            return
+        if not isinstance(node, dict):
+            return
+        datasets = [x for x in _as_list(node.get('datasets')) if isinstance(x, dict)]
+        if datasets:
+            for dataset in datasets:
+                nested = dataset.get('points')
+                if nested is None:
+                    nested = dataset.get('data')
+                if nested is None:
+                    nested = dataset.get('values')
+                visit(nested, str(dataset.get('label') or dataset.get('name') or dataset_label or '').strip())
+            return
+        nested_points = node.get('points')
+        if isinstance(nested_points, list):
+            visit(nested_points, dataset_label)
+            return
+        nested_data = node.get('data')
+        if isinstance(nested_data, list) and any(isinstance(x, dict) for x in nested_data):
+            visit(nested_data, dataset_label)
+            return
+        if not any(key in node for key in ('x', 'y', 'likelihood', 'probability', 'readiness', 'attractiveness', 'impact', 'severity', 'importance', 'return', 'size')):
+            return
+        row = dict(node)
+        if dataset_label and not any(row.get(key) for key in ('label', 'risk', 'name', 'category', 'driver')):
+            row['label'] = dataset_label
+        rows.append(row)
+
+    visit(value)
+    return rows
+
+
+def _weak_bubble_points(points: List[Dict[str, Any]]) -> bool:
+    if len(points) < 3:
+        return True
+    labels = [str(point.get('label') or '').strip() for point in points]
+    placeholder_count = sum(1 for label in labels if re.fullmatch(r'(point|item)[\s_#-]*\d*', label, flags=re.I))
+    return placeholder_count >= max(2, len(labels) - 1)
 
 
 def _num(value: Any, default: float = 0.0) -> float:

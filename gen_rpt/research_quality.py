@@ -384,6 +384,11 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
         categories = [str(x) for x in _as_list(chart.get("categories"))]
         if _is_generic_chart_title(title, categories):
             issues.append(f"第{idx}个 chart 仍是泛化图表，需要贴合选题和资料证据：{title[:80]}")
+        chart_type = str(chart.get("type") or "").lower()
+        if chart_type in {"bubble", "scatter", "risk_matrix", "quadrant"}:
+            points = _best_bubble_points(chart)
+            if _weak_bubble_points(points):
+                issues.append(f"第{idx}个 bubble chart 数据点不足或仍是占位标签，需要至少3个真实维度点。")
 
     lower = text.lower()
     meta_hits = [p for p in META_LABEL_PATTERNS if p.lower() in lower]
@@ -1470,9 +1475,13 @@ def _normalize_matrix_chart(chart: Dict[str, Any], idx: int, topic: str, section
 
 
 def _normalize_bubble_chart(chart: Dict[str, Any], idx: int, topic: str, *, language: str) -> Dict[str, Any]:
-    points = [dict(x) for x in _as_list(chart.get("points")) if isinstance(x, dict)]
-    if not points and chart.get("data"):
-        points = _points_from_data(chart.get("data"))
+    points = _best_bubble_points(chart)
+    if _weak_bubble_points(points):
+        fallback = dict(_fallback_charts_for_topic(topic, [], language=language)[2])
+        fallback["id"] = chart.get("id") or fallback.get("id")
+        fallback["exhibit_no"] = chart.get("exhibit_no") or fallback.get("exhibit_no")
+        chart = fallback
+        points = [dict(x) for x in _as_list(chart.get("points")) if isinstance(x, dict)]
     if not points:
         if chart.get("categories") or chart.get("series"):
             chart["type"] = "bar"
@@ -1498,6 +1507,17 @@ def _normalize_bubble_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
 
 
 def _series_from_data(value: Any) -> tuple[List[str], List[Dict[str, Any]]]:
+    if isinstance(value, dict):
+        categories = _string_list(value.get("labels") or value.get("categories"))
+        datasets = [x for x in _as_list(value.get("datasets") or value.get("series")) if isinstance(x, dict)]
+        series = []
+        for idx, dataset in enumerate(datasets[:5], start=1):
+            values = _dataset_numeric_values(dataset)
+            if values:
+                series.append({"name": _clean_visible_text(dataset.get("label") or dataset.get("name") or f"Series {idx}"), "values": values})
+        if categories and series:
+            return categories, series
+
     rows = [x for x in _as_list(value) if isinstance(x, dict)]
     if not rows:
         return [], []
@@ -1538,6 +1558,21 @@ def _series_from_data(value: Any) -> tuple[List[str], List[Dict[str, Any]]]:
     return categories, series
 
 
+def _dataset_numeric_values(dataset: Dict[str, Any]) -> List[float]:
+    raw_values = dataset.get("values")
+    if raw_values is None:
+        raw_values = dataset.get("data")
+    values: List[float] = []
+    for item in _as_list(raw_values):
+        if isinstance(item, dict):
+            item_value = item.get("y", item.get("value", item.get("amount", item.get("score"))))
+            if item_value is not None:
+                values.append(_to_number(item_value, 0.0))
+        elif _is_number_like(item):
+            values.append(_to_number(item, 0.0))
+    return values
+
+
 def _matrix_from_data(value: Any) -> tuple[List[str], List[str], List[List[float]]]:
     rows = [x for x in _as_list(value) if isinstance(x, dict)]
     if not rows:
@@ -1561,7 +1596,7 @@ def _matrix_from_data(value: Any) -> tuple[List[str], List[str], List[List[float
 
 def _points_from_data(value: Any) -> List[Dict[str, Any]]:
     points = []
-    for row in [x for x in _as_list(value) if isinstance(x, dict)]:
+    for row in _point_rows_from_data(value):
         label = row.get("label") or row.get("risk") or row.get("name") or row.get("category") or row.get("driver") or row.get("approach") or row.get("technology") or row.get("country") or row.get("region") or f"Point {len(points) + 1}"
         points.append({
             "label": label,
@@ -1570,6 +1605,75 @@ def _points_from_data(value: Any) -> List[Dict[str, Any]]:
             "size": _scale_chart_value(row.get("size", row.get("impact", row.get("importance", 45)))),
         })
     return points
+
+
+def _best_bubble_points(chart: Dict[str, Any]) -> List[Dict[str, Any]]:
+    explicit_points = [dict(x) for x in _as_list(chart.get("points")) if isinstance(x, dict)]
+    data_points = _points_from_data(chart.get("data")) if chart.get("data") else []
+    if explicit_points and not _weak_bubble_points(explicit_points):
+        return explicit_points
+    if data_points and not _weak_bubble_points(data_points):
+        return data_points
+    return explicit_points or data_points
+
+
+def _point_rows_from_data(value: Any) -> List[Dict[str, Any]]:
+    rows: List[Dict[str, Any]] = []
+    label_keys = ("label", "risk", "name", "category", "driver", "approach", "technology", "country", "region")
+
+    def visit(node: Any, dataset_label: str = "") -> None:
+        if isinstance(node, list):
+            for item in node:
+                visit(item, dataset_label)
+            return
+        if not isinstance(node, dict):
+            return
+
+        datasets = [x for x in _as_list(node.get("datasets")) if isinstance(x, dict)]
+        if datasets:
+            for dataset in datasets:
+                nested = dataset.get("points")
+                if nested is None:
+                    nested = dataset.get("data")
+                if nested is None:
+                    nested = dataset.get("values")
+                visit(nested, str(dataset.get("label") or dataset.get("name") or dataset_label or "").strip())
+            return
+
+        nested_points = node.get("points")
+        if isinstance(nested_points, list):
+            visit(nested_points, dataset_label)
+            return
+        nested_data = node.get("data")
+        if isinstance(nested_data, list) and any(isinstance(x, dict) for x in nested_data):
+            visit(nested_data, dataset_label)
+            return
+
+        if not _looks_like_point_row(node):
+            return
+        row = dict(node)
+        if dataset_label and not any(row.get(key) for key in label_keys):
+            row["label"] = dataset_label
+        rows.append(row)
+
+    visit(value)
+    return rows
+
+
+def _looks_like_point_row(row: Dict[str, Any]) -> bool:
+    return any(key in row for key in ("x", "y", "likelihood", "probability", "readiness", "attractiveness", "impact", "severity", "importance", "return", "size"))
+
+
+def _weak_bubble_points(points: List[Dict[str, Any]]) -> bool:
+    if len(points) < 3:
+        return True
+    labels = [str(point.get("label") or "").strip() for point in points]
+    placeholder_count = sum(1 for label in labels if _is_placeholder_point_label(label))
+    return placeholder_count >= max(2, len(labels) - 1)
+
+
+def _is_placeholder_point_label(label: str) -> bool:
+    return bool(re.fullmatch(r"(point|item)[\s_#-]*\d*", str(label or "").strip(), flags=re.I))
 
 
 def _string_list(value: Any) -> List[str]:

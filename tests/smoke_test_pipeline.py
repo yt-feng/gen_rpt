@@ -62,7 +62,9 @@ def main() -> None:
         ],
         "charts": [
             {"title": "Stacked chart without id", "type": "stacked_bar", "categories": ["2024", "2025"], "series": [{"name": "A", "values": [1, 2]}, {"name": "B", "values": [2, 3]}]},
+            {"title": "Chart.js bar payload should keep model data", "type": "bar", "data": {"labels": ["2024", "2025", "2026"], "datasets": [{"label": "Validated spend", "values": [12, 18, 27]}]}},
             {"title": "Matrix chart", "type": "matrix", "rows": ["Cost", "Supply"], "columns": ["A", "B"], "values": [[5, 3], [4, 2]]},
+            {"title": "Nested bubble payload should keep model points", "type": "bubble", "data": {"datasets": [{"label": "Private ventures", "points": [{"x": 8, "y": 9, "label": "CFS"}, {"x": 7, "y": 8, "label": "Helion"}, {"x": 6, "y": 7, "label": "TAE"}]}, {"label": "Public projects", "points": [{"x": 4, "y": 5, "label": "ITER"}]}]}},
             {"title": "Bubble chart", "type": "bubble", "points": [{"label": "A", "x": 40, "y": 70, "size": 50}]},
             {"title": "Bad single point market size", "type": "pie", "categories": ["Market"], "series": [{"name": "Value", "values": [100]}]},
         ],
@@ -92,6 +94,17 @@ def main() -> None:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
     assert len(report.get("charts", [])) >= 10
+    chartjs_bar = next(chart for chart in report.get("charts", []) if chart.get("title") == "Chart.js bar payload should keep model data")
+    assert chartjs_bar.get("categories") == ["2024", "2025", "2026"]
+    assert chartjs_bar.get("series", [])[0].get("values") == [12.0, 18.0, 27.0]
+    nested_bubble = next(chart for chart in report.get("charts", []) if chart.get("title") == "Nested bubble payload should keep model points")
+    nested_labels = {point.get("label") for point in nested_bubble.get("points", [])}
+    assert {"CFS", "Helion", "TAE", "ITER"}.issubset(nested_labels)
+    for chart in report.get("charts", []):
+        if chart.get("type") == "bubble":
+            labels = [str(point.get("label") or "") for point in chart.get("points", [])]
+            assert len(labels) >= 3
+            assert not all(re.match(r"^(point|item|a)([\s_#-]*\d*)?$", label, re.I) for label in labels)
     generic_title = re.compile(r"^(section|chapter)\s*\d*$", re.I)
     for section in report.get("sections", []):
         title = str(section.get("title") or "").strip()
