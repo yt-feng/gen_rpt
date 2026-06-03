@@ -95,7 +95,7 @@ def main() -> None:
     for required_key in ["executive_summary_text", "key_findings", "action_plan", "risk_register", "scenario_vignettes", "methodology_note", "author_credentials"]:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
-    assert len(report.get("charts", [])) >= 10
+    assert len(report.get("charts", [])) >= 12
     chart_types = {chart.get("type") for chart in report.get("charts", [])}
     assert {"line", "bubble", "matrix", "stacked_bar"} & chart_types
     assert len(chart_types) >= 3

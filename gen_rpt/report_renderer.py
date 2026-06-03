@@ -619,7 +619,7 @@ def _safe_charts(value: Any) -> List[Dict[str, Any]]:
         chart = dict(item)
         chart["id"] = str(chart.get("id") or f"chart-{idx}")
         charts.append(chart)
-    return charts[:12]
+    return charts[:14]
 
 
 def _summary_items(value: Any) -> List[str]:

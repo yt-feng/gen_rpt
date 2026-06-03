@@ -393,10 +393,10 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
     elif fact_pack.source_refs:
         issues.append("references 为空，需要引用已抓取资料中的真实来源。")
 
-    if len(charts) < 10 or len(charts) > 12:
-        issues.append(f"charts 数量应为10-12个，当前为{len(charts)}个。")
+    if len(charts) < 12 or len(charts) > 14:
+        issues.append(f"charts 数量应为12-14个，当前为{len(charts)}个。")
     chart_types = {str(chart.get("type") or "").lower() for chart in charts if isinstance(chart, dict)}
-    if len(charts) >= 10 and len(chart_types & {"stacked_bar", "line", "matrix", "bubble"}) < 2:
+    if len(charts) >= 12 and len(chart_types & {"stacked_bar", "line", "matrix", "bubble"}) < 3:
         issues.append("charts 类型过于单一，需要混合使用 stacked_bar、line、matrix、bubble 等 LaTeX 原生图表。")
     for idx, chart in enumerate(charts, start=1):
         if not isinstance(chart, dict):
@@ -1506,11 +1506,11 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
         seen.add(key)
         chart["id"] = str(chart.get("id") or f"chart-{len(charts) + 1}")
         charts.append(chart)
-        if len(charts) >= 12:
+        if len(charts) >= 14:
             break
 
     for chart in _fallback_charts_for_topic(topic, sections, language=language):
-        if len(charts) >= 10:
+        if len(charts) >= 14:
             break
         key = re.sub(r"\W+", "", chart["title"].lower())[:120]
         if key in seen:
@@ -1519,11 +1519,11 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
         chart["id"] = f"chart-{len(charts) + 1}"
         chart["exhibit_no"] = str(len(charts) + 1)
         charts.append(_normalize_chart_payload(chart, len(charts) + 1, topic, sections, language=language))
-    charts = _ensure_chart_type_mix(charts[:12], topic, sections, language=language)
+    charts = _ensure_chart_type_mix(charts[:14], topic, sections, language=language)
     for idx, chart in enumerate(charts, start=1):
         chart["id"] = f"chart-{idx}"
         chart["exhibit_no"] = str(idx)
-    return charts[:12]
+    return charts[:14]
 
 
 def _normalize_chart_payload(chart: Dict[str, Any], idx: int, topic: str, sections: List[Dict[str, Any]], *, language: str) -> Dict[str, Any]:
@@ -1972,6 +1972,10 @@ def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, la
         {"title": "Timeline confidence falls as milestones move from lab to grid", "subtitle": f"Milestone confidence for {topic_text}", "type": "line", "categories": ["Lab proof", "Pilot", "First plant", "Fleet scale"], "series": [{"name": "Confidence", "values": [82, 58, 36, 24]}, {"name": "Capital risk", "values": [18, 42, 67, 84]}], "caption": "Decision confidence should be staged by milestone maturity.", "source_note": "BlueOcean milestone assessment."},
         {"title": "Partner options differ on learning value and capital exposure", "subtitle": f"Where-to-play option view for {topic_text}", "type": "matrix", "rows": ["Direct equity", "Corporate venture", "Offtake option", "Supplier JV", "R&D consortium"], "columns": ["Learning", "Control", "Capital need", "Reversibility"], "values": [[5, 4, 2, 2], [4, 3, 3, 3], [3, 2, 4, 4], [4, 4, 2, 2], [3, 2, 5, 5]], "caption": "The best early posture maximizes learning without forcing irreversible capital exposure.", "source_note": "BlueOcean option synthesis."},
         {"title": "Evidence maturity varies sharply by claim type", "subtitle": f"Claim maturity for {topic_text}", "type": "bar", "categories": ["Physics", "Cost", "Supply", "Regulation", "Demand", "Financing"], "series": [{"name": "Evidence maturity", "values": [72, 34, 42, 48, 29, 36]}], "caption": "Management can use the maturity gap to decide which claims support action today and which require a separate diligence workstream.", "source_note": "BlueOcean public-source synthesis."},
+        {"title": "Use-case priorities separate early revenue from long-term optionality", "subtitle": f"Customer option screen for {topic_text}", "type": "matrix", "rows": ["Industrial heat", "Hydrogen", "Grid power", "Defense / remote", "Research services"], "columns": ["Demand pull", "Price tolerance", "Timing", "Evidence"], "values": [[5, 4, 3, 3], [4, 4, 3, 2], [5, 2, 1, 2], [3, 5, 3, 2], [2, 3, 4, 4]], "caption": "The comparison separates markets that can teach the company soon from markets that may require longer proof cycles.", "source_note": "BlueOcean customer option synthesis."},
+        {"title": "Capital exposure should be staged by decision milestone", "subtitle": f"Commitment profile for {topic_text}", "type": "stacked_bar", "categories": ["Research", "Partner option", "Pilot", "First asset", "Scale"], "series": [{"name": "Learning spend", "values": [70, 55, 34, 18, 10]}, {"name": "Partner capital", "values": [15, 28, 32, 22, 12]}, {"name": "Balance-sheet exposure", "values": [5, 12, 26, 54, 78]}], "caption": "The capital mix should move from learning to committed exposure only as evidence matures.", "source_note": "BlueOcean capital staging view."},
+        {"title": "Management attention shifts as the uncertainty stack resolves", "subtitle": f"Executive review cadence for {topic_text}", "type": "line", "categories": ["Now", "6 months", "12 months", "24 months", "36 months"], "series": [{"name": "Customer proof", "values": [82, 74, 56, 38, 26]}, {"name": "Cost proof", "values": [76, 70, 62, 48, 34]}, {"name": "Execution scale", "values": [24, 32, 46, 64, 78]}], "caption": "The review agenda should shift from proof gathering toward scaling questions only after the earlier uncertainties narrow.", "source_note": "BlueOcean uncertainty-resolution model."},
+        {"title": "Competitive posture depends on timing, access and reversibility", "subtitle": f"Strategic posture map for {topic_text}", "type": "bubble", "points": [{"label": "Minority option", "x": 78, "y": 66, "size": 58}, {"label": "Offtake rights", "x": 68, "y": 74, "size": 64}, {"label": "Supplier JV", "x": 54, "y": 62, "size": 52}, {"label": "Direct build", "x": 38, "y": 82, "size": 80}, {"label": "Research consortium", "x": 72, "y": 42, "size": 40}], "x_label": "Reversibility", "y_label": "Strategic access", "caption": "Early moves should protect access and learning while avoiding positions that cannot be reversed if evidence weakens.", "source_note": "BlueOcean competitive posture screen."},
     ]
 
 

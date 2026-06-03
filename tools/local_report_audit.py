@@ -44,7 +44,7 @@ def main() -> int:
     parser.add_argument("--benchmark-pdf", type=Path, default=None, help="Optional benchmark PDF for page/text-density metrics.")
     parser.add_argument("--min-section-chars", type=int, default=1550)
     parser.add_argument("--min-section-paragraphs", type=int, default=5)
-    parser.add_argument("--min-charts", type=int, default=10)
+    parser.add_argument("--min-charts", type=int, default=12)
     parser.add_argument("--warn-only", action="store_true")
     args = parser.parse_args()
 

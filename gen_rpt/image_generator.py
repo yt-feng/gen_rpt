@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import math
 import os
 import time
 from pathlib import Path
@@ -168,6 +170,8 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
     mid = _hex(PALETTE.get("medium_blue", "#0055A4"))
     paper = (246, 249, 252)
     topic_type = _prompt_type(prompt)
+    scene_type = _fallback_scene_type(prompt)
+    variant = int(hashlib.sha1(prompt.encode("utf-8", errors="ignore")).hexdigest()[:8], 16)
 
     img = Image.new("RGB", (width, height), paper if kind == "section" else navy)
     px = img.load()
@@ -191,15 +195,16 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
     electric = (*accent, 145)
 
     if topic_type == "fusion":
-        cx, cy = int(width * 0.66), int(height * 0.48)
+        cx = int(width * (0.60 + (variant % 9) * 0.012))
+        cy = int(height * (0.42 + ((variant // 9) % 7) * 0.012))
         for r in [70, 130, 210, 300]:
             draw.ellipse((cx - r, cy - r, cx + r, cy + r), outline=line_color, width=4)
         for i in range(14):
-            angle = (i / 14) * 6.28318
-            x1 = cx + int(90 * __import__('math').cos(angle))
-            y1 = cy + int(90 * __import__('math').sin(angle))
-            x2 = cx + int(330 * __import__('math').cos(angle))
-            y2 = cy + int(330 * __import__('math').sin(angle))
+            angle = (i / 14) * 6.28318 + (variant % 17) * 0.01
+            x1 = cx + int(90 * math.cos(angle))
+            y1 = cy + int(90 * math.sin(angle))
+            x2 = cx + int(330 * math.cos(angle))
+            y2 = cy + int(330 * math.sin(angle))
             draw.line((x1, y1, x2, y2), fill=line_color, width=2)
         draw.ellipse((cx - 48, cy - 48, cx + 48, cy + 48), fill=electric)
         draw.rectangle((80, 660, 1180, 710), outline=line_color, width=3)
@@ -226,6 +231,9 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
         for x, y in points:
             draw.ellipse((x - 14, y - 14, x + 14, y + 14), fill=node_color)
 
+    if kind == "section":
+        _draw_scene_overlay(draw, scene_type, width, height, line_color, node_color, electric, variant)
+
     img = img.filter(ImageFilter.SMOOTH_MORE)
     img.save(output_path, format="PNG")
 
@@ -239,6 +247,82 @@ def _prompt_type(prompt: str) -> str:
     if any(token in lower for token in ["energy", "battery", "power", "grid", "hydrogen", "storage"]):
         return "energy"
     return "business"
+
+
+def _fallback_scene_type(prompt: str) -> str:
+    lower = prompt.lower()
+    if any(token in lower for token in ["commercial", "customer", "bankability", "revenue", "adoption"]):
+        return "boardroom"
+    if any(token in lower for token in ["cost", "return", "timing", "capital", "lcoe"]):
+        return "economics"
+    if any(token in lower for token in ["regulation", "policy", "acceptance", "government"]):
+        return "policy"
+    if any(token in lower for token in ["supply", "partner", "talent", "chain"]):
+        return "network"
+    if any(token in lower for token in ["incumbent", "options", "portfolio", "grid"]):
+        return "infrastructure"
+    if any(token in lower for token in ["agenda", "quarter", "milestone", "decision"]):
+        return "dashboard"
+    if any(token in lower for token in ["facts", "noise", "evidence", "signal"]):
+        return "evidence"
+    return "boardroom"
+
+
+def _draw_scene_overlay(draw: ImageDraw.ImageDraw, scene: str, width: int, height: int, line_color: tuple[int, int, int, int], node_color: tuple[int, int, int, int], electric: tuple[int, int, int, int], variant: int) -> None:
+    ink = line_color
+    fill = node_color
+    accent = electric
+    jitter = (variant % 31) - 15
+    if scene == "boardroom":
+        table_y = int(height * 0.72)
+        draw.rounded_rectangle((150, table_y, 1040, table_y + 78), radius=18, outline=ink, width=4, fill=(255, 255, 255, 42))
+        for i, x in enumerate([230, 390, 560, 730, 900]):
+            y = table_y - 72 + (i % 2) * 18
+            draw.ellipse((x - 24, y - 24, x + 24, y + 24), fill=fill)
+            draw.line((x, y + 24, x + jitter, table_y - 4), fill=ink, width=4)
+        draw.rectangle((505, table_y + 14, 690, table_y + 50), outline=accent, width=3)
+    elif scene == "economics":
+        base = int(height * 0.78)
+        for i, x in enumerate(range(180, 1030, 120)):
+            h = 70 + ((i * 37 + variant) % 210)
+            draw.rectangle((x, base - h, x + 58, base), fill=(0, 166, 81, 94), outline=ink, width=2)
+        draw.line((140, base, 1110, base), fill=ink, width=4)
+        draw.line((170, base - 260, 1040, base - 80), fill=accent, width=5)
+    elif scene == "policy":
+        ground = int(height * 0.76)
+        draw.rectangle((220, ground - 180, 980, ground - 130), outline=ink, width=4, fill=(255, 255, 255, 46))
+        for x in range(280, 940, 110):
+            draw.rectangle((x, ground - 130, x + 45, ground + 40), outline=ink, width=4)
+        draw.polygon([(170, ground - 180), (600, ground - 300), (1030, ground - 180)], outline=ink, fill=(255, 255, 255, 32))
+        draw.line((180, ground + 42, 1040, ground + 42), fill=accent, width=4)
+    elif scene == "network":
+        nodes = [(170, 610), (330, 470), (500, 560), (690, 390), (860, 540), (1040, 430), (1110, 640)]
+        nodes = [(x, y + ((variant + i * 13) % 25) - 12) for i, (x, y) in enumerate(nodes)]
+        for a, b in zip(nodes, nodes[1:]):
+            draw.line((*a, *b), fill=ink, width=5)
+        for x, y in nodes:
+            draw.ellipse((x - 26, y - 26, x + 26, y + 26), fill=fill, outline=accent, width=3)
+        draw.rounded_rectangle((410, 690, 770, 760), radius=15, outline=ink, width=4, fill=(255, 255, 255, 48))
+    elif scene == "infrastructure":
+        horizon = int(height * 0.72)
+        for x in [180, 420, 670, 930]:
+            draw.line((x, horizon + 90, x + 70, horizon - 170), fill=ink, width=5)
+            draw.line((x + 70, horizon - 170, x + 140, horizon + 90), fill=ink, width=5)
+            draw.line((x + 20, horizon - 20, x + 120, horizon - 20), fill=accent, width=3)
+        for y in [horizon - 120, horizon - 70, horizon - 20]:
+            draw.line((120, y, 1160, y + ((variant % 21) - 10)), fill=ink, width=2)
+    elif scene == "dashboard":
+        for i, (x, y) in enumerate([(150, 510), (430, 430), (710, 530), (960, 450)]):
+            draw.rounded_rectangle((x, y, x + 210, y + 150), radius=18, outline=ink, width=4, fill=(255, 255, 255, 48))
+            draw.line((x + 24, y + 105, x + 72, y + 70, x + 120, y + 88, x + 176, y + 44), fill=accent, width=5)
+            draw.ellipse((x + 158, y + 28, x + 188, y + 58), fill=fill)
+    elif scene == "evidence":
+        for i, x in enumerate([160, 370, 580, 790, 1000]):
+            y = 430 + (i % 2) * 70
+            draw.rounded_rectangle((x, y, x + 145, y + 220), radius=16, outline=ink, width=4, fill=(255, 255, 255, 50))
+            draw.line((x + 24, y + 56, x + 118, y + 56), fill=accent, width=5)
+            draw.line((x + 24, y + 106, x + 100, y + 106), fill=ink, width=3)
+            draw.line((x + 24, y + 150, x + 118, y + 150), fill=ink, width=3)
 
 
 def _hex(value: str) -> tuple[int, int, int]:

@@ -414,14 +414,118 @@ def _exhibit_block(chart: Dict[str, Any], assets: Dict[str, str], idx: int, *, c
     if not visual:
         path = _asset_path(assets.get(str(chart.get('id') or f'chart-{idx}'), '')) or _resolve_chart(assets, idx)
         visual = _center_image(path, '0.96\\linewidth', '84mm' if compact else '132mm') if path else _callout_box([caption or subtitle])
+    detail = _exhibit_detail_block(chart, caption_raw, subtitle_raw, compact=compact)
     return (
         '{\\textcolor{BOGreen}{\\scriptsize\\bfseries EXHIBIT ' + str(idx) + '}}\\par\\vspace{4pt}\n'
         + '{\\sffamily\\fontsize{17}{21}\\selectfont\\color{BONavy} ' + title + '}\\par\n'
         + ('{\\small\\color{BOText} ' + subtitle + '}\\par\\vspace{6pt}\n' if subtitle else '\\vspace{6pt}\n')
         + visual
+        + detail
         + ('\\vspace{4pt}{\\footnotesize\\color{BOText} ' + caption + '}\\par\n' if caption else '')
         + '{\\scriptsize\\color{BOMuted} ' + source + '}\\par\n'
     )
+
+
+def _exhibit_detail_block(chart: Dict[str, Any], caption: str, subtitle: str, *, compact: bool) -> str:
+    if compact:
+        return ''
+    notes = _exhibit_notes(chart, caption, subtitle)
+    table = _exhibit_value_table(chart)
+    if not notes and not table:
+        return ''
+    note_text = ''.join('{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 260)) + '}\\par\\vspace{2pt}\n' for note in notes[:2])
+    if table:
+        return (
+            '\\vspace{3pt}\\noindent\\begin{minipage}[t]{0.58\\linewidth}\n'
+            '\\textcolor{BOGreen}{\\rule{24mm}{0.6pt}}\\par\\vspace{3pt}\n'
+            + note_text +
+            '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n'
+            '\\vspace{1pt}' + table +
+            '\\end{minipage}\\par\\vspace{2pt}\n'
+        )
+    return (
+        '\\vspace{3pt}\\noindent\\begin{minipage}[t]{0.94\\linewidth}\n'
+        '\\textcolor{BOGreen}{\\rule{24mm}{0.6pt}}\\par\\vspace{3pt}\n'
+        + note_text +
+        '\\end{minipage}\\par\\vspace{2pt}\n'
+    )
+
+
+def _exhibit_notes(chart: Dict[str, Any], caption: str, subtitle: str) -> List[str]:
+    notes: List[str] = []
+    for text in (caption, subtitle):
+        cleaned = _reader_clean(_normalize_punctuation(str(text or '').strip()))
+        if cleaned:
+            notes.append(cleaned)
+            break
+    chart_type = str(chart.get('type') or '').lower()
+    categories = _chart_categories(chart, 8)
+    series = _series_payload(chart)
+    if chart_type in {'bar', 'stacked_bar', 'line'} and categories and series:
+        totals = []
+        for ci, _category in enumerate(categories):
+            totals.append(sum(abs(item['values'][ci] if ci < len(item['values']) else 0.0) for item in series))
+        if totals:
+            high_idx = max(range(len(totals)), key=lambda idx: totals[idx])
+            low_idx = min(range(len(totals)), key=lambda idx: totals[idx])
+            notes.append(f"{categories[high_idx]} is the highest visible point at {_format_value_label(totals[high_idx])}, while {categories[low_idx]} sets the lower bound at {_format_value_label(totals[low_idx])}.")
+        if len(series) > 1:
+            names = ', '.join(_shorten(item.get('name') or 'Series', 22) for item in series[:3])
+            notes.append(f"The exhibit should be read as both a level comparison and a mix comparison across {names}.")
+    elif chart_type == 'bubble':
+        points = _bubble_points(chart)
+        if points:
+            top = max(points, key=lambda point: _num(point.get('y'), 0) + _num(point.get('x'), 0))
+            notes.append(f"{top.get('label') or 'The upper-right option'} carries the strongest combined access and risk signal in the exhibit.")
+    elif chart_type == 'matrix':
+        rows = [str(x) for x in _as_list(chart.get('rows')) if str(x).strip()]
+        cols = [str(x) for x in _as_list(chart.get('columns')) if str(x).strip()]
+        if rows and cols:
+            notes.append(f"The matrix compares {len(rows)} options across {', '.join(cols[:3])}, which keeps the page focused on relative choices rather than a single score.")
+    return _dedupe(notes)[:3]
+
+
+def _exhibit_value_table(chart: Dict[str, Any]) -> str:
+    chart_type = str(chart.get('type') or '').lower()
+    if chart_type in {'bar', 'stacked_bar', 'line'}:
+        categories = _chart_categories(chart, 5)
+        series = _series_payload(chart)
+        if not categories or not series:
+            return ''
+        rows = []
+        for ci, category in enumerate(categories[:5]):
+            total = sum(abs(item['values'][ci] if ci < len(item['values']) else 0.0) for item in series)
+            rows.append((_shorten(category, 24), _format_value_label(total)))
+        return _small_value_table('Visible readout', rows)
+    if chart_type == 'bubble':
+        rows = []
+        for point in _bubble_points(chart)[:5]:
+            label = _shorten(point.get('label') or 'Point', 22)
+            value = f"{_format_value_label(point.get('x', 0))} / {_format_value_label(point.get('y', 0))}"
+            rows.append((label, value))
+        return _small_value_table('Position', rows)
+    if chart_type == 'matrix':
+        rows = [str(x) for x in _as_list(chart.get('rows'))[:4]]
+        cols = [str(x) for x in _as_list(chart.get('columns'))[:2]]
+        values = _as_list(chart.get('values'))
+        out = []
+        for ri, row in enumerate(rows):
+            raw_row = values[ri] if ri < len(values) and isinstance(values[ri], list) else []
+            visible = ' / '.join(_format_value_label(raw_row[ci]) for ci in range(min(len(cols), len(raw_row))))
+            out.append((_shorten(row, 22), visible or '-'))
+        return _small_value_table('Matrix readout', out)
+    return ''
+
+
+def _small_value_table(title: str, rows: List[tuple[str, str]]) -> str:
+    if not rows:
+        return ''
+    body = ['{\\scriptsize\\color{BOText}\\begin{tabular}{p{31mm}>{\\raggedleft\\arraybackslash}p{18mm}}\n']
+    body.append('\\multicolumn{2}{l}{\\textcolor{BOGreen}{\\bfseries ' + _tex(title) + '}}\\\\[2pt]\n')
+    for label, value in rows[:5]:
+        body.append(_tex(label) + ' & \\textbf{' + _tex(value) + '}\\\\[1pt]\n')
+    body.append('\\end{tabular}}\\par\n')
+    return ''.join(body)
 
 
 def _native_chart(chart: Dict[str, Any], *, compact: bool) -> str:
@@ -455,7 +559,7 @@ def _native_bar(chart: Dict[str, Any], *, compact: bool) -> str:
     if not categories or not series:
         return ''
     max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
-    width, height = (13.2, 3.4) if compact else (16.2, 7.4)
+    width, height = (13.2, 3.4) if compact else (16.2, 9.2)
     chart_h = height - 1.35
     left = 0.7
     group_w = (width - left - .35) / max(1, len(categories))
@@ -488,7 +592,7 @@ def _native_stacked_bar(chart: Dict[str, Any], *, compact: bool) -> str:
         return ''
     totals = [sum(max(0.0, item['values'][ci] if ci < len(item['values']) else 0.0) for item in series) for ci in range(len(categories))]
     max_value = max(totals + [1.0])
-    width, height = (13.2, 3.5) if compact else (16.2, 7.3)
+    width, height = (13.2, 3.5) if compact else (16.2, 9.0)
     chart_h = height - 1.35
     left = 0.8
     group_w = (width - left - .4) / max(1, len(categories))
@@ -518,7 +622,7 @@ def _native_line(chart: Dict[str, Any], *, compact: bool) -> str:
     if len(categories) < 2 or not series:
         return ''
     max_value = max([abs(v) for item in series for v in item['values'][:len(categories)]] + [1.0])
-    width, height = (13.2, 3.6) if compact else (16.2, 7.2)
+    width, height = (13.2, 3.6) if compact else (16.2, 9.0)
     left, bottom = .8, .78
     chart_w, chart_h = width - 1.25, height - 1.45
     colors = ['BOGreen', 'BOBlue', 'BONavy']
@@ -552,7 +656,7 @@ def _native_bubble(chart: Dict[str, Any], *, compact: bool) -> str:
     points = _bubble_points(chart)[:6 if compact else 8]
     if not points:
         return ''
-    width, height = (13.2, 3.5) if compact else (15.6, 5.2)
+    width, height = (13.2, 3.5) if compact else (15.6, 6.6)
     left, bottom = .85, .65
     chart_w, chart_h = width - 1.35, height - 1.25
     body = [_tikz_begin(width, height)]
@@ -1185,7 +1289,7 @@ def _safe_charts(value: Any) -> List[Dict[str, Any]]:
         chart = dict(item)
         chart['id'] = str(chart.get('id') or f'chart-{idx}')
         charts.append(chart)
-    return charts[:12]
+    return charts[:14]
 
 
 def _section_content_hints(section: Dict[str, Any]) -> List[str]:
