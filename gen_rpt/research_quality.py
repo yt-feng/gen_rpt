@@ -374,6 +374,9 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
 
     if len(charts) < 10 or len(charts) > 12:
         issues.append(f"charts 数量应为10-12个，当前为{len(charts)}个。")
+    chart_types = {str(chart.get("type") or "").lower() for chart in charts if isinstance(chart, dict)}
+    if len(charts) >= 10 and len(chart_types & {"stacked_bar", "line", "matrix", "bubble"}) < 2:
+        issues.append("charts 类型过于单一，需要混合使用 stacked_bar、line、matrix、bubble 等 LaTeX 原生图表。")
     for idx, chart in enumerate(charts, start=1):
         if not isinstance(chart, dict):
             issues.append(f"第{idx}个 chart 不是对象。")
@@ -1428,6 +1431,10 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
         chart["id"] = f"chart-{len(charts) + 1}"
         chart["exhibit_no"] = str(len(charts) + 1)
         charts.append(_normalize_chart_payload(chart, len(charts) + 1, topic, sections, language=language))
+    charts = _ensure_chart_type_mix(charts[:12], topic, sections, language=language)
+    for idx, chart in enumerate(charts, start=1):
+        chart["id"] = f"chart-{idx}"
+        chart["exhibit_no"] = str(idx)
     return charts[:12]
 
 
@@ -1558,6 +1565,29 @@ def _normalize_bubble_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
     chart["x_label"] = _clean_visible_text(chart.get("x_label") or "Likelihood")
     chart["y_label"] = _clean_visible_text(chart.get("y_label") or "Impact")
     return chart
+
+
+def _ensure_chart_type_mix(charts: List[Dict[str, Any]], topic: str, sections: List[Dict[str, Any]], *, language: str) -> List[Dict[str, Any]]:
+    if len(charts) < 6:
+        return charts
+    present = {str(chart.get("type") or "").lower() for chart in charts}
+    required = ["line", "bubble", "matrix", "stacked_bar"]
+    missing = [chart_type for chart_type in required if chart_type not in present]
+    if not missing:
+        return charts
+    fallback_by_type: Dict[str, Dict[str, Any]] = {}
+    for fallback in _fallback_charts_for_topic(topic, sections, language=language):
+        fallback_type = str(fallback.get("type") or "").lower()
+        fallback_by_type.setdefault(fallback_type, fallback)
+    replace_start = max(0, len(charts) - len(missing))
+    mixed = [dict(chart) for chart in charts]
+    for offset, chart_type in enumerate(missing):
+        replacement = dict(fallback_by_type.get(chart_type) or {})
+        if not replacement:
+            continue
+        target_idx = replace_start + offset
+        mixed[target_idx] = _normalize_chart_payload(replacement, target_idx + 1, topic, sections, language=language)
+    return mixed
 
 
 def _series_from_data(value: Any) -> tuple[List[str], List[Dict[str, Any]]]:

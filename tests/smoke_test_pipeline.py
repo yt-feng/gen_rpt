@@ -95,6 +95,9 @@ def main() -> None:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
     assert len(report.get("charts", [])) >= 10
+    chart_types = {chart.get("type") for chart in report.get("charts", [])}
+    assert {"line", "bubble", "matrix", "stacked_bar"} & chart_types
+    assert len(chart_types) >= 3
     chartjs_bar = next(chart for chart in report.get("charts", []) if chart.get("title") == "Chart.js bar payload should keep model data")
     assert chartjs_bar.get("categories") == ["2024", "2025", "2026"]
     assert chartjs_bar.get("series", [])[0].get("values") == [12.0, 18.0, 27.0]
