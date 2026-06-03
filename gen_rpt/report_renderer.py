@@ -17,7 +17,7 @@ REPORT_LABEL = THEME.get("report_label", "Deep Research Report")
 FONT_FAMILY = THEME.get("font_family", "Trebuchet MS, Aptos, Arial, sans-serif")
 PAGE_FORMAT = os.getenv("REPORT_PAGE_FORMAT", "A4").upper()
 PAGE_W, PAGE_H = (8.27, 11.69) if PAGE_FORMAT == "A4" else (6.93, 9.84)
-PAD_X, PAD_TOP, PAD_BOTTOM = (0.46, 0.42, 0.34) if PAGE_FORMAT == "A4" else (0.34, 0.34, 0.27)
+PAD_X, PAD_TOP, PAD_BOTTOM = (0.46, 0.42, 0.42) if PAGE_FORMAT == "A4" else (0.34, 0.34, 0.34)
 
 CSS = f"""
 @page {{ size:{PAGE_W}in {PAGE_H}in; margin:0; }}
@@ -57,8 +57,9 @@ li {{ margin-bottom:.034in; }}
 .side-note b {{ color:var(--accent2); display:block; font-size:6.6pt; letter-spacing:.07em; text-transform:uppercase; margin-bottom:.03in; }}
 .chapter-grid {{ display:grid; grid-template-columns:.54fr .46fr; gap:.25in; align-items:start; }}
 .chapter-grid.reverse {{ grid-template-columns:.48fr .52fr; }}
+.chapter-grid.text-grid {{ grid-template-columns:1fr 1fr; }}
 .body-copy p {{ font-size:9.15pt; line-height:1.34; }}
-.section-visual {{ width:100%; height:3.72in; object-fit:cover; display:block; }}
+.section-visual {{ width:100%; height:3.55in; object-fit:cover; display:block; }}
 .takeaway {{ border-left:.035in solid var(--accent); background:var(--panel); padding:.075in .095in; margin:.085in 0 .065in; page-break-inside:avoid; font-size:7.4pt; line-height:1.22; }}
 .takeaway strong {{ display:block; color:var(--accent2); font-size:6.4pt; letter-spacing:.06em; text-transform:uppercase; margin-bottom:.025in; }}
 .exhibit-img {{ width:100%; height:6.82in; object-fit:contain; display:block; margin:.12in 0 .08in; }}
@@ -305,30 +306,26 @@ def _render_chapter(parts: List[str], section: Dict[str, Any], assets: Dict[str,
     parts.append(f"<h2>{html.escape(_shorten(title, 118))}</h2>")
     if lead and _normalize_punctuation(lead).lower() != _normalize_punctuation(title).lower():
         parts.append(f"<div class='lead'>{html.escape(_shorten(lead, 290))}</div>")
-    reverse = " reverse" if idx % 2 == 0 else ""
-    parts.append(f"<div class='chapter-grid{reverse}'>")
-    first, second = ("<div class='body-copy'>", "<div>")
+
     if idx % 2 == 0:
-        first, second = "<div>", "<div class='body-copy'>"
-    parts.append(first)
-    if idx % 2 == 0:
+        parts.append("<div class='chapter-grid reverse'>")
+        parts.append("<div>")
         _append_visual(parts, visual)
-    else:
+        parts.append("</div><div class='body-copy'>")
         for paragraph in paragraphs[:3]:
             parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
         _append_takeaways(parts, _section_content_hints(section), labels)
-    parts.append("</div>")
-    parts.append(second)
-    if idx % 2 == 0:
-        for paragraph in paragraphs[:4]:
+        parts.append("</div></div>")
+    else:
+        parts.append("<div class='chapter-grid text-grid'>")
+        parts.append("<div class='body-copy'>")
+        for paragraph in paragraphs[:2]:
+            parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
+        parts.append("</div><div class='body-copy'>")
+        for paragraph in paragraphs[2:4]:
             parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
         _append_takeaways(parts, _section_content_hints(section), labels)
-    else:
-        _append_visual(parts, visual)
-    parts.append("</div></div>")
-    trailing = paragraphs[3:6] if idx % 2 == 1 else paragraphs[4:6]
-    for paragraph in trailing:
-        parts.append(f"<p>{html.escape(_shorten(paragraph, 520))}</p>")
+        parts.append("</div></div>")
     parts.append("</section>")
 
 

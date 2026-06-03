@@ -983,29 +983,34 @@ def _ensure_author_credentials(value: Any, *, language: str) -> List[Dict[str, s
 def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: str, fact_pack: ResearchFactPack, *, language: str) -> List[Dict[str, Any]]:
     out: List[Dict[str, Any]] = []
     seen = set()
+    blueprints = _fallback_section_blueprints(topic, fact_pack, language=language)
     for idx, section in enumerate(sections, start=1):
         if not isinstance(section, dict):
             continue
         title = str(section.get("title") or "").strip()
+        if _is_generic_title(title):
+            title = _fallback_section_title(idx, blueprints, topic, fact_pack, language=language)
         key = re.sub(r"\W+", "", title.lower())[:120]
         if not title or key in seen:
             continue
         seen.add(key)
         normalized = dict(section)
+        normalized["title"] = title
         normalized["id"] = str(normalized.get("id") or f"section-{len(out) + 1}")
         normalized["visual_hint"] = str(normalized.get("visual_hint") or f"image-{len(out) + 1}")
         paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
         if len(paragraphs) < 3:
             paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
         normalized["paragraphs"] = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:5]
-        if len(str(normalized.get("lead") or "").strip()) < 40:
+        lead = str(normalized.get("lead") or "").strip()
+        if len(lead) < 40 or _is_generic_title(lead):
             normalized["lead"] = _derive_section_lead(title, normalized["paragraphs"], language=language)
         normalized["key_takeaways"] = _ensure_takeaways(normalized.get("key_takeaways"), summary, len(out), language=language)
         out.append(normalized)
         if len(out) >= 10:
             break
 
-    for blueprint in _fallback_section_blueprints(topic, fact_pack, language=language):
+    for blueprint in blueprints:
         if len(out) >= 8:
             break
         key = re.sub(r"\W+", "", blueprint["title"].lower())[:120]
@@ -1019,6 +1024,15 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         section["key_takeaways"] = _ensure_takeaways(section.get("key_takeaways"), summary, idx - 1, language=language)
         out.append(section)
     return out[:10]
+
+
+def _fallback_section_title(idx: int, blueprints: List[Dict[str, Any]], topic: str, fact_pack: ResearchFactPack, *, language: str) -> str:
+    if blueprints:
+        return str(blueprints[(idx - 1) % len(blueprints)].get("title") or "").strip()
+    topic_text = str(topic or fact_pack.topic or "the topic").strip()
+    if language == "zh":
+        return f"{topic_text}应转化为分阶段管理判断"
+    return f"{topic_text} should be translated into staged management decisions"
 
 
 def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, language: str) -> List[Dict[str, Any]]:

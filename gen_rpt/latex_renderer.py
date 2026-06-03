@@ -10,7 +10,7 @@ from typing import Any, Dict, List
 
 HEADER = r'''
 \documentclass[10pt,a4paper]{article}
-\usepackage[a4paper,margin=14mm,top=13mm,bottom=14mm]{geometry}
+\usepackage[a4paper,margin=14mm,top=18mm,bottom=20mm,headheight=12pt,headsep=5mm,footskip=9mm]{geometry}
 \usepackage{fontspec}
 \usepackage{xcolor}
 \usepackage{graphicx}

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import sys
 from pathlib import Path
@@ -45,6 +46,7 @@ def main() -> None:
         "methodology_note": "The smoke report uses public source backup, evidence-boundary checks and validation gaps to test rendering.",
         "author_credentials": [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Evidence checks and report QA."}],
         "sections": [
+            {"title": "Section 1", "lead": "Section 1", "paragraphs": ["Generic section title should be replaced.", "The replacement should preserve useful section prose."], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
             {"title": "1. Numbered title should be cleaned", "lead": "Lead", "paragraphs": ["Paragraph A", "Paragraph B"], "key_takeaways": ["Takeaway"], "visual_hint": "image-1"},
             "A string section should not break rendering",
         ],
@@ -84,6 +86,11 @@ def main() -> None:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
     assert len(report.get("charts", [])) >= 5
+    generic_title = re.compile(r"^(section|chapter)\s*\d*$", re.I)
+    for section in report.get("sections", []):
+        title = str(section.get("title") or "").strip()
+        assert not generic_title.match(title), f"generic section title survived: {title}"
+        assert len(title) >= 12, f"section title is too thin: {title}"
     report["reference_institutions"] = summarize_reference_institutions(report.get("references", []), [])
 
     asset_map = copy_or_generate_brand_assets(assets)
