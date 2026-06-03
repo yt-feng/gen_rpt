@@ -1,0 +1,180 @@
+pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+No file report_latex.aux.
+(/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 3428) in paragraph at lines 103--103
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion commercialization is accelerating but remai
+ns a
+
+Underfull \hbox (badness 5091) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 decade or more from grid-scale deployment. Private
+
+Underfull \hbox (badness 1859) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 security, decarbonization, and geopolitics are profo
+und,
+
+Underfull \hbox (badness 1281) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 but near-term capital allocation should be risk-adju
+sted.
+
+Underfull \hbox (badness 2088) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 leading private fusion ventures, focusing on technol
+ogy
+
+Underfull \hbox (badness 5548) in paragraph at lines 108--109
+[]\TU/NotoSansCJKSC(0)/m/n/8 The CEO-level question is not whether Nuclear fusi
+on
+
+Underfull \hbox (badness 4132) in paragraph at lines 108--109
+\TU/NotoSansCJKSC(0)/m/n/8 commercialization outlook and strategic implications
+ is
+
+Underfull \hbox (badness 4940) in paragraph at lines 109--110
+[]\TU/NotoSansCJKSC(0)/m/n/8 Management should separate verified facts, directi
+onal
+[3] [4] [5] [6] [7]
+Underfull \hbox (badness 3977) in paragraph at lines 188--188
+\TU/NotoSansCJKSC(0)/m/n/17 lion now, or wait for fur-
+
+Underfull \hbox (badness 2261) in paragraph at lines 190--190
+\TU/NotoSansCJKSC(0)/m/n/9 by 2035. Your board is divided: some see a first-mov
+er
+
+Underfull \hbox (badness 2050) in paragraph at lines 191--191
+[]\TU/NotoSansCJKSC(0)/b/n/9 Invest a smaller amount ($50 million) as a convert
+ible
+[8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 10000) in paragraph at lines 396--397
+[]\TU/NotoSansCJKSC(0)/m/n/9 Technological risk: Key engineering challenges
+
+Underfull \hbox (badness 8189) in paragraph at lines 397--398
+\TU/NotoSansCJKSC(0)/m/n/9 with renewables and storage by the time it is
+
+Underfull \hbox (badness 1661) in paragraph at lines 397--398
+\TU/NotoSansCJKSC(0)/m/n/9 costs continue to decline faster than fusion LCOE
+
+Underfull \hbox (badness 1152) in paragraph at lines 399--400
+[]\TU/NotoSansCJKSC(0)/m/n/9 Geopolitical risk: Concentration of fusion intelle
+c-
+[19] [20] [21] (./report_latex.aux)
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+ )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
+eric/pgf/modules/pgfmoduleshapes.code.tex
+) (/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmoduleplot.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-0-65
+.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/compatibility/pgfcomp-version-1-18
+.sty)) (/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgffor.sty
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/utilities/pgfkeys.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgfkeys.code.tex))
+(/usr/share/texlive/texmf-dist/tex/latex/pgf/math/pgfmath.sty
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/math/pgfmath.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/utilities/pgffor.code.tex))
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/tikz.code.tex
+
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryplothandlers
+.code.tex)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/modules/pgfmodulematrix.code.tex
+)
+(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik
+zlibrarytopaths.code.tex)))
+(/usr/share/texlive/texmf-dist/tex/latex/tools/tabularx.sty
+(/usr/share/texlive/texmf-dist/tex/latex/tools/array.sty))
+(/usr/share/texlive/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/tools/multicol.sty)
+(/usr/share/texlive/texmf-dist/tex/latex/enumitem/enumitem.sty)
+(./report_latex.aux) (/usr/share/texlive/texmf-dist/tex/latex/base/ts1cmr.fd)
+*geometry* driver: auto-detecting
+*geometry* detected driver: xetex
+[1] [2]
+Underfull \hbox (badness 3428) in paragraph at lines 103--103
+[]\TU/NotoSansCJKSC(0)/m/n/9 Fusion commercialization is accelerating but remai
+ns a
+
+Underfull \hbox (badness 5091) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 decade or more from grid-scale deployment. Private
+
+Underfull \hbox (badness 1859) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 security, decarbonization, and geopolitics are profo
+und,
+
+Underfull \hbox (badness 1281) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 but near-term capital allocation should be risk-adju
+sted.
+
+Underfull \hbox (badness 2088) in paragraph at lines 103--103
+\TU/NotoSansCJKSC(0)/m/n/9 leading private fusion ventures, focusing on technol
+ogy
+
+Underfull \hbox (badness 5548) in paragraph at lines 108--109
+[]\TU/NotoSansCJKSC(0)/m/n/8 The CEO-level question is not whether Nuclear fusi
+on
+
+Underfull \hbox (badness 4132) in paragraph at lines 108--109
+\TU/NotoSansCJKSC(0)/m/n/8 commercialization outlook and strategic implications
+ is
+
+Underfull \hbox (badness 4940) in paragraph at lines 109--110
+[]\TU/NotoSansCJKSC(0)/m/n/8 Management should separate verified facts, directi
+onal
+[3] [4] [5] [6] [7]
+Underfull \hbox (badness 3977) in paragraph at lines 188--188
+\TU/NotoSansCJKSC(0)/m/n/17 lion now, or wait for fur-
+
+Underfull \hbox (badness 2261) in paragraph at lines 190--190
+\TU/NotoSansCJKSC(0)/m/n/9 by 2035. Your board is divided: some see a first-mov
+er
+
+Underfull \hbox (badness 2050) in paragraph at lines 191--191
+[]\TU/NotoSansCJKSC(0)/b/n/9 Invest a smaller amount ($50 million) as a convert
+ible
+[8] [9] [10] [11] [12] [13] [14] [15] [16] [17] [18]
+Underfull \hbox (badness 10000) in paragraph at lines 396--397
+[]\TU/NotoSansCJKSC(0)/m/n/9 Technological risk: Key engineering challenges
+
+Underfull \hbox (badness 8189) in paragraph at lines 397--398
+\TU/NotoSansCJKSC(0)/m/n/9 with renewables and storage by the time it is
+
+Underfull \hbox (badness 1661) in paragraph at lines 397--398
+\TU/NotoSansCJKSC(0)/m/n/9 costs continue to decline faster than fusion LCOE
+
+Underfull \hbox (badness 1152) in paragraph at lines 399--400
+[]\TU/NotoSansCJKSC(0)/m/n/9 Geopolitical risk: Concentration of fusion intelle
+c-
+[19] [20] [21] (./report_latex.aux) )
+(see the transcript file for additional information)
+Output written on report_latex.pdf (21 pages).
+Transcript written on report_latex.log.
