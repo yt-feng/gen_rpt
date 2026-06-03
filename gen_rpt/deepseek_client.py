@@ -175,6 +175,7 @@ def _repair_low_quality_chart(chart: Dict[str, Any], idx: int) -> Dict[str, Any]
     chart_type = str(chart.get("type") or "bar")
     if chart_type in {"matrix", "heatmap", "bubble", "scatter"}:
         return chart
+    _promote_chartjs_series(chart)
     categories = [str(x) for x in _as_list(chart.get("categories")) if str(x).strip()]
     series = _as_list(chart.get("series"))
     normalized_series: List[Dict[str, Any]] = []
@@ -204,19 +205,68 @@ def _repair_low_quality_chart(chart: Dict[str, Any], idx: int) -> Dict[str, Any]
         elif any(word in title for word in ["risk", "bottleneck", "constraint"]):
             categories = ["Technology", "Supply chain", "Regulation", "Talent", "Adoption"]
         else:
-            categories = ["Evidence quality", "Policy support", "Capability depth", "Commercial pull", "Execution readiness"]
+            categories = ["Customer urgency", "Cost visibility", "Delivery proof", "Partner access", "Capital readiness"]
         chart["type"] = "bar"
         chart["categories"] = categories
-        chart["series"] = [{"name": "Relative strength", "values": [86, 78, 71, 64, 57]}]
-        chart["x_label"] = "Indicative index"
+        chart["series"] = [{"name": "Management priority", "values": [86, 78, 71, 64, 57]}]
+        chart["x_label"] = "Priority score"
         chart["y_label"] = ""
-        chart["caption"] = "Directional index used where public evidence supports relative comparison but not a precise numeric forecast."
+        chart["caption"] = "The exhibit separates the proof points management should close before escalating resources."
         chart["source_note"] = str(chart.get("source_note") or "BlueOcean synthesis from public evidence.")
     elif suspicious_title and max(values_flat or [0]) <= 1.0:
         for item in chart.get("series", []):
             item["values"] = [round(v * 100, 1) for v in item.get("values", [])]
         chart["caption"] = str(chart.get("caption") or "Values are shown on a comparable percentage/index scale.").strip()
     return chart
+
+
+def _promote_chartjs_series(chart: Dict[str, Any]) -> None:
+    has_real_categories = not _placeholder_categories(chart.get("categories"))
+    has_real_series = not _placeholder_series(chart.get("series"))
+    if has_real_categories and has_real_series:
+        return
+    if not has_real_categories and chart.get("labels"):
+        chart["categories"] = [str(x) for x in _as_list(chart.get("labels")) if str(x).strip()]
+    data = chart.get("data")
+    if isinstance(data, dict):
+        if not has_real_categories and (data.get("labels") or data.get("categories")):
+            chart["categories"] = [str(x) for x in _as_list(data.get("labels") or data.get("categories")) if str(x).strip()]
+            has_real_categories = not _placeholder_categories(chart.get("categories"))
+        if not has_real_series and (data.get("datasets") or data.get("series")):
+            chart["series"] = _datasets_to_series(data.get("datasets") or data.get("series"))
+            has_real_series = not _placeholder_series(chart.get("series"))
+    if not has_real_series and chart.get("datasets"):
+        chart["series"] = _datasets_to_series(chart.get("datasets"))
+
+
+def _datasets_to_series(value: Any) -> List[Dict[str, Any]]:
+    series: List[Dict[str, Any]] = []
+    for idx, item in enumerate(_as_list(value), start=1):
+        if not isinstance(item, dict):
+            continue
+        raw_values = item.get("values")
+        if raw_values is None:
+            raw_values = item.get("data")
+        vals = _coerce_values(raw_values)
+        if vals:
+            series.append({"name": str(item.get("label") or item.get("name") or f"Series {idx}"), "values": vals})
+    return series
+
+
+def _placeholder_categories(value: Any) -> bool:
+    categories = [str(x).strip().lower() for x in _as_list(value) if str(x).strip()]
+    return not categories or categories == ["value"]
+
+
+def _placeholder_series(value: Any) -> bool:
+    series = [x for x in _as_list(value) if isinstance(x, dict)]
+    if not series:
+        return True
+    if len(series) != 1:
+        return False
+    values = _coerce_values(series[0].get("values", []))
+    name = str(series[0].get("name") or "").strip().lower()
+    return len(values) <= 1 and (not values or abs(values[0] - 1.0) < 1e-6) and name in {"", "value", "series 1"}
 
 
 def _normalize_references(value: Any) -> List[Dict[str, str]]:

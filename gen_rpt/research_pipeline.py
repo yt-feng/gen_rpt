@@ -222,9 +222,10 @@ Hard constraints:
 - scenario_vignettes: at least 1 CEO decision scenario with title, situation, ceo_question, recommended_move, watchouts.
 - methodology_note: describe public source collection, source limits, cross-checking and validation gaps. Do not describe internal consulting frameworks.
 - author_credentials: 1-3 team/institution credentials for the final report.
-- sections: 7-10 items, each with 3-5 coherent paragraphs and distinct analysis.
-- charts: 10-12 items, using a mix of bar, stacked_bar, line, matrix and bubble only. Do not use pie or donut charts. Every chart must include concrete data arrays, categories, labels and source_note; do not provide decorative or generic visuals.
+- sections: 7-10 items, each with 5-7 coherent paragraphs and distinct analysis. Later sections must be as complete as earlier sections.
+- charts: 10-12 items, using a mix of bar, stacked_bar, line, matrix and bubble only. Do not use pie or donut charts. Every bar, stacked_bar and line chart must include at least 3 categories and multiple non-zero data points; avoid single-bar or single-point charts. Every chart must include concrete data arrays, categories, labels and source_note; do not provide decorative or generic visuals.
 - Do not output visible process labels such as Future action agenda, What to watch, risk register, action plan, management implication, evidence boundary, internal framework or stress test. Use organic CEO-facing prose only.
+- Do not write self-referential process language such as "This chapter concludes", "This section concludes", "This chapter shows", "This section finds", "this chapter frames the topic" or similar wording. Write the conclusion directly from the reader's perspective.
 - Every section must have visual_hint set to image-N matching the section number whenever possible (image-1, image-2, ...). This lets the renderer use topic-specific Pollinations visuals.
 - Chart titles and categories must be specific to the topic, not generic labels such as Policy, Platforms, Creators, Commerce or Technology.
 - Do not show Chinese text in the final report.

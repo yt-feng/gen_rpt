@@ -91,6 +91,7 @@ def main() -> None:
     validation_issues = validate_report(report, fact_pack, language="en")
     assert validation_issues
     report = apply_deterministic_report_fixes(report, fact_pack, language="en")
+    (out / "report_payload.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     for required_key in ["executive_summary_text", "key_findings", "action_plan", "risk_register", "scenario_vignettes", "methodology_note", "author_credentials"]:
         assert report.get(required_key), f"{required_key} should be present after deterministic fixes"
     assert len(report.get("sections", [])) >= 7
@@ -108,6 +109,24 @@ def main() -> None:
     nested_labels = {point.get("label") for point in nested_bubble.get("points", [])}
     assert {"CFS", "Helion", "TAE", "ITER"}.issubset(nested_labels)
     for chart in report.get("charts", []):
+        chart_type = str(chart.get("type") or "").lower()
+        if chart_type in {"bar", "stacked_bar", "line"}:
+            categories = [str(x) for x in chart.get("categories", [])]
+            values_by_category = [0.0 for _ in categories]
+            nonzero_count = 0
+            for series in chart.get("series", []):
+                for idx, value in enumerate(series.get("values", [])[: len(categories)]):
+                    numeric = float(value or 0)
+                    values_by_category[idx] += abs(numeric)
+                    if abs(numeric) > 1e-6:
+                        nonzero_count += 1
+            assert len(categories) >= 3, f"weak series chart survived with too few categories: {chart.get('title')}"
+            assert nonzero_count > 1, f"single-point series chart survived: {chart.get('title')}"
+            assert sum(1 for value in values_by_category if abs(value) > 1e-6) >= 3, f"single-bar chart survived: {chart.get('title')}"
+        chart_reader_text = " ".join(str(chart.get(key) or "") for key in ("subtitle", "caption", "source_note")).lower()
+        assert "directional index used" not in chart_reader_text
+        assert "actual percentages should be replaced" not in chart_reader_text
+        assert "weakly supported areas should remain" not in chart_reader_text
         if chart.get("type") == "bubble":
             labels = [str(point.get("label") or "") for point in chart.get("points", [])]
             assert len(labels) >= 3
@@ -120,9 +139,12 @@ def main() -> None:
         assert not generic_title.match(title), f"generic section title survived: {title}"
         assert len(title) >= 12, f"section title is too thin: {title}"
         assert len(lead) >= 40 and not generic_title.match(lead), f"weak section lead survived: {lead}"
-        for paragraph in section.get("paragraphs", []):
-            text = str(paragraph or "").strip()
+        paragraphs = [str(x or "").strip() for x in section.get("paragraphs", []) if str(x or "").strip()]
+        assert len(paragraphs) >= 5, f"section is too short: {title}"
+        assert len(lead) + sum(len(x) for x in paragraphs) >= 1550, f"section lacks benchmark-like depth: {title}"
+        for text in paragraphs:
             assert not generic_title.match(text), f"placeholder paragraph survived: {text}"
+            assert not re.search(r"\bthis\s+(chapter|section)\s+(concludes|finds|shows|frames|explains|argues|will|is about)", text, re.I)
             if len(text) >= 120:
                 key = re.sub(r"\W+", "", text.lower())[:220]
                 assert key not in long_para_keys, f"duplicate long paragraph survived: {text[:90]}"
@@ -155,7 +177,7 @@ def main() -> None:
     latex_text = (out / "report_latex.tex").read_text(encoding="utf-8")
     assert r"Fusion\BOApos{}s timetable" in latex_text
     section_count = len(report.get("sections", []))
-    chart_pages = (len(report.get("charts", [])) + 1) // 2
+    chart_pages = len(report.get("charts", []))
     about_page = 4 + section_count + chart_pages
     assert f"\\bfseries {about_page:02d}" in latex_text and "About the research" in latex_text
     assert f"<td class='contents-page'>{about_page:02d}</td><td><div class='contents-title'>About the research</div>" in html_text
@@ -196,6 +218,12 @@ def main() -> None:
             "The second lens is economics",
             "The third lens is ecosystem readiness",
             "This chapter therefore frames the topic",
+            "This chapter concludes",
+            "This section concludes",
+            "This chapter shows",
+            "This section finds",
+            "Directional index used",
+            "DECISION IMPLICATIONS",
         ]:
             assert internal_label.lower() not in lowered
         for structured_artifact in ["executive_summary_text", "{'title'", r"\boapos{}title"]:

@@ -7,6 +7,7 @@ on:
     paths:
       - 'gen_rpt/**'
       - 'tests/**'
+      - 'tools/**'
       - '.github/workflows/generate_deep_research.yml'
       - 'requirements.txt'
   workflow_dispatch:
@@ -81,7 +82,7 @@ jobs:
 
       - name: Python syntax check
         run: |
-          python -m compileall -q gen_rpt tests
+          python -m compileall -q gen_rpt tests tools
 
       - name: Install system packages
         run: |
@@ -109,6 +110,7 @@ jobs:
           fi
 
       - name: Generate report
+        id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
@@ -144,6 +146,11 @@ jobs:
             --model "$MODEL" \
             --out-root reports \
             $EXTRA_ARGS
+          echo "report_dir=reports/$SLUG" >> "$GITHUB_OUTPUT"
+
+      - name: Audit generated report
+        run: |
+          python tools/local_report_audit.py "${{ steps.generate_report.outputs.report_dir }}"
 
       - name: Commit generated report back to repo
         run: |

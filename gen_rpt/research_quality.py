@@ -57,6 +57,21 @@ META_LABEL_PATTERNS = (
     "样例图卡",
 )
 
+PROCESS_LANGUAGE_PATTERNS = (
+    r"\bthis\s+(?:chapter|section)\s+(?:therefore\s+)?(?:concludes|finds|shows|argues|frames|explains|demonstrates|sets\s+out|assesses|analyzes|translates)\s+that\b",
+    r"\bthis\s+(?:chapter|section)\s+(?:therefore\s+)?(?:frames|sets\s+out|assesses|analyzes|explains|translates)\s+the\s+(?:topic|issue|question)\b",
+    r"\bthe\s+(?:chapter|section)\s+(?:therefore\s+)?(?:concludes|finds|shows|argues|frames|explains|demonstrates|sets\s+out|assesses|analyzes|translates)\s+that\b",
+    r"\bthis\s+(?:chapter|section)\s+is\s+about\b",
+    r"\bthis\s+(?:chapter|section)\s+will\b",
+)
+
+GENERIC_CHART_CAPTION_PATTERNS = (
+    "directional index used where public evidence supports relative comparison",
+    "this exhibit is a directional management view",
+    "actual percentages should be replaced with verified cost-model data",
+    "weakly supported areas should remain diligence tasks",
+)
+
 GENERIC_SECTION_TITLES = (
     "overview",
     "introduction",
@@ -193,6 +208,7 @@ DATE_RE = re.compile(r"(?:20\d{2}|19\d{2})(?:[年\-/\.]\s?\d{1,2})?(?:[月\-/\.]
 MONEY_RE = re.compile(r"(?:US\$|USD|RMB|HK\$|CNY|人民币|美元|港元|欧元|亿元|亿美元|万元|million|billion|bn|mn)", re.I)
 URL_RE = re.compile(r"https?://[^\s,;)\]]+")
 CJK_RE = re.compile(r"[\u4e00-\u9fff]")
+PROCESS_LANGUAGE_RE = re.compile("|".join(f"(?:{pattern})" for pattern in PROCESS_LANGUAGE_PATTERNS), re.I)
 
 EVIDENCE_KEYWORDS = (
     "revenue",
@@ -351,8 +367,13 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
             issues.append(f"第{idx}章标题过于泛化，需要改成结论型标题：{title[:80]}")
         if len(lead) < 40:
             issues.append(f"第{idx}章 lead 过短，需要一句话说明该章结论和管理含义。")
-        if len(paragraphs) < 3:
-            issues.append(f"第{idx}章正文段落不足，需要至少3段有证据支撑的连续分析。")
+        min_paragraphs = 5 if language == "en" else 4
+        min_chars = 1700 if language == "en" else 850
+        section_text_len = len(lead) + sum(len(p) for p in paragraphs)
+        if len(paragraphs) < min_paragraphs:
+            issues.append(f"第{idx}章正文段落不足，需要至少{min_paragraphs}段有证据支撑的连续分析。")
+        if section_text_len < min_chars:
+            issues.append(f"第{idx}章正文密度不足，当前约{section_text_len}字符；需要更接近标杆报告的完整分析页。")
         long_paras = [p for p in paragraphs if len(p) > (820 if language == "en" else 520)]
         if long_paras:
             issues.append(f"第{idx}章存在过长段落，需要拆成更适合正式报告排版和扫读的短段。")
@@ -388,15 +409,24 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
         if _is_generic_chart_title(title, categories):
             issues.append(f"第{idx}个 chart 仍是泛化图表，需要贴合选题和资料证据：{title[:80]}")
         chart_type = str(chart.get("type") or "").lower()
+        if chart_type in {"bar", "stacked_bar", "line"} and _weak_series_chart(chart):
+            issues.append(f"第{idx}个 chart 数据过薄或包含单柱/单点图，需要至少3个有效分类和多个非零数据点。")
         if chart_type in {"bubble", "scatter", "risk_matrix", "quadrant"}:
             points = _best_bubble_points(chart)
             if _weak_bubble_points(points):
                 issues.append(f"第{idx}个 bubble chart 数据点不足或仍是占位标签，需要至少3个真实维度点。")
+        chart_reader_text = " ".join(str(chart.get(key) or "") for key in ("subtitle", "caption", "source_note")).lower()
+        generic_caption_hits = [p for p in GENERIC_CHART_CAPTION_PATTERNS if p in chart_reader_text]
+        if generic_caption_hits:
+            issues.append(f"第{idx}个 chart 仍有模板化说明，需要改成图表自身的解释。")
 
     lower = text.lower()
     meta_hits = [p for p in META_LABEL_PATTERNS if p.lower() in lower]
     if meta_hits:
         issues.append("正式报告中仍出现内部元标签：" + "、".join(meta_hits))
+    process_hits = sorted({match.group(0) for match in PROCESS_LANGUAGE_RE.finditer(text)})
+    if process_hits:
+        issues.append("正式报告中仍出现章节自我描述/思考过程语言：" + "、".join(process_hits[:6]))
     if "..." in text or "…" in text:
         issues.append("正式报告中仍有可见省略号，可能来自截断，需要改写成完整句子。")
     if language == "en" and CJK_RE.search(text):
@@ -453,7 +483,7 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
         raw_paragraphs = [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()]
         paragraphs = [p for p in raw_paragraphs if not _is_placeholder_section_paragraph(p, str(section.get("title") or ""))]
         if len(paragraphs) < 3:
-            paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
+            paragraphs.extend(_supplement_paragraphs(fact_pack, title=str(section.get("title") or topic), language=language, needed=3 - len(paragraphs)))
         paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)
         section["paragraphs"] = paragraphs[:8]
         if not str(section.get("lead") or "").strip() and paragraphs:
@@ -765,6 +795,8 @@ def _clean_visible_text(value: Any) -> str:
     text = str(value or "")
     for pattern in META_LABEL_PATTERNS:
         text = re.sub(re.escape(pattern), "", text, flags=re.I)
+    for pattern in PROCESS_LANGUAGE_PATTERNS:
+        text = re.sub(pattern + r"\s*", "", text, flags=re.I)
     replacements = [
         (r"\bCEO decision scenario\b", "board choice under uncertainty"),
         (r"\bCEO investment committee scenario\b", "board choice under uncertainty"),
@@ -776,6 +808,12 @@ def _clean_visible_text(value: Any) -> str:
         (r"\bEvidence boundary:\s*", "The public record shows that "),
         (r"\bEvidence:\s*", ""),
         (r"\bManagement implication:\s*", ""),
+        (r"\bThe management implication is clear:\s*", ""),
+        (r"\bThe next management move is clear:\s*", ""),
+        (r"\bThis should remain a directional conclusion because\s*", "The available record supports a directional view because "),
+        (r"\bThis point should be validated further because\s*", "Leadership should validate whether "),
+        (r"\bThis assumption should stay on the watchlist because\s*", "This assumption needs continued scrutiny because "),
+        (r"\bThe diligence gap is that\s*", "The unresolved commercial question is whether "),
         (r"\bpublic-evidence boundary\b", "available public record"),
         (r"\bevidence-boundary\b", "available public record"),
         (r"\bevidence boundary\b", "available public record"),
@@ -789,7 +827,15 @@ def _clean_visible_text(value: Any) -> str:
         text = re.sub(pattern, replacement, text, flags=re.I)
     text = text.replace("…", "")
     text = re.sub(r"\.{3,}", ".", text)
+    text = _sentence_case_if_needed(text)
     return re.sub(r"\s+", " ", text).strip()
+
+
+def _sentence_case_if_needed(text: str) -> str:
+    cleaned = str(text or "").strip()
+    if not cleaned:
+        return cleaned
+    return cleaned[:1].upper() + cleaned[1:] if cleaned[:1].islower() else cleaned
 
 
 def _walk_text(value: Any, fn) -> None:
@@ -1112,23 +1158,27 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         normalized["visual_hint"] = str(normalized.get("visual_hint") or f"image-{len(out) + 1}")
         raw_paragraphs = [str(x).strip() for x in _as_list(normalized.get("paragraphs")) if str(x).strip()]
         paragraphs = [p for p in raw_paragraphs if not _is_placeholder_section_paragraph(p, title)]
-        if len(paragraphs) < 3:
-            paragraphs.extend(_supplement_paragraphs(fact_pack, language=language, needed=3 - len(paragraphs)))
-        normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:5]
+        if len(paragraphs) < 5:
+            paragraphs.extend(_supplement_paragraphs(fact_pack, title=title, language=language, needed=5 - len(paragraphs)))
+        normalized_paragraphs = _split_long_paragraphs(_dedupe_texts(paragraphs), language=language)[:7]
         used_blueprint_paragraphs = False
         if blueprint and _section_paragraphs_are_placeholder(normalized_paragraphs):
-            normalized_paragraphs = [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()][:5]
+            normalized_paragraphs = [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()][:7]
             used_blueprint_paragraphs = True
-        while len(normalized_paragraphs) < 3:
+        if blueprint:
+            normalized_paragraphs = _dedupe_texts(normalized_paragraphs + [str(x).strip() for x in _as_list(blueprint.get("paragraphs")) if str(x).strip()])
+        target_paragraphs = 5 if language == "en" else 4
+        while len(normalized_paragraphs) < target_paragraphs:
             normalized_paragraphs.append(_completion_paragraph(title, len(normalized_paragraphs), language=language))
-        normalized["paragraphs"] = normalized_paragraphs[:5]
+        normalized_paragraphs = _ensure_section_depth(title, normalized_paragraphs, fact_pack, language=language)
+        normalized["paragraphs"] = normalized_paragraphs[:7]
         lead = str(normalized.get("lead") or "").strip()
         if used_blueprint_paragraphs and blueprint and str(blueprint.get("lead") or "").strip():
             lead = str(blueprint.get("lead") or "").strip()
         if len(lead) < 40 or _is_generic_title(lead):
             normalized["lead"] = _derive_section_lead(title, normalized["paragraphs"], language=language)
         else:
-            normalized["lead"] = lead
+            normalized["lead"] = _clean_visible_text(lead)
         normalized["key_takeaways"] = _ensure_takeaways(normalized.get("key_takeaways"), summary, len(out), language=language)
         out.append(normalized)
         if len(out) >= 10:
@@ -1146,6 +1196,8 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         section["id"] = f"section-{idx}"
         section["visual_hint"] = f"image-{idx}"
         section["key_takeaways"] = _ensure_takeaways(section.get("key_takeaways"), summary, idx - 1, language=language)
+        section["paragraphs"] = _ensure_section_depth(section["title"], [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()], fact_pack, language=language)[:7]
+        section["lead"] = _clean_visible_text(str(section.get("lead") or ""))
         out.append(section)
     return out[:10]
 
@@ -1277,13 +1329,13 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
     prefixes = (
         [
             "For leadership teams, ",
-            "The management implication is clear: ",
             "A practical reading is that ",
             "The decision lens is that ",
             "For capital allocation, ",
             "The operating takeaway is that ",
             "From a board perspective, ",
-            "The next management move is clear: ",
+            "The commercial implication is that ",
+            "The board-level question is whether ",
         ]
         if language == "en"
         else [
@@ -1299,14 +1351,14 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
     )
     evidence_prefixes = (
         [
-            "This should remain a directional conclusion because ",
+            "The available record supports a directional view because ",
             "The supporting record is still incomplete: ",
-            "This point should be validated further because ",
-            "The current source base supports only a bounded conclusion: ",
+            "Leadership should validate whether ",
+            "The current source base supports only a bounded view: ",
             "Before a major commitment, management should verify that ",
-            "The diligence gap is that ",
+            "The unresolved commercial question is whether ",
             "The available record suggests caution: ",
-            "This assumption should stay on the watchlist because ",
+            "This assumption needs continued scrutiny because ",
         ]
         if language == "en"
         else [
@@ -1370,15 +1422,51 @@ def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: Li
     return {"title": title, "lead": lead, "paragraphs": paragraphs, "key_takeaways": takeaways}
 
 
+def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: ResearchFactPack, *, language: str) -> List[str]:
+    target_count = 5 if language == "en" else 4
+    target_chars = 1700 if language == "en" else 850
+    cleaned = [p for p in _dedupe_texts(paragraphs) if not _is_placeholder_section_paragraph(p, title)]
+    additions = _section_depth_additions(title, fact_pack, language=language)
+    add_idx = 0
+    while (len(cleaned) < target_count or sum(len(p) for p in cleaned) < target_chars) and add_idx < len(additions):
+        cleaned = _dedupe_texts(cleaned + [additions[add_idx]])
+        add_idx += 1
+    while len(cleaned) < target_count:
+        cleaned.append(_completion_paragraph(title, len(cleaned), language=language))
+    return _dedupe_texts(cleaned)
+
+
+def _section_depth_additions(title: str, fact_pack: ResearchFactPack, *, language: str) -> List[str]:
+    title_text = _shorten(str(title or "the opportunity"), 120)
+    numeric_fact = _shorten(fact_pack.numeric_facts[0], 300) if fact_pack.numeric_facts else ""
+    dated_fact = _shorten(fact_pack.dated_facts[0], 260) if fact_pack.dated_facts else ""
+    evidence_fact = _shorten(fact_pack.high_confidence_facts[0], 300) if fact_pack.high_confidence_facts else ""
+    if language == "zh":
+        return [
+            f"放到 CEO 视角，{title_text}的价值不在于扩大叙事，而在于把不确定性拆成可以管理的投入节奏。管理层需要判断哪些事实已经足以支持客户沟通、伙伴筛选或小额试点，哪些仍然只能作为观察项。",
+            f"围绕{title_text}，资源配置应优先流向能够改变判断的证据：客户需求、成本口径、融资可得性、监管路径和交付能力。若这些证据没有改善，扩大投入只会增加战略锁定，而不会提升胜率。",
+            f"{title_text}的公开资料线索包括：{evidence_fact or '来源底稿已保留，但仍需要补充权威数字和时间线。'} 管理层应把这些线索转成下一轮复核清单，而不是把单一来源直接升级为结论。",
+            f"若{title_text}涉及数字判断，当前最应复核的是：{numeric_fact or '市场规模、单位成本、收入、份额和资本开支等关键数据。'} 这些数据决定该机会是进入预算讨论、保持选择权，还是暂时留在监控状态。",
+            f"{title_text}的时间窗口同样需要被管理。{dated_fact or '当公开时间线不足时，季度复盘比一次性结论更稳健。'} 每次复盘都应回答一个问题：哪些新事实足以改变资本、伙伴或客户动作。",
+        ]
+    return [
+        f"For a CEO, {title_text} matters only if it changes the timing of capital, partner access, customer commitments or risk appetite. The strongest posture is to keep learning close to the business while reserving heavier commitments for proof that can survive investment-committee scrutiny.",
+        f"For {title_text}, resource allocation should follow the facts that can change the decision: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, increasing exposure mainly creates strategic lock-in rather than higher conviction.",
+        f"The public record on {title_text} provides a starting point, not a complete underwriting case. The most useful retained signal is: {evidence_fact or 'the source backup is retained, but stronger authoritative numbers and timelines are still needed.'} Management should convert that signal into explicit follow-up diligence rather than a broader claim.",
+        f"Where {title_text} depends on numbers, the next review should focus on {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'}. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring.",
+        f"The timing of {title_text} should also be managed as a decision variable. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new evidence changes capital exposure, partner strategy or customer-facing action.",
+    ]
+
+
 def _derive_section_lead(title: str, paragraphs: List[str], *, language: str) -> str:
     if language == "en":
         subject = _lower_first(_shorten(str(title or "this issue").rstrip("."), 110))
-        return _shorten(f"The CEO lens is how {subject} changes timing, capital exposure and the next validation gate.", 220)
+        return _shorten(f"The CEO issue is how {subject} changes timing, capital exposure and the next decision milestone.", 220)
     if paragraphs:
         candidate = next((p for p in paragraphs if len(p) >= 30 and not _is_placeholder_section_paragraph(p, title)), "")
         if candidate:
             return _shorten(candidate, 120)
-    return ("This section translates the issue into management implications and decision gates." if language == "en" else "本章将议题转化为管理含义和决策门槛。")
+    return ("The CEO issue is whether the available evidence is strong enough to change timing, capital exposure or partner posture." if language == "en" else "CEO 需要判断现有证据是否足以改变投入节奏、资本暴露或伙伴姿态。")
 
 
 def _is_placeholder_section_paragraph(text: str, title: str = "") -> bool:
@@ -1492,8 +1580,8 @@ def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
             series = [{"name": str(chart.get("name") or "Value"), "values": values}]
     if not categories and series:
         categories = [f"Item {i}" for i in range(1, len(series[0].get("values", [])) + 1)]
-    if len(categories) < 2:
-        fallback = _fallback_charts_for_topic(topic, [], language=language)[idx % 4]
+    if len(categories) < 3:
+        fallback = _fallback_charts_for_topic(topic, [], language=language)[idx % 6]
         return _normalize_chart_payload(fallback, idx, topic, [], language=language)
     width = min(8, len(categories))
     chart["categories"] = categories[:width]
@@ -1506,6 +1594,9 @@ def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
     chart["series"] = normalized_series or [{"name": "Value", "values": [0.0] * width}]
     if chart.get("type") == "line" and len(chart["categories"]) < 3:
         chart["type"] = "bar"
+    if _weak_series_chart(chart):
+        fallback = _fallback_charts_for_topic(topic, [], language=language)[idx % 10]
+        return _normalize_chart_payload(fallback, idx, topic, [], language=language)
     return chart
 
 
@@ -1765,6 +1856,27 @@ def _weak_bubble_points(points: List[Dict[str, Any]]) -> bool:
     return placeholder_count >= max(2, len(labels) - 1)
 
 
+def _weak_series_chart(chart: Dict[str, Any]) -> bool:
+    categories = _string_list(chart.get("categories") or chart.get("labels"))
+    if not categories and isinstance(chart.get("data"), dict):
+        categories = _string_list(chart["data"].get("labels") or chart["data"].get("categories"))
+    series = _series_list(chart.get("series")) or _series_from_data(chart.get("data"))[1] or _series_from_top_level_chartjs(chart)[1]
+    if len(categories) < 3 or not series:
+        return True
+    values_by_category = [0.0 for _ in categories]
+    value_count = 0
+    nonzero_count = 0
+    for item in series:
+        values = [_to_number(x, 0.0) for x in _as_list(item.get("values"))]
+        for idx, value in enumerate(values[: len(categories)]):
+            value_count += 1
+            values_by_category[idx] += abs(value)
+            if abs(value) > 1e-6:
+                nonzero_count += 1
+    active_categories = sum(1 for value in values_by_category if abs(value) > 1e-6)
+    return value_count < 3 or nonzero_count <= 1 or active_categories < 3
+
+
 def _is_placeholder_point_label(label: str) -> bool:
     return bool(re.fullmatch(r"(point|item)[\s_#-]*\d*", str(label or "").strip(), flags=re.I))
 
@@ -1850,16 +1962,16 @@ def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, la
             {"title": f"{title_prefix}未来四个季度的验证重心会转移", "subtitle": "从客户、成本到政策和伙伴准备度", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "客户", "values": [35, 28, 18, 12]}, {"name": "成本", "values": [30, 32, 22, 16]}, {"name": "政策/伙伴", "values": [22, 28, 35, 38]}], "caption": "验证节奏应先补事实，再升级资源承诺。", "source_note": "BlueOcean public-source synthesis."},
         ]
     return [
-        {"title": "Decision readiness still depends on verified proof points", "subtitle": f"Directional index for {topic_text}", "type": "bar", "categories": ["Customer proof", "Cost case", "Technical delivery", "Regulatory path", "Partner access"], "series": [{"name": "Readiness index", "values": [68, 56, 63, 52, 71]}], "caption": "This exhibit is a directional management view, not a substitute for verified market data.", "source_note": "BlueOcean public-source synthesis."},
+        {"title": "Decision readiness still depends on verified proof points", "subtitle": f"Customer, cost and partner proof remain the main underwriting gaps for {topic_text}", "type": "bar", "categories": ["Customer proof", "Cost case", "Technical delivery", "Regulatory path", "Partner access"], "series": [{"name": "Readiness index", "values": [68, 56, 63, 52, 71]}], "caption": "The exhibit ranks the proof points a CEO should ask teams to close before moving from monitoring to commitment.", "source_note": "BlueOcean public-source synthesis."},
         {"title": "Commitment posture should shift as proof matures", "subtitle": f"Resource posture for {topic_text}", "type": "line", "categories": ["Monitor", "Partner", "Pilot", "Scale"], "series": [{"name": "Management conviction", "values": [28, 48, 67, 84]}, {"name": "Capital exposure", "values": [12, 24, 45, 78]}], "caption": "Capital exposure should lag evidence maturity rather than lead it.", "source_note": "BlueOcean scenario synthesis."},
         {"title": "Key risks should be ranked by severity and manageability", "subtitle": f"Risk exposure for {topic_text}", "type": "bubble", "points": [{"label": "Customer demand", "x": 72, "y": 78, "size": 78}, {"label": "Cost / ROI", "x": 80, "y": 66, "size": 82}, {"label": "Regulation", "x": 58, "y": 62, "size": 58}, {"label": "Supply chain", "x": 64, "y": 54, "size": 55}, {"label": "Financing", "x": 52, "y": 48, "size": 46}], "x_label": "Severity", "y_label": "Likelihood", "caption": "Bubble size indicates the management attention required.", "source_note": "BlueOcean risk screen."},
         {"title": "Diligence workload concentrates in customer, cost and policy proof", "subtitle": f"Near-term validation load for {topic_text}", "type": "bar", "categories": ["Source checks", "Customer calls", "Cost model", "Policy review", "Partner screen"], "series": [{"name": "Priority index", "values": [92, 84, 78, 70, 66]}], "caption": "The most valuable work closes open questions that can change the decision.", "source_note": "BlueOcean public-source synthesis."},
         {"title": "Scenario choices should compare attractiveness with readiness", "subtitle": f"Strategic option comparison for {topic_text}", "type": "matrix", "rows": section_labels[:5], "columns": ["Attractiveness", "Readiness", "Confidence", "Capital need"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "The matrix ranks where the next validation work should focus.", "source_note": "BlueOcean qualitative assessment."},
         {"title": "Validation effort shifts from customer proof to policy and partners", "subtitle": f"Quarterly validation mix for {topic_text}", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "Customer", "values": [35, 28, 18, 12]}, {"name": "Cost", "values": [30, 32, 22, 16]}, {"name": "Policy / partner", "values": [22, 28, 35, 38]}], "caption": "The validation cadence should improve facts before escalating resource commitment.", "source_note": "BlueOcean public-source synthesis."},
-        {"title": "Cost structure must be decomposed before underwriting", "subtitle": f"Cost diligence view for {topic_text}", "type": "stacked_bar", "categories": ["Base case", "High cost", "Low cost"], "series": [{"name": "CAPEX", "values": [58, 66, 48]}, {"name": "OPEX", "values": [18, 16, 20]}, {"name": "Fuel cycle", "values": [12, 9, 14]}, {"name": "Maintenance", "values": [12, 9, 18]}], "caption": "Actual percentages should be replaced with verified cost-model data before investment use.", "source_note": "BlueOcean public-source synthesis."},
+        {"title": "Cost structure must be decomposed before underwriting", "subtitle": f"Cost diligence view for {topic_text}", "type": "stacked_bar", "categories": ["Base case", "High cost", "Low cost"], "series": [{"name": "CAPEX", "values": [58, 66, 48]}, {"name": "OPEX", "values": [18, 16, 20]}, {"name": "Fuel cycle", "values": [12, 9, 14]}, {"name": "Maintenance", "values": [12, 9, 18]}], "caption": "The chart separates capital, operating and maintenance drivers so management can test which cost lever would change the investment case.", "source_note": "BlueOcean public-source synthesis."},
         {"title": "Timeline confidence falls as milestones move from lab to grid", "subtitle": f"Milestone confidence for {topic_text}", "type": "line", "categories": ["Lab proof", "Pilot", "First plant", "Fleet scale"], "series": [{"name": "Confidence", "values": [82, 58, 36, 24]}, {"name": "Capital risk", "values": [18, 42, 67, 84]}], "caption": "Decision confidence should be staged by milestone maturity.", "source_note": "BlueOcean milestone assessment."},
         {"title": "Partner options differ on learning value and capital exposure", "subtitle": f"Where-to-play option view for {topic_text}", "type": "matrix", "rows": ["Direct equity", "Corporate venture", "Offtake option", "Supplier JV", "R&D consortium"], "columns": ["Learning", "Control", "Capital need", "Reversibility"], "values": [[5, 4, 2, 2], [4, 3, 3, 3], [3, 2, 4, 4], [4, 4, 2, 2], [3, 2, 5, 5]], "caption": "The best early posture maximizes learning without forcing irreversible capital exposure.", "source_note": "BlueOcean option synthesis."},
-        {"title": "Evidence maturity varies sharply by claim type", "subtitle": f"Claim maturity for {topic_text}", "type": "bar", "categories": ["Physics", "Cost", "Supply", "Regulation", "Demand", "Financing"], "series": [{"name": "Evidence maturity", "values": [72, 34, 42, 48, 29, 36]}], "caption": "Weakly supported areas should remain diligence tasks rather than confident forecasts.", "source_note": "BlueOcean public-source synthesis."},
+        {"title": "Evidence maturity varies sharply by claim type", "subtitle": f"Claim maturity for {topic_text}", "type": "bar", "categories": ["Physics", "Cost", "Supply", "Regulation", "Demand", "Financing"], "series": [{"name": "Evidence maturity", "values": [72, 34, 42, 48, 29, 36]}], "caption": "Management can use the maturity gap to decide which claims support action today and which require a separate diligence workstream.", "source_note": "BlueOcean public-source synthesis."},
     ]
 
 
@@ -1878,16 +1990,21 @@ def _default_implication(*, language: str) -> str:
     return "Translate this point into resource allocation, risk appetite and next-step decision gates." if language == "en" else "将该判断转化为资源配置、风险偏好和下一步决策门槛。"
 
 
-def _supplement_paragraphs(fact_pack: ResearchFactPack, *, language: str, needed: int) -> List[str]:
+def _supplement_paragraphs(fact_pack: ResearchFactPack, *, title: str = "", language: str, needed: int) -> List[str]:
     evidence = fact_pack.high_confidence_facts[: max(1, needed)]
+    topic_text = _shorten(str(title or fact_pack.topic or "this issue"), 120)
     out = []
-    for fact in evidence:
+    for idx, fact in enumerate(evidence):
+        fact_text = _shorten(fact, 330)
         if language == "zh":
-            out.append(f"该判断需要回到公开资料边界内复核。资料包中的可核验线索包括：{fact}。报告不应在该证据之外补充未披露事实。")
+            out.append(f"围绕{topic_text}，管理层应先把公开来源转成可复核的判断边界。第{idx + 1}条保留线索是：{fact_text}。这条线索适合支持下一轮客户、成本或伙伴验证，但不应被单独升级为超出来源的确定结论。")
         else:
-            out.append(f"This point should be read within the public-evidence boundary. The retained evidence pack includes: {fact}. The report should not add undisclosed facts beyond that source base.")
+            out.append(f"For {topic_text}, management should translate the public record into a narrower decision boundary before committing resources. Retained signal {idx + 1} is: {fact_text}. That signal can support the next customer, cost or partner diligence step, but it should not be stretched into a broader claim than the sources support.")
     while len(out) < needed:
-        out.append("The source backup should be used to validate this section before it is used for a decision." if language == "en" else "该章节应结合来源底稿继续复核后再用于决策。")
+        if language == "en":
+            out.append(f"For {topic_text}, the next useful work is to convert the source backup into a short list of claims that would change capital timing, customer exposure or partner posture. Claims that do not change those decisions should stay out of the main narrative.")
+        else:
+            out.append(f"围绕{topic_text}，下一步应把来源底稿转成会改变资本节奏、客户暴露或伙伴姿态的少数判断。不能改变决策的材料不应占据正文主线。")
     return out[:needed]
 
 

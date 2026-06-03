@@ -8,6 +8,14 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Dict, List
 
+PROCESS_LANGUAGE_PATTERNS = (
+    r"\bthis\s+(?:chapter|section)\s+(?:therefore\s+)?(?:concludes|finds|shows|argues|frames|explains|demonstrates|sets\s+out|assesses|analyzes|translates)\s+that\b",
+    r"\bthis\s+(?:chapter|section)\s+(?:therefore\s+)?(?:frames|sets\s+out|assesses|analyzes|explains|translates)\s+the\s+(?:topic|issue|question)\b",
+    r"\bthe\s+(?:chapter|section)\s+(?:therefore\s+)?(?:concludes|finds|shows|argues|frames|explains|demonstrates|sets\s+out|assesses|analyzes|translates)\s+that\b",
+    r"\bthis\s+(?:chapter|section)\s+is\s+about\b",
+    r"\bthis\s+(?:chapter|section)\s+will\b",
+)
+
 from .theme import load_theme
 
 THEME = load_theme()
@@ -253,10 +261,10 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     for idx, section in enumerate(sections, start=1):
         rows.append((f"{page_no:02d}", _strip_number_prefix(section.get("title", "Section")), []))
         page_no += 1
-        if chart_pages * 2 < chart_count:
+        if chart_pages < chart_count:
             page_no += 1
             chart_pages += 1
-    while chart_pages * 2 < chart_count:
+    while chart_pages < chart_count:
         page_no += 1
         chart_pages += 1
     rows.append((f"{page_no:02d}", labels["about"], []))
@@ -304,17 +312,17 @@ def _render_chapter(parts: List[str], section: Dict[str, Any], assets: Dict[str,
         parts.append("<div>")
         _append_visual(parts, visual)
         parts.append("</div><div class='body-copy'>")
-        for paragraph in paragraphs[:3]:
-            parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
+        for paragraph in paragraphs[:5]:
+            parts.append(f"<p>{html.escape(_shorten(paragraph, 520))}</p>")
         parts.append("</div></div>")
     else:
         parts.append("<div class='chapter-grid text-grid'>")
         parts.append("<div class='body-copy'>")
-        for paragraph in paragraphs[:2]:
-            parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
+        for paragraph in paragraphs[:3]:
+            parts.append(f"<p>{html.escape(_shorten(paragraph, 520))}</p>")
         parts.append("</div><div class='body-copy'>")
-        for paragraph in paragraphs[2:4]:
-            parts.append(f"<p>{html.escape(_shorten(paragraph, 620))}</p>")
+        for paragraph in paragraphs[3:6]:
+            parts.append(f"<p>{html.escape(_shorten(paragraph, 520))}</p>")
         parts.append("</div></div>")
     parts.append("</section>")
 
@@ -700,6 +708,8 @@ def _reader_text(value: Any) -> str:
 
 def _reader_clean(text: str) -> str:
     text = _normalize_punctuation(text)
+    for pattern in PROCESS_LANGUAGE_PATTERNS:
+        text = re.sub(pattern + r"\s*", "", text, flags=re.I)
     replacements = [
         (r"\bCEO decision scenario\b", "Board choice under uncertainty"),
         (r"\bCEO investment committee scenario\b", "Board choice under uncertainty"),
@@ -711,6 +721,12 @@ def _reader_clean(text: str) -> str:
         (r"\bEvidence boundary:\s*", "The public record shows that "),
         (r"\bEvidence:\s*", ""),
         (r"\bManagement implication:\s*", ""),
+        (r"\bThe management implication is clear:\s*", ""),
+        (r"\bThe next management move is clear:\s*", ""),
+        (r"\bThis should remain a directional conclusion because\s*", "The available record supports a directional view because "),
+        (r"\bThis point should be validated further because\s*", "Leadership should validate whether "),
+        (r"\bThis assumption should stay on the watchlist because\s*", "This assumption needs continued scrutiny because "),
+        (r"\bThe diligence gap is that\s*", "The unresolved commercial question is whether "),
         (r"\bManagement implications\b", "Leadership implications"),
         (r"\bCEO question:\s*", "Decision question: "),
         (r"\bRecommended move:\s*", "Recommended move: "),
