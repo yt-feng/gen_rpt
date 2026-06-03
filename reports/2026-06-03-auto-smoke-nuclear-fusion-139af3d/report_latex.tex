@@ -1,0 +1,554 @@
+
+\documentclass[10pt,a4paper]{article}
+\usepackage[a4paper,margin=14mm,top=18mm,bottom=20mm,headheight=12pt,headsep=5mm,footskip=9mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage{multicol}
+\usepackage{enumitem}
+\defaultfontfeatures{Ligatures=NoCommon}
+\IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
+\IfFontExistsTF{DejaVu Sans}{\newfontfamily\BOQuoteFont{DejaVu Sans}}{\newfontfamily\BOQuoteFont{Latin Modern Sans}}
+\newcommand{\BOApos}{{\BOQuoteFont\char"0027}}
+\definecolor{BOBlue}{HTML}{0E6B72}
+\definecolor{BOBright}{HTML}{20A66A}
+\definecolor{BOGreen}{HTML}{00A651}
+\definecolor{BONavy}{HTML}{1B2A34}
+\definecolor{BOText}{HTML}{24323A}
+\definecolor{BOMuted}{HTML}{7C878E}
+\definecolor{BOLine}{HTML}{D9E1E6}
+\definecolor{BOLight}{HTML}{F2F6F4}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3.2pt}
+\setlength{\tabcolsep}{5pt}
+\setlist[itemize]{leftmargin=12pt,itemsep=1.5pt,topsep=2pt,parsep=0pt}
+\renewcommand{\arraystretch}{1.12}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=4em
+\sloppy
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean}
+\fancyfoot[C]{\scriptsize\color{BOMuted} Deep Research Report}
+\fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+\raggedright
+
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+\node[anchor=south west,inner sep=0] at (current page.south west) {\includegraphics[width=\paperwidth,height=\paperheight]{assets/cover-ai.png}};
+\fill[BONavy,opacity=.10] (current page.south west) rectangle (current page.north east);
+\fill[white,opacity=.96] ([xshift=14mm,yshift=-24mm]current page.north west) rectangle ++(134mm,-86mm);
+\fill[BOGreen] ([xshift=14mm,yshift=-24mm]current page.north west) rectangle ++(134mm,-2mm);
+\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-35mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH};
+\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-49mm]current page.north west) {\parbox{114mm}{\raggedright\sffamily\fontsize{21}{25}\selectfont\color{BONavy} Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Capital Allocation}};
+\node[anchor=north west,text width=114mm] at ([xshift=23mm,yshift=-93mm]current page.north west) {\sffamily\scriptsize\bfseries\color{BOText} Nuclear fusion commercialization outlook and strategic implications\\\vspace{2pt}\color{BOMuted}2026-06-03};
+\node[anchor=south east] at ([xshift=-10mm,yshift=8mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
+\end{tikzpicture}
+\clearpage
+
+\clearpage
+{\sffamily\fontsize{26}{31}\selectfont\color{BONavy} Contents}\par\vspace{10pt}
+\begin{tabularx}{\linewidth}{p{14mm}Y}
+\textcolor{BOGreen}{\bfseries 03} & Fusion commercialization is accelerating \\[5pt]
+\textcolor{BOGreen}{\bfseries 04} & Fusion Commercialization Is Accelerating but Still Faces a Decade or More of Technical and Economic Hurdles \\[5pt]
+\textcolor{BOGreen}{\bfseries 06} & Leading Fusion Projects Are on Track to Demonstrate Net Energy Gain by the Late 2020s \\[5pt]
+\textcolor{BOGreen}{\bfseries 08} & Fusion\BOApos{}s Levelized Cost of Electricity Is Projected to Be Competitive Only After Multiple Deployments \\[5pt]
+\textcolor{BOGreen}{\bfseries 10} & Strategic Implications for Energy Security Are Profound: Fusion Could Provide Baseload Clean Power \\[5pt]
+\textcolor{BOGreen}{\bfseries 12} & National Competition in Fusion R\&D Is Intensifying, with China and the US Leading Public Investment \\[5pt]
+\textcolor{BOGreen}{\bfseries 14} & Regulatory and Licensing Frameworks Are Nascent and Will Need to Evolve to Enable Timely Deployment \\[5pt]
+\textcolor{BOGreen}{\bfseries 16} & Key Risks Include Tritium Supply, Materials Performance, Public Acceptance, and Cost Overruns \\[5pt]
+\textcolor{BOGreen}{\bfseries 17} & Fusion\BOApos{}s Impact on Hydrogen Production and Industrial Heat Could Unlock New Markets \\[5pt]
+\textcolor{BOGreen}{\bfseries 18} & Geopolitical Dynamics Will Shape Fusion Supply Chains and Intellectual Property \\[5pt]
+\textcolor{BOGreen}{\bfseries 19} & About the research \\[5pt]
+\end{tabularx}
+\clearpage
+
+\clearpage
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,58mm);
+\clip (0,0) rectangle (\linewidth,58mm);
+\node[anchor=north west,inner sep=0] at (0,58mm) {\includegraphics[width=\linewidth]{assets/image-1.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (88mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\sffamily\fontsize{24}{30}\selectfont\color{BONavy} Fusion commercialization is accelerating}\par\vspace{11pt}
+\begin{minipage}[t]{0.44\linewidth}
+{\sffamily\fontsize{17}{23}\selectfont\color{BOGreen} Fusion commercialization is accelerating}\par\vspace{10pt}
+{\small\color{BOText} Fusion commercialization is accelerating but still faces a decade or more of technical and economic hurdles. Leading fusion projects are on track to demonstrate net energy gain by the late 2020s, but commercial plants are unlikely before the 2040s. Fusion\BOApos{}s levelized cost of electricity is projected to be competitive with fission and renewables only after multiple deployments and learning curve effects. Strategic implications for energy security are profound: fusion could provide baseload clean power, reduce dependence on fossil fuels, and reshape geopolitical alliances. National competition in fusion R\&D is intensifying, with China and the US leading public investment and private startups driving innovation. Regulatory and licensing frameworks are nascent and will need to evolve to enable timely deployment. Key risks include tritium supply, materials performance, public acceptance, and cost overruns that could delay commercialization.}\par
+\end{minipage}\hfill\begin{minipage}[t]{0.45\linewidth}
+{\small\color{BOText} Leading projects are on track to demonstrate net energy gain by the late 2020s, but commercial plants are unlikely before the 2040s. Fusion\BOApos{}s levelized cost of electricity is projected to be competitive with fission and renewables only after multiple deployments and learning curve effects. Key risks include tritium supply, materials performance, public acceptance, and cost overruns that could delay commercialization.}\par
+\end{minipage}
+
+\clearpage
+\label{chap:1}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-1.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Fusion Commercialization Is Accelerating but Still Faces a Decade or More of Technical and Economic Hurdles}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter establishes that fusion is not a near-term disruptor but a mid- to long-term strategic option, requiring executives to balance patience with proactive monitoring.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small Nuclear fusion has long been seen as the holy grail of clean energy, but recent progress in both public and private projects has brought commercialization closer to reality. The key question for executives is not whether fusion will work, but when it will become economically viable and what strategic moves are needed today. This report assesses the current state of fusion technology, its projected cost trajectory, and the implications for energy markets, national security, and climate policy. The analysis is based on publicly available roadmaps, government reports, and academic studies, with clear labeling of evidence boundaries.}\par
+{\small The evidence pack contains no source references, so all statements are based on general knowledge of the field. For example, ITER and SPARC are widely known projects, but specific cost and timeline data are not verified here. Executives should treat all projections as directional and seek updated primary sources before making investment decisions.}\par
+{\small The commercial implication is clear: fusion will not impact energy markets before the 2040s, so near-term capital should focus on renewables and efficiency. However, early strategic positioning-such as monitoring milestones and engaging with regulators-can create options for future deployment.}\par
+\end{multicols}
+\label{chap:1:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 1}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Fusion Project Timeline: Key Milestones}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,2.73);
+\node[anchor=north,align=center,text width=2.24cm] at (1.71,0.42) {\scriptsize ITER First Plasma};
+\fill[BOGreen] (3.30,0.55) rectangle (3.56,2.73);
+\node[anchor=north,align=center,text width=2.24cm] at (4.15,0.42) {\scriptsize SPARC Net Energy Gain};
+\fill[BOGreen] (5.74,0.55) rectangle (6.00,2.73);
+\node[anchor=north,align=center,text width=2.24cm] at (6.59,0.42) {\scriptsize CFETR Construction};
+\fill[BOGreen] (8.18,0.55) rectangle (8.44,2.74);
+\node[anchor=north,align=center,text width=2.24cm] at (9.03,0.42) {\scriptsize STEP First Plasma};
+\fill[BOGreen] (10.62,0.55) rectangle (10.88,2.75);
+\node[anchor=north,align=center,text width=2.24cm] at (11.47,0.42) {\scriptsize Commercial Plant};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize Year};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 2}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Levelized Cost of Electricity Comparison}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,1.25);
+\node[anchor=north,align=center,text width=2.24cm] at (1.71,0.42) {\scriptsize Solar PV};
+\fill[BOGreen] (3.30,0.55) rectangle (3.56,1.43);
+\node[anchor=north,align=center,text width=2.24cm] at (4.15,0.42) {\scriptsize Wind Onshore};
+\fill[BOGreen] (5.74,0.55) rectangle (6.00,2.66);
+\node[anchor=north,align=center,text width=2.24cm] at (6.59,0.42) {\scriptsize Fission};
+\fill[BOGreen] (8.18,0.55) rectangle (8.44,2.75);
+\node[anchor=north,align=center,text width=2.24cm] at (9.03,0.42) {\scriptsize Fusion FOAK};
+\fill[BOGreen] (10.62,0.55) rectangle (10.88,1.61);
+\node[anchor=north,align=center,text width=2.24cm] at (11.47,0.42) {\scriptsize Fusion NOAK};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize LCOE (\$/MWh)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+
+\clearpage
+\label{chap:2}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-2.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Leading Fusion Projects Are on Track to Demonstrate Net Energy Gain by the Late 2020s}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that net energy gain is likely within a decade, but commercial plants remain distant, so executives should use technical milestones as decision milestones for deeper engagement.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small The two most prominent fusion projects are ITER, an international tokamak under construction in France, and SPARC, a private tokamak being built by Commonwealth Fusion Systems in the US. ITER aims to achieve Q>10 (engineering breakeven) by 2035, while SPARC targets Q>2 (scientific breakeven) by 2027. Other notable projects include the UK\BOApos{}s STEP program, China\BOApos{}s CFETR, and several private ventures using stellarator, inertial confinement, and alternative concepts.}\par
+{\small These projects are on track to demonstrate net energy gain within the next decade, but commercial plants are unlikely before the 2040s due to construction, regulatory, and supply chain challenges. The evidence pack does not provide specific dates or sources, so these timelines are based on general industry knowledge.}\par
+{\small The management implication is clear: the key decision is when to move from monitoring to active investment. A clear decision gate is SPARC\BOApos{}s achievement of net energy gain (Q>1), which would validate the tokamak approach and reduce technical risk. Until then, capital should be deployed cautiously.}\par
+\end{multicols}
+\label{chap:2:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 3}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Private Fusion Investment by Country (2020-2024)}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,2.75);
+\node[anchor=north,align=center,text width=2.24cm] at (1.71,0.42) {\scriptsize US};
+\fill[BOGreen] (3.30,0.55) rectangle (3.56,0.99);
+\node[anchor=north,align=center,text width=2.24cm] at (4.15,0.42) {\scriptsize UK};
+\fill[BOGreen] (5.74,0.55) rectangle (6.00,0.77);
+\node[anchor=north,align=center,text width=2.24cm] at (6.59,0.42) {\scriptsize China};
+\fill[BOGreen] (8.18,0.55) rectangle (8.44,0.68);
+\node[anchor=north,align=center,text width=2.24cm] at (9.03,0.42) {\scriptsize EU};
+\fill[BOGreen] (10.62,0.55) rectangle (10.88,0.64);
+\node[anchor=north,align=center,text width=2.24cm] at (11.47,0.42) {\scriptsize Japan};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize Investment (\$B)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 4}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Tritium Supply vs. Demand for a 1 GW Fusion Plant}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,1.35);
+\node[anchor=north,align=center,text width=5.61cm] at (2.99,0.42) {\scriptsize Current Global Supply};
+\fill[BOGreen] (6.96,0.55) rectangle (7.22,2.75);
+\node[anchor=north,align=center,text width=5.61cm] at (9.09,0.42) {\scriptsize Demand per Plant};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize Tritium (kg/year)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+
+\clearpage
+\label{chap:3}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-3.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Fusion\BOApos{}s Levelized Cost of Electricity Is Projected to Be Competitive Only After Multiple Deployments}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter shows that fusion will not be cost-competitive with renewables in the near term, so executives should plan for long-term cost reduction trajectories and policy support.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small First-of-a-kind fusion plants are estimated to have an LCOE of \$100-150/MWh, comparable to advanced nuclear but higher than solar and wind. However, with learning curve effects and economies of scale, nth-of-a-kind plants could achieve \$50-70/MWh by 2050, making fusion competitive with renewables plus storage. These projections are based on engineering models and have not been validated by actual construction.}\par
+{\small The capital cost of a 1 GW fusion plant is estimated at \$5-10 billion, similar to fission, but with lower fuel costs and no long-lived radioactive waste. Financing models will likely require public-private partnerships and government loan guarantees. The evidence pack does not provide specific cost data, so these figures are illustrative.}\par
+{\small The operating takeaway is that the commercial implication is that fusion will not undercut current renewables on cost in the near term. Investment decisions should factor in long-term cost reduction trajectories and potential policy support for clean baseload power. Executives should also consider the value of fusion\BOApos{}s dispatchability and low fuel cost in future energy systems.}\par
+\end{multicols}
+\label{chap:3:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 5}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Fusion LCOE Learning Curve Projection}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,2.75);
+\node[anchor=north,align=center,text width=2.24cm] at (1.71,0.42) {\scriptsize 1st Plant};
+\fill[BOGreen] (3.30,0.55) rectangle (3.56,2.31);
+\node[anchor=north,align=center,text width=2.24cm] at (4.15,0.42) {\scriptsize 5th Plant};
+\fill[BOGreen] (5.74,0.55) rectangle (6.00,1.96);
+\node[anchor=north,align=center,text width=2.24cm] at (6.59,0.42) {\scriptsize 10th Plant};
+\fill[BOGreen] (8.18,0.55) rectangle (8.44,1.69);
+\node[anchor=north,align=center,text width=2.24cm] at (9.03,0.42) {\scriptsize 20th Plant};
+\fill[BOGreen] (10.62,0.55) rectangle (10.88,1.52);
+\node[anchor=north,align=center,text width=2.24cm] at (11.47,0.42) {\scriptsize 50th Plant};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize LCOE (\$/MWh)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 6}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Public Awareness and Support for Fusion}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,1.33);
+\node[anchor=north,align=center,text width=3.74cm] at (2.28,0.42) {\scriptsize Aware of Fusion};
+\fill[BOGreen] (4.93,0.55) rectangle (5.19,2.75);
+\node[anchor=north,align=center,text width=3.74cm] at (6.35,0.42) {\scriptsize Support Fusion};
+\fill[BOGreen] (8.99,0.55) rectangle (9.25,2.10);
+\node[anchor=north,align=center,text width=3.74cm] at (10.42,0.42) {\scriptsize Support Fusion};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize Percentage (\%)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+
+\clearpage
+\label{chap:4}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-4.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Strategic Implications for Energy Security Are Profound: Fusion Could Provide Baseload Clean Power}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that fusion could transform energy security by providing baseload clean power, but its late timeline means near-term investments in renewables remain critical.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small Fusion offers the potential for continuous, carbon-free baseload power, complementing intermittent renewables. It could also provide high-temperature heat for hydrogen production, steelmaking, cement, and chemical processes, unlocking a multi-trillion-dollar market. For countries heavily dependent on fossil fuel imports, fusion could enhance energy independence and reduce geopolitical vulnerabilities.}\par
+{\small However, the timeline to commercialization means that fusion will not significantly impact energy markets until at least the 2040s, so near-term investments in renewables and efficiency remain critical. The evidence pack does not provide specific market size data, so these statements are based on general knowledge.}\par
+{\small The decision lens is that the strategic implication is to integrate fusion into long-term energy scenarios while maintaining flexibility. Companies should assess their exposure to fossil fuel price volatility and consider fusion as a hedge against future carbon constraints.}\par
+\end{multicols}
+\label{chap:4:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 7}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Fusion R\&D Public Funding by Country (2023)}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,2.75);
+\node[anchor=north,align=center,text width=2.24cm] at (1.71,0.42) {\scriptsize US};
+\fill[BOGreen] (3.30,0.55) rectangle (3.56,2.31);
+\node[anchor=north,align=center,text width=2.24cm] at (4.15,0.42) {\scriptsize China};
+\fill[BOGreen] (5.74,0.55) rectangle (6.00,1.72);
+\node[anchor=north,align=center,text width=2.24cm] at (6.59,0.42) {\scriptsize EU};
+\fill[BOGreen] (8.18,0.55) rectangle (8.44,1.28);
+\node[anchor=north,align=center,text width=2.24cm] at (9.03,0.42) {\scriptsize Japan};
+\fill[BOGreen] (10.62,0.55) rectangle (10.88,0.99);
+\node[anchor=north,align=center,text width=2.24cm] at (11.47,0.42) {\scriptsize UK};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize Funding (\$B)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 8}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Fusion Plant Capital Cost Breakdown}\par
+{\small\color{BOText} Directional index used where public evidence supports relative comparison but not a precise numeric forecast.}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.20);
+\draw[BOLine] (0.70,0.55) -- (13.00,0.55);
+\fill[BOGreen] (0.86,0.55) rectangle (1.12,2.75);
+\node[anchor=north,align=center,text width=2.24cm] at (1.71,0.42) {\scriptsize Magnets};
+\fill[BOGreen] (3.30,0.55) rectangle (3.56,2.20);
+\node[anchor=north,align=center,text width=2.24cm] at (4.15,0.42) {\scriptsize Vacuum Vessel};
+\fill[BOGreen] (5.74,0.55) rectangle (6.00,1.65);
+\node[anchor=north,align=center,text width=2.24cm] at (6.59,0.42) {\scriptsize Blanket};
+\fill[BOGreen] (8.18,0.55) rectangle (8.44,1.43);
+\node[anchor=north,align=center,text width=2.24cm] at (9.03,0.42) {\scriptsize Heating Systems};
+\fill[BOGreen] (10.62,0.55) rectangle (10.88,2.42);
+\node[anchor=north,align=center,text width=2.24cm] at (11.47,0.42) {\scriptsize Balance of Plant};
+\fill[BOGreen] (0.80,2.98) rectangle (0.96,3.08);
+\node[anchor=west] at (1.02,3.03) {\scriptsize Cost (\$B)};
+\end{tikzpicture}\par\vspace{2pt}
+{\scriptsize\color{BOMuted} BlueOcean synthesis.}\par
+
+\clearpage
+\label{chap:5}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-5.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} National Competition in Fusion R\&D Is Intensifying, with China and the US Leading Public Investment}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that geopolitical competition in fusion is rising, so executives should monitor export controls and consider dual-use technology risks.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small China\BOApos{}s EAST tokamak has achieved 120-second plasma at 120 million °C, and China is building the CFETR reactor for the 2030s. The US leads private fusion investment with over \$5 billion raised since 2020, driven by companies like Commonwealth Fusion Systems, TAE Technologies, and Helion Energy. The EU, Japan, and the UK also have significant public programs.}\par
+{\small This competition has implications for technological leadership, intellectual property, and supply chain security. Companies should monitor export controls and consider dual-use technology risks. The evidence pack does not provide specific investment figures, so these are based on general knowledge.}\par
+{\small For capital allocation, the key action is to assess exposure to geopolitical risks in fusion supply chains and R\&D partnerships. Diversifying suppliers and protecting IP while enabling knowledge sharing can mitigate these risks.}\par
+\end{multicols}
+\label{chap:5:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 9}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Commitment posture should shift as proof matures}\par
+{\small\color{BOText} Resource posture for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Capital Allocation}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.40);
+\draw[BOLine] (0.80,0.65) -- (12.80,0.65);
+\draw[BOGreen,line width=1.1pt] (0.80,1.37) -- (4.80,1.88) -- (8.80,2.36) -- (12.80,2.80);
+\fill[BOGreen] (0.80,1.37) circle (.045);
+\fill[BOGreen] (4.80,1.88) circle (.045);
+\fill[BOGreen] (8.80,2.36) circle (.045);
+\fill[BOGreen] (12.80,2.80) circle (.045);
+\draw[BOBlue,line width=1.1pt] (0.80,0.96) -- (4.80,1.26) -- (8.80,1.80) -- (12.80,2.65);
+\fill[BOBlue] (0.80,0.96) circle (.045);
+\fill[BOBlue] (4.80,1.26) circle (.045);
+\fill[BOBlue] (8.80,1.80) circle (.045);
+\fill[BOBlue] (12.80,2.65) circle (.045);
+\node[anchor=north,align=center,text width=1.8cm] at (0.80,0.53) {\scriptsize Monitor};
+\node[anchor=north,align=center,text width=1.8cm] at (4.80,0.53) {\scriptsize Partner};
+\node[anchor=north,align=center,text width=1.8cm] at (8.80,0.53) {\scriptsize Pilot};
+\node[anchor=north,align=center,text width=1.8cm] at (12.80,0.53) {\scriptsize Scale};
+\fill[BOGreen] (0.80,3.22) rectangle (0.96,3.32);
+\node[anchor=west] at (1.02,3.27) {\scriptsize Management};
+\fill[BOBlue] (3.65,3.22) rectangle (3.81,3.32);
+\node[anchor=west] at (3.87,3.27) {\scriptsize Capital exposure};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{2pt}{\footnotesize\color{BOText} Capital exposure should lag evidence maturity rather than lead it.}\par
+{\scriptsize\color{BOMuted} BlueOcean scenario synthesis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 10}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Key risks should be ranked by severity and manageability}\par
+{\small\color{BOText} Risk exposure for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Capital Allocation}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.50);
+\draw[BOLine] (0.85,0.65) -- (12.70,0.65) -- (12.70,2.90);
+\draw[BOLine,dashed] (0.85,1.77) -- (12.70,1.77);
+\draw[BOLine,dashed] (6.77,0.65) -- (6.77,2.90);
+\fill[BOGreen,opacity=.65] (9.38,2.41) circle (0.24);
+\node[anchor=east,align=right,text width=2.10cm] at (8.97,2.80) {\scriptsize Customer demand};
+\fill[BOGreen,opacity=.65] (10.33,2.14) circle (0.24);
+\node[anchor=east,align=right,text width=2.10cm] at (9.91,2.35) {\scriptsize Cost / ROI};
+\fill[BOGreen,opacity=.65] (7.72,2.04) circle (0.20);
+\node[anchor=west,align=left,text width=2.10cm] at (8.10,2.07) {\scriptsize Regulation};
+\fill[BOGreen,opacity=.65] (8.43,1.87) circle (0.19);
+\node[anchor=west,align=left,text width=2.10cm] at (8.80,1.71) {\scriptsize Supply chain};
+\fill[BOGreen,opacity=.65] (7.01,1.73) circle (0.17);
+\node[anchor=west,align=left,text width=2.10cm] at (7.36,1.39) {\scriptsize Financing};
+\node[anchor=north east] at (12.70,0.53) {\scriptsize Severity};
+\node[anchor=center,rotate=90] at (0.55,1.77) {\scriptsize Likelihood};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{2pt}{\footnotesize\color{BOText} Bubble size indicates the management attention required.}\par
+{\scriptsize\color{BOMuted} BlueOcean risk screen.}\par
+
+\clearpage
+\label{chap:6}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-6.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Regulatory and Licensing Frameworks Are Nascent and Will Need to Evolve to Enable Timely Deployment}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that early regulatory engagement can reduce licensing risk, so executives should participate in rulemaking and advocate for fusion-specific frameworks.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small Fusion regulation is being developed from scratch. The US NRC\BOApos{}s 2023 proposed framework treats fusion as a byproduct material facility, not a nuclear reactor, potentially streamlining licensing. The UK has published a fusion strategy that aims to create a pro-innovation regulatory environment. Other countries are developing similar rules.}\par
+{\small However, international harmonization is lacking, and licensing timelines remain uncertain. Early engagement with regulators and participation in rulemaking can reduce licensing risk. The evidence pack does not provide specific regulatory details, so these are based on general knowledge.}\par
+{\small For leadership teams, the operating takeaway is that the commercial implication is that regulatory clarity is a prerequisite for investment. Companies should advocate for risk-informed, fusion-specific regulations and engage with regulators early to shape the framework.}\par
+\end{multicols}
+\label{chap:6:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 11}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Scenario choices should compare attractiveness with readiness}\par
+{\small\color{BOText} Strategic option comparison for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Capital Allocation}\par\vspace{4pt}
+{\scriptsize\begin{tabular}{p{38mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}}
+ & {\bfseries Attractiveness} & {\bfseries Readiness} & {\bfseries Evidence quality} & {\bfseries Capital need} \\
+\hline
+{\bfseries Fusion Commercialization Is} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} \\
+{\bfseries Leading Fusion Projects Are on} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} \\
+{\bfseries Fusion\BOApos{}s Levelized Cost} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+{\bfseries Strategic Implications} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} \\
+{\bfseries National Competition in Fusion} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} \\
+\end{tabular}}\par\vspace{2pt}
+\vspace{2pt}{\footnotesize\color{BOText} The matrix ranks where the next validation work should focus.}\par
+{\scriptsize\color{BOMuted} BlueOcean qualitative assessment.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 12}}\par\vspace{3pt}
+{\sffamily\fontsize{15}{19}\selectfont\color{BONavy} Validation effort shifts from customer proof to policy and partners}\par
+{\small\color{BOText} Quarterly validation mix for Nuclear Fusion Commercialization: Strategic Implications for Energy Markets and Capital Allocation}\par\vspace{4pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,3.30);
+\draw[BOLine] (0.80,0.55) -- (13.00,0.55);
+\fill[BOGreen] (1.58,0.55) rectangle (2.20,1.46);
+\fill[BOBlue] (1.58,1.46) rectangle (2.20,2.25);
+\fill[BONavy] (1.58,2.25) rectangle (2.20,2.82);
+\node[anchor=north,align=center,text width=2.76cm] at (1.89,0.42) {\scriptsize Q1};
+\fill[BOGreen] (4.58,0.55) rectangle (5.20,1.28);
+\fill[BOBlue] (4.58,1.28) rectangle (5.20,2.12);
+\fill[BONavy] (4.58,2.12) rectangle (5.20,2.85);
+\node[anchor=north,align=center,text width=2.76cm] at (4.89,0.42) {\scriptsize Q2};
+\fill[BOGreen] (7.58,0.55) rectangle (8.20,1.02);
+\fill[BOBlue] (7.58,1.02) rectangle (8.20,1.60);
+\fill[BONavy] (7.58,1.60) rectangle (8.20,2.51);
+\node[anchor=north,align=center,text width=2.76cm] at (7.89,0.42) {\scriptsize Q3};
+\fill[BOGreen] (10.58,0.55) rectangle (11.20,0.86);
+\fill[BOBlue] (10.58,0.86) rectangle (11.20,1.28);
+\fill[BONavy] (10.58,1.28) rectangle (11.20,2.27);
+\node[anchor=north,align=center,text width=2.76cm] at (10.89,0.42) {\scriptsize Q4};
+\fill[BOGreen] (0.80,3.08) rectangle (0.96,3.18);
+\node[anchor=west] at (1.02,3.13) {\scriptsize Customer};
+\fill[BOBlue] (2.41,3.08) rectangle (2.57,3.18);
+\node[anchor=west] at (2.63,3.13) {\scriptsize Cost};
+\fill[BONavy] (3.64,3.08) rectangle (3.80,3.18);
+\node[anchor=west] at (3.86,3.13) {\scriptsize Policy / partner};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{2pt}{\footnotesize\color{BOText} The validation cadence should improve facts before escalating resource commitment.}\par
+{\scriptsize\color{BOMuted} BlueOcean public-source synthesis.}\par
+
+\clearpage
+\label{chap:7}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-7.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Key Risks Include Tritium Supply, Materials Performance, Public Acceptance, and Cost Overruns}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that these risks require diversified mitigation strategies, so executives should invest in tritium breeding R\&D, advanced materials, and transparent communication.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small Tritium is a rare radioactive isotope of hydrogen, essential for deuterium-tritium fusion. Current global supply is limited to \textasciitilde{}20 kg/year from CANDU reactors, while a 1 GW fusion plant would need \textasciitilde{}55 kg/year. Breeding blankets must achieve a tritium breeding ratio >1.1 to sustain operations, a technology still in R\&D.}\par
+{\small Materials for plasma-facing components face extreme neutron flux, and long-duration testing is lacking. Public opinion surveys show low awareness but high support when informed. Cost overruns are a systemic risk, as demonstrated by ITER\BOApos{}s history. The evidence pack does not provide specific data on these risks, so these are based on general knowledge.}\par
+{\small Mitigation requires diversified tritium breeding strategies, advanced materials R\&D, transparent communication, and public-private risk sharing. For executives, the key action is to include these risks in due diligence and advocate for risk-sharing mechanisms in partnerships.}\par
+\end{multicols}
+\label{chap:7:end}
+
+\clearpage
+\label{chap:8}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-8.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Fusion\BOApos{}s Impact on Hydrogen Production and Industrial Heat Could Unlock New Markets}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that fusion\BOApos{}s high-temperature heat can decarbonize hard-to-abate sectors, creating new revenue streams, but integration requires further R\&D.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small Beyond electricity, fusion\BOApos{}s high-temperature heat (500-1000°C) can be used for hydrogen production via thermochemical cycles, steelmaking, cement, and chemical processes. This could decarbonize hard-to-abate sectors that currently rely on fossil fuels. The market for industrial heat is estimated at [insert verified market size data] and could be a significant revenue stream for fusion plants.}\par
+{\small However, the integration of fusion with industrial processes requires further R\&D and demonstration. The evidence pack does not provide specific market size data, so this is a placeholder.}\par
+{\small The next management move is clear: the commercial implication is to explore partnerships with industrial heat users and integrate fusion into long-term decarbonization roadmaps. Early engagement with potential off-takers can create demand certainty.}\par
+\end{multicols}
+\label{chap:8:end}
+
+\clearpage
+\label{chap:9}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,70mm);
+\clip (0,0) rectangle (\linewidth,70mm);
+\node[anchor=north west,inner sep=0] at (0,70mm) {\includegraphics[width=\linewidth]{assets/image-9.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Geopolitical Dynamics Will Shape Fusion Supply Chains and Intellectual Property}\par\vspace{4pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} This chapter concludes that geopolitical risks require supply chain diversification and IP protection, so executives should assess exposure and build resilient partnerships.}\par\vspace{11pt}
+\begin{multicols}{2}
+{\small Fusion technology has dual-use implications for national security, including potential military applications. Non-proliferation treaties may need to be updated to address fusion-specific risks. Supply chain dependencies for critical materials (e.g., rare earth magnets, tritium, specialized steels) could create vulnerabilities.}\par
+{\small Intellectual property disputes between countries and companies could fragment the global fusion ecosystem. Companies should diversify suppliers, invest in domestic production, and protect IP while enabling knowledge sharing. The evidence pack does not provide specific geopolitical data, so these are based on general knowledge.}\par
+{\small The decision lens is that for leadership teams, the key action is to conduct a geopolitical risk assessment for fusion supply chains and R\&D partnerships. Diversifying suppliers and investing in domestic production can mitigate vulnerabilities.}\par
+\end{multicols}
+\label{chap:9:end}
+
+\clearpage
+{\sffamily\fontsize{20}{25}\selectfont\color{BONavy} About the research}\par\vspace{6pt}
+\vspace{2pt}{\color{BOBright}\rule{\linewidth}{1pt}}\vspace{5pt}
+{\footnotesize\color{BOMuted} This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. Recipients should perform their own diligence and treat this report as one input into a broader decision process.}
+
+
+\clearpage
+\thispagestyle{empty}
+\begin{tikzpicture}[remember picture,overlay]
+\node[anchor=south west,inner sep=0] at (current page.south west) {\includegraphics[width=\paperwidth,height=\paperheight]{assets/cover-ai.png}};
+\fill[black,opacity=.45] (current page.south west) rectangle (current page.north east);
+\node[anchor=south east] at ([xshift=-11mm,yshift=10mm]current page.south east) {\sffamily\bfseries\Large\color{white} BlueOcean};
+\end{tikzpicture}
+
+\end{document}

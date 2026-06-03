@@ -1,0 +1,167 @@
+{
+  "objective": "Assess the current state and near-term outlook for nuclear fusion commercialization, identify key technological, economic, and regulatory milestones, and analyze the strategic implications for energy markets, national security, and climate policy.",
+  "audience": "Senior executives in energy and technology sectors, government policymakers, and strategic investors seeking to understand fusion's potential impact on the global energy landscape over the next 10–20 years.",
+  "decision_question": "Should our organization invest in, partner with, or prepare for nuclear fusion technologies, and what strategic moves are needed to capture value or mitigate risks as fusion moves toward commercialization?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook & Strategic Implications",
+    "children": [
+      {
+        "node": "Technology Readiness & Roadmaps",
+        "children": [
+          {
+            "node": "Leading fusion approaches (tokamak, stellarator, inertial confinement, alternative concepts)"
+          },
+          {
+            "node": "Key engineering challenges (materials, tritium breeding, plasma control, heat exhaust)"
+          },
+          {
+            "node": "Timeline estimates from major projects (ITER, SPARC, private ventures)"
+          }
+        ]
+      },
+      {
+        "node": "Economic Viability & Market Entry",
+        "children": [
+          {
+            "node": "Levelized cost of electricity projections vs. renewables, fission, and fossil fuels"
+          },
+          {
+            "node": "Capital costs, construction timelines, and financing models"
+          },
+          {
+            "node": "Regulatory frameworks and licensing pathways"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications for Energy & Geopolitics",
+        "children": [
+          {
+            "node": "Impact on electricity grids, hydrogen production, and industrial heat"
+          },
+          {
+            "node": "National security dimensions: energy independence, non-proliferation, and military applications"
+          },
+          {
+            "node": "Competitive dynamics among nations (US, China, EU, Japan, UK) and private sector"
+          }
+        ]
+      },
+      {
+        "node": "Risks & Uncertainties",
+        "children": [
+          {
+            "node": "Technical risks (plasma instabilities, materials degradation, tritium supply)"
+          },
+          {
+            "node": "Market risks (cost competitiveness, public acceptance, policy support)"
+          },
+          {
+            "node": "Geopolitical risks (supply chain dependencies, intellectual property disputes)"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025 2030 2040",
+    "ITER project status and cost overruns 2025",
+    "SPARC fusion reactor progress Commonwealth Fusion Systems",
+    "private fusion companies funding milestones 2025",
+    "levelized cost of fusion energy projections",
+    "fusion regulatory framework licensing NRC",
+    "fusion energy national security implications",
+    "China fusion research EAST reactor progress",
+    "tritium breeding technology challenges fusion",
+    "fusion vs renewables cost comparison 2030",
+    "fusion energy public opinion survey 2025",
+    "fusion supply chain critical materials",
+    "fusion energy hydrogen production industrial heat",
+    "fusion non-proliferation treaty implications",
+    "fusion energy investment landscape venture capital"
+  ],
+  "outline": [
+    "Fusion commercialization is accelerating but still faces a decade or more of technical and economic hurdles",
+    "Leading fusion projects are on track to demonstrate net energy gain by the late 2020s, but commercial plants are unlikely before the 2040s",
+    "Fusion's levelized cost of electricity is projected to be competitive with fission and renewables only after multiple deployments and learning curve effects",
+    "Strategic implications for energy security are profound: fusion could provide baseload clean power, reduce dependence on fossil fuels, and reshape geopolitical alliances",
+    "National competition in fusion R&D is intensifying, with China and the US leading public investment and private startups driving innovation",
+    "Regulatory and licensing frameworks are nascent and will need to evolve to enable timely deployment",
+    "Key risks include tritium supply, materials performance, public acceptance, and cost overruns that could delay commercialization"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion Project Timeline Comparison",
+      "type": "Gantt chart",
+      "description": "Timeline of major fusion projects (ITER, SPARC, STEP, private ventures) from current phase to first plasma, net energy, and commercial operation."
+    },
+    {
+      "title": "Projected LCOE of Fusion vs. Other Energy Sources",
+      "type": "Line chart",
+      "description": "Levelized cost of electricity ($/MWh) for fusion (first-of-a-kind, nth-of-a-kind) compared to solar, wind, nuclear fission, and natural gas over 2025–2060."
+    },
+    {
+      "title": "Global Fusion R&D Funding by Country/Region",
+      "type": "Stacked bar chart",
+      "description": "Annual public and private fusion R&D spending (USD) for US, China, EU, Japan, UK, and others from 2015 to 2025."
+    },
+    {
+      "title": "Fusion Technology Readiness Levels",
+      "type": "Radar chart",
+      "description": "TRL assessment for key fusion subsystems (plasma confinement, tritium breeding, materials, heat extraction, balance of plant) across leading approaches."
+    },
+    {
+      "title": "Private Fusion Investment Trend",
+      "type": "Area chart",
+      "description": "Annual private investment in fusion startups (USD) from 2010 to 2025, segmented by technology type (tokamak, stellarator, inertial, others)."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "Fusion's 'Net Energy Gain' Milestone: What It Really Means",
+      "content": "Explain the significance of Q>1 (scientific breakeven) and Q>10 (engineering breakeven) and why commercial plants require Q>25–30. Contextualize recent results from NIF and JET."
+    },
+    {
+      "title": "The Tritium Supply Challenge",
+      "content": "Tritium is a rare radioactive isotope of hydrogen, essential for D-T fusion. Current global supply is limited to ~20 kg/year from CANDU reactors. A 1 GW fusion plant would need ~55 kg/year. Breeding blankets must achieve tritium breeding ratio >1.1 to sustain operations."
+    },
+    {
+      "title": "Fusion vs. Fission: Regulatory Lessons",
+      "content": "Fusion regulation is being developed from scratch. The US NRC's 2023 proposed framework treats fusion as a byproduct material facility, not a nuclear reactor, potentially streamlining licensing. Compare with fission's decades-long licensing process."
+    },
+    {
+      "title": "China's Fusion Ambitions: A Strategic Threat?",
+      "content": "China's EAST tokamak has achieved 120-second plasma at 120 million °C. China is building the CFETR reactor (2030s) and investing heavily in private fusion. Implications for US technological leadership and energy dominance."
+    },
+    {
+      "title": "Fusion's Role in Decarbonizing Hard-to-Abate Sectors",
+      "content": "Beyond electricity, fusion's high-temperature heat (500–1000°C) can be used for hydrogen production, steelmaking, cement, and chemical processes. This could unlock a multi-trillion-dollar market."
+    }
+  ],
+  "risks": [
+    {
+      "risk": "Technical risk: Plasma instabilities and disruptions may prevent sustained operation at commercial scale.",
+      "mitigation": "Invest in advanced control systems, machine learning for real-time plasma control, and alternative confinement concepts."
+    },
+    {
+      "risk": "Cost risk: Fusion plants may be significantly more expensive than projected, delaying investment and adoption.",
+      "mitigation": "Pursue modular designs, standardized components, and public-private cost-sharing mechanisms."
+    },
+    {
+      "risk": "Regulatory risk: Licensing delays or overly stringent safety requirements could stall deployment.",
+      "mitigation": "Engage early with regulators, develop risk-informed frameworks, and advocate for fusion-specific rules."
+    },
+    {
+      "risk": "Supply chain risk: Critical materials (e.g., rare earth magnets, tritium, specialized steels) may face shortages.",
+      "mitigation": "Diversify suppliers, invest in domestic production, and develop recycling technologies."
+    },
+    {
+      "risk": "Public acceptance risk: Fear of radiation or accidents could lead to local opposition.",
+      "mitigation": "Transparent communication, community engagement, and demonstration of inherent safety features."
+    },
+    {
+      "risk": "Geopolitical risk: Intellectual property disputes or export controls could fragment the global fusion ecosystem.",
+      "mitigation": "Foster international collaboration frameworks, protect IP while enabling knowledge sharing."
+    }
+  ]
+}
