@@ -1,0 +1,191 @@
+{
+  "objective": "Assess the current state and future trajectory of nuclear fusion commercialization, identify key strategic implications for energy markets, geopolitics, and technology investment, and provide actionable insights for decision-makers.",
+  "audience": "Senior executives in energy and technology sectors, government policy advisors, and strategic investors.",
+  "decision_question": "Given the evolving fusion landscape, what are the most likely commercialization timelines, which technologies and players are poised to lead, and what strategic moves should our organization make to capture value and mitigate risks?",
+  "issue_tree": {
+    "node": "Nuclear Fusion Commercialization Outlook & Strategic Implications",
+    "children": [
+      {
+        "node": "Technology Landscape",
+        "children": [
+          {
+            "node": "Magnetic confinement (tokamaks, stellarators) – maturity, key players, milestones"
+          },
+          {
+            "node": "Inertial confinement – laser-driven, NIF, private initiatives"
+          },
+          {
+            "node": "Alternative approaches – field-reversed configuration, magnetized target fusion, others"
+          },
+          {
+            "node": "Critical enabling technologies – high-temperature superconductors, tritium breeding, materials"
+          }
+        ]
+      },
+      {
+        "node": "Commercialization Timeline & Economics",
+        "children": [
+          {
+            "node": "Current projections – near-term (2030s), mid-term (2040s), long-term (2050+) by leading analysts"
+          },
+          {
+            "node": "Levelized cost of fusion vs. fission, renewables, fossil fuels – assumptions and sensitivities"
+          },
+          {
+            "node": "Regulatory and licensing pathways – NRC, IAEA, national frameworks"
+          },
+          {
+            "node": "Grid integration and infrastructure requirements"
+          }
+        ]
+      },
+      {
+        "node": "Key Players & Competitive Dynamics",
+        "children": [
+          {
+            "node": "Public projects – ITER, DEMO, national programs (China, US, EU, Japan, UK)"
+          },
+          {
+            "node": "Private companies – Commonwealth Fusion Systems, TAE Technologies, Helion, General Fusion, Zap Energy, others"
+          },
+          {
+            "node": "Funding landscape – venture capital, government grants, corporate partnerships"
+          },
+          {
+            "node": "Intellectual property and talent competition"
+          }
+        ]
+      },
+      {
+        "node": "Strategic Implications",
+        "children": [
+          {
+            "node": "Energy security and geopolitics – reducing dependence on fossil fuels, new energy alliances"
+          },
+          {
+            "node": "Climate change mitigation – role in net-zero scenarios, complement to renewables"
+          },
+          {
+            "node": "Investment opportunities and risks – equity, venture, project finance"
+          },
+          {
+            "node": "Disruption risks for incumbent energy industries (coal, gas, nuclear fission)"
+          },
+          {
+            "node": "Workforce and supply chain development"
+          }
+        ]
+      },
+      {
+        "node": "Uncertainties & Risks",
+        "children": [
+          {
+            "node": "Technical risks – plasma stability, materials degradation, tritium supply"
+          },
+          {
+            "node": "Economic risks – cost overruns, uncompetitive LCOE, stranded assets"
+          },
+          {
+            "node": "Regulatory and public acceptance risks"
+          },
+          {
+            "node": "Geopolitical risks – export controls, technology transfer, international collaboration"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025 2030 2040",
+    "fusion energy levelized cost of electricity projections",
+    "ITER project status and milestones 2025",
+    "Commonwealth Fusion Systems SPARC timeline",
+    "Helion Energy commercialization plans",
+    "TAE Technologies fusion reactor progress",
+    "nuclear fusion regulatory framework NRC IAEA",
+    "fusion energy venture capital investment 2024 2025",
+    "China fusion reactor EAST CFETR progress",
+    "US fusion energy strategy DOE milestones",
+    "tritium supply for fusion reactors challenges",
+    "high-temperature superconductors fusion magnets",
+    "fusion energy grid integration challenges",
+    "geopolitical implications of fusion energy",
+    "fusion energy vs renewables cost comparison",
+    "nuclear fusion public opinion survey 2025",
+    "fusion energy workforce development needs",
+    "fusion energy intellectual property landscape",
+    "Zap Energy fusion reactor update",
+    "General Fusion demonstration plant timeline"
+  ],
+  "outline": [
+    "Fusion commercialization is accelerating but remains at least a decade away from grid-scale power",
+    "Magnetic confinement, led by tokamaks, is the most mature approach with private ventures pushing timelines",
+    "Levelized cost of fusion will likely be competitive with fission and gas only after multiple deployments",
+    "Public-private partnerships are critical to de-risk technology and share capital burden",
+    "China and the US are the dominant players, with Europe and Japan also investing heavily",
+    "Fusion offers transformative energy security benefits but faces significant regulatory and supply chain hurdles",
+    "Investors should focus on enabling technologies (superconductors, tritium breeding) and diversified portfolios",
+    "Incumbent energy industries face low near-term disruption risk but should monitor fusion progress closely",
+    "Workforce and talent competition will intensify as fusion moves toward demonstration plants",
+    "Geopolitical tensions could slow international collaboration, especially around ITER and technology transfer"
+  ],
+  "chart_ideas": [
+    {
+      "title": "Fusion Commercialization Timeline Projections by Leading Organizations",
+      "type": "Gantt chart or timeline",
+      "description": "Compare projected first plasma, net energy gain, pilot plant, and commercial plant dates from ITER, CFS, Helion, TAE, General Fusion, and national programs."
+    },
+    {
+      "title": "Levelized Cost of Fusion vs. Other Energy Sources (2025-2050)",
+      "type": "Line chart with uncertainty bands",
+      "description": "Show projected LCOE ranges for fusion (first-of-a-kind, nth-of-a-kind) alongside solar, wind, gas, coal, and nuclear fission."
+    },
+    {
+      "title": "Global Fusion Funding by Source (Public vs. Private) 2015-2025",
+      "type": "Stacked bar chart",
+      "description": "Illustrate annual investment from government programs, venture capital, corporate R&D, and other private sources."
+    },
+    {
+      "title": "Key Fusion Technology Readiness Levels (TRL) by Approach",
+      "type": "Radar chart or heatmap",
+      "description": "Assess TRL for magnetic confinement, inertial confinement, and alternative concepts across plasma physics, materials, tritium, and systems integration."
+    },
+    {
+      "title": "Geographic Distribution of Fusion Research Facilities and Startups",
+      "type": "World map with markers",
+      "description": "Show locations of major public experiments (ITER, EAST, KSTAR, JT-60SA, Wendelstein 7-X) and private company headquarters/demo sites."
+    }
+  ],
+  "insight_card_ideas": [
+    {
+      "title": "The Fusion Tipping Point: When Net Energy Gain Becomes Commercially Relevant",
+      "content": "Explain the significance of Q>1 (scientific breakeven) vs. Q>10 (engineering breakeven) vs. Q>30 (commercial viability). Highlight recent milestones (NIF 2022, JET 2023) and what remains."
+    },
+    {
+      "title": "Tritium: The Hidden Bottleneck for Fusion Commercialization",
+      "content": "Describe tritium supply challenges, breeding blanket technology, and implications for deployment timelines. Compare with lithium availability for breeding."
+    },
+    {
+      "title": "How High-Temperature Superconductors Are Reshaping Fusion Economics",
+      "content": "Explain how HTS magnets enable smaller, cheaper reactors (e.g., SPARC). Discuss supply chain and manufacturing scale-up needs."
+    },
+    {
+      "title": "Fusion's Role in Net-Zero: Baseload or Load-Following?",
+      "content": "Analyze whether fusion will compete with renewables as baseload or complement them. Discuss operational flexibility and grid integration."
+    },
+    {
+      "title": "The Geopolitics of Fusion: Winners, Losers, and New Alliances",
+      "content": "Examine how fusion could reshape energy independence, reduce OPEC influence, and create new technology dependencies. Discuss ITER's diplomatic role."
+    }
+  ],
+  "risks": [
+    "Technical risk: Plasma physics challenges may delay net energy gain beyond current projections.",
+    "Economic risk: First-of-a-kind fusion plants may have LCOE far above alternatives, limiting early adoption.",
+    "Regulatory risk: Lack of established licensing frameworks could cause multi-year delays for demonstration plants.",
+    "Supply chain risk: Tritium scarcity and HTS magnet production capacity may bottleneck deployment.",
+    "Geopolitical risk: Export controls or international tensions could disrupt collaboration on ITER and technology transfer.",
+    "Market risk: Rapid cost declines in renewables and storage could erode fusion's competitive window.",
+    "Public acceptance risk: Safety concerns (though different from fission) may face NIMBY opposition.",
+    "Talent risk: Shortage of skilled plasma physicists, engineers, and technicians could slow progress."
+  ]
+}
