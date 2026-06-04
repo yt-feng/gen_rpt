@@ -790,5 +790,7 @@ def _normalize_punctuation(text: str) -> str:
     text = "".join(translation.get(ord(ch), ch) for ch in text)
     text = re.sub(r"([A-Za-z])\s+'\s+s\b", r"\1's", text)
     text = re.sub(r"\b([A-Za-z]+n)\s+'\s+t\b", r"\1't", text)
+    text = re.sub(r"(\d)\.\s+(\d)", r"\1.\2", text)
+    text = re.sub(r"([A-Za-z])-(a|an|and|but|while|without|with|not|the)\b", r"\1 - \2", text, flags=re.I)
     text = re.sub(r"\s+", " ", text).strip()
     return text

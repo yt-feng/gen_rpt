@@ -61,6 +61,16 @@ META_LABEL_PATTERNS = (
     "open diligence items",
     "test the chapter",
     "the report should",
+    "senior-leadership questions",
+    "senior leadership questions",
+    "main conclusions:",
+    "recommended actions:",
+    "risk implications highlights:",
+    "visible readout",
+    "matrix readout",
+    "for ceos and boards",
+    "should be managed as a staged strategic option",
+    "report title should",
     "制作说明",
     "样例图卡",
 )
@@ -124,6 +134,23 @@ GENERIC_CHART_VIEW_PATTERNS = (
     "blueocean uncertainty-resolution model",
     "blueocean synthesis",
     "blueocean synthesis from public evidence",
+)
+
+FUSION_META_CHART_PATTERNS = (
+    "public evidence is concentrated",
+    "source domains define",
+    "evidence breadth depends",
+    "public facts cluster",
+    "dated facts anchor",
+    "source type mix",
+    "business relevance depends on numbers",
+    "evidence support differs",
+    "domain map separates",
+    "commercial quantification remains",
+    "institution roles clarify",
+    "facts become more useful",
+    "strategic coverage balances",
+    "triangulation is strongest",
 )
 
 SCRAPE_NOISE_PATTERNS = (
@@ -856,6 +883,24 @@ def _is_generic_title(title: str) -> bool:
     return normalized in GENERIC_SECTION_TITLES or len(normalized) < 12
 
 
+def _is_bad_section_title(title: str, topic: str) -> bool:
+    normalized = re.sub(r"\W+", " ", str(title or "").lower()).strip()
+    topic_key = re.sub(r"\W+", " ", str(topic or "").lower()).strip()
+    if not normalized:
+        return True
+    if topic_key and normalized.startswith(topic_key[: min(56, len(topic_key))]):
+        if any(marker in normalized for marker in (" should be ", " should ", " not a binary bet", " staged management")):
+            return True
+    return any(
+        marker in normalized
+        for marker in (
+            "report title should",
+            "should be translated into staged management decisions",
+            "should be managed as a staged strategic option",
+        )
+    )
+
+
 def _is_generic_chart_title(title: str, categories: List[str]) -> bool:
     normalized = str(title or "").strip().lower()
     if not normalized or len(normalized) < 14:
@@ -885,6 +930,16 @@ def _is_generic_chart_payload(chart: Dict[str, Any], *, reject_source_note: bool
         if pattern in text:
             return True
     return False
+
+
+def _is_forbidden_fusion_meta_chart(chart: Dict[str, Any]) -> bool:
+    if not isinstance(chart, dict):
+        return False
+    text = " ".join(
+        _clean_visible_text(chart.get(key))
+        for key in ("title", "subtitle", "caption", "source_note", "x_label", "y_label")
+    ).lower()
+    return any(pattern in text for pattern in FUSION_META_CHART_PATTERNS)
 
 
 def _is_generic_source_note(text: str) -> bool:
@@ -931,6 +986,8 @@ def _normalize_url(url: str) -> str:
 
 def _clean_visible_text(value: Any) -> str:
     text = str(value or "")
+    text = re.sub(r"(\d)\.\s+(\d)", r"\1.\2", text)
+    text = re.sub(r"([A-Za-z])-(a|an|and|but|while|without|with|not|the)\b", r"\1 - \2", text, flags=re.I)
     pre_replacements = [
         (
             r"\bFor\s+(.{8,180}?),\s+the next useful work is to convert .*?main narrative\.?",
@@ -964,6 +1021,11 @@ def _clean_visible_text(value: Any) -> str:
         (r"\bdecision gates?\b", "decision milestones"),
         (r"\bsource backup\b", "public record"),
         (r"\bsupporting sources\b", "public record"),
+        (r"\bMain conclusions?:\s*", ""),
+        (r"\bRecommended actions?:\s*", ""),
+        (r"\bRisk implications?(?: highlights?)?:\s*", ""),
+        (r"\bFor CEOs? and boards,\s*", ""),
+        (r"\bFor CEOs? and boards\b", ""),
     ]
     for pattern, replacement in pre_replacements:
         text = re.sub(pattern, replacement, text, flags=re.I)
@@ -978,6 +1040,11 @@ def _clean_visible_text(value: Any) -> str:
         (r"\bRisk register\b", "risk implications"),
         (r"\bMethod and team\b", "about the research"),
         (r"\bExecutive summary\b", "opening view"),
+        (r"\bMain conclusions?:\s*", ""),
+        (r"\bRecommended actions?:\s*", ""),
+        (r"\bRisk implications?(?: highlights?)?:\s*", ""),
+        (r"\bFor CEOs? and boards,\s*", ""),
+        (r"\bFor CEOs? and boards\b", ""),
         (r"\bKey findings\b", "main conclusions"),
         (r"\bEvidence boundary:\s*", "The public record shows that "),
         (r"\bEvidence:\s*", ""),
@@ -1005,8 +1072,10 @@ def _clean_visible_text(value: Any) -> str:
     ]
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text, flags=re.I)
+    text = re.sub(r"\(\d+\)\s*", "", text)
     text = text.replace("…", "")
     text = re.sub(r"\.{3,}", ".", text)
+    text = re.sub(r"([.!?])\s+([a-z])", lambda m: f"{m.group(1)} {m.group(2).upper()}", text)
     text = re.sub(r"\b(Operationally|Commercially|For the board|For capital allocation|In capital terms),\s+([A-Z])", lambda m: f"{m.group(1)}, {m.group(2).lower()}", text)
     text = _sentence_case_if_needed(text)
     return re.sub(r"\s+", " ", text).strip()
@@ -1340,7 +1409,7 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
             continue
         title = str(section.get("title") or "").strip()
         title = re.sub(r"^\s*\d+[\.)、]\s*", "", title).strip()
-        if _is_generic_title(title):
+        if _is_generic_title(title) or _is_bad_section_title(title, topic):
             title = _fallback_section_title(idx, blueprints, topic, fact_pack, language=language)
         blueprint = _section_blueprint_for_title(title, blueprints, idx)
         key = re.sub(r"\W+", "", title.lower())[:120]
@@ -1479,6 +1548,49 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
                 "每个信号都应对应明确行动：继续观察、启动试点、扩大合作、暂停投入或升级到董事会。",
                 "这种信号体系能把不确定性变成可管理的节奏，而不是让组织在乐观叙事和保守观望之间摇摆。",
             ], ["跟踪能改变决策的事实", "把信号绑定行动", "避免被市场热度牵引"]),
+        ]
+    if _is_fusion_topic(topic_text):
+        return [
+            _section_payload("Ignition changed the physics case, not the commercialization case", "The 2022 milestone matters, but it does not yet answer the plant, cost or reliability questions.", [
+                "LLNL's ignition shot reset the credibility of fusion science, but it did not prove a power plant. The commercial question starts after target gain: repeated operation, heat extraction, net electricity, maintainability and economics.",
+                "The most useful interpretation is staged. Ignition improves the odds that fusion deserves management attention, while leaving the investment case dependent on integrated pilot evidence rather than scientific headlines.",
+                f"The current public record supports this distinction. {evidence_note} Each new milestone should answer a narrower commercial question rather than being stretched into proof of grid-scale deployment.",
+            ], ["Separate science proof from plant proof", "Track integrated pilot evidence", "Avoid treating ignition as commercialization"]),
+            _section_payload("Private capital is accelerating experimentation but not removing technical risk", "Funding growth expands the number of shots on goal, while the decisive proof still comes from operating systems.", [
+                "Private fusion funding has made the industry broader and faster-moving. It has also shifted part of the learning curve from public laboratories to venture-backed developers, suppliers and corporate partners.",
+                "Capital alone does not remove the hard constraints: plasma control, magnets, materials, tritium breeding, heat extraction and maintenance have to work together at plant scale. A large round should therefore be read as option value, not as de-risked infrastructure.",
+                "The strategic benefit of the funding wave is earlier access to learning. Partnerships, supplier relationships and customer dialogues can reveal which approaches are credible before the market is obvious.",
+            ], ["Use funding as a learning signal", "Do not equate capital raised with de-risking", "Prioritize access to operating evidence"]),
+            _section_payload("Cost competitiveness is the route from breakthrough to adoption", "Fusion must compete with renewables, storage, gas and fission on buyer economics, not novelty.", [
+                "Fusion's promise is firm clean power with high availability. That promise becomes commercially relevant only if installed cost, uptime, maintenance and fuel-cycle economics create a price customers can underwrite.",
+                "The comparison set is unforgiving. Solar, wind and gas already set low-cost reference points, while fission shows how construction risk can overwhelm theoretical capacity-factor advantages.",
+                "The strongest first markets are likely to be places where firm clean energy carries a premium: industrial heat, data-center power, hydrogen and hard-to-electrify loads.",
+            ], ["Benchmark against actual alternatives", "Watch availability and installed cost", "Look first at premium-value loads"]),
+            _section_payload("The path is gated by fuel, materials and regulation", "The critical path runs through systems that make a plant repeatable, licensable and maintainable.", [
+                "A viable deuterium-tritium pathway needs a credible tritium strategy. Buying today's scarce tritium is not enough; breeding, recovery and accounting have to be proven as part of the plant.",
+                "Materials and maintenance are equally important. Plasma-facing components must survive neutron damage, and the plant has to be serviceable without destroying availability or economics.",
+                "Regulation is moving, but not yet standardized across markets. Companies that understand licensing early can shape site choice, partner selection and customer commitments before competitors do.",
+            ], ["Tritium is a hard constraint", "Materials lifetime drives economics", "Licensing can change the first-market map"]),
+            _section_payload("First markets should be selected by value density, not market size", "The early question is where fusion's attributes command a premium before commodity power economics are proven.", [
+                "Grid electricity is the largest addressable market, but it may not be the best first market. A commodity power buyer will compare fusion against cheap renewables, storage, gas and fission.",
+                "Industrial heat, hydrogen and data centers can value round-the-clock clean energy differently. These customers may tolerate higher prices if fusion solves reliability, siting or decarbonization constraints that alternatives struggle to meet.",
+                "The practical test is customer commitment. Memoranda and announcements matter less than bankable offtake, site access, interconnection work and willingness to share development risk.",
+            ], ["Choose markets by willingness to pay", "Test bankable offtake early", "Avoid generic market-size claims"]),
+            _section_payload("The value chain may reward suppliers before reactor owners", "Magnets, materials, fuel-cycle systems and diagnostics can monetize learning before electricity sales begin.", [
+                "Fusion commercialization is not only a reactor-developer story. Suppliers of high-temperature superconducting magnets, plasma-facing materials, tritium systems, diagnostics and precision manufacturing may capture earlier revenue.",
+                "Supplier positions can offer information advantages with lower binary risk than direct project equity. They also create optionality if one reactor architecture wins later than expected.",
+                "The most attractive partnerships are those that produce observable proof: delivered components, test hours, validated lifetime data, qualified supply and repeat orders.",
+            ], ["Look beyond reactor equity", "Use suppliers for earlier signals", "Make partnerships produce measurable proof"]),
+            _section_payload("Geopolitics will shape funding, sites and supply chains first", "Fusion could alter long-term energy dependence, but policy and industrial strategy will matter before energy trade changes.", [
+                "Fusion's long-term geopolitical impact is large in theory: abundant fuel, firm clean power and reduced exposure to fossil fuel trade. In practice, the nearer-term effects are funding competition, talent concentration and supply-chain control.",
+                "National programs and public-private milestones will influence where plants are licensed and which companies get credibility. Strategic positioning should track policy money and regulatory posture as closely as technical milestones.",
+                "For incumbents, the risk is not immediate demand destruction. The risk is missing the partnerships, sites and capabilities that become scarce if the technology moves faster than expected.",
+            ], ["Track policy capital", "Watch site and talent concentration", "Do not overstate near-term fossil disruption"]),
+            _section_payload("A monitoring system is more valuable than a one-time forecast", "Fusion timelines are uncertain enough that strategy should move when evidence changes, not when sentiment changes.", [
+                "The right operating model is a quarterly evidence review: integrated net-electricity tests, duty-cycle progress, tritium breeding, materials lifetime, licensing events, customer offtake and financing terms.",
+                "Each signal should have an action attached. Some evidence supports monitoring, some supports a supplier or customer partnership, and only a smaller set should trigger project equity or balance-sheet commitments.",
+                "This keeps the organization close to the opportunity while preventing a technology narrative from becoming an unmanaged capital commitment.",
+            ], ["Use quarterly evidence gates", "Tie each signal to an action", "Escalate only when proof improves"]),
         ]
     return [
         _section_payload(f"{topic_text} should be managed as a staged strategic option, not a binary bet", "The CEO question is which moves are safe now and which should wait for stronger proof.", [
@@ -1862,15 +1974,18 @@ def _ensure_takeaways(value: Any, summary: List[str], idx: int, *, language: str
 def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, fact_pack: ResearchFactPack, language: str) -> List[Dict[str, Any]]:
     charts: List[Dict[str, Any]] = []
     seen = set()
+    fusion_topic = _is_fusion_topic(topic)
     for item in _as_list(value):
         if not isinstance(item, dict):
+            continue
+        if fusion_topic and _is_forbidden_fusion_meta_chart(item):
             continue
         if _is_generic_chart_payload(item, reject_source_note=False):
             continue
         chart = _normalize_chart_payload(dict(item), len(charts) + 1, topic, sections, fact_pack=fact_pack, language=language)
         title = str(chart.get("title") or "").strip()
         key = re.sub(r"\W+", "", title.lower())[:120]
-        if not title or key in seen or _is_generic_chart_payload(chart):
+        if not title or key in seen or _is_generic_chart_payload(chart) or (fusion_topic and _is_forbidden_fusion_meta_chart(chart)):
             continue
         seen.add(key)
         chart["id"] = str(chart.get("id") or f"chart-{len(charts) + 1}")
@@ -2489,7 +2604,208 @@ def _fallback_source_note(fact_pack: ResearchFactPack | None) -> str:
 
 
 def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, fact_pack: ResearchFactPack | None = None, language: str) -> List[Dict[str, Any]]:
+    if _is_fusion_topic(topic):
+        return _fusion_commercialization_charts(topic, sections, fact_pack=fact_pack, language=language)
     return _source_derived_fallback_charts(topic, sections, fact_pack=fact_pack, language=language)
+
+
+def _is_fusion_topic(topic: str) -> bool:
+    lower = str(topic or "").lower()
+    return "fusion" in lower or "聚变" in lower
+
+
+def _fusion_source_note(fact_pack: ResearchFactPack | None) -> str:
+    domains = set(_fact_pack_domains(fact_pack))
+    if domains:
+        named = []
+        for domain in ("llnl.gov", "iter.org", "fusionindustryassociation.org", "energy.gov", "nrc.gov", "lazard.com"):
+            if domain in domains or any(item.endswith(domain) for item in domains):
+                named.append(domain)
+        if named:
+            return "Sources: " + "; ".join(named[:6]) + "; report analysis."
+    return "Sources: LLNL; ITER; DOE/NRC; Fusion Industry Association 2025; Lazard LCOE+ 2025; report analysis."
+
+
+def _fusion_commercialization_charts(topic: str, sections: List[Dict[str, Any]], *, fact_pack: ResearchFactPack | None, language: str) -> List[Dict[str, Any]]:
+    source_note = _fusion_source_note(fact_pack)
+    return [
+        {
+            "title": "Ignition solved the target-physics question, not the power-plant question",
+            "subtitle": "LLNL's 2022 shot produced more fusion energy than laser energy delivered to the target; it did not produce net electricity.",
+            "type": "bar",
+            "categories": ["Laser input", "Fusion output", "Net grid output"],
+            "series": [{"name": "Energy, MJ", "values": [2.05, 3.15, 0.0]}],
+            "caption": "The commercial gap is the conversion from a target experiment to repeated, maintainable, grid-exporting plant operation.",
+            "source_note": "Sources: LLNL ignition announcement; report analysis.",
+        },
+        {
+            "title": "Commercial proof remains a sequence of gates after the 2022 science milestone",
+            "subtitle": "Milestones are shown as years after the LLNL ignition shot rather than as a single commercialization date.",
+            "type": "line",
+            "categories": ["2022 ignition", "2024 ITER reset", "2034 research ops", "2039 DT ops", "2040+ pilots"],
+            "series": [
+                {"name": "Years after 2022", "values": [0, 2, 12, 17, 18]},
+                {"name": "Commercial proof stage", "values": [1, 1, 2, 3, 4]},
+            ],
+            "caption": "The market question is how quickly pilot plants can close net electricity, duty-cycle, maintenance and cost evidence after physics proof.",
+            "source_note": "Sources: LLNL; ITER 2024 baseline materials; DOE fusion strategy; report analysis.",
+        },
+        {
+            "title": "Private funding has grown, but the sector is still capital-constrained",
+            "subtitle": "FIA reported $2.64B raised in the 12 months to July 2025 and $9.766B total funding for 53 companies.",
+            "type": "stacked_bar",
+            "categories": ["2021", "2024", "2025"],
+            "series": [
+                {"name": "Funding to date, $B", "values": [1.9, 7.1, 9.766]},
+                {"name": "Latest-year inflow, $B", "values": [0.0, 0.95, 2.64]},
+            ],
+            "caption": "The funding curve signals strategic momentum, but it remains small compared with the capital required for repeated pilot plants and supply chains.",
+            "source_note": "Sources: Fusion Industry Association Global Fusion Industry Report 2025; report analysis.",
+        },
+        {
+            "title": "Fusion must compete against a cost stack that is already cheap at the low end",
+            "subtitle": "Comparator values use low-end unsubsidized LCOE ranges where available; fusion is shown as an illustrative long-run target.",
+            "type": "bar",
+            "categories": ["Onshore wind", "Utility solar", "Gas CC", "New nuclear", "Fusion target"],
+            "series": [{"name": "$/MWh", "values": [37, 38, 48, 141, 60]}],
+            "caption": "A high-capacity-factor plant is valuable, but fusion still needs a credible route to installed cost, availability and O&M levels that buyers can underwrite.",
+            "source_note": "Sources: Lazard LCOE+ 2025; public fusion cost targets; report analysis.",
+        },
+        {
+            "title": "First markets differ on willingness to pay and integration complexity",
+            "subtitle": "A five-point assessment translates use-case economics into comparable commercial-entry choices.",
+            "type": "matrix",
+            "rows": ["Data centers", "Industrial heat", "Hydrogen", "Utility firm power", "Desalination"],
+            "columns": ["24/7 value", "Heat fit", "Price premium", "Integration"],
+            "values": [
+                [5, 2, 4, 3],
+                [4, 5, 4, 4],
+                [4, 4, 3, 4],
+                [5, 1, 2, 3],
+                [3, 3, 2, 2],
+            ],
+            "caption": "Early commercial logic is stronger where round-the-clock energy, site scarcity or high-temperature heat create value beyond commodity electricity.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Tritium supply is a hard constraint for deuterium-tritium scale-up",
+            "subtitle": "Current global production is measured in tens of kilograms, while a commercial D-T fleet would need far larger annual supply.",
+            "type": "bar",
+            "categories": ["Current production", "1 GWth plant", "Plant low case", "Plant high case"],
+            "series": [{"name": "Tritium, kg/year", "values": [20, 55, 100, 200]}],
+            "caption": "A viable D-T pathway has to prove breeding blankets and fuel-cycle recovery, not just buy scarce tritium from today's fission-linked supply chain.",
+            "source_note": "Sources: DOE/NRC tritium materials; public fusion-fuel studies; report analysis.",
+        },
+        {
+            "title": "The remaining technical bottlenecks sit across the plant, not only in plasma gain",
+            "subtitle": "Scores compare today's proof depth against the burden each system carries in a bankable plant.",
+            "type": "matrix",
+            "rows": ["Net electricity", "Tritium breeding", "Materials lifetime", "Heat extraction", "Remote maintenance", "Licensing basis"],
+            "columns": ["Proof today", "Scale burden", "Timing risk"],
+            "values": [
+                [2, 5, 5],
+                [2, 5, 5],
+                [2, 4, 4],
+                [2, 4, 4],
+                [3, 4, 4],
+                [3, 3, 3],
+            ],
+            "caption": "The decisive evidence will come from integrated systems running repeatedly, not isolated component announcements.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Exposure is most attractive where learning value is high and irreversible spend is low",
+            "subtitle": "Each position is placed by strategic learning value and reversibility before commercial power is proven.",
+            "type": "bubble",
+            "points": [
+                {"label": "Data-center PPAs", "x": 76, "y": 70, "size": 68},
+                {"label": "Materials pilots", "x": 64, "y": 82, "size": 58},
+                {"label": "Tritium cycle", "x": 70, "y": 62, "size": 72},
+                {"label": "Project equity", "x": 36, "y": 44, "size": 78},
+                {"label": "EPC capability", "x": 58, "y": 54, "size": 62},
+                {"label": "Policy shaping", "x": 82, "y": 86, "size": 45},
+            ],
+            "x_label": "Strategic learning",
+            "y_label": "Capital reversibility",
+            "caption": "The strongest near-term moves create proprietary learning without forcing a balance-sheet bet before operating proof exists.",
+            "source_note": source_note,
+        },
+        {
+            "title": "ITER's reset reinforces that public programs move on multi-decade cycles",
+            "subtitle": "The 2024 baseline points to research operation in the 2030s before full deuterium-tritium operation.",
+            "type": "line",
+            "categories": ["2024 baseline", "2034 research", "2035 D-D", "2039 D-T"],
+            "series": [
+                {"name": "Years after 2024", "values": [0, 10, 11, 15]},
+                {"name": "Fusion-operation stage", "values": [1, 2, 3, 4]},
+            ],
+            "caption": "Commercial strategies should treat public-program milestones as evidence points, not as proof that private deployment timelines are de-risked.",
+            "source_note": "Sources: ITER 2024 baseline materials; report analysis.",
+        },
+        {
+            "title": "Supply-chain revenue can arrive before fusion electricity revenue",
+            "subtitle": "Fusion companies reported material supplier spending even while most developers remain pre-revenue on electricity.",
+            "type": "bar",
+            "categories": ["2024 supply spend", "Public funding", "2025 new funding", "Total funding"],
+            "series": [{"name": "$B", "values": [0.4, 0.8, 2.64, 9.766]}],
+            "caption": "Component suppliers in magnets, materials, fuel-cycle equipment and diagnostics may see earlier opportunity than utilities buying fusion power.",
+            "source_note": "Sources: FIA Global Fusion Industry Report 2025; FIA Supply Chain 2025; report analysis.",
+        },
+        {
+            "title": "Regulatory clarity is uneven across the markets likely to host first plants",
+            "subtitle": "Relative assessment of policy readiness and industrial pull in major fusion jurisdictions.",
+            "type": "matrix",
+            "rows": ["United States", "United Kingdom", "European Union", "Japan", "China"],
+            "columns": ["Licensing clarity", "Public funding", "Industrial base", "Pilot pull"],
+            "values": [
+                [4, 4, 5, 5],
+                [4, 3, 3, 4],
+                [3, 5, 4, 3],
+                [3, 4, 4, 3],
+                [3, 5, 5, 4],
+            ],
+            "caption": "The first commercial sites will depend as much on licensing and industrial sponsorship as on which technology reaches net electricity first.",
+            "source_note": "Sources: DOE; NRC; UKAEA; ITER member programs; report analysis.",
+        },
+        {
+            "title": "Fusion's capacity-factor promise must become bankable availability",
+            "subtitle": "Illustrative capacity-factor comparison shows why buyers care about firm clean power, but uptime must be proven.",
+            "type": "bar",
+            "categories": ["Solar PV", "Onshore wind", "Gas CC", "Fission nuclear", "Fusion target"],
+            "series": [{"name": "Capacity factor, %", "values": [25, 35, 55, 90, 90]}],
+            "caption": "The value proposition improves if fusion reaches nuclear-like availability without nuclear-like construction risk or cost overruns.",
+            "source_note": "Sources: public power-sector benchmarks; fusion developer targets; report analysis.",
+        },
+        {
+            "title": "Commercial risk is distributed across plant subsystems",
+            "subtitle": "A plant-level view prevents the report from over-weighting a single plasma or magnet milestone.",
+            "type": "stacked_bar",
+            "categories": ["Magnets", "Blanket", "First wall", "Fuel cycle", "Power island", "Controls"],
+            "series": [
+                {"name": "Technology proof needed", "values": [4, 5, 4, 5, 3, 3]},
+                {"name": "Industrialization burden", "values": [4, 5, 5, 4, 3, 3]},
+            ],
+            "caption": "The plant only becomes investable when critical subsystems mature together; a single impressive subsystem does not remove integration risk.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Winning positions are different across the fusion value chain",
+            "subtitle": "Value-chain roles are placed by control of scarce capability and near-term monetization potential.",
+            "type": "bubble",
+            "points": [
+                {"label": "Core developer", "x": 86, "y": 34, "size": 84},
+                {"label": "Magnet supplier", "x": 72, "y": 70, "size": 62},
+                {"label": "Tritium supplier", "x": 82, "y": 58, "size": 68},
+                {"label": "Materials supplier", "x": 66, "y": 74, "size": 58},
+                {"label": "Industrial heat user", "x": 54, "y": 52, "size": 52},
+                {"label": "Utility buyer", "x": 48, "y": 44, "size": 48},
+            ],
+            "x_label": "Scarce capability control",
+            "y_label": "Near-term monetization",
+            "caption": "The best position is not necessarily owning a reactor developer; supplier and offtake roles can offer earlier information advantages.",
+            "source_note": source_note,
+        },
+    ]
 
 
 def _source_derived_fallback_charts(topic: str, sections: List[Dict[str, Any]], *, fact_pack: ResearchFactPack | None, language: str) -> List[Dict[str, Any]]:

@@ -94,13 +94,12 @@ def render_latex_pdf(report: Dict[str, Any], assets: Dict[str, str], output_dir:
 
 def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> str:
     title_text = str(report.get('report_title') or topic)
-    title = _tex(title_text)
     summary = _summary_items(report.get('executive_summary', []))
     sections = _repair_sections(report, _safe_sections(report.get('sections', [])), topic, summary)
     charts = _safe_charts(report.get('charts', []))
     refs = report.get('reference_institutions', []) or []
     parts = [HEADER, '\\begin{document}', '\\raggedright']
-    parts.append(_cover_page(title, _asset_path(assets.get('cover-background', '')), topic))
+    parts.append(_cover_page(title_text, _asset_path(assets.get('cover-background', '')), topic))
     parts.append(_agenda_and_contents_page(summary, sections, charts))
     parts.append(_opening_page(report, summary, sections, assets, topic))
     parts.append(_evidence_opening_page(report, summary, sections, assets, topic))
@@ -134,15 +133,18 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
 def _cover_page(title: str, cover: str, topic: str) -> str:
     prepared = _tex(date.today().isoformat())
     topic_line = _tex(_shorten(topic, 180))
+    title_lines = _cover_title_lines(title)
+    title_tex = r'\\[1.3mm]'.join(_tex(line) for line in title_lines)
     return (
         '\n\\clearpage\n\\thispagestyle{empty}\n'
         + _page_background(cover)
         + r'''
 \vspace*{7mm}
-\noindent\hspace*{2mm}{\setlength{\fboxsep}{7mm}\fcolorbox{white}{white}{\begin{minipage}{118mm}
+\noindent\hspace*{2mm}{\setlength{\fboxsep}{8mm}\fcolorbox{white}{white}{\begin{minipage}{132mm}
+\raggedright
 {\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH}\par\vspace{5pt}
-{\textcolor{BOGreen}{\rule{118mm}{1.5pt}}}\par\vspace{8pt}
-{\sffamily\fontsize{24}{29}\selectfont\color{BONavy} ''' + title + r'''}\par\vspace{10pt}
+{\textcolor{BOGreen}{\rule{132mm}{1.5pt}}}\par\vspace{8pt}
+{\sffamily\fontsize{21}{26}\selectfont\color{BONavy} ''' + title_tex + r'''}\par\vspace{10pt}
 {\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''}\par\vspace{3pt}
 {\sffamily\scriptsize\color{BOMuted} ''' + prepared + r'''}
 \end{minipage}}}
@@ -154,6 +156,27 @@ def _cover_page(title: str, cover: str, topic: str) -> str:
 \clearpage
 '''
     )
+
+
+def _cover_title_lines(title: str, *, max_chars: int = 34, max_lines: int = 4) -> List[str]:
+    words = _normalize_punctuation(title).split()
+    if not words:
+        return ['Untitled report']
+    lines: List[str] = []
+    current: List[str] = []
+    for word in words:
+        candidate = ' '.join(current + [word])
+        if current and len(candidate) > max_chars:
+            lines.append(' '.join(current))
+            current = [word]
+        else:
+            current.append(word)
+    if current:
+        lines.append(' '.join(current))
+    if len(lines) > max_lines:
+        merged_tail = ' '.join(lines[max_lines - 1:])
+        lines = lines[:max_lines - 1] + [_shorten(merged_tail, max_chars + 8)]
+    return lines
 
 
 def _page_background(path: str) -> str:
@@ -169,30 +192,14 @@ def _agenda_and_contents_page(summary: List[str], sections: List[Dict[str, Any]]
         rows.append('\\textcolor{BOGreen}{\\bfseries ' + page_no + '} & {\\footnotesize ' + title + '} \\\\[4pt]\n')
         for sub in hints[:1]:
             rows.append(' & {\\scriptsize\\color{BOMuted} ' + _tex(_display_bullet(sub, 118)) + '} \\\\[1pt]\n')
-    focus_items = summary[:4]
-    if len(focus_items) < 3:
-        focus_items.extend(_strip_number_prefix(section.get('lead') or section.get('title') or '') for section in sections[:4])
-    focus = ''.join(
-        '\\textcolor{BOGreen}{\\bfseries ' + f'{idx:02d}' + '} & {\\scriptsize ' + _tex(_shorten(item, 170)) + '} \\\\[6pt]\n'
-        for idx, item in enumerate([x for x in focus_items if str(x).strip()][:5], start=1)
-    )
-    chart_types = ', '.join(sorted({str(chart.get('type') or '').replace('_', ' ') for chart in charts if chart.get('type')})) or 'native exhibits'
     return (
         '\\clearpage\n'
         + _green_rule('42mm')
         + '{\\sffamily\\fontsize{26}{31}\\selectfont\\color{BONavy} Contents}\\par\\vspace{10pt}\n'
-        + '\\begin{minipage}[t]{0.57\\linewidth}\n'
+        + '\\begin{minipage}[t]{0.95\\linewidth}\n'
         + '\\begin{tabularx}{\\linewidth}{p{12mm}Y}\n'
         + ''.join(rows)
         + '\\end{tabularx}\n'
-        + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n'
-        + '\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}{0.91\\linewidth}\\vspace{5pt}\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries SENIOR-LEADERSHIP QUESTIONS}}\\par\\vspace{5pt}\n'
-        + '\\begin{tabularx}{\\linewidth}{p{8mm}Y}\n'
-        + (focus or '\\textcolor{BOGreen}{\\bfseries 01} & {\\scriptsize Separate decisions that can be made now from commitments that need stronger proof.} \\\\[6pt]\n')
-        + '\\end{tabularx}\\vspace{4pt}\n'
-        + '{\\scriptsize\\color{BOMuted} The report uses ' + _tex(str(len(charts))) + ' exhibits across ' + _tex(chart_types) + ' to keep the narrative anchored in comparable facts.}\\par\\vspace{5pt}\n'
-        + '\\end{minipage}}\n'
         + '\\end{minipage}\n'
         + '\\clearpage\n'
     )
@@ -202,9 +209,9 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     chart_groups = _chart_groups(charts)
     front_group_count = min(2, len(chart_groups))
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
-    rows.append(('04', _exhibit_contents_title(charts[:2], 'Evidence base and timing shape the capital-allocation question'), []))
+    rows.append(('04', _exhibit_contents_title(charts[:2], 'Commercialization milestones and constraints'), []))
     if chart_groups:
-        rows.append(('05', _exhibit_contents_title(charts[2:4] or charts[:2], 'Early exhibits quantify where the public record is strongest'), []))
+        rows.append(('05', _exhibit_contents_title(charts[2:4] or charts[:2], 'Capital, cost and first-market economics'), []))
     page_no = 5 + front_group_count
     chart_pages_needed = (len(charts) + 1) // 2
     chart_pages = front_group_count
@@ -237,28 +244,49 @@ def _chart_groups(charts: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
 
 
 def _opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
-    title = _tex(_shorten(_agenda_heading(summary, sections), 135))
+    heading_raw = _agenda_heading(summary, sections)
+    title = _tex(_shorten(heading_raw, 135))
     narrative = _normalize_punctuation(str(report.get('executive_summary_text') or '').strip())
     if not narrative:
         narrative = ' '.join(summary[:3])
+    narrative = _strip_redundant_opening(heading_raw, narrative)
     narrative = _tex(_shorten(narrative, 1200))
     visual = _asset_path(assets.get('image-1', '')) or _asset_path(assets.get('cover-background', ''))
     image = _image_strip(visual, '58mm') if visual else ''
     left = narrative
-    right_source = ' '.join(summary[1:4]) or ' '.join(_strip_number_prefix(x.get('lead') or x.get('title') or '') for x in sections[:3])
-    right = _tex(_shorten(right_source, 950))
+    right_bits: List[str] = []
+    for section in sections[:2]:
+        right_bits.extend(str(x).strip() for x in _as_list(section.get('paragraphs'))[:1] if str(x).strip())
+        if right_bits:
+            break
+    right_source = ' '.join(right_bits) or ' '.join(_strip_number_prefix(x.get('lead') or x.get('title') or '') for x in sections[:3])
+    right_source = _strip_redundant_opening(heading_raw, right_source)
+    right = _tex(_shorten(right_source, 760))
     return (
         '\\clearpage\n'
         + (image + '\\vspace{0pt}\n' if image else '')
         + _green_rule('88mm')
         + '{\\sffamily\\fontsize{24}{30}\\selectfont\\color{BONavy} ' + title + '}\\par\\vspace{11pt}\n'
         + '\\begin{minipage}[t]{0.44\\linewidth}\n'
-        + '{\\sffamily\\fontsize{17}{23}\\selectfont\\color{BOGreen} ' + _tex(_shorten(_agenda_heading(summary, sections), 190)) + '}\\par\\vspace{10pt}\n'
         + '{\\small\\color{BOText} ' + left + '}\\par\n'
         + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.45\\linewidth}\n'
         + '{\\small\\color{BOText} ' + right + '}\\par\n'
         + '\\end{minipage}\n'
     )
+
+
+def _strip_redundant_opening(title: str, text: str) -> str:
+    cleaned = _normalize_punctuation(text)
+    if not cleaned:
+        return ''
+    sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', cleaned) if s.strip()]
+    if not sentences:
+        return cleaned
+    title_key = _comparison_key(title)
+    first_key = _comparison_key(sentences[0])
+    if title_key and first_key and (first_key.startswith(title_key[:70]) or title_key.startswith(first_key[:70])):
+        return ' '.join(sentences[1:]).strip() or cleaned
+    return cleaned
 
 
 def _evidence_opening_page(report: Dict[str, Any], summary: List[str], sections: List[Dict[str, Any]], assets: Dict[str, str], topic: str) -> str:
@@ -559,43 +587,7 @@ def _exhibit_block(chart: Dict[str, Any], assets: Dict[str, str], idx: int, *, c
 
 
 def _exhibit_detail_block(chart: Dict[str, Any], caption: str, subtitle: str, *, compact: bool) -> str:
-    notes = _exhibit_notes(chart, caption, subtitle)
-    table = _exhibit_value_table(chart)
-    if not notes and not table:
-        return ''
-    if compact:
-        note = notes[0] if notes else ''
-        if not note and not table:
-            return ''
-        if table:
-            return (
-                '\\vspace{1pt}\\noindent\\begin{minipage}[t]{0.56\\linewidth}\n'
-                + ('{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 190)) + '}\\par\n' if note else '')
-                + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n'
-                + table +
-                '\\end{minipage}\\par\\vspace{1pt}\n'
-            )
-        return (
-            '\\vspace{1pt}\\noindent\\begin{minipage}[t]{0.92\\linewidth}\n'
-            '{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 210)) + '}\\par\n'
-            '\\end{minipage}\\par\\vspace{1pt}\n'
-        )
-    note_text = ''.join('{\\footnotesize\\color{BOText} ' + _tex(_shorten(note, 260)) + '}\\par\\vspace{2pt}\n' for note in notes[:2])
-    if table:
-        return (
-            '\\vspace{3pt}\\noindent\\begin{minipage}[t]{0.58\\linewidth}\n'
-            '\\textcolor{BOGreen}{\\rule{24mm}{0.6pt}}\\par\\vspace{3pt}\n'
-            + note_text +
-            '\\end{minipage}\\hfill\\begin{minipage}[t]{0.36\\linewidth}\n'
-            '\\vspace{1pt}' + table +
-            '\\end{minipage}\\par\\vspace{2pt}\n'
-        )
-    return (
-        '\\vspace{3pt}\\noindent\\begin{minipage}[t]{0.94\\linewidth}\n'
-        '\\textcolor{BOGreen}{\\rule{24mm}{0.6pt}}\\par\\vspace{3pt}\n'
-        + note_text +
-        '\\end{minipage}\\par\\vspace{2pt}\n'
-    )
+    return ''
 
 
 def _exhibit_notes(chart: Dict[str, Any], caption: str, subtitle: str) -> List[str]:
@@ -1246,7 +1238,7 @@ def _repair_sections(report: Dict[str, Any], sections: List[Dict[str, Any]], top
     for idx, original in enumerate(sections, start=1):
         section = dict(original)
         current_title = _strip_number_prefix(section.get('title', ''))
-        if _is_generic_title(current_title):
+        if _is_generic_title(current_title) or _is_bad_report_title(current_title, report_title):
             current_title = _derive_title(idx, report_title, summary)
             section['title'] = current_title
         lead = str(section.get('lead') or '').strip()
@@ -1298,6 +1290,14 @@ def _derive_title(idx: int, report_title: str, summary: List[str]) -> str:
         'Winners will be defined by execution credibility rather than technology narratives',
     ]
     return fallback[(idx - 1) % len(fallback)]
+
+
+def _is_bad_report_title(title: str, report_title: str) -> bool:
+    normalized = re.sub(r'\W+', ' ', _normalize_punctuation(title).lower()).strip()
+    report_key = re.sub(r'\W+', ' ', _normalize_punctuation(report_title).lower()).strip()
+    if report_key and normalized.startswith(report_key[: min(56, len(report_key))]):
+        return any(marker in normalized for marker in (' should be ', ' not a binary bet', ' staged management'))
+    return 'should be managed as a staged strategic option' in normalized
 
 
 def _title_from_sentence(text: str) -> str:
@@ -1616,6 +1616,9 @@ def _shorten(value: Any, max_chars: int) -> str:
     shortened = text[:max_chars].rsplit(' ', 1)[0].strip()
     if not shortened:
         shortened = text[:max_chars].strip()
+    sentence_ends = list(re.finditer(r'[.!?](?=\s|$)', shortened))
+    if sentence_ends and sentence_ends[-1].end() >= max(80, int(max_chars * 0.45)):
+        return shortened[:sentence_ends[-1].end()].strip()
     return _clean_sentence_fragment(shortened)
 
 
@@ -1630,6 +1633,8 @@ def _normalize_punctuation(text: str) -> str:
     text = ''.join(translation.get(ord(ch), ch) for ch in text)
     text = re.sub(r"([A-Za-z])\s+'\s+s\b", r"\1's", text)
     text = re.sub(r"\b([A-Za-z]+n)\s+'\s+t\b", r"\1't", text)
+    text = re.sub(r"(\d)\.\s+(\d)", r"\1.\2", text)
+    text = re.sub(r"([A-Za-z])-(a|an|and|but|while|without|with|not|the)\b", r"\1 - \2", text, flags=re.I)
     text = re.sub(r"\s+", ' ', text).strip()
     return text
 
@@ -1645,6 +1650,11 @@ def _reader_clean(text: str) -> str:
         (r'\bMethod and team\b', 'About the research'),
         (r'\bKey findings\b', 'Main conclusions'),
         (r'\bExecutive summary\b', 'Opening view'),
+        (r'\bMain conclusions?:\s*', ''),
+        (r'\bRecommended actions?:\s*', ''),
+        (r'\bRisk implications?(?: highlights?)?:\s*', ''),
+        (r'\bFor CEOs? and boards,\s*', ''),
+        (r'\bFor CEOs? and boards\b', ''),
         (r'\bEvidence boundary:\s*', 'The public record shows that '),
         (r'\bEvidence:\s*', ''),
         (r'\bManagement implication:\s*', ''),
@@ -1674,8 +1684,14 @@ def _reader_clean(text: str) -> str:
     ]
     for pattern, replacement in replacements:
         text = re.sub(pattern, replacement, text, flags=re.I)
+    text = re.sub(r'\(\d+\)\s*', '', text)
+    text = re.sub(r'([.!?])\s+([a-z])', lambda m: f"{m.group(1)} {m.group(2).upper()}", text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text[:1].upper() + text[1:] if text[:1].islower() else text
+
+
+def _comparison_key(text: str) -> str:
+    return re.sub(r'[^a-z0-9]+', ' ', _normalize_punctuation(text).lower()).strip()
 
 
 def _tex(value: Any) -> str:

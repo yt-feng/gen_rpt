@@ -203,7 +203,7 @@ def main() -> None:
     assert "\\draw[BOLine]" in latex_text
     assert "\\AddToShipoutPictureBG*" in latex_text
     assert "remember picture,overlay" not in latex_text
-    assert "SENIOR-LEADERSHIP QUESTIONS" in latex_text
+    assert "SENIOR-LEADERSHIP QUESTIONS" not in latex_text
     assert "Research basis and limitations" in latex_text
     problem_headline = "Fusion commercialization is advancing faster than expected, driven by private startups that have raised over $5 billion in investment."
     assert latex_compact_headline(problem_headline) == "Fusion commercialization is advancing faster than expected"
