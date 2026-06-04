@@ -1,0 +1,46 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 10,
+        "issues": [
+          "executive_summary 不足，需要至少5条结论先行、可执行的关键发现。",
+          "executive_summary_text 不足，需要一段 CEO 可直接阅读的结构化执行摘要，先给结论、商业含义、风险和下一步。",
+          "sections 数量应为7-10个，当前为4个。",
+          "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "references 为空，需要引用已抓取资料中的真实来源。",
+          "charts 数量应为14个，当前为0个。",
+          "段落开头重复、行文模式化，需要调整章节推进方式：for executives, th"
+        ]
+      },
+      {
+        "round": 2,
+        "issue_count": 3,
+        "issues": [
+          "sections 数量应为7-10个，当前为3个。",
+          "references 为空，需要引用已抓取资料中的真实来源。",
+          "charts 数量应为14个，当前为0个。"
+        ]
+      }
+    ],
+    "final_issue_count": 0,
+    "final_issues": [],
+    "fact_pack_validation_issues": [],
+    "source_count": 8,
+    "authoritative_source_count": 4
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": []
+}
