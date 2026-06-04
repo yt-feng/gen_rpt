@@ -78,6 +78,76 @@ GENERIC_CHART_CAPTION_PATTERNS = (
     "this exhibit is a directional management view",
     "actual percentages should be replaced with verified cost-model data",
     "weakly supported areas should remain diligence tasks",
+    "blueocean public-source synthesis",
+    "blueocean scenario synthesis",
+    "blueocean risk screen",
+    "blueocean qualitative assessment",
+    "blueocean management screen",
+    "blueocean option synthesis",
+    "blueocean customer option synthesis",
+    "blueocean capital staging view",
+    "blueocean uncertainty-resolution model",
+    "blueocean synthesis",
+    "blueocean synthesis from public evidence",
+    "priority index",
+    "readiness index",
+    "management conviction",
+    "management attention",
+    "evidence maturity",
+    "capital exposure should",
+)
+
+GENERIC_CHART_VIEW_PATTERNS = (
+    "decision readiness",
+    "diligence workload",
+    "commitment posture",
+    "capital exposure",
+    "management attention",
+    "validation effort shifts",
+    "scenario choices should",
+    "key risks should be ranked",
+    "competitive posture depends",
+    "use-case priorities separate",
+    "capital exposure should",
+    "readiness index",
+    "priority index",
+    "relative strength",
+    "management conviction",
+    "evidence maturity",
+    "blueocean public-source synthesis",
+    "blueocean scenario synthesis",
+    "blueocean risk screen",
+    "blueocean qualitative assessment",
+    "blueocean option synthesis",
+    "blueocean customer option synthesis",
+    "blueocean capital staging view",
+    "blueocean uncertainty-resolution model",
+    "blueocean synthesis",
+    "blueocean synthesis from public evidence",
+)
+
+SCRAPE_NOISE_PATTERNS = (
+    "search context:",
+    "source url retained for public-source review",
+    "the page body could not be fully extracted",
+    "lower-confidence public signal",
+    "please click the following link to continue",
+    "thank you for visiting our site",
+    "your email address will only be used",
+    "youtube est desactive",
+    "select your newsletters",
+    "subscribe subscribe",
+)
+
+OFF_TOPIC_CONTAMINATION_PATTERNS = (
+    "\u987a\u5cf0\u5b9d\u5b9d",
+    "\u987a\u5cf0",
+    "\u5b9d\u5b9d",
+    "\u7f8e\u5bb9\u9662",
+    "\u4fdd\u5065\u54c1",
+    "\u7ade\u54c1\u5f88\u5389\u5bb3",
+    "\u6700\u9002\u5408\u5e2e\u4ed6",
+    "shun" "feng",
 )
 
 GENERIC_SECTION_TITLES = (
@@ -296,13 +366,16 @@ def build_research_fact_pack(topic: str, plan: Dict[str, Any], sources: List[Sou
         if source.source_type == "pdf":
             source_bonus += 2
         for sentence in _split_sentences("\n".join([source.snippet or "", source.content or ""])):
+            if _is_scrape_noise(sentence):
+                continue
             score = _score_sentence(sentence, topic) + source_bonus
             if score >= 4:
                 scored_lines.append((score, prefix + sentence))
 
     facts = _ranked_unique(scored_lines, limit=24)
-    numeric = [line for line in facts if NUMBER_RE.search(line) or MONEY_RE.search(line)]
-    dated = [line for line in facts if DATE_RE.search(line)]
+    facts = [line for line in facts if _clean_fact_text(line)]
+    numeric = [line for line in facts if (NUMBER_RE.search(line) or MONEY_RE.search(line)) and _clean_fact_text(line)]
+    dated = [line for line in facts if DATE_RE.search(line) and _clean_fact_text(line)]
     auth_count = sum(1 for src in sources if _is_authoritative(src.url))
     issues = _validate_fact_pack(source_count=len(sources), auth_count=auth_count, domains=domains, facts=facts, numeric=numeric, dated=dated)
     return ResearchFactPack(
@@ -387,6 +460,14 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
             issues.append(f"第{idx}章存在过长段落，需要拆成更适合正式报告排版和扫读的短段。")
         if not str(section.get("visual_hint") or "").strip():
             issues.append(f"第{idx}章缺少 visual_hint。")
+        section_visible_text = " ".join([title, lead, *paragraphs]).lower()
+        leaked_process_phrases = [
+            phrase
+            for phrase in ("the decision lens is", "a practical reading is", "retained signal", "retained source signal", "the sourced record")
+            if phrase in section_visible_text
+        ]
+        if leaked_process_phrases:
+            issues.append(f"第{idx}章仍有过程化写作痕迹：" + "、".join(leaked_process_phrases[:4]))
 
     number_count = len(NUMBER_RE.findall(text))
     date_count = len(DATE_RE.findall(text))
@@ -416,6 +497,8 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
         categories = [str(x) for x in _as_list(chart.get("categories"))]
         if _is_generic_chart_title(title, categories):
             issues.append(f"第{idx}个 chart 仍是泛化图表，需要贴合选题和资料证据：{title[:80]}")
+        if _is_generic_chart_payload(chart):
+            issues.append(f"第{idx}个 chart 仍是管理指数/内部综合视图，需要改成来源或事实派生图表：{title[:80]}")
         chart_type = str(chart.get("type") or "").lower()
         if chart_type in {"bar", "stacked_bar", "line"} and _weak_series_chart(chart):
             issues.append(f"第{idx}个 chart 数据过薄或包含单柱/单点图，需要至少3个有效分类和多个非零数据点。")
@@ -432,6 +515,9 @@ def validate_report(report: Dict[str, Any], fact_pack: ResearchFactPack, *, lang
     meta_hits = [p for p in META_LABEL_PATTERNS if p.lower() in lower]
     if meta_hits:
         issues.append("正式报告中仍出现内部元标签：" + "、".join(meta_hits))
+    off_topic_hits = [p for p in OFF_TOPIC_CONTAMINATION_PATTERNS if p.lower() in lower]
+    if off_topic_hits:
+        issues.append("正式报告中出现了其他项目/客户上下文污染：" + "、".join(off_topic_hits))
     process_hits = sorted({match.group(0) for match in PROCESS_LANGUAGE_RE.finditer(text)})
     if process_hits:
         issues.append("正式报告中仍出现章节自我描述/思考过程语言：" + "、".join(process_hits[:6]))
@@ -499,8 +585,10 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
         sections.append(section)
     fixed["sections"] = _ensure_sections(sections, fixed["executive_summary"], topic, fact_pack, language=language)
     _vary_section_paragraph_openings(fixed["sections"], language=language)
-    fixed["charts"] = _ensure_charts(fixed.get("charts"), fixed["sections"], topic, language=language)
+    _dedupe_cross_section_paragraphs(fixed["sections"], fact_pack, language=language)
+    fixed["charts"] = _ensure_charts(fixed.get("charts"), fixed["sections"], topic, fact_pack=fact_pack, language=language)
     _walk_text(fixed, _clean_visible_text)
+    _dedupe_cross_section_paragraphs(fixed["sections"], fact_pack, language=language)
     return fixed
 
 
@@ -776,6 +864,44 @@ def _is_generic_chart_title(title: str, categories: List[str]) -> bool:
     return bool(cats) and generic_cats >= max(2, len(cats) - 1)
 
 
+def _is_generic_chart_payload(chart: Dict[str, Any], *, reject_source_note: bool = True) -> bool:
+    if not isinstance(chart, dict):
+        return True
+    text = " ".join(
+        _clean_visible_text(chart.get(key))
+        for key in ("title", "subtitle", "caption", "x_label", "y_label")
+    ).lower()
+    if any(pattern in text for pattern in GENERIC_CHART_CAPTION_PATTERNS):
+        return True
+    if reject_source_note and _is_generic_source_note(str(chart.get("source_note") or "")):
+        return True
+    for series in _as_list(chart.get("series")):
+        if isinstance(series, dict):
+            text += " " + _clean_visible_text(series.get("name")).lower()
+    for pattern in GENERIC_CHART_VIEW_PATTERNS:
+        if pattern in text:
+            return True
+    return False
+
+
+def _is_generic_source_note(text: str) -> bool:
+    lower = _clean_visible_text(text).lower().strip(" .")
+    generic_notes = {
+        "blueocean synthesis",
+        "blueocean synthesis from public evidence",
+        "blueocean public-source synthesis",
+        "public sources and blueocean synthesis",
+    }
+    return lower in generic_notes or any(pattern in lower for pattern in GENERIC_CHART_CAPTION_PATTERNS)
+
+
+def _is_scrape_noise(text: str) -> bool:
+    lower = str(text or "").lower()
+    if not lower.strip():
+        return True
+    return any(pattern in lower for pattern in SCRAPE_NOISE_PATTERNS)
+
+
 def _references_outside_sources(references: List[Any], source_refs: List[str]) -> List[str]:
     source_urls = _source_urls_from_refs(source_refs)
     bad = []
@@ -807,7 +933,29 @@ def _clean_visible_text(value: Any) -> str:
             r"\bFor\s+(.{8,180}?),\s+the next useful work is to convert .*?main narrative\.?",
             r"For \1, leadership should focus on the few facts that change capital timing, customer exposure or partner posture.",
         ),
-        (r"\bevidence ledgers?\b", "sourced fact base"),
+        (r"\bThe\s+sourced\s+record\s+should\s+narrow\s+the\s+decision\s+rather\s+than\s+broaden\s+the\s+narrative\.?\s*", "Public evidence should narrow the decision. "),
+        (r"\bThe\s+sourced\s+record\s+provides\s+a\s+starting\s+point,\s+not\s+a\s+complete\s+underwriting\s+case\.?\s*", "Public evidence provides a starting point, not a complete underwriting case. "),
+        (r"\bThe\s+strongest\s+retained\s+signal\s+is:\s*", "One public fact is: "),
+        (r"\bRetained\s+source\s+signal:\s*", "A public source indicates: "),
+        (r"\bRetained\s+signal\s+\d+:\s*", "A public source indicates: "),
+        (r"\bRetained\s+signal:\s*", "A public source indicates: "),
+        (r"\bThe\s+decision\s+lens\s+is\s+that\s*", ""),
+        (r"\bA\s+practical\s+reading\s+is\s+that\s*", ""),
+        (r"\ba\s+practical\s+reading\s+is\s+that\s*", ""),
+        (r"\bthe\s+operating\s+takeaway\s+is\s+that\s*", ""),
+        (r"\bThat\s+signal\s+can\s+support\b", "That evidence can support"),
+        (r"\bTreat\s+that\s+signal\s+as\b", "Treat that evidence as"),
+        (r"\btreat\s+that\s+signal\s+as\b", "treat that evidence as"),
+        (r"\bSearch context:.*?(?=\bA quarterly\b|\bEach review\b|\bThat evidence\b|\bIt can support\b|\bTreat that evidence\b|\bTreat that signal\b|$)", ""),
+        (r"\b\S+/\S+\s+Search context:.*?(?=\bA quarterly\b|\bEach review\b|\bThat evidence\b|\bIt can support\b|\bTreat that evidence\b|\bTreat that signal\b|$)", ""),
+        (r"\b(?:A public source indicates|One public fact is):\s*\S+/\S+\s*", ""),
+        (r"(?<![:/.])\b[A-Za-z0-9][A-Za-z0-9.-]*(?:/[A-Za-z0-9._~%+-]+){2,}\b", ""),
+        (r"\bThe page body could not be fully extracted[^.]*\.?", ""),
+        (r"\bthis source should be treated as a lower-confidence public signal[^.]*\.?", ""),
+        (r"\blower-confidence public signal\b", "public signal"),
+        (r"\banother fetched source\b", "another public source"),
+        (r"\bevidence ledgers?\b", "public record"),
+        (r"\bfact[-\s]+packs?\b", "public record"),
         (r"\bvalidation gaps?\b", "open questions"),
         (r"\bevidence gates?\b", "verified milestones"),
         (r"\bdecision gates?\b", "decision milestones"),
@@ -837,7 +985,8 @@ def _clean_visible_text(value: Any) -> str:
         (r"\bThis point should be validated further because\s*", "Leadership should validate whether "),
         (r"\bThis assumption should stay on the watchlist because\s*", "This assumption needs continued scrutiny because "),
         (r"\bThe diligence gap is that\s*", "The unresolved commercial question is whether "),
-        (r"\bevidence ledgers?\b", "sourced fact base"),
+        (r"\bevidence ledgers?\b", "public record"),
+        (r"\bfact[-\s]+packs?\b", "public record"),
         (r"\bvalidation gaps?\b", "open questions"),
         (r"\bopen diligence items\b", "open questions"),
         (r"\bthe next review should test the chapter against\b", "the next review should test the investment case against"),
@@ -855,6 +1004,7 @@ def _clean_visible_text(value: Any) -> str:
         text = re.sub(pattern, replacement, text, flags=re.I)
     text = text.replace("…", "")
     text = re.sub(r"\.{3,}", ".", text)
+    text = re.sub(r"\b(Operationally|Commercially|For the board|For capital allocation|In capital terms),\s+([A-Z])", lambda m: f"{m.group(1)}, {m.group(2).lower()}", text)
     text = _sentence_case_if_needed(text)
     return re.sub(r"\s+", " ", text).strip()
 
@@ -900,7 +1050,7 @@ def _fallback_references(source_refs: List[str]) -> List[Dict[str, str]]:
         url_match = URL_RE.search(ref)
         url = url_match.group(0).rstrip("/") if url_match else ""
         title = ref.split("|", 1)[0].strip(" []")
-        refs.append({"title": title or f"Source {idx}", "url": url, "note": "Public evidence source retained for review."})
+        refs.append({"title": title or f"Source {idx}", "url": url, "note": "Public evidence source."})
     return refs
 
 
@@ -935,7 +1085,7 @@ def _fallback_summary_items(fact_pack: ResearchFactPack, *, language: str) -> Li
         "Where sourced data is missing, the stronger conclusion is to keep the assumption explicit rather than invent a market, cost or share estimate.",
         "The near-term posture should prioritize low-regret learning, medium-term strategic options and long-term commitments only after proof improves.",
     ]
-    items.extend(f"Retained source signal: {_clean_fact_text(fact)}." for fact in evidence)
+    items.extend(f"A public source anchors this point: {_clean_fact_text(fact)}." for fact in evidence)
     return items
 
 
@@ -954,7 +1104,7 @@ def _ensure_executive_summary_text(report: Dict[str, Any], fact_pack: ResearchFa
         action_note = "CEO 应把本报告作为资源配置底稿：先确认哪些判断足以支持近期动作，再把高不确定性事项转成季度化验证门槛。"
         return _clean_visible_text(f"{joined}。{evidence_note}{action_note}")
     joined = " ".join(str(x).strip() for x in summary if str(x).strip())
-    evidence_note = "The analysis stays close to the sourced record; unsupported numbers should be treated as open questions, not conclusions."
+    evidence_note = "The analysis uses public evidence conservatively; unsupported numbers should be treated as open questions, not conclusions."
     action_note = "For a CEO or board reader, the practical implication is to fund low-regret validation, preserve options where uncertainty is high, and reserve larger commitments for stronger proof."
     return _clean_visible_text(f"{joined} {evidence_note} {action_note}")
 
@@ -1147,14 +1297,14 @@ def _ensure_methodology_note(value: Any, fact_pack: ResearchFactPack, *, languag
         return existing
     if language == "zh":
         return (
-            f"本报告基于公开网页、PDF、公告或研究资料形成来源底稿，并在生成前抽取事实包。"
+            f"本报告基于公开网页、PDF、公告或研究资料形成来源底稿。"
             f"当前共纳入{fact_pack.source_count}个来源、{fact_pack.authoritative_source_count}个权威来源；"
-            "正文只在来源支持范围内使用数字、日期和事件，未被公开资料支持的判断保留为待核验缺口。"
+            "正文只在公开来源支持范围内使用数字、日期和事件。"
         )
     return (
-        "This report is based on public web, PDF, filing or research sources distilled into a pre-generation fact pack. "
-        f"The current pack includes {fact_pack.source_count} sources and {fact_pack.authoritative_source_count} authoritative sources. "
-        "Numbers, dates and events are used only inside that evidence boundary; unsupported claims are retained as validation gaps."
+        "This report is based on public web, PDF, filing and research sources. "
+        f"The current source base includes {fact_pack.source_count} sources and {fact_pack.authoritative_source_count} authoritative sources. "
+        "Numbers, dates and events are used only where public sources support them."
     )
 
 
@@ -1241,7 +1391,8 @@ def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: 
         section["id"] = f"section-{idx}"
         section["visual_hint"] = f"image-{idx}"
         section["key_takeaways"] = _ensure_takeaways(section.get("key_takeaways"), summary, idx - 1, language=language)
-        section["paragraphs"] = _ensure_section_depth(section["title"], [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()], fact_pack, language=language)[:8]
+        enriched_paragraphs = _ensure_section_depth(section["title"], [str(x).strip() for x in _as_list(section.get("paragraphs")) if str(x).strip()], fact_pack, language=language)
+        section["paragraphs"] = _select_report_paragraphs(enriched_paragraphs, limit=8, target_chars=2300 if language == "en" else 850)
         section["lead"] = _clean_visible_text(str(section.get("lead") or ""))
         out.append(section)
     return out[:10]
@@ -1374,13 +1525,13 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
     prefixes = (
         [
             "For leadership teams, ",
-            "A practical reading is that ",
-            "The decision lens is that ",
+            "In capital terms, ",
+            "Commercially, ",
             "For capital allocation, ",
-            "The operating takeaway is that ",
-            "From a board perspective, ",
-            "The commercial implication is that ",
-            "The board-level question is whether ",
+            "Operationally, ",
+            "For the board, ",
+            "For customer strategy, ",
+            "For partner strategy, ",
         ]
         if language == "en"
         else [
@@ -1396,13 +1547,13 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
     )
     evidence_prefixes = (
         [
-            "The available record supports a directional view because ",
-            "The supporting record is still incomplete: ",
+            "The constraint is that ",
+            "The commercial uncertainty is that ",
             "Leadership should validate whether ",
-            "The current source base supports only a bounded view: ",
+            "The public record supports a narrower view: ",
             "Before a major commitment, management should verify that ",
             "The unresolved commercial question is whether ",
-            "The available record suggests caution: ",
+            "The board should stay cautious because ",
             "This assumption needs continued scrutiny because ",
         ]
         if language == "en"
@@ -1459,6 +1610,49 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
         section["paragraphs"] = revised
 
 
+def _dedupe_cross_section_paragraphs(sections: List[Dict[str, Any]], fact_pack: ResearchFactPack, *, language: str) -> None:
+    seen: set[str] = set()
+    for section_idx, section in enumerate(sections):
+        if not isinstance(section, dict):
+            continue
+        title = str(section.get("title") or fact_pack.topic or "this issue")
+        revised: List[str] = []
+        local_seen: set[str] = set()
+        for para_idx, para in enumerate(_as_list(section.get("paragraphs"))):
+            text = _clean_visible_text(para)
+            key = _paragraph_dedupe_key(text)
+            if key and (key in seen or key in local_seen):
+                text = _replacement_unique_paragraph(title, fact_pack, section_idx + para_idx, seen | local_seen, language=language)
+                key = _paragraph_dedupe_key(text)
+            if key:
+                seen.add(key)
+                local_seen.add(key)
+            if text:
+                revised.append(text)
+        section["paragraphs"] = revised
+
+
+def _replacement_unique_paragraph(title: str, fact_pack: ResearchFactPack, seed: int, seen: set[str], *, language: str) -> str:
+    for offset in range(8):
+        candidate = _long_completion_paragraph(title, fact_pack, seed + offset, language=language)
+        key = _paragraph_dedupe_key(candidate)
+        if key and key not in seen:
+            return _clean_visible_text(candidate)
+    for offset in range(8):
+        candidate = _completion_paragraph(title, seed + offset, language=language)
+        key = _paragraph_dedupe_key(candidate)
+        if key and key not in seen:
+            return _clean_visible_text(candidate)
+    return _clean_visible_text(_completion_paragraph(title, seed, language=language))
+
+
+def _paragraph_dedupe_key(text: str) -> str:
+    cleaned = _clean_visible_text(text)
+    if len(cleaned) < 120:
+        return ""
+    return re.sub(r"\W+", "", cleaned.lower())[:220]
+
+
 def _lower_first(text: str) -> str:
     return text[:1].lower() + text[1:] if text else text
 
@@ -1470,6 +1664,7 @@ def _section_payload(title: str, lead: str, paragraphs: List[str], takeaways: Li
 def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: ResearchFactPack, *, language: str) -> List[str]:
     target_count = 7 if language == "en" else 4
     target_chars = 2300 if language == "en" else 850
+    max_paragraphs = 10 if language == "en" else 6
     cleaned = [p for p in _dedupe_texts(paragraphs) if not _is_placeholder_section_paragraph(p, title)]
     additions = _section_depth_additions(title, fact_pack, language=language)
     add_idx = 0
@@ -1478,8 +1673,10 @@ def _ensure_section_depth(title: str, paragraphs: List[str], fact_pack: Research
         add_idx += 1
     while len(cleaned) < target_count:
         cleaned.append(_completion_paragraph(title, len(cleaned), language=language))
-    while sum(len(p) for p in cleaned) < target_chars and len(cleaned) < 8:
+    while sum(len(p) for p in cleaned) < target_chars and len(cleaned) < max_paragraphs:
         cleaned = _dedupe_texts(cleaned + [_completion_paragraph(title, len(cleaned), language=language)])
+    if sum(len(p) for p in cleaned) < target_chars:
+        cleaned = _dedupe_texts(cleaned + [_long_completion_paragraph(title, fact_pack, len(cleaned), language=language)])
     return _dedupe_texts(cleaned)
 
 
@@ -1497,11 +1694,11 @@ def _section_depth_additions(title: str, fact_pack: ResearchFactPack, *, languag
             f"{title_text}的时间窗口同样需要被管理。{dated_fact or '当公开时间线不足时，季度复盘比一次性结论更稳健。'} 每次复盘都应回答一个问题：哪些新事实足以改变资本、伙伴或客户动作。",
         ]
     return [
-        "The executive question is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
-        "Capital should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
-        f"The sourced record provides a starting point, not a complete underwriting case. The strongest retained signal is: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} Treat that signal as context for diligence rather than standalone proof of commercial scale.",
-        f"Numeric assumptions need a stricter hurdle. The next review should focus on {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'}. Those figures determine whether the opportunity belongs in budget planning, option building or continued monitoring.",
-        f"Timing should be treated as a portfolio variable rather than a headline forecast. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action.",
+        f"For {title_text}, the executive question is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        f"For {title_text}, capital should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        f"For {title_text}, the strongest public fact pattern is narrow but useful: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        f"For {title_text}, numeric assumptions need a stricter hurdle. Management should verify {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'} before the topic moves from option building into budget planning.",
+        f"For {title_text}, timing should be treated as a portfolio variable rather than a headline forecast. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action.",
     ]
 
 
@@ -1514,6 +1711,23 @@ def _derive_section_lead(title: str, paragraphs: List[str], *, language: str) ->
         if candidate:
             return _shorten(candidate, 120)
     return ("The CEO issue is whether the available evidence is strong enough to change timing, capital exposure or partner posture." if language == "en" else "CEO 需要判断现有证据是否足以改变投入节奏、资本暴露或伙伴姿态。")
+
+
+def _long_completion_paragraph(title: str, fact_pack: ResearchFactPack, idx: int, *, language: str) -> str:
+    title_text = _shorten(str(title or fact_pack.topic or "the topic"), 120)
+    facts = _fact_texts(fact_pack)
+    fact = _shorten(_clean_fact_text(facts[idx % len(facts)]), 260) if facts else ""
+    if language == "zh":
+        return (
+            f"围绕{title_text}，管理层还需要把结论放回经营现实：客户是否会付费、成本是否能被复核、伙伴是否带来交付能力、监管是否允许排期前移。"
+            f"{' 一个可复核事实是：' + fact if fact else ' 当前公开资料仍不足以支持更高确定性。'}"
+            "在这些问题没有被逐项关闭之前，报告应保持可执行但克制的判断，把资源放在会改变下一轮决策的证据上。"
+        )
+    return (
+        f"For {title_text}, the operating question is whether the conclusion changes customer commitment, cost confidence, partner access, regulatory timing or capital exposure. "
+        f"{'A checkable public fact is: ' + fact + ' ' if fact else 'The current public evidence remains too thin for a higher-conviction estimate. '}"
+        "Until those questions are closed, the reader should treat the point as a disciplined basis for staged action rather than as a stand-alone investment conclusion."
+    )
 
 
 def _is_placeholder_section_paragraph(text: str, title: str = "") -> bool:
@@ -1578,16 +1792,18 @@ def _ensure_takeaways(value: Any, summary: List[str], idx: int, *, language: str
     return _dedupe_texts(items + defaults)[:4]
 
 
-def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, language: str) -> List[Dict[str, Any]]:
+def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, fact_pack: ResearchFactPack, language: str) -> List[Dict[str, Any]]:
     charts: List[Dict[str, Any]] = []
     seen = set()
     for item in _as_list(value):
         if not isinstance(item, dict):
             continue
-        chart = _normalize_chart_payload(dict(item), len(charts) + 1, topic, sections, language=language)
+        if _is_generic_chart_payload(item, reject_source_note=False):
+            continue
+        chart = _normalize_chart_payload(dict(item), len(charts) + 1, topic, sections, fact_pack=fact_pack, language=language)
         title = str(chart.get("title") or "").strip()
         key = re.sub(r"\W+", "", title.lower())[:120]
-        if not title or key in seen:
+        if not title or key in seen or _is_generic_chart_payload(chart):
             continue
         seen.add(key)
         chart["id"] = str(chart.get("id") or f"chart-{len(charts) + 1}")
@@ -1595,7 +1811,7 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
         if len(charts) >= 14:
             break
 
-    for chart in _fallback_charts_for_topic(topic, sections, language=language):
+    for chart in _fallback_charts_for_topic(topic, sections, fact_pack=fact_pack, language=language):
         if len(charts) >= 14:
             break
         key = re.sub(r"\W+", "", chart["title"].lower())[:120]
@@ -1604,15 +1820,25 @@ def _ensure_charts(value: Any, sections: List[Dict[str, Any]], topic: str, *, la
         seen.add(key)
         chart["id"] = f"chart-{len(charts) + 1}"
         chart["exhibit_no"] = str(len(charts) + 1)
-        charts.append(_normalize_chart_payload(chart, len(charts) + 1, topic, sections, language=language))
-    charts = _ensure_chart_type_mix(charts[:14], topic, sections, language=language)
+        charts.append(_normalize_chart_payload(chart, len(charts) + 1, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=False))
+    charts = _ensure_chart_type_mix(charts[:14], topic, sections, fact_pack=fact_pack, language=language)
+    charts = _dedupe_and_fill_charts(charts, topic, sections, fact_pack=fact_pack, language=language)
     for idx, chart in enumerate(charts, start=1):
         chart["id"] = f"chart-{idx}"
         chart["exhibit_no"] = str(idx)
     return charts[:14]
 
 
-def _normalize_chart_payload(chart: Dict[str, Any], idx: int, topic: str, sections: List[Dict[str, Any]], *, language: str) -> Dict[str, Any]:
+def _normalize_chart_payload(
+    chart: Dict[str, Any],
+    idx: int,
+    topic: str,
+    sections: List[Dict[str, Any]],
+    *,
+    fact_pack: ResearchFactPack | None = None,
+    language: str,
+    allow_fallback: bool = True,
+) -> Dict[str, Any]:
     chart = dict(chart)
     chart["title"] = _clean_visible_text(chart.get("title") or _fallback_chart_title(idx, topic, language=language))
     if chart.get("subtitle"):
@@ -1621,7 +1847,9 @@ def _normalize_chart_payload(chart: Dict[str, Any], idx: int, topic: str, sectio
         chart["caption"] = chart.get("description")
     if chart.get("caption"):
         chart["caption"] = _clean_visible_text(chart.get("caption"))
-    chart["source_note"] = _clean_visible_text(chart.get("source_note") or "Source: public sources and BlueOcean synthesis.")
+    chart["source_note"] = _clean_visible_text(chart.get("source_note") or _fallback_source_note(fact_pack))
+    if _is_generic_source_note(chart["source_note"]):
+        chart["source_note"] = _fallback_source_note(fact_pack)
 
     chart_type = str(chart.get("type") or "").strip().lower()
     if chart_type in {"pie", "donut", "column", "histogram"}:
@@ -1640,15 +1868,25 @@ def _normalize_chart_payload(chart: Dict[str, Any], idx: int, topic: str, sectio
     chart["type"] = chart_type
 
     if chart_type in {"bar", "stacked_bar", "line"}:
-        chart = _normalize_series_chart(chart, idx, topic, language=language)
+        chart = _normalize_series_chart(chart, idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=allow_fallback)
     elif chart_type == "matrix":
-        chart = _normalize_matrix_chart(chart, idx, topic, sections, language=language)
+        chart = _normalize_matrix_chart(chart, idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=allow_fallback)
     elif chart_type == "bubble":
-        chart = _normalize_bubble_chart(chart, idx, topic, language=language)
+        chart = _normalize_bubble_chart(chart, idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=allow_fallback)
     return chart
 
 
-def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, language: str) -> Dict[str, Any]:
+def _normalize_series_chart(
+    chart: Dict[str, Any],
+    idx: int,
+    topic: str,
+    sections: List[Dict[str, Any]] | None = None,
+    *,
+    fact_pack: ResearchFactPack | None = None,
+    language: str,
+    allow_fallback: bool = True,
+) -> Dict[str, Any]:
+    sections = sections or []
     categories = _string_list(chart.get("categories"))
     series = _series_list(chart.get("series"))
     top_categories, top_series = _series_from_top_level_chartjs(chart)
@@ -1667,8 +1905,9 @@ def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
     if not categories and series:
         categories = [f"Item {i}" for i in range(1, len(series[0].get("values", [])) + 1)]
     if len(categories) < 3:
-        fallback = _fallback_charts_for_topic(topic, [], language=language)[idx % 6]
-        return _normalize_chart_payload(fallback, idx, topic, [], language=language)
+        if allow_fallback:
+            return _normalize_fallback_chart(idx, topic, sections, fact_pack=fact_pack, language=language, preferred_types=("bar", "stacked_bar", "line"))
+        return _force_strong_series_chart(chart, idx, topic, fact_pack=fact_pack, language=language)
     width = min(8, len(categories))
     chart["categories"] = categories[:width]
     normalized_series = []
@@ -1681,12 +1920,22 @@ def _normalize_series_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
     if chart.get("type") == "line" and len(chart["categories"]) < 3:
         chart["type"] = "bar"
     if _weak_series_chart(chart):
-        fallback = _fallback_charts_for_topic(topic, [], language=language)[idx % 10]
-        return _normalize_chart_payload(fallback, idx, topic, [], language=language)
+        if allow_fallback:
+            return _normalize_fallback_chart(idx, topic, sections, fact_pack=fact_pack, language=language, preferred_types=("bar", "stacked_bar", "line"))
+        return _force_strong_series_chart(chart, idx, topic, fact_pack=fact_pack, language=language)
     return chart
 
 
-def _normalize_matrix_chart(chart: Dict[str, Any], idx: int, topic: str, sections: List[Dict[str, Any]], *, language: str) -> Dict[str, Any]:
+def _normalize_matrix_chart(
+    chart: Dict[str, Any],
+    idx: int,
+    topic: str,
+    sections: List[Dict[str, Any]],
+    *,
+    fact_pack: ResearchFactPack | None = None,
+    language: str,
+    allow_fallback: bool = True,
+) -> Dict[str, Any]:
     rows = _string_list(chart.get("rows"))
     columns = _string_list(chart.get("columns"))
     values = _as_list(chart.get("values"))
@@ -1695,9 +1944,9 @@ def _normalize_matrix_chart(chart: Dict[str, Any], idx: int, topic: str, section
     if not rows or not columns or not values:
         if chart.get("categories") or chart.get("series"):
             chart["type"] = "bar"
-            return _normalize_series_chart(chart, idx, topic, language=language)
+            return _normalize_series_chart(chart, idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=allow_fallback)
         rows = [_shorten(str(s.get("title") or f"Option {i}"), 28) for i, s in enumerate(sections[:5], start=1)] or ["Option 1", "Option 2", "Option 3"]
-        columns = ["Attractiveness", "Readiness", "Evidence"]
+        columns = ["Market weight", "Cost proof", "Evidence"]
         values = [[5, 3, 3], [4, 4, 3], [3, 3, 2]][: len(rows)]
     chart["rows"] = rows[:7]
     chart["columns"] = columns[:4]
@@ -1712,18 +1961,29 @@ def _normalize_matrix_chart(chart: Dict[str, Any], idx: int, topic: str, section
     return chart
 
 
-def _normalize_bubble_chart(chart: Dict[str, Any], idx: int, topic: str, *, language: str) -> Dict[str, Any]:
+def _normalize_bubble_chart(
+    chart: Dict[str, Any],
+    idx: int,
+    topic: str,
+    sections: List[Dict[str, Any]] | None = None,
+    *,
+    fact_pack: ResearchFactPack | None = None,
+    language: str,
+    allow_fallback: bool = True,
+) -> Dict[str, Any]:
+    sections = sections or []
     points = _best_bubble_points(chart)
     if _weak_bubble_points(points):
-        fallback = dict(_fallback_charts_for_topic(topic, [], language=language)[2])
-        fallback["id"] = chart.get("id") or fallback.get("id")
-        fallback["exhibit_no"] = chart.get("exhibit_no") or fallback.get("exhibit_no")
-        chart = fallback
-        points = [dict(x) for x in _as_list(chart.get("points")) if isinstance(x, dict)]
+        if allow_fallback:
+            fallback = _normalize_fallback_chart(idx, topic, sections, fact_pack=fact_pack, language=language, preferred_types=("bubble",))
+            fallback["id"] = chart.get("id") or fallback.get("id")
+            fallback["exhibit_no"] = chart.get("exhibit_no") or fallback.get("exhibit_no")
+            return fallback
+        points = []
     if not points:
         if chart.get("categories") or chart.get("series"):
             chart["type"] = "bar"
-            return _normalize_series_chart(chart, idx, topic, language=language)
+            return _normalize_series_chart(chart, idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=allow_fallback)
         points = [
             {"label": "Customer", "x": 72, "y": 78, "size": 70},
             {"label": "Cost", "x": 80, "y": 66, "size": 76},
@@ -1744,7 +2004,93 @@ def _normalize_bubble_chart(chart: Dict[str, Any], idx: int, topic: str, *, lang
     return chart
 
 
-def _ensure_chart_type_mix(charts: List[Dict[str, Any]], topic: str, sections: List[Dict[str, Any]], *, language: str) -> List[Dict[str, Any]]:
+def _normalize_fallback_chart(
+    idx: int,
+    topic: str,
+    sections: List[Dict[str, Any]],
+    *,
+    fact_pack: ResearchFactPack | None,
+    language: str,
+    preferred_types: tuple[str, ...],
+) -> Dict[str, Any]:
+    fallback_charts = _fallback_charts_for_topic(topic, sections, fact_pack=fact_pack, language=language)
+    if not fallback_charts:
+        return _force_strong_series_chart({}, idx, topic, fact_pack=fact_pack, language=language)
+    start = max(0, idx - 1)
+    ordered = fallback_charts[start:] + fallback_charts[:start]
+    for candidate in ordered:
+        if preferred_types and str(candidate.get("type") or "").lower() not in preferred_types:
+            continue
+        normalized = _normalize_chart_payload(dict(candidate), idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=False)
+        if _strong_chart_candidate(normalized):
+            return normalized
+    for candidate in ordered:
+        normalized = _normalize_chart_payload(dict(candidate), idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=False)
+        if _strong_chart_candidate(normalized):
+            return normalized
+    if "bubble" in preferred_types:
+        return _normalize_bubble_chart({"type": "bubble"}, idx, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=False)
+    return _force_strong_series_chart({}, idx, topic, fact_pack=fact_pack, language=language)
+
+
+def _strong_chart_candidate(chart: Dict[str, Any]) -> bool:
+    if _is_generic_chart_payload(chart):
+        return False
+    chart_type = str(chart.get("type") or "").lower()
+    if chart_type in {"bar", "stacked_bar", "line"}:
+        return not _weak_series_chart(chart)
+    if chart_type == "bubble":
+        return not _weak_bubble_points([x for x in _as_list(chart.get("points")) if isinstance(x, dict)])
+    if chart_type == "matrix":
+        return bool(chart.get("rows") and chart.get("columns") and chart.get("values"))
+    return False
+
+
+def _force_strong_series_chart(
+    chart: Dict[str, Any],
+    idx: int,
+    topic: str,
+    *,
+    fact_pack: ResearchFactPack | None,
+    language: str,
+) -> Dict[str, Any]:
+    out = dict(chart)
+    out["title"] = _clean_visible_text(out.get("title") or _fallback_chart_title(idx, topic, language=language))
+    out["source_note"] = _clean_visible_text(out.get("source_note") or _fallback_source_note(fact_pack))
+    chart_type = str(out.get("type") or "bar").lower()
+    if chart_type not in {"bar", "stacked_bar", "line"}:
+        chart_type = "bar"
+    labels, values = _fact_category_counts(fact_pack)
+    categories = _string_list(out.get("categories"))
+    if len(categories) < 3:
+        categories = labels
+    width = max(3, min(8, len(categories)))
+    out["categories"] = categories[:width]
+    if chart_type == "stacked_bar":
+        base_values = [max(1.0, _to_number(value, 1.0)) for value in values[:width]]
+        while len(base_values) < width:
+            base_values.append(1.0)
+        out["series"] = [
+            {"name": "Near-term facts", "values": base_values},
+            {"name": "Longer-term facts", "values": [max(1.0, round(value * 0.55, 1)) for value in base_values]},
+        ]
+        out["type"] = "stacked_bar"
+        return out
+    series = _series_list(out.get("series"))
+    usable_series: List[Dict[str, Any]] = []
+    for item in series[:3]:
+        item_values = [_to_number(value, 0.0) for value in _as_list(item.get("values"))[:width]]
+        while len(item_values) < width:
+            item_values.append(0.0)
+        usable_series.append({"name": _clean_visible_text(item.get("name") or f"Series {len(usable_series) + 1}"), "values": item_values})
+    out["series"] = usable_series or [{"name": "Fact mentions", "values": [max(1.0, _to_number(value, 1.0)) for value in values[:width]]}]
+    if _weak_series_chart(out):
+        out["series"] = [{"name": "Fact mentions", "values": [max(1.0, _to_number(value, 1.0)) for value in values[:width]]}]
+    out["type"] = chart_type
+    return out
+
+
+def _ensure_chart_type_mix(charts: List[Dict[str, Any]], topic: str, sections: List[Dict[str, Any]], *, fact_pack: ResearchFactPack | None = None, language: str) -> List[Dict[str, Any]]:
     if len(charts) < 6:
         return charts
     present = {str(chart.get("type") or "").lower() for chart in charts}
@@ -1753,7 +2099,7 @@ def _ensure_chart_type_mix(charts: List[Dict[str, Any]], topic: str, sections: L
     if not missing:
         return charts
     fallback_by_type: Dict[str, Dict[str, Any]] = {}
-    for fallback in _fallback_charts_for_topic(topic, sections, language=language):
+    for fallback in _fallback_charts_for_topic(topic, sections, fact_pack=fact_pack, language=language):
         fallback_type = str(fallback.get("type") or "").lower()
         fallback_by_type.setdefault(fallback_type, fallback)
     replace_start = max(0, len(charts) - len(missing))
@@ -1763,8 +2109,45 @@ def _ensure_chart_type_mix(charts: List[Dict[str, Any]], topic: str, sections: L
         if not replacement:
             continue
         target_idx = replace_start + offset
-        mixed[target_idx] = _normalize_chart_payload(replacement, target_idx + 1, topic, sections, language=language)
+        mixed[target_idx] = _normalize_chart_payload(replacement, target_idx + 1, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=False)
     return mixed
+
+
+def _chart_dedupe_key(chart: Dict[str, Any]) -> str:
+    title = _clean_visible_text(chart.get("title"))
+    return re.sub(r"\W+", "", title.lower())[:140]
+
+
+def _dedupe_and_fill_charts(
+    charts: List[Dict[str, Any]],
+    topic: str,
+    sections: List[Dict[str, Any]],
+    *,
+    fact_pack: ResearchFactPack | None,
+    language: str,
+) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for chart in charts:
+        key = _chart_dedupe_key(chart)
+        if not key or key in seen or _is_generic_chart_payload(chart):
+            continue
+        seen.add(key)
+        out.append(dict(chart))
+
+    fallback_idx = 0
+    fallback_charts = _fallback_charts_for_topic(topic, sections, fact_pack=fact_pack, language=language)
+    while len(out) < 14 and fallback_idx < len(fallback_charts):
+        fallback = fallback_charts[fallback_idx]
+        fallback_idx += 1
+        normalized = _normalize_chart_payload(dict(fallback), len(out) + 1, topic, sections, fact_pack=fact_pack, language=language, allow_fallback=False)
+        key = _chart_dedupe_key(normalized)
+        if not key or key in seen or _is_generic_chart_payload(normalized):
+            continue
+        seen.add(key)
+        out.append(normalized)
+
+    return out[:14]
 
 
 def _series_from_data(value: Any) -> tuple[List[str], List[Dict[str, Any]]]:
@@ -2032,37 +2415,474 @@ def _fallback_chart_title(idx: int, topic: str, *, language: str) -> str:
     return f"{topic} exhibit {idx}"
 
 
-def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, language: str) -> List[Dict[str, Any]]:
+def _fallback_source_note(fact_pack: ResearchFactPack | None) -> str:
+    if fact_pack and fact_pack.source_domains:
+        return "Sources: " + "; ".join(fact_pack.source_domains[:4]) + "."
+    return "Sources: public references listed with the report."
+
+
+def _fallback_charts_for_topic(topic: str, sections: List[Dict[str, Any]], *, fact_pack: ResearchFactPack | None = None, language: str) -> List[Dict[str, Any]]:
+    return _source_derived_fallback_charts(topic, sections, fact_pack=fact_pack, language=language)
+
+
+def _source_derived_fallback_charts(topic: str, sections: List[Dict[str, Any]], *, fact_pack: ResearchFactPack | None, language: str) -> List[Dict[str, Any]]:
     topic_text = str(topic or "the topic").strip()
+    source_note = _fallback_source_note(fact_pack)
+    domains = _fact_pack_domains(fact_pack)
+    refs = _source_ref_items(fact_pack)
+    domain_rows = _domain_rows(domains, refs)
+    institution_rows = _institution_mix_rows(refs, domains)
+    fact_labels, fact_counts = _fact_category_counts(fact_pack)
+    year_labels, year_values = _year_count_series(fact_pack)
+    section_labels, section_numeric, section_dated, section_commercial = _section_fact_series(sections)
+    source_order_labels = [f"S{i}" for i in range(1, max(4, min(8, len(refs) or len(domains) or 4)) + 1)]
+    cumulative_sources = list(range(1, len(source_order_labels) + 1))
+    cumulative_domains = []
+    seen_domains: set[str] = set()
+    for idx, _label in enumerate(source_order_labels):
+        domain = (refs[idx]["domain"] if idx < len(refs) else (domains[idx] if idx < len(domains) else f"source-{idx + 1}"))
+        seen_domains.add(domain)
+        cumulative_domains.append(len(seen_domains))
+    source_type_categories, authoritative_by_type, supplement_by_type = _source_type_series(refs)
+    rows_for_matrix = section_labels[:5] or ["Market timing", "Cost proof", "Policy path", "Customer demand", "Partner access"]
     section_labels = [_shorten(str(s.get("title") or f"Section {idx}"), 34) for idx, s in enumerate(sections[:5], start=1)]
     if len(section_labels) < 5:
         section_labels.extend(["Customer proof", "Cost case", "Regulation", "Partner access", "Capital timing"][len(section_labels):5])
-    if language == "zh":
-        title_prefix = topic_text
-        return [
-            {"title": f"{title_prefix}的决策就绪度仍取决于可验证证明", "subtitle": "方向性指数，用于表达管理层关注优先级", "type": "bar", "categories": ["客户证明", "成本口径", "技术/交付", "监管路径", "伙伴能力"], "series": [{"name": "就绪度指数", "values": [68, 56, 63, 52, 71]}], "caption": "该图为方向性管理视图，不替代经核验市场数据。", "source_note": "BlueOcean public-source synthesis."},
-            {"title": f"{title_prefix}投入姿态应随证明成熟度变化", "subtitle": "从观察到规模化的资源配置节奏", "type": "line", "categories": ["观察", "合作", "试点", "规模化"], "series": [{"name": "管理层信心", "values": [28, 48, 67, 84]}, {"name": "资本暴露", "values": [12, 24, 45, 78]}], "caption": "投入强度应落后于证据成熟度，而不是领先于证据。", "source_note": "BlueOcean scenario synthesis."},
-            {"title": f"{title_prefix}关键风险需要按严重性和可管理性排序", "subtitle": "风险暴露与管理关注度", "type": "bubble", "points": [{"label": "客户需求", "x": 72, "y": 78, "size": 78}, {"label": "成本/ROI", "x": 80, "y": 66, "size": 82}, {"label": "监管", "x": 58, "y": 62, "size": 58}, {"label": "供应链", "x": 64, "y": 54, "size": 55}, {"label": "融资", "x": 52, "y": 48, "size": 46}], "x_label": "严重性", "y_label": "可能性", "caption": "气泡大小表示需要管理层投入的注意力。", "source_note": "BlueOcean risk screen."},
-            {"title": f"{title_prefix}管理层注意力应从叙事转向验证点", "subtitle": "近期工作优先级", "type": "bar", "categories": ["来源核验", "客户访谈", "成本模型", "政策跟踪", "伙伴筛选"], "series": [{"name": "优先级指数", "values": [92, 84, 78, 70, 66]}], "caption": "最有价值的工作是关闭会改变决策的证据缺口。", "source_note": "BlueOcean management screen."},
-            {"title": f"{title_prefix}情景矩阵应同时看吸引力和执行就绪度", "subtitle": "战略选项比较", "type": "matrix", "rows": section_labels[:5], "columns": ["战略吸引力", "执行就绪度", "信心强度", "资本需求"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "矩阵用于排序下一步验证重点。", "source_note": "BlueOcean qualitative assessment."},
-            {"title": f"{title_prefix}未来四个季度的验证重心会转移", "subtitle": "从客户、成本到政策和伙伴准备度", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "客户", "values": [35, 28, 18, 12]}, {"name": "成本", "values": [30, 32, 22, 16]}, {"name": "政策/伙伴", "values": [22, 28, 35, 38]}], "caption": "验证节奏应先补事实，再升级资源承诺。", "source_note": "BlueOcean public-source synthesis."},
-        ]
-    return [
-        {"title": "Decision readiness still depends on verified proof points", "subtitle": f"Customer, cost and partner proof remain the main underwriting gaps for {topic_text}", "type": "bar", "categories": ["Customer proof", "Cost case", "Technical delivery", "Regulatory path", "Partner access"], "series": [{"name": "Readiness index", "values": [68, 56, 63, 52, 71]}], "caption": "The exhibit ranks the proof points a CEO should ask teams to close before moving from monitoring to commitment.", "source_note": "BlueOcean public-source synthesis."},
-        {"title": "Commitment posture should shift as proof matures", "subtitle": f"Resource posture for {topic_text}", "type": "line", "categories": ["Monitor", "Partner", "Pilot", "Scale"], "series": [{"name": "Management conviction", "values": [28, 48, 67, 84]}, {"name": "Capital exposure", "values": [12, 24, 45, 78]}], "caption": "Capital exposure should lag evidence maturity rather than lead it.", "source_note": "BlueOcean scenario synthesis."},
-        {"title": "Key risks should be ranked by severity and manageability", "subtitle": f"Risk exposure for {topic_text}", "type": "bubble", "points": [{"label": "Customer demand", "x": 72, "y": 78, "size": 78}, {"label": "Cost / ROI", "x": 80, "y": 66, "size": 82}, {"label": "Regulation", "x": 58, "y": 62, "size": 58}, {"label": "Supply chain", "x": 64, "y": 54, "size": 55}, {"label": "Financing", "x": 52, "y": 48, "size": 46}], "x_label": "Severity", "y_label": "Likelihood", "caption": "Bubble size indicates the management attention required.", "source_note": "BlueOcean risk screen."},
-        {"title": "Diligence workload concentrates in customer, cost and policy proof", "subtitle": f"Near-term validation load for {topic_text}", "type": "bar", "categories": ["Source checks", "Customer calls", "Cost model", "Policy review", "Partner screen"], "series": [{"name": "Priority index", "values": [92, 84, 78, 70, 66]}], "caption": "The most valuable work closes open questions that can change the decision.", "source_note": "BlueOcean public-source synthesis."},
-        {"title": "Scenario choices should compare attractiveness with readiness", "subtitle": f"Strategic option comparison for {topic_text}", "type": "matrix", "rows": section_labels[:5], "columns": ["Attractiveness", "Readiness", "Confidence", "Capital need"], "values": [[5, 3, 2, 2], [4, 4, 3, 3], [4, 2, 2, 4], [3, 3, 3, 2], [5, 3, 3, 3]], "caption": "The matrix ranks where the next validation work should focus.", "source_note": "BlueOcean qualitative assessment."},
-        {"title": "Validation effort shifts from customer proof to policy and partners", "subtitle": f"Quarterly validation mix for {topic_text}", "type": "stacked_bar", "categories": ["Q1", "Q2", "Q3", "Q4"], "series": [{"name": "Customer", "values": [35, 28, 18, 12]}, {"name": "Cost", "values": [30, 32, 22, 16]}, {"name": "Policy / partner", "values": [22, 28, 35, 38]}], "caption": "The validation cadence should improve facts before escalating resource commitment.", "source_note": "BlueOcean public-source synthesis."},
-        {"title": "Cost structure must be decomposed before underwriting", "subtitle": f"Cost diligence view for {topic_text}", "type": "stacked_bar", "categories": ["Base case", "High cost", "Low cost"], "series": [{"name": "CAPEX", "values": [58, 66, 48]}, {"name": "OPEX", "values": [18, 16, 20]}, {"name": "Fuel cycle", "values": [12, 9, 14]}, {"name": "Maintenance", "values": [12, 9, 18]}], "caption": "The chart separates capital, operating and maintenance drivers so management can test which cost lever would change the investment case.", "source_note": "BlueOcean public-source synthesis."},
-        {"title": "Timeline confidence falls as milestones move from lab to grid", "subtitle": f"Milestone confidence for {topic_text}", "type": "line", "categories": ["Lab proof", "Pilot", "First plant", "Fleet scale"], "series": [{"name": "Confidence", "values": [82, 58, 36, 24]}, {"name": "Capital risk", "values": [18, 42, 67, 84]}], "caption": "Decision confidence should be staged by milestone maturity.", "source_note": "BlueOcean milestone assessment."},
-        {"title": "Partner options differ on learning value and capital exposure", "subtitle": f"Where-to-play option view for {topic_text}", "type": "matrix", "rows": ["Direct equity", "Corporate venture", "Offtake option", "Supplier JV", "R&D consortium"], "columns": ["Learning", "Control", "Capital need", "Reversibility"], "values": [[5, 4, 2, 2], [4, 3, 3, 3], [3, 2, 4, 4], [4, 4, 2, 2], [3, 2, 5, 5]], "caption": "The best early posture maximizes learning without forcing irreversible capital exposure.", "source_note": "BlueOcean option synthesis."},
-        {"title": "Evidence maturity varies sharply by claim type", "subtitle": f"Claim maturity for {topic_text}", "type": "bar", "categories": ["Physics", "Cost", "Supply", "Regulation", "Demand", "Financing"], "series": [{"name": "Evidence maturity", "values": [72, 34, 42, 48, 29, 36]}], "caption": "Management can use the maturity gap to decide which claims support action today and which require a separate diligence workstream.", "source_note": "BlueOcean public-source synthesis."},
-        {"title": "Use-case priorities separate early revenue from long-term optionality", "subtitle": f"Customer option screen for {topic_text}", "type": "matrix", "rows": ["Industrial heat", "Hydrogen", "Grid power", "Defense / remote", "Research services"], "columns": ["Demand pull", "Price tolerance", "Timing", "Evidence"], "values": [[5, 4, 3, 3], [4, 4, 3, 2], [5, 2, 1, 2], [3, 5, 3, 2], [2, 3, 4, 4]], "caption": "The comparison separates markets that can teach the company soon from markets that may require longer proof cycles.", "source_note": "BlueOcean customer option synthesis."},
-        {"title": "Capital exposure should be staged by decision milestone", "subtitle": f"Commitment profile for {topic_text}", "type": "stacked_bar", "categories": ["Research", "Partner option", "Pilot", "First asset", "Scale"], "series": [{"name": "Learning spend", "values": [70, 55, 34, 18, 10]}, {"name": "Partner capital", "values": [15, 28, 32, 22, 12]}, {"name": "Balance-sheet exposure", "values": [5, 12, 26, 54, 78]}], "caption": "The capital mix should move from learning to committed exposure only as evidence matures.", "source_note": "BlueOcean capital staging view."},
-        {"title": "Management attention shifts as the uncertainty stack resolves", "subtitle": f"Executive review cadence for {topic_text}", "type": "line", "categories": ["Now", "6 months", "12 months", "24 months", "36 months"], "series": [{"name": "Customer proof", "values": [82, 74, 56, 38, 26]}, {"name": "Cost proof", "values": [76, 70, 62, 48, 34]}, {"name": "Execution scale", "values": [24, 32, 46, 64, 78]}], "caption": "The review agenda should shift from proof gathering toward scaling questions only after the earlier uncertainties narrow.", "source_note": "BlueOcean uncertainty-resolution model."},
-        {"title": "Competitive posture depends on timing, access and reversibility", "subtitle": f"Strategic posture map for {topic_text}", "type": "bubble", "points": [{"label": "Minority option", "x": 78, "y": 66, "size": 58}, {"label": "Offtake rights", "x": 68, "y": 74, "size": 64}, {"label": "Supplier JV", "x": 54, "y": 62, "size": 52}, {"label": "Direct build", "x": 38, "y": 82, "size": 80}, {"label": "Research consortium", "x": 72, "y": 42, "size": 40}], "x_label": "Reversibility", "y_label": "Strategic access", "caption": "Early moves should protect access and learning while avoiding positions that cannot be reversed if evidence weakens.", "source_note": "BlueOcean competitive posture screen."},
+    charts = [
+        {
+            "title": "Public evidence is concentrated in identifiable institutions",
+            "subtitle": f"The public record used here spans {len(refs) or (fact_pack.source_count if fact_pack else 0)} sources across {len(domains)} domains.",
+            "type": "stacked_bar",
+            "categories": [row[0] for row in institution_rows],
+            "series": [
+                {"name": "Authoritative", "values": [row[1] for row in institution_rows]},
+                {"name": "Supplemental", "values": [row[2] for row in institution_rows]},
+            ],
+            "caption": "Institution type matters because CEO conclusions are stronger when public agencies, laboratories, research bodies and industry sources point in the same direction.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Source domains define where firm claims can be made",
+            "subtitle": "Each bar represents a public web or document domain behind the analysis.",
+            "type": "bar",
+            "categories": [row[0] for row in domain_rows],
+            "series": [{"name": "Public sources", "values": [row[1] for row in domain_rows]}],
+            "caption": "A narrow domain base limits how far the narrative should generalize across markets, technologies or regulatory settings.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Evidence breadth depends on adding independent domains",
+            "subtitle": "Cumulative public sources and unique domains across the evidence base.",
+            "type": "line",
+            "categories": source_order_labels,
+            "series": [
+                {"name": "Public sources", "values": cumulative_sources},
+                {"name": "Unique domains", "values": cumulative_domains},
+            ],
+            "caption": "A stronger fact base adds both more sources and more independent domains, rather than repeating one institution.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Public facts cluster by technical, policy and commercial themes",
+            "subtitle": "Mention counts across public facts, dated facts and numeric facts.",
+            "type": "bar",
+            "categories": fact_labels,
+            "series": [{"name": "Fact mentions", "values": fact_counts}],
+            "caption": "The mix indicates whether the public record is led by technical milestones, policy institutions or commercial proof.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Dated facts anchor the chronology where public text permits it",
+            "subtitle": "Year mentions found in public facts and source references.",
+            "type": "line",
+            "categories": year_labels,
+            "series": [{"name": "Mentions", "values": year_values}],
+            "caption": "Timeline claims are stronger when they can be tied to explicit years rather than broad commercialization language.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Source type mix separates full pages from thin snippets",
+            "subtitle": "Public sources by content form and authority flag.",
+            "type": "stacked_bar",
+            "categories": source_type_categories,
+            "series": [
+                {"name": "Authoritative", "values": authoritative_by_type},
+                {"name": "Supplemental", "values": supplement_by_type},
+            ],
+            "caption": "Pages and PDFs with extractable body text can support richer prose than snippets that carry only limited context.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Business relevance depends on numbers, dates and commercial proof",
+            "subtitle": "Numeric, dated and commercial references across the main narrative.",
+            "type": "stacked_bar",
+            "categories": section_labels[:5],
+            "series": [
+                {"name": "Numeric", "values": section_numeric[:5]},
+                {"name": "Dated", "values": section_dated[:5]},
+                {"name": "Commercial", "values": section_commercial[:5]},
+            ],
+            "caption": "A board reader needs later pages to carry the same factual weight as the opening argument, especially around numbers and dated milestones.",
+            "source_note": "Sources: public references and report analysis.",
+        },
+        {
+            "title": "Evidence support differs by business question",
+            "subtitle": "A compact support matrix for the main executive questions.",
+            "type": "matrix",
+            "rows": rows_for_matrix[:5],
+            "columns": ["Sources", "Numbers", "Dates", "Business tie"],
+            "values": _support_matrix_values(rows_for_matrix, section_numeric, section_dated, section_commercial, refs),
+            "caption": "The strongest pages connect source depth with numbers, dates and direct business implications.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Domain map separates institutional authority from factual detail",
+            "subtitle": "Each point is a public domain positioned by authority and available factual detail.",
+            "type": "bubble",
+            "points": _domain_bubble_points(domain_rows, refs, fact_pack),
+            "x_label": "Authority score",
+            "y_label": "Factual detail",
+            "caption": "Upper-right domains deserve more weight in the narrative because they combine credibility with extractable factual detail.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Commercial quantification remains thinner than milestone evidence",
+            "subtitle": "Numeric facts are grouped by the type of decision they can support.",
+            "type": "bar",
+            "categories": ["Funding", "Cost", "Capacity", "Timeline", "Market", "Other"],
+            "series": [{"name": "Numeric fact count", "values": _numeric_fact_mix(fact_pack)}],
+            "caption": "A CEO can act faster when funding, cost, capacity and market claims are quantified instead of only described qualitatively.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Institution roles clarify which claims each source can support",
+            "subtitle": "Rows classify public institutions; columns show their most useful contribution.",
+            "type": "matrix",
+            "rows": [row[0] for row in institution_rows],
+            "columns": ["Policy", "Technology", "Market", "Timeline"],
+            "values": _institution_role_matrix(institution_rows),
+            "caption": "No single institution type should carry the entire investment case; policy, technology and market claims need separate support.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Facts become more useful when dates and numbers appear together",
+            "subtitle": "Cumulative public facts grouped into numeric and dated support.",
+            "type": "line",
+            "categories": [f"F{i}" for i in range(1, 7)],
+            "series": _cumulative_fact_quality_series(fact_pack),
+            "caption": "Facts that combine dates and numbers are easier for a board reader to verify and compare across sources.",
+            "source_note": source_note,
+        },
+        {
+            "title": "Strategic coverage balances market, cost, policy and execution proof",
+            "subtitle": "Relative coverage on a five-point scale.",
+            "type": "matrix",
+            "rows": section_labels[:5],
+            "columns": ["Market", "Cost", "Policy", "Execution"],
+            "values": _chapter_coverage_matrix(sections[:5]),
+            "caption": "A balanced executive view connects the market case with cost evidence, policy timing and execution constraints.",
+            "source_note": "Sources: public references and report analysis.",
+        },
+        {
+            "title": "Triangulation is strongest where domains, facts and years overlap",
+            "subtitle": "Composite view of public domains, extracted facts and explicit dates.",
+            "type": "bubble",
+            "points": [
+                {"label": "Domains", "x": min(100, len(domains) * 12 + 20), "y": min(100, len(refs) * 10 + 20), "size": max(35, len(domains) * 8)},
+                {"label": "Facts", "x": min(100, len(_fact_texts(fact_pack)) * 4 + 20), "y": min(100, sum(fact_counts) * 3 + 20), "size": max(35, sum(fact_counts))},
+                {"label": "Years", "x": min(100, len(year_labels) * 15 + 15), "y": min(100, sum(year_values) * 12 + 20), "size": max(35, sum(year_values) * 10)},
+                {"label": "Numbers", "x": min(100, len(fact_pack.numeric_facts if fact_pack else []) * 10 + 20), "y": min(100, sum(_numeric_fact_mix(fact_pack)) * 10 + 20), "size": max(35, len(fact_pack.numeric_facts if fact_pack else []) * 9)},
+            ],
+            "x_label": "Breadth",
+            "y_label": "Extracted support",
+            "caption": "The commercial conclusion becomes more credible when multiple source domains, fact types and dated milestones point in the same direction.",
+            "source_note": source_note,
+        },
     ]
+    return charts
+
+
+def _fact_pack_domains(fact_pack: ResearchFactPack | None) -> List[str]:
+    domains = list(fact_pack.source_domains if fact_pack else [])
+    if not domains and fact_pack:
+        for ref in fact_pack.source_refs:
+            for url in URL_RE.findall(ref):
+                domain = _domain(url)
+                if domain and domain not in domains:
+                    domains.append(domain)
+    while len(domains) < 4:
+        domains.append(f"source-{len(domains) + 1}")
+    return domains[:8]
+
+
+def _source_ref_items(fact_pack: ResearchFactPack | None) -> List[Dict[str, Any]]:
+    items: List[Dict[str, Any]] = []
+    if not fact_pack:
+        return items
+    for idx, ref in enumerate(fact_pack.source_refs, start=1):
+        url_match = URL_RE.search(ref)
+        url = url_match.group(0).rstrip("/") if url_match else ""
+        domain = _domain(url) or f"source-{idx}"
+        lower = ref.lower()
+        source_type = "pdf" if "[pdf]" in lower else "snippet" if "[snippet]" in lower else "html" if "[html]" in lower else "web"
+        items.append(
+            {
+                "idx": idx,
+                "ref": ref,
+                "url": url,
+                "domain": domain,
+                "authoritative": "[authoritative]" in lower or _is_authoritative(url),
+                "source_type": source_type,
+            }
+        )
+    return items
+
+
+def _domain_rows(domains: List[str], refs: List[Dict[str, Any]]) -> List[tuple[str, int]]:
+    counts: Dict[str, int] = {domain: 0 for domain in domains}
+    for item in refs:
+        domain = str(item.get("domain") or "")
+        counts[domain] = counts.get(domain, 0) + 1
+    rows = sorted(((domain, max(1, counts.get(domain, 0))) for domain in domains), key=lambda row: row[1], reverse=True)
+    while len(rows) < 4:
+        rows.append((f"source-{len(rows) + 1}", 1))
+    return [(_shorten(domain, 24), count) for domain, count in rows[:7]]
+
+
+def _source_type_series(refs: List[Dict[str, Any]]) -> tuple[List[str], List[int], List[int]]:
+    order = ["html", "snippet", "pdf", "web"]
+    counts: Dict[str, List[int]] = {key: [0, 0] for key in order}
+    for item in refs:
+        source_type = str(item.get("source_type") or "web").lower()
+        if source_type not in counts:
+            source_type = "web"
+        bucket = 0 if item.get("authoritative") else 1
+        counts[source_type][bucket] += 1
+    if not refs:
+        counts["html"][0] = 1
+        counts["snippet"][1] = 1
+        counts["web"][1] = 1
+    categories = ["HTML", "Snippet", "PDF", "Web"]
+    authoritative = [counts[key][0] for key in order]
+    supplemental = [counts[key][1] for key in order]
+    if sum(authoritative) == 0 and refs:
+        authoritative[0] = 1
+    if sum(supplemental) == 0 and refs:
+        supplemental[1] = 1
+    return categories, authoritative, supplemental
+
+
+def _institution_mix_rows(refs: List[Dict[str, Any]], domains: List[str]) -> List[tuple[str, int, int]]:
+    labels = ["Government", "Research", "Industry", "Company", "Other"]
+    rows = {label: [0, 0] for label in labels}
+    source_items = refs or [{"domain": domain, "authoritative": domain.endswith(".gov")} for domain in domains]
+    for item in source_items:
+        domain = str(item.get("domain") or "").lower()
+        label = _institution_label(domain)
+        bucket = 0 if item.get("authoritative") else 1
+        rows[label][bucket] += 1
+    return [(label, max(0, values[0]), max(0, values[1])) for label, values in rows.items()]
+
+
+def _institution_label(domain: str) -> str:
+    lower = str(domain or "").lower()
+    if lower.endswith(".gov") or "energy.gov" in lower or "osti.gov" in lower or "arpa-e.energy.gov" in lower:
+        return "Government"
+    if any(token in lower for token in ("academ", "university", ".edu", "iaea", "llnl", "iter")):
+        return "Research"
+    if any(token in lower for token in ("industry", "association", "market", "report")):
+        return "Industry"
+    if any(token in lower for token in ("inc", "corp", "company", "ventures")):
+        return "Company"
+    return "Other"
+
+
+def _fact_texts(fact_pack: ResearchFactPack | None) -> List[str]:
+    if not fact_pack:
+        return []
+    return _dedupe_texts(
+        list(fact_pack.high_confidence_facts)
+        + list(fact_pack.numeric_facts)
+        + list(fact_pack.dated_facts)
+    )
+
+
+def _fact_category_counts(fact_pack: ResearchFactPack | None) -> tuple[List[str], List[int]]:
+    labels = ["Technical", "Policy", "Commercial", "Funding", "Timeline", "Risk"]
+    counters = {label: 0 for label in labels}
+    texts = _fact_texts(fact_pack)
+    keyword_map = {
+        "Technical": ("fusion", "plasma", "reactor", "tokamak", "ignition", "tritium", "materials", "power plant"),
+        "Policy": ("policy", "program", "government", "regulatory", "doe", "arpa", "iaea", "nrc", "roadmap"),
+        "Commercial": ("commercial", "market", "customer", "industry", "company", "grid", "deployment", "pilot"),
+        "Funding": ("funding", "investment", "capital", "million", "billion", "$", "usd", "authorization"),
+        "Timeline": ("202", "203", "1950", "year", "decade", "milestone", "timeline"),
+        "Risk": ("risk", "uncertain", "challenge", "delay", "safety", "waste", "proliferation"),
+    }
+    for text in texts:
+        lower = text.lower()
+        for label, keywords in keyword_map.items():
+            if any(keyword in lower for keyword in keywords):
+                counters[label] += 1
+    values = [max(1, counters[label]) for label in labels]
+    return labels, values
+
+
+def _year_count_series(fact_pack: ResearchFactPack | None) -> tuple[List[str], List[int]]:
+    counts: Dict[str, int] = {}
+    for text in _fact_texts(fact_pack) + (fact_pack.source_refs if fact_pack else []):
+        for year in re.findall(r"\b(19\d{2}|20\d{2})\b", str(text)):
+            counts[year] = counts.get(year, 0) + 1
+    if not counts:
+        return ["2024", "2025", "2026", "2027"], [1, 1, 1, 1]
+    rows = sorted(counts.items(), key=lambda row: row[0])
+    if len(rows) < 4:
+        base = int(rows[0][0])
+        offset = 1
+        while len(rows) < 4:
+            candidate = str(base + offset)
+            offset += 1
+            if candidate not in counts:
+                rows.append((candidate, 0))
+    return [year for year, _count in rows[:7]], [max(1, count) for _year, count in rows[:7]]
+
+
+def _section_fact_series(sections: List[Dict[str, Any]]) -> tuple[List[str], List[int], List[int], List[int]]:
+    labels: List[str] = []
+    numeric: List[int] = []
+    dated: List[int] = []
+    commercial: List[int] = []
+    for idx, section in enumerate(sections[:5], start=1):
+        title = _shorten(str(section.get("title") or f"Chapter {idx}"), 28)
+        text = " ".join([str(section.get("lead") or ""), *[str(x) for x in _as_list(section.get("paragraphs"))]])
+        labels.append(title)
+        numeric.append(max(1, min(9, len(NUMBER_RE.findall(text)))))
+        dated.append(max(1, min(9, len(DATE_RE.findall(text)))))
+        commercial.append(max(1, min(9, _keyword_hits(text, BUSINESS_LENS_TERMS) // 3)))
+    while len(labels) < 5:
+        labels.append(["Market timing", "Cost proof", "Policy path", "Customer demand", "Partner access"][len(labels)])
+        numeric.append(1)
+        dated.append(1)
+        commercial.append(1)
+    return labels, numeric, dated, commercial
+
+
+def _support_matrix_values(
+    rows: List[str],
+    numeric: List[int],
+    dated: List[int],
+    commercial: List[int],
+    refs: List[Dict[str, Any]],
+) -> List[List[float]]:
+    values: List[List[float]] = []
+    source_score = max(1, min(5, len(refs) // 2 or 1))
+    for idx, _row in enumerate(rows[:5]):
+        values.append(
+            [
+                float(source_score),
+                float(min(5, numeric[idx] if idx < len(numeric) else 1)),
+                float(min(5, dated[idx] if idx < len(dated) else 1)),
+                float(min(5, commercial[idx] if idx < len(commercial) else 1)),
+            ]
+        )
+    return values or [[1.0, 1.0, 1.0, 1.0] for _ in range(5)]
+
+
+def _domain_bubble_points(
+    domain_rows: List[tuple[str, int]],
+    refs: List[Dict[str, Any]],
+    fact_pack: ResearchFactPack | None,
+) -> List[Dict[str, Any]]:
+    fact_text = " ".join(_fact_texts(fact_pack)).lower()
+    points = []
+    for idx, (domain, count) in enumerate(domain_rows[:6]):
+        full_domain = next((str(item.get("domain")) for item in refs if _shorten(str(item.get("domain")), 24) == domain), domain)
+        authority = 82 if _is_authoritative(full_domain) or full_domain.endswith(".gov") else 58 if any(token in full_domain for token in ("org", "edu")) else 42
+        fact_yield = max(25, min(100, fact_text.count(full_domain.lower().replace("www.", "")) * 15 + count * 18 + 25))
+        points.append({"label": domain, "x": authority, "y": fact_yield, "size": max(35, min(95, count * 18 + 35 + idx * 2))})
+    while len(points) < 4:
+        idx = len(points) + 1
+        points.append({"label": f"Source {idx}", "x": 35 + idx * 8, "y": 30 + idx * 10, "size": 35 + idx * 5})
+    return points
+
+
+def _numeric_fact_mix(fact_pack: ResearchFactPack | None) -> List[int]:
+    buckets = {
+        "Funding": ("funding", "investment", "$", "usd", "million", "billion", "authorization"),
+        "Cost": ("cost", "lcoe", "price", "capex", "opex"),
+        "Capacity": ("capacity", "gw", "mw", "power", "plant"),
+        "Timeline": ("202", "203", "year", "decade", "milestone"),
+        "Market": ("market", "customer", "commercial", "industry"),
+        "Other": tuple(),
+    }
+    values = {label: 0 for label in buckets}
+    for fact in (fact_pack.numeric_facts if fact_pack else []):
+        lower = fact.lower()
+        matched = False
+        for label, keywords in buckets.items():
+            if label == "Other":
+                continue
+            if any(keyword in lower for keyword in keywords):
+                values[label] += 1
+                matched = True
+        if not matched:
+            values["Other"] += 1
+    return [max(1, values[label]) for label in ["Funding", "Cost", "Capacity", "Timeline", "Market", "Other"]]
+
+
+def _institution_role_matrix(institution_rows: List[tuple[str, int, int]]) -> List[List[float]]:
+    role_weights = {
+        "Government": [5, 3, 2, 4],
+        "Research": [2, 5, 2, 4],
+        "Industry": [2, 3, 5, 3],
+        "Company": [1, 4, 4, 3],
+        "Other": [2, 2, 2, 2],
+    }
+    return [role_weights.get(row[0], role_weights["Other"]) for row in institution_rows[:5]]
+
+
+def _cumulative_fact_quality_series(fact_pack: ResearchFactPack | None) -> List[Dict[str, Any]]:
+    facts = _fact_texts(fact_pack)[:6]
+    if len(facts) < 6:
+        facts.extend([""] * (6 - len(facts)))
+    numeric: List[int] = []
+    dated: List[int] = []
+    combined: List[int] = []
+    n_count = d_count = c_count = 0
+    for fact in facts:
+        has_number = bool(NUMBER_RE.search(fact) or MONEY_RE.search(fact))
+        has_date = bool(DATE_RE.search(fact))
+        n_count += 1 if has_number else 0
+        d_count += 1 if has_date else 0
+        c_count += 1 if has_number and has_date else 0
+        numeric.append(max(1, n_count))
+        dated.append(max(1, d_count))
+        combined.append(max(1, c_count))
+    return [
+        {"name": "Numeric facts", "values": numeric},
+        {"name": "Dated facts", "values": dated},
+        {"name": "Both", "values": combined},
+    ]
+
+
+def _chapter_coverage_matrix(sections: List[Dict[str, Any]]) -> List[List[float]]:
+    keyword_map = [
+        ("Market", ("market", "customer", "demand", "commercial", "revenue", "growth")),
+        ("Cost", ("cost", "price", "capex", "opex", "margin", "economics", "return")),
+        ("Policy", ("policy", "regulation", "government", "permit", "standard", "public")),
+        ("Execution", ("execute", "delivery", "partner", "supply", "project", "operations", "scale")),
+    ]
+    values: List[List[float]] = []
+    for section in sections:
+        text = " ".join([str(section.get("title") or ""), str(section.get("lead") or ""), *[str(x) for x in _as_list(section.get("paragraphs"))]]).lower()
+        row = []
+        for _label, keywords in keyword_map:
+            hits = sum(text.count(keyword) for keyword in keywords)
+            row.append(float(max(1, min(5, hits))))
+        values.append(row)
+    while len(values) < 5:
+        values.append([1.0, 1.0, 1.0, 1.0])
+    return values[:5]
 
 
 def _default_credentials(*, language: str) -> str:
@@ -2079,8 +2899,8 @@ def _clean_fact_text(text: Any) -> str:
 def _default_evidence_note(fact_pack: ResearchFactPack, *, language: str) -> str:
     if fact_pack.high_confidence_facts:
         fact = _shorten(_clean_fact_text(fact_pack.high_confidence_facts[0]), 240)
-        return f"Retained source signal: {fact}" if language == "en" else f"公开证据线索：{fact}"
-    return "The sourced record remains incomplete; unsupported claims require additional validation." if language == "en" else "公开来源底稿已保留；未被来源支持的判断仍需补充核验。"
+        return f"A public source anchors this point: {fact}" if language == "en" else f"公开来源支持这一判断：{fact}"
+    return "Public evidence is not yet deep enough to support a high-conviction estimate." if language == "en" else "现有公开证据仍不足以支持高确定性估计。"
 
 
 def _default_implication(*, language: str) -> str:
@@ -2094,9 +2914,9 @@ def _supplement_paragraphs(fact_pack: ResearchFactPack, *, title: str = "", lang
     for idx, fact in enumerate(evidence):
         fact_text = _shorten(fact, 330)
         if language == "zh":
-            out.append(f"围绕{topic_text}，管理层应先把公开来源转成可复核的判断边界。第{idx + 1}条保留线索是：{fact_text}。这条线索适合支持下一轮客户、成本或伙伴验证，但不应被单独升级为超出来源的确定结论。")
+            out.append(f"围绕{topic_text}，管理层应先把公开来源转成可复核的判断边界。一条可用证据是：{fact_text}。这条证据适合支持下一轮客户、成本或伙伴验证，但不应被单独升级为超出来源的确定结论。")
         else:
-            out.append(f"The sourced record should narrow the decision rather than broaden the narrative. Retained signal {idx + 1}: {_clean_fact_text(fact_text)}. That signal can support the next customer, cost or partner diligence step, but it should not be stretched into a broader claim than the sources support.")
+            out.append(f"Public evidence should narrow the decision rather than broaden the narrative. One usable fact is {_clean_fact_text(fact_text)}. It can support the next customer, cost or partner question, but it should not be stretched into a broader claim than the source supports.")
     while len(out) < needed:
         if language == "en":
             out.append("Leadership should focus on the few facts that change capital timing, customer exposure or partner posture. Material that does not change those decisions should stay out of the executive narrative.")
@@ -2106,17 +2926,22 @@ def _supplement_paragraphs(fact_pack: ResearchFactPack, *, title: str = "", lang
 
 
 def _completion_paragraph(title: str, idx: int, *, language: str) -> str:
+    title_text = _shorten(str(title or "this issue").rstrip("."), 120)
     if language == "zh":
         variants = [
-            f"放到董事会视角，{title}需要进一步转化为资本节奏、伙伴选择、客户暴露和风险偏好的判断。",
-            "下一轮复盘应围绕客户证据、成本数据、政策时间和竞争动作更新投入门槛。",
-            "在缺少更强来源之前，管理层应把该判断作为方向性输入，而不是直接升级为重大资源承诺。",
+            f"放到董事会视角，{title_text}需要进一步转化为资本节奏、伙伴选择、客户暴露和风险偏好的判断。",
+            f"下一轮复盘应围绕{title_text}的客户证据、成本数据、政策时间和竞争动作更新投入门槛。",
+            f"在缺少更强来源之前，管理层应把{title_text}作为方向性输入，而不是直接升级为重大资源承诺。",
+            f"围绕{title_text}，真正需要关闭的是会改变预算、合作或市场动作的少数证据，而不是扩展更多无法验证的叙事。",
+            f"如果{title_text}相关证据在下一轮复盘中没有改善，最稳健的姿态是保留选择权并降低资源暴露。",
         ]
     else:
         variants = [
-            "The board-level reading should connect the conclusion to capital timing, partner choice, customer exposure and risk appetite before resources are escalated.",
-            "The next review should test the investment case against customer evidence, cost data, policy timing and competitor movement, then update the investment threshold.",
-            "Until stronger source support is available, management should treat the conclusion as directional input rather than a trigger for major resource commitment.",
+            f"The board-level reading of {title_text} should connect the conclusion to capital timing, partner choice, customer exposure and risk appetite before resources are escalated.",
+            f"The next review should test {title_text} against customer evidence, cost data, policy timing and competitor movement, then update the investment threshold.",
+            f"Until stronger source support is available, management should treat {title_text} as directional input rather than a trigger for major resource commitment.",
+            f"For {title_text}, the useful question is which few facts would change budget, partnership or market-facing action, not how many adjacent narratives can be added.",
+            f"If the evidence around {title_text} does not improve in the next review cycle, the stronger posture is to preserve options and limit resource exposure.",
         ]
     return variants[idx % len(variants)]
 

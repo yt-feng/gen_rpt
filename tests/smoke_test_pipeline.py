@@ -109,6 +109,11 @@ def main() -> None:
     chart_types = {chart.get("type") for chart in report.get("charts", [])}
     assert {"line", "bubble", "matrix", "stacked_bar"} & chart_types
     assert len(chart_types) >= 3
+    chart_title_keys = set()
+    for chart in report.get("charts", []):
+        chart_key = re.sub(r"\W+", "", str(chart.get("title") or "").lower())[:140]
+        assert chart_key not in chart_title_keys, f"duplicate chart title survived: {chart.get('title')}"
+        chart_title_keys.add(chart_key)
     chartjs_bar = next(chart for chart in report.get("charts", []) if chart.get("title") == "Chart.js bar payload should keep model data")
     assert chartjs_bar.get("categories") == ["2024", "2025", "2026"]
     assert chartjs_bar.get("series", [])[0].get("values") == [12.0, 18.0, 27.0]
@@ -241,6 +246,26 @@ def main() -> None:
             "This section finds",
             "Directional index used",
             "DECISION IMPLICATIONS",
+            "Decision readiness still depends",
+            "Readiness index",
+            "Priority index",
+            "BlueOcean synthesis",
+            "fact pack",
+            "evidence ledger",
+            "source pack",
+            "generated narrative text",
+            "retrieval order",
+            "search context",
+            "page body could not be fully extracted",
+            "lower-confidence public signal",
+            "\u987a\u5cf0\u5b9d\u5b9d",
+            "\u987a\u5cf0",
+            "\u5b9d\u5b9d",
+            "\u7f8e\u5bb9\u9662",
+            "\u4fdd\u5065\u54c1",
+            "\u7ade\u54c1\u5f88\u5389\u5bb3",
+            "\u6700\u9002\u5408\u5e2e\u4ed6",
+            "shun" "feng",
         ]:
             assert internal_label.lower() not in lowered
         for structured_artifact in ["executive_summary_text", "{'title'", r"\boapos{}title"]:

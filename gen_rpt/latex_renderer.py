@@ -202,9 +202,9 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
     chart_groups = _chart_groups(charts)
     front_group_count = min(2, len(chart_groups))
     rows: List[tuple[str, str, List[str]]] = [('03', _agenda_heading(summary, sections), [])]
-    rows.append(('04', 'Proof, economics and timing determine whether fusion changes capital allocation', []))
+    rows.append(('04', _exhibit_contents_title(charts[:2], 'Evidence base and timing shape the capital-allocation question'), []))
     if chart_groups:
-        rows.append(('05', 'Decision readiness still depends on verified proof points', []))
+        rows.append(('05', _exhibit_contents_title(charts[2:4] or charts[:2], 'Early exhibits quantify where the public record is strongest'), []))
     page_no = 5 + front_group_count
     chart_pages_needed = (len(charts) + 1) // 2
     chart_pages = front_group_count
@@ -219,6 +219,17 @@ def _content_page_rows(summary: List[str], sections: List[Dict[str, Any]], chart
         chart_pages += 1
     rows.append((f'{page_no:02d}', 'About the research', []))
     return rows
+
+
+def _exhibit_contents_title(charts: List[Dict[str, Any]], fallback: str) -> str:
+    titles = []
+    for chart in charts:
+        title = _reader_clean(str(chart.get('title') or '').strip())
+        if title:
+            titles.append(_chart_title(title, 86))
+    if titles:
+        return '; '.join(titles[:2])
+    return fallback
 
 
 def _chart_groups(charts: List[Dict[str, Any]]) -> List[List[Dict[str, Any]]]:
@@ -379,7 +390,7 @@ def _methodology_page(report: Dict[str, Any], refs: List[Any]) -> str:
             body += '{\\small\\bfseries ' + _tex(_shorten(_field(item, 'name'), 80)) + '}\\par{\\scriptsize\\color{BOMuted} ' + _tex(_shorten(_field(item, 'role'), 110)) + '} & {\\scriptsize ' + _tex(_shorten(_field(item, 'credentials'), 260)) + '} \\\\[6pt]\n'
         body += '\\end{tabularx}\n'
     if refs:
-        body += '\\vspace{5pt}{\\scriptsize\\color{BOMuted} This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Detailed references are retained separately.}\\par\n'
+        body += '\\vspace{5pt}{\\scriptsize\\color{BOMuted} This report was informed by public research and data from: ' + _tex(', '.join(str(x) for x in refs)) + '. Detailed references are listed separately.}\\par\n'
     return body
 
 
@@ -530,7 +541,7 @@ def _exhibit_block(chart: Dict[str, Any], assets: Dict[str, str], idx: int, *, c
         caption_raw = ''
     subtitle = _tex(_shorten(subtitle_raw, 220))
     caption = _tex(_shorten(caption_raw, 280))
-    source = _tex(_shorten(chart.get('source_note') or 'Source: public sources and BlueOcean synthesis.', 190))
+    source = _tex(_shorten(chart.get('source_note') or 'Sources: public references listed with the report.', 190))
     visual = _native_chart(chart, compact=compact)
     if not visual:
         path = _asset_path(assets.get(str(chart.get('id') or f'chart-{idx}'), '')) or _resolve_chart(assets, idx)
@@ -1650,9 +1661,11 @@ def _reader_clean(text: str) -> str:
         (r'\bevidence boundary\b', 'available public record'),
         (r'\bsource backup\b', 'public record'),
         (r'\bsupporting sources\b', 'public record'),
+        (r'\bevidence ledgers?\b', 'public record'),
+        (r'\bfact[-\s]+packs?\b', 'public record'),
         (r'\bevidence gates\b', 'verified milestones'),
         (r'\bdecision gates\b', 'decision milestones'),
-        (r'\bvalidation gaps\b', 'open questions'),
+        (r'\bvalidation gaps?\b', 'open questions'),
         (r'\bmodel-assisted synthesis\b', 'research synthesis'),
         (r'\binternal executive strategy stress test\b', ''),
         (r'\binternal framework\b', ''),

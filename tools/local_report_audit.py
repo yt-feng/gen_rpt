@@ -26,6 +26,9 @@ META_LABELS = (
     "evidence boundary",
     "source backup",
     "supporting sources",
+    "fact pack",
+    "fact-pack",
+    "source pack",
     "next useful work",
     "evidence ledger",
     "validation gap",
@@ -44,6 +47,67 @@ GENERIC_CAPTIONS = (
     "this exhibit is a directional management view",
     "actual percentages should be replaced",
     "weakly supported areas should remain",
+)
+
+GENERIC_CHART_TERMS = (
+    "blueocean synthesis",
+    "blueocean synthesis from public evidence",
+    "blueocean public-source synthesis",
+    "blueocean scenario synthesis",
+    "blueocean risk screen",
+    "blueocean qualitative assessment",
+    "blueocean management screen",
+    "blueocean option synthesis",
+    "blueocean customer option synthesis",
+    "blueocean capital staging view",
+    "blueocean uncertainty-resolution model",
+    "priority index",
+    "readiness index",
+    "management conviction",
+    "evidence maturity",
+    "capital exposure",
+    "decision readiness",
+    "diligence workload",
+    "management attention",
+    "commitment posture",
+    "generated narrative text",
+    "retrieval order",
+    "chapter text",
+    "fetched public",
+    "search context",
+    "page body could not be fully extracted",
+    "lower-confidence public signal",
+    "scenario choices should",
+    "key risks should be ranked",
+    "validation effort shifts",
+    "use-case priorities separate",
+)
+
+PROCESS_PHRASES = (
+    "decision readiness still depends",
+    "the decision lens is",
+    "a practical reading is",
+    "retained signal",
+    "retained source signal",
+    "the sourced record",
+    "search context:",
+    "the page body could not be fully extracted",
+    "lower-confidence public signal",
+    "this chapter concludes",
+    "this section concludes",
+    "this chapter shows",
+    "this section finds",
+)
+
+OFF_TOPIC_CONTAMINATION = (
+    "\u987a\u5cf0\u5b9d\u5b9d",
+    "\u987a\u5cf0",
+    "\u5b9d\u5b9d",
+    "\u7f8e\u5bb9\u9662",
+    "\u4fdd\u5065\u54c1",
+    "\u7ade\u54c1\u5f88\u5389\u5bb3",
+    "\u6700\u9002\u5408\u5e2e\u4ed6",
+    "shun" "feng",
 )
 
 
@@ -105,6 +169,9 @@ def main() -> int:
         issues.append(f"chart count should be at least {args.min_charts}, got {len(charts)}")
     if len(set(metrics["chart_types"]) & {"stacked_bar", "line", "matrix", "bubble"}) < 2:
         issues.append("chart mix is too narrow; need several native exhibit types")
+    duplicate_chart_titles = duplicates(chart_title_keys(charts))
+    if duplicate_chart_titles:
+        issues.append(f"duplicate chart titles survived: {len(duplicate_chart_titles)}")
     for idx, chart in enumerate(charts, start=1):
         chart_type = str(chart.get("type") or "").lower()
         if chart_type in {"pie", "donut"}:
@@ -113,9 +180,12 @@ def main() -> int:
             issues.append(f"chart {idx} is weak/single-bar/single-point: {chart.get('title')}")
         if chart_type == "bubble" and len(as_list(chart.get("points"))) < 3:
             issues.append(f"chart {idx} has too few bubble points: {chart.get('title')}")
-        chart_reader = " ".join(reader_text(chart.get(key)) for key in ("subtitle", "caption", "source_note")).lower()
+        chart_reader = " ".join(reader_text(chart.get(key)) for key in ("title", "subtitle", "caption", "source_note")).lower()
         if any(marker in chart_reader for marker in GENERIC_CAPTIONS):
             issues.append(f"chart {idx} has generic caption/source wording: {chart.get('title')}")
+        leaked_chart_terms = [marker for marker in GENERIC_CHART_TERMS if marker in chart_reader]
+        if leaked_chart_terms:
+            issues.append(f"chart {idx} has generic management-screen terms: {', '.join(leaked_chart_terms[:4])}: {chart.get('title')}")
 
     rendered_text = collect_rendered_text(tex_path, html_path, md_path)
     metrics["tex_exists"] = tex_path.exists()
@@ -158,6 +228,38 @@ def main() -> int:
     leaked_labels = [label for label in META_LABELS if label in lower_rendered]
     if leaked_labels:
         issues.append("rendered report leaks internal/process labels: " + ", ".join(sorted(set(leaked_labels))[:10]))
+    leaked_phrases = [phrase for phrase in PROCESS_PHRASES if phrase in lower_rendered]
+    if leaked_phrases:
+        issues.append("rendered report leaks process prose: " + ", ".join(sorted(set(leaked_phrases))[:10]))
+    off_topic_hits = [phrase for phrase in OFF_TOPIC_CONTAMINATION if phrase.lower() in lower_rendered]
+    if off_topic_hits:
+        issues.append("rendered report leaks off-topic repo/customer context: " + ", ".join(sorted(set(off_topic_hits))[:10]))
+    rendered_template_terms = [
+        phrase
+        for phrase in (
+            "readiness index",
+            "priority index",
+            "blueocean synthesis",
+            "blueocean synthesis from public evidence",
+            "fact pack",
+            "fact-pack",
+            "source pack",
+            "generated narrative text",
+            "retrieval order",
+            "chapter text",
+            "fetched public",
+            "search context:",
+            "the page body could not be fully extracted",
+            "lower-confidence public signal",
+        )
+        if phrase in lower_rendered
+    ]
+    if rendered_template_terms:
+        issues.append("rendered report leaks generic chart/source terms: " + ", ".join(sorted(set(rendered_template_terms))[:10]))
+    rendered_without_urls = re.sub(r"https?://\S+", "", rendered_text, flags=re.I)
+    bare_source_paths = re.findall(r"\b[A-Za-z0-9][A-Za-z0-9.-]*(?:/[A-Za-z0-9._~%+-]+){2,}\b", rendered_without_urls)
+    if bare_source_paths:
+        issues.append("rendered report leaks bare source/path fragments: " + ", ".join(sorted(set(bare_source_paths))[:6]))
     process_hits = PROCESS_LANGUAGE_RE.findall(rendered_text)
     if process_hits:
         issues.append(f"rendered report leaks process language ({len(process_hits)} hits)")
@@ -245,6 +347,15 @@ def duplicates(values: Iterable[str]) -> List[str]:
             dupes.append(value)
         seen.add(value)
     return dupes
+
+
+def chart_title_keys(charts: Iterable[Dict[str, Any]]) -> List[str]:
+    keys: List[str] = []
+    for chart in charts:
+        title = reader_text(chart.get("title"))
+        if title:
+            keys.append(re.sub(r"\W+", "", title.lower())[:140])
+    return keys
 
 
 def weak_series_chart(chart: Dict[str, Any]) -> bool:
