@@ -15,7 +15,7 @@ if str(ROOT) not in os.sys.path:
 from gen_rpt.brand_assets import copy_or_generate_brand_assets, summarize_reference_institutions, write_reference_backup
 from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.graphics import create_chart, create_insight_card
-from gen_rpt.image_generator import _fallback_image
+from gen_rpt.image_generator import _ensure_section_image_diversity, _fallback_image
 from gen_rpt.latex_renderer import render_latex_pdf
 from gen_rpt.research_quality import ResearchFactPack, apply_deterministic_report_fixes, validate_report
 from gen_rpt.report_renderer import render_report_html, render_report_markdown
@@ -114,6 +114,7 @@ def _copy_existing_assets(src: Path, dst: Path) -> Dict[str, str]:
 
 
 def _materialize_section_visual_assets(report: Dict[str, Any], asset_map: Dict[str, str], assets_dir: Path, topic: str) -> None:
+    prompt_records = []
     for idx, section in enumerate(report.get("sections", []) or [], start=1):
         if not isinstance(section, dict):
             continue
@@ -127,6 +128,8 @@ def _materialize_section_visual_assets(report: Dict[str, Any], asset_map: Dict[s
         )
         _fallback_image(target, kind="section", prompt=prompt)
         asset_map[image_id] = f"assets/{target.name}"
+        prompt_records.append({"id": image_id, "prompt": prompt})
+    _ensure_section_image_diversity(assets_dir, prompt_records, len(prompt_records))
 
 
 def _materialize_chart_assets(report: Dict[str, Any], asset_map: Dict[str, str], assets_dir: Path) -> None:

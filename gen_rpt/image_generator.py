@@ -4,6 +4,7 @@ import json
 import hashlib
 import math
 import os
+import re
 import subprocess
 import time
 from pathlib import Path
@@ -83,6 +84,8 @@ def generate_ai_image_assets(
         prompt_records.append({"id": f"image-{idx}", "keywords": keywords, "prompt": prompt, "url": _url(prompt), "status": status, "reason": reason})
         time.sleep(0.25)
 
+    _ensure_section_image_diversity(assets_dir, prompt_records, max_section_images)
+
     (backup_dir / "image_prompts.json").write_text(json.dumps(prompt_records, ensure_ascii=False, indent=2), encoding="utf-8")
     return result
 
@@ -142,15 +145,78 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
             last_error = str(exc)[:300]
             time.sleep(min(2.5 * (attempt + 1), 8.0))
 
-    if kind != "cover":
-        wiki_status, wiki_reason = _download_wikimedia_fallback(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
-        if wiki_status:
-            return "wikimedia", wiki_reason or last_error
+    wiki_status, wiki_reason = _download_wikimedia_fallback(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
+    if wiki_status:
+        return "wikimedia", wiki_reason or last_error
 
     if allow_fallback:
         _fallback_image(output_path, kind=kind, prompt=prompt)
         return "fallback", last_error
     return "skipped_no_fallback", last_error
+
+
+def _ensure_section_image_diversity(assets_dir: Path, prompt_records: List[Dict[str, str]], max_section_images: int) -> None:
+    seen_hashes: List[str] = []
+    for idx in range(1, max_section_images + 1):
+        path = assets_dir / f"image-{idx}.png"
+        if not path.exists() or path.stat().st_size <= 0:
+            continue
+        digest = _image_hash(path)
+        if not digest:
+            continue
+        if any(_hamming(digest, prior) <= 3 for prior in seen_hashes):
+            record = next((item for item in prompt_records if item.get("id") == f"image-{idx}"), {})
+            prompt = str(record.get("prompt") or record.get("keywords") or f"section image {idx}")
+            digest = _replace_with_distinct_fallback(path, prompt, idx, seen_hashes) or digest
+            if record:
+                record["status"] = f"{record.get('status', 'image')}_deduped_fallback"
+                record["reason"] = "near-duplicate section visual replaced with deterministic local fallback"
+        seen_hashes.append(digest)
+
+
+def _replace_with_distinct_fallback(path: Path, prompt: str, idx: int, seen_hashes: List[str]) -> str:
+    scene_tokens = [
+        ("boardroom", "commercial customer adoption boardroom"),
+        ("economics", "capital cost economics bars"),
+        ("policy", "policy regulation public institution"),
+        ("network", "supply chain partner network"),
+        ("infrastructure", "infrastructure grid facility"),
+        ("dashboard", "dashboard quarterly milestone decision"),
+        ("evidence", "evidence source validation desk"),
+        ("control", "industrial technology control room"),
+        ("portfolio", "portfolio options investment committee"),
+        ("market", "market entry customer field visit"),
+    ]
+    best = ""
+    start = idx % len(scene_tokens)
+    ordered = scene_tokens[start:] + scene_tokens[:start]
+    for attempt, (scene_key, scene) in enumerate(ordered, start=1):
+        variant_prompt = (
+            f"fallback_scene={scene_key}; distinct visual variant {idx}-{attempt}; {scene}; {prompt}; "
+            "different composition from prior pages; avoid repeating prior page composition"
+        )
+        _fallback_image(path, kind="section", prompt=variant_prompt)
+        digest = _image_hash(path)
+        if not digest:
+            continue
+        best = digest
+        if all(_hamming(digest, prior) > 3 for prior in seen_hashes):
+            return digest
+    return best
+
+
+def _image_hash(path: Path) -> str:
+    try:
+        image = Image.open(path).convert("L").resize((16, 16))
+        pixels = list(image.getdata())
+        avg = sum(pixels) / max(1, len(pixels))
+        return "".join("1" if value > avg else "0" for value in pixels)
+    except Exception:
+        return ""
+
+
+def _hamming(left: str, right: str) -> int:
+    return sum(a != b for a, b in zip(left, right)) + abs(len(left) - len(right))
 
 
 def _url(prompt: str) -> str:
@@ -454,6 +520,17 @@ def _prompt_type(prompt: str) -> str:
 
 def _fallback_scene_type(prompt: str) -> str:
     lower = prompt.lower()
+    explicit = re.search(r"fallback_scene=([a-z]+)", lower)
+    if explicit:
+        key = explicit.group(1)
+        if key in {"boardroom", "economics", "policy", "network", "infrastructure", "dashboard", "evidence"}:
+            return key
+        if key in {"control", "portfolio", "market"}:
+            return {
+                "control": "infrastructure",
+                "portfolio": "dashboard",
+                "market": "boardroom",
+            }[key]
     if any(token in lower for token in ["commercial", "customer", "bankability", "revenue", "adoption"]):
         return "boardroom"
     if any(token in lower for token in ["cost", "return", "timing", "capital", "lcoe"]):

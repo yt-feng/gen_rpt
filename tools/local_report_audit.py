@@ -217,6 +217,11 @@ def main() -> int:
         metrics["section_images"] = image_stats
         if image_stats.get("count", 0) >= 4 and image_stats.get("avg_stddev", 0) < 12:
             issues.append(f"section images are too flat/abstract; avg RGB stddev {image_stats.get('avg_stddev')}")
+        if image_stats.get("count", 0) >= 6 and image_stats.get("unique_hashes", 0) < image_stats.get("count", 0) - 2:
+            issues.append(
+                f"section images are not diverse enough; {image_stats.get('unique_hashes')} unique hashes across "
+                f"{image_stats.get('count')} images"
+            )
         if image_stats.get("near_duplicate_pairs", 0) >= max(2, image_stats.get("count", 0) // 2):
             issues.append(f"section images are too repetitive; near-duplicate adjacent pairs {image_stats.get('near_duplicate_pairs')}")
     cover_stats = cover_image_metrics(report_dir)
