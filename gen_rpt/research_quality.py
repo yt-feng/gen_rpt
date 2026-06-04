@@ -589,6 +589,9 @@ def apply_deterministic_report_fixes(report: Dict[str, Any], fact_pack: Research
     fixed["charts"] = _ensure_charts(fixed.get("charts"), fixed["sections"], topic, fact_pack=fact_pack, language=language)
     _walk_text(fixed, _clean_visible_text)
     _dedupe_cross_section_paragraphs(fixed["sections"], fact_pack, language=language)
+    _dedupe_repeated_openings(fixed["sections"], language=language)
+    _dedupe_cross_section_paragraphs(fixed["sections"], fact_pack, language=language)
+    _dedupe_repeated_openings(fixed["sections"], language=language)
     return fixed
 
 
@@ -1522,29 +1525,7 @@ def _fallback_section_blueprints(topic: str, fact_pack: ResearchFactPack, *, lan
 
 
 def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language: str) -> None:
-    prefixes = (
-        [
-            "For leadership teams, ",
-            "In capital terms, ",
-            "Commercially, ",
-            "For capital allocation, ",
-            "Operationally, ",
-            "For the board, ",
-            "For customer strategy, ",
-            "For partner strategy, ",
-        ]
-        if language == "en"
-        else [
-            "对管理层而言，",
-            "从资源配置看，",
-            "更实际的判断是，",
-            "放到董事会视角，",
-            "短期动作应当是，",
-            "从执行角度看，",
-            "这意味着，",
-            "后续管理重点是，",
-        ]
-    )
+    prefixes = _paragraph_prefixes(language)
     evidence_prefixes = (
         [
             "The constraint is that ",
@@ -1608,6 +1589,92 @@ def _vary_section_paragraph_openings(sections: List[Dict[str, Any]], *, language
             seen_counts[opening] = seen_counts.get(opening, 0) + 1
             revised.append(_clean_visible_text(text))
         section["paragraphs"] = revised
+
+
+def _dedupe_repeated_openings(sections: List[Dict[str, Any]], *, language: str) -> None:
+    prefixes = _paragraph_prefixes(language)
+    seen_counts: Dict[str, int] = {}
+    for section_idx, section in enumerate(sections):
+        if not isinstance(section, dict):
+            continue
+        revised: List[str] = []
+        for para_idx, para in enumerate(_as_list(section.get("paragraphs"))):
+            text = _clean_visible_text(para)
+            opening = _paragraph_opening_key(text)
+            count = seen_counts.get(opening, 0)
+            if opening and count >= 1:
+                stem = _strip_known_opening_prefix(text, language=language)
+                for offset in range(len(prefixes)):
+                    prefix = prefixes[(section_idx + para_idx + count + offset) % len(prefixes)]
+                    candidate = _clean_visible_text(prefix + _lower_first(stem))
+                    candidate_opening = _paragraph_opening_key(candidate)
+                    if not candidate_opening or seen_counts.get(candidate_opening, 0) == 0:
+                        text = candidate
+                        opening = candidate_opening
+                        break
+                else:
+                    text = _clean_visible_text(stem)
+                opening = _paragraph_opening_key(text)
+            seen_counts[opening] = seen_counts.get(opening, 0) + 1
+            revised.append(text)
+        section["paragraphs"] = revised
+
+
+def _paragraph_prefixes(language: str) -> List[str]:
+    if language == "en":
+        return [
+            "For leadership teams, ",
+            "In capital terms, ",
+            "Commercially, ",
+            "For capital allocation, ",
+            "Operationally, ",
+            "For the board, ",
+            "For customer strategy, ",
+            "For partner strategy, ",
+            "From an investor lens, ",
+            "At the portfolio level, ",
+            "For operating teams, ",
+            "In timing terms, ",
+            "For risk owners, ",
+            "For market entry, ",
+            "From a customer lens, ",
+            "For policy exposure, ",
+            "At the next review, ",
+            "For resource allocation, ",
+            "From a delivery lens, ",
+            "For partnership choices, ",
+        ]
+    return [
+        "对管理层而言，",
+        "从资源配置看，",
+        "更实际的判断是，",
+        "放到董事会视角，",
+        "短期动作应当是，",
+        "从执行角度看，",
+        "这意味着，",
+        "后续管理重点是，",
+    ]
+
+
+def _paragraph_opening_key(text: str) -> str:
+    return re.sub(r"^\W+", "", str(text or "").strip())[:18].lower()
+
+
+def _strip_known_opening_prefix(text: str, *, language: str) -> str:
+    raw = str(text or "").strip()
+    changed = True
+    while changed:
+        changed = False
+        for prefix in sorted(_paragraph_prefixes(language), key=len, reverse=True):
+            if raw.lower().startswith(prefix.lower()):
+                raw = raw[len(prefix) :].lstrip()
+                changed = True
+                break
+    if language == "en":
+        raw = re.sub(r"(?i)^(for executives|from a board perspective|the commercial implication is that),\s*", "", raw).strip()
+        raw = re.sub(r"(?i)^for\s+[A-Z][^,]{8,150},\s*", "", raw).strip()
+        return raw
+    return raw
 
 
 def _dedupe_cross_section_paragraphs(sections: List[Dict[str, Any]], fact_pack: ResearchFactPack, *, language: str) -> None:
@@ -1694,11 +1761,11 @@ def _section_depth_additions(title: str, fact_pack: ResearchFactPack, *, languag
             f"{title_text}的时间窗口同样需要被管理。{dated_fact or '当公开时间线不足时，季度复盘比一次性结论更稳健。'} 每次复盘都应回答一个问题：哪些新事实足以改变资本、伙伴或客户动作。",
         ]
     return [
-        f"For {title_text}, the executive question is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
-        f"For {title_text}, capital should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
-        f"For {title_text}, the strongest public fact pattern is narrow but useful: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
-        f"For {title_text}, numeric assumptions need a stricter hurdle. Management should verify {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'} before the topic moves from option building into budget planning.",
-        f"For {title_text}, timing should be treated as a portfolio variable rather than a headline forecast. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action.",
+        f"The executive question around {title_text} is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        f"Capital tied to {title_text} should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        f"The strongest public fact pattern for {title_text} is narrow but useful: {evidence_fact or 'the public record remains incomplete, and stronger authoritative numbers and timelines are still needed.'} It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        f"Numeric assumptions around {title_text} need a stricter hurdle. Management should verify {numeric_fact or 'market size, unit cost, revenue potential, share and capital expenditure data'} before the topic moves from option building into budget planning.",
+        f"Timing for {title_text} should be treated as a portfolio variable rather than a headline forecast. {dated_fact or 'When the public timeline is thin, a quarterly review cadence is stronger than a one-time conclusion.'} Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action.",
     ]
 
 
@@ -1724,7 +1791,7 @@ def _long_completion_paragraph(title: str, fact_pack: ResearchFactPack, idx: int
             "在这些问题没有被逐项关闭之前，报告应保持可执行但克制的判断，把资源放在会改变下一轮决策的证据上。"
         )
     return (
-        f"For {title_text}, the operating question is whether the conclusion changes customer commitment, cost confidence, partner access, regulatory timing or capital exposure. "
+        f"The operating question for {title_text} is whether the conclusion changes customer commitment, cost confidence, partner access, regulatory timing or capital exposure. "
         f"{'A checkable public fact is: ' + fact + ' ' if fact else 'The current public evidence remains too thin for a higher-conviction estimate. '}"
         "Until those questions are closed, the reader should treat the point as a disciplined basis for staged action rather than as a stand-alone investment conclusion."
     )
