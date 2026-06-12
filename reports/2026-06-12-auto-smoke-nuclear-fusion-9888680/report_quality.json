@@ -1,0 +1,55 @@
+{
+  "content": {
+    "max_rounds": 2,
+    "rounds": [
+      {
+        "round": 1,
+        "issue_count": 18,
+        "issues": [
+          "executive_summary 不足，需要至少5条结论先行、可执行的关键发现。",
+          "executive_summary_text 不足，需要一段 CEO 可直接阅读的结构化执行摘要，先给结论、商业含义、风险和下一步。",
+          "sections 数量应为7-10个，当前为4个。",
+          "第1章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第1章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第1章正文密度不足，当前约106字符；需要更接近标杆报告的完整分析页。",
+          "第2章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第2章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第2章正文密度不足，当前约108字符；需要更接近标杆报告的完整分析页。",
+          "第3章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第3章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第3章正文密度不足，当前约109字符；需要更接近标杆报告的完整分析页。",
+          "第4章 lead 过短，需要一句话说明该章结论和管理含义。",
+          "第4章正文段落不足，需要至少6段有证据支撑的连续分析。",
+          "第4章正文密度不足，当前约80字符；需要更接近标杆报告的完整分析页。",
+          "references 为空，需要引用已抓取资料中的真实来源。",
+          "charts 数量应为14个，当前为0个。",
+          "正式报告中仍出现内部元标签：validation gap、validation gaps"
+        ]
+      },
+      {
+        "round": 2,
+        "issue_count": 4,
+        "issues": [
+          "sections 数量应为7-10个，当前为3个。",
+          "references 为空，需要引用已抓取资料中的真实来源。",
+          "charts 数量应为14个，当前为0个。",
+          "正式报告中仍出现内部元标签：validation gap、validation gaps"
+        ]
+      }
+    ],
+    "final_issue_count": 0,
+    "final_issues": [],
+    "fact_pack_validation_issues": [],
+    "source_count": 10,
+    "authoritative_source_count": 6
+  },
+  "layout_rounds": [
+    {
+      "round": 1,
+      "passed": true,
+      "issue_count": 0,
+      "recommendations": []
+    }
+  ],
+  "post_layout_content_issues": []
+}

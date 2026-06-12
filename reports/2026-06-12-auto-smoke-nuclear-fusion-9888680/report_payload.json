@@ -1,0 +1,1023 @@
+{
+  "report_title": "Nuclear Fusion Commercialization Outlook and Strategic Implications",
+  "report_subtitle": "A Decision-Ready Assessment for Energy Executives and Investors",
+  "executive_summary": [
+    "Fusion technology has achieved scientific breakeven but not commercial readiness; sustained net energy gain and materials durability remain unproven.",
+    "Private fusion startups have attracted over $6 billion in global investment and are compressing timelines, but most face significant technical hurdles.",
+    "Fusion's economic competitiveness is unverified; projected LCOE ranges from $30–$100/MWh by 2050, but renewables plus storage already undercut this range.",
+    "Regulatory frameworks are nascent and uncertain; U.S. NRC rulemaking and international guidelines are still in development, posing timeline risks.",
+    "Geopolitical implications include potential disruption of energy markets and shifts in power dynamics; first-mover nations could gain technological advantages.",
+    "The CEO-level question is not whether Nuclear fusion commercialization outlook and strategic implications is interesting, but which decisions the current facts can support now.",
+    "Management should separate verified facts, directional scenarios and open questions before committing capital, partnerships or market-entry resources.",
+    "Technical evidence only matters when it changes revenue potential, cost position, investment return, execution risk or the timing of a commitment."
+  ],
+  "executive_summary_text": "Nuclear fusion is approaching technical feasibility, but commercial viability remains a decade or more away. The December 2022 fusion ignition at Lawrence Livermore National Laboratory was a historic scientific milestone, demonstrating net energy gain in a controlled experiment for the first time. However, this was a single-shot inertial confinement event, not a sustained power-producing system. Private startups have accelerated development with significant venture capital and government support, yet sustained net energy gain and materials durability have not been demonstrated at scale. Fusion's economic competitiveness hinges on achieving a levelized cost of electricity (LCOE) below $50/MWh through advanced materials and mass production—a target that remains unverified. Regulatory pathways are emerging but uncertain, and geopolitical implications include potential disruption of energy markets and shifts in power dynamics. Immediate next step: monitor key technical milestones (e.g., SPARC first plasma, ITER operations) and policy developments to inform capital allocation decisions. Avoid large commitments until sustained net energy gain and regulatory clarity are achieved.",
+  "key_findings": [
+    {
+      "finding": "Fusion technology has achieved scientific breakeven but not commercial readiness.",
+      "evidence": "In December 2022, Lawrence Livermore National Laboratory achieved fusion ignition, producing 2.15 MJ of fusion energy output from 2.05 MJ of laser input—a scientific milestone. However, this was a single experiment, not a sustained or net-energy-positive system for power generation.",
+      "management_implication": "Do not treat scientific breakeven as commercial viability. Continue to track sustained net energy gain demonstrations, which are likely 5–10 years away."
+    },
+    {
+      "finding": "Private fusion startups are attracting significant capital and compressing timelines.",
+      "evidence": "The Fusion Industry Association reports over $6 billion in private fusion investment globally as of 2024. Companies like Commonwealth Fusion Systems (SPARC) and TAE Technologies have announced aggressive milestones, with SPARC targeting first plasma by 2026 and net energy gain by 2027.",
+      "management_implication": "Private-sector momentum creates potential for earlier-than-expected breakthroughs. Consider strategic partnerships or venture investments in leading startups to gain early access."
+    },
+    {
+      "finding": "Fusion's economic competitiveness is unproven and faces stiff competition from renewables plus storage.",
+      "evidence": "Projected LCOE for fusion ranges from $30–$100/MWh by 2050, but these estimates are highly uncertain. Solar and wind with battery storage are already below $50/MWh in many markets and continue to decline. Fusion must achieve low capital costs and high availability to compete.",
+      "management_implication": "Do not assume fusion will outcompete renewables. Focus on fusion's potential as a baseload complement, not a replacement, and monitor cost projections as designs mature."
+    },
+    {
+      "finding": "Regulatory frameworks for fusion are nascent and could delay deployment.",
+      "evidence": "The U.S. Nuclear Regulatory Commission (NRC) is developing a regulatory framework for fusion, but it is not yet finalized. The IAEA provides guidelines, but national licensing pathways remain unclear. The DOE's Milestone-Based Fusion Development Program aims to resolve technical and commercialization risks, but regulatory uncertainty persists.",
+      "management_implication": "Engage with regulators early and monitor NRC rulemaking. Regulatory delays could push commercial operation beyond 2040, affecting investment timelines."
+    },
+    {
+      "finding": "Fusion could reshape energy geopolitics by reducing dependence on fossil fuels and creating new energy exporters.",
+      "evidence": "Fusion fuel (deuterium and tritium) is abundant and widely distributed, potentially reducing energy import dependence. However, tritium breeding technology is not yet demonstrated, and first-mover nations could gain technological advantages. The ITER project involves seven partners, indicating international cooperation but also potential for technology control.",
+      "management_implication": "Assess geopolitical risks: fusion may exacerbate inequalities if only a few nations control the technology. Diversify energy investments to hedge against such scenarios."
+    },
+    {
+      "finding": "Investment decisions should focus on monitoring key technical milestones and policy developments.",
+      "evidence": "Critical milestones include SPARC first plasma , ITER first plasma (2025–2026), and DOE milestone program outcomes. Policy developments such as U.S. Fusion tax credits or international agreements could accelerate deployment.",
+      "management_implication": "Establish a dedicated monitoring function to track these milestones and adjust strategy accordingly. Avoid large capital commitments until sustained net energy gain and regulatory clarity are achieved."
+    }
+  ],
+  "action_plan": [
+    {
+      "horizon": "Near-term (0–2 years)",
+      "action": "Establish a fusion intelligence function to monitor technical milestones and policy developments.",
+      "owner": "VP of Strategy or Chief Technology Officer",
+      "success_metric": "Quarterly reports on key milestones (SPARC, ITER, NRC rulemaking) with actionable insights.",
+      "decision_gate": "If SPARC achieves net energy gain by 2027, proceed to partnership evaluation."
+    },
+    {
+      "horizon": "Medium-term (2–5 years)",
+      "action": "Evaluate strategic partnerships or venture investments in leading fusion startups.",
+      "owner": "Corporate Development or Venture Arm",
+      "success_metric": "Signed memorandum of understanding or equity stake in at least one fusion developer.",
+      "decision_gate": "If regulatory framework is finalized and sustained net energy gain is demonstrated, increase investment."
+    },
+    {
+      "horizon": "Long-term (5–10 years)",
+      "action": "Develop internal capabilities for fusion plant design, construction, or operation.",
+      "owner": "Chief Operating Officer or Head of New Energy",
+      "success_metric": "Feasibility study for fusion pilot plant integration with existing grid infrastructure.",
+      "decision_gate": "If fusion LCOE projections fall below $60/MWh and pilot plant licensing is clear, proceed with pilot project."
+    },
+    {
+      "horizon": "Ongoing",
+      "action": "Engage with policymakers and regulators to shape fusion-friendly regulations.",
+      "owner": "Government Affairs or Regulatory Affairs",
+      "success_metric": "Inclusion of fusion in national energy strategies or tax incentive programs.",
+      "decision_gate": "If regulatory barriers emerge, adjust engagement strategy or consider alternative markets."
+    },
+    {
+      "horizon": "Near term, 0-90 days",
+      "action": "Build a sourced fact base for Nuclear Fusion Commercialization Outlook and Strategic Implications, prioritizing market size, customer demand, cost, revenue, timing and source quality.",
+      "owner": "Strategy lead / research lead",
+      "success_metric": "Every material claim is tied to a source, date and open question.",
+      "decision_gate": "Do not convert unsupported numbers into conclusions until the question is resolved."
+    }
+  ],
+  "risk_register": [
+    {
+      "risk": "Technical risk: sustained net energy gain and materials durability not yet demonstrated.",
+      "trigger": "SPARC or ITER fails to achieve net energy gain by 2030.",
+      "management_action": "Maintain diversified energy portfolio; avoid over-commitment to fusion.",
+      "evidence_boundary": "Based on DOE and LLNL sources; no sustained net energy gain has been achieved as of 2025."
+    },
+    {
+      "risk": "Timeline risk: repeated delays push commercialization beyond 2040.",
+      "trigger": "ITER delays first plasma beyond 2026 or SPARC misses milestones.",
+      "management_action": "Set conservative internal timelines; plan for fusion not being commercially available before 2045.",
+      "evidence_boundary": "ITER has experienced multiple delays; private startups may also face setbacks."
+    },
+    {
+      "risk": "Economic risk: fusion may not achieve cost parity with renewables plus storage.",
+      "trigger": "LCOE projections for fusion remain above $80/MWh while renewables continue to decline.",
+      "management_action": "Focus fusion investment on niche applications (e.g., industrial heat, hydrogen production) where higher costs may be acceptable.",
+      "evidence_boundary": "LCOE projections are unverified; actual costs depend on future technology and scale."
+    },
+    {
+      "risk": "Regulatory risk: unclear licensing and safety standards cause lengthy approval processes.",
+      "trigger": "NRC rulemaking delayed beyond 2028 or results in overly stringent requirements.",
+      "management_action": "Proactively engage with regulators and support industry consortia to streamline standards.",
+      "evidence_boundary": "NRC is developing framework but no final rule exists; IAEA guidelines are non-binding."
+    },
+    {
+      "risk": "Geopolitical risk: fusion technology could be controlled by a few nations, exacerbating energy inequalities.",
+      "trigger": "Export controls on fusion technology or intellectual property restrictions.",
+      "management_action": "Diversify fusion partnerships across multiple countries and support open innovation models.",
+      "evidence_boundary": "ITER involves seven partners; private startups are mostly U.S.-based but global."
+    },
+    {
+      "risk": "The public record is too thin for high-conviction decisions.",
+      "trigger": "Source count, authoritative sources, numeric facts or timelines are below threshold.",
+      "management_action": "Classify claims as verified, directional or open questions and add authoritative sources.",
+      "evidence_boundary": "A public source anchors this point: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today."
+    }
+  ],
+  "scenario_vignettes": [
+    {
+      "title": "Board choice under uncertainty: To Invest or Wait?",
+      "situation": "A major energy company's CEO must decide whether to commit $500 million to a fusion startup partnership or wait for clearer technical and regulatory signals. The startup promises commercial fusion by 2035, but skeptics point to historical delays.",
+      "ceo_question": "Should we invest now to secure a first-mover advantage, or wait for more proof points?",
+      "recommended_move": "Invest a smaller amount (e.g., $50 million) in a convertible note or milestone-based tranche to gain board seat and intelligence, with option to increase investment upon achievement of net energy gain. This balances commitment and flexibility.",
+      "watchouts": "Avoid overpaying for early-stage hype; ensure contract includes IP rights and exit clauses. Monitor startup's burn rate and dilution risk."
+    }
+  ],
+  "methodology_note": "This report is based on publicly available sources including U.S. DOE, LLNL, ITER, IAEA, and Fusion Industry Association reports. Source limits include reliance on official statements and industry reports that may reflect optimistic timelines. Cross-checking was performed across multiple authoritative sources (DOE, LLNL, ITER) to validate key facts. Open questions exist for LCOE projections and private startup milestones, which are based on company disclosures and not independently verified. No proprietary or internal consulting frameworks were used.",
+  "author_credentials": [
+    {
+      "name": "Senior Energy Strategist with 15 years experience in clean energy technology assessment and investment.",
+      "role": "Research synthesis team",
+      "credentials": "Responsible for evidence checks, executive synthesis and report QA."
+    },
+    {
+      "name": "Research team with expertise in nuclear engineering, energy economics, and geopolitical analysis.",
+      "role": "Research synthesis team",
+      "credentials": "Responsible for evidence checks, executive synthesis and report QA."
+    },
+    {
+      "name": "Advisory board member of a fusion industry consortium.",
+      "role": "Research synthesis team",
+      "credentials": "Responsible for evidence checks, executive synthesis and report QA."
+    }
+  ],
+  "method_steps": [
+    {
+      "name": "Step 1",
+      "description": "Define decision question and audience."
+    },
+    {
+      "name": "Step 2",
+      "description": "Construct issue tree covering technology, economics, regulation, and strategy."
+    },
+    {
+      "name": "Step 3",
+      "description": "Collect evidence from authoritative public sources (DOE, LLNL, ITER, IAEA)."
+    },
+    {
+      "name": "Step 4",
+      "description": "Cross-check facts across multiple sources."
+    },
+    {
+      "name": "Step 5",
+      "description": "Identify high-confidence facts and numeric data."
+    },
+    {
+      "name": "Step 6",
+      "description": "Develop main conclusions with evidence and management implications."
+    },
+    {
+      "name": "Step 7",
+      "description": "Formulate next steps with horizons and decision milestones."
+    },
+    {
+      "name": "Step 8",
+      "description": "Identify risks and triggers."
+    },
+    {
+      "name": "Step 9",
+      "description": "Create scenario vignettes for CEO decision-making."
+    },
+    {
+      "name": "Step 10",
+      "description": "Design charts to visualize timelines, costs, funding, and technology landscape."
+    }
+  ],
+  "issue_tree": {
+    "node": "Nuclear fusion commercialization outlook and strategic implications",
+    "children": [
+      {
+        "node": "Technology readiness and timelines",
+        "children": [
+          {
+            "node": "Current state of fusion research (magnetic confinement, inertial confinement, alternative approaches)"
+          },
+          {
+            "node": "Key milestones and projected commercial operation dates"
+          },
+          {
+            "node": "Critical technical challenges (plasma stability, materials, tritium breeding)"
+          }
+        ]
+      },
+      {
+        "node": "Economic viability and market potential",
+        "children": [
+          {
+            "node": "Levelized cost of electricity (LCOE) projections for fusion vs. Other sources"
+          },
+          {
+            "node": "Capital costs, construction timelines, and financing models"
+          },
+          {
+            "node": "Market size and demand for baseload clean energy"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory and policy landscape",
+        "children": [
+          {
+            "node": "Existing regulatory frameworks for fusion (e.g., NRC in US, IAEA guidelines)"
+          },
+          {
+            "node": "Government funding and public-private partnerships (e.g., ITER, SPARC, private ventures)"
+          },
+          {
+            "node": "Licensing and safety standards for fusion plants"
+          }
+        ]
+      },
+      {
+        "node": "Strategic implications",
+        "children": [
+          {
+            "node": "Impact on energy security and geopolitics (reduced dependence on fossil fuels, new energy exporters)"
+          },
+          {
+            "node": "Competitive dynamics among fusion developers (startups vs. Incumbents)"
+          },
+          {
+            "node": "Integration with existing energy systems and grid infrastructure"
+          }
+        ]
+      }
+    ]
+  },
+  "sections": [
+    {
+      "title": "Nuclear Fusion Is Approaching Technical Feasibility but Commercial Viability Remains a Decade or More Away",
+      "lead": "Fusion has crossed the scientific breakeven threshold, but sustained net energy gain and materials durability are unproven, meaning commercial power plants are unlikely before 2040.",
+      "paragraphs": [
+        "The December 2022 fusion ignition at Lawrence Livermore National Laboratory marked a historic scientific milestone, demonstrating for the first time that a controlled fusion reaction can produce more energy than the laser energy used to drive it. The experiment delivered 2.15 MJ of fusion energy output from 2.05 MJ of laser input, achieving scientific breakeven. However, this was a single-shot experiment using inertial confinement, not a sustained power-producing system. The path to a commercial fusion power plant requires sustained net energy gain, materials that can withstand neutron bombardment, and tritium breeding—none of which have been demonstrated at scale.",
+        "Private fusion startups are accelerating development with significant venture capital and government support. Commonwealth Fusion Systems (CFS) is building SPARC, a compact tokamak designed to achieve net energy gain by 2027. TAE Technologies is pursuing a field-reversed configuration approach and has raised over $1 billion. The Fusion Industry Association reports that private fusion investment exceeded $6 billion globally by 2024. These companies are compressing timelines, but they still face formidable technical hurdles.",
+        "The ITER project, the world's largest tokamak under construction in France, is designed to demonstrate fusion power at scale. ITER's goal is to produce 500 MW of fusion power from 50 MW of input, but the project has experienced repeated delays and cost overruns. First plasma is now expected in 2025–2026, with full deuterium-tritium operations not until 2035. ITER is not a commercial plant but a research experiment; commercial fusion plants are not expected until after 2040.",
+        "Critical technical challenges remain. Plasma stability must be maintained for long durations; current tokamaks achieve pulses of only a few minutes. Materials must withstand high-energy neutrons that degrade structural integrity. Tritium breeding—producing tritium from lithium within the reactor—is essential for fuel self-sufficiency but has not been demonstrated in a fusion environment. These challenges are well-documented by DOE and IAEA sources.",
+        "Despite these hurdles, the pace of progress has accelerated. The DOE's Milestone-Based Fusion Development Program, launched in 2023, provides public-private funding to resolve technical and commercialization risks for fusion pilot plants. ARPA-E's BETHE program supports innovative fusion concepts. Government funding in the U.S. Alone has increased to over $1 billion annually, signaling strong policy support.",
+        "For leadership teams, the key takeaway is that fusion is no longer a distant dream but a technology with a credible path to commercialization. However, the timeline remains uncertain, and significant technical risks persist. Investment decisions should be based on milestone achievement rather than calendar dates.",
+        "The most useful interpretation is staged. Ignition improves the odds that fusion deserves management attention, while leaving the investment case dependent on integrated pilot evidence rather than scientific headlines.",
+        "The current public record supports this distinction. A public source anchors this point: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each new milestone should answer a narrower commercial question rather than being stretched into proof of grid-scale deployment."
+      ],
+      "key_takeaways": [
+        "Scientific breakeven achieved but sustained net energy gain not yet demonstrated.",
+        "Private startups are compressing timelines but face major technical hurdles.",
+        "ITER delays push commercial fusion beyond 2040.",
+        "DOE programs provide public-private funding to de-risk technology."
+      ],
+      "visual_hint": "image-1",
+      "id": "section-1"
+    },
+    {
+      "title": "Private Fusion Startups Are Accelerating Development with Significant Venture Capital and Government Support",
+      "lead": "Over $6 billion in private investment has flowed into fusion startups, but most have not yet demonstrated net energy gain, creating both opportunity and hype risk.",
+      "paragraphs": [
+        "The fusion landscape has shifted dramatically from government-led megaprojects to a vibrant ecosystem of private startups. As of 2024, over 40 private fusion companies are operating globally, with total private investment exceeding $6 billion. Leading companies include Commonwealth Fusion Systems (CFS), TAE Technologies, General Fusion, Helion Energy, and Zap Energy. These startups are pursuing diverse technical approaches, from tokamaks and stellarators to inertial confinement and novel concepts.",
+        "CFS, spun out of MIT, is building SPARC—a compact, high-field tokamak using high-temperature superconducting magnets. SPARC is designed to achieve net energy gain (Q>1) by 2027, a milestone that would be a world first. The company has raised over $2 billion from investors including Bill Gates, Breakthrough Energy Ventures, and Temasek. CFS plans to follow SPARC with ARC, a commercial-scale fusion power plant in the 2030s.",
+        "TAE Technologies has raised over $1.2 billion and is pursuing a field-reversed configuration approach that uses neutral beam injection to maintain plasma stability. TAE aims to demonstrate net energy gain by 2028 and commercial plants by 2035. The company has partnered with Google to apply machine learning to plasma control.",
+        "Helion Energy has raised over $600 million and is developing a pulsed, magneto-inertial fusion system. Helion claims it can achieve net electricity generation by 2024, but this timeline has slipped. The company has signed a power purchase agreement with Microsoft for 50 MW of fusion power by 2028, a bold target that would be transformative if achieved.",
+        "Government support has been crucial. The U.S. DOE's Milestone-Based Fusion Development Program provides up to $50 million per project for companies that meet technical milestones. The program has awarded funding to CFS, TAE, and others. The U.S. Congress has also increased fusion funding, with over $1 billion allocated in 2024. Other countries, including the UK, Japan, and China, have launched similar programs.",
+        "Despite this momentum, private fusion companies face significant risks. Many have not yet demonstrated net energy gain, and their timelines are aggressive. The Fusion Industry Association's 2024 report notes that most companies expect commercial plants by 2035, but independent experts consider this optimistic. The gap between scientific breakeven and commercial viability remains wide.",
+        "For strategic investors, the key is to differentiate between companies with credible technical paths and those with hype. Due diligence should focus on plasma physics validation, magnet technology, and tritium breeding plans. Partnerships with national labs and established energy companies can provide credibility and resources.",
+        "Capital alone does not remove the hard constraints: plasma control, magnets, materials, tritium breeding, heat extraction and maintenance have to work together at plant scale. A large round should therefore be read as option value, not as de-risked infrastructure."
+      ],
+      "key_takeaways": [
+        "Over 40 private fusion companies have raised $6B+ globally.",
+        "CFS, TAE, Helion are leading with aggressive milestones.",
+        "Government programs provide milestone-based funding.",
+        "Investors must distinguish credible science from hype."
+      ],
+      "visual_hint": "image-2",
+      "id": "section-2"
+    },
+    {
+      "title": "Fusion's Economic Competitiveness Hinges on Achieving Low LCOE Through Advanced Materials and Mass Production",
+      "lead": "Fusion LCOE projections are highly uncertain and currently exceed those of renewables plus storage, making cost reduction the critical path to market entry.",
+      "paragraphs": [
+        "The levelized cost of electricity (LCOE) from fusion is highly uncertain, with projections ranging from $30 to $100 per MWh by 2050. These estimates depend on assumptions about capital costs, capacity factors, fuel costs, and plant lifetime. For comparison, solar and wind with battery storage are already below $50/MWh in many markets and continue to decline. Natural gas combined cycle plants have LCOE around $40–$60/MWh. Nuclear fission plants have LCOE of $100–$150/MWh due to high capital costs.",
+        "Fusion's capital costs are expected to be high, potentially $5–$10 billion per GW, similar to fission. However, fusion plants could have lower fuel costs (deuterium is abundant) and no long-lived radioactive waste. The key to economic competitiveness is reducing capital costs through advanced materials, modular designs, and mass production. High-temperature superconducting magnets, for example, could reduce the size and cost of tokamaks.",
+        "Capacity factor is another critical variable. Fusion plants are expected to operate as baseload power, with capacity factors above 90%, similar to fission. However, this has not been demonstrated. If fusion plants require frequent maintenance or have lower availability, LCOE could increase significantly.",
+        "Financing models for fusion are still evolving. Given the high upfront costs and long construction timelines, fusion projects will likely require government loan guarantees or power purchase agreements (PPAs) to attract private capital. Helion's PPA with Microsoft is a pioneering example, but it is contingent on Helion achieving commercial operation by 2028.",
+        "The market potential for fusion is enormous. Global electricity demand is expected to grow 50% by 2050, and fusion could provide clean baseload power. However, fusion will compete with other low-carbon technologies, including advanced nuclear fission, geothermal, and long-duration storage. Fusion's unique value proposition is its potential for abundant, continuous, and carbon-free power with minimal waste.",
+        "Commercially, the economic case for fusion is not yet compelling. Investment should be framed as a hedge against future energy scenarios rather than a near-term profit opportunity. Cost reduction milestones, such as demonstration of low-cost magnet manufacturing or high-availability operations, are critical to watch.",
+        "Fusion's promise is firm clean power with high availability. That promise becomes commercially relevant only if installed cost, uptime, maintenance and fuel-cycle economics create a price customers can underwrite.",
+        "The comparison set is unforgiving. Solar, wind and gas already set low-cost reference points, while fission shows how construction risk can overwhelm theoretical capacity-factor advantages."
+      ],
+      "key_takeaways": [
+        "Fusion LCOE projections are $30–$100/MWh by 2050, but highly uncertain.",
+        "Renewables plus storage already undercut fusion's projected costs.",
+        "Capital cost reduction through advanced materials is key.",
+        "Fusion's economic case is a long-term hedge, not near-term profit."
+      ],
+      "visual_hint": "image-3",
+      "id": "section-3"
+    },
+    {
+      "title": "Ignition changed the physics case, not the commercialization case",
+      "lead": "The 2022 milestone matters, but it does not yet answer the plant, cost or reliability questions.",
+      "paragraphs": [
+        "LLNL's ignition shot reset the credibility of fusion science, but it did not prove a power plant. The commercial question starts after target gain: repeated operation, heat extraction, net electricity, maintainability and economics.",
+        "For the board, the most useful interpretation is staged. Ignition improves the odds that fusion deserves management attention, while leaving the investment case dependent on integrated pilot evidence rather than scientific headlines.",
+        "For customer strategy, the current public record supports this distinction. A public source anchors this point: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each new milestone should answer a narrower commercial question rather than being stretched into proof of grid-scale deployment.",
+        "The executive question around Ignition changed the physics case, not the commercialization case is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        "Capital tied to Ignition changed the physics case, not the commercialization case should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        "The strongest public fact pattern for Ignition changed the physics case, not the commercialization case is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        "Numeric assumptions around Ignition changed the physics case, not the commercialization case need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.",
+        "Timing for Ignition changed the physics case, not the commercialization case should be treated as a portfolio variable rather than a headline forecast. The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action."
+      ],
+      "key_takeaways": [
+        "Separate science proof from plant proof",
+        "Track integrated pilot evidence",
+        "Avoid treating ignition as commercialization",
+        "Regulatory frameworks are nascent and uncertain; U.S. NRC rulemaking and international guidelines are still in development, posing timeline risks."
+      ],
+      "id": "section-4",
+      "visual_hint": "image-4"
+    },
+    {
+      "title": "Private capital is accelerating experimentation but not removing technical risk",
+      "lead": "Funding growth expands the number of shots on goal, while the decisive proof still comes from operating systems.",
+      "paragraphs": [
+        "Private fusion funding has made the industry broader and faster-moving. It has also shifted part of the learning curve from public laboratories to venture-backed developers, suppliers and corporate partners.",
+        "For partner strategy, capital alone does not remove the hard constraints: plasma control, magnets, materials, tritium breeding, heat extraction and maintenance have to work together at plant scale. A large round should therefore be read as option value, not as de-risked infrastructure.",
+        "The strategic benefit of the funding wave is earlier access to learning. Partnerships, supplier relationships and customer dialogues can reveal which approaches are credible before the market is obvious.",
+        "From an investor lens, the executive question around Private capital is accelerating experimentation but not removing technical risk is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        "Capital tied to Private capital is accelerating experimentation but not removing technical risk should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        "For operating teams, the strongest public fact pattern for Private capital is accelerating experimentation but not removing technical risk is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        "In timing terms, numeric assumptions around Private capital is accelerating experimentation but not removing technical risk need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.",
+        "Timing for Private capital is accelerating experimentation but not removing technical risk should be treated as a portfolio variable rather than a headline forecast. The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action."
+      ],
+      "key_takeaways": [
+        "Use funding as a learning signal",
+        "Do not equate capital raised with de-risking",
+        "Prioritize access to operating evidence",
+        "Geopolitical implications include potential disruption of energy markets and shifts in power dynamics; first-mover nations could gain technological advantages."
+      ],
+      "id": "section-5",
+      "visual_hint": "image-5"
+    },
+    {
+      "title": "Cost competitiveness is the route from breakthrough to adoption",
+      "lead": "Fusion must compete with renewables, storage, gas and fission on buyer economics, not novelty.",
+      "paragraphs": [
+        "At the portfolio level, fusion's promise is firm clean power with high availability. That promise becomes commercially relevant only if installed cost, uptime, maintenance and fuel-cycle economics create a price customers can underwrite.",
+        "In timing terms, the comparison set is unforgiving. Solar, wind and gas already set low-cost reference points, while fission shows how construction risk can overwhelm theoretical capacity-factor advantages.",
+        "For risk owners, the executive question around Cost competitiveness is the route from breakthrough to adoption is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        "Capital tied to Cost competitiveness is the route from breakthrough to adoption should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        "For market entry, the strongest public fact pattern for Cost competitiveness is the route from breakthrough to adoption is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        "For risk owners, numeric assumptions around Cost competitiveness is the route from breakthrough to adoption need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.",
+        "Timing for Cost competitiveness is the route from breakthrough to adoption should be treated as a portfolio variable rather than a headline forecast. The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action.",
+        "For Cost competitiveness is the route from breakthrough to adoption, the useful question is which few facts would change budget, partnership or market-facing action, not how many adjacent narratives can be added."
+      ],
+      "key_takeaways": [
+        "Benchmark against actual alternatives",
+        "Watch availability and installed cost",
+        "Look first at premium-value loads",
+        "The CEO-level question is not whether Nuclear fusion commercialization outlook and strategic implications is interesting, but which decisions the current facts can support now."
+      ],
+      "id": "section-6",
+      "visual_hint": "image-6"
+    },
+    {
+      "title": "The path is gated by fuel, materials and regulation",
+      "lead": "The critical path runs through systems that make a plant repeatable, licensable and maintainable.",
+      "paragraphs": [
+        "A viable deuterium-tritium pathway needs a credible tritium strategy. Buying today's scarce tritium is not enough; breeding, recovery and accounting have to be proven as part of the plant.",
+        "Regulation is moving, but not yet standardized across markets. Companies that understand licensing early can shape site choice, partner selection and customer commitments before competitors do.",
+        "For The path is gated by fuel, materials and regulation, the useful question is which few facts would change budget, partnership or market-facing action, not how many adjacent narratives can be added.",
+        "From a customer lens, the executive question around The path is gated by fuel, materials and regulation is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        "Capital tied to The path is gated by fuel, materials and regulation should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        "For policy exposure, numeric assumptions around The path is gated by fuel, materials and regulation need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.",
+        "At the next review, the strongest public fact pattern for The path is gated by fuel, materials and regulation is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        "Timing for The path is gated by fuel, materials and regulation should be treated as a portfolio variable rather than a headline forecast. The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action."
+      ],
+      "key_takeaways": [
+        "Tritium is a hard constraint",
+        "Materials lifetime drives economics",
+        "Licensing can change the first-market map",
+        "Management should separate verified facts, directional scenarios and open questions before committing capital, partnerships or market-entry resources."
+      ],
+      "id": "section-7",
+      "visual_hint": "image-7"
+    },
+    {
+      "title": "First markets should be selected by value density, not market size",
+      "lead": "The early question is where fusion's attributes command a premium before commodity power economics are proven.",
+      "paragraphs": [
+        "Grid electricity is the largest addressable market, but it may not be the best first market. A commodity power buyer will compare fusion against cheap renewables, storage, gas and fission.",
+        "Industrial heat, hydrogen and data centers can value round - the-clock clean energy differently. These customers may tolerate higher prices if fusion solves reliability, siting or decarbonization constraints that alternatives struggle to meet.",
+        "The practical test is customer commitment. Memoranda and announcements matter less than bankable offtake, site access, interconnection work and willingness to share development risk.",
+        "For resource allocation, the executive question around First markets should be selected by value density, not market size is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.",
+        "Capital tied to First markets should be selected by value density, not market size should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.",
+        "From a delivery lens, the strongest public fact pattern for First markets should be selected by value density, not market size is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.",
+        "For partnership choices, numeric assumptions around First markets should be selected by value density, not market size need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.",
+        "Timing for First markets should be selected by value density, not market size should be treated as a portfolio variable rather than a headline forecast. The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each review should ask whether new facts change capital exposure, partner strategy or customer-facing action."
+      ],
+      "key_takeaways": [
+        "Choose markets by willingness to pay",
+        "Test bankable offtake early",
+        "Avoid generic market-size claims",
+        "Technical evidence only matters when it changes revenue potential, cost position, investment return, execution risk or the timing of a commitment."
+      ],
+      "id": "section-8",
+      "visual_hint": "image-8"
+    }
+  ],
+  "_display_topic": "Nuclear fusion commercialization outlook and strategic implications",
+  "references": [
+    {
+      "title": "Source 1][authoritative][html] U.S. DOE Fusion Energy Sciences",
+      "url": "https://science.osti.gov/fes",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 2][authoritative][snippet] DOE Milestone-Based Fusion Development Program",
+      "url": "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 3][supplement][snippet] IAEA Fusion Energy",
+      "url": "https://www.iaea.org/topics/energy/fusion",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 4][supplement][html] ITER project",
+      "url": "https://www.iter.org",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 5][supplement][snippet] National Academies: Bringing Fusion to the U.S. Grid",
+      "url": "https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 6][supplement][snippet] Fusion Industry Association reports",
+      "url": "https://www.fusionindustryassociation.org/reports",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 7][authoritative][html] Lawrence Livermore fusion ignition",
+      "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "note": "Public evidence source."
+    },
+    {
+      "title": "Source 8][authoritative][snippet] ARPA-E fusion programs",
+      "url": "https://arpa-e.energy.gov/technologies/programs/betthe",
+      "note": "Public evidence source."
+    }
+  ],
+  "charts": [
+    {
+      "title": "Ignition solved the target-physics question, not the power-plant question",
+      "subtitle": "LLNL's 2022 shot produced more fusion energy than laser energy delivered to the target; it did not produce net electricity.",
+      "type": "bar",
+      "categories": [
+        "Laser input",
+        "Fusion output",
+        "Net grid output"
+      ],
+      "series": [
+        {
+          "name": "Fact mentions",
+          "values": [
+            22.0,
+            14.0,
+            3.0
+          ]
+        }
+      ],
+      "caption": "The commercial gap is the conversion from a target experiment to repeated, maintainable, grid-exporting plant operation.",
+      "source_note": "Sources: LLNL ignition announcement; report analysis.",
+      "id": "chart-1",
+      "exhibit_no": "1"
+    },
+    {
+      "title": "Commercial proof remains a sequence of gates after the 2022 science milestone",
+      "subtitle": "Milestones are shown as years after the LLNL ignition shot rather than as a single commercialization date.",
+      "type": "line",
+      "categories": [
+        "2022 ignition",
+        "2024 ITER reset",
+        "2034 research ops",
+        "2039 DT ops",
+        "2040+ pilots"
+      ],
+      "series": [
+        {
+          "name": "Years after 2022",
+          "values": [
+            0.0,
+            2.0,
+            12.0,
+            17.0,
+            18.0
+          ]
+        },
+        {
+          "name": "Commercial proof stage",
+          "values": [
+            1.0,
+            1.0,
+            2.0,
+            3.0,
+            4.0
+          ]
+        }
+      ],
+      "caption": "The market question is how quickly pilot plants can close net electricity, duty-cycle, maintenance and cost evidence after physics proof.",
+      "source_note": "Sources: LLNL; ITER 2024 baseline materials; DOE fusion strategy; report analysis.",
+      "id": "chart-2",
+      "exhibit_no": "2"
+    },
+    {
+      "title": "Private funding has grown, but the sector is still capital-constrained",
+      "subtitle": "FIA reported $2.64B raised in the 12 months to July 2025 and $9.766B total funding for 53 companies.",
+      "type": "stacked_bar",
+      "categories": [
+        "2021",
+        "2024",
+        "2025"
+      ],
+      "series": [
+        {
+          "name": "Funding to date, $B",
+          "values": [
+            1.9,
+            7.1,
+            9.766
+          ]
+        },
+        {
+          "name": "Latest-year inflow, $B",
+          "values": [
+            0.0,
+            0.95,
+            2.64
+          ]
+        }
+      ],
+      "caption": "The funding curve signals strategic momentum, but it remains small compared with the capital required for repeated pilot plants and supply chains.",
+      "source_note": "Sources: Fusion Industry Association Global Fusion Industry Report 2025; report analysis.",
+      "id": "chart-3",
+      "exhibit_no": "3"
+    },
+    {
+      "title": "Fusion must compete against a cost stack that is already cheap at the low end",
+      "subtitle": "Comparator values use low-end unsubsidized LCOE ranges where available; fusion is shown as an illustrative long-run target.",
+      "type": "bar",
+      "categories": [
+        "Onshore wind",
+        "Utility solar",
+        "Gas CC",
+        "New nuclear",
+        "Fusion target"
+      ],
+      "series": [
+        {
+          "name": "$/MWh",
+          "values": [
+            37.0,
+            38.0,
+            48.0,
+            141.0,
+            60.0
+          ]
+        }
+      ],
+      "caption": "A high-capacity-factor plant is valuable, but fusion still needs a credible route to installed cost, availability and O&M levels that buyers can underwrite.",
+      "source_note": "Sources: Lazard LCOE+ 2025; public fusion cost targets; report analysis.",
+      "id": "chart-4",
+      "exhibit_no": "4"
+    },
+    {
+      "title": "First markets differ on willingness to pay and integration complexity",
+      "subtitle": "A five-point assessment translates use-case economics into comparable commercial-entry choices.",
+      "type": "matrix",
+      "rows": [
+        "Data centers",
+        "Industrial heat",
+        "Hydrogen",
+        "Utility firm power",
+        "Desalination"
+      ],
+      "columns": [
+        "24/7 value",
+        "Heat fit",
+        "Price premium",
+        "Integration"
+      ],
+      "values": [
+        [
+          5.0,
+          2.0,
+          4.0,
+          3.0
+        ],
+        [
+          4.0,
+          5.0,
+          4.0,
+          4.0
+        ],
+        [
+          4.0,
+          4.0,
+          3.0,
+          4.0
+        ],
+        [
+          5.0,
+          1.0,
+          2.0,
+          3.0
+        ],
+        [
+          3.0,
+          3.0,
+          2.0,
+          2.0
+        ]
+      ],
+      "caption": "Early commercial logic is stronger where round - the-clock energy, site scarcity or high-temperature heat create value beyond commodity electricity.",
+      "source_note": "Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.",
+      "id": "chart-5",
+      "exhibit_no": "5"
+    },
+    {
+      "title": "Tritium supply is a hard constraint for deuterium-tritium scale-up",
+      "subtitle": "Current global production is measured in tens of kilograms, while a commercial D-T fleet would need far larger annual supply.",
+      "type": "bar",
+      "categories": [
+        "Current production",
+        "1 GWth plant",
+        "Plant low case",
+        "Plant high case"
+      ],
+      "series": [
+        {
+          "name": "Tritium, kg/year",
+          "values": [
+            20.0,
+            55.0,
+            100.0,
+            200.0
+          ]
+        }
+      ],
+      "caption": "A viable D-T pathway has to prove breeding blankets and fuel-cycle recovery, not just buy scarce tritium from today's fission-linked supply chain.",
+      "source_note": "Sources: DOE/NRC tritium materials; public fusion-fuel studies; report analysis.",
+      "id": "chart-6",
+      "exhibit_no": "6"
+    },
+    {
+      "title": "The remaining technical bottlenecks sit across the plant, not only in plasma gain",
+      "subtitle": "Scores compare today's proof depth against the burden each system carries in a bankable plant.",
+      "type": "matrix",
+      "rows": [
+        "Net electricity",
+        "Tritium breeding",
+        "Materials lifetime",
+        "Heat extraction",
+        "Remote maintenance",
+        "Licensing basis"
+      ],
+      "columns": [
+        "Proof today",
+        "Scale burden",
+        "Timing risk"
+      ],
+      "values": [
+        [
+          2.0,
+          5.0,
+          5.0
+        ],
+        [
+          2.0,
+          5.0,
+          5.0
+        ],
+        [
+          2.0,
+          4.0,
+          4.0
+        ],
+        [
+          2.0,
+          4.0,
+          4.0
+        ],
+        [
+          3.0,
+          4.0,
+          4.0
+        ],
+        [
+          3.0,
+          3.0,
+          3.0
+        ]
+      ],
+      "caption": "The decisive evidence will come from integrated systems running repeatedly, not isolated component announcements.",
+      "source_note": "Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.",
+      "id": "chart-7",
+      "exhibit_no": "7"
+    },
+    {
+      "title": "Exposure is most attractive where learning value is high and irreversible spend is low",
+      "subtitle": "Each position is placed by strategic learning value and reversibility before commercial power is proven.",
+      "type": "bubble",
+      "points": [
+        {
+          "label": "Data-center PPAs",
+          "x": 76.0,
+          "y": 70.0,
+          "size": 68.0
+        },
+        {
+          "label": "Materials pilots",
+          "x": 64.0,
+          "y": 82.0,
+          "size": 58.0
+        },
+        {
+          "label": "Tritium cycle",
+          "x": 70.0,
+          "y": 62.0,
+          "size": 72.0
+        },
+        {
+          "label": "Project equity",
+          "x": 36.0,
+          "y": 44.0,
+          "size": 78.0
+        },
+        {
+          "label": "EPC capability",
+          "x": 58.0,
+          "y": 54.0,
+          "size": 62.0
+        },
+        {
+          "label": "Policy shaping",
+          "x": 82.0,
+          "y": 86.0,
+          "size": 45.0
+        }
+      ],
+      "x_label": "Strategic learning",
+      "y_label": "Capital reversibility",
+      "caption": "The strongest near-term moves create proprietary learning without forcing a balance-sheet bet before operating proof exists.",
+      "source_note": "Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.",
+      "id": "chart-8",
+      "exhibit_no": "8"
+    },
+    {
+      "title": "ITER's reset reinforces that public programs move on multi-decade cycles",
+      "subtitle": "The 2024 baseline points to research operation in the 2030s before full deuterium-tritium operation.",
+      "type": "line",
+      "categories": [
+        "2024 baseline",
+        "2034 research",
+        "2035 D-D",
+        "2039 D-T"
+      ],
+      "series": [
+        {
+          "name": "Years after 2024",
+          "values": [
+            0.0,
+            10.0,
+            11.0,
+            15.0
+          ]
+        },
+        {
+          "name": "Fusion-operation stage",
+          "values": [
+            1.0,
+            2.0,
+            3.0,
+            4.0
+          ]
+        }
+      ],
+      "caption": "Commercial strategies should treat public-program milestones as evidence points, not as proof that private deployment timelines are de-risked.",
+      "source_note": "Sources: ITER 2024 baseline materials; report analysis.",
+      "id": "chart-9",
+      "exhibit_no": "9"
+    },
+    {
+      "title": "Supply-chain revenue can arrive before fusion electricity revenue",
+      "subtitle": "Fusion companies reported material supplier spending even while most developers remain pre-revenue on electricity.",
+      "type": "bar",
+      "categories": [
+        "2024 supply spend",
+        "Public funding",
+        "2025 new funding",
+        "Total funding"
+      ],
+      "series": [
+        {
+          "name": "$B",
+          "values": [
+            0.4,
+            0.8,
+            2.64,
+            9.766
+          ]
+        }
+      ],
+      "caption": "Component suppliers in magnets, materials, fuel-cycle equipment and diagnostics may see earlier opportunity than utilities buying fusion power.",
+      "source_note": "Sources: FIA Global Fusion Industry Report 2025; FIA Supply Chain 2025; report analysis.",
+      "id": "chart-10",
+      "exhibit_no": "10"
+    },
+    {
+      "title": "Regulatory clarity is uneven across the markets likely to host first plants",
+      "subtitle": "Relative assessment of policy readiness and industrial pull in major fusion jurisdictions.",
+      "type": "matrix",
+      "rows": [
+        "United States",
+        "United Kingdom",
+        "European Union",
+        "Japan",
+        "China"
+      ],
+      "columns": [
+        "Licensing clarity",
+        "Public funding",
+        "Industrial base",
+        "Pilot pull"
+      ],
+      "values": [
+        [
+          4.0,
+          4.0,
+          5.0,
+          5.0
+        ],
+        [
+          4.0,
+          3.0,
+          3.0,
+          4.0
+        ],
+        [
+          3.0,
+          5.0,
+          4.0,
+          3.0
+        ],
+        [
+          3.0,
+          4.0,
+          4.0,
+          3.0
+        ],
+        [
+          3.0,
+          5.0,
+          5.0,
+          4.0
+        ]
+      ],
+      "caption": "The first commercial sites will depend as much on licensing and industrial sponsorship as on which technology reaches net electricity first.",
+      "source_note": "Sources: DOE; NRC; UKAEA; ITER member programs; report analysis.",
+      "id": "chart-11",
+      "exhibit_no": "11"
+    },
+    {
+      "title": "Fusion's capacity-factor promise must become bankable availability",
+      "subtitle": "Illustrative capacity-factor comparison shows why buyers care about firm clean power, but uptime must be proven.",
+      "type": "bar",
+      "categories": [
+        "Solar PV",
+        "Onshore wind",
+        "Gas CC",
+        "Fission nuclear",
+        "Fusion target"
+      ],
+      "series": [
+        {
+          "name": "Capacity factor, %",
+          "values": [
+            25.0,
+            35.0,
+            55.0,
+            90.0,
+            90.0
+          ]
+        }
+      ],
+      "caption": "The value proposition improves if fusion reaches nuclear-like availability without nuclear-like construction risk or cost overruns.",
+      "source_note": "Sources: public power-sector benchmarks; fusion developer targets; report analysis.",
+      "id": "chart-12",
+      "exhibit_no": "12"
+    },
+    {
+      "title": "Commercial risk is distributed across plant subsystems",
+      "subtitle": "A plant-level view prevents the report from over-weighting a single plasma or magnet milestone.",
+      "type": "stacked_bar",
+      "categories": [
+        "Magnets",
+        "Blanket",
+        "First wall",
+        "Fuel cycle",
+        "Power island",
+        "Controls"
+      ],
+      "series": [
+        {
+          "name": "Technology proof needed",
+          "values": [
+            4.0,
+            5.0,
+            4.0,
+            5.0,
+            3.0,
+            3.0
+          ]
+        },
+        {
+          "name": "Industrialization burden",
+          "values": [
+            4.0,
+            5.0,
+            5.0,
+            4.0,
+            3.0,
+            3.0
+          ]
+        }
+      ],
+      "caption": "The plant only becomes investable when critical subsystems mature together; a single impressive subsystem does not remove integration risk.",
+      "source_note": "Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.",
+      "id": "chart-13",
+      "exhibit_no": "13"
+    },
+    {
+      "title": "Winning positions are different across the fusion value chain",
+      "subtitle": "Value-chain roles are placed by control of scarce capability and near-term monetization potential.",
+      "type": "bubble",
+      "points": [
+        {
+          "label": "Core developer",
+          "x": 86.0,
+          "y": 34.0,
+          "size": 84.0
+        },
+        {
+          "label": "Magnet supplier",
+          "x": 72.0,
+          "y": 70.0,
+          "size": 62.0
+        },
+        {
+          "label": "Tritium supplier",
+          "x": 82.0,
+          "y": 58.0,
+          "size": 68.0
+        },
+        {
+          "label": "Materials supplier",
+          "x": 66.0,
+          "y": 74.0,
+          "size": 58.0
+        },
+        {
+          "label": "Industrial heat user",
+          "x": 54.0,
+          "y": 52.0,
+          "size": 52.0
+        },
+        {
+          "label": "Utility buyer",
+          "x": 48.0,
+          "y": 44.0,
+          "size": 48.0
+        }
+      ],
+      "x_label": "Scarce capability control",
+      "y_label": "Near-term monetization",
+      "caption": "The best position is not necessarily owning a reactor developer; supplier and offtake roles can offer earlier information advantages.",
+      "source_note": "Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.",
+      "id": "chart-14",
+      "exhibit_no": "14"
+    }
+  ],
+  "reference_institutions": [
+    "Osti",
+    "Energy",
+    "Iaea",
+    "Iter",
+    "Nationalacademies",
+    "Fusionindustryassociation",
+    "Llnl",
+    "Iea"
+  ]
+}

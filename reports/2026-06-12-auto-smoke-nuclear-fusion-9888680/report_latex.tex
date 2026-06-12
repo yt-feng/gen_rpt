@@ -1,0 +1,744 @@
+
+\documentclass[10pt,a4paper]{article}
+\usepackage[a4paper,margin=14mm,top=18mm,bottom=20mm,headheight=12pt,headsep=5mm,footskip=9mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{eso-pic}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage{multicol}
+\usepackage{enumitem}
+\defaultfontfeatures{Ligatures=NoCommon}
+\IfFontExistsTF{Noto Sans CJK SC}{\setmainfont{Noto Sans CJK SC}\setsansfont{Noto Sans CJK SC}}{\setmainfont{DejaVu Sans}\setsansfont{DejaVu Sans}}
+\IfFontExistsTF{DejaVu Sans}{\newfontfamily\BOQuoteFont{DejaVu Sans}}{\newfontfamily\BOQuoteFont{Latin Modern Sans}}
+\newcommand{\BOApos}{{\BOQuoteFont\char"0027}}
+\definecolor{BOBlue}{HTML}{0E6B72}
+\definecolor{BOBright}{HTML}{20A66A}
+\definecolor{BOGreen}{HTML}{00A651}
+\definecolor{BONavy}{HTML}{1B2A34}
+\definecolor{BOText}{HTML}{24323A}
+\definecolor{BOMuted}{HTML}{7C878E}
+\definecolor{BOLine}{HTML}{D9E1E6}
+\definecolor{BOLight}{HTML}{F2F6F4}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{3.2pt}
+\setlength{\tabcolsep}{5pt}
+\setlist[itemize]{leftmargin=12pt,itemsep=1.5pt,topsep=2pt,parsep=0pt}
+\renewcommand{\arraystretch}{1.12}
+\hyphenpenalty=10000
+\exhyphenpenalty=10000
+\emergencystretch=4em
+\sloppy
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{}
+\fancyhead[R]{}
+\fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean}
+\fancyfoot[C]{\scriptsize\color{BOMuted} Deep Research Report}
+\fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\begin{document}
+\raggedright
+
+\clearpage
+\thispagestyle{empty}
+\AddToShipoutPictureBG*{\AtPageLowerLeft{\includegraphics[width=\paperwidth,height=\paperheight]{assets/cover-ai.png}}}
+
+\vspace*{7mm}
+\noindent\hspace*{2mm}{\setlength{\fboxsep}{8mm}\fcolorbox{white}{white}{\begin{minipage}{132mm}
+\raggedright
+{\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH}\par\vspace{5pt}
+{\textcolor{BOGreen}{\rule{132mm}{1.5pt}}}\par\vspace{8pt}
+{\sffamily\fontsize{21}{26}\selectfont\color{BONavy} Nuclear Fusion Commercialization\\[1.3mm]Outlook and Strategic Implications}\par\vspace{10pt}
+{\sffamily\scriptsize\bfseries\color{BOText} Nuclear fusion commercialization outlook and strategic implications}\par\vspace{3pt}
+{\sffamily\scriptsize\color{BOMuted} 2026-06-12}
+\end{minipage}}}
+\vfill
+\begin{flushright}
+{\sffamily\bfseries\Large\color{white} BlueOcean}\hspace*{3mm}
+\end{flushright}
+\vspace*{7mm}
+\clearpage
+
+\clearpage
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (42mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\sffamily\fontsize{26}{31}\selectfont\color{BONavy} Contents}\par\vspace{10pt}
+\begin{minipage}[t]{0.95\linewidth}
+\begin{tabularx}{\linewidth}{p{12mm}Y}
+\textcolor{BOGreen}{\bfseries 03} & {\footnotesize Fusion technology has achieved scientific breakeven but not commercial readiness} \\[4pt]
+\textcolor{BOGreen}{\bfseries 04} & {\footnotesize Ignition solved the target-physics question, not the power-plant question; Commercial proof remains a sequence of gates after the 2022 science} \\[4pt]
+\textcolor{BOGreen}{\bfseries 05} & {\footnotesize Private funding has grown, but the sector is still capital-constrained; Fusion must compete against a cost stack that is already cheap at the low end} \\[4pt]
+\textcolor{BOGreen}{\bfseries 07} & {\footnotesize Nuclear Fusion Is Approaching Technical Feasibility but Commercial Viability Remains a Decade or More Away} \\[4pt]
+\textcolor{BOGreen}{\bfseries 09} & {\footnotesize Private Fusion Startups Are Accelerating Development with Significant Venture Capital and Government Support} \\[4pt]
+\textcolor{BOGreen}{\bfseries 11} & {\footnotesize Fusion\BOApos{}s Economic Competitiveness Hinges on Achieving Low LCOE Through Advanced Materials and Mass Production} \\[4pt]
+\textcolor{BOGreen}{\bfseries 12} & {\footnotesize Ignition changed the physics case, not the commercialization case} \\[4pt]
+\textcolor{BOGreen}{\bfseries 14} & {\footnotesize Private capital is accelerating experimentation but not removing technical risk} \\[4pt]
+\textcolor{BOGreen}{\bfseries 15} & {\footnotesize Cost competitiveness is the route from breakthrough to adoption} \\[4pt]
+\textcolor{BOGreen}{\bfseries 17} & {\footnotesize The path is gated by fuel, materials and regulation} \\[4pt]
+\textcolor{BOGreen}{\bfseries 18} & {\footnotesize First markets should be selected by value density, not market size} \\[4pt]
+\textcolor{BOGreen}{\bfseries 20} & {\footnotesize About the research} \\[4pt]
+\end{tabularx}
+\end{minipage}
+\clearpage
+
+\clearpage
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,58mm);
+\clip (0,0) rectangle (\linewidth,58mm);
+\node[anchor=north west,inner sep=0] at (0,58mm) {\includegraphics[width=\linewidth]{assets/image-1.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (88mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\sffamily\fontsize{24}{30}\selectfont\color{BONavy} Fusion technology has achieved scientific breakeven but not commercial readiness}\par\vspace{11pt}
+\begin{minipage}[t]{0.44\linewidth}
+{\small\color{BOText} Nuclear fusion is approaching technical feasibility, but commercial viability remains a decade or more away. The December 2022 fusion ignition at Lawrence Livermore National Laboratory was a historic scientific milestone, demonstrating net energy gain in a controlled experiment for the first time. However, this was a single-shot inertial confinement event, not a sustained power-producing system. Private startups have accelerated development with significant venture capital and government support, yet sustained net energy gain and materials durability have not been demonstrated at scale. Fusion\BOApos{}s economic competitiveness hinges on achieving a levelized cost of electricity (LCOE) below \$50/MWh through advanced materials and mass production - a target that remains unverified. Regulatory pathways are emerging but uncertain, and geopolitical implications include potential disruption of energy markets and shifts in power dynamics. Immediate next step: monitor key technical milestones (e.g., SPARC first plasma, ITER operations) and policy developments to inform capital allocation decisions. Avoid large commitments until sustained net energy gain and regulatory clarity are achieved.}\par
+\end{minipage}\hfill\begin{minipage}[t]{0.45\linewidth}
+{\small\color{BOText} The December 2022 fusion ignition at Lawrence Livermore National Laboratory marked a historic scientific milestone, demonstrating for the first time that a controlled fusion reaction can produce more energy than the laser energy used to drive it. The experiment delivered 2.15 MJ of fusion energy output from 2.05 MJ of laser input, achieving scientific breakeven. However, this was a single-shot experiment using inertial confinement, not a sustained power-producing system. The path to a commercial fusion power plant requires sustained net energy gain, materials that can withstand neutron bombardment, and tritium breeding-none of which have been demonstrated at scale.}\par
+\end{minipage}
+
+\clearpage
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,62mm);
+\clip (0,0) rectangle (\linewidth,62mm);
+\node[anchor=north west,inner sep=0] at (0,62mm) {\includegraphics[width=\linewidth]{assets/image-2.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (82mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\sffamily\fontsize{23}{29}\selectfont\color{BONavy} Nuclear Fusion Is Approaching Technical Feasibility but Commercial Viability Remains a Decade or More Away}\par\vspace{8pt}
+{\sffamily\fontsize{16}{21}\selectfont\color{BOGreen} Fusion has crossed the scientific breakeven threshold, but sustained net energy gain and materials durability are unproven, meaning commercial power plants are unlikely before 2040.}\par\vspace{9pt}
+\begin{minipage}[t]{0.46\linewidth}
+{\small Fusion technology has achieved scientific breakeven but not commercial readiness. In December 2022, Lawrence Livermore National Laboratory achieved fusion ignition, producing 2.15 MJ of fusion energy output from 2.05 MJ of laser input - a scientific milestone. However, this was a single experiment, not a sustained or net-energy-positive system for power generation. Do not treat scientific breakeven as commercial viability. Continue to track sustained net energy gain demonstrations, which are likely 5-10 years away.}\par
+{\small Fusion\BOApos{}s economic competitiveness is unproven and faces stiff competition from renewables plus storage. Projected LCOE for fusion ranges from \$30-\$100/MWh by 2050, but these estimates are highly uncertain. Solar and wind with battery storage are already below \$50/MWh in many markets and continue to decline. Fusion must achieve low capital costs and high availability to compete. Do not assume fusion will outcompete renewables.}\par
+\end{minipage}\hfill\begin{minipage}[t]{0.46\linewidth}
+{\small Private fusion startups are attracting significant capital and compressing timelines. The Fusion Industry Association reports over \$6 billion in private fusion investment globally as of 2024. Companies like Commonwealth Fusion Systems (SPARC) and TAE Technologies have announced aggressive milestones, with SPARC targeting first plasma by 2026 and net energy gain by 2027. Private-sector momentum creates potential for earlier-than-expected breakthroughs.}\par
+{\small Regulatory frameworks for fusion are nascent and could delay deployment. The U.S. Nuclear Regulatory Commission (NRC) is developing a regulatory framework for fusion, but it is not yet finalized. The IAEA provides guidelines, but national licensing pathways remain unclear. The DOE\BOApos{}s Milestone-Based Fusion Development Program aims to resolve technical and commercialization risks, but regulatory uncertainty persists. Engage with regulators early and monitor NRC rulemaking.}\par
+\end{minipage}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 1}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Ignition solved the target-physics question, not the power-plant question}\par
+{\small\color{BOText} LLNL\BOApos{}s 2022 shot produced more fusion energy than laser energy delivered to the target; it did not produce net electricity.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,5.05);
+\fill[BOLight] (0,0) rectangle (13.20,5.05);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,5.05);
+\node[anchor=west] at (4.15,4.85) {\scriptsize\color{BOMuted} Fact mentions};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,4.43) {\scriptsize Laser input};
+\fill[BOLight] (4.15,4.31) rectangle (12.35,4.55);
+\fill[BOGreen] (4.15,4.31) rectangle (12.35,4.55);
+\node[anchor=west] at (12.43,4.43) {\scriptsize 22};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,3.15) {\scriptsize Fusion output};
+\fill[BOLight] (4.15,3.03) rectangle (12.35,3.27);
+\fill[BOGreen] (4.15,3.03) rectangle (9.37,3.27);
+\node[anchor=west] at (9.45,3.15) {\scriptsize 14};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,1.88) {\scriptsize Net grid output};
+\fill[BOLight] (4.15,1.76) rectangle (12.35,2.00);
+\fill[BOGreen] (4.15,1.76) rectangle (5.27,2.00);
+\node[anchor=west] at (5.35,1.88) {\scriptsize 3};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The commercial gap is the conversion from a target experiment to repeated, maintainable, grid-exporting plant operation.}\par
+{\scriptsize\color{BOMuted} Sources: LLNL ignition announcement; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 2}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Commercial proof remains a sequence of gates after the 2022 science milestone}\par
+{\small\color{BOText} Milestones are shown as years after the LLNL ignition shot rather than as a single commercialization date.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,4.40);
+\fill[BOLight] (0,0) rectangle (13.20,4.40);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,4.40);
+\draw[BOLine] (0.80,0.78) -- (12.75,0.78);
+\draw[BOGreen,line width=1.1pt] (0.80,0.78) -- (3.79,1.11) -- (6.77,2.75) -- (9.76,3.57) -- (12.75,3.73);
+\fill[BOGreen] (0.80,0.78) circle (.045);
+\fill[BOGreen] (3.79,1.11) circle (.045);
+\fill[BOGreen] (6.77,2.75) circle (.045);
+\fill[BOGreen] (9.76,3.57) circle (.045);
+\fill[BOGreen] (12.75,3.73) circle (.045);
+\draw[BOBlue,line width=1.1pt] (0.80,0.94) -- (3.79,0.94) -- (6.77,1.11) -- (9.76,1.27) -- (12.75,1.44);
+\fill[BOBlue] (0.80,0.94) circle (.045);
+\fill[BOBlue] (3.79,0.94) circle (.045);
+\fill[BOBlue] (6.77,1.11) circle (.045);
+\fill[BOBlue] (9.76,1.27) circle (.045);
+\fill[BOBlue] (12.75,1.44) circle (.045);
+\node[anchor=north,align=center,text width=1.8cm] at (0.80,0.66) {\scriptsize 2022 ignition};
+\node[anchor=north,align=center,text width=1.8cm] at (3.79,0.66) {\scriptsize 2024 ITER reset};
+\node[anchor=north,align=center,text width=1.8cm] at (6.77,0.66) {\scriptsize 2034 research ops};
+\node[anchor=north,align=center,text width=1.8cm] at (9.76,0.66) {\scriptsize 2039 DT ops};
+\node[anchor=north,align=center,text width=1.8cm] at (12.75,0.66) {\scriptsize 2040+ pilots};
+\fill[BOGreen] (0.80,4.22) rectangle (0.96,4.32);
+\node[anchor=west] at (1.02,4.27) {\scriptsize Years after 2022};
+\fill[BOBlue] (3.17,4.22) rectangle (3.33,4.32);
+\node[anchor=west] at (3.39,4.27) {\scriptsize Commercial proof};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The market question is how quickly pilot plants can close net electricity, duty-cycle, maintenance and cost evidence after physics proof.}\par
+{\scriptsize\color{BOMuted} Sources: LLNL; ITER 2024 baseline materials; DOE fusion strategy; report analysis.}\par
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 3}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Private funding has grown, but the sector is still capital-constrained}\par
+{\small\color{BOText} FIA reported \$2.64B raised in the 12 months to July 2025 and \$9.766B total funding for 53 companies.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,4.40);
+\fill[BOLight] (0,0) rectangle (13.20,4.40);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,4.40);
+\draw[BOLine] (0.80,0.72) -- (13.00,0.72);
+\fill[BOGreen] (1.84,0.72) rectangle (2.46,1.19);
+\node[anchor=north,align=center,text width=3.68cm] at (2.15,0.55) {\scriptsize 2021};
+\fill[BOGreen] (5.84,0.72) rectangle (6.46,2.47);
+\fill[BOBlue] (5.84,2.47) rectangle (6.46,2.70);
+\node[anchor=north,align=center,text width=3.68cm] at (6.15,0.55) {\scriptsize 2024};
+\fill[BOGreen] (9.84,0.72) rectangle (10.46,3.12);
+\fill[BOBlue] (9.84,3.12) rectangle (10.46,3.77);
+\node[anchor=north,align=center,text width=3.68cm] at (10.15,0.55) {\scriptsize 2025};
+\fill[BOGreen] (0.80,4.18) rectangle (0.96,4.28);
+\node[anchor=west] at (1.02,4.23) {\scriptsize Funding to date, \$B};
+\fill[BOBlue] (3.46,4.18) rectangle (3.62,4.28);
+\node[anchor=west] at (3.68,4.23) {\scriptsize Latest-year inflow};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The funding curve signals strategic momentum, but it remains small compared with the capital required for repeated pilot plants and supply chains.}\par
+{\scriptsize\color{BOMuted} Sources: Fusion Industry Association Global Fusion Industry Report 2025; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 4}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Fusion must compete against a cost stack that is already cheap at the low end}\par
+{\small\color{BOText} Comparator values use low-end unsubsidized LCOE ranges where available; fusion is shown as an illustrative long-run target.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,5.05);
+\fill[BOLight] (0,0) rectangle (13.20,5.05);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,5.05);
+\node[anchor=west] at (4.15,4.85) {\scriptsize\color{BOMuted} \$/MWh};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,4.43) {\scriptsize Onshore wind};
+\fill[BOLight] (4.15,4.31) rectangle (12.35,4.55);
+\fill[BOGreen] (4.15,4.31) rectangle (6.30,4.55);
+\node[anchor=west] at (6.38,4.43) {\scriptsize 37};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,3.66) {\scriptsize Utility solar};
+\fill[BOLight] (4.15,3.54) rectangle (12.35,3.78);
+\fill[BOGreen] (4.15,3.54) rectangle (6.36,3.78);
+\node[anchor=west] at (6.44,3.66) {\scriptsize 38};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,2.90) {\scriptsize Gas CC};
+\fill[BOLight] (4.15,2.78) rectangle (12.35,3.02);
+\fill[BOGreen] (4.15,2.78) rectangle (6.94,3.02);
+\node[anchor=west] at (7.02,2.90) {\scriptsize 48};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,2.13) {\scriptsize New nuclear};
+\fill[BOLight] (4.15,2.01) rectangle (12.35,2.25);
+\fill[BOGreen] (4.15,2.01) rectangle (12.35,2.25);
+\node[anchor=west] at (12.43,2.13) {\scriptsize 141};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,1.37) {\scriptsize Fusion target};
+\fill[BOLight] (4.15,1.25) rectangle (12.35,1.49);
+\fill[BOGreen] (4.15,1.25) rectangle (7.64,1.49);
+\node[anchor=west] at (7.72,1.37) {\scriptsize 60};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} A high-capacity-factor plant is valuable, but fusion still needs a credible route to installed cost, availability and O\&M levels that buyers can underwrite.}\par
+{\scriptsize\color{BOMuted} Sources: Lazard LCOE+ 2025; public fusion cost targets; report analysis.}\par
+
+\clearpage
+\label{chap:1}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-1.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Nuclear Fusion Is Approaching Technical Feasibility but Commercial Viability Remains a Decade or More Away}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} Fusion has crossed the scientific breakeven threshold, but sustained net energy gain and materials durability are unproven, meaning commercial power plants are unlikely before 2040.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small The December 2022 fusion ignition at Lawrence Livermore National Laboratory marked a historic scientific milestone, demonstrating for the first time that a controlled fusion reaction can produce more energy than the laser energy used to drive it. The experiment delivered 2.15 MJ of fusion energy output from 2.05 MJ of laser input, achieving scientific breakeven. However, this was a single-shot experiment using inertial confinement, not a sustained power-producing system. The path to a commercial fusion power plant requires sustained net energy gain, materials that can withstand neutron bombardment, and tritium breeding-none of which have been demonstrated at scale.}\par
+{\small Private fusion startups are accelerating development with significant venture capital and government support. Commonwealth Fusion Systems (CFS) is building SPARC, a compact tokamak designed to achieve net energy gain by 2027. TAE Technologies is pursuing a field-reversed configuration approach and has raised over \$1 billion. The Fusion Industry Association reports that private fusion investment exceeded \$6 billion globally by 2024. These companies are compressing timelines, but they still face formidable technical hurdles.}\par
+{\small The ITER project, the world\BOApos{}s largest tokamak under construction in France, is designed to demonstrate fusion power at scale. ITER\BOApos{}s goal is to produce 500 MW of fusion power from 50 MW of input, but the project has experienced repeated delays and cost overruns. First plasma is now expected in 2025-2026, with full deuterium-tritium operations not until 2035. ITER is not a commercial plant but a research experiment; commercial fusion plants are not expected until after 2040.}\par
+{\small Critical technical challenges remain. Plasma stability must be maintained for long durations; current tokamaks achieve pulses of only a few minutes. Materials must withstand high-energy neutrons that degrade structural integrity. Tritium breeding-producing tritium from lithium within the reactor-is essential for fuel self-sufficiency but has not been demonstrated in a fusion environment. These challenges are well-documented by DOE and IAEA sources.}\par
+{\small Despite these hurdles, the pace of progress has accelerated. The DOE\BOApos{}s Milestone-Based Fusion Development Program, launched in 2023, provides public-private funding to resolve technical and commercialization risks for fusion pilot plants. ARPA-E\BOApos{}s BETHE program supports innovative fusion concepts. Government funding in the U.S. Alone has increased to over \$1 billion annually, signaling strong policy support.}\par
+{\small For leadership teams, the key takeaway is that fusion is no longer a distant dream but a technology with a credible path to commercialization. However, the timeline remains uncertain, and significant technical risks persist. Investment decisions should be based on milestone achievement rather than calendar dates.}\par
+\end{multicols}
+\label{chap:1:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 5}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} First markets differ on willingness to pay and integration complexity}\par
+{\small\color{BOText} A five-point assessment translates use-case economics into comparable commercial-entry choices.}\par\vspace{6pt}
+\noindent\fcolorbox{BOLine}{BOLight}{\begin{minipage}{0.96\linewidth}\vspace{4pt}{\scriptsize\begin{tabular}{p{38mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}}
+ & {\bfseries 24/7 value} & {\bfseries Heat fit} & {\bfseries Price premium} & {\bfseries Integration} \\
+\hline
+{\bfseries Data centers} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} \\
+{\bfseries Industrial heat} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+{\bfseries Hydrogen} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+{\bfseries Utility firm power} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}1\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} \\
+{\bfseries Desalination} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} \\
+\end{tabular}}\vspace{4pt}\end{minipage}}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} Early commercial logic is stronger where round - the-clock energy, site scarcity or high-temperature heat create value beyond commodity electricity.}\par
+{\scriptsize\color{BOMuted} Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 6}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Tritium supply is a hard constraint for deuterium-tritium scale-up}\par
+{\small\color{BOText} Current global production is measured in tens of kilograms, while a commercial D-T fleet would need far larger annual supply.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,5.05);
+\fill[BOLight] (0,0) rectangle (13.20,5.05);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,5.05);
+\node[anchor=west] at (4.15,4.85) {\scriptsize\color{BOMuted} Tritium, kg/year};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,4.43) {\scriptsize Current production};
+\fill[BOLight] (4.15,4.31) rectangle (12.35,4.55);
+\fill[BOGreen] (4.15,4.31) rectangle (4.97,4.55);
+\node[anchor=west] at (5.05,4.43) {\scriptsize 20};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,3.47) {\scriptsize 1 GWth plant};
+\fill[BOLight] (4.15,3.35) rectangle (12.35,3.59);
+\fill[BOGreen] (4.15,3.35) rectangle (6.41,3.59);
+\node[anchor=west] at (6.49,3.47) {\scriptsize 55};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,2.51) {\scriptsize Plant low case};
+\fill[BOLight] (4.15,2.39) rectangle (12.35,2.63);
+\fill[BOGreen] (4.15,2.39) rectangle (8.25,2.63);
+\node[anchor=west] at (8.33,2.51) {\scriptsize 100};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,1.56) {\scriptsize Plant high case};
+\fill[BOLight] (4.15,1.44) rectangle (12.35,1.68);
+\fill[BOGreen] (4.15,1.44) rectangle (12.35,1.68);
+\node[anchor=west] at (12.43,1.56) {\scriptsize 200};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} A viable D-T pathway has to prove breeding blankets and fuel-cycle recovery, not just buy scarce tritium from today\BOApos{}s fission-linked supply chain.}\par
+{\scriptsize\color{BOMuted} Sources: DOE/NRC tritium materials; public fusion-fuel studies; report analysis.}\par
+
+\clearpage
+\label{chap:2}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-2.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Private Fusion Startups Are Accelerating Development with Significant Venture Capital and Government Support}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} Over \$6 billion in private investment has flowed into fusion startups, but most have not yet demonstrated net energy gain, creating both opportunity and hype risk.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small The fusion landscape has shifted dramatically from government-led megaprojects to a vibrant ecosystem of private startups. As of 2024, over 40 private fusion companies are operating globally, with total private investment exceeding \$6 billion. Leading companies include Commonwealth Fusion Systems (CFS), TAE Technologies, General Fusion, Helion Energy, and Zap Energy. These startups are pursuing diverse technical approaches, from tokamaks and stellarators to inertial confinement and novel concepts.}\par
+{\small CFS, spun out of MIT, is building SPARC - a compact, high-field tokamak using high-temperature superconducting magnets. SPARC is designed to achieve net energy gain (Q>1) by 2027, a milestone that would be a world first. The company has raised over \$2 billion from investors including Bill Gates, Breakthrough Energy Ventures, and Temasek. CFS plans to follow SPARC with ARC, a commercial-scale fusion power plant in the 2030s.}\par
+{\small TAE Technologies has raised over \$1.2 billion and is pursuing a field-reversed configuration approach that uses neutral beam injection to maintain plasma stability. TAE aims to demonstrate net energy gain by 2028 and commercial plants by 2035. The company has partnered with Google to apply machine learning to plasma control.}\par
+{\small Helion Energy has raised over \$600 million and is developing a pulsed, magneto-inertial fusion system. Helion claims it can achieve net electricity generation by 2024, but this timeline has slipped. The company has signed a power purchase agreement with Microsoft for 50 MW of fusion power by 2028, a bold target that would be transformative if achieved.}\par
+{\small Government support has been crucial. The U.S. DOE\BOApos{}s Milestone-Based Fusion Development Program provides up to \$50 million per project for companies that meet technical milestones. The program has awarded funding to CFS, TAE, and others. The U.S. Congress has also increased fusion funding, with over \$1 billion allocated in 2024. Other countries, including the UK, Japan, and China, have launched similar programs.}\par
+{\small Despite this momentum, private fusion companies face significant risks. Many have not yet demonstrated net energy gain, and their timelines are aggressive. The Fusion Industry Association\BOApos{}s 2024 report notes that most companies expect commercial plants by 2035, but independent experts consider this optimistic. The gap between scientific breakeven and commercial viability remains wide.}\par
+\end{multicols}
+\label{chap:2:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 7}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} The remaining technical bottlenecks sit across the plant, not only in plasma gain}\par
+{\small\color{BOText} Scores compare today\BOApos{}s proof depth against the burden each system carries in a bankable plant.}\par\vspace{6pt}
+\noindent\fcolorbox{BOLine}{BOLight}{\begin{minipage}{0.96\linewidth}\vspace{4pt}{\scriptsize\begin{tabular}{p{38mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}}
+ & {\bfseries Proof today} & {\bfseries Scale burden} & {\bfseries Timing risk} \\
+\hline
+{\bfseries Net electricity} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} \\
+{\bfseries Tritium breeding} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} \\
+{\bfseries Materials lifetime} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+{\bfseries Heat extraction} & \colorbox{BOLight}{\textcolor{BOText}{\strut\hspace{5pt}2\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+{\bfseries Remote maintenance} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+\end{tabular}}\vspace{4pt}\end{minipage}}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The decisive evidence will come from integrated systems running repeatedly, not isolated component announcements.}\par
+{\scriptsize\color{BOMuted} Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 8}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Exposure is most attractive where learning value is high and irreversible spend is low}\par
+{\small\color{BOText} Each position is placed by strategic learning value and reversibility before commercial power is proven.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,4.30);
+\fill[BOLight] (0,0) rectangle (13.20,4.30);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,4.30);
+\draw[BOLine] (0.85,0.65) -- (12.70,0.65) -- (12.70,3.70);
+\draw[BOLine,dashed] (0.85,2.17) -- (12.70,2.17);
+\draw[BOLine,dashed] (6.77,0.65) -- (6.77,3.70);
+\fill[BOGreen,opacity=.65] (9.86,2.78) circle (0.22);
+\node[anchor=east,align=right,text width=2.10cm] at (9.46,2.99) {\scriptsize Data-center PPAs};
+\fill[BOGreen,opacity=.65] (8.43,3.15) circle (0.20);
+\node[anchor=west,align=left,text width=2.10cm] at (8.81,3.54) {\scriptsize Materials pilots};
+\fill[BOGreen,opacity=.65] (9.14,2.54) circle (0.22);
+\node[anchor=east,align=right,text width=2.10cm] at (8.74,2.57) {\scriptsize Tritium cycle};
+\fill[BOGreen,opacity=.65] (5.12,1.99) circle (0.24);
+\node[anchor=west,align=left,text width=2.10cm] at (5.53,1.65) {\scriptsize Project equity};
+\fill[BOGreen,opacity=.65] (7.72,2.30) circle (0.20);
+\node[anchor=west,align=left,text width=2.10cm] at (8.11,2.14) {\scriptsize EPC capability};
+\fill[BOGreen,opacity=.65] (10.57,3.27) circle (0.17);
+\node[anchor=east,align=right,text width=2.10cm] at (10.22,2.77) {\scriptsize Policy shaping};
+\node[anchor=north east] at (12.70,0.53) {\scriptsize Strategic learning};
+\node[anchor=center,rotate=90] at (0.55,2.17) {\scriptsize Capital reversibility};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The strongest near-term moves create proprietary learning without forcing a balance-sheet bet before operating proof exists.}\par
+{\scriptsize\color{BOMuted} Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.}\par
+
+\clearpage
+\label{chap:3}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-3.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Fusion\BOApos{}s Economic Competitiveness Hinges on Achieving Low LCOE Through Advanced Materials and Mass Production}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} Fusion LCOE projections are highly uncertain and currently exceed those of renewables plus storage, making cost reduction the critical path to market entry.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small The levelized cost of electricity (LCOE) from fusion is highly uncertain, with projections ranging from \$30 to \$100 per MWh by 2050. These estimates depend on assumptions about capital costs, capacity factors, fuel costs, and plant lifetime. For comparison, solar and wind with battery storage are already below \$50/MWh in many markets and continue to decline. Natural gas combined cycle plants have LCOE around \$40-\$60/MWh. Nuclear fission plants have LCOE of \$100-\$150/MWh due to high capital costs.}\par
+{\small Fusion\BOApos{}s capital costs are expected to be high, potentially \$5-\$10 billion per GW, similar to fission. However, fusion plants could have lower fuel costs (deuterium is abundant) and no long-lived radioactive waste. The key to economic competitiveness is reducing capital costs through advanced materials, modular designs, and mass production. High-temperature superconducting magnets, for example, could reduce the size and cost of tokamaks.}\par
+{\small Capacity factor is another critical variable. Fusion plants are expected to operate as baseload power, with capacity factors above 90\%, similar to fission. However, this has not been demonstrated. If fusion plants require frequent maintenance or have lower availability, LCOE could increase significantly.}\par
+{\small Financing models for fusion are still evolving. Given the high upfront costs and long construction timelines, fusion projects will likely require government loan guarantees or power purchase agreements (PPAs) to attract private capital. Helion\BOApos{}s PPA with Microsoft is a pioneering example, but it is contingent on Helion achieving commercial operation by 2028.}\par
+{\small The market potential for fusion is enormous. Global electricity demand is expected to grow 50\% by 2050, and fusion could provide clean baseload power. However, fusion will compete with other low-carbon technologies, including advanced nuclear fission, geothermal, and long-duration storage. Fusion\BOApos{}s unique value proposition is its potential for abundant, continuous, and carbon-free power with minimal waste.}\par
+{\small Commercially, the economic case for fusion is not yet compelling. Investment should be framed as a hedge against future energy scenarios rather than a near-term profit opportunity. Cost reduction milestones, such as demonstration of low-cost magnet manufacturing or high-availability operations, are critical to watch.}\par
+\end{multicols}
+\label{chap:3:end}
+
+\clearpage
+\label{chap:4}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-4.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Ignition changed the physics case, not the commercialization case}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} The 2022 milestone matters, but it does not yet answer the plant, cost or reliability questions.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small LLNL\BOApos{}s ignition shot reset the credibility of fusion science, but it did not prove a power plant. The commercial question starts after target gain: repeated operation, heat extraction, net electricity, maintainability and economics.}\par
+{\small For the board, the most useful interpretation is staged. Ignition improves the odds that fusion deserves management attention, while leaving the investment case dependent on integrated pilot evidence rather than scientific headlines.}\par
+{\small For customer strategy, the current public record supports this distinction. A public source anchors this point: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Each new milestone should answer a narrower commercial question rather than being stretched into proof of grid-scale deployment.}\par
+{\small The executive question around Ignition changed the physics case, not the commercialization case is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.}\par
+{\small Capital tied to Ignition changed the physics case, not the commercialization case should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.}\par
+{\small The strongest public fact pattern for Ignition changed the physics case, not the commercialization case is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.}\par
+\end{multicols}
+\label{chap:4:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 9}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} ITER\BOApos{}s reset reinforces that public programs move on multi-decade cycles}\par
+{\small\color{BOText} The 2024 baseline points to research operation in the 2030s before full deuterium-tritium operation.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,4.40);
+\fill[BOLight] (0,0) rectangle (13.20,4.40);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,4.40);
+\draw[BOLine] (0.80,0.78) -- (12.75,0.78);
+\draw[BOGreen,line width=1.1pt] (0.80,0.78) -- (4.78,2.75) -- (8.77,2.94) -- (12.75,3.73);
+\fill[BOGreen] (0.80,0.78) circle (.045);
+\fill[BOGreen] (4.78,2.75) circle (.045);
+\fill[BOGreen] (8.77,2.94) circle (.045);
+\fill[BOGreen] (12.75,3.73) circle (.045);
+\draw[BOBlue,line width=1.1pt] (0.80,0.98) -- (4.78,1.17) -- (8.77,1.37) -- (12.75,1.57);
+\fill[BOBlue] (0.80,0.98) circle (.045);
+\fill[BOBlue] (4.78,1.17) circle (.045);
+\fill[BOBlue] (8.77,1.37) circle (.045);
+\fill[BOBlue] (12.75,1.57) circle (.045);
+\node[anchor=north,align=center,text width=1.8cm] at (0.80,0.66) {\scriptsize 2024 baseline};
+\node[anchor=north,align=center,text width=1.8cm] at (4.78,0.66) {\scriptsize 2034 research};
+\node[anchor=north,align=center,text width=1.8cm] at (8.77,0.66) {\scriptsize 2035 D-D};
+\node[anchor=north,align=center,text width=1.8cm] at (12.75,0.66) {\scriptsize 2039 D-T};
+\fill[BOGreen] (0.80,4.22) rectangle (0.96,4.32);
+\node[anchor=west] at (1.02,4.27) {\scriptsize Years after 2024};
+\fill[BOBlue] (3.17,4.22) rectangle (3.33,4.32);
+\node[anchor=west] at (3.39,4.27) {\scriptsize Fusion-operation};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} Commercial strategies should treat public-program milestones as evidence points, not as proof that private deployment timelines are de-risked.}\par
+{\scriptsize\color{BOMuted} Sources: ITER 2024 baseline materials; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 10}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Supply-chain revenue can arrive before fusion electricity revenue}\par
+{\small\color{BOText} Fusion companies reported material supplier spending even while most developers remain pre-revenue on electricity.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,5.05);
+\fill[BOLight] (0,0) rectangle (13.20,5.05);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,5.05);
+\node[anchor=west] at (4.15,4.85) {\scriptsize\color{BOMuted} \$B};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,4.43) {\scriptsize 2024 supply spend};
+\fill[BOLight] (4.15,4.31) rectangle (12.35,4.55);
+\fill[BOGreen] (4.15,4.31) rectangle (4.49,4.55);
+\node[anchor=west] at (4.57,4.43) {\scriptsize 0.4};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,3.47) {\scriptsize Public funding};
+\fill[BOLight] (4.15,3.35) rectangle (12.35,3.59);
+\fill[BOGreen] (4.15,3.35) rectangle (4.82,3.59);
+\node[anchor=west] at (4.90,3.47) {\scriptsize 0.8};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,2.51) {\scriptsize 2025 new funding};
+\fill[BOLight] (4.15,2.39) rectangle (12.35,2.63);
+\fill[BOGreen] (4.15,2.39) rectangle (6.37,2.63);
+\node[anchor=west] at (6.45,2.51) {\scriptsize 2.6};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,1.56) {\scriptsize Total funding};
+\fill[BOLight] (4.15,1.44) rectangle (12.35,1.68);
+\fill[BOGreen] (4.15,1.44) rectangle (12.35,1.68);
+\node[anchor=west] at (12.43,1.56) {\scriptsize 9.8};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} Component suppliers in magnets, materials, fuel-cycle equipment and diagnostics may see earlier opportunity than utilities buying fusion power.}\par
+{\scriptsize\color{BOMuted} Sources: FIA Global Fusion Industry Report 2025; FIA Supply Chain 2025; report analysis.}\par
+
+\clearpage
+\label{chap:5}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-5.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Private capital is accelerating experimentation but not removing technical risk}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} Funding growth expands the number of shots on goal, while the decisive proof still comes from operating systems.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small Private fusion funding has made the industry broader and faster-moving. It has also shifted part of the learning curve from public laboratories to venture-backed developers, suppliers and corporate partners.}\par
+{\small For partner strategy, capital alone does not remove the hard constraints: plasma control, magnets, materials, tritium breeding, heat extraction and maintenance have to work together at plant scale. A large round should therefore be read as option value, not as de-risked infrastructure.}\par
+{\small The strategic benefit of the funding wave is earlier access to learning. Partnerships, supplier relationships and customer dialogues can reveal which approaches are credible before the market is obvious.}\par
+{\small From an investor lens, the executive question around Private capital is accelerating experimentation but not removing technical risk is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.}\par
+{\small Capital tied to Private capital is accelerating experimentation but not removing technical risk should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.}\par
+{\small For operating teams, the strongest public fact pattern for Private capital is accelerating experimentation but not removing technical risk is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.}\par
+\end{multicols}
+\label{chap:5:end}
+
+\clearpage
+\label{chap:6}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-6.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} Cost competitiveness is the route from breakthrough to adoption}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} Fusion must compete with renewables, storage, gas and fission on buyer economics, not novelty.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small At the portfolio level, fusion\BOApos{}s promise is firm clean power with high availability. That promise becomes commercially relevant only if installed cost, uptime, maintenance and fuel-cycle economics create a price customers can underwrite.}\par
+{\small In timing terms, the comparison set is unforgiving. Solar, wind and gas already set low-cost reference points, while fission shows how construction risk can overwhelm theoretical capacity-factor advantages.}\par
+{\small For risk owners, the executive question around Cost competitiveness is the route from breakthrough to adoption is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.}\par
+{\small Capital tied to Cost competitiveness is the route from breakthrough to adoption should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.}\par
+{\small For market entry, the strongest public fact pattern for Cost competitiveness is the route from breakthrough to adoption is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.}\par
+{\small For risk owners, numeric assumptions around Cost competitiveness is the route from breakthrough to adoption need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.}\par
+\end{multicols}
+\label{chap:6:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 11}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Regulatory clarity is uneven across the markets likely to host first plants}\par
+{\small\color{BOText} Relative assessment of policy readiness and industrial pull in major fusion jurisdictions.}\par\vspace{6pt}
+\noindent\fcolorbox{BOLine}{BOLight}{\begin{minipage}{0.96\linewidth}\vspace{4pt}{\scriptsize\begin{tabular}{p{38mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}>{\centering\arraybackslash}p{21mm}}
+ & {\bfseries Licensing clarity} & {\bfseries Public funding} & {\bfseries Industrial base} & {\bfseries Pilot pull} \\
+\hline
+{\bfseries United States} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} \\
+{\bfseries United Kingdom} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+{\bfseries European Union} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} \\
+{\bfseries Japan} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} \\
+{\bfseries China} & \colorbox{BOBlue}{\textcolor{white}{\strut\hspace{5pt}3\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}5\hspace{5pt}}} & \colorbox{BOGreen}{\textcolor{white}{\strut\hspace{5pt}4\hspace{5pt}}} \\
+\end{tabular}}\vspace{4pt}\end{minipage}}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The first commercial sites will depend as much on licensing and industrial sponsorship as on which technology reaches net electricity first.}\par
+{\scriptsize\color{BOMuted} Sources: DOE; NRC; UKAEA; ITER member programs; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 12}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Fusion\BOApos{}s capacity-factor promise must become bankable availability}\par
+{\small\color{BOText} Illustrative capacity-factor comparison shows why buyers care about firm clean power, but uptime must be proven.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,5.05);
+\fill[BOLight] (0,0) rectangle (13.20,5.05);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,5.05);
+\node[anchor=west] at (4.15,4.85) {\scriptsize\color{BOMuted} Capacity factor, \%};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,4.43) {\scriptsize Solar PV};
+\fill[BOLight] (4.15,4.31) rectangle (12.35,4.55);
+\fill[BOGreen] (4.15,4.31) rectangle (6.43,4.55);
+\node[anchor=west] at (6.51,4.43) {\scriptsize 25};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,3.66) {\scriptsize Onshore wind};
+\fill[BOLight] (4.15,3.54) rectangle (12.35,3.78);
+\fill[BOGreen] (4.15,3.54) rectangle (7.34,3.78);
+\node[anchor=west] at (7.42,3.66) {\scriptsize 35};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,2.90) {\scriptsize Gas CC};
+\fill[BOLight] (4.15,2.78) rectangle (12.35,3.02);
+\fill[BOGreen] (4.15,2.78) rectangle (9.16,3.02);
+\node[anchor=west] at (9.24,2.90) {\scriptsize 55};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,2.13) {\scriptsize Fission nuclear};
+\fill[BOLight] (4.15,2.01) rectangle (12.35,2.25);
+\fill[BOGreen] (4.15,2.01) rectangle (12.35,2.25);
+\node[anchor=west] at (12.43,2.13) {\scriptsize 90};
+\node[anchor=east,align=right,text width=3.93cm] at (3.95,1.37) {\scriptsize Fusion target};
+\fill[BOLight] (4.15,1.25) rectangle (12.35,1.49);
+\fill[BOGreen] (4.15,1.25) rectangle (12.35,1.49);
+\node[anchor=west] at (12.43,1.37) {\scriptsize 90};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The value proposition improves if fusion reaches nuclear-like availability without nuclear-like construction risk or cost overruns.}\par
+{\scriptsize\color{BOMuted} Sources: public power-sector benchmarks; fusion developer targets; report analysis.}\par
+
+\clearpage
+\label{chap:7}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-7.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} The path is gated by fuel, materials and regulation}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} The critical path runs through systems that make a plant repeatable, licensable and maintainable.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small A viable deuterium-tritium pathway needs a credible tritium strategy. Buying today\BOApos{}s scarce tritium is not enough; breeding, recovery and accounting have to be proven as part of the plant.}\par
+{\small Regulation is moving, but not yet standardized across markets. Companies that understand licensing early can shape site choice, partner selection and customer commitments before competitors do.}\par
+{\small For The path is gated by fuel, materials and regulation, the useful question is which few facts would change budget, partnership or market-facing action, not how many adjacent narratives can be added.}\par
+{\small From a customer lens, the executive question around The path is gated by fuel, materials and regulation is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.}\par
+{\small Capital tied to The path is gated by fuel, materials and regulation should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.}\par
+{\small For policy exposure, numeric assumptions around The path is gated by fuel, materials and regulation need a stricter hurdle. Management should verify The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. Before the topic moves from option building into budget planning.}\par
+\end{multicols}
+\label{chap:7:end}
+
+\clearpage
+\label{chap:8}
+\noindent\begin{tikzpicture}
+\path[use as bounding box] (0,0) rectangle (\linewidth,54mm);
+\clip (0,0) rectangle (\linewidth,54mm);
+\node[anchor=north west,inner sep=0] at (0,54mm) {\includegraphics[width=\linewidth]{assets/image-8.png}};
+\end{tikzpicture}
+\vspace{0pt}
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (96mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\Large\sffamily\bfseries\color{BONavy} First markets should be selected by value density, not market size}\par\vspace{4pt}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} The early question is where fusion\BOApos{}s attributes command a premium before commodity power economics are proven.}\par\vspace{9pt}
+\begin{multicols}{2}
+{\small Grid electricity is the largest addressable market, but it may not be the best first market. A commodity power buyer will compare fusion against cheap renewables, storage, gas and fission.}\par
+{\small Industrial heat, hydrogen and data centers can value round - the-clock clean energy differently. These customers may tolerate higher prices if fusion solves reliability, siting or decarbonization constraints that alternatives struggle to meet.}\par
+{\small The practical test is customer commitment. Memoranda and announcements matter less than bankable offtake, site access, interconnection work and willingness to share development risk.}\par
+{\small For resource allocation, the executive question around First markets should be selected by value density, not market size is practical: which commitments create learning without locking the company into a cost curve, customer promise or regulatory position that the facts cannot yet support.}\par
+{\small Capital tied to First markets should be selected by value density, not market size should move only when proof improves along the dimensions that change a business case: customer demand, cost position, financing availability, regulatory path and delivery capability. If those facts do not improve, larger exposure creates lock-in rather than conviction.}\par
+{\small From a delivery lens, the strongest public fact pattern for First markets should be selected by value density, not market size is narrow but useful: The Department of Energy has been a leader in fusion energy research since the 1950s and supports groundbreaking advances today. It should shape the next customer, cost or partner question without being stretched into proof of commercial scale.}\par
+\end{multicols}
+\label{chap:8:end}
+
+\clearpage
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 13}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Commercial risk is distributed across plant subsystems}\par
+{\small\color{BOText} A plant-level view prevents the report from over-weighting a single plasma or magnet milestone.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,4.40);
+\fill[BOLight] (0,0) rectangle (13.20,4.40);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,4.40);
+\draw[BOLine] (0.80,0.72) -- (13.00,0.72);
+\fill[BOGreen] (1.42,0.72) rectangle (2.04,1.94);
+\fill[BOBlue] (1.42,1.94) rectangle (2.04,3.16);
+\node[anchor=north,align=center,text width=2.21cm] at (1.73,0.55) {\scriptsize Magnets};
+\fill[BOGreen] (3.82,0.72) rectangle (4.44,2.25);
+\fill[BOBlue] (3.82,2.25) rectangle (4.44,3.77);
+\node[anchor=north,align=center,text width=2.21cm] at (4.13,0.55) {\scriptsize Blanket};
+\fill[BOGreen] (6.22,0.72) rectangle (6.84,1.94);
+\fill[BOBlue] (6.22,1.94) rectangle (6.84,3.47);
+\node[anchor=north,align=center,text width=2.21cm] at (6.53,0.55) {\scriptsize First wall};
+\fill[BOGreen] (8.62,0.72) rectangle (9.24,2.25);
+\fill[BOBlue] (8.62,2.25) rectangle (9.24,3.47);
+\node[anchor=north,align=center,text width=2.21cm] at (8.93,0.55) {\scriptsize Fuel cycle};
+\fill[BOGreen] (11.02,0.72) rectangle (11.64,1.64);
+\fill[BOBlue] (11.02,1.64) rectangle (11.64,2.55);
+\node[anchor=north,align=center,text width=2.21cm] at (11.33,0.55) {\scriptsize Power island};
+\fill[BOGreen] (0.80,4.18) rectangle (0.96,4.28);
+\node[anchor=west] at (1.02,4.23) {\scriptsize Technology proof};
+\fill[BOBlue] (3.83,4.18) rectangle (4.00,4.28);
+\node[anchor=west] at (4.05,4.23) {\scriptsize Industrialization};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The plant only becomes investable when critical subsystems mature together; a single impressive subsystem does not remove integration risk.}\par
+{\scriptsize\color{BOMuted} Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.}\par
+\vspace{9pt}\textcolor{BOLine}{\rule{\linewidth}{0.3pt}}\vspace{8pt}
+{\textcolor{BOGreen}{\scriptsize\bfseries EXHIBIT 14}}\par\vspace{4pt}
+{\sffamily\fontsize{17}{21}\selectfont\color{BONavy} Winning positions are different across the fusion value chain}\par
+{\small\color{BOText} Value-chain roles are placed by control of scarce capability and near-term monetization potential.}\par\vspace{6pt}
+\noindent\begin{tikzpicture}[x=1cm,y=1cm]
+\path[use as bounding box] (0,0) rectangle (13.20,4.30);
+\fill[BOLight] (0,0) rectangle (13.20,4.30);
+\draw[BOLine,line width=.35pt] (0,0) rectangle (13.20,4.30);
+\draw[BOLine] (0.85,0.65) -- (12.70,0.65) -- (12.70,3.70);
+\draw[BOLine,dashed] (0.85,2.17) -- (12.70,2.17);
+\draw[BOLine,dashed] (6.77,0.65) -- (6.77,3.70);
+\fill[BOGreen,opacity=.65] (11.04,1.69) circle (0.24);
+\node[anchor=east,align=right,text width=2.10cm] at (10.62,1.35) {\scriptsize Core developer};
+\fill[BOGreen,opacity=.65] (9.38,2.78) circle (0.20);
+\node[anchor=east,align=right,text width=2.10cm] at (9.00,3.17) {\scriptsize Magnet supplier};
+\fill[BOGreen,opacity=.65] (10.57,2.42) circle (0.22);
+\node[anchor=east,align=right,text width=2.10cm] at (10.17,2.63) {\scriptsize Tritium supplier};
+\fill[BOGreen,opacity=.65] (8.67,2.91) circle (0.20);
+\node[anchor=west,align=left,text width=2.10cm] at (9.05,2.41) {\scriptsize Materials supplier};
+\fill[BOGreen,opacity=.65] (7.25,2.24) circle (0.18);
+\node[anchor=west,align=left,text width=2.10cm] at (7.61,2.27) {\scriptsize Industrial heat user};
+\fill[BOGreen,opacity=.65] (6.54,1.99) circle (0.18);
+\node[anchor=west,align=left,text width=2.10cm] at (6.89,1.83) {\scriptsize Utility buyer};
+\node[anchor=north east] at (12.70,0.53) {\scriptsize Scarce capability};
+\node[anchor=center,rotate=90] at (0.55,2.17) {\scriptsize Near-term monetization};
+\end{tikzpicture}\par\vspace{2pt}
+\vspace{4pt}{\footnotesize\color{BOText} The best position is not necessarily owning a reactor developer; supplier and offtake roles can offer earlier information advantages.}\par
+{\scriptsize\color{BOMuted} Sources: llnl.gov; iter.org; fusionindustryassociation.org; energy.gov; report analysis.}\par
+
+\clearpage
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (46mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\sffamily\fontsize{22}{27}\selectfont\color{BONavy} Research basis and limitations}\par\vspace{9pt}
+\begin{minipage}[t]{0.47\linewidth}
+{\sffamily\fontsize{15}{20}\selectfont\color{BOGreen} Public materials support a strategic view, not a transaction recommendation.}\par\vspace{7pt}
+{\footnotesize\color{BOText} This report has been prepared for strategy discussion and executive decision support. It is not investment, legal, tax, audit or valuation advice. Market estimates, forecasts and scenarios are directional and should be independently validated before they are used for investment, financing, transaction, regulatory or operational decisions. Forward-looking views may change as technology, policy, financing, regulation, competition, supply chains and macro conditions evolve. Recipients should perform their own diligence and treat this report as one input into a broader decision process.}\par
+\end{minipage}\hfill\begin{minipage}[t]{0.46\linewidth}
+{\textcolor{BOGreen}{\scriptsize\bfseries PUBLIC MATERIALS REFERENCED}}\par\vspace{5pt}
+\begin{tabularx}{\linewidth}{p{8mm}Y}
+\textcolor{BOGreen}{\bfseries 01} & {\scriptsize Osti} \\[4pt]
+\textcolor{BOGreen}{\bfseries 02} & {\scriptsize Energy} \\[4pt]
+\textcolor{BOGreen}{\bfseries 03} & {\scriptsize Iaea} \\[4pt]
+\textcolor{BOGreen}{\bfseries 04} & {\scriptsize Iter} \\[4pt]
+\textcolor{BOGreen}{\bfseries 05} & {\scriptsize Nationalacademies} \\[4pt]
+\textcolor{BOGreen}{\bfseries 06} & {\scriptsize Fusionindustryassociation} \\[4pt]
+\textcolor{BOGreen}{\bfseries 07} & {\scriptsize Llnl} \\[4pt]
+\textcolor{BOGreen}{\bfseries 08} & {\scriptsize Iea} \\[4pt]
+\end{tabularx}
+\end{minipage}\par\vspace{12pt}
+\fcolorbox{BOLine}{BOLight}{\begin{minipage}{0.96\linewidth}\vspace{5pt}\begin{tabularx}{\linewidth}{Y Y Y}
+{\textcolor{BOGreen}{\scriptsize\bfseries USE}}\par{\scriptsize Use the report to clarify timing, partner selection, capital exposure and the next management decision.} & {\textcolor{BOGreen}{\scriptsize\bfseries DO NOT USE}}\par{\scriptsize Do not treat directional market views as a substitute for transaction diligence, technical verification or legal advice.} & {\textcolor{BOGreen}{\scriptsize\bfseries UPDATE TRIGGER}}\par{\scriptsize Refresh the view when public milestones, cost curves, regulation, financing or customer commitments materially change.} \\
+\end{tabularx}\vspace{5pt}\end{minipage}}
+
+\clearpage
+\noindent\begin{tikzpicture}
+\fill[BOGreen] (0,0) rectangle (38mm,1.2pt);
+\end{tikzpicture}\par\vspace{8pt}
+{\sffamily\fontsize{24}{30}\selectfont\color{BONavy} About BlueOcean}\par\vspace{10pt}
+\begin{minipage}[t]{0.44\linewidth}
+{\sffamily\fontsize{16}{22}\selectfont\color{BOGreen} Research is most useful when it changes a management decision.}\par\vspace{8pt}
+{\footnotesize\color{BOText} BlueOcean prepares decision-focused research for executives who need to separate credible evidence from market noise, translate technology shifts into commercial implications and stage commitments around proof.}\par\vspace{7pt}
+{\footnotesize\color{BOMuted} This report draws on Osti, Energy, Iaea, Iter, Nationalacademies, Fusionindustryassociation, Llnl, Iea.}\par
+\vspace{10pt}\fcolorbox{BOLine}{BOLight}{\begin{minipage}{0.90\linewidth}\vspace{5pt}{\scriptsize\color{BOText} The work is designed for CEOs and leadership teams who need a concise view of what changes now, what waits for stronger proof and which external facts would change the answer.}\vspace{5pt}\end{minipage}}
+\end{minipage}\hfill\begin{minipage}[t]{0.48\linewidth}
+{\textcolor{BOGreen}{\scriptsize\bfseries HOW BLUEOCEAN SUPPORTS EXECUTIVE TEAMS}}\par\vspace{5pt}
+\begin{tabularx}{\linewidth}{p{8mm}Y}
+\textcolor{BOGreen}{\bfseries 01} & {\scriptsize\bfseries Strategy research}\par{\scriptsize Decision-focused market, technology and competitive research for senior leadership.} \\[6pt]
+\textcolor{BOGreen}{\bfseries 02} & {\scriptsize\bfseries Evidence synthesis}\par{\scriptsize Structured comparison of public materials, company claims, policy signals and market data.} \\[6pt]
+\textcolor{BOGreen}{\bfseries 03} & {\scriptsize\bfseries Executive output}\par{\scriptsize Reader-ready reports, exhibits and board materials designed for fast management discussion.} \\[6pt]
+\textcolor{BOGreen}{\bfseries 04} & {\scriptsize\bfseries Quality control}\par{\scriptsize Source retention, language cleanup and layout checks before publication.} \\[6pt]
+\end{tabularx}\vspace{6pt}
+\begin{tabularx}{\linewidth}{p{31mm}Y}
+{\small\bfseries Senior Energy Strategist with 15 years experience in clean energy technology}\par{\scriptsize\color{BOGreen} Research synthesis team} & {\footnotesize Responsible for evidence checks, executive synthesis and report QA.} \\[7pt]
+{\small\bfseries Research team with expertise in nuclear engineering, energy economics}\par{\scriptsize\color{BOGreen} Research synthesis team} & {\footnotesize Responsible for evidence checks, executive synthesis and report QA.} \\[7pt]
+{\small\bfseries Advisory board member of a fusion industry consortium.}\par{\scriptsize\color{BOGreen} Research synthesis team} & {\footnotesize Responsible for evidence checks, executive synthesis and report QA.} \\[7pt]
+\end{tabularx}
+\end{minipage}
+
+\clearpage
+\thispagestyle{empty}
+\AddToShipoutPictureBG*{\AtPageLowerLeft{\includegraphics[width=\paperwidth,height=\paperheight]{assets/cover-ai.png}}}
+
+\vspace*{\fill}
+\begin{flushright}
+{\sffamily\bfseries\Large\color{white} BlueOcean}\hspace*{3mm}
+\end{flushright}
+\vspace*{8mm}
+
+\end{document}
