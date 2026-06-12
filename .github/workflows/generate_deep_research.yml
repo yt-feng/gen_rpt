@@ -7,6 +7,7 @@ on:
     paths:
       - 'gen_rpt/**'
       - 'tests/**'
+      - 'tools/**'
       - '.github/workflows/generate_deep_research.yml'
       - 'requirements.txt'
   workflow_dispatch:
@@ -52,9 +53,13 @@ jobs:
   generate-report:
     if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Add generated deep research report')) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 70
     env:
       REPORT_PAGE_FORMAT: A4
+      GEN_RPT_PER_QUERY: 4
+      GEN_RPT_MAX_SOURCES: 16
+      REPORT_MAX_CONTENT_QA_ROUNDS: 2
+      REPORT_MAX_LAYOUT_QA_ROUNDS: 2
       MAX_AI_SECTION_IMAGES: 12
       AI_IMAGE_TIMEOUT: 45
       AI_IMAGE_RETRIES: 3
@@ -77,7 +82,7 @@ jobs:
 
       - name: Python syntax check
         run: |
-          python -m compileall -q gen_rpt tests
+          python -m compileall -q gen_rpt tests tools
 
       - name: Install system packages
         run: |
@@ -92,13 +97,13 @@ jobs:
       - name: Run smoke test
         env:
           DISABLE_AI_IMAGES: true
+          GEN_RPT_SKIP_LATEX_COMPILE: true
         run: |
           python tests/smoke_test_pipeline.py
 
       - name: Validate secret
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           if [ -z "$DEEPSEEK_API_KEY" ]; then
             echo "Missing DEEPSEEK_API_KEY secret" >&2
@@ -106,9 +111,9 @@ jobs:
           fi
 
       - name: Generate report
+        id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           set -euo pipefail
           TOPIC="$TOPIC_INPUT"
@@ -142,6 +147,16 @@ jobs:
             --model "$MODEL" \
             --out-root reports \
             $EXTRA_ARGS
+          REPORT_DIR="$(find reports -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          if [ -z "$REPORT_DIR" ]; then
+            echo "Could not locate generated report directory" >&2
+            exit 1
+          fi
+          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Audit generated report
+        run: |
+          python tools/local_report_audit.py "${{ steps.generate_report.outputs.report_dir }}"
 
       - name: Commit generated report back to repo
         run: |

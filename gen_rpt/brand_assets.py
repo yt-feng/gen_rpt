@@ -55,7 +55,6 @@ def generate_cover_background(output_path: Path) -> Path:
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1)
     ax.axis("off")
-    
 
     width = 1200
     height = 1600
@@ -91,7 +90,6 @@ def generate_cover_background(output_path: Path) -> Path:
     plt.savefig(output_path, bbox_inches="tight", pad_inches=0, facecolor=fig.get_facecolor())
     plt.close(fig)
     return output_path
-
 
 
 def summarize_reference_institutions(references: List[Any], sources: List[Any]) -> List[str]:
@@ -158,7 +156,6 @@ def _safe_items(value: Any) -> List[Any]:
     if isinstance(value, list):
         return value
     return [value]
-
 
 
 def _normalize_reference_item(item: Any) -> Dict[str, str]:
