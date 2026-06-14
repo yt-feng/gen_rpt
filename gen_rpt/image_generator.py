@@ -40,12 +40,18 @@ def generate_ai_image_assets(
     brand cover as a cache hit, which prevented Pollinations from being called.
     """
     if os.getenv("DISABLE_AI_IMAGES", "").lower() in {"1", "true", "yes"}:
+        _log("AI image generation disabled by DISABLE_AI_IMAGES")
         return {}
 
     max_section_images = _int_env("MAX_AI_SECTION_IMAGES", DEFAULT_MAX_SECTION_IMAGES)
     timeout_seconds = _int_env("AI_IMAGE_TIMEOUT", DEFAULT_IMAGE_TIMEOUT)
     retries = _int_env("AI_IMAGE_RETRIES", DEFAULT_IMAGE_RETRIES)
     allow_section_fallback = os.getenv("SHOW_FALLBACK_IMAGES", "true").lower() not in {"0", "false", "no"}
+    _log(
+        "AI image generation started "
+        f"| max_section_images={max_section_images} | timeout={timeout_seconds}s | retries={retries} "
+        f"| section_fallback={allow_section_fallback}"
+    )
 
     assets_dir.mkdir(parents=True, exist_ok=True)
     backup_dir.mkdir(parents=True, exist_ok=True)
@@ -58,13 +64,16 @@ def generate_ai_image_assets(
         "executive publication quality; deep blue, white and electric-blue accents; no readable words; no logo; "
         "leave calm negative space for a white title card; avoid generic ocean waves, abstract blue filler and unrelated decorative gradients"
     )
+    _log("AI image cover prompt polishing started | expected 5-30s")
     cover_prompt = _polish_prompt(client, cover_keywords)
     cover_path = assets_dir / "cover-ai.png"
     if cover_path.exists():
         cover_path.unlink(missing_ok=True)
+    _log("AI image cover download started | expected 10-60s")
     status, reason = _download_or_fallback(cover_prompt, cover_path, kind="cover", timeout_seconds=timeout_seconds, retries=retries, allow_fallback=True)
     result["cover-background"] = f"assets/{cover_path.name}"
     prompt_records.append({"id": "cover-background", "keywords": cover_keywords, "prompt": cover_prompt, "url": _url(cover_prompt), "status": status, "reason": reason})
+    _log(f"AI image cover completed | status={status} | reason={reason[:180] if reason else ''}")
 
     sections = report.get("sections", []) or []
     for idx, section in enumerate(sections[:max_section_images], start=1):
@@ -76,18 +85,27 @@ def generate_ai_image_assets(
             "human-scale context; cinematic lighting; blue and white accents; clean composition; no readable text; no logo; "
             "avoid generic abstract filler"
         )
+        _log(f"AI image section {idx}/{min(len(sections), max_section_images)} prompt polishing started | title={title[:90]!r}")
         prompt = _polish_prompt(client, keywords)
         target = assets_dir / f"image-{idx}.png"
+        _log(f"AI image section {idx}/{min(len(sections), max_section_images)} download started | expected 10-60s")
         status, reason = _download_or_fallback(prompt, target, kind="section", timeout_seconds=timeout_seconds, retries=retries, allow_fallback=allow_section_fallback)
         if target.exists() and target.stat().st_size > 0:
             result[f"image-{idx}"] = f"assets/{target.name}"
         prompt_records.append({"id": f"image-{idx}", "keywords": keywords, "prompt": prompt, "url": _url(prompt), "status": status, "reason": reason})
+        _log(f"AI image section {idx}/{min(len(sections), max_section_images)} completed | status={status} | reason={reason[:180] if reason else ''}")
         time.sleep(0.25)
 
+    _log("AI image diversity check started | expected <10s")
     _ensure_section_image_diversity(assets_dir, prompt_records, max_section_images)
 
     (backup_dir / "image_prompts.json").write_text(json.dumps(prompt_records, ensure_ascii=False, indent=2), encoding="utf-8")
+    _log(f"AI image generation completed | generated_assets={len(result)} | prompt_records={len(prompt_records)}")
     return result
+
+
+def _log(message: str) -> None:
+    print(f"[gen_rpt.images] {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} {message}", flush=True)
 
 
 def _polish_prompt(client: DeepSeekClient, keywords: str) -> str:

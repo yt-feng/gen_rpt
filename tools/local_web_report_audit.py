@@ -58,6 +58,11 @@ def main() -> int:
     sections = [x for x in as_list(payload.get("sections")) if isinstance(x, dict)]
     exhibits = [x for x in as_list(payload.get("exhibits")) if isinstance(x, dict)]
     takeaways = [text(x) for x in as_list(payload.get("key_takeaways")) if text(x)]
+    takeaway_candidates = {
+        key: len(takeaway_texts(payload.get(key)))
+        for key in ["key_takeaways", "keyTakeaways", "takeaways", "take_aways", "executive_summary", "key_findings", "findings"]
+        if isinstance(payload, dict) and key in payload
+    }
     action_steps = [x for x in as_list(payload.get("action_steps")) if isinstance(x, dict)]
     references = [x for x in as_list(payload.get("references")) if isinstance(x, dict)]
 
@@ -71,13 +76,18 @@ def main() -> int:
             "sources": len(sources if isinstance(sources, list) else []),
             "fact_pack_sources": fact_pack.get("source_count") if isinstance(fact_pack, dict) else None,
             "html_chars": len(html_text),
+            "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
+            "takeaway_candidate_counts": takeaway_candidates,
         }
     )
 
     if not (4 <= len(sections) <= 6):
         issues.append(f"expected 4-6 substantial sections, got {len(sections)}")
     if len(takeaways) != 3:
-        issues.append(f"expected exactly 3 key takeaways, got {len(takeaways)}")
+        issues.append(
+            f"expected exactly 3 key takeaways, got {len(takeaways)} "
+            f"(candidate counts: {takeaway_candidates})"
+        )
     if not (3 <= len(exhibits) <= 5):
         issues.append(f"expected 3-5 exhibits, got {len(exhibits)}")
     if len(action_steps) < 3:
@@ -152,11 +162,22 @@ def as_list(value: Any) -> List[Any]:
     return [value]
 
 
+def takeaway_texts(value: Any) -> List[str]:
+    if isinstance(value, dict):
+        for key in ("items", "bullets", "points", "takeaways", "key_takeaways", "keyTakeaways", "findings"):
+            if value.get(key):
+                return takeaway_texts(value.get(key))
+    return [text(x) for x in as_list(value) if text(x)]
+
+
 def text(value: Any) -> str:
     if value is None:
         return ""
     if isinstance(value, dict):
-        for key in ("text", "title", "finding", "action", "description", "summary"):
+        for key in ("items", "bullets", "points", "takeaways", "key_takeaways", "keyTakeaways", "findings"):
+            if value.get(key):
+                return text(value.get(key))
+        for key in ("text", "title", "finding", "claim", "takeaway", "implication", "action", "description", "summary"):
             if value.get(key):
                 return text(value.get(key))
         return ""

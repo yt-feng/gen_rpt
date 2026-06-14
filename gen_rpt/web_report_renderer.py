@@ -674,10 +674,18 @@ def normalize_web_report(report: Dict[str, Any], *, topic: str, language: str = 
         or topic
     )
     intro = _list_text(data.get("intro") or data.get("opening") or [data.get("executive_summary_text") or dek])
-    takeaways = _normalize_takeaways(data.get("key_takeaways") or data.get("executive_summary") or data.get("key_findings"))
-    if not takeaways:
-        takeaways = [_compact(dek, 220), _compact(topic, 180), "The source boundary should be kept visible before major decisions are made."]
+    takeaways = _normalize_takeaways(
+        data.get("key_takeaways")
+        or data.get("keyTakeaways")
+        or data.get("takeaways")
+        or data.get("take_aways")
+        or data.get("executive_summary")
+        or data.get("executiveSummary")
+        or data.get("key_findings")
+        or data.get("findings")
+    )
     sections = _normalize_sections(data.get("sections") or data.get("chapters"), takeaways)
+    takeaways = _ensure_three_takeaways(takeaways, data, sections, topic, language, dek)
     exhibits = _normalize_exhibits(data.get("exhibits") or data.get("charts") or [])
     action_steps = _normalize_actions(data.get("action_steps") or data.get("action_plan") or [])
     references = _normalize_references(data.get("references") or data.get("sources") or [])
@@ -700,7 +708,7 @@ def normalize_web_report(report: Dict[str, Any], *, topic: str, language: str = 
         "authors": authors[:6] or [BRAND_NAME],
         "read_time_minutes": data.get("read_time_minutes") or 0,
         "intro": intro[:3],
-        "key_takeaways": [_compact(x, 260) for x in takeaways[:4]],
+        "key_takeaways": [_compact(x, 260) for x in takeaways[:3]],
         "sections": sections[:8],
         "exhibits": exhibits[:8],
         "action_steps": action_steps[:6],
@@ -994,15 +1002,57 @@ def _normalize_sections(value: Any, takeaways: List[str]) -> List[Dict[str, Any]
 
 def _normalize_takeaways(value: Any) -> List[str]:
     out = []
+    if isinstance(value, dict):
+        for key in ("items", "bullets", "points", "takeaways", "key_takeaways", "keyTakeaways", "findings", "messages"):
+            nested = value.get(key)
+            if nested:
+                out.extend(_normalize_takeaways(nested))
+        if out:
+            return _dedupe(out)
     for item in _as_list(value):
         if isinstance(item, dict):
-            text = item.get("takeaway") or item.get("finding") or item.get("title") or item.get("headline") or item.get("summary")
+            claim = _text(item.get("takeaway") or item.get("claim") or item.get("finding") or item.get("title") or item.get("headline") or item.get("summary") or item.get("text"))
+            implication = _text(item.get("implication") or item.get("management_implication") or item.get("so_what") or item.get("why_it_matters"))
+            text = f"{claim} {implication}".strip() if implication and implication not in claim else claim
         else:
             text = item
         text = _text(text)
         if text:
             out.append(text)
     return _dedupe(out)
+
+
+def _ensure_three_takeaways(
+    takeaways: List[str],
+    data: Dict[str, Any],
+    sections: List[Dict[str, Any]],
+    topic: str,
+    language: str,
+    dek: str,
+) -> List[str]:
+    candidates = list(takeaways)
+    candidates.extend(_normalize_takeaways(data.get("management_implications") or data.get("implications")))
+    for section in sections:
+        candidates.append(section.get("so_what", ""))
+        if section.get("title"):
+            candidates.append(section["title"])
+    defaults = (
+        [
+            _compact(dek, 220),
+            _compact(topic, 180),
+            "The source boundary should be kept visible before major decisions are made.",
+            "Leadership should move through explicit validation gates before committing capital or operating resources.",
+        ]
+        if not str(language or "").lower().startswith("zh")
+        else [
+            _compact(dek, 220),
+            _compact(topic, 180),
+            "重大决策前必须保留清晰的证据边界和核验任务。",
+            "管理层应通过明确核验门槛推进，而不是基于未证实假设投入资源。",
+        ]
+    )
+    candidates.extend(defaults)
+    return _dedupe([x for x in candidates if _text(x)])[:3]
 
 
 def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
@@ -1200,7 +1250,16 @@ def _list_text(value: Any) -> List[str]:
     out = []
     for item in _as_list(value):
         if isinstance(item, dict):
-            text = item.get("text") or item.get("title") or item.get("description") or item.get("finding") or item.get("action")
+            text = (
+                item.get("text")
+                or item.get("title")
+                or item.get("description")
+                or item.get("finding")
+                or item.get("claim")
+                or item.get("message")
+                or item.get("point")
+                or item.get("action")
+            )
         else:
             text = item
         text = _text(text)
@@ -1213,7 +1272,22 @@ def _text(value: Any) -> str:
     if value is None:
         return ""
     if isinstance(value, dict):
-        for key in ("text", "title", "summary", "description", "finding", "action"):
+        for key in (
+            "text",
+            "title",
+            "summary",
+            "description",
+            "finding",
+            "claim",
+            "takeaway",
+            "implication",
+            "management_implication",
+            "so_what",
+            "why_it_matters",
+            "message",
+            "point",
+            "action",
+        ):
             if value.get(key):
                 return _text(value.get(key))
         return ""

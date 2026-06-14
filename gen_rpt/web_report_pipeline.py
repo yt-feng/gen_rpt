@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -11,7 +12,7 @@ from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
 from .research_quality import ResearchFactPack, build_research_fact_pack
 from .web_fetch import SourceDocument, collect_sources
-from .web_report_renderer import render_web_report_html, render_web_report_markdown
+from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
 
 class WebReportPipeline:
@@ -27,31 +28,75 @@ class WebReportPipeline:
         self.language = "zh" if str(language or "").lower().startswith("zh") else "en"
 
     def build_report(self, topic: str, output_dir: Path) -> Dict[str, Any]:
+        run_start = time.monotonic()
         ensure_dir(output_dir)
         assets_dir = output_dir / "assets"
         ensure_dir(assets_dir)
         display_topic = str(topic or "").strip()
+        self._log(f"START web report pipeline | topic={display_topic!r} | output_dir={output_dir}")
+        self._log("ETA planning=15-90s, source_collection=30-150s, synthesis=60-180s, visuals=60-360s")
 
+        phase_start = time.monotonic()
+        self._log("PHASE planning started | expected 15-90s")
         try:
             plan = self._plan_research(display_topic)
         except Exception as exc:
             (output_dir / "web_plan_error.txt").write_text(str(exc), encoding="utf-8")
             plan = self._fallback_plan(display_topic, str(exc))
+            self._log(f"PHASE planning fallback used | reason={str(exc)[:240]!r}")
+        self._log(
+            "PHASE planning completed "
+            f"| elapsed={self._elapsed(phase_start)} | queries={len(plan.get('search_queries', []) or [])} "
+            f"| outline={len(plan.get('outline', []) or [])}"
+        )
 
         per_query = int(os.getenv("GEN_RPT_PER_QUERY", "5"))
         max_sources = int(os.getenv("GEN_RPT_MAX_SOURCES", "20"))
+        phase_start = time.monotonic()
+        self._log(f"PHASE source_collection started | expected 30-150s | per_query={per_query} | max_sources={max_sources}")
         sources = collect_sources(plan.get("search_queries", [])[:8], per_query=per_query, max_sources=max_sources)
         source_dicts = [source.__dict__ for source in sources]
-        fact_pack = build_research_fact_pack(display_topic, plan, sources)
+        domains = sorted({source.domain for source in sources if source.domain})
+        self._log(
+            "PHASE source_collection completed "
+            f"| elapsed={self._elapsed(phase_start)} | sources={len(sources)} | domains={', '.join(domains[:8]) or 'none'}"
+        )
 
+        phase_start = time.monotonic()
+        self._log("PHASE fact_pack started | expected <10s")
+        fact_pack = build_research_fact_pack(display_topic, plan, sources)
+        self._log(
+            "PHASE fact_pack completed "
+            f"| elapsed={self._elapsed(phase_start)} | source_count={fact_pack.source_count} "
+            f"| authoritative={fact_pack.authoritative_source_count}"
+        )
+
+        phase_start = time.monotonic()
+        self._log("PHASE synthesis started | expected 60-180s")
         try:
             report = self._synthesize_web_report(display_topic, plan, sources, fact_pack)
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
             report = self._fallback_report(display_topic, plan, sources, fact_pack, str(exc))
+            self._log(f"PHASE synthesis fallback used | reason={str(exc)[:240]!r}")
+        self._log(
+            "PHASE synthesis completed "
+            f"| elapsed={self._elapsed(phase_start)} | raw_keys={','.join(sorted(report.keys())[:20])}"
+        )
 
+        phase_start = time.monotonic()
+        self._log("PHASE normalize_and_validate_schema started | expected <10s")
         self._post_process(report, display_topic, sources, fact_pack)
+        report = normalize_web_report(report, topic=display_topic, language=self.language)
+        self._log(
+            "PHASE normalize_and_validate_schema completed "
+            f"| elapsed={self._elapsed(phase_start)} | takeaways={len(report.get('key_takeaways', []) or [])} "
+            f"| sections={len(report.get('sections', []) or [])} | exhibits={len(report.get('exhibits', []) or [])} "
+            f"| actions={len(report.get('action_steps', []) or [])} | references={len(report.get('references', []) or [])}"
+        )
 
+        phase_start = time.monotonic()
+        self._log("PHASE assets started | expected 60-360s when AI images are enabled")
         assets = copy_or_generate_brand_assets(assets_dir)
         backup_dir = write_reference_backup(output_dir, report.get("references", []), source_dicts)
         assets.update(
@@ -64,7 +109,13 @@ class WebReportPipeline:
                 language=self.language,
             )
         )
+        self._log(
+            "PHASE assets completed "
+            f"| elapsed={self._elapsed(phase_start)} | asset_keys={','.join(sorted(assets.keys()))}"
+        )
 
+        phase_start = time.monotonic()
+        self._log("PHASE render_and_write started | expected <10s")
         html_path = render_web_report_html(report, assets, output_dir / "index.html", display_topic, self.language)
         markdown_path = render_web_report_markdown(report, output_dir / "report.md", display_topic, self.language)
 
@@ -72,6 +123,11 @@ class WebReportPipeline:
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
+        self._log(
+            "PHASE render_and_write completed "
+            f"| elapsed={self._elapsed(phase_start)} | html={html_path} | markdown={markdown_path}"
+        )
+        self._log(f"END web report pipeline | total_elapsed={self._elapsed(run_start)}")
 
         return {
             "plan": plan,
@@ -84,6 +140,17 @@ class WebReportPipeline:
             "markdown_path": str(markdown_path),
             "backup_dir": str(backup_dir),
         }
+
+    def _log(self, message: str) -> None:
+        print(f"[gen_rpt.web] {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} {message}", flush=True)
+
+    @staticmethod
+    def _elapsed(start: float) -> str:
+        seconds = max(0, int(time.monotonic() - start))
+        minutes, remainder = divmod(seconds, 60)
+        if minutes:
+            return f"{minutes}m{remainder:02d}s"
+        return f"{remainder}s"
 
     def _plan_research(self, topic: str) -> Dict[str, Any]:
         system = "You are a senior research planner for a BCG-style digital publication. Return strict JSON only."

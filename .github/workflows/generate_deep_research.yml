@@ -62,12 +62,27 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Print run estimates
+        run: |
+          echo "Expected step timings for this workflow:"
+          echo "- Checkout: 15-45s, slower when generated report artifacts make the repo large."
+          echo "- Setup Python: 5-20s."
+          echo "- Python syntax check: <10s."
+          echo "- Install dependencies: 20-90s on a warm network, up to 3m on a cold runner."
+          echo "- HTML smoke test: 5-20s."
+          echo "- Secret validation: <5s."
+          echo "- Generate report: 4-10m typical; up to 20-35m if external search, DeepSeek, or image retries are slow."
+          echo "- Audit generated report: <10s."
+          echo "- Commit and push generated report: 5-60s depending on artifact size and remote contention."
+
       - name: Python syntax check
         run: |
+          echo "[estimate] Python syntax check should finish in <10s."
           python -m compileall -q gen_rpt tests tools
 
       - name: Install dependencies
         run: |
+          echo "[estimate] Dependency install usually takes 20-90s; cold runners can take up to 3m."
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
@@ -75,12 +90,14 @@ jobs:
         env:
           DISABLE_AI_IMAGES: true
         run: |
+          echo "[estimate] HTML smoke test should finish in 5-20s."
           python tests/smoke_test_web_report.py
 
       - name: Validate secret
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
+          echo "[estimate] Secret validation should finish in <5s."
           if [ -z "$DEEPSEEK_API_KEY" ]; then
             echo "Missing DEEPSEEK_API_KEY secret" >&2
             exit 1
@@ -92,6 +109,7 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
           set -euo pipefail
+          echo "[estimate] Generate report usually takes 4-10m; upper bound is 20-35m when external APIs retry."
           TOPIC="$TOPIC_INPUT"
           SLUG="$SLUG_INPUT"
           MODEL="$MODEL_INPUT"
@@ -107,12 +125,55 @@ jobs:
             SLUG="auto-smoke-nuclear-fusion-${SHORT_SHA}"
           fi
 
-          python -m gen_rpt.main_web \
+          mkdir -p reports_web
+          GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
+          START_TS="$(date +%s)"
+          echo "Generation context:"
+          echo "- topic: $TOPIC"
+          echo "- slug: ${SLUG:-<auto>}"
+          echo "- model: $MODEL"
+          echo "- log: $GEN_LOG"
+          echo "- heartbeat: every 15s until python exits"
+
+          python -u -m gen_rpt.main_web \
             --topic "$TOPIC" \
             --slug "$SLUG" \
             --language en \
             --model "$MODEL" \
-            --out-root reports_web
+            --out-root reports_web > "$GEN_LOG" 2>&1 &
+          GEN_PID="$!"
+
+          while kill -0 "$GEN_PID" 2>/dev/null; do
+            sleep 15
+            NOW_TS="$(date +%s)"
+            ELAPSED="$((NOW_TS - START_TS))"
+            echo "[heartbeat] Generate report still running | elapsed=${ELAPSED}s | typical=4-10m | slow_external_api_upper=20-35m"
+            if [ -s "$GEN_LOG" ]; then
+              echo "[heartbeat] Last generator log lines:"
+              tail -n 20 "$GEN_LOG"
+            else
+              echo "[heartbeat] Generator log file is still empty; likely waiting on first external API call."
+            fi
+          done
+
+          set +e
+          wait "$GEN_PID"
+          GEN_STATUS="$?"
+          set -e
+
+          echo "::group::Full generator log"
+          if [ -f "$GEN_LOG" ]; then
+            cat "$GEN_LOG"
+          else
+            echo "Generator log file was not created."
+          fi
+          echo "::endgroup::"
+
+          if [ "$GEN_STATUS" -ne 0 ]; then
+            echo "Generator failed with exit code $GEN_STATUS" >&2
+            exit "$GEN_STATUS"
+          fi
+
           REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
           if [ -z "$REPORT_DIR" ]; then
             echo "Could not locate generated report directory" >&2
@@ -122,11 +183,13 @@ jobs:
 
       - name: Audit generated report
         run: |
+          echo "[estimate] Audit should finish in <10s."
           python tools/local_web_report_audit.py "${{ steps.generate_report.outputs.report_dir }}"
 
       - name: Commit generated report back to repo
         run: |
           set -euo pipefail
+          echo "[estimate] Commit and push usually takes 5-60s depending on artifact size and remote contention."
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain reports_web)" ]; then

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import time
 from dataclasses import dataclass
 from typing import List
 from urllib.parse import parse_qs, quote, unquote, urlparse
@@ -176,20 +177,31 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
     docs: List[SourceDocument] = []
     seen = set()
 
-    for query in queries:
+    query_list = [str(query or "").strip() for query in queries if str(query or "").strip()]
+    _log(f"collect_sources started | queries={len(query_list)} | per_query={per_query} | max_sources={max_sources}")
+    for qidx, query in enumerate(query_list, start=1):
+        query_start = time.monotonic()
+        _log(f"query {qidx}/{len(query_list)} search started | {query[:140]!r}")
         try:
             search_results = search_web(query, max_results=per_query)
-        except Exception:
+        except Exception as exc:
+            _log(f"query {qidx}/{len(query_list)} search failed | reason={str(exc)[:180]!r}")
             search_results = []
         search_results.extend(_direct_source_candidates(query))
+        _log(
+            f"query {qidx}/{len(query_list)} search completed "
+            f"| elapsed={_elapsed(query_start)} | candidates={len(search_results)}"
+        )
 
         for result in search_results:
             if result.url in seen:
                 continue
             seen.add(result.url)
+            fetch_start = time.monotonic()
             try:
                 fetched = fetch_page(result.url)
-            except Exception:
+            except Exception as exc:
+                _log(f"fetch failed | domain={_domain(result.url)} | reason={str(exc)[:180]!r}")
                 fetched = FetchedPage("", result.url, "", "error", "")
             if len(fetched.content) < 200:
                 fallback_content = _snippet_content(result)
@@ -210,10 +222,28 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
                     domain=_domain(source_url),
                 )
             )
+            _log(
+                f"source accepted | count={len(docs)}/{max_sources} | domain={docs[-1].domain} "
+                f"| type={docs[-1].source_type} | elapsed={_elapsed(fetch_start)}"
+            )
             if len(docs) >= max_sources:
+                _log(f"collect_sources completed | accepted={len(docs)} | reason=max_sources")
                 return docs
 
+    _log(f"collect_sources completed | accepted={len(docs)} | reason=queries_exhausted")
     return docs
+
+
+def _log(message: str) -> None:
+    print(f"[gen_rpt.fetch] {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} {message}", flush=True)
+
+
+def _elapsed(start: float) -> str:
+    seconds = max(0, int(time.monotonic() - start))
+    minutes, remainder = divmod(seconds, 60)
+    if minutes:
+        return f"{minutes}m{remainder:02d}s"
+    return f"{remainder}s"
 
 
 def _normalize_url(url: str) -> str:

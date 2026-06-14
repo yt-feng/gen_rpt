@@ -109,7 +109,7 @@ def main() -> None:
                     "The fourth phase should scale across plants only after adoption and value metrics are visible.",
                     "The first 30 days should produce a quantified exposure map; the next 60 days should test two or three workflows; the following 90 days should determine whether scale-up is justified.",
                     "That sequence changes the executive conversation from 'Should we deploy AI?' to 'Which operating risks are now sufficiently evidenced to fund at the next gate?'",
-                    "BCG's marketing sample uses a four-stage path from foundation to transformation and cites the next five years as the relevant horizon; the industrial version should be equally explicit about a 30/90/180-day cadence before any broad rollout.",
+                    "BCG's marketing sample uses a four-stage path from foundation to transformation and cites the next five years as the relevant horizon; the industrial version should be equally explicit about a 2026 30/90/180-day cadence before any broad rollout.",
                     "The right board question in 2026 is not whether the company owns AI tools, but whether the company can show a 2026 operating calendar with named owners, proof gates and measurable site-level outcomes.",
                 ],
                 "evidence": [
@@ -202,6 +202,31 @@ def main() -> None:
     assert len(normalized["sections"]) == 5
     assert len(normalized["exhibits"]) == 3
     assert normalized["source_count"] == 9
+    drifted_payload = dict(payload)
+    drifted_payload.pop("key_takeaways", None)
+    drifted_payload["keyTakeaways"] = {
+        "items": [
+            {
+                "claim": "Field naming drift should not remove the executive takeaway module.",
+                "implication": "The persisted payload must normalize camelCase model output before audit.",
+            },
+            {
+                "claim": "Dict-shaped takeaways should retain both the claim and management implication.",
+                "implication": "This keeps the article useful for a CEO or board reader.",
+            },
+            {
+                "claim": "Extra generated takeaways should be trimmed to the required three.",
+                "implication": "The audit contract remains strict instead of depending on renderer slicing.",
+            },
+            {
+                "claim": "This fourth item should be trimmed.",
+                "implication": "The payload must still contain exactly three takeaways.",
+            },
+        ]
+    }
+    drifted_normalized = normalize_web_report(drifted_payload, topic="AI and process-industry talent", language="en")
+    assert len(drifted_normalized["key_takeaways"]) == 3
+    assert "camelCase" in drifted_normalized["key_takeaways"][0]
 
     html_path = render_web_report_html(payload, assets, out / "index.html", "AI and process-industry talent", "en")
     md_path = render_web_report_markdown(payload, out / "report.md", "AI and process-industry talent", "en")
@@ -215,7 +240,7 @@ def main() -> None:
     assert "How leaders should move next" in html_text
     assert "BCG sample talent cliff article" in html_text
     assert "# AI Can Rebuild" in md_text
-    (out / "web_report_payload.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out / "web_report_payload.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "research_fact_pack.json").write_text(
         json.dumps(
             {
