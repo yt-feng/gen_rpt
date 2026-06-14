@@ -1,4 +1,4 @@
-name: Generate Deep Research Report
+name: Generate HTML Thought Leadership Report
 
 on:
   push:
@@ -13,25 +13,12 @@ on:
   workflow_dispatch:
     inputs:
       topic:
-        description: Research topic. You can enter either English or Chinese.
+        description: English thought-leadership topic.
         required: false
         default: Nuclear fusion commercialization outlook and strategic implications
         type: string
       slug:
         description: Optional custom output directory slug
-        required: false
-        default: ""
-        type: string
-      language:
-        description: Report language
-        required: false
-        default: en
-        type: choice
-        options:
-          - en
-          - zh
-      target_length:
-        description: Optional legacy target length. Leave blank for natural 10-30 page report.
         required: false
         default: ""
         type: string
@@ -51,23 +38,18 @@ concurrency:
 
 jobs:
   generate-report:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Add generated deep research report')) }}
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Add generated HTML thought leadership report')) }}
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 45
     env:
-      REPORT_PAGE_FORMAT: A4
-      GEN_RPT_PER_QUERY: 4
-      GEN_RPT_MAX_SOURCES: 16
-      REPORT_MAX_CONTENT_QA_ROUNDS: 2
-      REPORT_MAX_LAYOUT_QA_ROUNDS: 2
+      GEN_RPT_PER_QUERY: 5
+      GEN_RPT_MAX_SOURCES: 20
       MAX_AI_SECTION_IMAGES: 12
       AI_IMAGE_TIMEOUT: 45
       AI_IMAGE_RETRIES: 3
       SHOW_FALLBACK_IMAGES: true
       TOPIC_INPUT: ${{ inputs.topic || '' }}
       SLUG_INPUT: ${{ inputs.slug || '' }}
-      LANGUAGE_INPUT: ${{ inputs.language || '' }}
-      TARGET_LENGTH_INPUT: ${{ inputs.target_length || '' }}
       MODEL_INPUT: ${{ inputs.model || '' }}
     steps:
       - name: Checkout
@@ -84,22 +66,16 @@ jobs:
         run: |
           python -m compileall -q gen_rpt tests tools
 
-      - name: Install system packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends fonts-noto-cjk wkhtmltopdf texlive-xetex texlive-latex-recommended texlive-pictures texlive-latex-extra
-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run smoke test
+      - name: Run HTML smoke test
         env:
           DISABLE_AI_IMAGES: true
-          GEN_RPT_SKIP_LATEX_COMPILE: true
         run: |
-          python tests/smoke_test_pipeline.py
+          python tests/smoke_test_web_report.py
 
       - name: Validate secret
         env:
@@ -118,15 +94,10 @@ jobs:
           set -euo pipefail
           TOPIC="$TOPIC_INPUT"
           SLUG="$SLUG_INPUT"
-          LANGUAGE="$LANGUAGE_INPUT"
           MODEL="$MODEL_INPUT"
-          TARGET_LENGTH="$TARGET_LENGTH_INPUT"
 
           if [ -z "$TOPIC" ]; then
             TOPIC="Nuclear fusion commercialization outlook and strategic implications"
-          fi
-          if [ -z "$LANGUAGE" ]; then
-            LANGUAGE="en"
           fi
           if [ -z "$MODEL" ]; then
             MODEL="deepseek-chat"
@@ -136,18 +107,13 @@ jobs:
             SLUG="auto-smoke-nuclear-fusion-${SHORT_SHA}"
           fi
 
-          EXTRA_ARGS=""
-          if [ -n "$TARGET_LENGTH" ]; then
-            EXTRA_ARGS="$EXTRA_ARGS --target-length $TARGET_LENGTH"
-          fi
-          python -m gen_rpt.main \
+          python -m gen_rpt.main_web \
             --topic "$TOPIC" \
             --slug "$SLUG" \
-            --language "$LANGUAGE" \
+            --language en \
             --model "$MODEL" \
-            --out-root reports \
-            $EXTRA_ARGS
-          REPORT_DIR="$(find reports -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+            --out-root reports_web
+          REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
           if [ -z "$REPORT_DIR" ]; then
             echo "Could not locate generated report directory" >&2
             exit 1
@@ -156,16 +122,16 @@ jobs:
 
       - name: Audit generated report
         run: |
-          python tools/local_report_audit.py "${{ steps.generate_report.outputs.report_dir }}"
+          python tools/local_web_report_audit.py "${{ steps.generate_report.outputs.report_dir }}"
 
       - name: Commit generated report back to repo
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -n "$(git status --porcelain reports)" ]; then
-            git add reports
-            git commit -m "Add generated deep research report"
+          if [ -n "$(git status --porcelain reports_web)" ]; then
+            git add reports_web
+            git commit -m "Add generated HTML thought leadership report"
             git pull --rebase origin main
             git push
           else
