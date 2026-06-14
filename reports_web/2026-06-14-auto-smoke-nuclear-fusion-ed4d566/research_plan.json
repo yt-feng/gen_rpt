@@ -1,0 +1,75 @@
+{
+  "objective": "Assess the commercialization timeline of nuclear fusion and its strategic implications for energy markets, investors, and policymakers.",
+  "audience": "Senior executives in energy, finance, and government; strategy consultants; and investors focused on clean energy technologies.",
+  "decision_question": "When and under what conditions will nuclear fusion become commercially viable, and what strategic moves should stakeholders make now?",
+  "issue_tree": {
+    "root": "Nuclear fusion commercialization outlook",
+    "branches": [
+      {
+        "name": "Technology readiness",
+        "children": [
+          "Current state of major fusion projects (ITER, SPARC, DEMO)",
+          "Key technical milestones and remaining challenges (plasma confinement, materials, tritium breeding)",
+          "Timeline estimates from leading developers"
+        ]
+      },
+      {
+        "name": "Economics and cost competitiveness",
+        "children": [
+          "Levelized cost of electricity (LCOE) projections for fusion vs. renewables, fission, and fossil fuels",
+          "Capital expenditure and operational cost drivers",
+          "Required subsidies or carbon pricing for competitiveness"
+        ]
+      },
+      {
+        "name": "Regulatory and policy landscape",
+        "children": [
+          "Current regulatory frameworks for fusion (e.g., NRC in US, UK fusion strategy)",
+          "Government funding and public-private partnerships",
+          "International cooperation and treaties (e.g., ITER)"
+        ]
+      },
+      {
+        "name": "Market and strategic implications",
+        "children": [
+          "Impact on electricity markets, grid integration, and baseload power",
+          "Disruption risks for incumbent energy sources and technologies",
+          "Strategic positioning for utilities, oil & gas, and technology firms"
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "ITER project status 2025 timeline",
+    "Commonwealth Fusion Systems SPARC timeline",
+    "nuclear fusion levelized cost of electricity projection 2030 2040",
+    "US Nuclear Regulatory Commission fusion regulation framework",
+    "UK fusion strategy 2024 government funding",
+    "fusion energy private investment 2024 2025",
+    "IAEA fusion energy outlook 2025",
+    "McKinsey nuclear fusion commercialization report",
+    "fusion vs renewables cost comparison 2025",
+    "tritium supply chain fusion reactors"
+  ],
+  "source_strategy": "Prioritize official project updates (ITER, CFS), government regulatory documents (NRC, UK BEIS), industry reports (IAEA, Fusion Industry Association), consulting analyses (McKinsey, BCG), and peer-reviewed journals (Nuclear Fusion, Nature). Cross-check timelines with multiple sources.",
+  "outline": [
+    "Fusion is not coming in 5 years, but the next decade will determine its viability: key milestones from ITER, SPARC, and DEMO show a realistic first commercial plant around 2040-2050.",
+    "Economics remain the biggest hurdle: current LCOE estimates for first-of-a-kind fusion plants are 2-3x higher than renewables; learning rates and carbon pricing are critical.",
+    "Regulatory frameworks are nascent but evolving: the US and UK are leading with adaptive licensing, but global harmonization is years away.",
+    "Strategic implications are profound but distant: utilities should monitor but not pivot; oil & gas firms may find fusion a long-term hedge; tech investors face high risk but asymmetric upside."
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Fusion project timeline comparison (ITER, SPARC, DEMO, private startups) with key milestones and estimated first plasma/commercial operation dates. Answers: When can we expect fusion electricity?",
+    "Exhibit 2: LCOE range for fusion vs. solar, wind, nuclear fission, and gas (2025-2050) under different learning rate and carbon price scenarios. Answers: Can fusion compete on cost?",
+    "Exhibit 3: Global fusion funding landscape (public vs. private, by country) with top investors and project stages. Answers: Who is betting on fusion and how much?",
+    "Exhibit 4: Regulatory readiness matrix comparing US, UK, EU, Japan, and China on fusion licensing, safety standards, and tritium handling. Answers: Where is fusion regulation most advanced?",
+    "Exhibit 5: Strategic implications matrix for stakeholders (utilities, oil & gas, tech, investors) with recommended actions by time horizon (near-term, medium-term, long-term). Answers: What should different players do now?"
+  ],
+  "risks": [
+    "Overreliance on optimistic private startup timelines; need to cross-check with independent experts.",
+    "Underestimating technical hurdles (e.g., tritium breeding, materials degradation); include counter-evidence from skeptical scientists.",
+    "Ignoring geopolitical factors (e.g., China's fusion progress, export controls); ensure diverse geographic sources.",
+    "Assuming linear cost declines; fusion may not follow solar-like learning curves; include sensitivity analysis.",
+    "Neglecting public acceptance and safety perceptions; include survey data or historical analogies."
+  ]
+}

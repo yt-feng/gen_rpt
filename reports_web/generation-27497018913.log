@@ -1,0 +1,71 @@
+[gen_rpt.web] 2026-06-14T11:13:55Z START web report pipeline | topic='Nuclear fusion commercialization outlook and strategic implications' | output_dir=reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566
+[gen_rpt.web] 2026-06-14T11:13:55Z ETA planning=15-90s, source_collection=30-150s, synthesis=60-180s, visuals=60-360s
+[gen_rpt.web] 2026-06-14T11:13:55Z PHASE planning started | expected 15-90s
+[gen_rpt.web] 2026-06-14T11:14:11Z PHASE planning completed | elapsed=15s | queries=10 | outline=4
+[gen_rpt.web] 2026-06-14T11:14:11Z PHASE source_collection started | expected 30-150s | per_query=5 | max_sources=20
+[gen_rpt.fetch] 2026-06-14T11:14:11Z collect_sources started | queries=8 | per_query=5 | max_sources=20
+[gen_rpt.fetch] 2026-06-14T11:14:11Z query 1/8 search started | 'ITER project status 2025 timeline'
+[gen_rpt.fetch] 2026-06-14T11:14:11Z query 1/8 search completed | elapsed=0s | candidates=0
+[gen_rpt.fetch] 2026-06-14T11:14:11Z query 2/8 search started | 'Commonwealth Fusion Systems SPARC timeline'
+[gen_rpt.fetch] 2026-06-14T11:14:12Z query 2/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:12Z source accepted | count=1/20 | domain=science.osti.gov | type=html | elapsed=0s
+[gen_rpt.fetch] 2026-06-14T11:14:13Z fetch failed | domain=energy.gov | reason='404 Client Error: Not Found for url: https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program'
+[gen_rpt.fetch] 2026-06-14T11:14:13Z source accepted | count=2/20 | domain=energy.gov | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-14T11:14:13Z fetch failed | domain=iaea.org | reason='403 Client Error: Forbidden for url: https://www.iaea.org/topics/energy/fusion'
+[gen_rpt.fetch] 2026-06-14T11:14:13Z source accepted | count=3/20 | domain=iaea.org | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-14T11:14:14Z source accepted | count=4/20 | domain=iter.org | type=html | elapsed=0s
+[gen_rpt.fetch] 2026-06-14T11:14:29Z fetch failed | domain=nationalacademies.org | reason='503 Server Error: Service Unavailable for url: https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid'
+[gen_rpt.fetch] 2026-06-14T11:14:29Z source accepted | count=5/20 | domain=nationalacademies.org | type=snippet | elapsed=15s
+[gen_rpt.fetch] 2026-06-14T11:14:31Z fetch failed | domain=fusionindustryassociation.org | reason='404 Client Error: Not Found for url: https://www.fusionindustryassociation.org/reports/'
+[gen_rpt.fetch] 2026-06-14T11:14:31Z source accepted | count=6/20 | domain=fusionindustryassociation.org | type=snippet | elapsed=1s
+[gen_rpt.fetch] 2026-06-14T11:14:32Z source accepted | count=7/20 | domain=llnl.gov | type=html | elapsed=0s
+[gen_rpt.fetch] 2026-06-14T11:14:32Z fetch failed | domain=arpa-e.energy.gov | reason='404 Client Error: Not Found for url: https://arpa-e.energy.gov/technologies/programs/betthe'
+[gen_rpt.fetch] 2026-06-14T11:14:32Z source accepted | count=8/20 | domain=arpa-e.energy.gov | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-14T11:14:32Z query 3/8 search started | 'nuclear fusion levelized cost of electricity projection 2030 2040'
+[gen_rpt.fetch] 2026-06-14T11:14:32Z query 3/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:32Z query 4/8 search started | 'US Nuclear Regulatory Commission fusion regulation framework'
+[gen_rpt.fetch] 2026-06-14T11:14:32Z query 4/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:32Z query 5/8 search started | 'UK fusion strategy 2024 government funding'
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 5/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 6/8 search started | 'fusion energy private investment 2024 2025'
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 6/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 7/8 search started | 'IAEA fusion energy outlook 2025'
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 7/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 8/8 search started | 'McKinsey nuclear fusion commercialization report'
+[gen_rpt.fetch] 2026-06-14T11:14:33Z query 8/8 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-14T11:14:33Z collect_sources completed | accepted=8 | reason=queries_exhausted
+[gen_rpt.web] 2026-06-14T11:14:33Z PHASE source_collection completed | elapsed=22s | sources=8 | domains=arpa-e.energy.gov, energy.gov, fusionindustryassociation.org, iaea.org, iter.org, llnl.gov, nationalacademies.org, science.osti.gov
+[gen_rpt.web] 2026-06-14T11:14:33Z PHASE fact_pack started | expected <10s
+[gen_rpt.web] 2026-06-14T11:14:33Z PHASE fact_pack completed | elapsed=0s | source_count=8 | authoritative=4
+[gen_rpt.web] 2026-06-14T11:14:33Z PHASE synthesis started | expected 60-180s
+[gen_rpt.web] 2026-06-14T11:15:44Z PHASE synthesis completed | elapsed=1m10s | raw_keys=action_steps,authors,category,dek,disclaimer,evidence_quality,exhibits,intro,key_takeaways,methodology,references,sections,title
+[gen_rpt.web] 2026-06-14T11:15:44Z PHASE normalize_and_validate_schema started | expected <10s
+[gen_rpt.web] 2026-06-14T11:15:44Z PHASE normalize_and_validate_schema completed | elapsed=0s | takeaways=3 | sections=4 | exhibits=5 | actions=5 | references=8
+[gen_rpt.web] 2026-06-14T11:15:44Z PHASE assets started | expected 60-360s when AI images are enabled
+[gen_rpt.images] 2026-06-14T11:15:46Z AI image generation started | max_section_images=12 | timeout=45s | retries=3 | section_fallback=True
+[gen_rpt.images] 2026-06-14T11:15:46Z AI image cover prompt polishing started | expected 5-30s
+[gen_rpt.images] 2026-06-14T11:15:49Z AI image cover download started | expected 10-60s
+[gen_rpt.images] 2026-06-14T11:16:06Z AI image cover completed | status=wikimedia | reason=tokamak control room fusion
+[gen_rpt.images] 2026-06-14T11:16:06Z AI image section 1/4 prompt polishing started | title="Fusion's Next Decade Will Determine Its Viability: Key Milestones from ITER, SPARC, and DE"
+[gen_rpt.images] 2026-06-14T11:16:08Z AI image section 1/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-14T11:16:26Z AI image section 1/4 completed | status=wikimedia | reason=ITER tokamak construction
+[gen_rpt.images] 2026-06-14T11:16:26Z AI image section 2/4 prompt polishing started | title='Economics Remain the Biggest Hurdle: Fusion LCOE Projections Are 2–3x Higher Than Renewabl'
+[gen_rpt.images] 2026-06-14T11:16:29Z AI image section 2/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-14T11:16:46Z AI image section 2/4 completed | status=wikimedia | reason=tokamak control room fusion
+[gen_rpt.images] 2026-06-14T11:16:47Z AI image section 3/4 prompt polishing started | title='Regulatory Frameworks Are Nascent but Evolving: US and UK Lead, Global Harmonization Lags'
+[gen_rpt.images] 2026-06-14T11:16:50Z AI image section 3/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-14T11:17:07Z AI image section 3/4 completed | status=wikimedia | reason=tokamak control room fusion
+[gen_rpt.images] 2026-06-14T11:17:08Z AI image section 4/4 prompt polishing started | title='Strategic Implications Are Profound but Distant: Utilities Should Monitor, Oil & Gas Hedge'
+[gen_rpt.images] 2026-06-14T11:17:10Z AI image section 4/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-14T11:17:27Z AI image section 4/4 completed | status=wikimedia | reason=tokamak control room fusion
+[gen_rpt.images] 2026-06-14T11:17:27Z AI image diversity check started | expected <10s
+[gen_rpt.images] 2026-06-14T11:17:30Z AI image generation completed | generated_assets=5 | prompt_records=5
+[gen_rpt.web] 2026-06-14T11:17:30Z PHASE assets completed | elapsed=1m45s | asset_keys=brand-logo,cover-background,image-1,image-2,image-3,image-4
+[gen_rpt.web] 2026-06-14T11:17:30Z PHASE render_and_write started | expected <10s
+[gen_rpt.web] 2026-06-14T11:17:30Z PHASE render_and_write completed | elapsed=0s | html=reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/index.html | markdown=reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/report.md
+[gen_rpt.web] 2026-06-14T11:17:30Z END web report pipeline | total_elapsed=3m34s
+HTML web report generated at: reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/index.html
+Markdown generated at: reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/report.md
+Payload generated at: reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/web_report_payload.json
+Research fact pack generated at: reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/research_fact_pack.json
+Sources generated at: reports_web/2026-06-14-auto-smoke-nuclear-fusion-ed4d566/sources.json
