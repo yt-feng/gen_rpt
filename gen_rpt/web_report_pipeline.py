@@ -325,13 +325,21 @@ Writing rules:
                 )
         real_urls = {source.url for source in sources if source.url}
         refs = []
+        seen_ref_urls = set()
         for item in report.get("references", []) or []:
             if isinstance(item, dict):
                 url = str(item.get("url") or "")
-                if url in real_urls:
+                if url in real_urls and url not in seen_ref_urls:
                     refs.append(item)
-        if not refs:
-            refs = [{"title": source.title or source.domain or source.url, "url": source.url, "note": source.snippet} for source in sources[:14]]
+                    seen_ref_urls.add(url)
+        target_ref_count = min(8, len([source for source in sources if source.url]))
+        for source in sources[:14]:
+            if len(refs) >= target_ref_count:
+                break
+            if not source.url or source.url in seen_ref_urls:
+                continue
+            refs.append({"title": source.title or source.domain or source.url, "url": source.url, "note": source.snippet})
+            seen_ref_urls.add(source.url)
         report["references"] = refs
         self._strengthen_thin_sections(report, topic, fact_pack)
         report.setdefault(
