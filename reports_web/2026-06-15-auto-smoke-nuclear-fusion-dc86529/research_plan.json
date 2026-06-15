@@ -1,0 +1,93 @@
+{
+  "objective": "Assess the commercialization timeline of nuclear fusion and its strategic implications for energy markets, investors, and policymakers.",
+  "audience": "C-suite executives, strategy officers, and policy advisors in energy, finance, and government.",
+  "decision_question": "When and how will nuclear fusion become commercially viable, and what strategic moves should stakeholders make now?",
+  "issue_tree": {
+    "node": "Nuclear fusion commercialization outlook",
+    "children": [
+      {
+        "node": "Technology readiness",
+        "children": [
+          {
+            "node": "Current reactor designs (tokamak, stellarator, inertial confinement)"
+          },
+          {
+            "node": "Key milestones (ITER, SPARC, private ventures)"
+          },
+          {
+            "node": "Remaining physics and engineering challenges"
+          }
+        ]
+      },
+      {
+        "node": "Economic viability",
+        "children": [
+          {
+            "node": "Levelized cost of electricity (LCOE) projections"
+          },
+          {
+            "node": "Capital costs and financing models"
+          },
+          {
+            "node": "Comparison with renewables, fission, and fossil fuels"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory and policy landscape",
+        "children": [
+          {
+            "node": "Licensing frameworks (e.g., NRC, UK EA)"
+          },
+          {
+            "node": "Government funding and public-private partnerships"
+          },
+          {
+            "node": "International cooperation and treaties"
+          }
+        ]
+      },
+      {
+        "node": "Market and strategic implications",
+        "children": [
+          {
+            "node": "Impact on energy markets and grid integration"
+          },
+          {
+            "node": "Implications for incumbents (utilities, oil & gas)"
+          },
+          {
+            "node": "Investment opportunities and risks"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "ITER project timeline 2025 status",
+    "Commonwealth Fusion Systems SPARC progress",
+    "nuclear fusion LCOE projections 2024",
+    "US NRC fusion licensing framework 2024",
+    "UK fusion regulatory framework 2024",
+    "fusion energy private investment 2024",
+    "IAEA fusion roadmap 2024",
+    "nuclear fusion vs renewables cost comparison",
+    "Helion Energy commercial timeline",
+    "fusion energy market size forecast 2030"
+  ],
+  "source_strategy": "Prioritize official project updates (ITER, CFS), regulatory documents (NRC, UK EA), industry reports (IAEA, Fusion Industry Association), academic papers (Nature, Nuclear Fusion), and financial filings (private company disclosures). Use authoritative media (Reuters, FT) for context.",
+  "outline": [
+    "Fusion is not imminent: realistic timelines point to 2030s-2040s for first commercial plants.",
+    "Private ventures are outpacing public projects but face capital and regulatory hurdles.",
+    "Economic viability remains unproven: LCOE estimates vary widely and depend on breakthroughs.",
+    "Regulatory frameworks are nascent but evolving; first-mover advantage exists for early adopters.",
+    "Strategic implications: incumbents should monitor and partner; investors should focus on enabling technologies."
+  ],
+  "exhibit_ideas": [
+    "Timeline of major fusion projects (ITER, SPARC, Helion) with key milestones and delays.",
+    "LCOE comparison chart: fusion vs. solar, wind, nuclear fission, and gas (2024-2050 projections).",
+    "Map of regulatory progress: countries with fusion licensing frameworks vs. those without.",
+    "Funding landscape: public vs. private investment in fusion (2015-2024) with top investors."
+  ],
+  "risks": "Overreliance on optimistic private sector timelines; lack of peer-reviewed cost data; regulatory uncertainty; potential for disruptive breakthroughs (e.g., high-temperature superconductors) that alter projections. Need to triangulate multiple sources and clearly state assumptions."
+}

@@ -1,0 +1,88 @@
+[gen_rpt.web] 2026-06-15T12:18:50Z START web report pipeline | topic='Nuclear fusion commercialization outlook and strategic implications' | output_dir=reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529
+[gen_rpt.web] 2026-06-15T12:18:50Z ETA planning=15-90s, chart_data_needs=10-60s, source_collection=45-240s, evidence=5-15s, synthesis=60-180s, visuals=60-360s
+[gen_rpt.web] 2026-06-15T12:18:50Z PHASE planning started | expected 15-90s
+[gen_rpt.web] 2026-06-15T12:19:00Z PHASE planning completed | elapsed=10s | queries=10 | outline=5
+[gen_rpt.web] 2026-06-15T12:19:00Z PHASE chart_data_needs started | expected 10-60s
+[gen_rpt.web] 2026-06-15T12:19:15Z PHASE chart_data_needs completed | elapsed=15s | needs=5 | chart_queries=15
+[gen_rpt.web] 2026-06-15T12:19:15Z PHASE source_collection started | expected 45-240s | queries=12 | per_query=5 | max_sources=20
+[gen_rpt.web] 2026-06-15T12:19:15Z PHASE source_collection query_plan | ITER project timeline 2025 status || Commonwealth Fusion Systems SPARC progress || nuclear fusion LCOE projections 2024 || ITER project timeline 2025 first plasma date || Commonwealth Fusion Systems SPARC construction timeline 2024 || Helion Energy commercial reactor timeline 2024 || Lazard LCOE 2024 solar wind nuclear gas || fusion energy LCOE projection 2050 report || IEA World Energy Outlook 2024 LCOE assumptions || Fusion Industry Association investment report 2024
+[gen_rpt.fetch] 2026-06-15T12:19:15Z collect_sources started | queries=12 | per_query=5 | max_sources=20
+[gen_rpt.fetch] 2026-06-15T12:19:15Z query 1/12 search started | 'ITER project timeline 2025 status'
+[gen_rpt.fetch] 2026-06-15T12:19:16Z query 1/12 search completed | elapsed=0s | candidates=0
+[gen_rpt.fetch] 2026-06-15T12:19:16Z query 2/12 search started | 'Commonwealth Fusion Systems SPARC progress'
+[gen_rpt.fetch] 2026-06-15T12:19:16Z query 2/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:17Z source accepted | count=1/20 | domain=science.osti.gov | type=html | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:17Z fetch failed | domain=energy.gov | reason='404 Client Error: Not Found for url: https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program'
+[gen_rpt.fetch] 2026-06-15T12:19:17Z source accepted | count=2/20 | domain=energy.gov | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:17Z fetch failed | domain=iaea.org | reason='403 Client Error: Forbidden for url: https://www.iaea.org/topics/energy/fusion'
+[gen_rpt.fetch] 2026-06-15T12:19:17Z source accepted | count=3/20 | domain=iaea.org | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:18Z source accepted | count=4/20 | domain=iter.org | type=html | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:18Z fetch failed | domain=nationalacademies.org | reason='404 Client Error: Not Found for url: https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid'
+[gen_rpt.fetch] 2026-06-15T12:19:18Z source accepted | count=5/20 | domain=nationalacademies.org | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:20Z fetch failed | domain=fusionindustryassociation.org | reason='404 Client Error: Not Found for url: https://www.fusionindustryassociation.org/reports/'
+[gen_rpt.fetch] 2026-06-15T12:19:20Z source accepted | count=6/20 | domain=fusionindustryassociation.org | type=snippet | elapsed=1s
+[gen_rpt.fetch] 2026-06-15T12:19:20Z source accepted | count=7/20 | domain=llnl.gov | type=html | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:21Z fetch failed | domain=arpa-e.energy.gov | reason='404 Client Error: Not Found for url: https://arpa-e.energy.gov/technologies/programs/betthe'
+[gen_rpt.fetch] 2026-06-15T12:19:21Z source accepted | count=8/20 | domain=arpa-e.energy.gov | type=snippet | elapsed=0s
+[gen_rpt.fetch] 2026-06-15T12:19:21Z query 3/12 search started | 'nuclear fusion LCOE projections 2024'
+[gen_rpt.fetch] 2026-06-15T12:19:21Z query 3/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:21Z query 4/12 search started | 'ITER project timeline 2025 first plasma date'
+[gen_rpt.fetch] 2026-06-15T12:19:21Z query 4/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:21Z query 5/12 search started | 'Commonwealth Fusion Systems SPARC construction timeline 2024'
+[gen_rpt.fetch] 2026-06-15T12:19:22Z query 5/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:22Z query 6/12 search started | 'Helion Energy commercial reactor timeline 2024'
+[gen_rpt.fetch] 2026-06-15T12:19:22Z query 6/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:22Z query 7/12 search started | 'Lazard LCOE 2024 solar wind nuclear gas'
+[gen_rpt.fetch] 2026-06-15T12:19:22Z query 7/12 search completed | elapsed=0s | candidates=0
+[gen_rpt.fetch] 2026-06-15T12:19:22Z query 8/12 search started | 'fusion energy LCOE projection 2050 report'
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 8/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 9/12 search started | 'IEA World Energy Outlook 2024 LCOE assumptions'
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 9/12 search completed | elapsed=0s | candidates=0
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 10/12 search started | 'Fusion Industry Association investment report 2024'
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 10/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 11/12 search started | 'fusion energy private investment 2024 venture capital'
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 11/12 search completed | elapsed=0s | candidates=8
+[gen_rpt.fetch] 2026-06-15T12:19:23Z query 12/12 search started | 'ITER budget 2024 member contributions'
+[gen_rpt.fetch] 2026-06-15T12:19:24Z query 12/12 search completed | elapsed=0s | candidates=0
+[gen_rpt.fetch] 2026-06-15T12:19:24Z collect_sources completed | accepted=8 | reason=queries_exhausted
+[gen_rpt.web] 2026-06-15T12:19:24Z PHASE source_collection completed | elapsed=8s | sources=8 | domains=arpa-e.energy.gov, energy.gov, fusionindustryassociation.org, iaea.org, iter.org, llnl.gov, nationalacademies.org, science.osti.gov
+[gen_rpt.web] 2026-06-15T12:19:24Z PHASE fact_pack started | expected <10s
+[gen_rpt.web] 2026-06-15T12:19:24Z PHASE fact_pack completed | elapsed=0s | source_count=8 | authoritative=4
+[gen_rpt.web] 2026-06-15T12:19:24Z PHASE evidence_ledger_and_storyline started | expected 5-15s
+[gen_rpt.web] 2026-06-15T12:19:24Z PHASE evidence_ledger_and_storyline completed | elapsed=0s | evidence_points=7 | families=technology:4, timeline:2, funding:1
+[gen_rpt.web] 2026-06-15T12:19:24Z PHASE synthesis started | expected 60-180s
+[gen_rpt.web] 2026-06-15T12:20:19Z PHASE synthesis completed | elapsed=55s | raw_keys=action_steps,authors,category,dek,disclaimer,evidence_quality,exhibits,intro,key_takeaways,methodology,references,sections,title
+[gen_rpt.web] 2026-06-15T12:20:19Z PHASE evidence_exhibits started | expected <10s
+[gen_rpt.web] 2026-06-15T12:20:19Z PHASE evidence_exhibits completed | elapsed=0s | exhibits=5 | backed_by_ledger=5
+[gen_rpt.web] 2026-06-15T12:20:19Z PHASE normalize_and_validate_schema started | expected <10s
+[gen_rpt.web] 2026-06-15T12:20:19Z PHASE normalize_and_validate_schema completed | elapsed=0s | takeaways=3 | sections=4 | exhibits=5 | actions=4 | references=8
+[gen_rpt.web] 2026-06-15T12:20:19Z PHASE assets started | expected 60-360s when AI images are enabled
+[gen_rpt.images] 2026-06-15T12:20:21Z AI image generation started | max_section_images=12 | timeout=45s | retries=3 | section_fallback=True
+[gen_rpt.images] 2026-06-15T12:20:21Z AI image cover prompt polishing started | expected 5-30s
+[gen_rpt.images] 2026-06-15T12:20:24Z AI image cover download started | expected 10-60s
+[gen_rpt.images] 2026-06-15T12:20:41Z AI image cover completed | status=wikimedia | reason=tokamak control room fusion
+[gen_rpt.images] 2026-06-15T12:20:41Z AI image section 1/4 prompt polishing started | title='Scientific Breakthroughs Are Real, But Commercialization Remains Decades Away'
+[gen_rpt.images] 2026-06-15T12:20:44Z AI image section 1/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-15T12:21:01Z AI image section 1/4 completed | status=wikimedia | reason=ITER tokamak construction
+[gen_rpt.images] 2026-06-15T12:21:02Z AI image section 2/4 prompt polishing started | title='Economic Viability Remains Unproven: LCOE Estimates Vary Widely'
+[gen_rpt.images] 2026-06-15T12:21:04Z AI image section 2/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-15T12:21:21Z AI image section 2/4 completed | status=wikimedia | reason=ITER tokamak construction
+[gen_rpt.images] 2026-06-15T12:21:21Z AI image section 3/4 prompt polishing started | title='Regulatory Frameworks Are Nascent: First Movers Can Shape the Rules'
+[gen_rpt.images] 2026-06-15T12:21:24Z AI image section 3/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-15T12:21:41Z AI image section 3/4 completed | status=wikimedia | reason=tokamak control room fusion
+[gen_rpt.images] 2026-06-15T12:21:41Z AI image section 4/4 prompt polishing started | title='Strategic Implications: Incumbents Should Monitor and Partner; Investors Should Focus on E'
+[gen_rpt.images] 2026-06-15T12:21:43Z AI image section 4/4 download started | expected 10-60s
+[gen_rpt.images] 2026-06-15T12:22:01Z AI image section 4/4 completed | status=wikimedia | reason=tokamak fusion reactor
+[gen_rpt.images] 2026-06-15T12:22:01Z AI image diversity check started | expected <10s
+[gen_rpt.images] 2026-06-15T12:22:03Z AI image generation completed | generated_assets=5 | prompt_records=5
+[gen_rpt.web] 2026-06-15T12:22:03Z PHASE assets completed | elapsed=1m43s | asset_keys=brand-logo,cover-background,image-1,image-2,image-3,image-4
+[gen_rpt.web] 2026-06-15T12:22:03Z PHASE render_and_write started | expected <10s
+[gen_rpt.web] 2026-06-15T12:22:03Z PHASE render_and_write completed | elapsed=0s | html=reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/index.html | markdown=reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/report.md
+[gen_rpt.web] 2026-06-15T12:22:03Z END web report pipeline | total_elapsed=3m13s
+HTML web report generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/index.html
+Markdown generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/report.md
+Payload generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/web_report_payload.json
+Research fact pack generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/research_fact_pack.json
+Evidence ledger generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/evidence_ledger.json
+Storyline plan generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/storyline_plan.json
+Sources generated at: reports_web/2026-06-15-auto-smoke-nuclear-fusion-dc86529/sources.json

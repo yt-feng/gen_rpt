@@ -1,0 +1,164 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Project Milestones Timeline",
+    "chart_type": "timeline",
+    "executive_question": "What are the key milestones and delays for major fusion projects (ITER, SPARC, Helion) and when is first plasma or commercial operation expected?",
+    "required_metrics": [
+      "Project name",
+      "Milestone description",
+      "Original target date",
+      "Current target date",
+      "Status (on track/delayed)"
+    ],
+    "comparison_set": [
+      "ITER",
+      "SPARC (Commonwealth Fusion Systems)",
+      "Helion Energy",
+      "TAE Technologies",
+      "General Fusion"
+    ],
+    "preferred_sources": [
+      "ITER Organization official website",
+      "Commonwealth Fusion Systems press releases",
+      "Helion Energy announcements",
+      "Fusion Industry Association reports",
+      "IAEA fusion roadmap"
+    ],
+    "search_queries": [
+      "ITER project timeline 2025 first plasma date",
+      "Commonwealth Fusion Systems SPARC construction timeline 2024",
+      "Helion Energy commercial reactor timeline 2024"
+    ],
+    "data_quality_rule": "Use only official project updates or verified news; note if dates are estimates; flag any missing milestones."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Levelized Cost of Electricity (LCOE) Projections for Fusion vs. Other Sources",
+    "chart_type": "line",
+    "executive_question": "How do projected LCOE estimates for fusion compare with solar, wind, nuclear fission, and natural gas from 2024 to 2050?",
+    "required_metrics": [
+      "Year",
+      "Fusion LCOE ($/MWh)",
+      "Solar PV LCOE ($/MWh)",
+      "Onshore wind LCOE ($/MWh)",
+      "Nuclear fission LCOE ($/MWh)",
+      "Natural gas combined cycle LCOE ($/MWh)"
+    ],
+    "comparison_set": [
+      "Fusion (range of estimates)",
+      "Solar PV",
+      "Onshore wind",
+      "Nuclear fission",
+      "Natural gas combined cycle"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook",
+      "Fusion Industry Association reports",
+      "Academic papers (e.g., Nature, Nuclear Fusion)",
+      "DOE fusion cost studies"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind nuclear gas",
+      "fusion energy LCOE projection 2050 report",
+      "IEA World Energy Outlook 2024 LCOE assumptions"
+    ],
+    "data_quality_rule": "Collect multiple estimates for fusion to show range; clearly label source and year for each data point; exclude speculative values without basis."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Public vs. Private Fusion Investment (2015-2024)",
+    "chart_type": "bar",
+    "executive_question": "How has annual investment in fusion energy changed over time, and what is the split between public and private sources?",
+    "required_metrics": [
+      "Year",
+      "Public investment ($M)",
+      "Private investment ($M)",
+      "Total investment ($M)",
+      "Number of private deals"
+    ],
+    "comparison_set": [
+      "Public (government) funding",
+      "Private (venture capital, corporate) funding"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "IAEA fusion funding data",
+      "PitchBook/Crunchbase for private deals",
+      "DOE Office of Science fusion budget",
+      "UKAEA funding announcements"
+    ],
+    "search_queries": [
+      "Fusion Industry Association investment report 2024",
+      "fusion energy private investment 2024 venture capital",
+      "ITER budget 2024 member contributions"
+    ],
+    "data_quality_rule": "Use consistent currency (USD) and inflation-adjust if possible; note that private investment data may be incomplete; cite sources for each data point."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Regulatory Frameworks for Fusion Licensing by Country",
+    "chart_type": "matrix",
+    "executive_question": "Which countries have established or are developing licensing frameworks for fusion energy, and what is the stage of development?",
+    "required_metrics": [
+      "Country",
+      "Regulatory body",
+      "Framework status (none/draft/final)",
+      "Year of first guidance",
+      "Key features (e.g., risk-informed, technology-neutral)"
+    ],
+    "comparison_set": [
+      "United States (NRC)",
+      "United Kingdom (UK EA)",
+      "Canada (CNSC)",
+      "Japan (NRA)",
+      "France (ASN)",
+      "China (NNSA)",
+      "South Korea (NSSC)"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission fusion rulemaking",
+      "UK Environment Agency fusion regulation",
+      "IAEA fusion regulatory database",
+      "OECD NEA reports",
+      "National regulatory websites"
+    ],
+    "search_queries": [
+      "US NRC fusion licensing framework 2024 status",
+      "UK fusion regulatory framework 2024 Environment Agency",
+      "IAEA fusion regulatory status by country 2024"
+    ],
+    "data_quality_rule": "Verify framework status with official regulatory documents; note if information is outdated; include date of last update."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Fusion Energy Market Size Forecast (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "What is the projected market size (in GW installed capacity or $B revenue) for fusion energy over time, and what are the key assumptions?",
+    "required_metrics": [
+      "Year",
+      "Installed capacity (GW) - low estimate",
+      "Installed capacity (GW) - high estimate",
+      "Market revenue ($B) - low estimate",
+      "Market revenue ($B) - high estimate"
+    ],
+    "comparison_set": [
+      "Low scenario",
+      "High scenario"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association market reports",
+      "IEA Net Zero by 2050 scenarios",
+      "McKinsey/BCG energy reports",
+      "Academic forecasts (e.g., Nature Energy)",
+      "Company investor presentations"
+    ],
+    "search_queries": [
+      "fusion energy market size forecast 2030 2040 2050",
+      "Fusion Industry Association market report 2024",
+      "IEA fusion capacity in net zero scenario 2050"
+    ],
+    "data_quality_rule": "Clearly state source and scenario assumptions; use ranges to reflect uncertainty; avoid single-point estimates without context."
+  }
+]
