@@ -1,0 +1,84 @@
+{
+  "objective": "Assess the current state and near-term prospects of nuclear fusion commercialization, and analyze its strategic implications for energy markets, geopolitics, and corporate investment.",
+  "audience": "Senior executives in energy, finance, and policy; strategic planners; and investors seeking actionable insights on fusion's timeline and competitive dynamics.",
+  "decision_question": "Should our organization invest in or partner with fusion ventures now, or wait for clearer technological and regulatory milestones?",
+  "issue_tree": {
+    "root": "Nuclear fusion commercialization outlook",
+    "branches": [
+      {
+        "node": "Technology readiness",
+        "children": [
+          "Current major fusion projects (ITER, SPARC, STEP, private ventures)",
+          "Key technical milestones achieved vs. remaining (Q>1, tritium breeding, materials)",
+          "Timeline estimates for first commercial plant"
+        ]
+      },
+      {
+        "node": "Economics and market viability",
+        "children": [
+          "Levelized cost of electricity (LCOE) projections vs. renewables, fission, gas",
+          "Capital expenditure and operational cost drivers",
+          "Regulatory and licensing pathways"
+        ]
+      },
+      {
+        "node": "Strategic implications",
+        "children": [
+          "Impact on energy security and geopolitics (e.g., reduced dependence on fossil fuels)",
+          "Disruption risk for incumbent energy industries",
+          "Investment landscape: public vs. private funding, major corporate players"
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "ITER project status 2025 budget timeline",
+    "Commonwealth Fusion Systems SPARC timeline 2025",
+    "TAE Technologies fusion reactor progress 2025",
+    "nuclear fusion LCOE projection 2030 2040",
+    "US fusion energy regulatory framework 2025",
+    "fusion energy private investment 2024 2025",
+    "nuclear fusion strategic implications geopolitics",
+    "fusion energy corporate partnerships 2025",
+    "fusion vs renewables cost comparison 2025",
+    "fusion energy workforce and supply chain"
+  ],
+  "source_strategy": "Prioritize official project updates (ITER, CFS), government reports (DOE, UKAEA), industry associations (Fusion Industry Association), financial filings (public fusion companies), and peer-reviewed journals (Nature, Nuclear Fusion). Use authoritative media (Reuters, FT) for context and consulting reports (McKinsey, BCG) for market analysis.",
+  "outline": [
+    "1. Fusion's Long-Awaited Threshold: Why 2025–2030 Could Be Different",
+    "2. The Technology Race: ITER, SPARC, and the Private Sector Surge",
+    "3. Economics of Fusion: When Will It Compete with Renewables and Fission?",
+    "4. Strategic Stakes: Energy Security, Geopolitics, and Incumbent Disruption",
+    "5. Investment Calculus: Who Is Betting Big and What Returns Are Expected?",
+    "6. Conclusion: The Next Five Years – A Window for Strategic Positioning"
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "Fusion Project Timeline Comparison",
+      "question": "Which fusion projects are on track to achieve net energy gain and commercial operation by 2035?",
+      "type": "Gantt chart with key milestones for ITER, SPARC, STEP, and leading private ventures."
+    },
+    {
+      "title": "Projected LCOE of Fusion vs. Alternatives",
+      "question": "At what point does fusion become cost-competitive with solar, wind, and nuclear fission?",
+      "type": "Line chart showing LCOE ranges for fusion (2030–2050) vs. current and projected costs of renewables and fission."
+    },
+    {
+      "title": "Global Fusion Investment by Source",
+      "question": "How much capital is flowing into fusion, and from which sectors?",
+      "type": "Stacked bar chart of annual investment (public vs. private, by region) from 2020 to 2025."
+    },
+    {
+      "title": "Strategic Positioning of Major Energy Companies",
+      "question": "Which oil & gas, utility, and tech firms are investing in fusion, and what are their motivations?",
+      "type": "Matrix mapping companies by investment size and strategic rationale (e.g., decarbonization, diversification, technology hedge)."
+    }
+  ],
+  "risks": [
+    "Overreliance on optimistic timelines from private ventures; need to cross-check with independent experts.",
+    "Lack of granular cost data; fusion LCOE projections are highly uncertain and may rely on unverified assumptions.",
+    "Geopolitical analysis may be speculative; need to ground in concrete policy statements and trade data.",
+    "Regulatory frameworks are nascent; limited public information on licensing pathways could weaken the analysis.",
+    "Counter-evidence: Some experts argue fusion will never be commercially viable; need to include skeptical viewpoints."
+  ]
+}

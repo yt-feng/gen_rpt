@@ -1,0 +1,151 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Project Timeline Comparison",
+    "chart_type": "timeline",
+    "executive_question": "Which fusion projects are on track to achieve net energy gain and commercial operation by 2035?",
+    "required_metrics": [
+      "project name",
+      "start date",
+      "first plasma date",
+      "net energy gain (Q>1) date",
+      "commercial operation date",
+      "current phase (design, construction, operation)"
+    ],
+    "comparison_set": [
+      "ITER, SPARC (Commonwealth Fusion Systems), STEP (UKAEA), TAE Technologies, General Fusion, Helion Energy, Zap Energy"
+    ],
+    "preferred_sources": [
+      "ITER Organization official updates",
+      "Commonwealth Fusion Systems press releases",
+      "UKAEA STEP programme reports",
+      "Fusion Industry Association annual reports",
+      "DOE Fusion Energy Sciences advisory committee presentations"
+    ],
+    "search_queries": [
+      "ITER project status 2025 first plasma date",
+      "Commonwealth Fusion Systems SPARC timeline 2025",
+      "STEP UKAEA fusion reactor timeline 2025"
+    ],
+    "data_quality_rule": "Only include projects with publicly announced milestones from official sources or reputable media. If a milestone date is not confirmed, note as 'TBD' and source the latest estimate."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Projected LCOE of Fusion vs. Alternatives",
+    "chart_type": "line",
+    "executive_question": "At what point does fusion become cost-competitive with solar, wind, and nuclear fission?",
+    "required_metrics": [
+      "fusion LCOE ($/MWh) for 2030, 2035, 2040, 2045, 2050",
+      "solar PV LCOE ($/MWh) for same years",
+      "onshore wind LCOE ($/MWh) for same years",
+      "nuclear fission LCOE ($/MWh) for same years",
+      "natural gas combined cycle LCOE ($/MWh) for same years"
+    ],
+    "comparison_set": [
+      "Fusion (range from multiple studies), solar PV, onshore wind, nuclear fission, natural gas"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis (annual)",
+      "IEA World Energy Outlook",
+      "DOE Fusion Energy LCOE studies",
+      "Fusion Industry Association cost reports",
+      "National Renewable Energy Laboratory (NREL) ATB"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2025 solar wind nuclear",
+      "fusion energy LCOE projection 2030 2040 DOE",
+      "IEA World Energy Outlook 2024 LCOE projections"
+    ],
+    "data_quality_rule": "Use only published LCOE estimates from authoritative sources. For fusion, include a range (low-high) from multiple studies. If no official projection exists for a given year, leave blank and note as 'no data'."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Global Fusion Investment by Source",
+    "chart_type": "bar",
+    "executive_question": "How much capital is flowing into fusion, and from which sectors?",
+    "required_metrics": [
+      "year (2020-2025)",
+      "total private investment ($M)",
+      "total public investment ($M)",
+      "private investment by region (North America, Europe, Asia, Rest of World) ($M)",
+      "public investment by region ($M)",
+      "number of fusion companies funded"
+    ],
+    "comparison_set": [
+      "Annual investment from 2020 to 2025, split by public vs. private and by region"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual investment reports",
+      "BloombergNEF fusion investment data",
+      "Crunchbase/ PitchBook fusion startup funding rounds",
+      "DOE Office of Science fusion budget requests",
+      "European Commission Horizon Europe fusion funding"
+    ],
+    "search_queries": [
+      "Fusion Industry Association 2025 investment report",
+      "fusion energy private investment 2024 2025 Crunchbase",
+      "DOE fusion budget 2025"
+    ],
+    "data_quality_rule": "Use only aggregated data from industry reports or official budgets. For private investment, cross-check with multiple sources (e.g., FIA and BloombergNEF). If regional breakdown is unavailable, note as 'not disclosed'."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Strategic Positioning of Major Energy Companies",
+    "chart_type": "matrix",
+    "executive_question": "Which oil & gas, utility, and tech firms are investing in fusion, and what are their motivations?",
+    "required_metrics": [
+      "company name",
+      "sector (oil & gas, utility, technology, other)",
+      "investment amount ($M)",
+      "fusion venture invested in",
+      "investment type (equity, partnership, R&D)",
+      "stated strategic rationale (decarbonization, diversification, technology hedge, other)"
+    ],
+    "comparison_set": [
+      "Major energy companies (e.g., Eni, Chevron, Equinor, Shell, EDF, NextEra, Google, Microsoft, Bill Gates) and their fusion investments"
+    ],
+    "preferred_sources": [
+      "Company annual reports and investor presentations",
+      "Press releases announcing fusion investments",
+      "Fusion Industry Association corporate member lists",
+      "SEC filings for public companies",
+      "Reuters, Financial Times articles on corporate fusion deals"
+    ],
+    "search_queries": [
+      "Eni fusion investment Commonwealth Fusion Systems",
+      "Chevron fusion investment TAE Technologies",
+      "Google fusion partnership 2025"
+    ],
+    "data_quality_rule": "Only include investments confirmed by official company announcements or credible financial news. Investment amounts must be publicly disclosed; if undisclosed, note as 'undisclosed'. Strategic rationale should be quoted from official statements."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory and Licensing Milestones for Fusion",
+    "chart_type": "timeline",
+    "executive_question": "What are the key regulatory and licensing milestones that will govern fusion commercialization?",
+    "required_metrics": [
+      "country/region",
+      "regulatory body",
+      "milestone (e.g., draft regulation, public consultation, final rule, first license application, first license approval)",
+      "expected date",
+      "actual date (if achieved)",
+      "status (planned, in progress, completed)"
+    ],
+    "comparison_set": [
+      "United States (NRC), United Kingdom (UKAEA/ONR), Canada (CNSC), European Union (Euratom/EC), Japan (JAEA), China (CAEA)"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission fusion rulemaking docket",
+      "UK Department for Energy Security and Net Zero fusion policy papers",
+      "Canadian Nuclear Safety Commission fusion regulatory framework",
+      "European Commission fusion regulation documents",
+      "International Atomic Energy Agency (IAEA) fusion safety reports"
+    ],
+    "search_queries": [
+      "NRC fusion regulation 2025 proposed rule",
+      "UK fusion regulatory framework 2025 ONR",
+      "IAEA fusion safety standards 2025"
+    ],
+    "data_quality_rule": "Use only official regulatory documents and government publications. Dates must be from official schedules or announcements. If a milestone is not yet scheduled, note as 'not yet defined'."
+  }
+]
