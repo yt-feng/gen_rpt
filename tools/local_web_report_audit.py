@@ -26,6 +26,12 @@ PROCESS_PATTERNS = (
     r"\bstress\s+test\b",
 )
 
+UNVERIFIED_SOURCE_PATTERNS = (
+    r"\bnot in fact pack\b",
+    r"\bwidely cited\b",
+    r"\bnot independently verified\b",
+)
+
 UNSUPPORTED_CHART_PATTERNS = (
     r"\bdirectional\s+(?:priority|assessment|score|index|view)\b",
     r"\bpriority\s+index\b",
@@ -202,6 +208,9 @@ def main() -> int:
     for pattern in PROCESS_PATTERNS:
         if re.search(pattern, lower, re.I):
             issues.append(f"HTML leaks process language matching: {pattern}")
+    for pattern in UNVERIFIED_SOURCE_PATTERNS:
+        if re.search(pattern, lower, re.I):
+            issues.append(f"HTML contains unsupported source/evidence language matching: {pattern}")
     for required in ["Key Takeaways", "Contents"]:
         if required.lower() not in lower:
             issues.append(f"HTML missing expected BCG-style module: {required}")
