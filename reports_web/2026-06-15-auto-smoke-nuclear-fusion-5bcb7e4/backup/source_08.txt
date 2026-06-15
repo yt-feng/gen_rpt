@@ -1,0 +1,16 @@
+Title: ARPA-E fusion programs
+URL: https://arpa-e.energy.gov/technologies/programs/betthe
+Source Type: snippet
+Domain: arpa-e.energy.gov
+Content Type: text/plain
+Search Query: nuclear fusion commercialization timeline 2025 2030 2040
+
+ARPA-E fusion programs
+
+U.S. innovation-program source focused on enabling commercially viable fusion energy technology paths.
+
+Source URL retained for public-source review: https://arpa-e.energy.gov/technologies/programs/betthe
+
+Search context: nuclear fusion commercialization timeline 2025 2030 2040
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

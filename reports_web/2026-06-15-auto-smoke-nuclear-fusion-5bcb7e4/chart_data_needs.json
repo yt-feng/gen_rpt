@@ -1,0 +1,133 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Global Fusion Investment by Year and Source",
+    "chart_type": "line",
+    "executive_question": "How has private and public investment in fusion evolved over the past decade?",
+    "required_metrics": [
+      "Annual private investment in fusion (USD millions)",
+      "Annual public/government funding for fusion (USD millions)",
+      "Total cumulative investment (USD billions)"
+    ],
+    "comparison_set": [
+      "Year-over-year from 2015 to 2025"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "BloombergNEF fusion investment data",
+      "DOE fusion energy science budget documents"
+    ],
+    "search_queries": [
+      "fusion energy private investment 2024 venture capital",
+      "Fusion Industry Association investment report 2024",
+      "DOE fusion budget 2024 2025"
+    ],
+    "data_quality_rule": "Data must be sourced from official industry reports or government budgets; exclude estimates from non-authoritative blogs."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Projected LCOE of Fusion vs. Other Sources",
+    "chart_type": "bar",
+    "executive_question": "How does fusion's expected levelized cost of electricity compare to solar, wind, and fission in 2030-2050?",
+    "required_metrics": [
+      "Fusion LCOE projection (USD/MWh) for 2030, 2040, 2050",
+      "Solar PV LCOE (USD/MWh) for same years",
+      "Onshore wind LCOE (USD/MWh) for same years",
+      "Nuclear fission LCOE (USD/MWh) for same years"
+    ],
+    "comparison_set": [
+      "Technology type and year"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "DOE Annual Energy Outlook",
+      "IEA World Energy Outlook"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 fusion solar wind nuclear",
+      "DOE fusion LCOE projection 2030 2040",
+      "IEA levelized cost of electricity 2024"
+    ],
+    "data_quality_rule": "Use only published LCOE ranges from authoritative sources; note if fusion data is absent as an evidence gap."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Project Progress Timeline",
+    "chart_type": "timeline",
+    "executive_question": "When do leading fusion projects expect to achieve net energy gain and commercial operation?",
+    "required_metrics": [
+      "Project name",
+      "Expected date of first plasma",
+      "Expected date of net energy gain (Q>1)",
+      "Expected date of commercial operation",
+      "Current status (e.g., under construction, design phase)"
+    ],
+    "comparison_set": [
+      "Major fusion projects (ITER, SPARC, Helion, TAE, etc.)"
+    ],
+    "preferred_sources": [
+      "ITER Organization official schedule",
+      "Commonwealth Fusion Systems press releases",
+      "Helion Energy announcements",
+      "TAE Technologies public statements"
+    ],
+    "search_queries": [
+      "ITER schedule 2024 2025 first plasma",
+      "SPARC fusion timeline net energy gain",
+      "Helion commercial fusion plant timeline"
+    ],
+    "data_quality_rule": "Dates must be from official project announcements or regulatory filings; note any delays or uncertainties."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Regulatory Milestones for Fusion Licensing",
+    "chart_type": "timeline",
+    "executive_question": "What are the key regulatory steps for licensing a fusion plant, and where do major projects stand?",
+    "required_metrics": [
+      "Regulatory body (e.g., NRC, UK EA, IAEA)",
+      "Milestone description (e.g., pre-application, license application, safety review, construction permit, operating license)",
+      "Expected completion date",
+      "Project name associated with milestone"
+    ],
+    "comparison_set": [
+      "Regulatory frameworks in US, UK, Japan, and EU"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission fusion licensing documents",
+      "UK Environment Agency fusion regulation",
+      "IAEA fusion safety guidelines"
+    ],
+    "search_queries": [
+      "NRC fusion reactor licensing framework 2024",
+      "UK fusion regulatory framework milestone",
+      "IAEA fusion safety standards 2024"
+    ],
+    "data_quality_rule": "Only include milestones from official regulatory publications or project filings; exclude speculative timelines."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Fusion Startup Count and Funding by Stage",
+    "chart_type": "bubble",
+    "executive_question": "How many fusion startups exist, and what is their funding distribution by stage?",
+    "required_metrics": [
+      "Number of fusion startups",
+      "Total funding per startup (USD millions)",
+      "Stage (seed, Series A, B, C, etc.)",
+      "Year founded"
+    ],
+    "comparison_set": [
+      "Individual startups (e.g., Commonwealth Fusion Systems, Helion, TAE, Zap Energy, etc.)"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association member list",
+      "Crunchbase fusion startup funding data",
+      "PitchBook fusion energy deals"
+    ],
+    "search_queries": [
+      "fusion energy startups list 2024 funding",
+      "Commonwealth Fusion Systems funding round 2024",
+      "Helion Energy Series F funding"
+    ],
+    "data_quality_rule": "Funding data must be from verified funding announcements or regulatory filings; exclude unconfirmed rumors."
+  }
+]
