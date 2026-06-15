@@ -304,6 +304,30 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   font-size: 13px;
   line-height: 1.35;
 }
+.data-basis {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: #323232;
+  font-size: 13px;
+  line-height: 1.36;
+}
+.data-basis summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-weight: 700;
+}
+.data-basis ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+.data-basis li {
+  margin-bottom: 8px;
+}
+.basis-id {
+  color: var(--green);
+  font-weight: 700;
+}
 .metric-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -790,6 +814,7 @@ def _render_exhibit(parts: List[str], exhibit: Dict[str, Any]) -> None:
         parts.append(f"<p>{_e(exhibit['caption'])}</p>")
     if exhibit.get("source_note"):
         parts.append(f"<p class='source-note'>{_e(exhibit['source_note'])}</p>")
+    _render_data_basis(parts, exhibit.get("data_basis") or [])
     parts.append("</section>")
 
 
@@ -839,6 +864,33 @@ def _render_process(parts: List[str], exhibit: Dict[str, Any]) -> None:
             title, desc = f"Step {idx}", _text(item)
         parts.append(f"<div class='process-step'><span>{idx:02d}</span><strong>{_e(title)}</strong><div>{_e(desc)}</div></div>")
     parts.append("</div>")
+
+
+def _render_data_basis(parts: List[str], basis: Any) -> None:
+    rows = [item for item in _as_list(basis) if isinstance(item, dict)]
+    if not rows:
+        return
+    parts.append("<details class='data-basis'>")
+    parts.append("<summary>Data basis</summary>")
+    parts.append("<ul>")
+    for item in rows[:8]:
+        basis_id = _text(item.get("id") or "")
+        value = _text(item.get("value") or "")
+        fact = _compact(_text(item.get("fact") or item.get("text") or item.get("description") or ""), 220)
+        title = _compact(_text(item.get("source_title") or item.get("title") or item.get("domain") or ""), 80)
+        url = _text(item.get("url") or "")
+        left = f"<span class='basis-id'>{_e(basis_id)}</span> " if basis_id else ""
+        if value:
+            left += f"{_e(value)} - "
+        body = _e(fact or title or "Retained evidence item")
+        if url:
+            source = f" <a href='{_e(url)}'>{_e(title or url)}</a>"
+        elif title:
+            source = f" {_e(title)}"
+        else:
+            source = ""
+        parts.append(f"<li>{left}{body}{source}</li>")
+    parts.append("</ul></details>")
 
 
 def _render_actions(parts: List[str], actions: List[Dict[str, str]], labels: Dict[str, str]) -> None:
@@ -1068,10 +1120,33 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         exhibit["type"] = _text(exhibit.get("type") or "bar").lower().replace("-", "_")
         exhibit["caption"] = _compact(_text(exhibit.get("caption") or exhibit.get("summary") or ""), 360)
         exhibit["source_note"] = _compact(_text(exhibit.get("source_note") or exhibit.get("source") or ""), 260)
+        exhibit["data_basis"] = _normalize_data_basis(exhibit.get("data_basis") or exhibit.get("basis") or [])
+        exhibit["evidence_quality"] = _compact(_text(exhibit.get("evidence_quality") or ""), 120)
         if not exhibit.get("after_section_id") and idx > 1:
             exhibit["after_section_id"] = f"section-{idx}"
         exhibits.append(exhibit)
     return exhibits
+
+
+def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
+    basis = []
+    for idx, item in enumerate(_as_list(value), start=1):
+        if isinstance(item, dict):
+            basis.append(
+                {
+                    "id": _compact(_text(item.get("id") or f"E{idx}"), 24),
+                    "value": _compact(_text(item.get("value") or item.get("display_value") or ""), 40),
+                    "fact": _compact(_text(item.get("fact") or item.get("text") or item.get("description") or ""), 300),
+                    "source_title": _compact(_text(item.get("source_title") or item.get("title") or ""), 120),
+                    "url": _text(item.get("url") or item.get("source_url") or ""),
+                    "domain": _compact(_text(item.get("domain") or ""), 80),
+                }
+            )
+        else:
+            text_value = _text(item)
+            if text_value:
+                basis.append({"id": f"E{idx}", "value": "", "fact": _compact(text_value, 300), "source_title": "", "url": "", "domain": ""})
+    return [item for item in basis if item.get("fact") or item.get("url") or item.get("source_title")][:12]
 
 
 def _normalize_actions(value: Any) -> List[Dict[str, str]]:

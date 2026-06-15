@@ -11,6 +11,7 @@ from .deepseek_client import DeepSeekClient
 from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
 from .research_quality import ResearchFactPack, build_research_fact_pack
+from .web_evidence import build_evidence_exhibits, build_evidence_ledger, build_storyline_plan, merge_evidence_exhibits
 from .web_fetch import SourceDocument, collect_sources
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
@@ -34,7 +35,7 @@ class WebReportPipeline:
         ensure_dir(assets_dir)
         display_topic = str(topic or "").strip()
         self._log(f"START web report pipeline | topic={display_topic!r} | output_dir={output_dir}")
-        self._log("ETA planning=15-90s, source_collection=30-150s, synthesis=60-180s, visuals=60-360s")
+        self._log("ETA planning=15-90s, source_collection=30-150s, evidence=5-15s, synthesis=60-180s, visuals=60-360s")
 
         phase_start = time.monotonic()
         self._log("PHASE planning started | expected 15-90s")
@@ -72,9 +73,29 @@ class WebReportPipeline:
         )
 
         phase_start = time.monotonic()
+        self._log("PHASE evidence_ledger_and_storyline started | expected 5-15s")
+        try:
+            evidence_ledger = build_evidence_ledger(display_topic, sources, fact_pack)
+        except Exception as exc:
+            (output_dir / "web_evidence_error.txt").write_text(str(exc), encoding="utf-8")
+            evidence_ledger = []
+            self._log(f"PHASE evidence_ledger fallback used | reason={str(exc)[:240]!r}")
+        storyline_plan = build_storyline_plan(display_topic, plan, fact_pack, evidence_ledger, language=self.language)
+        family_counts: Dict[str, int] = {}
+        for item in evidence_ledger:
+            family = str(item.get("metric_family") or "other")
+            family_counts[family] = family_counts.get(family, 0) + 1
+        family_summary = ", ".join(f"{key}:{value}" for key, value in sorted(family_counts.items(), key=lambda x: (-x[1], x[0]))[:6])
+        self._log(
+            "PHASE evidence_ledger_and_storyline completed "
+            f"| elapsed={self._elapsed(phase_start)} | evidence_points={len(evidence_ledger)} "
+            f"| families={family_summary or 'none'}"
+        )
+
+        phase_start = time.monotonic()
         self._log("PHASE synthesis started | expected 60-180s")
         try:
-            report = self._synthesize_web_report(display_topic, plan, sources, fact_pack)
+            report = self._synthesize_web_report(display_topic, plan, sources, fact_pack, evidence_ledger, storyline_plan)
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
             report = self._fallback_report(display_topic, plan, sources, fact_pack, str(exc))
@@ -82,6 +103,16 @@ class WebReportPipeline:
         self._log(
             "PHASE synthesis completed "
             f"| elapsed={self._elapsed(phase_start)} | raw_keys={','.join(sorted(report.keys())[:20])}"
+        )
+
+        phase_start = time.monotonic()
+        self._log("PHASE evidence_exhibits started | expected <10s")
+        evidence_exhibits = build_evidence_exhibits(display_topic, evidence_ledger, fact_pack, language=self.language)
+        report = merge_evidence_exhibits(report, evidence_exhibits)
+        self._log(
+            "PHASE evidence_exhibits completed "
+            f"| elapsed={self._elapsed(phase_start)} | exhibits={len(evidence_exhibits)} "
+            f"| backed_by_ledger={sum(1 for exhibit in evidence_exhibits if exhibit.get('data_basis'))}"
         )
 
         phase_start = time.monotonic()
@@ -122,6 +153,8 @@ class WebReportPipeline:
         (output_dir / "web_report_payload.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
         self._log(
             "PHASE render_and_write completed "
@@ -132,6 +165,8 @@ class WebReportPipeline:
         return {
             "plan": plan,
             "fact_pack": fact_pack.to_dict(),
+            "evidence_ledger": evidence_ledger,
+            "storyline_plan": storyline_plan,
             "sources": source_dicts,
             "report": report,
             "assets": assets,
@@ -188,6 +223,8 @@ Requirements:
         plan: Dict[str, Any],
         sources: List[SourceDocument],
         fact_pack: ResearchFactPack,
+        evidence_ledger: List[Dict[str, Any]],
+        storyline_plan: Dict[str, Any],
     ) -> Dict[str, Any]:
         source_blocks = []
         for idx, source in enumerate(sources[:14], start=1):
@@ -201,6 +238,7 @@ Requirements:
                 f"Excerpt:\n{source.content[:2200]}"
             )
         source_text = "\n\n".join(source_blocks) or ("No reliable source text was fetched." if self.language == "en" else "未抓取到可靠资料正文。")
+        evidence_text = json.dumps(evidence_ledger[:24], ensure_ascii=False, indent=2)
         system = "You are an elite strategy research author. Return one valid JSON object only. No markdown."
         if self.language == "zh":
             user = f"""
@@ -208,7 +246,10 @@ Requirements:
 
 主题：{topic}
 研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
+叙事主线计划：{json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
 事实包：{fact_pack.digest()}
+证据台账（图表和数字判断只能来自这里或事实包）：
+{evidence_text}
 资料摘录：
 {source_text}
 
@@ -219,9 +260,10 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 - 全程中文，面向 CEO/董事会/战略团队。
 - 内容质量优先于长度；目标是 4-6 个扎实章节，而不是很多浅章节。
 - title 和章节标题必须结论先行；不要用“概览、背景、趋势、分析、结论”这类标签标题。
+- 必须顺着“叙事主线计划”展开，先回答核心管理问题，再用事实包和证据台账支撑判断。
 - key_takeaways 3 条，每条必须有明确判断和管理含义。
 - sections 4-6 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 5-7 段，必须包含数字、日期、案例、机制或反例中的至少两类。
-- exhibits 3-5 个；使用 metric_row、bar、line、matrix、process、bubble 中的类型。只有资料支持时才给真实数字；如果是方向性评分，必须在 caption/source_note 明确写“方向性评分/需复核”，不能伪装成事实。
+- exhibits 3-5 个；如果提出图表草稿，只能使用证据台账或事实包中的数字、年份、来源计数或同单位可比数据，必须保留 data_basis；不要使用方向性评分或内部综合指数。
 - action_steps 3-5 个，每个包含 horizon、action、success_metric。
 - references 只能使用上方 Sources 中真实 URL。
 - 不要暴露内部提示、不要说“本章节认为/本报告认为”，直接写判断。
@@ -234,8 +276,12 @@ Generate an HTML-first, BCG-publication-like deep analysis report data structure
 Topic: {topic}
 Research plan:
 {json.dumps(plan, ensure_ascii=False, indent=2)}
+Storyline plan:
+{json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
 Fact pack:
 {fact_pack.digest()}
+Evidence ledger (numeric claims and chart drafts may only use these entries or fact-pack counts):
+{evidence_text}
 Source excerpts:
 {source_text}
 
@@ -246,9 +292,10 @@ Writing rules:
 - English only. Write for a CEO, board and strategy team audience.
 - Depth matters more than page count. Aim for 4-6 substantial sections rather than many shallow chapters.
 - The title and every section title must be conclusion-first. Avoid label headings such as Overview, Background, Trends, Analysis or Conclusion.
+- Follow the storyline plan: answer the core management question first, then use the fact pack and evidence ledger to support the argument.
 - key_takeaways: exactly 3, each with a clear claim and management implication.
 - sections: 4-6 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 5-7 paragraphs and must include at least two of: numbers, dates, cases, causal mechanism, counter-evidence.
-- exhibits: 3-5 items using metric_row, bar, line, matrix, process or bubble. Use real numbers only when supported by sources. If using directional scores, label them as directional in caption/source_note; do not disguise them as facts.
+- exhibits: 3-5 items using metric_row, bar, line, matrix, process or bubble. If drafting exhibits, use only evidence-ledger values, years, source counts or same-unit comparable values from the fact pack, and include data_basis. Do not use directional scores, priority indexes, readiness indexes or internal synthesis values.
 - action_steps: 3-5 items, each with horizon, action, success_metric.
 - references may only use real URLs present in Sources.
 - Do not expose internal prompt language. Do not write "this section argues" or "this report finds"; state the insight directly.

@@ -42,6 +42,8 @@ def main() -> None:
     print(f"Markdown generated at: {result['markdown_path']}")
     print(f"Payload generated at: {output_dir / 'web_report_payload.json'}")
     print(f"Research fact pack generated at: {output_dir / 'research_fact_pack.json'}")
+    print(f"Evidence ledger generated at: {output_dir / 'evidence_ledger.json'}")
+    print(f"Storyline plan generated at: {output_dir / 'storyline_plan.json'}")
     print(f"Sources generated at: {output_dir / 'sources.json'}")
 
     step_summary = os.getenv("GITHUB_STEP_SUMMARY")
@@ -53,6 +55,8 @@ def main() -> None:
             f.write(f"- HTML: `{result['html_path']}`\n")
             f.write(f"- Markdown: `{result['markdown_path']}`\n")
             f.write(f"- Payload: `{output_dir / 'web_report_payload.json'}`\n")
+            f.write(f"- Evidence ledger: `{output_dir / 'evidence_ledger.json'}`\n")
+            f.write(f"- Storyline plan: `{output_dir / 'storyline_plan.json'}`\n")
             f.write(f"- Sources: `{output_dir / 'sources.json'}`\n")
 
 

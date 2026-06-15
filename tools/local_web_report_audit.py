@@ -26,6 +26,17 @@ PROCESS_PATTERNS = (
     r"\bstress\s+test\b",
 )
 
+UNSUPPORTED_CHART_PATTERNS = (
+    r"\bdirectional\s+(?:priority|assessment|score|index|view)\b",
+    r"\bpriority\s+index\b",
+    r"\breadiness\s+index\b",
+    r"\brelative\s+strength\b",
+    r"\bmanagement\s+(?:conviction|attention)\b",
+    r"\bevidence\s+maturity\b",
+    r"\bblueocean\s+(?:synthesis|assessment|scenario|risk screen|management screen|option synthesis)\b",
+    r"\barbitrary\s+(?:score|index)\b",
+)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit HTML-first thought leadership report output.")
@@ -37,12 +48,14 @@ def main() -> int:
     html_path = report_dir / "index.html"
     payload_path = report_dir / "web_report_payload.json"
     fact_pack_path = report_dir / "research_fact_pack.json"
+    evidence_ledger_path = report_dir / "evidence_ledger.json"
+    storyline_plan_path = report_dir / "storyline_plan.json"
     sources_path = report_dir / "sources.json"
 
     issues: List[str] = []
     metrics: Dict[str, Any] = {"report_dir": str(report_dir)}
 
-    for path in [html_path, payload_path, fact_pack_path, sources_path]:
+    for path in [html_path, payload_path, fact_pack_path, evidence_ledger_path, storyline_plan_path, sources_path]:
         if not path.exists():
             issues.append(f"missing required file: {path.name}")
 
@@ -52,6 +65,8 @@ def main() -> int:
     payload = read_json(payload_path, issues)
     sources = read_json(sources_path, issues)
     fact_pack = read_json(fact_pack_path, issues)
+    evidence_ledger = read_json(evidence_ledger_path, issues)
+    storyline_plan = read_json(storyline_plan_path, issues)
     html = html_path.read_text(encoding="utf-8", errors="ignore")
     html_text = strip_tags(html)
 
@@ -65,6 +80,8 @@ def main() -> int:
     }
     action_steps = [x for x in as_list(payload.get("action_steps")) if isinstance(x, dict)]
     references = [x for x in as_list(payload.get("references")) if isinstance(x, dict)]
+    ledger_items = [x for x in as_list(evidence_ledger) if isinstance(x, dict)]
+    data_backed_exhibits = [x for x in exhibits if any(isinstance(item, dict) for item in as_list(x.get("data_basis")))]
 
     metrics.update(
         {
@@ -73,8 +90,11 @@ def main() -> int:
             "takeaways": len(takeaways),
             "actions": len(action_steps),
             "references": len(references),
+            "evidence_ledger_points": len(ledger_items),
+            "data_backed_exhibits": len(data_backed_exhibits),
             "sources": len(sources if isinstance(sources, list) else []),
             "fact_pack_sources": fact_pack.get("source_count") if isinstance(fact_pack, dict) else None,
+            "storyline_keys": sorted(storyline_plan.keys()) if isinstance(storyline_plan, dict) else [],
             "html_chars": len(html_text),
             "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
             "takeaway_candidate_counts": takeaway_candidates,
@@ -96,6 +116,12 @@ def main() -> int:
         issues.append(f"expected at least 4 retained references, got {len(references)}")
     if len(html_text) < 12000:
         issues.append(f"HTML article appears too thin ({len(html_text)} text chars)")
+    if len(ledger_items) < 3:
+        issues.append(f"expected at least 3 chartable evidence ledger points, got {len(ledger_items)}")
+    if not isinstance(storyline_plan, dict) or not text(storyline_plan.get("core_question")):
+        issues.append("storyline_plan.json lacks a core_question")
+    if len(data_backed_exhibits) < min(3, len(exhibits)):
+        issues.append(f"expected at least {min(3, len(exhibits))} exhibits with data_basis, got {len(data_backed_exhibits)}")
 
     for idx, section in enumerate(sections, start=1):
         title = text(section.get("title"))
@@ -123,10 +149,29 @@ def main() -> int:
     for idx, exhibit in enumerate(exhibits, start=1):
         title = text(exhibit.get("title"))
         source_note = text(exhibit.get("source_note") or exhibit.get("caption"))
+        data_basis = [x for x in as_list(exhibit.get("data_basis")) if isinstance(x, dict)]
+        exhibit_text = " ".join(
+            [
+                title,
+                text(exhibit.get("subtitle")),
+                text(exhibit.get("caption")),
+                text(exhibit.get("source_note")),
+                text(exhibit.get("series")),
+                text(exhibit.get("categories")),
+            ]
+        ).lower()
         if len(title) < 24:
             issues.append(f"exhibit {idx} title is too thin: {title}")
         if not source_note:
             issues.append(f"exhibit {idx} lacks caption/source note: {title}")
+        if text(exhibit.get("type")).lower() in {"metric_row", "bar", "line", "matrix", "bubble"} and not data_basis:
+            issues.append(f"exhibit {idx} lacks source-backed data_basis: {title}")
+        for pattern in UNSUPPORTED_CHART_PATTERNS:
+            if re.search(pattern, exhibit_text, re.I):
+                issues.append(f"exhibit {idx} appears to use unsupported synthetic chart metric ({pattern}): {title}")
+                break
+        if data_basis and not any(text(item.get("url")) or text(item.get("domain")) for item in data_basis):
+            issues.append(f"exhibit {idx} data_basis lacks source URL/domain: {title}")
 
     lower = html_text.lower()
     for pattern in PROCESS_PATTERNS:
@@ -135,6 +180,8 @@ def main() -> int:
     for required in ["Key Takeaways", "Contents", "How leaders should move next", "Methodology", "Sources"]:
         if required.lower() not in lower:
             issues.append(f"HTML missing expected BCG-style module: {required}")
+    if "data basis" not in lower:
+        issues.append("HTML missing visible Data basis for exhibits")
 
     return emit(issues, metrics, args.warn_only)
 

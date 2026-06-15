@@ -10,6 +10,9 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from gen_rpt.brand_assets import copy_or_generate_brand_assets
+from gen_rpt.research_quality import build_research_fact_pack
+from gen_rpt.web_evidence import build_evidence_exhibits, build_evidence_ledger, build_storyline_plan
+from gen_rpt.web_fetch import SourceDocument
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
 
@@ -21,12 +24,84 @@ def main() -> None:
     assets_dir.mkdir(parents=True, exist_ok=True)
     assets = copy_or_generate_brand_assets(assets_dir)
 
+    plan = {
+        "objective": "Assess how AI can offset the process-industry talent cliff.",
+        "decision_question": "Where should process-industry leaders deploy AI first to reduce workforce-driven output risk?",
+        "search_queries": [
+            "process industries talent cliff AI productivity 2026",
+            "AI powered marketing revenue growth BCG 2024",
+            "responsible AI industrial operations governance 2026",
+        ],
+        "outline": [
+            "The talent cliff is an operating risk before it is an HR issue",
+            "AI value depends on frontline workflow redesign",
+            "Evidence gates should control scale-up",
+        ],
+    }
+    sample_sources = [
+        SourceDocument(
+            title="BCG sample talent cliff article",
+            url="https://www.bcg.com/publications/2026/ai-the-answer-to-process-industries-talent-cliff",
+            query="process industries talent cliff AI productivity 2026",
+            snippet="The article frames process industries as facing a talent cliff in 2026.",
+            content=(
+                "The sample article cites a 15% decline in workforce hours against a 10% decline in output across 2002-2024. "
+                "It frames process industries as including metals and mining, chemicals, agriculture, forestry, paper and packaging."
+            ),
+            source_type="html",
+            domain="bcg.com",
+        ),
+        SourceDocument(
+            title="BCG sample AI marketing article",
+            url="https://www.bcg.com/publications/2024/blueprint-for-ai-powered-marketing",
+            query="AI powered marketing revenue growth BCG 2024",
+            snippet="The article references AI leaders and growth outcomes.",
+            content=(
+                "The sample AI marketing article references 60% greater revenue growth for AI leaders. "
+                "It uses the next five years as the transformation horizon and describes four stages from foundation to transformation."
+            ),
+            source_type="html",
+            domain="bcg.com",
+        ),
+        SourceDocument(
+            title="BCG AI capabilities page",
+            url="https://www.bcg.com/capabilities/artificial-intelligence",
+            query="AI capabilities operating model",
+            snippet="AI programs need operating-model change and adoption routines.",
+            content=(
+                "Industrial AI adoption depends on data access, process redesign, human trust and responsible governance. "
+                "A 90-day pilot can test adoption, but lifecycle ROI requires a longer validation window."
+            ),
+            source_type="html",
+            domain="bcg.com",
+        ),
+        SourceDocument(
+            title="BCG responsible AI page",
+            url="https://www.bcg.com/capabilities/artificial-intelligence/responsible-ai",
+            query="responsible AI industrial operations governance 2026",
+            snippet="Responsible AI requires governance, human oversight and risk controls.",
+            content=(
+                "Responsible AI programs commonly separate advisory AI from autonomous decisions. "
+                "A 30/90/180-day cadence can assign owners, validation gates and measurable site-level outcomes in 2026."
+            ),
+            source_type="html",
+            domain="bcg.com",
+        ),
+    ]
+    fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
+    evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
+    storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")
+    evidence_exhibits = build_evidence_exhibits("AI and process-industry talent", evidence_ledger, fact_pack, language="en")[:3]
+    assert len(evidence_ledger) >= 3
+    assert len(evidence_exhibits) >= 3
+    assert all(exhibit.get("data_basis") for exhibit in evidence_exhibits)
+
     payload = {
         "title": "AI Can Rebuild the Industrial Talent Model Only If Leaders Treat It as Operating Redesign",
         "dek": "Process industries face a workforce cliff, but AI creates value only when it changes frontline work, skills, incentives and management routines together.",
         "category": "Industrial goods",
         "authors": ["BlueOcean Research"],
-        "source_count": 9,
+        "source_count": fact_pack.source_count,
         "intro": [
             "The core question is not whether AI can automate tasks. It is whether management can redesign work fast enough to protect output, retain institutional knowledge and make frontline roles more attractive."
             " By 2026, that matters because labor pressure is no longer a slow-burn HR issue; it is already shaping throughput, safety and training capacity at site level."
@@ -141,53 +216,14 @@ def main() -> None:
                 "so_what": "The dashboard should prove that AI is changing the operating trajectory, not just the software stack.",
             },
         ],
-        "exhibits": [
-            {
-                "id": "exhibit-1",
-                "no": "1",
-                "type": "metric_row",
-                "title": "The talent challenge should be measured as operational exposure",
-                "metrics": [
-                    {"value": "3", "label": "risk domains: output, knowledge transfer and safety"},
-                    {"value": "90d", "label": "recommended first diagnostic sprint"},
-                    {"value": "4", "label": "scale gates before multi-site rollout"},
-                ],
-                "caption": "These are program design metrics, not market facts.",
-                "source_note": "BlueOcean synthesis from sample article structure.",
-            },
-            {
-                "id": "exhibit-2",
-                "no": "2",
-                "type": "bar",
-                "title": "Use-case priority should follow operational exposure",
-                "categories": ["Maintenance diagnostics", "Operator support", "Training", "Shift handover", "Back-office copilots"],
-                "series": [{"name": "Directional priority", "values": [88, 82, 74, 63, 45]}],
-                "caption": "Directional score for smoke testing; replace with site baseline data before client use.",
-                "source_note": "BlueOcean directional assessment.",
-                "after_section_id": "section-2",
-            },
-            {
-                "id": "exhibit-3",
-                "no": "3",
-                "type": "process",
-                "title": "A staged program keeps technology scale-up behind adoption proof",
-                "steps": [
-                    {"title": "Diagnose", "description": "Map workforce exposure to output, uptime, safety and training metrics."},
-                    {"title": "Pilot", "description": "Build human-in-the-loop workflows in two or three constrained use cases."},
-                    {"title": "Codify", "description": "Standardize data ownership, escalation rules, skills and governance."},
-                    {"title": "Scale", "description": "Roll out across sites after adoption and value gates are met."},
-                ],
-                "source_note": "BlueOcean operating-model synthesis.",
-                "after_section_id": "section-4",
-            },
-        ],
+        "exhibits": evidence_exhibits,
         "action_steps": [
             {"horizon": "0-30 days", "action": "Quantify workforce exposure by site and workflow", "success_metric": "Baseline dashboard covers vacancies, retirement risk, downtime, training time and safety."},
             {"horizon": "30-90 days", "action": "Launch two AI-enabled frontline workflow pilots", "success_metric": "Pilots have adoption, value and safety gates."},
             {"horizon": "90-180 days", "action": "Codify the AI operating model for scale", "success_metric": "Roles, data ownership, governance and training are approved for rollout."},
         ],
-        "methodology": "Smoke-test payload based on local synthesis. Figures are illustrative unless explicitly source-backed.",
-        "evidence_quality": "The smoke test intentionally mixes source-backed sample facts and directional program-design judgments.",
+        "methodology": "Smoke-test payload based on public-source fixtures, fact-pack extraction and an evidence ledger. Exhibit values are traceable to the retained fixture sources.",
+        "evidence_quality": f"The smoke test retained {len(evidence_ledger)} evidence-ledger points and {fact_pack.source_count} public sources.",
         "references": [
             {"title": "BCG sample talent cliff article", "url": "https://www.bcg.com/publications/2026/ai-the-answer-to-process-industries-talent-cliff"},
             {"title": "BCG sample AI marketing article", "url": "https://www.bcg.com/publications/2024/blueprint-for-ai-powered-marketing"},
@@ -201,7 +237,7 @@ def main() -> None:
     assert len(normalized["key_takeaways"]) == 3
     assert len(normalized["sections"]) == 5
     assert len(normalized["exhibits"]) == 3
-    assert normalized["source_count"] == 9
+    assert normalized["source_count"] == fact_pack.source_count
     drifted_payload = dict(payload)
     drifted_payload.pop("key_takeaways", None)
     drifted_payload["keyTakeaways"] = {
@@ -236,57 +272,16 @@ def main() -> None:
     md_text = md_path.read_text(encoding="utf-8")
     assert "Key Takeaways" in html_text
     assert "article-shell" in html_text
-    assert "Use-case priority should follow operational exposure" in html_text
+    assert "Data basis" in html_text
+    assert "source-backed" in html_text
     assert "How leaders should move next" in html_text
     assert "BCG sample talent cliff article" in html_text
     assert "# AI Can Rebuild" in md_text
     (out / "web_report_payload.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
-    (out / "research_fact_pack.json").write_text(
-        json.dumps(
-            {
-                "topic": "AI and process-industry talent",
-                "source_count": 9,
-                "authoritative_source_count": 2,
-                "validation_issues": [],
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
-    (out / "sources.json").write_text(
-        json.dumps(
-            [
-                {
-                    "title": "BCG sample talent cliff article",
-                    "url": "https://www.bcg.com/publications/2026/ai-the-answer-to-process-industries-talent-cliff",
-                    "domain": "bcg.com",
-                    "content": "Sample source.",
-                },
-                {
-                    "title": "BCG sample AI marketing article",
-                    "url": "https://www.bcg.com/publications/2024/blueprint-for-ai-powered-marketing",
-                    "domain": "bcg.com",
-                    "content": "Sample source.",
-                },
-                {
-                    "title": "BCG AI capabilities page",
-                    "url": "https://www.bcg.com/capabilities/artificial-intelligence",
-                    "domain": "bcg.com",
-                    "content": "Sample source.",
-                },
-                {
-                    "title": "BCG responsible AI page",
-                    "url": "https://www.bcg.com/capabilities/artificial-intelligence/responsible-ai",
-                    "domain": "bcg.com",
-                    "content": "Sample source.",
-                },
-            ],
-            ensure_ascii=False,
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
+    (out / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
+    (out / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out / "sources.json").write_text(json.dumps([source.__dict__ for source in sample_sources], ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "normalized.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"HTML smoke report: {html_path}")
 
