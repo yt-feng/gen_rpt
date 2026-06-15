@@ -395,6 +395,54 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   color: var(--forest);
   font-weight: 700;
 }
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: 10px 0 4px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--line);
+}
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.timeline-year {
+  position: relative;
+  z-index: 1;
+  width: 58px;
+  min-height: 58px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1;
+}
+.timeline-card {
+  background: var(--sand-2);
+  border-top: 4px solid var(--green);
+  padding: 14px 16px;
+  min-height: 76px;
+}
+.timeline-card strong {
+  color: var(--forest);
+  display: block;
+  margin-bottom: 4px;
+}
 .process {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -802,11 +850,13 @@ def _render_exhibit(parts: List[str], exhibit: Dict[str, Any]) -> None:
         _render_metrics(parts, exhibit)
     elif etype in {"line", "line_chart"}:
         parts.append(_svg_line(exhibit))
-    elif etype in {"matrix", "heatmap"}:
+    elif etype in {"matrix", "heatmap", "opportunity_matrix", "decision_matrix"}:
         _render_matrix(parts, exhibit)
-    elif etype in {"process", "timeline", "roadmap", "flywheel"}:
+    elif etype in {"timeline", "milestone_timeline"}:
+        _render_timeline(parts, exhibit)
+    elif etype in {"process", "roadmap", "flywheel"}:
         _render_process(parts, exhibit)
-    elif etype in {"bubble", "scatter"}:
+    elif etype in {"bubble", "scatter", "opportunity_map", "quadrant"}:
         parts.append(_svg_bubble(exhibit))
     else:
         parts.append(_svg_bar(exhibit))
@@ -849,6 +899,29 @@ def _render_matrix(parts: List[str], exhibit: Dict[str, Any]) -> None:
             parts.append(f"<td><span class='matrix-score'>{_e(_format_value(raw))}</span></td>")
         parts.append("</tr>")
     parts.append("</tbody></table>")
+
+
+def _render_timeline(parts: List[str], exhibit: Dict[str, Any]) -> None:
+    items = exhibit.get("events") or exhibit.get("steps") or exhibit.get("items") or []
+    if not isinstance(items, list) or not items:
+        items = [
+            {"year": "Now", "title": "Baseline", "description": "Establish the current evidence base."},
+            {"year": "Next", "title": "Validate", "description": "Close the highest-risk assumptions."},
+            {"year": "Later", "title": "Commit", "description": "Move only after proof gates are met."},
+        ]
+    parts.append("<div class='timeline'>")
+    for idx, item in enumerate(items[:6], start=1):
+        if isinstance(item, dict):
+            year = _text(item.get("year") or item.get("date") or item.get("label") or str(idx))
+            title = _text(item.get("title") or item.get("milestone") or f"Milestone {idx}")
+            desc = _text(item.get("description") or item.get("text") or item.get("fact") or "")
+        else:
+            year, title, desc = str(idx), f"Milestone {idx}", _text(item)
+        parts.append("<div class='timeline-item'>")
+        parts.append(f"<div class='timeline-year'>{_e(_compact(year, 8))}</div>")
+        parts.append(f"<div class='timeline-card'><strong>{_e(_compact(title, 72))}</strong><div>{_e(_compact(desc, 220))}</div></div>")
+        parts.append("</div>")
+    parts.append("</div>")
 
 
 def _render_process(parts: List[str], exhibit: Dict[str, Any]) -> None:
@@ -1003,9 +1076,19 @@ def _svg_bubble(exhibit: Dict[str, Any]) -> str:
     left, right, top, bottom = 70, 40, 28, 60
     plot_w = width - left - right
     plot_h = height - top - bottom
+    x_label = _text(exhibit.get("x_label") or "Proof available")
+    y_label = _text(exhibit.get("y_label") or "Actionability")
     out = [f"<svg class='svg-chart' viewBox='0 0 {width} {height}' role='img'>"]
+    mid_x = left + plot_w / 2
+    mid_y = top + plot_h / 2
+    out.append(f"<line class='chart-grid' x1='{mid_x:.1f}' x2='{mid_x:.1f}' y1='{top}' y2='{height - bottom}' />")
+    out.append(f"<line class='chart-grid' x1='{left}' x2='{width - right}' y1='{mid_y:.1f}' y2='{mid_y:.1f}' />")
     out.append(f"<line class='chart-axis' x1='{left}' x2='{width - right}' y1='{height - bottom}' y2='{height - bottom}' />")
     out.append(f"<line class='chart-axis' x1='{left}' x2='{left}' y1='{top}' y2='{height - bottom}' />")
+    out.append(f"<text class='chart-small' x='{width - right - 140}' y='{height - 14}'>{_e(_compact(x_label, 36))}</text>")
+    out.append(f"<text class='chart-small' x='{left}' y='{top - 10}'>{_e(_compact(y_label, 36))}</text>")
+    out.append(f"<text class='chart-small' x='{left + 8}' y='{height - bottom - 10}'>Lower</text>")
+    out.append(f"<text class='chart-small' x='{width - right - 45}' y='{height - bottom - 10}'>Higher</text>")
     colors = ["var(--green)", "var(--blue)", "var(--amber)", "var(--forest)"]
     for idx, point in enumerate(points[:8]):
         x = left + (_number(point.get("x"), 50) / 100.0) * plot_w

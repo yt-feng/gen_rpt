@@ -91,9 +91,9 @@ def main() -> None:
     fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
     storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")
-    evidence_exhibits = build_evidence_exhibits("AI and process-industry talent", evidence_ledger, fact_pack, language="en")[:3]
+    evidence_exhibits = build_evidence_exhibits("AI and process-industry talent", evidence_ledger, fact_pack, language="en")
     assert len(evidence_ledger) >= 3
-    assert len(evidence_exhibits) >= 3
+    assert 3 <= len(evidence_exhibits) <= 5
     assert all(exhibit.get("data_basis") for exhibit in evidence_exhibits)
 
     payload = {
@@ -236,7 +236,7 @@ def main() -> None:
     assert normalized["title"].startswith("AI Can Rebuild")
     assert len(normalized["key_takeaways"]) == 3
     assert len(normalized["sections"]) == 5
-    assert len(normalized["exhibits"]) == 3
+    assert 3 <= len(normalized["exhibits"]) <= 5
     assert normalized["source_count"] == fact_pack.source_count
     drifted_payload = dict(payload)
     drifted_payload.pop("key_takeaways", None)
@@ -273,7 +273,7 @@ def main() -> None:
     assert "Key Takeaways" in html_text
     assert "article-shell" in html_text
     assert "Data basis" in html_text
-    assert "source-backed" in html_text
+    assert "opportunity matrix" in html_text.lower()
     assert "How leaders should move next" in html_text
     assert "BCG sample talent cliff article" in html_text
     assert "# AI Can Rebuild" in md_text

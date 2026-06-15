@@ -37,6 +37,15 @@ UNSUPPORTED_CHART_PATTERNS = (
     r"\barbitrary\s+(?:score|index)\b",
 )
 
+META_CHART_PATTERNS = (
+    r"\bpublic record is densest\b",
+    r"\bevidence famil(?:y|ies)\b",
+    r"\bevidence points with explicit years\b",
+    r"\bchronology is strongest\b",
+    r"\bfact extraction determines\b",
+    r"\bsource support is strongest where sources, numbers and dates overlap\b",
+)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit HTML-first thought leadership report output.")
@@ -144,8 +153,12 @@ def main() -> int:
 
     exhibit_types = {text(x.get("type")).lower() for x in exhibits}
     metrics["exhibit_types"] = sorted(exhibit_types)
-    if len(exhibit_types) < 2:
-        issues.append("exhibit mix is too narrow")
+    non_metric_exhibits = [x for x in exhibits if text(x.get("type")).lower() not in {"metric_row", "metrics", "big_numbers"}]
+    metrics["non_metric_exhibits"] = len(non_metric_exhibits)
+    if len(exhibit_types) < 3:
+        issues.append("exhibit mix is too narrow; expected at least 3 chart/exhibit types")
+    if len(non_metric_exhibits) < 3:
+        issues.append(f"expected at least 3 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
     for idx, exhibit in enumerate(exhibits, start=1):
         title = text(exhibit.get("title"))
         source_note = text(exhibit.get("source_note") or exhibit.get("caption"))
@@ -169,6 +182,10 @@ def main() -> int:
         for pattern in UNSUPPORTED_CHART_PATTERNS:
             if re.search(pattern, exhibit_text, re.I):
                 issues.append(f"exhibit {idx} appears to use unsupported synthetic chart metric ({pattern}): {title}")
+                break
+        for pattern in META_CHART_PATTERNS:
+            if re.search(pattern, exhibit_text, re.I):
+                issues.append(f"exhibit {idx} is still a research-process/meta chart ({pattern}): {title}")
                 break
         if data_basis and not any(text(item.get("url")) or text(item.get("domain")) for item in data_basis):
             issues.append(f"exhibit {idx} data_basis lacks source URL/domain: {title}")

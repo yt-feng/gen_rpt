@@ -34,7 +34,7 @@ AUTHORITY_HINTS = (
 VALUE_RE = re.compile(
     r"(?P<prefix>US\$|\$|USD|RMB|CNY|EUR|HK\$)?\s*"
     r"(?P<number>\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*"
-    r"(?P<unit>%|percent|percentage points?|trillion|billion|million|bn|mn|GW|MW|GWh|TWh|MWh|kg|kilograms?|years?|months?|companies|plants|projects|USD|dollars?)?",
+    r"(?P<unit>%|percent|percentage points?|trillion|billion|million|bn|mn|GW|MW|GWh|TWh|MWh|MJ|megajoules?|kg|kilograms?|years?|months?|days?|companies|plants|projects|components?|parts?|USD|dollars?)?",
     re.I,
 )
 YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
@@ -141,15 +141,27 @@ def build_evidence_exhibits(
 
     exhibits: List[Dict[str, Any]] = []
     exhibits.append(_metric_row_exhibit(evidence_ledger, fact_pack))
+
+    timeline = _milestone_timeline_exhibit(evidence_ledger, fact_pack)
+    if timeline:
+        exhibits.append(timeline)
+
     comparable = _comparable_value_exhibit(evidence_ledger)
     if comparable:
         exhibits.append(comparable)
-    year_exhibit = _year_exhibit(evidence_ledger)
-    if year_exhibit:
-        exhibits.append(year_exhibit)
-    exhibits.append(_evidence_family_exhibit(evidence_ledger))
-    exhibits.append(_support_matrix_exhibit(evidence_ledger, fact_pack))
 
+    matrix = _opportunity_matrix_exhibit(evidence_ledger, fact_pack)
+    if matrix:
+        exhibits.append(matrix)
+
+    exhibits.append(_stage_gate_process_exhibit(topic, evidence_ledger, fact_pack))
+    opportunity = _opportunity_map_exhibit(evidence_ledger, fact_pack)
+    if opportunity:
+        exhibits.append(opportunity)
+
+    if len(exhibits) < 3:
+        fallback = [_year_exhibit(evidence_ledger), _evidence_family_exhibit(evidence_ledger), _support_matrix_exhibit(evidence_ledger, fact_pack)]
+        exhibits.extend([item for item in fallback if item][: 3 - len(exhibits)])
     if len(exhibits) < 3:
         exhibits.extend(_fact_pack_exhibits(topic, fact_pack)[: 3 - len(exhibits)])
 
@@ -169,7 +181,7 @@ def merge_evidence_exhibits(report: Dict[str, Any], evidence_exhibits: List[Dict
 
 
 def _metric_row_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack) -> Dict[str, Any]:
-    points = [item for item in ledger if item.get("display_value")][:3]
+    points = _business_metric_points(ledger)[:3]
     metrics = []
     basis = []
     for point in points:
@@ -185,13 +197,194 @@ def _metric_row_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPac
         metrics.append({"value": str(fact_pack.authoritative_source_count), "label": "authority-weighted public sources"})
     return {
         "type": "metric_row",
-        "title": "The storyline is anchored in source-backed numbers",
-        "subtitle": "Each headline metric is traceable to a public source sentence.",
+        "title": "The executive case should start with the few numbers the public record can support",
+        "subtitle": "Each headline metric is traceable to a retained public source sentence.",
         "metrics": metrics[:3],
         "caption": "These values are extracted from public source text; they are not model-created scores.",
         "source_note": _source_note(points or ledger[:3]),
         "data_basis": basis or [_basis_item(item) for item in ledger[:3]],
         "evidence_quality": "source_extracted",
+    }
+
+
+def _business_metric_points(ledger: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    usable = [
+        item
+        for item in ledger
+        if item.get("display_value")
+        and str(item.get("unit") or "") not in {"", "year"}
+        and not _low_value_numeric_fact(str(item.get("fact") or ""), str(item.get("unit") or ""))
+    ]
+    return sorted(usable, key=lambda item: (_unit_priority(str(item.get("unit") or "")), int(bool(item.get("authoritative")))), reverse=True)
+
+
+def _milestone_timeline_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack) -> Dict[str, Any] | None:
+    points = []
+    seen_years: set[int] = set()
+    for item in sorted([x for x in ledger if x.get("year")], key=lambda x: int(x.get("year") or 0)):
+        year = int(item.get("year") or 0)
+        if year in seen_years:
+            continue
+        seen_years.add(year)
+        points.append(item)
+    if len(points) < 2:
+        for fact in fact_pack.dated_facts + fact_pack.high_confidence_facts:
+            years = [int(x) for x in YEAR_RE.findall(str(fact or ""))]
+            if not years:
+                continue
+            year = years[0]
+            if year in seen_years:
+                continue
+            seen_years.add(year)
+            points.append(
+                {
+                    "id": f"S{len(points) + 1}",
+                    "year": year,
+                    "fact": _strip_source_prefix(str(fact)),
+                    "display_value": str(year),
+                    "source_title": "Fact pack",
+                    "source_url": "",
+                    "domain": "",
+                }
+            )
+            if len(points) >= 5:
+                break
+    if len(points) < 2:
+        return None
+    points = sorted(points, key=lambda x: int(x.get("year") or 0))[:6]
+    return {
+        "type": "timeline",
+        "title": "Milestones, not hype cycles, set the strategic clock",
+        "subtitle": "A BCG-style article should show the sequence of proof points before recommending commitment.",
+        "events": [
+            {
+                "year": str(item.get("year") or ""),
+                "title": _short_label(_timeline_title(str(item.get("fact") or "")), 72),
+                "description": _short_label(str(item.get("fact") or ""), 190),
+            }
+            for item in points
+        ],
+        "caption": "The timeline uses dated public evidence and avoids turning milestone timing into a forecast.",
+        "source_note": _source_note(points),
+        "data_basis": [_basis_item(item) for item in points],
+        "evidence_quality": "source_dated_milestones",
+    }
+
+
+def _opportunity_matrix_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack) -> Dict[str, Any]:
+    basis = _mixed_basis(ledger, fact_pack, limit=8)
+    timeline_count = _family_count(ledger, {"timeline", "technology", "capacity"})
+    funding_count = _family_count(ledger, {"funding"})
+    market_count = _family_count(ledger, {"market"})
+    policy_count = _family_count(ledger, {"policy"}) + fact_pack.authoritative_source_count
+    rows = [
+        "Technical proof",
+        "Capital and partners",
+        "Customer pull",
+        "Policy and permission",
+    ]
+    values = [
+        [
+            _support_label(timeline_count),
+            "Build learning options; do not underwrite full commercialization until repeatable system performance is visible.",
+            "Repeatable output, plant readiness, cost path and operating reliability.",
+        ],
+        [
+            _support_label(funding_count),
+            "Use partnerships and staged funding to buy exposure without locking in a single technology path.",
+            "Named capital providers, milestone funding, supplier capacity and reference projects.",
+        ],
+        [
+            _support_label(market_count),
+            "Validate willingness to pay against cheaper substitutes before sizing the prize.",
+            "Customer commitments, use-case economics, grid integration value and switching triggers.",
+        ],
+        [
+            _support_label(policy_count),
+            "Track licensing, safety and public-funding signals as decision gates.",
+            "Regulatory path, safety case, program funding and permitting milestones.",
+        ],
+    ]
+    return {
+        "type": "opportunity_matrix",
+        "title": "The opportunity matrix separates option-building from capital commitment",
+        "subtitle": "Rows translate the source base into decisions a CEO or board can actually make.",
+        "rows": rows,
+        "columns": ["Public proof", "Management move", "Validation metric"],
+        "values": values,
+        "caption": "Public proof is derived from retained source categories and authority-weighted sources; it is a decision aid, not a valuation model.",
+        "source_note": _source_note(basis),
+        "data_basis": basis,
+        "evidence_quality": "source_backed_opportunity_matrix",
+    }
+
+
+def _stage_gate_process_exhibit(topic: str, ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack) -> Dict[str, Any]:
+    basis = _mixed_basis(ledger, fact_pack, limit=8)
+    return {
+        "type": "process",
+        "title": "A staged path keeps commitment behind proof",
+        "subtitle": "The roadmap turns an uncertain technology or market into gated management work.",
+        "steps": [
+            {
+                "title": "Baseline",
+                "description": "Extract the few source-backed facts that should shape the first decision on " + _short_label(topic, 58) + ".",
+            },
+            {
+                "title": "Options",
+                "description": "Create low-regret exposure through partnerships, monitoring rights, pilots or supplier relationships.",
+            },
+            {
+                "title": "Validation",
+                "description": "Replace open assumptions with data on customers, economics, regulatory timing and execution capacity.",
+            },
+            {
+                "title": "Commit",
+                "description": "Scale capital or operating resources only when explicit proof gates are crossed.",
+            },
+        ],
+        "caption": "This is a management process chart, anchored in the source boundary rather than a numerical forecast.",
+        "source_note": _source_note(basis),
+        "data_basis": basis,
+        "evidence_quality": "source_backed_stage_gates",
+    }
+
+
+def _opportunity_map_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack) -> Dict[str, Any] | None:
+    family_sets = {
+        "Technical proof": {"timeline", "technology", "capacity"},
+        "Capital formation": {"funding"},
+        "Customer pull": {"market"},
+        "Policy path": {"policy"},
+    }
+    points = []
+    basis = []
+    max_count = max([_family_count(ledger, families) for families in family_sets.values()] + [1])
+    for idx, (label, families) in enumerate(family_sets.items(), start=1):
+        items = [item for item in ledger if str(item.get("metric_family") or "") in families]
+        count = len(items)
+        authority = sum(1 for item in items if item.get("authoritative"))
+        recent = sum(1 for item in items if int(item.get("year") or 0) >= 2020)
+        x = 30 + min(55, (count / max_count) * 55)
+        y = 35 + min(50, authority * 12 + recent * 8 + (15 if count else 0))
+        size = 34 + min(46, count * 9 + authority * 5)
+        points.append({"label": label, "x": x, "y": min(90, y), "size": size})
+        basis.extend(items[:2])
+    if len(points) < 3:
+        return None
+    if not basis:
+        basis = ledger[:6]
+    return {
+        "type": "opportunity_map",
+        "title": "The option map shows where leaders should act, watch or hold back",
+        "subtitle": "Placement is rule-based from public proof, source authority and recent milestones.",
+        "x_label": "Public proof available",
+        "y_label": "Near-term actionability",
+        "points": points,
+        "caption": "The bubble map is an evidence-derived management view; it does not estimate market value or probability of success.",
+        "source_note": _source_note(basis[:8]),
+        "data_basis": [_basis_item(item) for item in basis[:8]],
+        "evidence_quality": "source_backed_option_map",
     }
 
 
@@ -401,6 +594,8 @@ def _parse_best_value(text: str) -> tuple[float | None, str, str] | None:
         if not raw_number:
             continue
         unit = _normalize_unit(match.group("prefix") or "", match.group("unit") or "", text)
+        if not unit and not match.group("prefix"):
+            continue
         if not unit and len(raw_number) == 4 and raw_number.startswith(("19", "20")):
             continue
         try:
@@ -432,15 +627,19 @@ def _normalize_unit(prefix: str, unit: str, text: str) -> str:
         return "$M"
     if unit_l in {"%", "percent", "percentage point", "percentage points"}:
         return "%"
-    if unit_l in {"gw", "mw", "gwh", "twh", "mwh", "kg"}:
+    if unit_l in {"gw", "mw", "gwh", "twh", "mwh", "kg", "mj"}:
         return unit.upper()
+    if unit_l in {"megajoule", "megajoules"}:
+        return "MJ"
     if unit_l in {"kilogram", "kilograms"}:
         return "KG"
     if unit_l in {"year", "years"}:
         return "years"
     if unit_l in {"month", "months"}:
         return "months"
-    if unit_l in {"companies", "plants", "projects"}:
+    if unit_l in {"day", "days"}:
+        return "days"
+    if unit_l in {"companies", "plants", "projects", "component", "components", "part", "parts"}:
         return unit_l
     if unit_l in {"usd", "dollars"}:
         return "$"
@@ -467,6 +666,8 @@ def _metric_family(text: str, unit: str, topic: str) -> str:
         return "funding"
     if any(token in lower for token in ("cost", "lcoe", "$/mwh", "price", "capex", "opex")):
         return "cost"
+    if any(token in lower for token in ("ignition", "breakeven", "energy output", "megajoule", "scientific proof", "experiment")) or unit in {"MJ"}:
+        return "technology"
     if any(token in lower for token in ("capacity", "gw", "mw", "mwh", "gwh", "twh", "plant", "reactor")) or unit in {"GW", "MW", "MWh", "GWh", "TWh"}:
         return "capacity"
     if any(token in lower for token in ("market", "demand", "customer", "revenue", "sales", "companies")):
@@ -558,6 +759,45 @@ def _basis_item(point: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def _mixed_basis(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack, *, limit: int) -> List[Dict[str, Any]]:
+    basis = [_basis_item(item) for item in ledger[:limit]]
+    if len(basis) < min(4, limit):
+        basis.extend(_fact_pack_basis(fact_pack)[: limit - len(basis)])
+    return basis[:limit]
+
+
+def _family_count(ledger: List[Dict[str, Any]], families: set[str]) -> int:
+    return sum(1 for item in ledger if str(item.get("metric_family") or "") in families)
+
+
+def _support_label(count: int) -> str:
+    if count >= 5:
+        return "Strong public support"
+    if count >= 2:
+        return "Some public support"
+    if count == 1:
+        return "Single public signal"
+    return "Open evidence gap"
+
+
+def _timeline_title(fact: str) -> str:
+    text = str(fact or "")
+    if "ignition" in text.lower():
+        return "Scientific proof point"
+    if "program" in text.lower() or "funding" in text.lower():
+        return "Public program signal"
+    if "commercial" in text.lower() or "pilot" in text.lower():
+        return "Commercialization milestone"
+    return text
+
+
+def _low_value_numeric_fact(fact: str, unit: str) -> bool:
+    if unit:
+        return False
+    lower = str(fact or "").lower()
+    return any(token in lower for token in ("representative", "source ", "search context", "news & media", "all news", "photos videos"))
+
+
 def _fact_pack_basis(fact_pack: ResearchFactPack) -> List[Dict[str, Any]]:
     basis = []
     for idx, ref in enumerate(fact_pack.source_refs[:8], start=1):
@@ -639,10 +879,19 @@ def _unit_priority(unit: str) -> int:
         "MWh": 6,
         "GWh": 6,
         "TWh": 6,
+        "MJ": 6,
         "GWH": 6,
         "MWH": 6,
         "TWH": 6,
         "KG": 5,
         "years": 4,
         "months": 4,
+        "days": 4,
+        "companies": 3,
+        "plants": 3,
+        "projects": 3,
+        "components": 3,
+        "component": 3,
+        "parts": 3,
+        "part": 3,
     }.get(str(unit), 1)
