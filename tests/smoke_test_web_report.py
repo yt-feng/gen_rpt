@@ -92,9 +92,45 @@ def main() -> None:
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
     storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")
     evidence_exhibits = build_evidence_exhibits("AI and process-industry talent", evidence_ledger, fact_pack, language="en")
+    chart_data_needs = [
+        {
+            "id": "chart-need-1",
+            "title": "Workforce hours and output bridge",
+            "chart_type": "bar",
+            "executive_question": "Where does the labor gap show up as an operating gap?",
+            "required_metrics": ["workforce hours decline", "output decline"],
+            "comparison_set": ["workforce hours", "output"],
+            "preferred_sources": ["BCG sample fixture"],
+            "search_queries": ["process industries workforce hours output decline data"],
+            "data_quality_rule": "Use source-backed percentages only.",
+        },
+        {
+            "id": "chart-need-2",
+            "title": "AI performance uplift evidence",
+            "chart_type": "bar",
+            "executive_question": "Which measurable outcomes justify workflow redesign?",
+            "required_metrics": ["revenue growth uplift", "adoption timing"],
+            "comparison_set": ["AI leaders", "followers"],
+            "preferred_sources": ["BCG sample fixture"],
+            "search_queries": ["AI leaders revenue growth uplift data"],
+            "data_quality_rule": "Do not turn the uplift into a synthetic readiness score.",
+        },
+        {
+            "id": "chart-need-3",
+            "title": "Operating-model gate timeline",
+            "chart_type": "timeline",
+            "executive_question": "What sequence of proof gates should govern scale-up?",
+            "required_metrics": ["30 day gate", "90 day gate", "180 day gate"],
+            "comparison_set": ["pilot stages"],
+            "preferred_sources": ["responsible AI fixture"],
+            "search_queries": ["responsible AI 30 90 180 day governance cadence"],
+            "data_quality_rule": "Use dated gates as milestones, not ROI claims.",
+        },
+    ]
     assert len(evidence_ledger) >= 3
     assert 3 <= len(evidence_exhibits) <= 5
     assert all(exhibit.get("data_basis") for exhibit in evidence_exhibits)
+    assert "bar" in {str(exhibit.get("type")) for exhibit in evidence_exhibits}
 
     payload = {
         "title": "AI Can Rebuild the Industrial Talent Model Only If Leaders Treat It as Operating Redesign",
@@ -274,13 +310,19 @@ def main() -> None:
     assert "article-shell" in html_text
     assert "Data basis" in html_text
     assert "opportunity matrix" in html_text.lower()
-    assert "How leaders should move next" in html_text
+    assert "How leaders should move next" not in html_text
+    assert "Source base" not in html_text
+    assert "Methodology and source boundary" not in html_text
+    assert "<h2>Sources</h2>" not in html_text
+    assert "near-term leadership agenda" in html_text
+    assert "Source boundary" in html_text
     assert "BCG sample talent cliff article" in html_text
     assert "# AI Can Rebuild" in md_text
     (out / "web_report_payload.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out / "chart_data_needs.json").write_text(json.dumps(chart_data_needs, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "sources.json").write_text(json.dumps([source.__dict__ for source in sample_sources], ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "normalized.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"HTML smoke report: {html_path}")

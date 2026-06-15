@@ -171,7 +171,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   margin: 0 auto;
   padding: 52px 24px 80px;
   display: grid;
-  grid-template-columns: 210px minmax(0, 760px) 210px;
+  grid-template-columns: 210px minmax(0, 860px);
   gap: 38px;
   align-items: start;
 }
@@ -192,26 +192,6 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   padding: 8px 0;
   border-top: 1px solid var(--line);
   text-decoration: none;
-}
-.rail {
-  position: sticky;
-  top: 76px;
-  border-left: 1px solid var(--line);
-  padding-left: 20px;
-  font-size: 14px;
-  color: var(--muted);
-}
-.rail strong {
-  color: var(--forest);
-  display: block;
-  font-size: 15px;
-  margin-bottom: 8px;
-}
-.rail .source-count {
-  color: var(--forest);
-  font-size: 34px;
-  line-height: 1;
-  font-family: Georgia, "Times New Roman", serif;
 }
 .article-main {
   min-width: 0;
@@ -377,23 +357,60 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 .line-tertiary { fill: none; stroke: var(--amber); stroke-width: 3; }
 .matrix {
   width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  line-height: 1.34;
+  border-top: 4px solid var(--green);
+  box-shadow: inset 0 0 0 1px var(--line);
 }
 .matrix th,
 .matrix td {
-  border: 1px solid var(--line);
-  padding: 12px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 13px 14px;
   text-align: left;
+  vertical-align: top;
 }
 .matrix th {
   color: var(--forest);
-  background: var(--sand-2);
+  background: #F5F2EC;
   font-weight: 700;
+}
+.matrix tbody tr:nth-child(even) td,
+.matrix tbody tr:nth-child(even) th {
+  background: var(--sand-2);
+}
+.matrix td:last-child,
+.matrix th:last-child {
+  border-right: 0;
+}
+.matrix tr:last-child td,
+.matrix tr:last-child th {
+  border-bottom: 0;
 }
 .matrix-score {
   color: var(--forest);
+  font-weight: 600;
+}
+.matrix-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #EAF4E4;
+  color: var(--forest);
+  font-size: 12px;
   font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.matrix-badge.medium {
+  background: #F4EEDB;
+}
+.matrix-badge.low {
+  background: #F1E4DD;
+}
+.matrix-text {
+  color: #323232;
 }
 .timeline {
   position: relative;
@@ -464,72 +481,14 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   display: block;
   margin: 8px 0;
 }
-.actions {
-  background: var(--charcoal);
-  color: #fff;
-  padding: 54px 0;
-}
-.actions-inner {
+.methodology {
   max-width: var(--max);
   margin: 0 auto;
-  padding: 0 24px;
-  display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  gap: 44px;
-}
-.actions h2 {
-  color: #fff;
-  font-family: henderson-bcg-serif, Georgia, "Times New Roman", serif;
-  font-size: 40px;
-  line-height: 1.08;
-  font-weight: 400;
-  margin: 0;
-}
-.action-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
-}
-.action-item {
-  border-top: 4px solid var(--lime);
-  background: rgba(255,255,255,.08);
-  padding: 18px;
-}
-.action-item span {
-  color: var(--lime);
+  padding: 26px 24px 34px;
+  color: var(--muted);
   font-size: 13px;
-  font-weight: 700;
-}
-.action-item strong {
-  display: block;
-  margin: 8px 0;
-  font-size: 18px;
-}
-.methodology,
-.references {
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: 54px 24px;
-  border-bottom: 1px solid var(--line);
-}
-.methodology h2,
-.references h2 {
-  color: var(--forest);
-  font-family: henderson-bcg-serif, Georgia, "Times New Roman", serif;
-  font-weight: 400;
-  margin: 0 0 18px;
-}
-.reference-list {
-  columns: 2;
-  column-gap: 42px;
-  margin: 0;
-  padding-left: 20px;
-  font-size: 14px;
-  color: #323232;
-}
-.reference-list li {
-  break-inside: avoid;
-  margin: 0 0 10px;
+  line-height: 1.45;
+  border-top: 1px solid var(--line);
 }
 .footer {
   padding: 32px 24px;
@@ -547,8 +506,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 @media (max-width: 980px) {
   .hero-grid,
   .takeaways,
-  .article-shell,
-  .actions-inner {
+  .article-shell {
     grid-template-columns: 1fr;
   }
   .hero h1 { font-size: 46px; }
@@ -556,28 +514,24 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   .hero-media,
   .hero-media img { min-height: 300px; }
   .toc,
-  .rail {
+  .methodology {
     position: static;
     border-left: 0;
     padding-left: 0;
   }
   .takeaway-list,
   .metric-row,
-  .action-grid,
   .process {
     grid-template-columns: 1fr;
   }
-  .reference-list { columns: 1; }
 }
 @media print {
   .site-nav,
-  .toc,
-  .rail { display: none; }
+  .toc { display: none; }
   .article-shell { grid-template-columns: 1fr; max-width: 820px; }
   .hero-grid { min-height: 0; }
   .section-block,
-  .exhibit,
-  .actions { break-inside: avoid; }
+  .exhibit { break-inside: avoid; }
 }
 """
 
@@ -589,10 +543,7 @@ LABELS = {
         "evidence": "Evidence",
         "so_what": "Why it matters",
         "article": "Article",
-        "source_base": "Source base",
-        "public_sources": "public sources",
         "methodology": "Methodology and source boundary",
-        "references": "Sources",
         "actions": "How leaders should move next",
         "prepared": "Prepared by",
         "read_time": "min read",
@@ -603,10 +554,7 @@ LABELS = {
         "evidence": "证据",
         "so_what": "管理含义",
         "article": "正文",
-        "source_base": "资料底座",
-        "public_sources": "个公开来源",
         "methodology": "方法与证据边界",
-        "references": "来源",
         "actions": "管理层下一步",
         "prepared": "出品",
         "read_time": "分钟阅读",
@@ -631,7 +579,6 @@ def render_web_report_html(
     published = normalized.get("published_date") or date.today().isoformat()
     authors = ", ".join(normalized.get("authors", [])) or BRAND_NAME
     read_time = str(normalized.get("read_time_minutes") or _estimate_read_time(normalized))
-    source_count = int(normalized.get("source_count") or 0)
     sections = normalized["sections"]
     exhibits = normalized["exhibits"]
 
@@ -650,8 +597,6 @@ def render_web_report_html(
         f"<div class='brand'>{_e(BRAND_NAME)}</div>",
         "<div class='nav-links'>",
         f"<a href='#article'>{_e(labels['article'])}</a>",
-        f"<a href='#actions'>{_e(labels['actions'])}</a>",
-        f"<a href='#sources'>{_e(labels['references'])}</a>",
         "</div></div></nav>",
         "<header class='hero'>",
         "<div class='hero-grid'>",
@@ -677,7 +622,11 @@ def render_web_report_html(
     _render_toc(parts, sections, labels)
     parts.append("<article class='article-main'>")
     if normalized.get("intro"):
-        parts.append(f"<div class='lead-block'>{_paragraphs(normalized['intro'])}</div>")
+        intro_items = list(normalized["intro"])
+        action_summary = _action_summary(normalized.get("action_steps", []), language)
+        if action_summary:
+            intro_items.append(action_summary)
+        parts.append(f"<div class='lead-block'>{_paragraphs(intro_items)}</div>")
     exhibit_by_after = _exhibits_by_anchor(exhibits)
     for idx, section in enumerate(sections, start=1):
         _render_section(parts, section, idx, labels)
@@ -686,12 +635,9 @@ def render_web_report_html(
     for exhibit in exhibit_by_after.get("", []):
         _render_exhibit(parts, exhibit)
     parts.append("</article>")
-    _render_rail(parts, normalized, source_count, labels)
     parts.append("</main>")
 
-    _render_actions(parts, normalized.get("action_steps", []), labels)
     _render_methodology(parts, normalized, labels)
-    _render_references(parts, normalized.get("references", []), labels)
     parts.append(
         "<footer class='footer'><div class='footer-inner'>"
         f"<span>{_e(BRAND_NAME)}</span>"
@@ -724,11 +670,9 @@ def render_web_report_markdown(
             for item in section["evidence"]:
                 lines.append(f"- {item}")
             lines.append("")
-    if normalized.get("action_steps"):
-        lines.extend(["## Actions", ""])
-        for item in normalized["action_steps"]:
-            bits = [item.get("horizon", ""), item.get("action", ""), item.get("success_metric", "")]
-            lines.append(f"- {' - '.join(x for x in bits if x)}")
+    action_summary = _action_summary(normalized.get("action_steps", []), language)
+    if action_summary:
+        lines.extend(["", action_summary, ""])
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     return output_file
@@ -809,18 +753,6 @@ def _render_toc(parts: List[str], sections: List[Dict[str, Any]], labels: Dict[s
     parts.append("</aside>")
 
 
-def _render_rail(parts: List[str], report: Dict[str, Any], source_count: int, labels: Dict[str, str]) -> None:
-    parts.append("<aside class='rail'>")
-    parts.append(f"<strong>{_e(labels['source_base'])}</strong>")
-    parts.append(f"<div class='source-count'>{source_count}</div>")
-    parts.append(f"<div>{_e(labels['public_sources'])}</div>")
-    if report.get("evidence_quality"):
-        parts.append(f"<p>{_e(_compact(report['evidence_quality'], 260))}</p>")
-    elif report.get("methodology"):
-        parts.append(f"<p>{_e(_compact(report['methodology'], 260))}</p>")
-    parts.append("</aside>")
-
-
 def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels: Dict[str, str]) -> None:
     parts.append(f"<section id='{_e(section['id'])}' class='section-block'>")
     parts.append(f"<div class='section-kicker'>{_e(labels['article'])} {idx}</div>")
@@ -896,7 +828,7 @@ def _render_matrix(parts: List[str], exhibit: Dict[str, Any]) -> None:
         row_values = values[ridx] if isinstance(values, list) and ridx < len(values) and isinstance(values[ridx], list) else []
         for cidx, _column in enumerate(columns[:5]):
             raw = row_values[cidx] if cidx < len(row_values) else ""
-            parts.append(f"<td><span class='matrix-score'>{_e(_format_value(raw))}</span></td>")
+            parts.append(f"<td>{_matrix_cell_html(raw)}</td>")
         parts.append("</tr>")
     parts.append("</tbody></table>")
 
@@ -966,45 +898,63 @@ def _render_data_basis(parts: List[str], basis: Any) -> None:
     parts.append("</ul></details>")
 
 
-def _render_actions(parts: List[str], actions: List[Dict[str, str]], labels: Dict[str, str]) -> None:
-    parts.append("<section id='actions' class='actions'><div class='actions-inner'>")
-    parts.append(f"<h2>{_e(labels['actions'])}</h2>")
-    parts.append("<div class='action-grid'>")
-    for item in actions[:3]:
-        parts.append("<div class='action-item'>")
-        parts.append(f"<span>{_e(item.get('horizon') or '')}</span>")
-        parts.append(f"<strong>{_e(item.get('action') or item.get('title') or '')}</strong>")
-        if item.get("success_metric"):
-            parts.append(f"<div>{_e(item['success_metric'])}</div>")
-        elif item.get("description"):
-            parts.append(f"<div>{_e(item['description'])}</div>")
-        parts.append("</div>")
-    parts.append("</div></div></section>")
-
-
 def _render_methodology(parts: List[str], report: Dict[str, Any], labels: Dict[str, str]) -> None:
     parts.append("<section class='methodology'>")
-    parts.append(f"<h2>{_e(labels['methodology'])}</h2>")
-    parts.append(f"<p>{_e(report.get('methodology') or _default_methodology('en'))}</p>")
+    methodology = report.get("methodology") or _default_methodology("en")
+    source_sentence = _source_sentence(report.get("references", []), report.get("source_count") or 0)
+    text_value = " ".join(x for x in [methodology, source_sentence] if x)
+    parts.append(f"<p>{_e(text_value)}</p>")
     parts.append("</section>")
 
 
-def _render_references(parts: List[str], references: List[Dict[str, str]], labels: Dict[str, str]) -> None:
-    parts.append("<section id='sources' class='references'>")
-    parts.append(f"<h2>{_e(labels['references'])}</h2>")
-    if references:
-        parts.append("<ol class='reference-list'>")
-        for ref in references:
-            title = ref.get("title") or ref.get("url") or "Source"
-            url = ref.get("url") or ""
-            if url:
-                parts.append(f"<li><a href='{_e(url)}'>{_e(title)}</a></li>")
-            else:
-                parts.append(f"<li>{_e(title)}</li>")
-        parts.append("</ol>")
+def _action_summary(actions: Any, language: str) -> str:
+    items = _normalize_actions(actions)[:3]
+    if not items:
+        return ""
+    if str(language or "").lower().startswith("zh"):
+        phrases = []
+        for item in items:
+            horizon = item.get("horizon") or ""
+            action = item.get("action") or ""
+            metric = item.get("success_metric") or ""
+            phrase = f"{horizon}：{action}" if horizon else action
+            if metric:
+                phrase += f"（成功标准：{metric}）"
+            phrases.append(phrase)
+        return "管理层下一步应整合进执行节奏：" + "；".join(phrases) + "。"
+    phrases = []
+    for item in items:
+        horizon = item.get("horizon") or ""
+        action = item.get("action") or ""
+        metric = item.get("success_metric") or ""
+        phrase = f"{horizon}: {action}" if horizon else action
+        if metric:
+            phrase += f", with success measured by {metric[0].lower() + metric[1:] if metric else metric}"
+        phrases.append(phrase.rstrip("."))
+    if not phrases:
+        return ""
+    if len(phrases) == 1:
+        joined = phrases[0]
     else:
-        parts.append("<p>No public source list was retained for this draft.</p>")
-    parts.append("</section>")
+        joined = "; ".join(phrases[:-1]) + "; and " + phrases[-1]
+    return "The near-term leadership agenda is embedded in the storyline: " + joined + "."
+
+
+def _source_sentence(references: Any, source_count: int) -> str:
+    refs = _normalize_references(references)
+    domains = []
+    for ref in refs:
+        domain = ref.get("domain") or _domain(ref.get("url") or "")
+        if domain and domain not in domains:
+            domains.append(domain)
+    count = max(int(source_count or 0), len(refs))
+    if not count and not domains:
+        return ""
+    if domains:
+        shown = ", ".join(domains[:5])
+        tail = " and other public sources" if len(domains) > 5 else ""
+        return f"Source boundary: the retained public-source set covers {count} references across {shown}{tail}; exhibit-level Data basis entries preserve URL traceability for the numbers used in charts."
+    return f"Source boundary: the retained public-source set covers {count} references; exhibit-level Data basis entries preserve URL traceability for the numbers used in charts."
 
 
 def _svg_bar(exhibit: Dict[str, Any]) -> str:
@@ -1514,6 +1464,22 @@ def _format_value(value: Any) -> str:
     if abs(number - round(number)) < 1e-6:
         return f"{number:.0f}"
     return f"{number:.1f}"
+
+
+def _matrix_cell_html(value: Any) -> str:
+    text_value = _format_value(value).strip()
+    if not text_value:
+        return "<span class='matrix-text'>n/a</span>"
+    lower = text_value.lower()
+    if any(token in lower for token in ("strong", "high", "ready", "clear")):
+        return f"<span class='matrix-badge'>{_e(text_value)}</span>"
+    if any(token in lower for token in ("some", "medium", "partial", "watch")):
+        return f"<span class='matrix-badge medium'>{_e(text_value)}</span>"
+    if any(token in lower for token in ("single", "open", "low", "gap", "limited")):
+        return f"<span class='matrix-badge low'>{_e(text_value)}</span>"
+    if len(text_value) <= 18:
+        return f"<span class='matrix-score'>{_e(text_value)}</span>"
+    return f"<span class='matrix-text'>{_e(text_value)}</span>"
 
 
 def _slug(value: Any) -> str:

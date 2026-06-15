@@ -59,12 +59,13 @@ def main() -> int:
     fact_pack_path = report_dir / "research_fact_pack.json"
     evidence_ledger_path = report_dir / "evidence_ledger.json"
     storyline_plan_path = report_dir / "storyline_plan.json"
+    chart_data_needs_path = report_dir / "chart_data_needs.json"
     sources_path = report_dir / "sources.json"
 
     issues: List[str] = []
     metrics: Dict[str, Any] = {"report_dir": str(report_dir)}
 
-    for path in [html_path, payload_path, fact_pack_path, evidence_ledger_path, storyline_plan_path, sources_path]:
+    for path in [html_path, payload_path, fact_pack_path, evidence_ledger_path, storyline_plan_path, chart_data_needs_path, sources_path]:
         if not path.exists():
             issues.append(f"missing required file: {path.name}")
 
@@ -76,6 +77,7 @@ def main() -> int:
     fact_pack = read_json(fact_pack_path, issues)
     evidence_ledger = read_json(evidence_ledger_path, issues)
     storyline_plan = read_json(storyline_plan_path, issues)
+    chart_data_needs = read_json(chart_data_needs_path, issues)
     html = html_path.read_text(encoding="utf-8", errors="ignore")
     html_text = strip_tags(html)
 
@@ -90,6 +92,7 @@ def main() -> int:
     action_steps = [x for x in as_list(payload.get("action_steps")) if isinstance(x, dict)]
     references = [x for x in as_list(payload.get("references")) if isinstance(x, dict)]
     ledger_items = [x for x in as_list(evidence_ledger) if isinstance(x, dict)]
+    chart_needs = [x for x in as_list(chart_data_needs) if isinstance(x, dict)]
     data_backed_exhibits = [x for x in exhibits if any(isinstance(item, dict) for item in as_list(x.get("data_basis")))]
 
     metrics.update(
@@ -100,6 +103,7 @@ def main() -> int:
             "actions": len(action_steps),
             "references": len(references),
             "evidence_ledger_points": len(ledger_items),
+            "chart_data_needs": len(chart_needs),
             "data_backed_exhibits": len(data_backed_exhibits),
             "sources": len(sources if isinstance(sources, list) else []),
             "fact_pack_sources": fact_pack.get("source_count") if isinstance(fact_pack, dict) else None,
@@ -127,6 +131,8 @@ def main() -> int:
         issues.append(f"HTML article appears too thin ({len(html_text)} text chars)")
     if len(ledger_items) < 3:
         issues.append(f"expected at least 3 chartable evidence ledger points, got {len(ledger_items)}")
+    if len(chart_needs) < 3:
+        issues.append(f"expected at least 3 chart data needs, got {len(chart_needs)}")
     if not isinstance(storyline_plan, dict) or not text(storyline_plan.get("core_question")):
         issues.append("storyline_plan.json lacks a core_question")
     if len(data_backed_exhibits) < min(3, len(exhibits)):
@@ -159,6 +165,8 @@ def main() -> int:
         issues.append("exhibit mix is too narrow; expected at least 3 chart/exhibit types")
     if len(non_metric_exhibits) < 3:
         issues.append(f"expected at least 3 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
+    if not any(text(x.get("type")).lower() in {"bar", "line", "bubble", "scatter", "opportunity_map"} for x in exhibits):
+        issues.append("expected at least one data chart rendered as bar, line or bubble")
     for idx, exhibit in enumerate(exhibits, start=1):
         title = text(exhibit.get("title"))
         source_note = text(exhibit.get("source_note") or exhibit.get("caption"))
@@ -194,11 +202,18 @@ def main() -> int:
     for pattern in PROCESS_PATTERNS:
         if re.search(pattern, lower, re.I):
             issues.append(f"HTML leaks process language matching: {pattern}")
-    for required in ["Key Takeaways", "Contents", "How leaders should move next", "Methodology", "Sources"]:
+    for required in ["Key Takeaways", "Contents"]:
         if required.lower() not in lower:
             issues.append(f"HTML missing expected BCG-style module: {required}")
     if "data basis" not in lower:
         issues.append("HTML missing visible Data basis for exhibits")
+    if "source boundary" not in lower and "public-source collection" not in lower:
+        issues.append("HTML missing subtle methodology/source-boundary text")
+    for forbidden in ["How leaders should move next", "Source base", "Methodology and source boundary"]:
+        if forbidden.lower() in lower:
+            issues.append(f"HTML contains removed standalone module label: {forbidden}")
+    if re.search(r"<h[1-6][^>]*>\s*Sources\s*</h[1-6]>", html, re.I):
+        issues.append("HTML contains standalone Sources heading")
 
     return emit(issues, metrics, args.warn_only)
 

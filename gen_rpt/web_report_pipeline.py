@@ -36,7 +36,7 @@ class WebReportPipeline:
         ensure_dir(assets_dir)
         display_topic = str(topic or "").strip()
         self._log(f"START web report pipeline | topic={display_topic!r} | output_dir={output_dir}")
-        self._log("ETA planning=15-90s, source_collection=30-150s, evidence=5-15s, synthesis=60-180s, visuals=60-360s")
+        self._log("ETA planning=15-90s, chart_data_needs=10-60s, source_collection=45-240s, evidence=5-15s, synthesis=60-180s, visuals=60-360s")
 
         phase_start = time.monotonic()
         self._log("PHASE planning started | expected 15-90s")
@@ -52,11 +52,35 @@ class WebReportPipeline:
             f"| outline={len(plan.get('outline', []) or [])}"
         )
 
+        phase_start = time.monotonic()
+        self._log("PHASE chart_data_needs started | expected 10-60s")
+        try:
+            chart_data_needs = self._plan_chart_data_needs(display_topic, plan)
+        except Exception as exc:
+            (output_dir / "chart_data_needs_error.txt").write_text(str(exc), encoding="utf-8")
+            chart_data_needs = self._fallback_chart_data_needs(display_topic, plan, str(exc))
+            self._log(f"PHASE chart_data_needs fallback used | reason={str(exc)[:240]!r}")
+        if not chart_data_needs:
+            chart_data_needs = self._fallback_chart_data_needs(display_topic, plan, "model returned no chart data needs")
+            self._log("PHASE chart_data_needs fallback used | reason='model returned no chart data needs'")
+        chart_queries = self._chart_need_queries(chart_data_needs)
+        self._log(
+            "PHASE chart_data_needs completed "
+            f"| elapsed={self._elapsed(phase_start)} | needs={len(chart_data_needs)} | chart_queries={len(chart_queries)}"
+        )
+
         per_query = int(os.getenv("GEN_RPT_PER_QUERY", "5"))
         max_sources = int(os.getenv("GEN_RPT_MAX_SOURCES", "20"))
+        max_queries = int(os.getenv("GEN_RPT_MAX_QUERIES", "12"))
+        search_queries = self._expanded_search_queries(plan, chart_data_needs)[:max_queries]
         phase_start = time.monotonic()
-        self._log(f"PHASE source_collection started | expected 30-150s | per_query={per_query} | max_sources={max_sources}")
-        sources = collect_sources(plan.get("search_queries", [])[:8], per_query=per_query, max_sources=max_sources)
+        self._log(
+            "PHASE source_collection started "
+            f"| expected 45-240s | queries={len(search_queries)} | per_query={per_query} | max_sources={max_sources}"
+        )
+        if search_queries:
+            self._log("PHASE source_collection query_plan | " + " || ".join(query[:120] for query in search_queries[:10]))
+        sources = collect_sources(search_queries, per_query=per_query, max_sources=max_sources)
         source_dicts = [source.__dict__ for source in sources]
         domains = sorted({source.domain for source in sources if source.domain})
         self._log(
@@ -96,7 +120,7 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE synthesis started | expected 60-180s")
         try:
-            report = self._synthesize_web_report(display_topic, plan, sources, fact_pack, evidence_ledger, storyline_plan)
+            report = self._synthesize_web_report(display_topic, plan, chart_data_needs, sources, fact_pack, evidence_ledger, storyline_plan)
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
             report = self._fallback_report(display_topic, plan, sources, fact_pack, str(exc))
@@ -153,6 +177,7 @@ class WebReportPipeline:
 
         (output_dir / "web_report_payload.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "chart_data_needs.json").write_text(json.dumps(chart_data_needs, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -165,6 +190,7 @@ class WebReportPipeline:
 
         return {
             "plan": plan,
+            "chart_data_needs": chart_data_needs,
             "fact_pack": fact_pack.to_dict(),
             "evidence_ledger": evidence_ledger,
             "storyline_plan": storyline_plan,
@@ -218,10 +244,157 @@ Requirements:
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.1)
 
+    def _plan_chart_data_needs(self, topic: str, plan: Dict[str, Any]) -> List[Dict[str, Any]]:
+        system = "You are a strategy-report exhibit architect. Return strict JSON only."
+        if self.language == "zh":
+            user = f"""
+为 HTML thought-leadership 报告先定义图表数据需求，输出 JSON。
+
+主题：{topic}
+研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
+
+返回字段：chart_data_needs，数组 5 项。
+每项包含：title、chart_type、executive_question、required_metrics、comparison_set、preferred_sources、search_queries、data_quality_rule。
+
+要求：
+- chart_type 必须从 bar、line、bubble、matrix、timeline 中选择。
+- 覆盖投资/融资、市场规模或需求、产能/项目进展、成本/经济性、监管/采用门槛中的至少四类。
+- required_metrics 必须写成可搜索、可量化的数据项，不要写“战略评分/优先级指数/成熟度指数”。
+- search_queries 每项 2-3 条，优先官方、监管、协会、公司公告、PDF 报告和权威数据源。
+- 图表只能基于真实公开数据；如果找不到数据，后续报告应把它作为证据缺口，而不是编造。
+"""
+        else:
+            user = f"""
+Define chart data needs before source collection for an HTML thought-leadership report. Return JSON only.
+
+Topic: {topic}
+Research plan:
+{json.dumps(plan, ensure_ascii=False, indent=2)}
+
+Return field: chart_data_needs, an array of 5 items.
+Each item must include: title, chart_type, executive_question, required_metrics, comparison_set, preferred_sources, search_queries, data_quality_rule.
+
+Requirements:
+- chart_type must be one of bar, line, bubble, matrix, timeline.
+- Cover at least four of: investment/funding, market size or demand, capacity/project progress, cost/economics, regulation/adoption gates.
+- required_metrics must be searchable quantitative data items. Do not request strategic scores, priority indexes, maturity indexes or other synthetic metrics.
+- search_queries: 2-3 targeted queries per chart, prioritizing official sources, regulators, industry associations, company announcements, PDF reports and authoritative datasets.
+- Charts may use only real public data. If a dataset cannot be found, the report should preserve it as an evidence gap rather than invent values.
+"""
+        payload = self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.05)
+        return self._normalize_chart_data_needs(payload.get("chart_data_needs") or payload.get("needs") or payload.get("charts") or [])
+
+    def _fallback_chart_data_needs(self, topic: str, plan: Dict[str, Any], reason: str) -> List[Dict[str, Any]]:
+        base_queries = [str(query) for query in plan.get("search_queries", []) or [] if str(query).strip()]
+        if self.language == "zh":
+            title_prefix = topic
+        else:
+            title_prefix = topic
+        needs = [
+            {
+                "title": f"{title_prefix}: investment and funding by year or company",
+                "chart_type": "bar",
+                "executive_question": "Where is capital actually flowing, and is the funding base deep enough for scale-up?",
+                "required_metrics": ["funding amount", "investment year", "company or program name"],
+                "comparison_set": ["companies", "programs", "years"],
+                "preferred_sources": ["industry association report", "company announcement", "government program page", "PDF report"],
+                "search_queries": [f"{topic} funding investment data report pdf", f"{topic} venture funding by company", f"{topic} government funding program amount"],
+                "data_quality_rule": "Use named public amounts with dates and source URLs; do not convert them into priority scores.",
+            },
+            {
+                "title": f"{title_prefix}: market size, demand or addressable use cases",
+                "chart_type": "bar",
+                "executive_question": "How large is the commercial prize, and which demand pools are credible enough to size?",
+                "required_metrics": ["market size", "demand volume", "revenue or value pool", "forecast year"],
+                "comparison_set": ["segments", "regions", "years"],
+                "preferred_sources": ["government dataset", "industry association", "annual report", "market report"],
+                "search_queries": [f"{topic} market size forecast data", f"{topic} demand outlook by segment", f"{topic} addressable market report pdf"],
+                "data_quality_rule": "Keep forecast assumptions visible; exclude unsourced TAM claims.",
+            },
+            {
+                "title": f"{title_prefix}: capacity, projects and commercialization milestones",
+                "chart_type": "timeline",
+                "executive_question": "Which projects have moved beyond claims into dated milestones?",
+                "required_metrics": ["project name", "milestone date", "capacity or output metric", "status"],
+                "comparison_set": ["projects", "technologies", "regions"],
+                "preferred_sources": ["official project page", "regulatory filing", "company release", "government award page"],
+                "search_queries": [f"{topic} project timeline capacity milestone", f"{topic} commercialization milestone official", f"{topic} pilot plant demonstration date"],
+                "data_quality_rule": "Use dated public milestones; label claims that are company targets rather than achieved results.",
+            },
+            {
+                "title": f"{title_prefix}: cost and economics benchmark",
+                "chart_type": "bar",
+                "executive_question": "What cost benchmark must the new option beat before it changes resource allocation?",
+                "required_metrics": ["cost", "LCOE", "capex", "opex", "price benchmark"],
+                "comparison_set": ["technologies", "incumbent alternatives", "years"],
+                "preferred_sources": ["IEA", "Lazard", "NREL", "government reports", "company filings"],
+                "search_queries": [f"{topic} cost benchmark LCOE data", f"{topic} capex cost estimate report", f"{topic} economics comparison incumbent alternatives"],
+                "data_quality_rule": "Compare like units only and keep speculative costs out of the chart.",
+            },
+            {
+                "title": f"{title_prefix}: regulatory and adoption gate map",
+                "chart_type": "matrix",
+                "executive_question": "Which nontechnical gates could delay adoption even if the technology works?",
+                "required_metrics": ["regulatory status", "license date", "approval stage", "adoption barrier"],
+                "comparison_set": ["countries", "regulators", "use cases"],
+                "preferred_sources": ["regulator", "government policy page", "international organization", "standards body"],
+                "search_queries": [f"{topic} regulation licensing framework", f"{topic} regulator approval rules", f"{topic} adoption barriers policy report"],
+                "data_quality_rule": "Treat missing regulation as an explicit evidence gap; do not score it subjectively.",
+            },
+        ]
+        if reason:
+            needs[0]["fallback_reason"] = reason[:240]
+        for need, query in zip(needs, base_queries):
+            need.setdefault("search_queries", []).append(query)
+        return self._normalize_chart_data_needs(needs)
+
+    def _normalize_chart_data_needs(self, value: Any) -> List[Dict[str, Any]]:
+        needs: List[Dict[str, Any]] = []
+        for idx, item in enumerate(_as_list(value), start=1):
+            if not isinstance(item, dict):
+                continue
+            chart_type = str(item.get("chart_type") or item.get("type") or "bar").lower().replace("_chart", "")
+            if chart_type not in {"bar", "line", "bubble", "matrix", "timeline"}:
+                chart_type = "bar"
+            queries = [str(query).strip() for query in _as_list(item.get("search_queries") or item.get("queries")) if str(query).strip()]
+            need = {
+                "id": str(item.get("id") or f"chart-need-{idx}"),
+                "title": str(item.get("title") or item.get("name") or f"Chart data need {idx}").strip(),
+                "chart_type": chart_type,
+                "executive_question": str(item.get("executive_question") or item.get("question") or "").strip(),
+                "required_metrics": [str(x).strip() for x in _as_list(item.get("required_metrics") or item.get("metrics")) if str(x).strip()],
+                "comparison_set": [str(x).strip() for x in _as_list(item.get("comparison_set") or item.get("comparisons")) if str(x).strip()],
+                "preferred_sources": [str(x).strip() for x in _as_list(item.get("preferred_sources") or item.get("sources")) if str(x).strip()],
+                "search_queries": queries[:4],
+                "data_quality_rule": str(item.get("data_quality_rule") or item.get("quality_rule") or "").strip(),
+            }
+            if need["title"] and need["search_queries"]:
+                needs.append(need)
+        return needs[:6]
+
+    def _chart_need_queries(self, chart_data_needs: List[Dict[str, Any]]) -> List[str]:
+        queries: List[str] = []
+        for need in chart_data_needs:
+            for query in need.get("search_queries", []) or []:
+                clean = str(query or "").strip()
+                if clean and clean not in queries:
+                    queries.append(clean)
+        return queries
+
+    def _expanded_search_queries(self, plan: Dict[str, Any], chart_data_needs: List[Dict[str, Any]]) -> List[str]:
+        plan_queries = [str(query).strip() for query in plan.get("search_queries", []) or [] if str(query).strip()]
+        chart_queries = self._chart_need_queries(chart_data_needs)
+        combined: List[str] = []
+        for query in plan_queries[:3] + chart_queries + plan_queries[3:]:
+            if query and query not in combined:
+                combined.append(query)
+        return combined
+
     def _synthesize_web_report(
         self,
         topic: str,
         plan: Dict[str, Any],
+        chart_data_needs: List[Dict[str, Any]],
         sources: List[SourceDocument],
         fact_pack: ResearchFactPack,
         evidence_ledger: List[Dict[str, Any]],
@@ -245,9 +418,11 @@ Requirements:
             user = f"""
 生成一份 HTML-first、类似 BCG publication 的深度分析网页报告数据结构，输出 JSON。
 
-主题：{topic}
-研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
-叙事主线计划：{json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
+	主题：{topic}
+	研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
+	图表数据需求（这些需求已用于定向检索）：
+	{json.dumps(chart_data_needs, ensure_ascii=False, indent=2)}
+	叙事主线计划：{json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
 事实包：{fact_pack.digest()}
 证据台账（图表和数字判断只能来自这里或事实包）：
 {evidence_text}
@@ -264,6 +439,7 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 - 必须顺着“叙事主线计划”展开，先回答核心管理问题，再用事实包和证据台账支撑判断。
 - key_takeaways 3 条，每条必须有明确判断和管理含义。
 - sections 4-6 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 5-7 段，必须包含数字、日期、案例、机制或反例中的至少两类。
+- evidence bullets must be reader-ready sentences, not raw JSON/dict objects from the evidence ledger.
 - exhibits 3-5 个；如果提出图表草稿，只能使用证据台账或事实包中的数字、年份、来源计数或同单位可比数据，必须保留 data_basis；不要使用方向性评分或内部综合指数。
 - action_steps 3-5 个，每个包含 horizon、action、success_metric。
 - references 只能使用上方 Sources 中真实 URL。
@@ -274,10 +450,12 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
             user = f"""
 Generate an HTML-first, BCG-publication-like deep analysis report data structure and return JSON.
 
-Topic: {topic}
-Research plan:
-{json.dumps(plan, ensure_ascii=False, indent=2)}
-Storyline plan:
+	Topic: {topic}
+	Research plan:
+	{json.dumps(plan, ensure_ascii=False, indent=2)}
+	Chart data needs used for targeted source collection:
+	{json.dumps(chart_data_needs, ensure_ascii=False, indent=2)}
+	Storyline plan:
 {json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
 Fact pack:
 {fact_pack.digest()}
@@ -296,6 +474,7 @@ Writing rules:
 - Follow the storyline plan: answer the core management question first, then use the fact pack and evidence ledger to support the argument.
 - key_takeaways: exactly 3, each with a clear claim and management implication.
 - sections: 4-6 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 5-7 paragraphs and must include at least two of: numbers, dates, cases, causal mechanism, counter-evidence.
+- evidence bullets must be reader-ready sentences, not raw JSON/dict objects from the evidence ledger.
 - exhibits: 3-5 items using metric_row, bar, line, matrix, process or bubble. If drafting exhibits, use only evidence-ledger values, years, source counts or same-unit comparable values from the fact pack, and include data_basis. Do not use directional scores, priority indexes, readiness indexes or internal synthesis values.
 - action_steps: 3-5 items, each with horizon, action, success_metric.
 - references may only use real URLs present in Sources.
@@ -390,7 +569,8 @@ Writing rules:
                 continue
             lead = str(section.get("lead") or "")
             paragraphs = [str(item).strip() for item in section.get("paragraphs") or [] if str(item).strip()]
-            evidence = [str(item).strip() for item in section.get("evidence") or [] if str(item).strip()]
+            evidence = [_clean_fact_for_reader(str(item).strip()) for item in section.get("evidence") or [] if str(item).strip()]
+            evidence = [item for item in evidence if item]
             title = str(section.get("title") or topic)
             fact = facts[(idx - 1) % len(facts)]
             while len(paragraphs) < 5:
@@ -490,4 +670,40 @@ Writing rules:
 
 def _clean_fact_for_reader(fact: str) -> str:
     text = re.sub(r"^\[Source\s+\d+:[^\]]+\]\s*", "", str(fact or "")).strip()
-    return re.sub(r"\s+", " ", text).strip()
+    if re.match(r"^\s*\{['\"]id['\"]\s*:", text):
+        fact_match = re.search(r"['\"]fact['\"]\s*:\s*['\"](.+?)(?<!\\)['\"]\s*,\s*['\"](?:value|display_value|year|unit|metric_family)['\"]", text, re.S)
+        display_match = re.search(r"['\"]display_value['\"]\s*:\s*['\"](.+?)(?<!\\)['\"]", text, re.S)
+        extracted = fact_match.group(1) if fact_match else ""
+        display = display_match.group(1) if display_match else ""
+        if extracted:
+            text = f"{display}: {extracted}" if display and display not in extracted else extracted
+    text = re.sub(r"\s+", " ", text).strip(" .")
+    if _reader_noise(text):
+        return ""
+    return text
+
+
+def _reader_noise(text: str) -> bool:
+    lower = str(text or "").lower()
+    if not lower:
+        return True
+    return any(
+        token in lower
+        for token in (
+            "making it work advantages of fusion",
+            "fusion glossary",
+            "all news",
+            "photos videos",
+            "subscribe to the newsletter",
+            "select your newsletters",
+            "page body could not be fully extracted",
+        )
+    )
+
+
+def _as_list(value: Any) -> List[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
