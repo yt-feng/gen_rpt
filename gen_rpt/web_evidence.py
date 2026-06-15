@@ -169,8 +169,7 @@ def build_evidence_exhibits(
     for idx, exhibit in enumerate(exhibits[:5], start=1):
         exhibit["id"] = f"evidence-exhibit-{idx}"
         exhibit["no"] = str(idx)
-        if idx > 1:
-            exhibit.setdefault("after_section_id", f"section-{min(idx, 5)}")
+        exhibit.setdefault("after_section_id", f"section-{min(idx, 5)}")
     return exhibits[:5]
 
 
@@ -256,7 +255,7 @@ def _milestone_timeline_exhibit(ledger: List[Dict[str, Any]], fact_pack: Researc
     return {
         "type": "timeline",
         "title": "Milestones, not hype cycles, set the strategic clock",
-        "subtitle": "A BCG-style article should show the sequence of proof points before recommending commitment.",
+        "subtitle": "Dated proof points should set the commitment clock before leadership treats the opportunity as investable.",
         "events": [
             {
                 "year": str(item.get("year") or ""),
@@ -448,8 +447,7 @@ def _fact_pack_exhibits(topic: str, fact_pack: ResearchFactPack) -> List[Dict[st
     for idx, exhibit in enumerate(exhibits, start=1):
         exhibit["id"] = f"evidence-exhibit-{idx}"
         exhibit["no"] = str(idx)
-        if idx > 1:
-            exhibit["after_section_id"] = f"section-{idx}"
+        exhibit["after_section_id"] = f"section-{idx}"
     return exhibits
 
 

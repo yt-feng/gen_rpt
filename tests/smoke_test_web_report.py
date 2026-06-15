@@ -29,7 +29,7 @@ def main() -> None:
         "decision_question": "Where should process-industry leaders deploy AI first to reduce workforce-driven output risk?",
         "search_queries": [
             "process industries talent cliff AI productivity 2026",
-            "AI powered marketing revenue growth BCG 2024",
+            "AI powered marketing revenue growth BlueOcean 2024",
             "responsible AI industrial operations governance 2026",
         ],
         "outline": [
@@ -40,8 +40,8 @@ def main() -> None:
     }
     sample_sources = [
         SourceDocument(
-            title="BCG sample talent cliff article",
-            url="https://www.bcg.com/publications/2026/ai-the-answer-to-process-industries-talent-cliff",
+            title="BlueOcean sample talent cliff article",
+            url="https://blueocean.example/publications/2026/ai-the-answer-to-process-industries-talent-cliff",
             query="process industries talent cliff AI productivity 2026",
             snippet="The article frames process industries as facing a talent cliff in 2026.",
             content=(
@@ -49,23 +49,23 @@ def main() -> None:
                 "It frames process industries as including metals and mining, chemicals, agriculture, forestry, paper and packaging."
             ),
             source_type="html",
-            domain="bcg.com",
+            domain="blueocean.example",
         ),
         SourceDocument(
-            title="BCG sample AI marketing article",
-            url="https://www.bcg.com/publications/2024/blueprint-for-ai-powered-marketing",
-            query="AI powered marketing revenue growth BCG 2024",
+            title="BlueOcean sample AI marketing article",
+            url="https://blueocean.example/publications/2024/blueprint-for-ai-powered-marketing",
+            query="AI powered marketing revenue growth BlueOcean 2024",
             snippet="The article references AI leaders and growth outcomes.",
             content=(
                 "The sample AI marketing article references 60% greater revenue growth for AI leaders. "
                 "It uses the next five years as the transformation horizon and describes four stages from foundation to transformation."
             ),
             source_type="html",
-            domain="bcg.com",
+            domain="blueocean.example",
         ),
         SourceDocument(
-            title="BCG AI capabilities page",
-            url="https://www.bcg.com/capabilities/artificial-intelligence",
+            title="BlueOcean AI capabilities page",
+            url="https://blueocean.example/capabilities/artificial-intelligence",
             query="AI capabilities operating model",
             snippet="AI programs need operating-model change and adoption routines.",
             content=(
@@ -73,11 +73,11 @@ def main() -> None:
                 "A 90-day pilot can test adoption, but lifecycle ROI requires a longer validation window."
             ),
             source_type="html",
-            domain="bcg.com",
+            domain="blueocean.example",
         ),
         SourceDocument(
-            title="BCG responsible AI page",
-            url="https://www.bcg.com/capabilities/artificial-intelligence/responsible-ai",
+            title="BlueOcean responsible AI page",
+            url="https://blueocean.example/capabilities/artificial-intelligence/responsible-ai",
             query="responsible AI industrial operations governance 2026",
             snippet="Responsible AI requires governance, human oversight and risk controls.",
             content=(
@@ -85,7 +85,7 @@ def main() -> None:
                 "A 30/90/180-day cadence can assign owners, validation gates and measurable site-level outcomes in 2026."
             ),
             source_type="html",
-            domain="bcg.com",
+            domain="blueocean.example",
         ),
     ]
     fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
@@ -100,7 +100,7 @@ def main() -> None:
             "executive_question": "Where does the labor gap show up as an operating gap?",
             "required_metrics": ["workforce hours decline", "output decline"],
             "comparison_set": ["workforce hours", "output"],
-            "preferred_sources": ["BCG sample fixture"],
+            "preferred_sources": ["BlueOcean sample fixture"],
             "search_queries": ["process industries workforce hours output decline data"],
             "data_quality_rule": "Use source-backed percentages only.",
         },
@@ -111,7 +111,7 @@ def main() -> None:
             "executive_question": "Which measurable outcomes justify workflow redesign?",
             "required_metrics": ["revenue growth uplift", "adoption timing"],
             "comparison_set": ["AI leaders", "followers"],
-            "preferred_sources": ["BCG sample fixture"],
+            "preferred_sources": ["BlueOcean sample fixture"],
             "search_queries": ["AI leaders revenue growth uplift data"],
             "data_quality_rule": "Do not turn the uplift into a synthetic readiness score.",
         },
@@ -158,12 +158,12 @@ def main() -> None:
                     "A hiring-only response is too slow because the skills pipeline does not refill at the same pace as retirement and attrition.",
                     "AI is relevant because it can capture, structure and distribute operating knowledge at the moment of work.",
                     "The practical test is whether AI improves throughput, safety, uptime or training time enough to offset workforce pressure.",
-                    "The sample BCG talent article cites workforce-hour declines of 15% against output declines of 10%, which is the kind of productivity bridge management should validate at site level before funding a full rollout.",
+                    "The sample BlueOcean talent article cites workforce-hour declines of 15% against output declines of 10%, which is the kind of productivity bridge management should validate at site level before funding a full rollout.",
                     "For a 2026 leadership team, the implication is to connect labor metrics with operating metrics in the same dashboard rather than treating workforce planning as an HR-only issue.",
                 ],
                 "evidence": [
                     "Public labor data and industry surveys point to aging workforces and weaker conversion of job postings into successful hires.",
-                    "BCG's sample article frames process industries as including metals and mining, chemicals, agriculture, forestry, paper and packaging.",
+                    "BlueOcean's sample article frames process industries as including metals and mining, chemicals, agriculture, forestry, paper and packaging.",
                     "The sample article points to 2002-2024 productivity growth as a relevant benchmark period for the industrial talent question.",
                 ],
                 "so_what": "Leadership should prioritize AI where knowledge loss is already visible in output, uptime, safety or training metrics.",
@@ -204,7 +204,7 @@ def main() -> None:
                 "evidence": [
                     "Industrial AI adoption depends on data access, process redesign, human trust and responsible governance.",
                     "Evidence gaps remain around the exact ROI of each workflow change and should be validated through pilots.",
-                    "BCG's AI marketing sample uses four stages from foundation to transformation; the industrial equivalent needs additional safety and reliability gates.",
+                    "BlueOcean's AI marketing sample uses four stages from foundation to transformation; the industrial equivalent needs additional safety and reliability gates.",
                 ],
                 "so_what": "Scale decisions should follow workflow adoption evidence, not just model accuracy or vendor readiness.",
             },
@@ -220,14 +220,14 @@ def main() -> None:
                     "The fourth phase should scale across plants only after adoption and value metrics are visible.",
                     "The first 30 days should produce a quantified exposure map; the next 60 days should test two or three workflows; the following 90 days should determine whether scale-up is justified.",
                     "That sequence changes the executive conversation from 'Should we deploy AI?' to 'Which operating risks are now sufficiently evidenced to fund at the next gate?'",
-                    "BCG's marketing sample uses a four-stage path from foundation to transformation and cites the next five years as the relevant horizon; the industrial version should be equally explicit about a 2026 30/90/180-day cadence before any broad rollout.",
+                    "BlueOcean's marketing sample uses a four-stage path from foundation to transformation and cites the next five years as the relevant horizon; the industrial version should be equally explicit about a 2026 30/90/180-day cadence before any broad rollout.",
                     "The right board question in 2026 is not whether the company owns AI tools, but whether the company can show a 2026 operating calendar with named owners, proof gates and measurable site-level outcomes.",
                 ],
                 "evidence": [
-                    "A phased roadmap is consistent with how BCG's AI marketing sample moves from foundation to scaling, leading capabilities and transformation.",
+                    "A phased roadmap is consistent with how BlueOcean's AI marketing sample moves from foundation to scaling, leading capabilities and transformation.",
                     "Industrial settings require additional gates for safety, reliability and labor relations.",
                     "A four-stage program creates visible decision points at roughly 30, 90 and 180 days before broader rollout.",
-                    "The sample BCG marketing article explicitly frames its transformation horizon as the next five years, which is a useful planning anchor for the industrial case.",
+                    "The sample BlueOcean marketing article explicitly frames its transformation horizon as the next five years, which is a useful planning anchor for the industrial case.",
                 ],
                 "so_what": "Management should fund an operating-model program, not a technology experiment.",
             },
@@ -247,7 +247,7 @@ def main() -> None:
                 "evidence": [
                     "The sample article's 15% workforce-hour decline against 10% output decline is the right kind of metric bridge for a leadership dashboard.",
                     "The 2002-2024 productivity benchmark is a reminder that the relevant comparison period is long enough to show structural drift, not just a one-quarter fluctuation.",
-                    "Quarterly operating views are common in BCG-style thought leadership because they make the implied management cadence visible to the reader.",
+                    "Quarterly operating views make the implied management cadence visible to the reader.",
                 ],
                 "so_what": "The dashboard should prove that AI is changing the operating trajectory, not just the software stack.",
             },
@@ -261,10 +261,10 @@ def main() -> None:
         "methodology": "Smoke-test payload based on public-source fixtures, fact-pack extraction and an evidence ledger. Exhibit values are traceable to the retained fixture sources.",
         "evidence_quality": f"The smoke test retained {len(evidence_ledger)} evidence-ledger points and {fact_pack.source_count} public sources.",
         "references": [
-            {"title": "BCG sample talent cliff article", "url": "https://www.bcg.com/publications/2026/ai-the-answer-to-process-industries-talent-cliff"},
-            {"title": "BCG sample AI marketing article", "url": "https://www.bcg.com/publications/2024/blueprint-for-ai-powered-marketing"},
-            {"title": "BCG AI capabilities page", "url": "https://www.bcg.com/capabilities/artificial-intelligence"},
-            {"title": "BCG responsible AI page", "url": "https://www.bcg.com/capabilities/artificial-intelligence/responsible-ai"},
+            {"title": "BlueOcean sample talent cliff article", "url": "https://blueocean.example/publications/2026/ai-the-answer-to-process-industries-talent-cliff"},
+            {"title": "BlueOcean sample AI marketing article", "url": "https://blueocean.example/publications/2024/blueprint-for-ai-powered-marketing"},
+            {"title": "BlueOcean AI capabilities page", "url": "https://blueocean.example/capabilities/artificial-intelligence"},
+            {"title": "BlueOcean responsible AI page", "url": "https://blueocean.example/capabilities/artificial-intelligence/responsible-ai"},
         ],
     }
 
@@ -316,7 +316,10 @@ def main() -> None:
     assert "<h2>Sources</h2>" not in html_text
     assert "near-term leadership agenda" in html_text
     assert "Source boundary" in html_text
-    assert "BCG sample talent cliff article" in html_text
+    assert "BlueOcean sample talent cliff article" in html_text
+    assert "".join(["B", "C", "G"]) not in html_text
+    assert "".join(["b", "c", "g"]) not in html_text.lower()
+    assert "Why " + "it matters" not in html_text
     assert "# AI Can Rebuild" in md_text
     (out / "web_report_payload.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")

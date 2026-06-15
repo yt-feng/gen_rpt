@@ -173,7 +173,7 @@ QA 会检查：
 - 是否存在文本块重叠
 - 是否存在过小字体
 - 是否存在异常大字
-- 是否泄露 `BCG-style`、`consulting-style`、`sample card`、内部策略框架名或图表修复痕迹等元标签
+- 是否泄露 `BlueOcean-style`、`consulting-style`、`sample card`、内部策略框架名或图表修复痕迹等元标签
 - HTML 页面是否存在文字过密 + 图片同页的溢出风险
 
 QA 截图会保存在：

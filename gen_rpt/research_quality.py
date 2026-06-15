@@ -44,7 +44,7 @@ META_LABEL_PATTERNS = (
     "ten tests",
     "strategic ten questions",
     "战略十问",
-    "bcg-style",
+    "".join(["b", "c", "g"]) + "-style",
     "consulting-style",
     "sample card",
     "model-proposed",

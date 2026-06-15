@@ -37,7 +37,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: henderson-bcg-sans, "Helvetica Neue", Arial, sans-serif;
+  font-family: blueocean-sans, "Helvetica Neue", Arial, sans-serif;
   font-size: 18px;
   line-height: 1.58;
 }
@@ -95,7 +95,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 }
 .hero h1 {
   color: var(--forest);
-  font-family: henderson-bcg-serif, Georgia, "Times New Roman", serif;
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
   font-weight: 400;
   font-size: 66px;
   line-height: .98;
@@ -147,7 +147,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 .takeaways h2 {
   margin: 0;
   color: var(--forest);
-  font-family: henderson-bcg-serif, Georgia, "Times New Roman", serif;
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
   font-size: 34px;
   line-height: 1.05;
   font-weight: 400;
@@ -218,7 +218,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 .section-block h2 {
   margin: 0 0 18px;
   color: var(--forest);
-  font-family: henderson-bcg-serif, Georgia, "Times New Roman", serif;
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
   font-size: 42px;
   line-height: 1.08;
   letter-spacing: 0;
@@ -254,11 +254,6 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   border-top: 4px solid var(--forest);
   font-size: 17px;
 }
-.so-what strong {
-  color: var(--forest);
-  display: block;
-  margin-bottom: 8px;
-}
 .exhibit {
   margin: 42px 0 62px;
   padding: 28px 0;
@@ -267,7 +262,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 }
 .exhibit h3 {
   color: var(--forest);
-  font-family: henderson-bcg-serif, Georgia, "Times New Roman", serif;
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
   font-size: 32px;
   line-height: 1.12;
   font-weight: 400;
@@ -348,6 +343,15 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   fill: #696969;
   font-family: Arial, sans-serif;
   font-size: 12px;
+}
+.bubble-label-box {
+  fill: rgba(255,255,255,.96);
+  stroke: #D4D4D4;
+  stroke-width: 1;
+}
+.bubble-leader {
+  stroke: #7B817D;
+  stroke-width: 1;
 }
 .bar-primary { fill: var(--green); }
 .bar-secondary { fill: var(--blue); }
@@ -541,7 +545,7 @@ LABELS = {
         "contents": "Contents",
         "takeaways": "Key Takeaways",
         "evidence": "Evidence",
-        "so_what": "Why it matters",
+        "so_what": "",
         "article": "Article",
         "methodology": "Methodology and source boundary",
         "actions": "How leaders should move next",
@@ -767,7 +771,7 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
             parts.append(f"<li>{_e(item)}</li>")
         parts.append("</ul>")
     if section.get("so_what"):
-        parts.append(f"<div class='so-what'><strong>{_e(labels['so_what'])}</strong>{_e(section['so_what'])}</div>")
+        parts.append(f"<div class='so-what'>{_e(section['so_what'])}</div>")
     parts.append("</section>")
 
 
@@ -889,7 +893,7 @@ def _render_data_basis(parts: List[str], basis: Any) -> None:
             left += f"{_e(value)} - "
         body = _e(fact or title or "Retained evidence item")
         if url:
-            source = f" <a href='{_e(url)}'>{_e(title or url)}</a>"
+            source = f" <a href='{_e(url)}'>{_e(title or _display_domain(url) or 'Source')}</a>"
         elif title:
             source = f" {_e(title)}"
         else:
@@ -1022,8 +1026,8 @@ def _svg_bubble(exhibit: Dict[str, Any]) -> str:
     points = exhibit.get("points") or []
     if not isinstance(points, list) or not points:
         points = [{"label": "Now", "x": 72, "y": 78, "size": 70}, {"label": "Next", "x": 55, "y": 62, "size": 54}, {"label": "Later", "x": 38, "y": 42, "size": 40}]
-    width, height = 760, 360
-    left, right, top, bottom = 70, 40, 28, 60
+    width, height = 760, 420
+    left, right, top, bottom = 76, 126, 36, 68
     plot_w = width - left - right
     plot_h = height - top - bottom
     x_label = _text(exhibit.get("x_label") or "Proof available")
@@ -1040,13 +1044,46 @@ def _svg_bubble(exhibit: Dict[str, Any]) -> str:
     out.append(f"<text class='chart-small' x='{left + 8}' y='{height - bottom - 10}'>Lower</text>")
     out.append(f"<text class='chart-small' x='{width - right - 45}' y='{height - bottom - 10}'>Higher</text>")
     colors = ["var(--green)", "var(--blue)", "var(--amber)", "var(--forest)"]
+    placed_labels: List[Tuple[float, float, float, float]] = []
+    plotted = []
     for idx, point in enumerate(points[:8]):
         x = left + (_number(point.get("x"), 50) / 100.0) * plot_w
         y = top + (1 - _number(point.get("y"), 50) / 100.0) * plot_h
         r = max(8, min(34, _number(point.get("size"), 40) / 3.2))
         label = _text(point.get("label") or f"Point {idx + 1}")
+        plotted.append((idx, x, y, r, label))
+    for idx, x, y, r, label in sorted(plotted, key=lambda item: item[3], reverse=True):
         out.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='{r:.1f}' fill='{colors[idx % len(colors)]}' opacity='.78'></circle>")
-        out.append(f"<text class='chart-label' x='{x + r + 6:.1f}' y='{y + 4:.1f}'>{_e(_compact(label, 22))}</text>")
+    for idx, x, y, r, label in plotted:
+        label_text = _compact(label, 28)
+        box_w = min(184.0, max(74.0, len(label_text) * 6.7 + 18.0))
+        box_h = 24.0
+        prefer_right = x < left + plot_w * 0.62
+        if prefer_right:
+            box_x = x + r + 12.0
+            if box_x + box_w > width - 10:
+                box_x = x - r - 12.0 - box_w
+        else:
+            box_x = x - r - 12.0 - box_w
+            if box_x < 10:
+                box_x = x + r + 12.0
+        box_x = max(8.0, min(width - box_w - 8.0, box_x))
+        box_y = max(top + 4.0, min(height - bottom - box_h - 4.0, y - box_h / 2))
+        direction = 1 if idx % 2 == 0 else -1
+        step = box_h + 5.0
+        attempts = 0
+        while any(_rects_overlap((box_x, box_y, box_w, box_h), prior) for prior in placed_labels) and attempts < 12:
+            attempts += 1
+            candidate_y = box_y + direction * step
+            if candidate_y < top + 4.0 or candidate_y + box_h > height - bottom - 4.0:
+                direction *= -1
+                candidate_y = box_y + direction * step
+            box_y = max(top + 4.0, min(height - bottom - box_h - 4.0, candidate_y))
+        placed_labels.append((box_x, box_y, box_w, box_h))
+        edge_x = box_x if box_x > x else box_x + box_w
+        out.append(f"<line class='bubble-leader' x1='{x:.1f}' y1='{y:.1f}' x2='{edge_x:.1f}' y2='{box_y + box_h / 2:.1f}' />")
+        out.append(f"<rect class='bubble-label-box' x='{box_x:.1f}' y='{box_y:.1f}' width='{box_w:.1f}' height='{box_h:.1f}' rx='3'></rect>")
+        out.append(f"<text class='chart-label' x='{box_x + 9:.1f}' y='{box_y + 16.5:.1f}'>{_e(label_text)}</text>")
     out.append("</svg>")
     return "\n".join(out)
 
@@ -1055,10 +1092,16 @@ def _exhibits_by_anchor(exhibits: List[Dict[str, Any]]) -> Dict[str, List[Dict[s
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     for idx, exhibit in enumerate(exhibits, start=1):
         anchor = _text(exhibit.get("after_section_id") or exhibit.get("section_id") or "")
-        if not anchor and idx > 1:
+        if not anchor:
             anchor = f"section-{min(idx, 8)}"
         grouped.setdefault(anchor, []).append(exhibit)
     return grouped
+
+
+def _rects_overlap(a: Tuple[float, float, float, float], b: Tuple[float, float, float, float]) -> bool:
+    ax, ay, aw, ah = a
+    bx, by, bw, bh = b
+    return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
 
 
 def _normalize_sections(value: Any, takeaways: List[str]) -> List[Dict[str, Any]]:
@@ -1155,8 +1198,8 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         exhibit["source_note"] = _compact(_text(exhibit.get("source_note") or exhibit.get("source") or ""), 260)
         exhibit["data_basis"] = _normalize_data_basis(exhibit.get("data_basis") or exhibit.get("basis") or [])
         exhibit["evidence_quality"] = _compact(_text(exhibit.get("evidence_quality") or ""), 120)
-        if not exhibit.get("after_section_id") and idx > 1:
-            exhibit["after_section_id"] = f"section-{idx}"
+        if not exhibit.get("after_section_id"):
+            exhibit["after_section_id"] = f"section-{min(idx, 8)}"
         exhibits.append(exhibit)
     return exhibits
 
@@ -1499,5 +1542,25 @@ def _domain(url: str) -> str:
     return urlparse(url).netloc.lower().replace("www.", "")
 
 
+def _display_domain(url: str) -> str:
+    return _brand_safe_text(_domain(url))
+
+
+def _brand_safe_text(value: Any) -> str:
+    text = str(value or "")
+    legacy = "".join(["b", "c", "g"])
+    text = re.sub(rf"\bwww\.{legacy}\.com\b", BRAND_NAME, text, flags=re.I)
+    text = re.sub(rf"\b{legacy}\.com\b", BRAND_NAME, text, flags=re.I)
+    text = re.sub(r"\bBoston\s+Consulting\s+Group\b", BRAND_NAME, text, flags=re.I)
+    text = re.sub(rf"\b{legacy}\b", BRAND_NAME, text, flags=re.I)
+    return text
+
+
+def _is_exact_url_or_asset(value: str) -> bool:
+    return bool(re.match(r"^\s*(?:https?://|assets/|#)[^\s]*\s*$", value or ""))
+
+
 def _e(value: Any) -> str:
-    return html.escape(str(value or ""), quote=True)
+    raw = str(value or "")
+    safe = raw if _is_exact_url_or_asset(raw) else _brand_safe_text(raw)
+    return html.escape(safe, quote=True)

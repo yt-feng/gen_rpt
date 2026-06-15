@@ -59,10 +59,11 @@ def generate_ai_image_assets(
     result: Dict[str, str] = {}
 
     cover_keywords = (
-        f"{topic}; full-page premium strategy report cover background; topic-specific editorial visual; "
+        f"{topic}; full-page premium BlueOcean strategy report cover background; topic-specific editorial visual; "
         "show a sophisticated real-world or cinematic conceptual scene directly related to the researched industry or technology; "
-        "executive publication quality; deep blue, white and electric-blue accents; no readable words; no logo; "
-        "leave calm negative space for a white title card; avoid generic ocean waves, abstract blue filler and unrelated decorative gradients"
+        "photorealistic magazine-quality lighting, crisp foreground detail, layered depth, natural materials and human-scale context; "
+        "executive publication quality; restrained blue, white and electric-blue accents; no readable words; no logo; "
+        "leave calm negative space for title placement; avoid generic ocean waves, abstract blue filler and unrelated decorative gradients"
     )
     _log("AI image cover prompt polishing started | expected 5-30s")
     cover_prompt = _polish_prompt(client, cover_keywords)
@@ -80,10 +81,11 @@ def generate_ai_image_assets(
         title = _section_title_for_prompt(section, idx)
         lead = _shorten(section.get("lead", ""), 180)
         keywords = (
-            f"{title}; {lead}; {topic}; premium editorial strategy report image; "
+            f"{title}; {lead}; {topic}; premium BlueOcean editorial strategy report image; "
             "topic-specific real-world business, industrial, technology, policy, infrastructure or executive setting; "
-            "human-scale context; cinematic lighting; blue and white accents; clean composition; no readable text; no logo; "
-            "avoid generic abstract filler"
+            "photorealistic editorial scene with crisp detail, realistic people or equipment when relevant, layered foreground and background; "
+            "human-scale context; cinematic but natural lighting; restrained blue and white accents; clean composition; no readable text; no logo; "
+            "avoid generic abstract filler, stock-photo cliches and purely decorative gradients"
         )
         _log(f"AI image section {idx}/{min(len(sections), max_section_images)} prompt polishing started | title={title[:90]!r}")
         prompt = _polish_prompt(client, keywords)
@@ -120,10 +122,11 @@ Return JSON only:
 
 Rules:
 - English only
-- premium strategy consulting report visual, suitable for a BCG-style publication
-- topic-specific visual metaphor or real-world scene; reflect the industry/technology instead of generic decoration
-- photorealistic or high-end editorial visual, not generic blue filler
-- elegant blue/white accents, clean composition
+- premium BlueOcean strategy publication visual
+- topic-specific real-world scene or concrete visual metaphor; reflect the industry/technology instead of generic decoration
+- photorealistic high-end editorial visual with crisp detail, realistic depth and natural lighting
+- restrained blue/white accents, clean composition
+- avoid generic stock-photo poses, fake UI screens and purely abstract filler
 - avoid generic ocean waves, glass waves, water surfaces, abstract blue gradients unless the topic is explicitly ocean-related
 - avoid readable text, logos, marks, watermarks, UI and charts inside the image
 """
@@ -134,7 +137,7 @@ Rules:
             return _sanitize(prompt)
     except Exception:
         pass
-    return _sanitize(f"Premium topic-specific editorial strategy consulting report visual, photorealistic, blue and white accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
+    return _sanitize(f"Premium BlueOcean topic-specific editorial strategy report visual, photorealistic, crisp detail, natural lighting, restrained blue and white accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
 
 
 def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, retries: int, allow_fallback: bool) -> Tuple[str, str]:
@@ -239,7 +242,7 @@ def _hamming(left: str, right: str) -> int:
 
 def _url(prompt: str) -> str:
     base = "https://image.pollinations.ai/prompt/"
-    query = "?width=1280&height=900&enhance=true&private=true&nologo=true&safe=true&model=flux"
+    query = "?width=1536&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux"
     return base + quote(prompt, safe="") + query
 
 
@@ -266,7 +269,7 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         "gsrlimit": "20",
         "prop": "imageinfo",
         "iiprop": "url|mime|size",
-        "iiurlwidth": "1280",
+        "iiurlwidth": "1536",
         "format": "json",
         "origin": "*",
     }
@@ -319,7 +322,7 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
                 if quality_reason:
                     tmp.unlink(missing_ok=True)
                     continue
-                image = _cover_crop(image, 1280, 900)
+                image = _cover_crop(image, 1536, 1024)
                 image.save(output_path, format="PNG")
             tmp.unlink(missing_ok=True)
             return "wikimedia", query

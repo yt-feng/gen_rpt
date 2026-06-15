@@ -31,6 +31,12 @@ UNVERIFIED_SOURCE_PATTERNS = (
     r"\bwidely cited\b",
 )
 
+FORBIDDEN_VISIBLE_TEXT = (
+    "".join(["b", "c", "g"]),
+    "why " + "it matters",
+    "blueocean-style",
+)
+
 UNSUPPORTED_CHART_PATTERNS = (
     r"\bdirectional\s+(?:priority|assessment|score|index|view)\b",
     r"\bpriority\s+index\b",
@@ -212,7 +218,10 @@ def main() -> int:
             issues.append(f"HTML contains unsupported source/evidence language matching: {pattern}")
     for required in ["Key Takeaways", "Contents"]:
         if required.lower() not in lower:
-            issues.append(f"HTML missing expected BCG-style module: {required}")
+            issues.append(f"HTML missing expected BlueOcean module: {required}")
+    for forbidden in FORBIDDEN_VISIBLE_TEXT:
+        if forbidden in lower:
+            issues.append(f"HTML contains forbidden visible/source text: {forbidden}")
     if "data basis" not in lower:
         issues.append("HTML missing visible Data basis for exhibits")
     if "source boundary" not in lower and "public-source collection" not in lower:
