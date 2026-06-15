@@ -29,7 +29,6 @@ PROCESS_PATTERNS = (
 UNVERIFIED_SOURCE_PATTERNS = (
     r"\bnot in fact pack\b",
     r"\bwidely cited\b",
-    r"\bnot independently verified\b",
 )
 
 UNSUPPORTED_CHART_PATTERNS = (

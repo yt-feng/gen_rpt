@@ -718,7 +718,6 @@ def _reader_noise(text: str) -> bool:
             "page body could not be fully extracted",
             "not in fact pack",
             "widely cited",
-            "not independently verified",
         )
     )
 
