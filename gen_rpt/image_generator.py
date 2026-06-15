@@ -22,6 +22,17 @@ PALETTE = THEME.get("palette", {})
 DEFAULT_MAX_SECTION_IMAGES = 10
 DEFAULT_IMAGE_TIMEOUT = 45
 DEFAULT_IMAGE_RETRIES = 3
+FUSION_IMAGE_TOKENS = [
+    "fusion",
+    "tokamak",
+    "plasma",
+    "tritium",
+    "reactor",
+    "national ignition facility",
+    "llnl",
+    "target chamber",
+    "laser bay",
+]
 
 
 def generate_ai_image_assets(
@@ -421,7 +432,7 @@ def _curl_bytes(url: str, timeout_seconds: int) -> bytes:
 
 def _wikimedia_query(prompt: str) -> str:
     lower = prompt.lower()
-    if _has_prompt_any(lower, ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
+    if _has_prompt_any(lower, FUSION_IMAGE_TOKENS):
         if _has_prompt_any(lower, ["construction", "cost", "capital", "lcoe", "timing"]):
             return "ITER tokamak construction"
         if _has_prompt_any(lower, ["control", "customer", "commercial", "bankability", "readiness"]):
@@ -541,7 +552,7 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
 
 def _prompt_type(prompt: str) -> str:
     lower = prompt.lower()
-    if _has_prompt_any(lower, ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
+    if _has_prompt_any(lower, FUSION_IMAGE_TOKENS):
         return "fusion"
     if _has_prompt_any(lower, ["rail", "railway", "train", "logistics", "coal"]):
         return "rail"
