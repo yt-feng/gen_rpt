@@ -1,0 +1,134 @@
+{
+  "objective": "Assess the current state and near-term outlook for nuclear fusion commercialization, identifying key milestones, strategic implications for energy markets, and investment risks.",
+  "audience": "Senior executives in energy, finance, and policy; strategic planners; venture investors.",
+  "decision_question": "Should our organization invest in or partner with nuclear fusion ventures now, or wait for further technological and regulatory clarity?",
+  "issue_tree": {
+    "root": "Nuclear fusion commercialization outlook",
+    "branches": [
+      {
+        "name": "Technology readiness",
+        "children": [
+          "Magnetic confinement (tokamaks, stellarators)",
+          "Inertial confinement (laser, NIF)",
+          "Alternative approaches (e.g., compact reactors, aneutronic fusion)"
+        ]
+      },
+      {
+        "name": "Regulatory and safety framework",
+        "children": [
+          "Licensing pathways (NRC, IAEA)",
+          "Radiation safety and waste management",
+          "Export controls and non-proliferation"
+        ]
+      },
+      {
+        "name": "Economic viability",
+        "children": [
+          "Levelized cost of electricity (LCOE) projections",
+          "Capital expenditure and operational costs",
+          "Grid integration and scalability"
+        ]
+      },
+      {
+        "name": "Market and competitive landscape",
+        "children": [
+          "Key private and public players (Commonwealth Fusion, TAE, ITER, etc.)",
+          "Funding trends (VC, government, corporate)",
+          "Timeline to first commercial plant"
+        ]
+      },
+      {
+        "name": "Strategic implications",
+        "children": [
+          "Impact on renewable and fossil fuel markets",
+          "Geopolitical energy independence",
+          "Role in decarbonization and net-zero targets"
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "nuclear fusion commercialization timeline 2025 2030",
+    "ITER project status and budget update 2024",
+    "Commonwealth Fusion Systems SPARC timeline",
+    "NRC regulatory framework for fusion energy licensing",
+    "fusion energy levelized cost of electricity projections",
+    "private fusion investment funding 2024",
+    "fusion energy market size forecast 2030",
+    "IAEA fusion safety guidelines",
+    "fusion vs fission economics comparison",
+    "fusion energy geopolitical implications"
+  ],
+  "source_strategy": {
+    "government": [
+      "NRC fusion licensing documents",
+      "DOE fusion energy strategy"
+    ],
+    "regulators": [
+      "IAEA fusion safety reports"
+    ],
+    "company_filings": [
+      "Commonwealth Fusion Systems annual report",
+      "TAE Technologies investor updates"
+    ],
+    "industry_associations": [
+      "Fusion Industry Association reports"
+    ],
+    "international_organizations": [
+      "ITER Organization status updates"
+    ],
+    "authoritative_media": [
+      "Nature fusion energy articles",
+      "MIT Technology Review"
+    ],
+    "academic": [
+      "Journal of Fusion Energy",
+      "Nuclear Fusion journal"
+    ],
+    "consulting": [
+      "McKinsey fusion energy outlook",
+      "BloombergNEF fusion analysis"
+    ]
+  },
+  "outline": [
+    "1. Fusion is not a science experiment anymore: key technical milestones achieved in the last 3 years (e.g., NIF ignition, SPARC magnet test).",
+    "2. The regulatory bottleneck: licensing pathways remain undefined, but progress is being made (NRC rulemaking, IAEA framework).",
+    "3. Economics are still uncertain: LCOE estimates range from $50/MWh to over $100/MWh; capital costs dominate.",
+    "4. Private capital is flowing but timelines are long: $6B+ invested since 2020, but first commercial plant not expected before 2035.",
+    "5. Strategic implications: fusion could disrupt baseload power, but near-term impact on renewables is minimal; geopolitical advantages for energy importers."
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "Fusion Technology Readiness Levels (TRL) by Approach",
+      "question": "Which fusion technologies are closest to commercial deployment?",
+      "type": "bar chart or matrix"
+    },
+    {
+      "title": "Projected LCOE Range for Fusion vs. Other Sources (2035-2050)",
+      "question": "How does fusion's expected cost compare to solar, wind, nuclear fission, and gas?",
+      "type": "range chart with uncertainty bands"
+    },
+    {
+      "title": "Global Fusion Investment by Year and Source (2015-2024)",
+      "question": "How has funding evolved and who is backing fusion?",
+      "type": "stacked area chart"
+    },
+    {
+      "title": "Timeline to First Commercial Fusion Plant: Company Projections vs. Expert Surveys",
+      "question": "What is the realistic timeline for grid-connected fusion?",
+      "type": "Gantt chart with confidence intervals"
+    },
+    {
+      "title": "Regulatory Pathway Comparison: Fusion vs. Fission Licensing",
+      "question": "What are the key regulatory hurdles and how long might they take?",
+      "type": "flowchart or table"
+    }
+  ],
+  "risks": [
+    "Overreliance on optimistic private company timelines; need to cross-check with independent expert surveys.",
+    "Regulatory uncertainty could delay commercialization beyond 2040; need to track NRC and IAEA rulemaking.",
+    "Economic projections are highly sensitive to assumptions about capital costs and plasma performance; need sensitivity analysis.",
+    "Geopolitical risks: export controls on key technologies (e.g., tritium, magnets) could fragment supply chains.",
+    "Counter-evidence: some experts argue fusion will never be economically viable; need to include dissenting views."
+  ]
+}

@@ -1,0 +1,16 @@
+Title: DOE Milestone-Based Fusion Development Program
+URL: https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program
+Source Type: snippet
+Domain: energy.gov
+Content Type: text/plain
+Search Query: nuclear fusion commercialization timeline 2025 2030
+
+DOE Milestone-Based Fusion Development Program
+
+U.S. public-private milestone program focused on resolving technical and commercialization risks for fusion pilot plants.
+
+Source URL retained for public-source review: https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program
+
+Search context: nuclear fusion commercialization timeline 2025 2030
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

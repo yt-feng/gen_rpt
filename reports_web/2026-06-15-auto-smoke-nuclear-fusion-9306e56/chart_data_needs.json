@@ -1,0 +1,128 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Global Fusion Investment by Year and Source (2015-2024)",
+    "chart_type": "bar",
+    "executive_question": "How has funding evolved and who is backing fusion?",
+    "required_metrics": [
+      "annual investment amount (USD) by source (venture capital, government, corporate)",
+      "total cumulative investment per year"
+    ],
+    "comparison_set": [
+      "year-over-year from 2015 to 2024"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual investment reports",
+      "PitchBook/NVCA venture capital database",
+      "DOE fusion budget documents",
+      "BloombergNEF fusion analysis"
+    ],
+    "search_queries": [
+      "fusion energy investment 2024 venture capital",
+      "Fusion Industry Association investment report 2024",
+      "DOE fusion budget 2024"
+    ],
+    "data_quality_rule": "Use only publicly reported investment figures; cross-check with multiple sources; note any gaps in government funding data."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Projected LCOE Range for Fusion vs. Other Sources (2035-2050)",
+    "chart_type": "line",
+    "executive_question": "How does fusion's expected cost compare to solar, wind, nuclear fission, and gas?",
+    "required_metrics": [
+      "LCOE projections for fusion (low, median, high) in $/MWh for 2035, 2040, 2045, 2050",
+      "LCOE projections for solar PV, onshore wind, nuclear fission, natural gas combined cycle for same years"
+    ],
+    "comparison_set": [
+      "fusion vs. solar, wind, nuclear fission, natural gas"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook",
+      "DOE fusion LCOE studies",
+      "McKinsey fusion energy outlook"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind nuclear gas",
+      "fusion energy levelized cost projection 2035 2050",
+      "IEA World Energy Outlook LCOE 2024"
+    ],
+    "data_quality_rule": "Use official LCOE ranges from authoritative sources; clearly label uncertainty bands; if fusion projections are scarce, note as evidence gap."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Technology Readiness Levels (TRL) by Approach",
+    "chart_type": "matrix",
+    "executive_question": "Which fusion technologies are closest to commercial deployment?",
+    "required_metrics": [
+      "TRL score (1-9) for each approach (magnetic confinement, inertial confinement, alternative)",
+      "key milestones achieved (e.g., ignition, net energy gain, magnet test) with dates"
+    ],
+    "comparison_set": [
+      "magnetic confinement (tokamak, stellarator), inertial confinement (laser, NIF), alternative (compact, aneutronic)"
+    ],
+    "preferred_sources": [
+      "DOE Technology Readiness Assessment guidelines",
+      "ITER organization status reports",
+      "Commonwealth Fusion Systems SPARC updates",
+      "NIF ignition announcement (2022)",
+      "Journal of Fusion Energy TRL assessments"
+    ],
+    "search_queries": [
+      "fusion technology readiness level 2024",
+      "SPARC magnet test TRL",
+      "NIF ignition TRL assessment"
+    ],
+    "data_quality_rule": "TRL scores must be based on published assessments or expert consensus; avoid self-reported scores from companies without third-party validation."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Timeline to First Commercial Fusion Plant: Company Projections vs. Expert Surveys",
+    "chart_type": "timeline",
+    "executive_question": "What is the realistic timeline for grid-connected fusion?",
+    "required_metrics": [
+      "target year for first commercial plant from each major company (e.g., Commonwealth Fusion, TAE, General Fusion, Helion)",
+      "median and range of expert survey estimates (e.g., from Fusion Industry Association or academic surveys)"
+    ],
+    "comparison_set": [
+      "company projections vs. expert consensus"
+    ],
+    "preferred_sources": [
+      "Company announcements and investor presentations",
+      "Fusion Industry Association annual survey",
+      "Nature or MIT Technology Review expert polls",
+      "IAEA fusion roadmap"
+    ],
+    "search_queries": [
+      "Commonwealth Fusion commercial plant timeline 2024",
+      "TAE Technologies first fusion plant target year",
+      "Fusion Industry Association expert survey timeline 2024"
+    ],
+    "data_quality_rule": "Use only official company statements or published survey results; note if companies have revised timelines; include confidence intervals from surveys."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory Pathway Comparison: Fusion vs. Fission Licensing",
+    "chart_type": "timeline",
+    "executive_question": "What are the key regulatory hurdles and how long might they take?",
+    "required_metrics": [
+      "key regulatory milestones for fusion (e.g., NRC rulemaking completion, IAEA safety guidelines publication, first license application)",
+      "typical licensing timeline for fission plants (years from application to operation)"
+    ],
+    "comparison_set": [
+      "fusion regulatory pathway vs. fission licensing timeline"
+    ],
+    "preferred_sources": [
+      "NRC fusion rulemaking documents and public meeting notes",
+      "IAEA fusion safety reports",
+      "GAO reports on nuclear licensing",
+      "World Nuclear Association fission licensing data"
+    ],
+    "search_queries": [
+      "NRC fusion licensing rulemaking 2024",
+      "IAEA fusion safety guidelines 2024",
+      "fission plant licensing timeline years"
+    ],
+    "data_quality_rule": "Use official regulatory documents and timelines; note that fusion licensing is still evolving; compare with historical fission licensing data."
+  }
+]
