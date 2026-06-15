@@ -583,6 +583,13 @@ Writing rules:
                 fact_cursor += 1
             if not evidence:
                 evidence = facts[:3]
+            body = " ".join([lead] + paragraphs + evidence)
+            if not _has_numeric_cue(body):
+                numeric_fact = next((item for item in facts if _has_numeric_cue(item)), facts[0] if facts else "")
+                if numeric_fact and numeric_fact not in evidence:
+                    evidence = [numeric_fact] + evidence
+                if numeric_fact and len(paragraphs) < 8:
+                    paragraphs.append(self._section_support_paragraph(topic, title, numeric_fact, len(paragraphs)))
             section["paragraphs"] = paragraphs[:8]
             section["evidence"] = evidence[:5]
 
@@ -681,6 +688,16 @@ def _clean_fact_for_reader(fact: str) -> str:
     if _reader_noise(text):
         return ""
     return text
+
+
+def _has_numeric_cue(text: str) -> bool:
+    return bool(
+        re.search(
+            r"\b(19|20)\d{2}\b|\b\d+(?:\.\d+)?%|\b\$\d+|\b\d+(?:\.\d+)?\s*(?:billion|million|trillion|GW|MW|MJ|kg|years?|months?)\b",
+            str(text or ""),
+            re.I,
+        )
+    )
 
 
 def _reader_noise(text: str) -> bool:
