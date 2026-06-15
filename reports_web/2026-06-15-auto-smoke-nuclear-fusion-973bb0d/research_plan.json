@@ -1,0 +1,76 @@
+{
+  "objective": "Assess the commercial viability of nuclear fusion energy and its strategic implications for the energy sector, investors, and policymakers over the next decade.",
+  "audience": "Senior executives in energy, utilities, and investment firms; government energy advisors; and corporate strategists.",
+  "decision_question": "Should our organization invest in or prepare for nuclear fusion as a disruptive energy source, and what is the realistic timeline and competitive landscape?",
+  "issue_tree": {
+    "root": "Nuclear fusion commercialization outlook",
+    "branches": [
+      {
+        "node": "Technology readiness",
+        "children": [
+          "Current state of leading fusion approaches (tokamak, stellarator, inertial confinement, private ventures)",
+          "Key technical milestones achieved and remaining challenges (plasma confinement, materials, tritium breeding)",
+          "Timeline estimates from major projects (ITER, SPARC, DEMO, private firms)"
+        ]
+      },
+      {
+        "node": "Economic viability",
+        "children": [
+          "Estimated levelized cost of fusion energy vs. renewables, fission, and fossil fuels",
+          "Capital expenditure and operational cost projections",
+          "Subsidies, carbon pricing, and policy support scenarios"
+        ]
+      },
+      {
+        "node": "Regulatory and safety landscape",
+        "children": [
+          "Regulatory frameworks for fusion (nuclear vs. non-nuclear classification)",
+          "Safety, waste, and proliferation risks",
+          "Licensing and public acceptance"
+        ]
+      },
+      {
+        "node": "Strategic implications",
+        "children": [
+          "Impact on energy markets, grid integration, and baseload power",
+          "Geopolitical implications (energy independence, supply chains)",
+          "Competitive dynamics among fusion developers and traditional energy incumbents"
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "ITER project status 2025 timeline cost overruns",
+    "Commonwealth Fusion Systems SPARC progress 2025",
+    "TAE Technologies fusion reactor commercial timeline",
+    "General Fusion demonstration plant 2025",
+    "Helion Energy fusion reactor 2025",
+    "US Department of Energy fusion funding 2025",
+    "IAEA fusion energy regulatory framework",
+    "Levelized cost of fusion energy 2025 estimate",
+    "Nuclear fusion waste management safety comparison",
+    "Fusion energy market size forecast 2030 2040"
+  ],
+  "source_strategy": "Prioritize official project updates (ITER, DOE), company filings and press releases (CFS, TAE, General Fusion, Helion), industry reports (IAEA, Fusion Industry Association), academic papers (Nuclear Fusion journal), and authoritative media (Nature, Reuters, FT). Cross-verify timelines and cost data with multiple sources.",
+  "outline": [
+    "1. Fusion is not a science experiment anymore: multiple private and public projects aim for net energy gain by 2030, but commercial power remains post-2035.",
+    "2. The economic case is uncertain: early LCOE estimates range from $50-100/MWh, but capital costs and financing risks are high without subsidies.",
+    "3. Regulatory classification is a pivotal decision: treating fusion like fission could delay deployment; some countries are moving to separate frameworks.",
+    "4. Strategic implications are profound but distant: fusion could disrupt baseload power and energy geopolitics, but incumbents have time to adapt.",
+    "5. The race is not just technological: supply chain for rare materials (tritium, superconducting magnets) and skilled workforce are bottlenecks."
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Timeline of major fusion projects (ITER, SPARC, DEMO, private) with key milestones and commercial operation estimates. Answers: When will fusion produce net electricity?",
+    "Exhibit 2: LCOE comparison of fusion (projected) vs. solar, wind, nuclear fission, and gas (2025-2050). Answers: Can fusion compete on cost?",
+    "Exhibit 3: Map of fusion developers and funding sources (public vs. private, by country). Answers: Who is leading and where is the money?",
+    "Exhibit 4: Regulatory status of fusion in key markets (US, EU, UK, Japan, China) – classified as nuclear or not. Answers: What are the regulatory hurdles?",
+    "Exhibit 5: Sensitivity analysis of fusion adoption under different carbon price and subsidy scenarios. Answers: What policy support is needed?"
+  ],
+  "risks": [
+    "Overreliance on optimistic private-sector timelines; need to cross-check with independent academic assessments.",
+    "Lack of publicly available cost data; use ranges and clearly state assumptions.",
+    "Rapidly evolving landscape; ensure sources are current (2024-2025).",
+    "Potential bias from fusion advocates; include critical perspectives from fission and renewable experts.",
+    "Geopolitical sensitivity of tritium supply and ITER delays; highlight uncertainties."
+  ]
+}

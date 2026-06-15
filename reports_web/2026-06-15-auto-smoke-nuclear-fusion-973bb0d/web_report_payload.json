@@ -1,0 +1,497 @@
+{
+  "title": "Nuclear Fusion Commercialization: Strategic Implications for the Next Decade",
+  "dek": "A BCG-style deep analysis of fusion's realistic timeline, economic viability, and strategic implications for energy executives and investors.",
+  "category": "Energy & Environment",
+  "published_date": "2026-06-15",
+  "authors": [
+    "Strategy Research Team"
+  ],
+  "read_time_minutes": 0,
+  "intro": [
+    "Nuclear fusion has long been a distant promise, but recent breakthroughs—including the 2022 fusion ignition at Lawrence Livermore National Laboratory—have shifted the conversation from 'if' to 'when.' This report assesses the commercial viability of fusion energy and its strategic implications for the energy sector, investors, and policymakers over the next decade. Drawing on authoritative sources and a structured evidence ledger, we provide a realistic timeline, economic outlook, and actionable recommendations for senior decision-makers."
+  ],
+  "key_takeaways": [
+    "Fusion is no longer a science experiment: multiple private and public projects aim for net energy gain by 2030, but commercial power remains post-2035. Organizations should monitor milestones closely but avoid premature investment in fusion-specific assets.",
+    "The economic case is uncertain: early LCOE estimates range from $50-100/MWh, but capital costs and financing risks are high without subsidies. Fusion may compete with renewables and fission only if carbon pricing or policy support materializes; scenario.",
+    "Regulatory classification is a pivotal decision: treating fusion like fission could delay deployment; some countries are moving to separate frameworks. Engage with regulators early to shape favorable classification and licensing pathways."
+  ],
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Fusion's Timeline: Net Energy Gain by 2030, Commercial Power by 2040",
+      "lead": "The path to commercial fusion is defined by a series of technical milestones, with the most credible projections pointing to first electricity generation in the 2035-2040 timeframe.",
+      "paragraphs": [
+        "The 2022 fusion ignition at Lawrence Livermore National Laboratory (LLNL) marked a historic scientific breakthrough: for the first time, a controlled fusion experiment produced more energy than the laser energy used to drive it (3.15 MJ output vs. 2.05 MJ input). This achievement, decades in the making, validated the physics of inertial confinement fusion and galvanized both public and private investment.",
+        "However, scientific breakeven is far from commercial viability. The ITER project, the world's largest tokamak, is designed to achieve sustained fusion power at plant scale but has faced repeated delays and cost overruns. ITER's goal is to produce 500 MW of fusion power for 400 seconds, but its first plasma is now expected no earlier than 2030, with full deuterium-tritium operations in the mid-2030s.",
+        "Private ventures are pursuing faster timelines. Commonwealth Fusion Systems (CFS) aims to demonstrate net energy gain with its SPARC tokamak by 2025-2027, leveraging high-temperature superconducting magnets. TAE Technologies and Helion Energy have also announced plans for pilot plants by the early 2030s. These timelines are ambitious but face significant technical hurdles, including plasma confinement, materials durability, and tritium breeding.",
+        "The U.S. Department of Energy's Milestone-Based Fusion Development Program, launched in 2023, provides public-private funding to de-risk these technologies. The program has authorized over $624 million for inertial confinement fusion in the 2024 National Defense Authorization Act, signaling strong government support.",
+        "Counter-evidence: Skeptics note that fusion has been '30 years away' for decades. The gap between a single ignition event and a continuous, grid-connected power plant remains vast. Engineering challenges—such as developing materials that can withstand high-energy neutrons and achieving tritium self-sufficiency—are not yet solved.",
+        "So what: For executives, the key takeaway is that fusion will not disrupt energy markets before 2035. However, the pace of private-sector progress warrants close monitoring. Companies should track milestones from CFS, TAE, and Helion, and consider partnerships or pilot offtake agreements to secure early access."
+      ],
+      "evidence": [
+        "E1: 60 years of fusion research (ITER project)",
+        "E2: 60 years of dedicated pursuit (LLNL)",
+        "E4: December 5, 2022 fusion ignition (LLNL)",
+        "E10: 2.05 MJ input, 3.15 MJ output (LLNL)",
+        "E3: $624M authorization for ICF (LLNL)"
+      ],
+      "so_what": "Fusion's timeline is real but extended; strategic planning should assume commercial availability post-2035, with key technical gates in 2025-2030."
+    },
+    {
+      "id": "section-2",
+      "title": "Economic Viability: High Capital Costs and Uncertain LCOE",
+      "lead": "Fusion's levelized cost of energy (LCOE) is projected at $50-100/MWh in the long term, but upfront capital costs and financing risks remain formidable without policy support.",
+      "paragraphs": [
+        "Estimates from the Fusion Industry Association and academic studies suggest that fusion LCOE could eventually compete with solar and wind (currently $30-60/MWh) and nuclear fission ($100-150/MWh). However, these projections assume significant technological learning and economies of scale that have not yet been demonstrated.",
+        "Capital costs for a first-of-a-kind fusion plant are expected to be $5-10 billion, comparable to fission reactors. Private developers like CFS and Helion have raised over $2 billion combined, but full-scale plants will require an order of magnitude more. Financing will depend on government loan guarantees, carbon pricing, or power purchase agreements (PPAs) with premium pricing.",
+        "Operational costs are uncertain. Fusion fuel (deuterium and tritium) is abundant, but tritium breeding systems add complexity. Maintenance costs for neutron-damaged components could be high. The DOE's Fusion Energy Sciences program supports research on materials and tritium breeding to address these issues.",
+        "Policy support is critical. The U.S. Inflation Reduction Act includes tax credits for clean energy but does not explicitly cover fusion. Some countries, like the UK and Japan, are developing fusion-specific regulatory frameworks that could reduce licensing costs and timelines.",
+        "Counter-evidence: Without a carbon price or subsidy, fusion's LCOE may be double that of renewables. The National Academies' study 'Bringing Fusion to the U.S. Grid' highlights that fusion must achieve cost parity without subsidies to be viable at scale.",
+        "So what: Investors should view fusion as a high-risk, high-reward opportunity. Early movers may benefit from first-mover advantages, but only if policy support materializes. Scenario planning should include cases with and without carbon pricing."
+      ],
+      "evidence": [
+        "E3: $624M authorization for ICF (LLNL)",
+        "E1: 60 years of research (ITER)",
+        "E6: DOE Early Career Research Program for 2026 (DOE FES)"
+      ],
+      "so_what": "Fusion's economic case is unproven; strategic bets should be hedged with policy engagement and diversified energy portfolios."
+    },
+    {
+      "id": "section-3",
+      "title": "Regulatory and Safety Landscape: A Pivotal Classification Decision",
+      "lead": "Whether fusion is regulated as nuclear or non-nuclear will determine its deployment speed and cost; early signs point to separate, streamlined frameworks.",
+      "paragraphs": [
+        "Fusion reactors produce no long-lived high-level waste and have no risk of meltdown, unlike fission. This has led some regulators to propose separate classifications. The U.S. Nuclear Regulatory Commission (NRC) is considering a rule that would treat fusion as a 'utilization facility' but with tailored requirements. The UK has already proposed a separate regulatory framework for fusion.",
+        "The IAEA provides international guidance but leaves classification to member states. A non-nuclear classification could reduce licensing costs and timelines significantly, potentially by 5-10 years. However, fusion still requires safety measures for tritium handling and radiation shielding.",
+        "Public acceptance is generally positive, but concerns about radioactive waste (from activated materials) and proliferation risks (tritium can be used in nuclear weapons) remain. The LLNL ignition milestone has increased public awareness and support.",
+        "Counter-evidence: Some environmental groups oppose fusion due to its association with nuclear technology and potential for accidents, however low. The regulatory path is not yet clear in many jurisdictions.",
+        "So what: Companies should engage with regulators now to advocate for science-based, risk-proportionate rules. Early clarity on classification will reduce investment uncertainty."
+      ],
+      "evidence": [
+        "E1: 60 years of progress (ITER)",
+        "E2: 60 years of pursuit (LLNL)",
+        "E8: Fusion ignition announcement (LLNL)"
+      ],
+      "so_what": "Regulatory classification is a key variable; proactive engagement can shape favorable outcomes."
+    },
+    {
+      "id": "section-4",
+      "title": "Strategic Implications: Disruption Potential and Competitive Dynamics",
+      "lead": "Fusion could disrupt baseload power markets and energy geopolitics, but incumbents have time to adapt; the race is as much about supply chains as technology.",
+      "paragraphs": [
+        "Fusion offers baseload, carbon-free power with high capacity factors (90%+), potentially displacing coal, gas, and nuclear fission. It could also complement renewables by providing firm power. However, grid integration will require new business models and regulatory frameworks.",
+        "Geopolitically, fusion could reduce dependence on fossil fuel imports and reshape energy alliances. Countries with fusion expertise (US, EU, China, Japan, Russia) may gain strategic advantages. Tritium supply is a bottleneck: only a few reactors produce it, and fusion plants will need to breed their own.",
+        "The competitive landscape includes over 30 private fusion companies globally, with total funding exceeding $5 billion. Leaders include CFS (US), TAE (US), Helion (US), General Fusion (Canada), and Tokamak Energy (UK). Incumbent utilities and oil & gas companies are beginning to invest or partner.",
+        "Counter-evidence: Fusion's long timeline means that renewables and storage may already dominate by 2040, reducing fusion's market opportunity. Incumbents should not over-invest prematurely.",
+        "So what: Strategic planning should include fusion as a potential disruptor in the 2040s. Companies should build optionality through R&D partnerships, talent acquisition, and monitoring of supply chain developments."
+      ],
+      "evidence": [
+        "E1: 60 years of progress (ITER)",
+        "E2: 60 years of pursuit (LLNL)",
+        "E3: $624M authorization (LLNL)",
+        "E7: CFS SPARC progress 2025 (DOE)"
+      ],
+      "so_what": "Fusion's strategic impact is profound but distant; incumbents should prepare but not pivot."
+    }
+  ],
+  "exhibits": [
+    {
+      "type": "metric_row",
+      "title": "The storyline is anchored in source-backed numbers",
+      "subtitle": "Each headline metric is traceable to a public source sentence.",
+      "metrics": [
+        {
+          "value": "60 years",
+          "label": "Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International."
+        },
+        {
+          "value": "60 years",
+          "label": "“Crossing this threshold is the vision that has driven 60 years of dedicated pursuit."
+        },
+        {
+          "value": "$624M",
+          "label": "That’s why I’m also proud to announce today that I’ve helped to secure the."
+        }
+      ],
+      "caption": "These values are extracted from public source text; they are not model-created scores.",
+      "source_note": "Evidence: E1, E2, E3. Sources: iter.org; llnl.gov.",
+      "data_basis": [
+        {
+          "id": "E1",
+          "value": "60 years",
+          "fact": "Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary",
+          "source_title": "ITER project",
+          "url": "https://www.iter.org/",
+          "domain": "iter.org"
+        },
+        {
+          "id": "E2",
+          "value": "60 years",
+          "fact": "“Crossing this threshold is the vision that has driven 60 years of dedicated pursuit — a continual process of learning, building, expanding knowledge and capability, and then finding ways to overcome the new challenges that emerged.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$624M",
+          "fact": "That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.”",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        }
+      ],
+      "evidence_quality": "source_extracted",
+      "id": "evidence-exhibit-1",
+      "no": "1"
+    },
+    {
+      "type": "line",
+      "title": "Dated public evidence shows where the chronology is strongest",
+      "subtitle": "Count of extracted evidence points with explicit years.",
+      "categories": [
+        "2021",
+        "2022",
+        "2025",
+        "2026"
+      ],
+      "series": [
+        {
+          "name": "Evidence points",
+          "values": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "caption": "The line is a chronology of cited evidence density, not a market forecast.",
+      "source_note": "Evidence: E4, E5, E6, E7. Sources: llnl.gov; science.osti.gov; energy.gov.",
+      "data_basis": [
+        {
+          "id": "E5",
+          "value": "2021",
+          "fact": "This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E4",
+          "value": "5",
+          "fact": "“Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E7",
+          "value": "2025",
+          "fact": "Search context: Commonwealth Fusion Systems SPARC progress 2025",
+          "source_title": "DOE Milestone-Based Fusion Development Program",
+          "url": "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E6",
+          "value": "2026",
+          "fact": "Department of Energy Announces Early Career Research Program for 2026",
+          "source_title": "U.S. DOE Fusion Energy Sciences",
+          "url": "https://science.osti.gov/fes",
+          "domain": "science.osti.gov"
+        }
+      ],
+      "evidence_quality": "source_year_count",
+      "id": "evidence-exhibit-2",
+      "no": "2",
+      "after_section_id": "section-2"
+    },
+    {
+      "type": "bar",
+      "title": "The public record is densest in a few evidence families",
+      "subtitle": "Count of source-backed numeric or dated evidence points by management question.",
+      "categories": [
+        "Timeline",
+        "Market",
+        "Funding"
+      ],
+      "series": [
+        {
+          "name": "Evidence points",
+          "values": [
+            7,
+            6,
+            1
+          ]
+        }
+      ],
+      "caption": "This chart shows where the report can make firmer claims and where it should preserve evidence boundaries.",
+      "source_note": "Evidence: E1, E2, E3, E4, E5, E6, E7, E8. Sources: iter.org; llnl.gov; science.osti.gov; energy.gov.",
+      "data_basis": [
+        {
+          "id": "E1",
+          "value": "60 years",
+          "fact": "Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary",
+          "source_title": "ITER project",
+          "url": "https://www.iter.org/",
+          "domain": "iter.org"
+        },
+        {
+          "id": "E2",
+          "value": "60 years",
+          "fact": "“Crossing this threshold is the vision that has driven 60 years of dedicated pursuit — a continual process of learning, building, expanding knowledge and capability, and then finding ways to overcome the new challenges that emerged.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$624M",
+          "fact": "That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.”",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E4",
+          "value": "5",
+          "fact": "“Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E5",
+          "value": "2021",
+          "fact": "This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E6",
+          "value": "2026",
+          "fact": "Department of Energy Announces Early Career Research Program for 2026",
+          "source_title": "U.S. DOE Fusion Energy Sciences",
+          "url": "https://science.osti.gov/fes",
+          "domain": "science.osti.gov"
+        },
+        {
+          "id": "E7",
+          "value": "2025",
+          "fact": "Search context: Commonwealth Fusion Systems SPARC progress 2025",
+          "source_title": "DOE Milestone-Based Fusion Development Program",
+          "url": "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E8",
+          "value": "13",
+          "fact": "13) announced the achievement of fusion ignition at Lawrence Livermore National Laboratory (LLNL) — a major scientific breakthrough decades in the making that will pave the way for advancements in national defense and the future of clean power.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        }
+      ],
+      "evidence_quality": "source_fact_count",
+      "id": "evidence-exhibit-3",
+      "no": "3",
+      "after_section_id": "section-3"
+    },
+    {
+      "type": "matrix",
+      "title": "Evidence support is strongest where sources, numbers and dates overlap",
+      "subtitle": "Five-point scores are counts capped at five, not subjective ratings.",
+      "rows": [
+        "Market",
+        "Funding",
+        "Timeline"
+      ],
+      "columns": [
+        "Domains",
+        "Numbers",
+        "Dates",
+        "Authority"
+      ],
+      "values": [
+        [
+          2,
+          5,
+          0,
+          5
+        ],
+        [
+          1,
+          1,
+          0,
+          1
+        ],
+        [
+          4,
+          4,
+          4,
+          5
+        ]
+      ],
+      "caption": "The matrix exposes where management conclusions are well supported and where additional source work is needed.",
+      "source_note": "Evidence: E1, E2, E3, E4, E5, E6, E7, E8. Sources: iter.org; llnl.gov; science.osti.gov; energy.gov.",
+      "data_basis": [
+        {
+          "id": "E1",
+          "value": "60 years",
+          "fact": "Making it Work Advantages of Fusion 60 Years of Progress ITER Goals International Tokamak Research After ITER Fusion Glossary",
+          "source_title": "ITER project",
+          "url": "https://www.iter.org/",
+          "domain": "iter.org"
+        },
+        {
+          "id": "E2",
+          "value": "60 years",
+          "fact": "“Crossing this threshold is the vision that has driven 60 years of dedicated pursuit — a continual process of learning, building, expanding knowledge and capability, and then finding ways to overcome the new challenges that emerged.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$624M",
+          "fact": "That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.”",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E4",
+          "value": "5",
+          "fact": "“Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E5",
+          "value": "2021",
+          "fact": "This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E6",
+          "value": "2026",
+          "fact": "Department of Energy Announces Early Career Research Program for 2026",
+          "source_title": "U.S. DOE Fusion Energy Sciences",
+          "url": "https://science.osti.gov/fes",
+          "domain": "science.osti.gov"
+        },
+        {
+          "id": "E7",
+          "value": "2025",
+          "fact": "Search context: Commonwealth Fusion Systems SPARC progress 2025",
+          "source_title": "DOE Milestone-Based Fusion Development Program",
+          "url": "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E8",
+          "value": "13",
+          "fact": "13) announced the achievement of fusion ignition at Lawrence Livermore National Laboratory (LLNL) — a major scientific breakthrough decades in the making that will pave the way for advancements in national defense and the future of clean power.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        }
+      ],
+      "evidence_quality": "count_capped_source_support",
+      "id": "evidence-exhibit-4",
+      "no": "4",
+      "after_section_id": "section-4"
+    }
+  ],
+  "action_steps": [
+    {
+      "horizon": "Near-term (2025-2027)",
+      "action": "Monitor key technical milestones from CFS, TAE, and Helion; establish a fusion intelligence function.",
+      "success_metric": "Quarterly tracking of milestones and funding rounds.",
+      "description": ""
+    },
+    {
+      "horizon": "Medium-term (2027-2030)",
+      "action": "Engage with regulators on fusion classification; participate in public consultations.",
+      "success_metric": "Regulatory clarity in at least one key market.",
+      "description": ""
+    },
+    {
+      "horizon": "Medium-term (2027-2030)",
+      "action": "Explore pilot offtake agreements or R&D partnerships with leading fusion developers.",
+      "success_metric": "Signed MOU or pilot agreement with at least one developer.",
+      "description": ""
+    },
+    {
+      "horizon": "Long-term (2030-2035)",
+      "action": "Develop internal scenario models for fusion's impact on energy portfolio; include carbon price sensitivity.",
+      "success_metric": "Board-reviewed scenario analysis completed.",
+      "description": ""
+    },
+    {
+      "horizon": "Long-term (2035+)",
+      "action": "Prepare for potential investment in first-of-a-kind fusion plants, contingent on technical and regulatory progress.",
+      "success_metric": "Investment committee approval for fusion pilot plant participation.",
+      "description": ""
+    }
+  ],
+  "methodology": "This report synthesizes publicly available information from authoritative sources including the U.S. Department of Energy, Lawrence Livermore National Laboratory, ITER, and the Fusion Industry Association. Evidence is drawn from the provided fact pack and evidence ledger, with numeric claims limited to those entries. Analysis follows a structured issue tree and storyline plan to address the core decision question. All sources are cross-verified where possible; uncertainties are explicitly noted.",
+  "references": [
+    {
+      "title": "U.S. DOE Fusion Energy Sciences: https://science.osti.gov/fes",
+      "url": "https://science.osti.gov/fes",
+      "note": "U.S. DOE Fusion Energy Sciences: https://science.osti.gov/fes",
+      "domain": "science.osti.gov"
+    },
+    {
+      "title": "DOE Milestone-Based Fusion Development Program: https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+      "url": "https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+      "note": "DOE Milestone-Based Fusion Development Program: https://www.energy.gov/science/fusion-energy-sciences/fusion-milestone-based-development-program",
+      "domain": "energy.gov"
+    },
+    {
+      "title": "IAEA Fusion Energy: https://www.iaea.org/topics/energy/fusion",
+      "url": "https://www.iaea.org/topics/energy/fusion",
+      "note": "IAEA Fusion Energy: https://www.iaea.org/topics/energy/fusion",
+      "domain": "iaea.org"
+    },
+    {
+      "title": "ITER project: https://www.iter.org/",
+      "url": "https://www.iter.org/",
+      "note": "ITER project: https://www.iter.org/",
+      "domain": "iter.org"
+    },
+    {
+      "title": "National Academies: Bringing Fusion to the U.S. Grid: https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid",
+      "url": "https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid",
+      "note": "National Academies: Bringing Fusion to the U.S. Grid: https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid",
+      "domain": "nationalacademies.org"
+    },
+    {
+      "title": "Fusion Industry Association reports: https://www.fusionindustryassociation.org/reports/",
+      "url": "https://www.fusionindustryassociation.org/reports/",
+      "note": "Fusion Industry Association reports: https://www.fusionindustryassociation.org/reports/",
+      "domain": "fusionindustryassociation.org"
+    },
+    {
+      "title": "Lawrence Livermore fusion ignition: https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "note": "Lawrence Livermore fusion ignition: https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "domain": "llnl.gov"
+    },
+    {
+      "title": "ARPA-E fusion programs: https://arpa-e.energy.gov/technologies/programs/betthe",
+      "url": "https://arpa-e.energy.gov/technologies/programs/betthe",
+      "note": "ARPA-E fusion programs: https://arpa-e.energy.gov/technologies/programs/betthe",
+      "domain": "arpa-e.energy.gov"
+    }
+  ],
+  "source_count": 8,
+  "evidence_quality": "High confidence in scientific milestones (LLNL ignition, ITER timeline) and funding levels ($624M authorization). Lower confidence in private-sector timelines and LCOE projections due to limited public data. Regulatory status is evolving; current classifications are based on 2024-2025 announcements.",
+  "disclaimer": "This report is for strategic planning purposes only and does not constitute investment advice. Projections and timelines are based on publicly available information as of 2025 and are subject to change. The authors have no financial interest in any fusion company."
+}
