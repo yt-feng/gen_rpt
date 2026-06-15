@@ -1,0 +1,16 @@
+Title: Fusion Industry Association reports
+URL: https://www.fusionindustryassociation.org/reports/
+Source Type: snippet
+Domain: fusionindustryassociation.org
+Content Type: text/plain
+Search Query: Commonwealth Fusion Systems SPARC net energy gain results
+
+Fusion Industry Association reports
+
+Industry report archive covering private fusion financing, company progress and commercialization milestones.
+
+Source URL retained for public-source review: https://www.fusionindustryassociation.org/reports/
+
+Search context: Commonwealth Fusion Systems SPARC net energy gain results
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

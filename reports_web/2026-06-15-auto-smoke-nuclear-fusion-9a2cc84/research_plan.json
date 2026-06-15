@@ -1,0 +1,100 @@
+{
+  "objective": "Assess the commercial viability of nuclear fusion energy within the next decade and identify strategic implications for energy incumbents, investors, and policymakers.",
+  "audience": "C-suite executives and strategists in energy, utilities, and venture capital; policy advisors in energy ministries.",
+  "decision_question": "Should our organization invest in or partner with nuclear fusion ventures now, or wait for further technological and regulatory clarity?",
+  "issue_tree": {
+    "node": "Nuclear fusion commercialization outlook",
+    "children": [
+      {
+        "node": "Technology readiness",
+        "children": [
+          {
+            "node": "Current reactor designs and milestones (tokamak, stellarator, inertial confinement)"
+          },
+          {
+            "node": "Key technical hurdles: plasma confinement, materials, tritium breeding, net energy gain"
+          }
+        ]
+      },
+      {
+        "node": "Economic viability",
+        "children": [
+          {
+            "node": "Levelized cost of electricity (LCOE) projections vs. fission, renewables, fossil fuels"
+          },
+          {
+            "node": "Capital expenditure and construction timelines"
+          }
+        ]
+      },
+      {
+        "node": "Regulatory and safety landscape",
+        "children": [
+          {
+            "node": "Existing regulatory frameworks (e.g., NRC, IAEA) and licensing pathways"
+          },
+          {
+            "node": "Public perception and safety comparisons to fission"
+          }
+        ]
+      },
+      {
+        "node": "Market and competitive dynamics",
+        "children": [
+          {
+            "node": "Key private and public fusion projects (e.g., ITER, SPARC, Helion, TAE)"
+          },
+          {
+            "node": "Strategic partnerships and funding flows (venture capital, government grants)"
+          }
+        ]
+      },
+      {
+        "node": "Strategic implications",
+        "children": [
+          {
+            "node": "Impact on energy incumbents (utilities, oil & gas)"
+          },
+          {
+            "node": "Geopolitical and supply chain considerations (tritium, rare materials)"
+          }
+        ]
+      }
+    ]
+  },
+  "search_queries": [
+    "ITER project status 2025 timeline",
+    "Commonwealth Fusion Systems SPARC net energy gain results",
+    "Helion Energy fusion reactor commercial timeline",
+    "TAE Technologies fusion funding round 2024",
+    "US Nuclear Regulatory Commission fusion licensing framework",
+    "IAEA fusion energy safety regulations",
+    "Levelized cost of fusion energy projections 2030",
+    "Nuclear fusion venture capital investment 2024",
+    "Tritium supply chain fusion reactors",
+    "Fusion energy public opinion survey 2024"
+  ],
+  "source_strategy": {
+    "primary": "Company filings (e.g., Helion S-1 if available), annual reports of fusion ventures, ITER official updates, NRC and IAEA publications.",
+    "secondary": "Industry reports (Fusion Industry Association), academic papers (Nuclear Fusion journal), authoritative media (Nature, Reuters, FT).",
+    "validation": "Cross-check cost projections with independent analyses (e.g., IEA, Lazard)."
+  },
+  "outline": [
+    "Fusion is not commercially viable before 2035: Despite recent breakthroughs, net energy gain at scale remains unproven, and regulatory pathways are nascent.",
+    "Private fusion ventures are leading the race, but face funding gaps: Over $6B invested since 2020, yet most projects require additional capital to reach demonstration.",
+    "Regulatory uncertainty is the biggest near-term risk: No country has a complete licensing framework for fusion, creating timeline and cost overhang.",
+    "Strategic implications: Incumbents should monitor but not overcommit; early partnerships with fusion developers offer optionality without large capital exposure."
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Fusion project timeline vs. milestones achieved (ITER, SPARC, Helion, TAE) – answers 'Which projects are on track?'",
+    "Exhibit 2: LCOE comparison of fusion projections vs. current fission, solar, wind, and gas – answers 'When does fusion become cost-competitive?'",
+    "Exhibit 3: Cumulative fusion investment by source (VC, government, corporate) 2015-2024 – answers 'Where is the money coming from and is it enough?'",
+    "Exhibit 4: Regulatory readiness map – countries with fusion-specific rules vs. those using fission frameworks – answers 'Where can fusion be built first?'"
+  ],
+  "risks": [
+    "Overreliance on optimistic private company timelines; need to cross-check with independent experts.",
+    "Lack of public data on tritium breeding and materials degradation; may require assumptions.",
+    "Regulatory frameworks are evolving; any analysis may become outdated quickly.",
+    "Counter-evidence: Some analysts argue fusion could be commercial by 2030 (e.g., Helion's claims); must present both sides."
+  ]
+}
