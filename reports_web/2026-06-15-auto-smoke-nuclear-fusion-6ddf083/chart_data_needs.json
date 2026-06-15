@@ -1,0 +1,140 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Project Timeline Comparison",
+    "chart_type": "timeline",
+    "executive_question": "When can we realistically expect fusion to deliver electricity to the grid?",
+    "required_metrics": [
+      "Project name",
+      "Milestone type (e.g., first plasma, net energy gain, construction start, commercial operation)",
+      "Target year",
+      "Status (planned, in progress, delayed, achieved)"
+    ],
+    "comparison_set": [
+      "ITER, SPARC (Commonwealth Fusion Systems), DEMO (EU), Helion Energy, TAE Technologies, General Fusion"
+    ],
+    "preferred_sources": [
+      "ITER Organization official timeline",
+      "Commonwealth Fusion Systems press releases",
+      "EUROfusion DEMO roadmap",
+      "Company investor presentations (Helion, TAE, General Fusion)"
+    ],
+    "search_queries": [
+      "ITER project timeline 2024 milestones first plasma",
+      "Commonwealth Fusion Systems SPARC timeline 2024 net energy",
+      "Helion Energy commercial reactor timeline 2024"
+    ],
+    "data_quality_rule": "Only include milestones with official announcements or peer-reviewed publications; note if a milestone is speculative."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "LCOE Projections for Fusion vs. Other Technologies",
+    "chart_type": "line",
+    "executive_question": "Will fusion be cost-competitive with renewables and fossil fuels?",
+    "required_metrics": [
+      "Year",
+      "Technology (fusion, solar PV, onshore wind, nuclear fission, natural gas combined cycle)",
+      "Levelized cost of energy ($/MWh)",
+      "Uncertainty range (low, high)"
+    ],
+    "comparison_set": [
+      "Fusion (range from multiple studies), solar PV, onshore wind, nuclear fission, natural gas combined cycle"
+    ],
+    "preferred_sources": [
+      "BloombergNEF LCOE reports",
+      "IEA World Energy Outlook",
+      "Lazard Levelized Cost of Energy Analysis",
+      "Fusion Industry Association reports"
+    ],
+    "search_queries": [
+      "Lazard levelized cost of energy 2024 fusion projection",
+      "BloombergNEF fusion LCOE 2024 2030",
+      "IEA World Energy Outlook 2024 fusion cost"
+    ],
+    "data_quality_rule": "Use only published LCOE estimates from reputable sources; clearly label projections vs. historical data."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Global Fusion Investment Landscape",
+    "chart_type": "bar",
+    "executive_question": "Who is leading the fusion race and where is the money coming from?",
+    "required_metrics": [
+      "Year",
+      "Country/region (US, EU, UK, Japan, China, other)",
+      "Investment type (public government, private venture capital, corporate R&D)",
+      "Cumulative investment amount (USD billions)"
+    ],
+    "comparison_set": [
+      "US, EU, UK, Japan, China, other"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual investment reports",
+      "US DOE fusion budget documents",
+      "UK Atomic Energy Authority funding announcements",
+      "Crunchbase or PitchBook for private fusion deals"
+    ],
+    "search_queries": [
+      "Fusion Industry Association investment report 2024 cumulative funding",
+      "US DOE fusion budget 2024",
+      "private fusion investment 2024 venture capital total"
+    ],
+    "data_quality_rule": "Cross-check private investment figures with multiple databases; note if data is incomplete for certain regions."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Regulatory Readiness Index",
+    "chart_type": "matrix",
+    "executive_question": "Which countries are best positioned to host the first commercial fusion plants?",
+    "required_metrics": [
+      "Country",
+      "Regulatory framework existence (yes/no/partial)",
+      "Licensing clarity score (1-5 based on published guidance)",
+      "Safety standards published (yes/no)",
+      "Estimated licensing timeline (years)",
+      "Public acceptance (support percentage from surveys)"
+    ],
+    "comparison_set": [
+      "US, UK, Japan, Canada, France, China, South Korea, Germany, Australia, Switzerland"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission fusion rulemaking documents",
+      "UK Department for Business, Energy & Industrial Strategy fusion regulation",
+      "Japan's QST regulatory framework",
+      "IAEA fusion safety standards",
+      "Pew Research or Ipsos public opinion surveys on nuclear energy"
+    ],
+    "search_queries": [
+      "US NRC fusion regulatory framework 2024 licensing",
+      "UK fusion regulation licensing timeline 2024",
+      "public opinion fusion energy survey 2024"
+    ],
+    "data_quality_rule": "Score regulatory clarity based on published official documents only; note if a country has no specific fusion regulation."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Tritium Supply-Demand Gap",
+    "chart_type": "line",
+    "executive_question": "Is tritium availability a showstopper for fusion deployment?",
+    "required_metrics": [
+      "Year",
+      "Tritium demand (kg/year) from planned fusion reactors",
+      "Tritium supply (kg/year) from CANDU reactors and other sources",
+      "Cumulative gap (kg)"
+    ],
+    "comparison_set": [
+      "Demand vs. supply"
+    ],
+    "preferred_sources": [
+      "IAEA tritium supply reports",
+      "Canadian Nuclear Laboratories CANDU tritium production data",
+      "Fusion Industry Association tritium working group",
+      "Journal of Fusion Energy articles on tritium breeding"
+    ],
+    "search_queries": [
+      "IAEA tritium supply demand fusion 2024",
+      "CANDU tritium production capacity 2024",
+      "tritium breeding ratio fusion reactor requirements"
+    ],
+    "data_quality_rule": "Use only official or peer-reviewed tritium production and demand estimates; clearly state assumptions about reactor tritium consumption."
+  }
+]

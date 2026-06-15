@@ -1,0 +1,16 @@
+Title: IAEA Fusion Energy
+URL: https://www.iaea.org/topics/energy/fusion
+Source Type: snippet
+Domain: iaea.org
+Content Type: text/plain
+Search Query: Commonwealth Fusion Systems SPARC reactor progress 2024
+
+IAEA Fusion Energy
+
+International Atomic Energy Agency source describing fusion's long-term low-carbon energy potential, technical status and international coordination.
+
+Source URL retained for public-source review: https://www.iaea.org/topics/energy/fusion
+
+Search context: Commonwealth Fusion Systems SPARC reactor progress 2024
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

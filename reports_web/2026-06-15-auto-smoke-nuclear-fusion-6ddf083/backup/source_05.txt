@@ -1,0 +1,16 @@
+Title: National Academies: Bringing Fusion to the U.S. Grid
+URL: https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid
+Source Type: snippet
+Domain: nationalacademies.org
+Content Type: text/plain
+Search Query: Commonwealth Fusion Systems SPARC reactor progress 2024
+
+National Academies: Bringing Fusion to the U.S. Grid
+
+Independent study program on the scientific, engineering, regulatory and market issues required to bring fusion-generated electricity to the U.S. grid.
+
+Source URL retained for public-source review: https://www.nationalacademies.org/our-work/bringing-fusion-to-the-us-grid
+
+Search context: Commonwealth Fusion Systems SPARC reactor progress 2024
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.
