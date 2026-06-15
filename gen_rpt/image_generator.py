@@ -421,21 +421,32 @@ def _curl_bytes(url: str, timeout_seconds: int) -> bytes:
 
 def _wikimedia_query(prompt: str) -> str:
     lower = prompt.lower()
-    if any(token in lower for token in ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
-        if any(token in lower for token in ["construction", "cost", "capital", "lcoe", "timing"]):
+    if _has_prompt_any(lower, ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
+        if _has_prompt_any(lower, ["construction", "cost", "capital", "lcoe", "timing"]):
             return "ITER tokamak construction"
-        if any(token in lower for token in ["control", "customer", "commercial", "bankability", "readiness"]):
+        if _has_prompt_any(lower, ["control", "customer", "commercial", "bankability", "readiness"]):
             return "tokamak control room fusion"
-        if any(token in lower for token in ["policy", "regulation", "government", "licensing"]):
+        if _has_prompt_any(lower, ["policy", "regulation", "government", "licensing"]):
             return "nuclear fusion research facility"
         return "tokamak fusion reactor"
-    if any(token in lower for token in ["battery", "storage", "grid", "power", "hydrogen"]):
+    if _has_prompt_any(lower, ["battery", "storage", "grid", "power", "hydrogen"]):
         return "energy storage power grid"
-    if any(token in lower for token in ["rail", "railway", "train", "logistics"]):
+    if _has_prompt_any(lower, ["rail", "railway", "train", "logistics"]):
         return "railway logistics terminal"
-    if any(token in lower for token in ["manufacturing", "factory", "industrial", "supply chain"]):
+    if _has_prompt_any(lower, ["manufacturing", "factory", "industrial", "supply chain"]):
         return "industrial manufacturing facility"
     return "business meeting technology"
+
+
+def _has_prompt_any(lower_prompt: str, tokens: List[str]) -> bool:
+    return any(_has_prompt_token(lower_prompt, token) for token in tokens)
+
+
+def _has_prompt_token(lower_prompt: str, token: str) -> bool:
+    token = token.lower()
+    if " " in token:
+        return token in lower_prompt
+    return bool(re.search(rf"(?<![a-z0-9]){re.escape(token)}(?![a-z0-9])", lower_prompt))
 
 
 def _cover_crop(image: Image.Image, target_w: int, target_h: int) -> Image.Image:
@@ -530,11 +541,11 @@ def _fallback_image(output_path: Path, *, kind: str, prompt: str) -> None:
 
 def _prompt_type(prompt: str) -> str:
     lower = prompt.lower()
-    if any(token in lower for token in ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
+    if _has_prompt_any(lower, ["fusion", "tokamak", "plasma", "tritium", "reactor"]):
         return "fusion"
-    if any(token in lower for token in ["rail", "railway", "train", "logistics", "coal"]):
+    if _has_prompt_any(lower, ["rail", "railway", "train", "logistics", "coal"]):
         return "rail"
-    if any(token in lower for token in ["energy", "battery", "power", "grid", "hydrogen", "storage"]):
+    if _has_prompt_any(lower, ["energy", "battery", "power", "grid", "hydrogen", "storage"]):
         return "energy"
     return "business"
 
