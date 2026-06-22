@@ -37,6 +37,7 @@ import json
 import logging
 import os
 import sys
+import time
 from pathlib import Path
 from typing import List, Optional
 
@@ -48,6 +49,7 @@ from .r2_client import R2Client
 from .catalog_manager import CatalogManager
 from .manifest_manager import ManifestManager
 from .schemas.catalog_schema import CatalogEntry, VALID_STATUSES
+from .structured_logger import log_r2_upload, log_catalog_update, log_manifest_update
 
 logger = logging.getLogger(__name__)
 
@@ -131,46 +133,117 @@ def upload_review(
     uploaded_keys: dict = {}
     file_paths: dict = {}
 
-    for local_name, (r2_suffix, schema_field) in REVIEW_FILES.items():
-        local_file = review_path / local_name
-        if not local_file.exists():
-            logger.debug("Skipping missing file: %s", local_name)
-            continue
+    # ── Upload files ────────────────────────────────────────────────────────
+    upload_start = time.monotonic()
+    try:
+        for local_name, (r2_suffix, schema_field) in REVIEW_FILES.items():
+            local_file = review_path / local_name
+            if not local_file.exists():
+                logger.debug("Skipping missing file: %s", local_name)
+                continue
 
-        r2_key = f"reports/{report_id}/{r2_suffix}"
-        r2.upload_file(str(local_file), r2_key)
-        uploaded_keys[local_name] = r2_key
-        if schema_field:
-            file_paths[schema_field] = r2_key
+            r2_key = f"reports/{report_id}/{r2_suffix}"
+            r2.upload_file(str(local_file), r2_key)
+            uploaded_keys[local_name] = r2_key
+            if schema_field:
+                file_paths[schema_field] = r2_key
+            logger.info("  → Uploaded: %s", r2_key)
 
-    logger.info("Uploaded %d review files", len(uploaded_keys))
+        upload_elapsed = (time.monotonic() - upload_start) * 1000
+        logger.info("Uploaded %d review files in %.0fms", len(uploaded_keys), upload_elapsed)
+        log_r2_upload(
+            report_id=report_id,
+            operation="review",
+            files_uploaded=list(uploaded_keys.values()),
+            elapsed_ms=upload_elapsed,
+            status="success",
+        )
+    except Exception as exc:
+        upload_elapsed = (time.monotonic() - upload_start) * 1000
+        log_r2_upload(
+            report_id=report_id,
+            operation="review",
+            files_uploaded=list(uploaded_keys.values()),
+            elapsed_ms=upload_elapsed,
+            status="error",
+            error=str(exc),
+        )
+        raise
 
-    # Update manifest (patch files section + update status)
-    manifest_mgr.generate_or_update(
-        report_id=report_id,
-        title="",          # empty → existing title is preserved
-        slug="",           # empty → existing slug is preserved
-        files=file_paths,
-        status="ai_reviewed",
-        ai_score=ai_score,
-        tags=tags,
-    )
+    # ── Update manifest ─────────────────────────────────────────────────────
+    manifest_start = time.monotonic()
+    try:
+        manifest_mgr.generate_or_update(
+            report_id=report_id,
+            title="",          # empty → existing title is preserved
+            slug="",           # empty → existing slug is preserved
+            files=file_paths,
+            status="ai_reviewed",
+            ai_score=ai_score,
+            tags=tags,
+        )
+        manifest_elapsed = (time.monotonic() - manifest_start) * 1000
+        log_manifest_update(
+            report_id=report_id,
+            action="update",
+            files_updated=list(file_paths.keys()),
+            current_status="ai_reviewed",
+            elapsed_ms=manifest_elapsed,
+            status="success",
+        )
+    except Exception as exc:
+        manifest_elapsed = (time.monotonic() - manifest_start) * 1000
+        log_manifest_update(
+            report_id=report_id,
+            action="update",
+            files_updated=list(file_paths.keys()),
+            current_status="ai_reviewed",
+            elapsed_ms=manifest_elapsed,
+            status="error",
+            error=str(exc),
+        )
+        raise
 
-    # Update catalog entry
-    existing_entry = catalog_mgr.find(report_id)
-    entry_tags = tags or (existing_entry.get("tags", []) if existing_entry else [])
-    entry_title = (existing_entry or {}).get("title", report_id)
+    # ── Update catalog entry ───────────────────────────────────────────────────
+    catalog_start = time.monotonic()
+    try:
+        existing_entry = catalog_mgr.find(report_id)
+        entry_tags = tags or (existing_entry.get("tags", []) if existing_entry else [])
+        entry_title = (existing_entry or {}).get("title", report_id)
 
-    entry = CatalogEntry(
-        report_id=report_id,
-        title=entry_title,
-        slug=(existing_entry or {}).get("slug", report_id),
-        status="ai_reviewed",
-        review_status="ai_reviewed",
-        ai_score=ai_score,
-        tags=entry_tags,
-    )
-    catalog_mgr.upsert(entry)
+        entry = CatalogEntry(
+            report_id=report_id,
+            title=entry_title,
+            slug=(existing_entry or {}).get("slug", report_id),
+            status="ai_reviewed",
+            review_status="ai_reviewed",
+            ai_score=ai_score,
+            tags=entry_tags,
+        )
+        catalog_mgr.upsert(entry)
+        catalog_elapsed = (time.monotonic() - catalog_start) * 1000
+        current_catalog = catalog_mgr.get_catalog()
+        log_catalog_update(
+            report_id=report_id,
+            action="upsert",
+            status_set="ai_reviewed",
+            ai_score=ai_score,
+            catalog_size=len(current_catalog),
+            elapsed_ms=catalog_elapsed,
+            status="success",
+        )
+    except Exception as exc:
+        catalog_elapsed = (time.monotonic() - catalog_start) * 1000
+        log_catalog_update(
+            report_id=report_id,
+            action="upsert",
+            status_set="ai_reviewed",
+            ai_score=ai_score,
+            elapsed_ms=catalog_elapsed,
+            status="error",
+            error=str(exc),
+        )
+        raise
 
     return {
         "report_id": report_id,
