@@ -205,19 +205,36 @@ jobs:
             echo "No report changes to commit"
           fi
 
-      # ── R2: Install storage dependencies ──────────────────────────────────
-      - name: Install R2 storage dependencies
-        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' }}
+      # ── R2: Check secrets are configured ──────────────────────────────────
+      # NOTE: GitHub Actions does not expose secret values in if: expressions
+      # via env.*. The only reliable pattern is a dedicated step that reads
+      # the secret and sets an output flag, then subsequent steps gate on that.
+      - name: Check R2 secrets
+        id: check_r2
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          if [ -n "$R2_ACCOUNT_ID" ] && [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$R2_BUCKET" ]; then
+            echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
+            echo "R2 secrets are configured — upload steps will run."
+          else
+            echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::R2 secrets not configured — upload steps will be skipped."
+          fi
+
+      # ── R2: Install storage dependencies ──────────────────────────────────
+      - name: Install R2 storage dependencies
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
         run: |
           pip install -r storage/requirements.txt
 
       # ── R2: Upload report ──────────────────────────────────────────────────
       - name: Upload report to R2
-        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' }}
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        continue-on-error: true
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}

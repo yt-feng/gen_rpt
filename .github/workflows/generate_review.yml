@@ -198,19 +198,35 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
-      # ── 11. Install R2 storage dependencies ───────────────────────────────
-      - name: Install R2 storage dependencies
-        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' && steps.run_review.outcome == 'success' }}
+      # ── 11. Check R2 secrets ─────────────────────────────────────────────────────
+      # NOTE: env.* values are not available in if: expressions in GitHub Actions.
+      # A dedicated step is the only reliable way to gate on secrets.
+      - name: Check R2 secrets
+        id: check_r2
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          if [ -n "$R2_ACCOUNT_ID" ] && [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$R2_BUCKET" ]; then
+            echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
+            echo "R2 secrets are configured — upload steps will run."
+          else
+            echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::R2 secrets not configured — review upload steps will be skipped."
+          fi
+
+      # ── 12. Install R2 storage dependencies ───────────────────────────────────────
+      - name: Install R2 storage dependencies
+        if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
         run: |
           pip install -r storage/requirements.txt
 
-      # ── 12. Upload review to R2 ────────────────────────────────────────────
+      # ── 13. Upload review to R2 ───────────────────────────────────────────────────
       - name: Upload review to R2
-        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' && steps.run_review.outcome == 'success' }}
+        if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
+        continue-on-error: true
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
