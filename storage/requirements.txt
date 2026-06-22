@@ -1,0 +1,4 @@
+# Storage module dependencies (separate from generation and review pipelines)
+# Install with: pip install -r storage/requirements.txt
+boto3>=1.20.0
+python-dotenv>=1.0.0
