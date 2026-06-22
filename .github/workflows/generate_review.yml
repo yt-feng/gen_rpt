@@ -197,3 +197,32 @@ jobs:
           path: review_system/logs/
           retention-days: 30
           if-no-files-found: warn
+
+      # ── 11. Install R2 storage dependencies ───────────────────────────────
+      - name: Install R2 storage dependencies
+        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' && steps.run_review.outcome == 'success' }}
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          pip install -r storage/requirements.txt
+
+      # ── 12. Upload review to R2 ────────────────────────────────────────────
+      - name: Upload review to R2
+        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' && steps.run_review.outcome == 'success' }}
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          REPORT_ID="${{ steps.find_report.outputs.report_id }}"
+          OUTPUT_DIR="${{ steps.find_report.outputs.output_dir }}"
+          echo "Uploading review to R2 for report: $REPORT_ID"
+          python -m storage.upload_review \
+            --review-dir "$OUTPUT_DIR" \
+            --report-id  "$REPORT_ID" \
+            --log-level  INFO
+          echo "R2 review upload complete."
