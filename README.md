@@ -1,5 +1,9 @@
 # gen_rpt
 
+> [!NOTE]
+> Detailed developer and operational documentation (in English) is available in the **[docs/](file:///d:/BlueOcean/gen_rpt-main/docs/README.md)** directory.
+> 详细的开发者与运维文档（英文版）已放置在 **[docs/](file:///d:/BlueOcean/gen_rpt-main/docs/README.md)** 目录下。
+
 一个可直接放在 GitHub repo 中运行的 **Deep Research 研究报告生成器**。
 
 你可以在 GitHub Actions 里输入一段“选题描述”，然后自动完成这条链路：

@@ -12,3 +12,7 @@ worklog.md
 storage/logs/
 .pytest_cache/
 *.log
+
+# Documentation
+docs/
+doc/
