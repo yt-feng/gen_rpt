@@ -232,6 +232,7 @@ jobs:
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+          STORAGE_LOG_DIR:      /tmp/storage-logs
         run: |
           set -euo pipefail
           REPORT_ID="${{ steps.find_report.outputs.report_id }}"
@@ -242,3 +243,14 @@ jobs:
             --report-id  "$REPORT_ID" \
             --log-level  INFO
           echo "R2 review upload complete."
+
+      # ── 14. Upload R2 storage logs as artifact ──────────────────────────────────
+      - name: Upload R2 storage logs
+        if: steps.check_r2.outputs.has_r2_secrets == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: r2-storage-logs-review
+          path: /tmp/storage-logs/
+          retention-days: 30
+          if-no-files-found: ignore
+
