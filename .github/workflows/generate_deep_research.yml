@@ -204,3 +204,36 @@ jobs:
           else
             echo "No report changes to commit"
           fi
+
+      # ── R2: Install storage dependencies ──────────────────────────────────
+      - name: Install R2 storage dependencies
+        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' }}
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          pip install -r storage/requirements.txt
+
+      # ── R2: Upload report ──────────────────────────────────────────────────
+      - name: Upload report to R2
+        if: ${{ env.R2_ACCOUNT_ID != '' && env.R2_ACCESS_KEY_ID != '' && env.R2_SECRET_ACCESS_KEY != '' }}
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          set -euo pipefail
+          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
+          if [ -z "$REPORT_DIR" ]; then
+            echo "::warning::No report directory found — skipping R2 upload."
+            exit 0
+          fi
+          echo "Uploading report to R2: $REPORT_DIR"
+          python -m storage.upload_report \
+            --report-dir "$REPORT_DIR" \
+            --status generated \
+            --log-level INFO
+          echo "R2 report upload complete."
+
