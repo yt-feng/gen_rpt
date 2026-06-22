@@ -4,6 +4,7 @@ __pycache__/
 venv/
 r2_validation.py
 r2_validation_report.md
+worklog.md
 .env
 .DS_Store
 .tmp_*/
