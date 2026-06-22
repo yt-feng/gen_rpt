@@ -9,3 +9,6 @@ worklog.md
 .DS_Store
 .tmp_*/
 .venv
+storage/logs/
+.pytest_cache/
+*.log
