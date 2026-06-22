@@ -1,0 +1,1 @@
+{"event": "catalog_update", "report_id": "2026-05-29-china-private-equity-market", "action": "upsert", "status_set": "generated", "ai_score": 0.0, "catalog_size": 2, "elapsed_ms": 4063.0, "status": "success", "error": null, "timestamp_utc": "2026-06-22T17:24:37.078149+00:00"}
