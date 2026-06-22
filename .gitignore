@@ -1,6 +1,10 @@
 __pycache__/
 *.pyc
 .venv/
+venv/
+r2_validation.py
+r2_validation_report.md
 .env
 .DS_Store
 .tmp_*/
+.venv
