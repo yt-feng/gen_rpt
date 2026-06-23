@@ -1,0 +1,14 @@
+{
+"report_id": "TEST-00001",
+"overall_score": 85,
+"grade": "Silver",
+"status": "pending",
+"strengths": [
+"Clear structure",
+"Good readability"
+],
+"weaknesses": [
+"No citations",
+"Synthetic content"
+]
+}
