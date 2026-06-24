@@ -551,6 +551,8 @@ LABELS = {
         "actions": "How leaders should move next",
         "prepared": "Prepared by",
         "read_time": "min read",
+        "exhibit": "Exhibit",
+        "data_basis": "Data basis",
     },
     "zh": {
         "contents": "目录",
@@ -562,6 +564,8 @@ LABELS = {
         "actions": "管理层下一步",
         "prepared": "出品",
         "read_time": "分钟阅读",
+        "exhibit": "图表",
+        "data_basis": "数据依据",
     },
 }
 
@@ -635,9 +639,9 @@ def render_web_report_html(
     for idx, section in enumerate(sections, start=1):
         _render_section(parts, section, idx, labels)
         for exhibit in exhibit_by_after.get(section.get("id") or f"section-{idx}", []):
-            _render_exhibit(parts, exhibit)
+            _render_exhibit(parts, exhibit, labels)
     for exhibit in exhibit_by_after.get("", []):
-        _render_exhibit(parts, exhibit)
+        _render_exhibit(parts, exhibit, labels)
     parts.append("</article>")
     parts.append("</main>")
 
@@ -775,9 +779,9 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
     parts.append("</section>")
 
 
-def _render_exhibit(parts: List[str], exhibit: Dict[str, Any]) -> None:
+def _render_exhibit(parts: List[str], exhibit: Dict[str, Any], labels: Dict[str, str]) -> None:
     parts.append("<section class='exhibit'>")
-    parts.append(f"<div class='exhibit-kicker'>Exhibit {_e(str(exhibit.get('no') or ''))}</div>")
+    parts.append(f"<div class='exhibit-kicker'>{_e(labels.get('exhibit') or 'Exhibit')} {_e(str(exhibit.get('no') or ''))}</div>")
     parts.append(f"<h3>{_e(exhibit.get('title') or 'Exhibit')}</h3>")
     if exhibit.get("subtitle"):
         parts.append(f"<p class='exhibit-subtitle'>{_e(exhibit['subtitle'])}</p>")
@@ -800,7 +804,7 @@ def _render_exhibit(parts: List[str], exhibit: Dict[str, Any]) -> None:
         parts.append(f"<p>{_e(exhibit['caption'])}</p>")
     if exhibit.get("source_note"):
         parts.append(f"<p class='source-note'>{_e(exhibit['source_note'])}</p>")
-    _render_data_basis(parts, exhibit.get("data_basis") or [])
+    _render_data_basis(parts, exhibit.get("data_basis") or [], labels)
     parts.append("</section>")
 
 
@@ -875,12 +879,12 @@ def _render_process(parts: List[str], exhibit: Dict[str, Any]) -> None:
     parts.append("</div>")
 
 
-def _render_data_basis(parts: List[str], basis: Any) -> None:
+def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> None:
     rows = [item for item in _as_list(basis) if isinstance(item, dict)]
     if not rows:
         return
     parts.append("<details class='data-basis'>")
-    parts.append("<summary>Data basis</summary>")
+    parts.append(f"<summary>{_e(labels.get('data_basis') or 'Data basis')}</summary>")
     parts.append("<ul>")
     for item in rows[:8]:
         basis_id = _text(item.get("id") or "")

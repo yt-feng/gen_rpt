@@ -37,6 +37,43 @@ def main() -> None:
             "AI value depends on frontline workflow redesign",
             "Evidence gates should control scale-up",
         ],
+        "hypotheses": [
+            {
+                "id": "H1",
+                "hypothesis": "AI can offset workforce-hour decline only where it changes frontline workflow productivity.",
+                "decision_relevance": "Determines whether leaders should fund AI as an operating program rather than a software rollout.",
+                "needed_evidence": ["workforce hours", "output decline", "AI productivity uplift"],
+                "search_queries": ["process industries workforce hours output AI productivity"],
+            },
+            {
+                "id": "H2",
+                "hypothesis": "Adoption risk is manageable when governance and training gates are explicit.",
+                "decision_relevance": "Determines whether pilots can move into scaled deployment.",
+                "needed_evidence": ["adoption timing", "30 90 180 day gates", "responsible AI governance"],
+                "search_queries": ["responsible AI adoption governance 30 90 180 day"],
+            },
+        ],
+        "market_sizing_plan": {
+            "sizing_question": "How much output risk can AI plausibly address in process industries?",
+            "methods": [
+                {
+                    "method": "Value pool sizing",
+                    "formula": "Output at risk x productivity improvement x value capture",
+                    "variables": ["workforce-hour decline", "output decline", "AI productivity uplift"],
+                    "preferred_sources": ["industry data", "case studies"],
+                    "search_queries": ["process industries output risk AI value pool"],
+                    "known_limitations": ["Fixture data is directional."],
+                },
+                {
+                    "method": "Adoption funnel sizing",
+                    "formula": "Target workflows x pilot conversion x site rollout rate",
+                    "variables": ["target workflows", "pilot conversion", "rollout rate"],
+                    "preferred_sources": ["responsible AI fixture"],
+                    "search_queries": ["industrial AI pilot conversion site rollout"],
+                    "known_limitations": ["Conversion needs primary validation."],
+                },
+            ],
+        },
     }
     sample_sources = [
         SourceDocument(
@@ -91,7 +128,6 @@ def main() -> None:
     fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
     storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")
-    evidence_exhibits = build_evidence_exhibits("AI and process-industry talent", evidence_ledger, fact_pack, language="en")
     chart_data_needs = [
         {
             "id": "chart-need-1",
@@ -127,10 +163,13 @@ def main() -> None:
             "data_quality_rule": "Use dated gates as milestones, not ROI claims.",
         },
     ]
+    evidence_exhibits = build_evidence_exhibits("AI and process-industry talent", evidence_ledger, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language="en")
     assert len(evidence_ledger) >= 3
-    assert 3 <= len(evidence_exhibits) <= 5
+    assert 3 <= len(evidence_exhibits) <= 6
     assert all(exhibit.get("data_basis") for exhibit in evidence_exhibits)
     assert "bar" in {str(exhibit.get("type")) for exhibit in evidence_exhibits}
+    assert any(exhibit.get("evidence_quality") == "market_sizing_bridge" for exhibit in evidence_exhibits)
+    assert any(exhibit.get("evidence_quality") == "hypothesis_evidence_map" for exhibit in evidence_exhibits)
 
     payload = {
         "title": "AI Can Rebuild the Industrial Talent Model Only If Leaders Treat It as Operating Redesign",
@@ -272,7 +311,7 @@ def main() -> None:
     assert normalized["title"].startswith("AI Can Rebuild")
     assert len(normalized["key_takeaways"]) == 3
     assert len(normalized["sections"]) == 5
-    assert 3 <= len(normalized["exhibits"]) <= 5
+    assert 3 <= len(normalized["exhibits"]) <= 6
     assert normalized["source_count"] == fact_pack.source_count
     drifted_payload = dict(payload)
     drifted_payload.pop("key_takeaways", None)

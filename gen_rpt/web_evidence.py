@@ -106,6 +106,8 @@ def build_storyline_plan(
     strongest = [item for item, _count in family_counts.most_common(4)]
     facts = [str(item.get("fact") or "") for item in evidence_ledger[:6]]
     decision_question = str(plan.get("decision_question") or fact_pack.decision_question or topic)
+    hypotheses = _plan_hypotheses(plan)
+    sizing_methods = _plan_sizing_methods(plan)
     if str(language or "").lower().startswith("zh"):
         return {
             "core_question": decision_question,
@@ -113,6 +115,8 @@ def build_storyline_plan(
             "narrative_focus": "围绕证据最密集的主题推进：" + "、".join(strongest[:4]),
             "structure_logic": "先说明管理层问题，再呈现源自事实包的数据图表，随后讨论商业含义、风险和行动门槛。",
             "evidence_must_cover": facts,
+            "hypotheses_to_test": hypotheses,
+            "market_sizing_logic": sizing_methods,
             "charting_rule": "图表只能使用 evidence_ledger 中可回溯到 URL 的数字、年份、来源计数或同单位可比数据。",
         }
     return {
@@ -121,6 +125,8 @@ def build_storyline_plan(
         "narrative_focus": "Evidence is densest around: " + ", ".join(strongest[:4] or ["source quality", "timing", "commercial proof"]),
         "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
         "evidence_must_cover": facts,
+        "hypotheses_to_test": hypotheses,
+        "market_sizing_logic": sizing_methods,
         "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
     }
 
@@ -130,13 +136,23 @@ def build_evidence_exhibits(
     evidence_ledger: List[Dict[str, Any]],
     fact_pack: ResearchFactPack,
     *,
+    plan: Dict[str, Any] | None = None,
+    chart_data_needs: List[Dict[str, Any]] | None = None,
     language: str = "en",
 ) -> List[Dict[str, Any]]:
     if not evidence_ledger:
-        return _fact_pack_exhibits(topic, fact_pack)
+        return _fact_pack_exhibits(topic, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=language)
 
     exhibits: List[Dict[str, Any]] = []
     exhibits.append(_metric_row_exhibit(evidence_ledger, fact_pack))
+
+    sizing_bridge = _market_sizing_bridge_exhibit(topic, evidence_ledger, fact_pack, plan or {}, chart_data_needs or [], language=language)
+    if sizing_bridge:
+        exhibits.append(sizing_bridge)
+
+    hypothesis_map = _hypothesis_evidence_exhibit(plan or {}, evidence_ledger, fact_pack, language=language)
+    if hypothesis_map:
+        exhibits.append(hypothesis_map)
 
     comparable = _comparable_value_exhibit(evidence_ledger)
     if comparable:
@@ -166,11 +182,11 @@ def build_evidence_exhibits(
     if len(exhibits) < 3:
         exhibits.extend(_fact_pack_exhibits(topic, fact_pack)[: 3 - len(exhibits)])
 
-    for idx, exhibit in enumerate(exhibits[:5], start=1):
+    for idx, exhibit in enumerate(exhibits[:6], start=1):
         exhibit["id"] = f"evidence-exhibit-{idx}"
         exhibit["no"] = str(idx)
         exhibit.setdefault("after_section_id", f"section-{min(idx, 5)}")
-    return exhibits[:5]
+    return exhibits[:6]
 
 
 def merge_evidence_exhibits(report: Dict[str, Any], evidence_exhibits: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -388,7 +404,129 @@ def _opportunity_map_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFa
     }
 
 
-def _fact_pack_exhibits(topic: str, fact_pack: ResearchFactPack) -> List[Dict[str, Any]]:
+def _market_sizing_bridge_exhibit(
+    topic: str,
+    ledger: List[Dict[str, Any]],
+    fact_pack: ResearchFactPack,
+    plan: Dict[str, Any],
+    chart_data_needs: List[Dict[str, Any]],
+    *,
+    language: str = "en",
+) -> Dict[str, Any] | None:
+    sizing_methods = _plan_sizing_methods(plan)
+    if not sizing_methods and not chart_data_needs and not ledger:
+        return None
+    zh = str(language or "").lower().startswith("zh")
+    rows = (
+        ["TAM/top-down ceiling", "SAM/where-to-play filter", "SOM/adoption ramp", "Unit economics/value pool", "Supply-side constraint"]
+        if not zh
+        else ["TAM/top-down 需求上限", "SAM/可服务细分过滤", "SOM/采用爬坡", "单位经济性/价值池", "供给侧约束"]
+    )
+    family_map = [
+        {"market", "funding"},
+        {"market", "policy"},
+        {"adoption", "timeline", "market"},
+        {"cost", "pricing", "funding"},
+        {"capacity", "technology", "timeline"},
+    ]
+    validation_tasks = (
+        [
+            "Verify category demand, segment share and forecast year.",
+            "Filter by geography, use case, customer eligibility and channel access.",
+            "Replace narrative adoption with customer count, pilot conversion and repeat-order evidence.",
+            "Validate price, cost, margin, payback and value-capture assumptions.",
+            "Check announced capacity, utilization, delivery timing and supply-chain bottlenecks.",
+        ]
+        if not zh
+        else [
+            "复核品类需求、细分占比和预测年份。",
+            "按地域、场景、客户资格和渠道可触达性过滤。",
+            "用客户数、试点转化和复购证据替代采用叙事。",
+            "复核价格、成本、利润率、回收期和价值捕获假设。",
+            "核验公告产能、利用率、交付时间和供应链瓶颈。",
+        ]
+    )
+    basis: List[Dict[str, Any]] = []
+    values = []
+    for idx, row in enumerate(rows):
+        items = _ledger_for_families(ledger, family_map[idx])[:3]
+        if not items:
+            items = _fallback_need_items(chart_data_needs, row)[:2]
+        if items and isinstance(items[0], dict) and items[0].get("source_url"):
+            basis.extend(items[:2])
+        support = _support_count_label(len(items), zh=zh)
+        signal = _short_label(_best_signal(items) or _method_signal(sizing_methods, idx), 150)
+        sizing_use = _sizing_use_text(row, zh=zh)
+        values.append([support, sizing_use, signal or ("Evidence gap" if not zh else "证据缺口"), validation_tasks[idx]])
+    if not basis:
+        basis = _mixed_basis(ledger, fact_pack, limit=8)
+    return {
+        "type": "matrix",
+        "title": "Market sizing should be built as a bridge, not a single TAM claim" if not zh else "市场规模应被拆成 sizing bridge，而不是单点 TAM 判断",
+        "subtitle": "Rows show how public facts can support top-down, bottom-up, adoption, economics and supply-side sizing." if not zh else "每一行对应 top-down、bottom-up、采用、经济性和供给侧测算变量。",
+        "rows": rows,
+        "columns": ["Public data found", "Sizing use", "Best public signal", "Open validation"] if not zh else ["公开数据", "测算用途", "最佳公开信号", "待核验"],
+        "values": values,
+        "caption": "The bridge keeps missing variables visible so market sizing does not turn into model-created certainty." if not zh else "这张 bridge 把缺失变量显性保留，避免把市场规模测算写成模型确定性。",
+        "source_note": _source_note(basis),
+        "data_basis": [_basis_item(item) for item in basis[:8]] if basis and basis[0].get("source_url") else basis[:8],
+        "evidence_quality": "market_sizing_bridge",
+    }
+
+
+def _hypothesis_evidence_exhibit(
+    plan: Dict[str, Any],
+    ledger: List[Dict[str, Any]],
+    fact_pack: ResearchFactPack,
+    *,
+    language: str = "en",
+) -> Dict[str, Any] | None:
+    hypotheses = _plan_hypotheses(plan)
+    if not hypotheses:
+        return None
+    zh = str(language or "").lower().startswith("zh")
+    rows = []
+    values = []
+    basis: List[Dict[str, Any]] = []
+    for idx, hypothesis in enumerate(hypotheses[:6], start=1):
+        item_id = str(hypothesis.get("id") or f"H{idx}")
+        text = str(hypothesis.get("hypothesis") or hypothesis.get("claim") or "")
+        needed = [str(x) for x in _as_list(hypothesis.get("needed_evidence")) if str(x).strip()]
+        matched = _ledger_for_hypothesis(ledger, text, needed)[:3]
+        basis.extend(matched[:2])
+        rows.append(item_id)
+        values.append(
+            [
+                _short_label(text, 120),
+                _support_count_label(len(matched), zh=zh),
+                _short_label(_best_signal(matched), 140) or ("No direct public signal retained" if not zh else "未保留直接公开信号"),
+                _short_label("; ".join(needed[:3]), 140) or ("Define primary validation data" if not zh else "定义一手核验数据"),
+            ]
+        )
+    if not basis:
+        basis = _mixed_basis(ledger, fact_pack, limit=8)
+    return {
+        "type": "matrix",
+        "title": "Hypotheses should move only as fast as the evidence does" if not zh else "假设验证的推进速度应受证据约束",
+        "subtitle": "Each row links a management hypothesis to retained evidence and the next validation task." if not zh else "每行把管理层假设、已保留证据和下一步核验任务连在一起。",
+        "rows": rows,
+        "columns": ["Hypothesis", "Public support", "Evidence to use", "Next validation"] if not zh else ["假设", "公开支持", "可用证据", "下一步核验"],
+        "values": values,
+        "caption": "The table is hypothesis-driven, but support labels come from retained evidence counts rather than subjective scores." if not zh else "表格按假设组织，但支持度来自保留证据数量，不使用主观评分。",
+        "source_note": _source_note(basis),
+        "data_basis": [_basis_item(item) for item in basis[:8]] if basis and basis[0].get("source_url") else basis[:8],
+        "evidence_quality": "hypothesis_evidence_map",
+    }
+
+
+def _fact_pack_exhibits(
+    topic: str,
+    fact_pack: ResearchFactPack,
+    *,
+    plan: Dict[str, Any] | None = None,
+    chart_data_needs: List[Dict[str, Any]] | None = None,
+    language: str = "en",
+) -> List[Dict[str, Any]]:
     basis = _fact_pack_basis(fact_pack)
     exhibits = [
         {
@@ -444,11 +582,17 @@ def _fact_pack_exhibits(topic: str, fact_pack: ResearchFactPack) -> List[Dict[st
             "evidence_quality": "fact_pack_gap_matrix",
         },
     ]
+    sizing_bridge = _market_sizing_bridge_exhibit(topic, [], fact_pack, plan or {}, chart_data_needs or [], language=language)
+    if sizing_bridge:
+        exhibits.insert(1, sizing_bridge)
+    hypothesis_map = _hypothesis_evidence_exhibit(plan or {}, [], fact_pack, language=language)
+    if hypothesis_map:
+        exhibits.insert(2, hypothesis_map)
     for idx, exhibit in enumerate(exhibits, start=1):
         exhibit["id"] = f"evidence-exhibit-{idx}"
         exhibit["no"] = str(idx)
         exhibit["after_section_id"] = f"section-{idx}"
-    return exhibits
+    return exhibits[:6]
 
 
 def _comparable_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | None:
@@ -824,15 +968,21 @@ def _display_value(raw_number: str, normalized_unit: str, prefix: str, raw_unit:
 def _metric_family(text: str, unit: str, topic: str) -> str:
     lower = str(text or "").lower()
     topic_l = str(topic or "").lower()
+    if any(token in lower for token in ("adoption", "penetration", "users", "customers", "subscribers", "installations", "installed base", "orders", "pilot", "conversion")):
+        return "adoption"
+    if any(token in lower for token in ("price", "pricing", "arpu", "asp", "average selling price")):
+        return "pricing"
+    if any(token in lower for token in ("cost", "lcoe", "$/mwh", "capex", "opex", "roi", "payback", "margin", "profit")):
+        return "cost"
+    if any(token in lower for token in ("market", "demand", "revenue", "sales", "tam", "sam", "som", "addressable", "value pool")):
+        return "market"
     if any(token in lower for token in ("funding", "raised", "investment", "capital", "venture", "financing")) or unit in {"$B", "$M"}:
         return "funding"
-    if any(token in lower for token in ("cost", "lcoe", "$/mwh", "price", "capex", "opex")):
-        return "cost"
     if any(token in lower for token in ("ignition", "breakeven", "energy output", "megajoule", "scientific proof", "experiment")) or unit in {"MJ"}:
         return "technology"
     if any(token in lower for token in ("capacity", "gw", "mw", "mwh", "gwh", "twh", "plant", "reactor")) or unit in {"GW", "MW", "MWh", "GWh", "TWh"}:
         return "capacity"
-    if any(token in lower for token in ("market", "demand", "customer", "revenue", "sales", "companies")):
+    if any(token in lower for token in ("customer", "companies")):
         return "market"
     if any(token in lower for token in ("year", "timeline", "target", "baseline", "operation", "commercial", "202")) or unit in {"years", "months", "year"}:
         return "timeline"
@@ -841,6 +991,197 @@ def _metric_family(text: str, unit: str, topic: str) -> str:
     if any(token in topic_l for token in ("market", "commercial", "customer")):
         return "market"
     return "other"
+
+
+def _plan_hypotheses(plan: Dict[str, Any]) -> List[Dict[str, Any]]:
+    out = []
+    for idx, item in enumerate(_as_list((plan or {}).get("hypotheses")), start=1):
+        if isinstance(item, dict):
+            text = str(item.get("hypothesis") or item.get("claim") or item.get("title") or "").strip()
+            if not text:
+                continue
+            out.append(
+                {
+                    "id": str(item.get("id") or f"H{idx}").strip(),
+                    "hypothesis": text,
+                    "decision_relevance": str(item.get("decision_relevance") or "").strip(),
+                    "needed_evidence": [str(x).strip() for x in _as_list(item.get("needed_evidence") or item.get("evidence_needed") or item.get("data_needed")) if str(x).strip()],
+                }
+            )
+        else:
+            text = str(item or "").strip()
+            if text:
+                out.append({"id": f"H{idx}", "hypothesis": text, "decision_relevance": "", "needed_evidence": []})
+    return out[:7]
+
+
+def _plan_sizing_methods(plan: Dict[str, Any]) -> List[Dict[str, Any]]:
+    sizing_plan = (plan or {}).get("market_sizing_plan") or {}
+    raw_methods = sizing_plan.get("methods") if isinstance(sizing_plan, dict) else sizing_plan
+    methods = []
+    for idx, item in enumerate(_as_list(raw_methods), start=1):
+        if not isinstance(item, dict):
+            continue
+        method = str(item.get("method") or item.get("name") or item.get("type") or f"Sizing method {idx}").strip()
+        if not method:
+            continue
+        methods.append(
+            {
+                "method": method,
+                "formula": str(item.get("formula") or "").strip(),
+                "variables": [str(x).strip() for x in _as_list(item.get("variables") or item.get("inputs")) if str(x).strip()],
+                "known_limitations": [str(x).strip() for x in _as_list(item.get("known_limitations") or item.get("limitations")) if str(x).strip()],
+            }
+        )
+    return methods[:5]
+
+
+def _ledger_for_families(ledger: List[Dict[str, Any]], families: set[str]) -> List[Dict[str, Any]]:
+    return [
+        item
+        for item in ledger
+        if str(item.get("metric_family") or "") in families
+        and (item.get("display_value") or item.get("year") or item.get("fact"))
+    ]
+
+
+def _ledger_for_hypothesis(ledger: List[Dict[str, Any]], hypothesis: str, needed_evidence: List[str]) -> List[Dict[str, Any]]:
+    keywords = _keywords(" ".join([hypothesis] + needed_evidence))
+    if not keywords:
+        return ledger[:3]
+    scored = []
+    for item in ledger:
+        haystack = " ".join(
+            str(item.get(key) or "")
+            for key in ("fact", "metric_family", "source_title", "domain", "display_value")
+        ).lower()
+        score = sum(1 for keyword in keywords if keyword in haystack)
+        family = str(item.get("metric_family") or "")
+        if family in {"market", "adoption", "pricing", "cost", "capacity", "funding", "policy"}:
+            score += 1
+        if score:
+            scored.append((score, item))
+    return [item for _score, item in sorted(scored, key=lambda pair: pair[0], reverse=True)]
+
+
+def _fallback_need_items(chart_data_needs: List[Dict[str, Any]], row_label: str) -> List[Dict[str, Any]]:
+    row_l = str(row_label or "").lower()
+    out = []
+    for idx, need in enumerate(chart_data_needs or [], start=1):
+        text = " ".join(
+            [
+                str(need.get("title") or ""),
+                str(need.get("executive_question") or ""),
+                " ".join(str(x) for x in _as_list(need.get("required_metrics"))),
+                str(need.get("sizing_role") or ""),
+            ]
+        )
+        if any(token in text.lower() for token in _keywords(row_l)):
+            out.append(
+                {
+                    "id": str(need.get("id") or f"N{idx}"),
+                    "value": "Data need",
+                    "fact": _short_label(text, 260),
+                    "source_title": "Chart data needs",
+                    "url": "",
+                    "domain": "",
+                }
+            )
+    return out
+
+
+def _support_count_label(count: int, *, zh: bool = False) -> str:
+    if zh:
+        if count >= 5:
+            return f"{count} 条公开信号"
+        if count >= 2:
+            return f"{count} 条可用信号"
+        if count == 1:
+            return "1 条公开信号"
+        return "证据缺口"
+    if count >= 5:
+        return f"{count} public signals"
+    if count >= 2:
+        return f"{count} usable signals"
+    if count == 1:
+        return "1 public signal"
+    return "Evidence gap"
+
+
+def _best_signal(items: List[Dict[str, Any]]) -> str:
+    for item in items or []:
+        value = str(item.get("display_value") or item.get("value") or "").strip()
+        fact = str(item.get("fact") or "").strip()
+        if value and fact and value not in fact:
+            return f"{value}: {fact}"
+        if fact:
+            return fact
+    return ""
+
+
+def _method_signal(methods: List[Dict[str, Any]], idx: int) -> str:
+    if idx < len(methods):
+        method = methods[idx]
+        formula = method.get("formula") or ""
+        variables = ", ".join(method.get("variables") or [])
+        return " | ".join(part for part in [str(method.get("method") or ""), formula, variables] if part)
+    return ""
+
+
+def _sizing_use_text(row_label: str, *, zh: bool = False) -> str:
+    lower = str(row_label or "").lower()
+    if "tam" in lower or "top-down" in lower:
+        return "Bound the outer demand pool." if not zh else "限定外层需求池。"
+    if "sam" in lower:
+        return "Filter to serviceable segments and channels." if not zh else "过滤到可服务细分和渠道。"
+    if "som" in lower or "adoption" in lower or "采用" in lower:
+        return "Translate demand into realistic adoption." if not zh else "把需求转成现实采用。"
+    if "unit" in lower or "value" in lower or "经济性" in lower:
+        return "Test whether revenue can convert into value." if not zh else "检验收入能否转成价值。"
+    if "supply" in lower or "供给" in lower:
+        return "Check whether supply can meet the sized demand." if not zh else "检查供给能否支撑需求。"
+    return "Convert evidence into a sizing variable." if not zh else "把证据转成测算变量。"
+
+
+def _keywords(text: str) -> List[str]:
+    raw = re.findall(r"[\u4e00-\u9fff]{2,}|[A-Za-z][A-Za-z0-9+-]{2,}", str(text or "").lower())
+    stop = {
+        "the",
+        "and",
+        "for",
+        "with",
+        "from",
+        "into",
+        "market",
+        "sizing",
+        "evidence",
+        "public",
+        "data",
+        "that",
+        "this",
+        "should",
+        "是否",
+        "数据",
+        "市场",
+        "证据",
+        "公开",
+        "需要",
+    }
+    out = []
+    for token in raw:
+        if token in stop or len(token) < 2:
+            continue
+        if token not in out:
+            out.append(token)
+    return out[:18]
+
+
+def _as_list(value: Any) -> List[Any]:
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    return [value]
 
 
 def _split_sentences(text: str) -> List[str]:
