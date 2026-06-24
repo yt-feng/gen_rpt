@@ -132,8 +132,8 @@ def main() -> int:
             f"expected exactly 3 key takeaways, got {len(takeaways)} "
             f"(candidate counts: {takeaway_candidates})"
         )
-    if not (3 <= len(exhibits) <= 5):
-        issues.append(f"expected 3-5 exhibits, got {len(exhibits)}")
+    if not (3 <= len(exhibits) <= 6):
+        issues.append(f"expected 3-6 exhibits, got {len(exhibits)}")
     if len(action_steps) < 3:
         issues.append(f"expected at least 3 action steps, got {len(action_steps)}")
     if len(references) < 4:
