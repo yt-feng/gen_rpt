@@ -20,7 +20,7 @@ China's CFETR (China Fusion Engineering Test Reactor) is planned for constructio
 
 Private companies like Helion Energy and TAE Technologies claim timelines as early as 2028-2030, but these projections lack independent verification and rely on unproven technologies. The Fusion Industry Association's 2023 report notes that only a handful of startups have achieved net energy gain, and none have demonstrated a sustained burn.
 
-The evidence supports hypothesis H1: nuclear fusion will not achieve grid-connected electricity generation before 2035. The gap between scientific milestones and engineering reality remains wide.
+nuclear fusion will not achieve grid-connected electricity generation before 2035. The gap between scientific milestones and engineering reality remains wide.
 
 Evidence:
 
@@ -40,7 +40,7 @@ The DOE's Fusion Energy Sciences program acknowledges that cost competitiveness 
 
 Sensitivity analyses show that fusion LCOE is most sensitive to capital cost and capacity factor. If capital costs can be reduced to $3,000/kW (similar to nuclear fission) and capacity factor maintained above 90%, LCOE could fall to $40-50/MWh. However, these assumptions are optimistic and unvalidated.
 
-Hypothesis H2 is supported: fusion LCOE will remain above $50/MWh through 2040, making it uncompetitive with solar and wind absent significant carbon pricing or technological breakthroughs.
+fusion LCOE will remain above $50/MWh through 2040, making it uncompetitive with solar and wind absent significant carbon pricing or technological breakthroughs.
 
 Evidence:
 
@@ -56,11 +56,11 @@ According to the Fusion Industry Association, private fusion investment reached 
 
 Government funding remains the backbone of fusion research. The DOE's Fusion Energy Sciences budget was approximately $800 million in 2023, with additional funding from the Milestone-Based Fusion Development Program ($50 million per year). ITER's total cost is estimated at over $20 billion, funded by international partners. China's government is investing heavily in CFETR, with estimates of $10-15 billion over the next decade.
 
-The evidence supports hypothesis H3: private investment will exceed $10 billion by 2025, but most startups will fail. The adoption funnel shows that only a handful of companies have reached the net energy gain stage, and none have a pilot plant under construction. The gap between concept and commercial plant is vast.
+private investment will exceed $10 billion by 2025, but most startups will fail. The adoption funnel shows that only a handful of companies have reached the net energy gain stage, and none have a pilot plant under construction. The gap between concept and commercial plant is vast.
 
-Hypothesis H4 is also supported: government funding remains the primary driver. Private capital is important but insufficient to overcome the technical hurdles. The DOE's public-private partnership model is designed to de-risk technologies, but the timeline remains long.
+government funding remains the primary driver. Private capital is important but insufficient to overcome the technical hurdles. The DOE's public-private partnership model is designed to de-risk technologies, but the timeline remains long.
 
-China's state-backed push (H6) is a wild card. CFETR is on an aggressive timeline, and China has a track record of rapid infrastructure deployment. If China succeeds, it could leapfrog Western efforts, with geopolitical implications for energy technology leadership.
+China's state-backed push is a wild card. CFETR is on an aggressive timeline, and China has a track record of rapid infrastructure deployment. If China succeeds, it could leapfrog Western efforts, with geopolitical implications for energy technology leadership.
 
 Evidence:
 
@@ -79,7 +79,7 @@ Industrial heat accounts for about 20% of global energy demand, and much of it i
 
 Hydrogen production via high-temperature electrolysis or thermochemical cycles could also be an early market. Fusion's continuous output and high temperature are well-suited for efficient hydrogen production. Several pilot projects are in the planning stages, though none are operational.
 
-Hypothesis H5 is supported: fusion will first be commercialized for industrial heat or hydrogen production, not electricity. This pathway reduces the need for grid integration and regulatory approval, which are major barriers for electricity generation.
+fusion will first be commercialized for industrial heat or hydrogen production, not electricity. This pathway reduces the need for grid integration and regulatory approval, which are major barriers for electricity generation.
 
 However, even these applications face challenges. The cost of fusion heat must compete with natural gas and biomass. Carbon pricing could improve the economics, but the timeline remains uncertain.
 
@@ -95,7 +95,7 @@ Even under optimistic scenarios, fusion deployment will be too slow to significa
 
 The IEA's Net Zero by 2050 scenario does not include fusion as a significant contributor before 2050. The IPCC's AR6 report also notes that fusion is not expected to play a major role in climate mitigation this century. The slow pace of technology development, regulatory approval, and infrastructure build-out means fusion will not be a climate solution in the near term.
 
-Hypothesis H7 is supported: fusion will not significantly impact global carbon emissions before 2050. The deployment scenarios from IEA and IPCC show fusion providing less than 1% of global electricity by 2050, even in optimistic cases.
+fusion will not significantly impact global carbon emissions before 2050. The deployment scenarios from IEA and IPCC show fusion providing less than 1% of global electricity by 2050, even in optimistic cases.
 
 The tritium supply constraint is a major bottleneck. Tritium is radioactive with a 12-year half-life and must be bred from lithium in the reactor. The breeding ratio is not yet proven, and lithium resources may be limited. Supply-side sizing suggests that tritium availability could limit fusion capacity to less than 100 GW by 2050, compared to global electricity demand of over 10,000 GW.
 
@@ -111,4 +111,4 @@ Evidence:
 - NRC has not yet established a licensing framework for fusion plants (Source 5)
 
 
-The near-term leadership agenda is embedded in the storyline: Near-term (0-3 years): Monitor key technical milestones: SPARC first plasma (2025), ITER first plasma (2025), and DOE milestone program outcomes., with success measured by track progress against published timelines; adjust investment thesis if milestones are met or missed; Medium-term (3-7 years): Diversify fusion exposure across multiple technologies (tokamak, stellarator, inertial) and applications (electricity, industrial heat, hydrogen)., with success measured by portfolio includes at least three different fusion technology bets; early revenue from non-electric applications; and Long-term (7-15 years): Prepare for fusion grid integration: engage with regulators, develop grid interconnection standards, and assess workforce needs., with success measured by regulatory framework established; first fusion pilot plant licensed; fusion included in long-term energy planning scenarios.
+Near-term leadership should focus on Near-term (0-3 years): Monitor key technical milestones: SPARC first plasma (2025), ITER first plasma (2025), and DOE milestone program outcomes., with success measured by track progress against published timelines; adjust investment thesis if milestones are met or missed; Medium-term (3-7 years): Diversify fusion exposure across multiple technologies (tokamak, stellarator, inertial) and applications (electricity, industrial heat, hydrogen)., with success measured by portfolio includes at least three different fusion technology bets; early revenue from non-electric applications; and Long-term (7-15 years): Prepare for fusion grid integration: engage with regulators, develop grid interconnection standards, and assess workforce needs., with success measured by regulatory framework established; first fusion pilot plant licensed; fusion included in long-term energy planning scenarios.

@@ -146,14 +146,6 @@ def build_evidence_exhibits(
     exhibits: List[Dict[str, Any]] = []
     exhibits.append(_metric_row_exhibit(evidence_ledger, fact_pack))
 
-    sizing_bridge = _market_sizing_bridge_exhibit(topic, evidence_ledger, fact_pack, plan or {}, chart_data_needs or [], language=language)
-    if sizing_bridge:
-        exhibits.append(sizing_bridge)
-
-    hypothesis_map = _hypothesis_evidence_exhibit(plan or {}, evidence_ledger, fact_pack, language=language)
-    if hypothesis_map:
-        exhibits.append(hypothesis_map)
-
     comparable = _comparable_value_exhibit(evidence_ledger)
     if comparable:
         exhibits.append(comparable)
@@ -167,17 +159,15 @@ def build_evidence_exhibits(
         exhibits.append(timeline)
 
     matrix = _opportunity_matrix_exhibit(evidence_ledger, fact_pack)
-    if matrix:
+    if matrix and len(exhibits) < 3:
         exhibits.append(matrix)
 
     opportunity = _opportunity_map_exhibit(evidence_ledger, fact_pack)
-    if opportunity:
+    if opportunity and len(exhibits) < 3:
         exhibits.append(opportunity)
-    if len(exhibits) < 5:
-        exhibits.append(_stage_gate_process_exhibit(topic, evidence_ledger, fact_pack))
 
     if len(exhibits) < 3:
-        fallback = [_year_exhibit(evidence_ledger), _evidence_family_exhibit(evidence_ledger), _support_matrix_exhibit(evidence_ledger, fact_pack)]
+        fallback = [_year_exhibit(evidence_ledger), _support_matrix_exhibit(evidence_ledger, fact_pack)]
         exhibits.extend([item for item in fallback if item][: 3 - len(exhibits)])
     if len(exhibits) < 3:
         exhibits.extend(_fact_pack_exhibits(topic, fact_pack)[: 3 - len(exhibits)])
@@ -418,9 +408,9 @@ def _market_sizing_bridge_exhibit(
         return None
     zh = str(language or "").lower().startswith("zh")
     rows = (
-        ["TAM/top-down ceiling", "SAM/where-to-play filter", "SOM/adoption ramp", "Unit economics/value pool", "Supply-side constraint"]
+        ["Demand ceiling", "Accessible market", "Adoption ramp", "Economics and value capture", "Supply constraint"]
         if not zh
-        else ["TAM/top-down 需求上限", "SAM/可服务细分过滤", "SOM/采用爬坡", "单位经济性/价值池", "供给侧约束"]
+        else ["需求上限", "可触达市场", "采用爬坡", "经济性与价值捕获", "供给侧约束"]
     )
     family_map = [
         {"market", "funding"},
@@ -462,15 +452,15 @@ def _market_sizing_bridge_exhibit(
         basis = _mixed_basis(ledger, fact_pack, limit=8)
     return {
         "type": "matrix",
-        "title": "Market sizing should be built as a bridge, not a single TAM claim" if not zh else "市场规模应被拆成 sizing bridge，而不是单点 TAM 判断",
-        "subtitle": "Rows show how public facts can support top-down, bottom-up, adoption, economics and supply-side sizing." if not zh else "每一行对应 top-down、bottom-up、采用、经济性和供给侧测算变量。",
+        "title": "Build the opportunity case from demand, adoption, economics and constraints" if not zh else "把机会判断拆成需求、采用、经济性和供给约束",
+        "subtitle": "The goal is not a single big number; it is to show which parts of the opportunity can be supported by public evidence." if not zh else "重点不是给出一个大数字，而是说明机会的哪些部分已有公开证据支撑。",
         "rows": rows,
-        "columns": ["Public data found", "Sizing use", "Best public signal", "Open validation"] if not zh else ["公开数据", "测算用途", "最佳公开信号", "待核验"],
+        "columns": ["Public data found", "Management question", "Best public signal", "What to verify next"] if not zh else ["公开数据", "管理问题", "最佳公开信号", "下一步核验"],
         "values": values,
-        "caption": "The bridge keeps missing variables visible so market sizing does not turn into model-created certainty." if not zh else "这张 bridge 把缺失变量显性保留，避免把市场规模测算写成模型确定性。",
+        "caption": "The remaining open variables show where management should validate demand, economics and execution before committing capital." if not zh else "仍未闭合的变量提示管理层在投入资本前应核验需求、经济性和执行能力。",
         "source_note": _source_note(basis),
         "data_basis": [_basis_item(item) for item in basis[:8]] if basis and basis[0].get("source_url") else basis[:8],
-        "evidence_quality": "market_sizing_bridge",
+        "evidence_quality": "opportunity_case",
     }
 
 
@@ -582,12 +572,6 @@ def _fact_pack_exhibits(
             "evidence_quality": "fact_pack_gap_matrix",
         },
     ]
-    sizing_bridge = _market_sizing_bridge_exhibit(topic, [], fact_pack, plan or {}, chart_data_needs or [], language=language)
-    if sizing_bridge:
-        exhibits.insert(1, sizing_bridge)
-    hypothesis_map = _hypothesis_evidence_exhibit(plan or {}, [], fact_pack, language=language)
-    if hypothesis_map:
-        exhibits.insert(2, hypothesis_map)
     for idx, exhibit in enumerate(exhibits, start=1):
         exhibit["id"] = f"evidence-exhibit-{idx}"
         exhibit["no"] = str(idx)
@@ -1130,17 +1114,17 @@ def _method_signal(methods: List[Dict[str, Any]], idx: int) -> str:
 
 def _sizing_use_text(row_label: str, *, zh: bool = False) -> str:
     lower = str(row_label or "").lower()
-    if "tam" in lower or "top-down" in lower:
+    if "demand" in lower or "需求" in lower:
         return "Bound the outer demand pool." if not zh else "限定外层需求池。"
-    if "sam" in lower:
-        return "Filter to serviceable segments and channels." if not zh else "过滤到可服务细分和渠道。"
-    if "som" in lower or "adoption" in lower or "采用" in lower:
-        return "Translate demand into realistic adoption." if not zh else "把需求转成现实采用。"
-    if "unit" in lower or "value" in lower or "经济性" in lower:
+    if "accessible" in lower or "market" in lower or "触达" in lower:
+        return "Identify where demand is actually reachable." if not zh else "识别真实可触达的需求。"
+    if "adoption" in lower or "采用" in lower:
+        return "Translate demand into realistic uptake." if not zh else "把需求转成现实采用。"
+    if "economics" in lower or "value" in lower or "经济性" in lower:
         return "Test whether revenue can convert into value." if not zh else "检验收入能否转成价值。"
     if "supply" in lower or "供给" in lower:
-        return "Check whether supply can meet the sized demand." if not zh else "检查供给能否支撑需求。"
-    return "Convert evidence into a sizing variable." if not zh else "把证据转成测算变量。"
+        return "Check whether supply can meet demand." if not zh else "检查供给能否支撑需求。"
+    return "Convert evidence into a decision variable." if not zh else "把证据转成决策变量。"
 
 
 def _keywords(text: str) -> List[str]:

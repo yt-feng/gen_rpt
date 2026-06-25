@@ -7,6 +7,12 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
+ROOT = Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+from gen_rpt.web_publication_contract import client_visible_internal_hits, is_internal_workbench_exhibit
+
 
 BAD_HEADINGS = {
     "overview",
@@ -67,6 +73,7 @@ def main() -> int:
     report_dir = args.report_dir
     html_path = report_dir / "index.html"
     payload_path = report_dir / "web_report_payload.json"
+    publication_contract_path = report_dir / "publication_contract.json"
     fact_pack_path = report_dir / "research_fact_pack.json"
     evidence_ledger_path = report_dir / "evidence_ledger.json"
     storyline_plan_path = report_dir / "storyline_plan.json"
@@ -76,7 +83,7 @@ def main() -> int:
     issues: List[str] = []
     metrics: Dict[str, Any] = {"report_dir": str(report_dir)}
 
-    for path in [html_path, payload_path, fact_pack_path, evidence_ledger_path, storyline_plan_path, chart_data_needs_path, sources_path]:
+    for path in [html_path, payload_path, publication_contract_path, fact_pack_path, evidence_ledger_path, storyline_plan_path, chart_data_needs_path, sources_path]:
         if not path.exists():
             issues.append(f"missing required file: {path.name}")
 
@@ -84,6 +91,7 @@ def main() -> int:
         return emit(issues, metrics, args.warn_only)
 
     payload = read_json(payload_path, issues)
+    publication_contract = read_json(publication_contract_path, issues)
     sources = read_json(sources_path, issues)
     fact_pack = read_json(fact_pack_path, issues)
     evidence_ledger = read_json(evidence_ledger_path, issues)
@@ -119,6 +127,7 @@ def main() -> int:
             "sources": len(sources if isinstance(sources, list) else []),
             "fact_pack_sources": fact_pack.get("source_count") if isinstance(fact_pack, dict) else None,
             "storyline_keys": sorted(storyline_plan.keys()) if isinstance(storyline_plan, dict) else [],
+            "publication_contract_keys": sorted(publication_contract.keys()) if isinstance(publication_contract, dict) else [],
             "html_chars": len(html_text),
             "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
             "takeaway_candidate_counts": takeaway_candidates,
@@ -174,8 +183,8 @@ def main() -> int:
     metrics["non_metric_exhibits"] = len(non_metric_exhibits)
     if len(exhibit_types) < 3:
         issues.append("exhibit mix is too narrow; expected at least 3 chart/exhibit types")
-    if len(non_metric_exhibits) < 3:
-        issues.append(f"expected at least 3 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
+    if len(non_metric_exhibits) < 2:
+        issues.append(f"expected at least 2 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
     if not any(text(x.get("type")).lower() in {"bar", "line", "bubble", "scatter", "opportunity_map"} for x in exhibits):
         issues.append("expected at least one data chart rendered as bar, line or bubble")
     for idx, exhibit in enumerate(exhibits, start=1):
@@ -190,8 +199,13 @@ def main() -> int:
                 text(exhibit.get("source_note")),
                 text(exhibit.get("series")),
                 text(exhibit.get("categories")),
+                text(exhibit.get("rows")),
+                text(exhibit.get("columns")),
+                text(exhibit.get("values")),
             ]
         ).lower()
+        if is_internal_workbench_exhibit(exhibit):
+            issues.append(f"exhibit {idx} is an internal workbench exhibit: {title}")
         if len(title) < 24:
             issues.append(f"exhibit {idx} title is too thin: {title}")
         if not source_note:
@@ -216,16 +230,19 @@ def main() -> int:
     for pattern in UNVERIFIED_SOURCE_PATTERNS:
         if re.search(pattern, lower, re.I):
             issues.append(f"HTML contains unsupported source/evidence language matching: {pattern}")
+    for pattern in client_visible_internal_hits(html_text):
+        issues.append(f"HTML leaks internal analysis language matching: {pattern}")
     for required in ["Key Takeaways", "Contents"]:
         if required.lower() not in lower:
             issues.append(f"HTML missing expected BlueOcean module: {required}")
     for forbidden in FORBIDDEN_VISIBLE_TEXT:
         if forbidden in lower:
             issues.append(f"HTML contains forbidden visible/source text: {forbidden}")
-    if "data basis" not in lower:
-        issues.append("HTML missing visible Data basis for exhibits")
-    if "source boundary" not in lower and "public-source collection" not in lower:
-        issues.append("HTML missing subtle methodology/source-boundary text")
+    raw_lower = html.lower()
+    if "<summary>sources</summary>" not in raw_lower and "<summary>来源</summary>" not in raw_lower:
+        issues.append("HTML missing visible exhibit source drilldown")
+    if "retained public sources" not in lower and "public-source collection" not in lower and "公开来源" not in lower:
+        issues.append("HTML missing subtle public-source methodology text")
     for forbidden in ["How leaders should move next", "Source base", "Methodology and source boundary"]:
         if forbidden.lower() in lower:
             issues.append(f"HTML contains removed standalone module label: {forbidden}")

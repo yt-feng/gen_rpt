@@ -9,16 +9,11 @@ from typing import Any, Dict, List, Tuple
 from urllib.parse import urlparse
 
 from .theme import load_theme
+from .web_publication_contract import clean_client_text, clean_client_value, is_internal_workbench_exhibit
 
 
 THEME = load_theme()
 BRAND_NAME = THEME.get("brand_name", "BlueOcean")
-
-
-VISIBLE_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
-    (r"\bnot\s+(?:included\s+)?in\s+(?:the\s+)?fact\s*[- ]?\s*pack\b", "not validated in the retained source set"),
-    (r"\bwidely\s+cited\b", "commonly referenced"),
-)
 
 
 CSS = """
@@ -236,6 +231,17 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   line-height: 1.38;
   margin: 0 0 24px;
 }
+.section-media {
+  margin: 30px 0 30px;
+  background: var(--sand);
+  overflow: hidden;
+}
+.section-media img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
 .section-block p {
   margin: 0 0 20px;
 }
@@ -259,6 +265,37 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   background: var(--sand-2);
   border-top: 4px solid var(--forest);
   font-size: 17px;
+}
+.action-list {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 18px;
+}
+.action-list li {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.action-horizon {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.action-list strong {
+  display: block;
+  color: var(--forest);
+  font-size: 21px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.action-list span {
+  color: #323232;
+  font-size: 16px;
+  line-height: 1.42;
 }
 .exhibit {
   margin: 42px 0 62px;
@@ -558,7 +595,8 @@ LABELS = {
         "prepared": "Prepared by",
         "read_time": "min read",
         "exhibit": "Exhibit",
-        "data_basis": "Data basis",
+        "data_basis": "Sources",
+        "where_start": "Where to Start",
     },
     "zh": {
         "contents": "目录",
@@ -571,7 +609,8 @@ LABELS = {
         "prepared": "出品",
         "read_time": "分钟阅读",
         "exhibit": "图表",
-        "data_basis": "数据依据",
+        "data_basis": "来源",
+        "where_start": "从哪里开始",
     },
 }
 
@@ -636,18 +675,15 @@ def render_web_report_html(
     _render_toc(parts, sections, labels)
     parts.append("<article class='article-main'>")
     if normalized.get("intro"):
-        intro_items = list(normalized["intro"])
-        action_summary = _action_summary(normalized.get("action_steps", []), language)
-        if action_summary:
-            intro_items.append(action_summary)
-        parts.append(f"<div class='lead-block'>{_paragraphs(intro_items)}</div>")
+        parts.append(f"<div class='lead-block'>{_paragraphs(list(normalized['intro']))}</div>")
     exhibit_by_after = _exhibits_by_anchor(exhibits)
     for idx, section in enumerate(sections, start=1):
-        _render_section(parts, section, idx, labels)
+        _render_section(parts, section, idx, labels, assets)
         for exhibit in exhibit_by_after.get(section.get("id") or f"section-{idx}", []):
             _render_exhibit(parts, exhibit, labels)
     for exhibit in exhibit_by_after.get("", []):
         _render_exhibit(parts, exhibit, labels)
+    _render_actions(parts, normalized.get("action_steps", []), labels, language)
     parts.append("</article>")
     parts.append("</main>")
 
@@ -767,12 +803,15 @@ def _render_toc(parts: List[str], sections: List[Dict[str, Any]], labels: Dict[s
     parts.append("</aside>")
 
 
-def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels: Dict[str, str]) -> None:
+def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels: Dict[str, str], assets: Dict[str, str] | None = None) -> None:
     parts.append(f"<section id='{_e(section['id'])}' class='section-block'>")
     parts.append(f"<div class='section-kicker'>{_e(labels['article'])} {idx}</div>")
     parts.append(f"<h2>{_e(section['title'])}</h2>")
     if section.get("lead"):
         parts.append(f"<p class='section-lead'>{_e(section['lead'])}</p>")
+    image = _section_image(assets or {}, idx)
+    if image:
+        parts.append(f"<figure class='section-media'><img src='{_e(image)}' alt='' /></figure>")
     for paragraph in section.get("paragraphs", [])[:7]:
         parts.append(f"<p>{_e(paragraph)}</p>")
     if section.get("evidence"):
@@ -783,6 +822,45 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
     if section.get("so_what"):
         parts.append(f"<div class='so-what'>{_e(section['so_what'])}</div>")
     parts.append("</section>")
+
+
+def _render_actions(parts: List[str], actions: Any, labels: Dict[str, str], language: str) -> None:
+    items = _normalize_actions(actions)[:5]
+    if not items:
+        return
+    zh = str(language or "").lower().startswith("zh")
+    lead = (
+        "The near-term objective is to turn the evidence into a few choices that preserve learning before committing scarce capital or operating capacity."
+        if not zh
+        else "近期重点不是把判断写得更满，而是把公开证据转成少数可执行选择，在投入稀缺资源前保留学习速度。"
+    )
+    parts.append("<section class='section-block action-block'>")
+    parts.append(f"<div class='section-kicker'>{_e('Management agenda' if not zh else '管理议程')}</div>")
+    parts.append(f"<h2>{_e(labels.get('where_start') or 'Where to Start')}</h2>")
+    parts.append(f"<p class='section-lead'>{_e(lead)}</p>")
+    parts.append("<ul class='action-list'>")
+    for item in items:
+        horizon = _compact(_text(item.get("horizon") or ""), 70)
+        action = _compact(_text(item.get("action") or ""), 190)
+        metric = _compact(_text(item.get("success_metric") or item.get("description") or ""), 190)
+        if not action:
+            continue
+        if metric:
+            metric_text = (
+                f"Progress should be visible through {metric[0].lower() + metric[1:] if metric else metric}"
+                if not zh
+                else f"观察指标：{metric}"
+            )
+        else:
+            metric_text = ""
+        parts.append("<li>")
+        if horizon:
+            parts.append(f"<div class='action-horizon'>{_e(horizon)}</div>")
+        parts.append(f"<strong>{_e(action)}</strong>")
+        if metric_text:
+            parts.append(f"<span>{_e(metric_text)}</span>")
+        parts.append("</li>")
+    parts.append("</ul></section>")
 
 
 def _render_exhibit(parts: List[str], exhibit: Dict[str, Any], labels: Dict[str, str]) -> None:
@@ -890,7 +968,7 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
     if not rows:
         return
     parts.append("<details class='data-basis'>")
-    parts.append(f"<summary>{_e(labels.get('data_basis') or 'Data basis')}</summary>")
+    parts.append(f"<summary>{_e(labels.get('data_basis') or 'Sources')}</summary>")
     parts.append("<ul>")
     for item in rows[:8]:
         basis_id = _text(item.get("id") or "")
@@ -914,9 +992,8 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
 
 def _render_methodology(parts: List[str], report: Dict[str, Any], labels: Dict[str, str]) -> None:
     parts.append("<section class='methodology'>")
-    methodology = report.get("methodology") or _default_methodology("en")
-    source_sentence = _source_sentence(report.get("references", []), report.get("source_count") or 0)
-    text_value = " ".join(x for x in [methodology, source_sentence] if x)
+    zh = labels.get("contents") == "目录"
+    text_value = _client_source_note(report.get("references", []), report.get("source_count") or 0, zh=zh)
     parts.append(f"<p>{_e(text_value)}</p>")
     parts.append("</section>")
 
@@ -951,10 +1028,10 @@ def _action_summary(actions: Any, language: str) -> str:
         joined = phrases[0]
     else:
         joined = "; ".join(phrases[:-1]) + "; and " + phrases[-1]
-    return "The near-term leadership agenda is embedded in the storyline: " + joined + "."
+    return "Near-term leadership should focus on " + joined + "."
 
 
-def _source_sentence(references: Any, source_count: int) -> str:
+def _client_source_note(references: Any, source_count: int, *, zh: bool = False) -> str:
     refs = _normalize_references(references)
     domains = []
     for ref in refs:
@@ -963,12 +1040,17 @@ def _source_sentence(references: Any, source_count: int) -> str:
             domains.append(domain)
     count = max(int(source_count or 0), len(refs))
     if not count and not domains:
-        return ""
+        return _default_methodology("zh" if zh else "en")
     if domains:
         shown = ", ".join(domains[:5])
-        tail = " and other public sources" if len(domains) > 5 else ""
-        return f"Source boundary: the retained public-source set covers {count} references across {shown}{tail}; exhibit-level Data basis entries preserve URL traceability for the numbers used in charts."
-    return f"Source boundary: the retained public-source set covers {count} references; exhibit-level Data basis entries preserve URL traceability for the numbers used in charts."
+        if zh:
+            tail = "等公开来源" if len(domains) > 5 else "公开来源"
+            return f"本文基于 {count} 个保留公开来源形成，覆盖 {shown}{tail}。图表中的数字尽量保留到原始 URL；用于投资、交易或运营决策前仍需独立核验。"
+        tail = " and other public sources" if len(domains) > 5 else " public sources"
+        return f"This article draws on {count} retained public sources across {shown}{tail}. Charted figures preserve URL traceability where available; numeric claims, timelines and scenarios should be independently validated before investment or operating use."
+    if zh:
+        return f"本文基于 {count} 个保留公开来源形成。用于投资、交易或运营决策前，数字、时间线和情景判断仍需独立核验。"
+    return f"This article draws on {count} retained public sources. Numeric claims, timelines and scenarios should be independently validated before investment or operating use."
 
 
 def _svg_bar(exhibit: Dict[str, Any]) -> str:
@@ -1199,6 +1281,8 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         if not isinstance(item, dict):
             continue
         exhibit = dict(item)
+        if is_internal_workbench_exhibit(exhibit):
+            continue
         exhibit["id"] = _slug(exhibit.get("id") or f"exhibit-{idx}")
         exhibit["no"] = str(exhibit.get("no") or exhibit.get("exhibit_no") or idx)
         exhibit["title"] = _compact(_text(exhibit.get("title") or f"Exhibit {idx}"), 130)
@@ -1208,9 +1292,17 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         exhibit["source_note"] = _compact(_text(exhibit.get("source_note") or exhibit.get("source") or ""), 260)
         exhibit["data_basis"] = _normalize_data_basis(exhibit.get("data_basis") or exhibit.get("basis") or [])
         exhibit["evidence_quality"] = _compact(_text(exhibit.get("evidence_quality") or ""), 120)
+        for key in ("metrics", "items", "events", "steps", "categories", "labels", "x_labels", "rows", "columns", "values", "series", "points"):
+            if key in exhibit:
+                exhibit[key] = clean_client_value(exhibit[key])
         if not exhibit.get("after_section_id"):
             exhibit["after_section_id"] = f"section-{min(idx, 8)}"
         exhibits.append(exhibit)
+    for idx, exhibit in enumerate(exhibits, start=1):
+        exhibit["no"] = str(idx)
+        exhibit["id"] = _slug(exhibit.get("id") or f"exhibit-{idx}")
+        if not _text(exhibit.get("after_section_id")):
+            exhibit["after_section_id"] = f"section-{min(idx, 8)}"
     return exhibits
 
 
@@ -1359,12 +1451,12 @@ def _fallback_exhibits(topic: str, language: str) -> List[Dict[str, Any]]:
 def _fallback_actions(language: str) -> List[Dict[str, str]]:
     if str(language).lower().startswith("zh"):
         return [
-            {"horizon": "0-30 天", "action": "建立证据台账", "success_metric": "关键判断均有来源、日期和待核验项"},
+            {"horizon": "0-30 天", "action": "锁定最关键的公开证据和缺口", "success_metric": "关键判断均有来源、日期和待核验项"},
             {"horizon": "30-90 天", "action": "完成客户、成本和伙伴验证", "success_metric": "形成可执行的资源配置门槛"},
             {"horizon": "90 天后", "action": "按证据门槛扩大投入", "success_metric": "重大承诺绑定明确触发条件"},
         ]
     return [
-        {"horizon": "0-30 days", "action": "Build an evidence ledger", "success_metric": "Material claims have sources, dates and validation gaps."},
+        {"horizon": "0-30 days", "action": "Lock down the few public facts that matter most", "success_metric": "Material claims have sources, dates and open proof points."},
         {"horizon": "30-90 days", "action": "Validate customers, cost and partners", "success_metric": "Resource gates are tied to proof points."},
         {"horizon": "After 90 days", "action": "Scale behind evidence gates", "success_metric": "Major commitments have explicit triggers."},
     ]
@@ -1372,8 +1464,8 @@ def _fallback_actions(language: str) -> List[Dict[str, str]]:
 
 def _default_methodology(language: str) -> str:
     if str(language).lower().startswith("zh"):
-        return "本报告基于公开资料检索、来源摘录、事实包抽取和管理层问题拆解生成。所有数字、时间和情景判断在用于投资、交易或运营决策前仍需独立核验。"
-    return "This report is based on public-source collection, excerpt review, fact-pack extraction and executive issue framing. Numeric claims, timelines and scenarios should be independently validated before investment, transaction or operating use."
+        return "本报告基于公开资料检索和来源摘录形成。所有数字、时间和情景判断在用于投资、交易或运营决策前仍需独立核验。"
+    return "This report is based on public-source collection and excerpt review. Numeric claims, timelines and scenarios should be independently validated before investment, transaction or operating use."
 
 
 def _estimate_read_time(report: Dict[str, Any]) -> int:
@@ -1393,6 +1485,14 @@ def _lang_attr(language: str) -> str:
 def _asset(assets: Dict[str, str], key: str) -> str:
     value = str((assets or {}).get(key) or "")
     return "" if value.lower().endswith(".svg") else value
+
+
+def _section_image(assets: Dict[str, str], idx: int) -> str:
+    for key in (f"image-{idx}", f"section-{idx}", f"article-{idx}"):
+        value = _asset(assets, key)
+        if value:
+            return value
+    return ""
 
 
 def _paragraphs(items: List[str]) -> str:
@@ -1458,10 +1558,7 @@ def _text(value: Any) -> str:
 
 
 def _clean_visible_text(text: str) -> str:
-    cleaned = str(text or "")
-    for pattern, replacement in VISIBLE_TEXT_REPLACEMENTS:
-        cleaned = re.sub(pattern, replacement, cleaned, flags=re.I)
-    return re.sub(r"\s+", " ", cleaned).strip()
+    return clean_client_text(text)
 
 
 def _first_text(value: Any) -> str:

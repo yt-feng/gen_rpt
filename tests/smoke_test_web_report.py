@@ -13,6 +13,7 @@ from gen_rpt.brand_assets import copy_or_generate_brand_assets
 from gen_rpt.research_quality import build_research_fact_pack
 from gen_rpt.web_evidence import build_evidence_exhibits, build_evidence_ledger, build_storyline_plan
 from gen_rpt.web_fetch import SourceDocument
+from gen_rpt.web_publication_contract import publication_contract_prompt
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
 
@@ -168,8 +169,8 @@ def main() -> None:
     assert 3 <= len(evidence_exhibits) <= 6
     assert all(exhibit.get("data_basis") for exhibit in evidence_exhibits)
     assert "bar" in {str(exhibit.get("type")) for exhibit in evidence_exhibits}
-    assert any(exhibit.get("evidence_quality") == "market_sizing_bridge" for exhibit in evidence_exhibits)
-    assert any(exhibit.get("evidence_quality") == "hypothesis_evidence_map" for exhibit in evidence_exhibits)
+    assert not any(exhibit.get("evidence_quality") == "opportunity_case" for exhibit in evidence_exhibits)
+    assert not any(exhibit.get("evidence_quality") == "hypothesis_evidence_map" for exhibit in evidence_exhibits)
 
     payload = {
         "title": "AI Can Rebuild the Industrial Talent Model Only If Leaders Treat It as Operating Redesign",
@@ -353,20 +354,51 @@ def main() -> None:
     md_text = md_path.read_text(encoding="utf-8")
     assert "Key Takeaways" in html_text
     assert "article-shell" in html_text
-    assert "Data basis" in html_text
-    assert "opportunity matrix" in html_text.lower()
+    assert "<summary>Sources</summary>" in html_text
     assert "How leaders should move next" not in html_text
     assert "Source base" not in html_text
     assert "Methodology and source boundary" not in html_text
     assert "<h2>Sources</h2>" not in html_text
-    assert "near-term leadership agenda" in html_text
-    assert "Source boundary" in html_text
+    assert "Where to Start" in html_text
+    assert "retained public sources" in html_text
     assert "BlueOcean sample talent cliff article" in html_text
+    forbidden_internal_terms = [
+        "Hypothesis H",
+        "claim H",
+        "hypotheses",
+        "hypothesis-driven",
+        "market sizing",
+        "sizing bridge",
+        "sizing use",
+        "open validation",
+        "public data found",
+        "what to verify next",
+        "fact pack",
+        "evidence ledger",
+        "storyline plan",
+        "structured research plan",
+        "source boundary",
+        "Data basis",
+    ]
+    for forbidden in forbidden_internal_terms:
+        assert forbidden.lower() not in html_text.lower()
     assert "".join(["B", "C", "G"]) not in html_text
     assert "".join(["b", "c", "g"]) not in html_text.lower()
     assert "Why " + "it matters" not in html_text
     assert "# AI Can Rebuild" in md_text
     (out / "web_report_payload.json").write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
+    (out / "publication_contract.json").write_text(
+        json.dumps(
+            {
+                "root_cause": "DeepSeek is coached as a backstage worker; client-visible prose is controlled by a publication contract.",
+                "architecture": ["backstage research workbench", "publication synthesis", "renderer guard", "audit gate"],
+                "client_visible_contract": publication_contract_prompt("en"),
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     (out / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
     (out / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
