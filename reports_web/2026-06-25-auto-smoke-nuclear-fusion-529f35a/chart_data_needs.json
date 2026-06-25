@@ -1,0 +1,205 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Project Milestones vs Actual Timeline",
+    "chart_type": "timeline",
+    "executive_question": "How far behind schedule are key fusion projects, and what is the realistic timeline for first commercial plant?",
+    "required_metrics": [
+      "ITER first plasma date (original vs current)",
+      "SPARC first plasma date",
+      "DEMO first power date",
+      "Net energy gain milestone dates"
+    ],
+    "comparison_set": [
+      "ITER, SPARC, DEMO, CFETR, other major projects"
+    ],
+    "preferred_sources": [
+      "ITER Organization official updates",
+      "Commonwealth Fusion Systems announcements",
+      "DOE Fusion Energy Sciences reports"
+    ],
+    "search_queries": [
+      "ITER timeline delays 2024 official",
+      "SPARC first plasma date 2025",
+      "fusion net energy gain milestone 2025"
+    ],
+    "data_quality_rule": "Use only official project updates or peer-reviewed publications; note any missing dates as evidence gaps.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Levelized Cost of Electricity Comparison: Fusion vs Other Sources",
+    "chart_type": "line",
+    "executive_question": "When, if ever, does fusion become cost-competitive with solar, wind, gas, coal, and nuclear fission?",
+    "required_metrics": [
+      "Fusion LCOE projections (2025-2050)",
+      "Solar PV LCOE (2020-2050)",
+      "Onshore wind LCOE (2020-2050)",
+      "Natural gas LCOE (2020-2050)",
+      "Coal LCOE (2020-2050)",
+      "Nuclear fission LCOE (2020-2050)"
+    ],
+    "comparison_set": [
+      "Fusion vs solar, wind, gas, coal, nuclear fission"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook",
+      "IRENA Renewable Cost Database",
+      "Lazard Levelized Cost of Energy Analysis",
+      "DOE fusion cost studies"
+    ],
+    "search_queries": [
+      "fusion LCOE estimate 2040 DOE",
+      "levelized cost of energy solar wind 2024",
+      "Lazard LCOE 2024"
+    ],
+    "data_quality_rule": "Use publicly available LCOE ranges from authoritative sources; if fusion projections are scarce, note as evidence gap.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Cumulative Investment in Fusion: Public vs Private",
+    "chart_type": "bar",
+    "executive_question": "Who is funding fusion, and is private investment sufficient to overcome technical hurdles?",
+    "required_metrics": [
+      "Annual private fusion investment (2010-2024)",
+      "Annual government fusion funding (2010-2024)",
+      "Cumulative private investment total",
+      "Cumulative government funding total"
+    ],
+    "comparison_set": [
+      "Private vs public (global, by country)"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association reports",
+      "Crunchbase, PitchBook funding data",
+      "DOE budget documents",
+      "ITER budget reports"
+    ],
+    "search_queries": [
+      "fusion startup funding 2024 Crunchbase",
+      "private fusion investment total 2023 Fusion Industry Association",
+      "DOE fusion energy science funding 2024"
+    ],
+    "data_quality_rule": "Use verified funding rounds and government budget allocations; exclude unconfirmed rumors.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Fusion Startup Adoption Funnel: Stages of Development",
+    "chart_type": "bar",
+    "executive_question": "What is the survival rate of fusion companies, and how many are likely to reach commercialization?",
+    "required_metrics": [
+      "Number of fusion startups at concept stage",
+      "Number at prototype stage",
+      "Number that achieved net energy gain",
+      "Number with pilot plant plans",
+      "Number with commercial plant announced"
+    ],
+    "comparison_set": [
+      "Stages: concept, prototype, net energy, pilot, commercial"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association member list",
+      "Company websites and press releases",
+      "DOE technology readiness assessments"
+    ],
+    "search_queries": [
+      "fusion startup list 2024 Fusion Industry Association",
+      "fusion net energy gain achieved companies",
+      "fusion pilot plant announcement 2024"
+    ],
+    "data_quality_rule": "Count only companies with publicly verifiable milestones; note if stage is ambiguous.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Projected Fusion Capacity and Tritium Supply Constraints",
+    "chart_type": "line",
+    "executive_question": "Can tritium supply support projected fusion capacity, and what is the realistic deployment scenario?",
+    "required_metrics": [
+      "Projected fusion capacity (GW) by 2030, 2040, 2050",
+      "Tritium production rate (kg/year) from breeding",
+      "Tritium consumption per reactor (kg/year)",
+      "Lithium resource estimates (tonnes)"
+    ],
+    "comparison_set": [
+      "Capacity projections vs tritium supply scenarios"
+    ],
+    "preferred_sources": [
+      "IAEA tritium reports",
+      "USGS lithium resources",
+      "Fusion industry roadmaps",
+      "IEA fusion deployment scenarios"
+    ],
+    "search_queries": [
+      "tritium supply fusion 2050 IAEA",
+      "lithium resources for fusion USGS",
+      "IEA fusion deployment scenario 2024"
+    ],
+    "data_quality_rule": "Use official data from IAEA and USGS; if tritium breeding ratios are uncertain, show range.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Fusion LCOE Sensitivity to Key Variables",
+    "chart_type": "bubble",
+    "executive_question": "Which variables most affect fusion's cost competitiveness, and what are the optimistic vs pessimistic scenarios?",
+    "required_metrics": [
+      "Fusion LCOE under different capacity factors (70%, 80%, 90%)",
+      "Fusion LCOE under different capital costs ($/kW)",
+      "Fusion LCOE under different discount rates",
+      "Fusion LCOE under different fuel costs"
+    ],
+    "comparison_set": [
+      "Sensitivity scenarios: base, optimistic, pessimistic"
+    ],
+    "preferred_sources": [
+      "DOE fusion cost studies",
+      "MIT fusion study reports",
+      "Academic papers on fusion economics"
+    ],
+    "search_queries": [
+      "fusion LCOE sensitivity analysis DOE",
+      "fusion capital cost estimate 2024",
+      "fusion capacity factor assumption"
+    ],
+    "data_quality_rule": "Use published sensitivity ranges from credible studies; if not available, note as evidence gap.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Regulatory and Policy Milestones for Fusion Commercialization",
+    "chart_type": "timeline",
+    "executive_question": "What regulatory approvals are needed, and what is the expected timeline for licensing a fusion plant?",
+    "required_metrics": [
+      "Date of first fusion regulatory framework (e.g., UK, US)",
+      "Expected licensing timeline (years)",
+      "Number of fusion license applications submitted",
+      "Date of first fusion construction permit"
+    ],
+    "comparison_set": [
+      "Countries: US, UK, Canada, China, Japan"
+    ],
+    "preferred_sources": [
+      "NRC (US) fusion regulatory activities",
+      "UKAEA regulatory framework",
+      "IAEA fusion regulatory documents",
+      "Company announcements on licensing"
+    ],
+    "search_queries": [
+      "NRC fusion regulatory framework 2024",
+      "UK fusion licensing timeline",
+      "fusion construction permit application"
+    ],
+    "data_quality_rule": "Use official regulatory publications and company filings; if no permits exist, state 'none yet'.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  }
+]
