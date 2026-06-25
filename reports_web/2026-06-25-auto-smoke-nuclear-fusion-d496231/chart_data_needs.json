@@ -1,0 +1,193 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Renewables and Fission (2020-2050)",
+    "chart_type": "line",
+    "executive_question": "How does fusion's projected cost compare to existing low-carbon technologies?",
+    "required_metrics": [
+      "Fusion LCOE projections ($/MWh) for 2020-2050",
+      "Solar PV LCOE ($/MWh) historical and forecast",
+      "Onshore wind LCOE ($/MWh) historical and forecast",
+      "Nuclear fission LCOE ($/MWh) historical and forecast"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar, wind, fission"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook",
+      "BNEF New Energy Outlook",
+      "Commonwealth Fusion Systems investor materials"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind nuclear",
+      "IEA LCOE projections 2050 fusion",
+      "Commonwealth Fusion Systems LCOE target"
+    ],
+    "data_quality_rule": "Use only publicly available LCOE estimates; note if fusion projections are company-provided vs. independent.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Cumulative Private Investment in Fusion (2010-2024)",
+    "chart_type": "bar",
+    "executive_question": "Is investor confidence growing or plateauing?",
+    "required_metrics": [
+      "Annual private fusion investment ($M) from 2010 to 2024",
+      "Cumulative private fusion investment ($B) by year"
+    ],
+    "comparison_set": [
+      "Year-over-year investment trend"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "Crunchbase fusion startup funding data",
+      "PitchBook fusion energy deals"
+    ],
+    "search_queries": [
+      "Fusion Industry Association investment report 2024",
+      "fusion energy private funding 2023 Crunchbase",
+      "fusion startup investment total 2024"
+    ],
+    "data_quality_rule": "Cross-reference at least two sources; exclude government grants unless specified as private.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Project Timeline: Key Milestones vs. Delays",
+    "chart_type": "timeline",
+    "executive_question": "Are fusion projects on track or consistently delayed?",
+    "required_metrics": [
+      "Planned milestone dates for ITER, SPARC, STEP, etc.",
+      "Actual milestone achievement dates",
+      "Delay duration (years) per milestone"
+    ],
+    "comparison_set": [
+      "Planned vs. actual for major projects"
+    ],
+    "preferred_sources": [
+      "ITER organization official schedule updates",
+      "Commonwealth Fusion Systems public roadmap",
+      "UK Atomic Energy Authority STEP timeline"
+    ],
+    "search_queries": [
+      "ITER schedule delay 2024 official",
+      "SPARC fusion first plasma timeline",
+      "STEP fusion reactor milestones"
+    ],
+    "data_quality_rule": "Use only official project announcements; note if delays are confirmed by independent sources.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Policy Support for Fusion by Country (2024)",
+    "chart_type": "matrix",
+    "executive_question": "Which governments are providing the most support?",
+    "required_metrics": [
+      "Government fusion R&D funding ($M) per country (2024)",
+      "Tax credit or subsidy value for fusion ($M)",
+      "Regulatory framework existence (binary or score)"
+    ],
+    "comparison_set": [
+      "US, EU, UK, Japan, China, South Korea"
+    ],
+    "preferred_sources": [
+      "US DOE Fusion Energy Strategy",
+      "EU Horizon Europe fusion budget",
+      "UK Fusion Strategy document",
+      "Japan's fusion policy white paper"
+    ],
+    "search_queries": [
+      "US DOE fusion funding 2024",
+      "EU fusion research budget Horizon Europe",
+      "Japan fusion energy policy 2024"
+    ],
+    "data_quality_rule": "Use official government budget documents; note if tax credits are proposed vs. enacted.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Fusion Startup Landscape: Funding, Stage, and Technology",
+    "chart_type": "bubble",
+    "executive_question": "Which startups are best positioned?",
+    "required_metrics": [
+      "Total funding raised ($M) per startup",
+      "Development stage (e.g., concept, prototype, reactor)",
+      "Technology type (tokamak, stellarator, inertial, etc.)"
+    ],
+    "comparison_set": [
+      "Top 20 fusion startups globally"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association member list",
+      "Crunchbase fusion startup profiles",
+      "Company websites and press releases"
+    ],
+    "search_queries": [
+      "fusion startup funding list 2024",
+      "Commonwealth Fusion Systems funding total",
+      "TAE Technologies funding stage"
+    ],
+    "data_quality_rule": "Use latest available funding data; stage classification based on company announcements.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Global Electricity Generation and Fusion Penetration Scenarios",
+    "chart_type": "line",
+    "executive_question": "What share of electricity could fusion supply by 2050?",
+    "required_metrics": [
+      "Global electricity generation (TWh) historical and forecast 2020-2050",
+      "Fusion electricity generation (TWh) under optimistic and pessimistic scenarios"
+    ],
+    "comparison_set": [
+      "Fusion share vs. total generation"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook",
+      "BP Statistical Review of World Energy",
+      "BNEF New Energy Outlook"
+    ],
+    "search_queries": [
+      "IEA global electricity generation 2050 forecast",
+      "BP Statistical Review 2023 electricity data",
+      "fusion market penetration scenario 2050"
+    ],
+    "data_quality_rule": "Use IEA or BP as base; fusion scenarios from expert elicitation or company projections.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion Cost Competitiveness: CAPEX and OPEX Trends",
+    "chart_type": "line",
+    "executive_question": "How do fusion capital and operating costs compare to other technologies?",
+    "required_metrics": [
+      "Fusion plant CAPEX ($/kW) projections",
+      "Fusion plant OPEX ($/MWh) projections",
+      "Solar PV CAPEX ($/kW) historical and forecast",
+      "Nuclear fission CAPEX ($/kW) historical"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar, fission"
+    ],
+    "preferred_sources": [
+      "NREL Annual Technology Baseline",
+      "IEA Projected Costs of Generating Electricity",
+      "Fusion company investor presentations"
+    ],
+    "search_queries": [
+      "NREL ATB 2024 solar CAPEX",
+      "IEA cost of electricity 2024 nuclear",
+      "fusion power plant CAPEX estimate"
+    ],
+    "data_quality_rule": "Use public cost databases; fusion CAPEX from company reports with clear assumptions.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  }
+]

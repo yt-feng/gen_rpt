@@ -1,0 +1,134 @@
+{
+  "core_question": "Should we invest in or prepare for nuclear fusion as a commercially viable energy source within the next 15 years?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: technology, timeline, funding",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+    "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+    "“Crossing this threshold is the vision that has driven 60 years of dedicated pursuit — a continual process of learning, building, expanding knowledge and capability, and then finding ways to overcome the new challenges that emerged.",
+    "That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.”",
+    "“Monday, December 5, 2022, was a historic day in science thanks to the incredible people at Livermore Lab and the National Ignition Facility.",
+    "This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve grid-connected electricity generation before 2035.",
+      "decision_relevance": "Determines near-term investment horizon and R&D focus.",
+      "needed_evidence": [
+        "Published timelines from leading fusion projects (ITER, SPARC, etc.) and independent assessments."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The levelized cost of electricity (LCOE) from fusion will be above $50/MWh by 2050, making it uncompetitive with solar and wind.",
+      "decision_relevance": "Affects long-term cost competitiveness and market adoption.",
+      "needed_evidence": [
+        "LCOE projections from fusion companies and independent studies; historical cost trends for renewables."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Private fusion funding will exceed $10 billion cumulative by 2025, indicating strong investor confidence.",
+      "decision_relevance": "Signals market belief in fusion's potential and capital availability.",
+      "needed_evidence": [
+        "Aggregate funding data from Fusion Industry Association reports and Crunchbase."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Government policy support (e.g., tax credits, R&D grants) is a necessary condition for fusion commercialization before 2040.",
+      "decision_relevance": "Highlights dependency on public sector intervention.",
+      "needed_evidence": [
+        "Policy documents from US DOE, EU, Japan; analysis of fission and renewables policy history."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Fusion will first be commercialized in niche applications (e.g., industrial heat, marine propulsion) rather than grid electricity.",
+      "decision_relevance": "Shifts market entry strategy and target segments.",
+      "needed_evidence": [
+        "Company announcements on pilot projects; feasibility studies for non-electric applications."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The number of fusion startups will decline after 2025 due to consolidation and technology failures.",
+      "decision_relevance": "Indicates industry maturity and risk of investment losses.",
+      "needed_evidence": [
+        "Tracking of startup closures, mergers, and pivots; industry reports."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Fusion will not achieve a significant market share (<1% of global electricity) before 2050.",
+      "decision_relevance": "Sets realistic expectations for market penetration.",
+      "needed_evidence": [
+        "Energy system models (IEA, BNEF) incorporating fusion; expert elicitation studies."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market (TWh) = Global electricity generation (TWh) * fusion penetration rate (%)",
+      "variables": [
+        "Global electricity generation (IEA)",
+        "Fusion penetration rate (expert consensus)"
+      ],
+      "known_limitations": [
+        "Penetration rate is highly uncertain; assumes grid parity and policy support."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size ($) = Number of fusion plants * Average plant capacity (MW) * Capacity factor * Electricity price ($/MWh)",
+      "variables": [
+        "Number of plants (from company pipelines)",
+        "Plant capacity (e.g., 500 MW)",
+        "Capacity factor (e.g., 90%)",
+        "Electricity price (future wholesale)"
+      ],
+      "known_limitations": [
+        "Plant count is speculative; capacity and price assumptions vary widely."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Market size = (Number of potential customers) * (Adoption rate) * (Revenue per customer)",
+      "variables": [
+        "Potential customers: utilities, industrial users",
+        "Adoption rate: based on cost competitiveness",
+        "Revenue per customer: electricity sales or heat"
+      ],
+      "known_limitations": [
+        "Adoption rate is highly dependent on LCOE and policy; customer segmentation is coarse."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value pool = Sum of profits across fusion value chain (fuel, components, O&M, electricity sales)",
+      "variables": [
+        "Profit margins for each segment",
+        "Market share of fusion in each segment"
+      ],
+      "known_limitations": [
+        "Value chain is nascent; profit margins are unknown."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Market size = (Total fusion capacity built) * (Utilization rate) * (Electricity price)",
+      "variables": [
+        "Capacity built: based on announced projects and construction timelines",
+        "Utilization rate: assumed 90%",
+        "Electricity price: long-term average"
+      ],
+      "known_limitations": [
+        "Announced projects may not materialize; construction timelines are optimistic."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs."
+}
