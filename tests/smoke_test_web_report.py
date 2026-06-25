@@ -338,6 +338,12 @@ def main() -> None:
     drifted_normalized = normalize_web_report(drifted_payload, topic="AI and process-industry talent", language="en")
     assert len(drifted_normalized["key_takeaways"]) == 3
     assert "camelCase" in drifted_normalized["key_takeaways"][0]
+    leaky_payload = dict(payload)
+    leaky_payload["intro"] = ["This claim is not in fact pack and was widely cited in earlier writeups."]
+    leaky_normalized = normalize_web_report(leaky_payload, topic="AI and process-industry talent", language="en")
+    leaky_intro = " ".join(leaky_normalized["intro"]).lower()
+    assert "not in fact pack" not in leaky_intro
+    assert "widely cited" not in leaky_intro
 
     html_path = render_web_report_html(payload, assets, out / "index.html", "AI and process-industry talent", "en")
     md_path = render_web_report_markdown(payload, out / "report.md", "AI and process-industry talent", "en")

@@ -15,6 +15,12 @@ THEME = load_theme()
 BRAND_NAME = THEME.get("brand_name", "BlueOcean")
 
 
+VISIBLE_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
+    (r"\bnot\s+(?:included\s+)?in\s+(?:the\s+)?fact\s*[- ]?\s*pack\b", "not validated in the retained source set"),
+    (r"\bwidely\s+cited\b", "commonly referenced"),
+)
+
+
 CSS = """
 :root {
   --forest: #0C2B15;
@@ -1448,7 +1454,14 @@ def _text(value: Any) -> str:
         return ""
     if isinstance(value, list):
         return " ".join(_text(x) for x in value if _text(x))
-    return re.sub(r"\s+", " ", str(value).strip())
+    return _clean_visible_text(re.sub(r"\s+", " ", str(value).strip()))
+
+
+def _clean_visible_text(text: str) -> str:
+    cleaned = str(text or "")
+    for pattern, replacement in VISIBLE_TEXT_REPLACEMENTS:
+        cleaned = re.sub(pattern, replacement, cleaned, flags=re.I)
+    return re.sub(r"\s+", " ", cleaned).strip()
 
 
 def _first_text(value: Any) -> str:
