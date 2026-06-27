@@ -75,7 +75,7 @@ def _extract_ai_score(review_dir: Path) -> float:
         # Common patterns: {"overall": 87.5} or {"scores": {"overall": 87.5}}
         if isinstance(data, dict):
             return float(
-                data.get("overall", data.get("total", data.get("ai_score", 0)))
+                data.get("overall_score", data.get("overall", data.get("total", data.get("ai_score", 0))))
                 or 0
             )
     except Exception:
