@@ -1,0 +1,224 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Project Milestones and Commercialization Timeline",
+    "chart_type": "timeline",
+    "executive_question": "When will fusion achieve grid-scale commercialization?",
+    "required_metrics": [
+      "Project name (ITER, SPARC, STEP, etc.)",
+      "Milestone (first plasma, net energy, commercial operation)",
+      "Target year (original and current)",
+      "Status (on track, delayed, completed)"
+    ],
+    "comparison_set": [
+      "ITER, SPARC (CFS), STEP (UK), DEMO (EU), KSTAR, EAST"
+    ],
+    "preferred_sources": [
+      "ITER Organization official schedule",
+      "Commonwealth Fusion Systems announcements",
+      "UK Atomic Energy Authority STEP updates",
+      "IAEA Fusion Device Information System"
+    ],
+    "search_queries": [
+      "ITER baseline schedule 2024 milestone dates",
+      "SPARC first plasma target year 2025",
+      "STEP fusion commercial operation date 2040"
+    ],
+    "data_quality_rule": "Use official project updates; note any schedule changes and sources of delay.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Anchor the report's central claim that fusion is not imminent by showing concrete milestones and delays.",
+    "pre_exhibit_context": "Many stakeholders assume fusion is 10 years away; this exhibit tests that assumption with actual project schedules.",
+    "post_exhibit_takeaway": "Even the most advanced projects target net-energy demonstration in the 2030s, with commercial plants unlikely before 2040."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Levelized Cost of Electricity (LCOE) Comparison by Technology",
+    "chart_type": "bar",
+    "executive_question": "How does fusion LCOE compare to other energy sources?",
+    "required_metrics": [
+      "Technology (fusion, fission, solar PV, onshore wind, gas combined cycle)",
+      "LCOE range (low, high, median) in $/MWh",
+      "Year of estimate (e.g., 2024, 2030, 2035)",
+      "Source (Lazard, IEA, developer)"
+    ],
+    "comparison_set": [
+      "Fusion (first-of-a-kind), fission (new build), solar PV, onshore wind, gas CCGT"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook LCOE projections",
+      "Commonwealth Fusion Systems LCOE targets",
+      "NREL Annual Technology Baseline"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind gas",
+      "IEA projected LCOE fusion 2035",
+      "Commonwealth Fusion Systems LCOE target $/MWh"
+    ],
+    "data_quality_rule": "Use published ranges; if fusion LCOE is not available from independent sources, note as developer estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrate that fusion is currently uncompetitive and likely to remain so for decades.",
+    "pre_exhibit_context": "Fusion advocates claim cost parity; this exhibit provides independent LCOE estimates.",
+    "post_exhibit_takeaway": "First-of-a-kind fusion LCOE is projected at $100-200/MWh, well above solar ($20-40) and wind ($30-60) by 2035."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Cumulative Investment in Fusion Energy (Public and Private)",
+    "chart_type": "bar",
+    "executive_question": "Who is funding fusion and how much?",
+    "required_metrics": [
+      "Year (annual from 2010 to 2024)",
+      "Investment amount ($ billion)",
+      "Type (public government, private equity, venture capital)",
+      "Entity (US DOE, EU, China, private companies)"
+    ],
+    "comparison_set": [
+      "Public vs private investment by year"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual investment reports",
+      "US DOE fusion budget requests",
+      "EU Horizon Europe fusion funding",
+      "PitchBook/Crunchbase fusion startup funding data"
+    ],
+    "search_queries": [
+      "Fusion Industry Association investment report 2024",
+      "US DOE fusion energy budget 2024",
+      "private fusion funding total 2024 billion"
+    ],
+    "data_quality_rule": "Use official budget documents and verified funding rounds; note any estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show the scale of capital flowing into fusion and the gap to commercial viability.",
+    "pre_exhibit_context": "Fusion has attracted billions but needs much more; this exhibit quantifies the investment trajectory.",
+    "post_exhibit_takeaway": "Private fusion investment reached $6 billion by 2024, but $50 billion+ may be needed for commercial plants."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Fusion Energy Adoption Scenarios to 2050",
+    "chart_type": "line",
+    "executive_question": "What is the potential market size for fusion under different scenarios?",
+    "required_metrics": [
+      "Year (2025, 2030, 2035, 2040, 2045, 2050)",
+      "Fusion capacity (GW) or generation (TWh)",
+      "Scenario (optimistic, moderate, pessimistic)",
+      "Source (IEA, BloombergNEF, expert elicitation)"
+    ],
+    "comparison_set": [
+      "Three scenarios (optimistic, moderate, pessimistic) over time"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook (fusion scenarios)",
+      "BloombergNEF New Energy Outlook",
+      "Expert elicitation studies (e.g., MIT, IAEA)"
+    ],
+    "search_queries": [
+      "IEA fusion capacity forecast 2050",
+      "BloombergNEF fusion energy outlook 2024",
+      "fusion expert elicitation adoption curve 2050"
+    ],
+    "data_quality_rule": "If only two endpoints are available, use CAGR from a credible forecast and mark intermediate years as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Illustrate that fusion will remain a niche source for decades even under optimistic assumptions.",
+    "pre_exhibit_context": "Market forecasts vary widely; this exhibit shows a range of credible adoption curves.",
+    "post_exhibit_takeaway": "Under all scenarios, fusion provides less than 1% of global electricity by 2035 and at most 5% by 2050."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Government Fusion R&D Funding by Country (Annual)",
+    "chart_type": "line",
+    "executive_question": "How is government funding for fusion evolving?",
+    "required_metrics": [
+      "Year (annual from 2015 to 2025)",
+      "Funding amount ($ million, real or nominal)",
+      "Country/region (US, EU, China, Japan, UK)",
+      "Source (government budget documents)"
+    ],
+    "comparison_set": [
+      "US, EU, China, Japan, UK over time"
+    ],
+    "preferred_sources": [
+      "US DOE budget justifications",
+      "European Commission Horizon Europe budget",
+      "China Ministry of Science and Technology reports",
+      "Japan Ministry of Education, Culture, Sports, Science and Technology"
+    ],
+    "search_queries": [
+      "US DOE fusion energy budget 2025 request",
+      "EU Horizon Europe fusion funding 2021-2027",
+      "China fusion R&D budget 2024"
+    ],
+    "data_quality_rule": "Use official budget figures; adjust for inflation if comparing real growth; note currency conversions.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Support the hypothesis that policy support is increasing but still insufficient to accelerate timelines dramatically.",
+    "pre_exhibit_context": "Government funding is a key driver; this exhibit shows trends in major economies.",
+    "post_exhibit_takeaway": "US and EU fusion budgets have grown ~20% annually since 2020, but remain below $1 billion each per year."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Tritium Supply vs. Demand for Fusion Plants",
+    "chart_type": "bubble",
+    "executive_question": "Is tritium availability a bottleneck for fusion deployment?",
+    "required_metrics": [
+      "Entity (CANDU reactors, ITER, future breeders)",
+      "Tritium production rate (kg/year)",
+      "Year (current or projected)",
+      "Tritium consumption per fusion plant (kg/GW-year)"
+    ],
+    "comparison_set": [
+      "Tritium supply sources vs. demand from planned fusion plants"
+    ],
+    "preferred_sources": [
+      "IAEA Tritium Supply and Demand reports",
+      "Fusion engineering studies (e.g., FESS-FNSF)",
+      "Canadian Nuclear Laboratories (CANDU tritium production)"
+    ],
+    "search_queries": [
+      "IAEA tritium supply 2024 report",
+      "tritium consumption per fusion reactor kg per year",
+      "CANDU tritium production rate kg/year"
+    ],
+    "data_quality_rule": "Use official IAEA data; note that tritium breeding is not yet demonstrated at scale.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlight a hidden constraint that could limit the number of fusion plants.",
+    "pre_exhibit_context": "Tritium is a rare radioactive isotope needed for fusion fuel; its supply is limited.",
+    "post_exhibit_takeaway": "Current tritium production (~0.5 kg/year) supports only a few demonstration plants; breeding technology is unproven."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Regulatory and Licensing Progress for Fusion Plants",
+    "chart_type": "timeline",
+    "executive_question": "Which countries are best positioned to host first fusion plants?",
+    "required_metrics": [
+      "Country (US, UK, China, Japan, EU)",
+      "Regulatory milestone (draft framework, public consultation, final rule, license application)",
+      "Date (year/quarter)",
+      "Status (proposed, in progress, enacted)"
+    ],
+    "comparison_set": [
+      "US, UK, China, Japan, EU"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission (NRC) fusion rulemaking",
+      "UK Department for Business, Energy & Industrial Strategy fusion regulation",
+      "China National Nuclear Safety Administration",
+      "Japan Nuclear Regulation Authority"
+    ],
+    "search_queries": [
+      "NRC fusion regulatory framework 2024",
+      "UK fusion licensing framework 2023",
+      "China fusion reactor regulatory approval"
+    ],
+    "data_quality_rule": "Use official government publications; note if regulations are still in draft form.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show that regulatory frameworks are still being developed, creating uncertainty.",
+    "pre_exhibit_context": "Fusion lacks a clear licensing pathway; this exhibit tracks regulatory milestones.",
+    "post_exhibit_takeaway": "Only the UK and US have proposed fusion-specific regulations; other countries rely on fission frameworks."
+  }
+]

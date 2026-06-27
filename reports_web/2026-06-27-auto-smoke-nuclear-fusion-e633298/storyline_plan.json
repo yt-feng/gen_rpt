@@ -1,0 +1,138 @@
+{
+  "core_question": "Should our organization invest in or prepare for nuclear fusion energy within the next decade?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, adoption, technology",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the Milestone Program).",
+    "Department of Energy (DOE) today announced $107 million in funding for six projects in the Fusion Innovative Research Engine (FIRE) Collaboratives , and that several privately funded fusion companies have completed early critical-path science and technology (S&T) milestones in the Milestone-Based Fusion Development Program (“the Milestone Program”)."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve commercial grid-scale electricity generation before 2040.",
+      "decision_relevance": "If true, near-term investment in fusion is premature; focus on other clean energy technologies.",
+      "needed_evidence": [
+        "Timeline projections from major fusion projects (ITER, SPARC, etc.), expert surveys, and historical delays in fusion research."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The levelized cost of electricity (LCOE) from first-of-a-kind fusion plants will be >$100/MWh, making it uncompetitive with renewables and gas by 2035.",
+      "decision_relevance": "If true, fusion will require subsidies or carbon pricing to compete; affects ROI projections.",
+      "needed_evidence": [
+        "Published LCOE estimates from fusion developers, academic studies, and comparison with projected renewables LCOE."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Government funding for fusion R&D will increase by at least 50% in real terms by 2030, driven by climate and energy security concerns.",
+      "decision_relevance": "If true, it signals strong policy support and reduces technology risk; may accelerate timelines.",
+      "needed_evidence": [
+        "Historical and projected government fusion budgets (US, EU, Japan, China, UK), policy announcements."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Private fusion companies will require at least $50 billion in cumulative investment before achieving commercial viability.",
+      "decision_relevance": "If true, the capital intensity may limit the number of successful players and increase consolidation risk.",
+      "needed_evidence": [
+        "Total private fusion investment to date, capital requirements per company, burn rates, and funding rounds."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The first commercial fusion power plant will be built in a country with strong government support and existing nuclear infrastructure, likely the US, UK, or China.",
+      "decision_relevance": "If true, geographic focus for investment and partnerships should target these regions.",
+      "needed_evidence": [
+        "Regulatory progress, site selection announcements, government partnerships, and grid integration plans."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Fusion energy will initially be adopted for industrial heat and hydrogen production rather than electricity generation.",
+      "decision_relevance": "If true, market sizing should focus on industrial applications, not just power generation.",
+      "needed_evidence": [
+        "Developer announcements, pilot projects for non-electric applications, and industrial heat market size."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "By 2035, fusion will capture less than 1% of global electricity generation, even under optimistic scenarios.",
+      "decision_relevance": "If true, fusion will have negligible impact on energy markets in the next decade; long-term strategic positioning only.",
+      "needed_evidence": [
+        "Adoption curve models, capacity projections from IEA and BloombergNEF, and expert consensus."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total Addressable Market (TAM) = Global electricity generation (kWh) × fusion share (%)",
+      "variables": [
+        "Global electricity generation (IEA)",
+        "Fusion share scenarios (0.1%-5% by 2050)"
+      ],
+      "known_limitations": [
+        "Assumes fusion can replace baseload; ignores grid integration constraints"
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Number of fusion plants × Average plant capacity (GW) × Capacity factor × Hours × Price ($/MWh)",
+      "variables": [
+        "Number of plants (from developer timelines)",
+        "Plant capacity (e.g., 0.5-1 GW)",
+        "Capacity factor (90% assumed)",
+        "Wholesale electricity price"
+      ],
+      "known_limitations": [
+        "Highly uncertain plant count and timing; depends on regulatory and technical success"
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Adoption = (R&D success rate) × (Regulatory approval rate) × (Commercial deployment rate) × (Market penetration rate)",
+      "variables": [
+        "R&D success probability (expert surveys)",
+        "Regulatory approval probability",
+        "Deployment rate (plants/year)",
+        "Market penetration (share of new capacity)"
+      ],
+      "known_limitations": [
+        "Subjective probabilities; analogies may not hold"
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value pool = Revenue from electricity sales + Carbon credits + Capacity payments + Other (hydrogen, heat)",
+      "variables": [
+        "Electricity revenue (MWh × price)",
+        "Carbon price ($/ton)",
+        "Capacity market payments",
+        "Industrial heat market size"
+      ],
+      "known_limitations": [
+        "Carbon and capacity markets vary by region; uncertain future prices"
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Potential fusion capacity = (Tritium availability) / (Tritium consumption per plant) × Plant capacity",
+      "variables": [
+        "Global tritium production (kg/year)",
+        "Tritium consumption per fusion plant (kg/GW-year)",
+        "Number of plants"
+      ],
+      "known_limitations": [
+        "Tritium breeding technology not yet demonstrated; supply constraints may limit deployment"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
