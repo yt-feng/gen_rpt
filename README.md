@@ -44,8 +44,11 @@
 ## 项目结构
 
 ```text
-gen_rpt/
-├── .github/workflows/generate_deep_research.yml
+gen_rpt-main/
+├── .github/workflows/
+│   ├── generate_deep_research.yml
+│   ├── generate_review.yml
+│   └── publish_reports_pages.yml
 ├── branding/
 │   ├── theme.json
 │   └── logo.svg
@@ -53,6 +56,7 @@ gen_rpt/
 │   ├── brand_assets.py
 │   ├── deepseek_client.py
 │   ├── graphics.py
+│   ├── main_web.py
 │   ├── pdf_qa.py
 │   ├── pdf_renderer.py
 │   ├── ppt_renderer.py
@@ -61,7 +65,13 @@ gen_rpt/
 │   ├── research_pipeline.py
 │   ├── theme.py
 │   └── web_fetch.py
-├── reports/
+├── review_system/             # Groq/Llama AI 策略与事实评审模块
+├── storage/                   # Cloudflare R2 存储与 Catalog/Manifest 注册模块
+├── tools/                     # 本地报告审计与重渲染辅助脚本
+├── shared/                    # 结构化数据 Schema 共享定义
+├── reports/                   # 本地生成报告存档目录
+├── reports_web/               # Web 格式报告与静态发布目录
+├── review_outputs/            # AI 评审结果产出目录
 ├── requirements.txt
 ├── .env.example
 └── README.md
@@ -69,45 +79,34 @@ gen_rpt/
 
 ## 工作流说明
 
-仓库里已经带了一个手动触发的 GitHub Actions：
+仓库自动化流程包含三个协同工作的 GitHub Actions 工作流：
 
-- Workflow 名称：`Generate Deep Research Report`
-- 触发方式：`Actions -> Generate Deep Research Report -> Run workflow`
-- 输入参数：
-  - `topic`：你的研究选题，可以直接输入一段话
-  - `slug`：可选，自定义输出目录名
-  - `language`：`zh` 或 `en`
-  - `target_length`：可选，目标篇幅；留空时中文默认 3000、英文默认 1500
-  - `model`：默认 `deepseek-chat`
+1. **`Generate Deep Research Report`** (`generate_deep_research.yml`)
+   - 触发方式：`push` 触发或 `Actions -> Generate Deep Research Report -> Run workflow` 手动触发。
+   - 输入参数：`topic`（研究选题）、`slug`（输出目录名）、`model`（默认 `deepseek-chat`）。
+   - 运行完成后，结果写入 `reports_web/YYYY-MM-DD-your-topic-slug/` 并通过 `storage.upload_report` 同步至 R2 存储。
 
-运行完成后，生成结果会写入：
+2. **`Generate AI Review`** (`generate_review.yml`)
+   - 触发方式：在报告生成工作流成功完成后自动触发 (`workflow_run`)。
+   - 运行 Groq/Llama 3.3 对新生成的报告进行同行评审与事实核查，结果写入 `review_outputs/YYYY-MM-DD-your-topic-slug/` 并通过 `storage.upload_review` 更新 R2 存储中的 manifest 和 catalog。
+
+3. **`Publish Reports to GitHub Pages`** (`publish_reports_pages.yml`)
+   - 触发方式：`reports_web/**` 代码推送或报告生成完成后自动触发。
+   - 自动构建包含最新报告与目录索引的静态站点并发布至 GitHub Pages。
+
+运行与产出产物结构示例：
 
 ```text
-reports/YYYY-MM-DD-your-topic-slug/
-  report.html
-  report.md
-  report.pdf
-  report.pptx
-  presentation.html
-  qa_result.json
-  report_quality.json
-  research_fact_pack.json
-  report_payload.json
-  research_plan.json
+reports_web/YYYY-MM-DD-your-topic-slug/
+  index.html
+  web_report_payload.json
+  evidence_ledger.json
+  analysis_framework.json
+  chart_data_needs.json
+  storyline_plan.json
   sources.json
   assets/
-    brand-logo.svg
-    cover-background.png
-    card-1.png
-    chart-1.png
   backup/
-    reference_notes.md
-    source_01.txt
-    source_02.txt
-    qa/
-      pdf_qa.json
-      page_001.png
-      page_002.png
 ```
 
 ## 事实包、内容 QA 与 PDF QA
@@ -325,12 +324,11 @@ DEEPSEEK_API_KEY=your_deepseek_api_key_here
 
 ```bash
 export DEEPSEEK_API_KEY=你的key
-python -m gen_rpt.main \
-  --topic "生成一份关于 AI Agent 市场演进、竞争格局与商业化路径的深度研究报告" \
-  --language zh \
-  --target-length 3000 \
+python -m gen_rpt.main_web \
+  --topic "Nuclear fusion commercialization outlook and strategic implications" \
+  --language en \
   --model deepseek-chat \
-  --out-root reports
+  --out-root reports_web
 ```
 
 ## 报告生成逻辑
