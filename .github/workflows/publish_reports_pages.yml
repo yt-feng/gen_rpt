@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
@@ -36,6 +38,7 @@ jobs:
           import html
           import json
           import shutil
+          import subprocess
           from pathlib import Path
 
           root = Path("reports_web")
@@ -48,8 +51,18 @@ jobs:
           if root.exists():
               shutil.copytree(root, target)
 
+          def report_sort_key(report_dir: Path) -> tuple[int, str]:
+              try:
+                  timestamp = subprocess.check_output(
+                      ["git", "log", "-1", "--format=%ct", "--", str(report_dir / "index.html")],
+                      text=True,
+                  ).strip()
+                  return int(timestamp or "0"), report_dir.name
+              except Exception:
+                  return 0, report_dir.name
+
           reports = []
-          for report_dir in sorted(root.glob("20*/"), key=lambda p: p.name, reverse=True):
+          for report_dir in sorted(root.glob("20*/"), key=report_sort_key, reverse=True):
               index = report_dir / "index.html"
               payload = report_dir / "web_report_payload.json"
               if not index.exists():
