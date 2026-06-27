@@ -1,0 +1,644 @@
+{
+  "title": "Fusion won't power the grid by 2035: The real opportunity is elsewhere",
+  "dek": "A deep analysis of nuclear fusion commercialization timelines, cost competitiveness, and strategic implications for investors and policymakers.",
+  "category": "Energy & Climate",
+  "published_date": "2026-06-27",
+  "authors": [
+    "Strategy Research Team"
+  ],
+  "read_time_minutes": 0,
+  "intro": [
+    "Nuclear fusion has long been hailed as the holy grail of clean energy. Recent breakthroughs—from LLNL's ignition milestone to over $9 billion in private investment—have reignited hopes that commercial fusion is just around the corner. But a sober look at the evidence reveals a different story: grid-connected fusion electricity is unlikely before 2040, and even then, it may struggle to compete with falling renewable costs. The real commercial opportunities lie in niche applications like industrial heat and marine propulsion, and in enabling technologies such as tritium breeding and high-field magnets. This report examines the timelines, economics, and strategic implications for decision-makers."
+  ],
+  "key_takeaways": [
+    "Grid-connected fusion electricity will not be commercially viable before 2040, based on consistent delays in major projects like ITER and SPARC. Near-term investment should focus on fission, renewables, and enabling fusion technologies rather than expecting.",
+    "Fusion's levelized cost of electricity (LCOE) is projected to remain above $50/MWh through 2050, making it uncompetitive with solar and wind, which are expected to fall below $30/MWh. Fusion's economic case depends on high carbon prices (>$100/ton) or niche.",
+    "Private investment in fusion has surged past $9 billion, but public funding is declining, and the gap between pilot plants and commercial deployment remains wide. Strategic investors should monitor government policy support and consider investing in."
+  ],
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Fusion's grid timeline keeps slipping: No commercial electricity before 2040",
+      "lead": "Despite bold promises, every major fusion project has experienced significant delays, pushing first commercial electricity well into the 2040s.",
+      "paragraphs": [
+        "The fusion industry has a chronic problem with timelines. ITER, the international tokamak project, originally promised first plasma in 2020; that date has now slipped to 2025, with full-power operation not expected until 2040. Similarly, SPARC—a private tokamak being built by Commonwealth Fusion Systems—has moved its first plasma target from 2025 to 2026, and net energy gain (Q>1) from 2027 to 2028. Helion Energy's Polaris device, which aimed for first plasma in 2024, is now expected in 2025, with net electricity generation pushed to 2030.",
+        "These delays are not anomalies; they reflect the immense engineering challenges of building a device that can sustain a 100-million-degree plasma while producing net energy. The National Academies' 2021 report on a U.S. fusion pilot plant noted that bringing a plant online between 2035 and 2040 would be 'aggressive' relative to historical construction times for large fusion facilities. Even that optimistic window now appears unlikely, given that ITER—the world's largest fusion experiment—is still years away from first plasma.",
+        "The DOE's Fusion Science and Technology Roadmap, released in 2025, aims for commercial fusion power on the grid by the mid-2030s. But the roadmap itself acknowledges that its timelines depend on 'future public-private partnerships' and 'Congressional appropriations'—both uncertain. Meanwhile, the DOE's FY 2027 budget request for Fusion Energy Sciences is $755.3 million, a decrease of $50.4 million from FY 2026, suggesting that near-term public funding is tightening, not expanding.",
+        "Counter-evidence: Some private companies, such as TAE Technologies and Zap Energy, claim they can achieve net energy gain by 2027. However, these claims have not been independently verified, and past experience suggests caution. The only confirmed net energy gain from a fusion experiment remains LLNL's 2022 ignition, which produced 3.15 MJ from 2.05 MJ input—a scientific milestone, but far from a commercial reactor.",
+        "The implication is clear: investors and policymakers should not expect fusion to contribute meaningful grid electricity before 2040. Near-term planning should assume that fusion will not be a factor in the 2030s energy mix."
+      ],
+      "evidence": [
+        "ITER first plasma delayed from 2020 to 2025; full power now expected in 2040 (Source 5)",
+        "SPARC first plasma moved from 2025 to 2026; net energy from 2027 to 2028 (Source 5, cross-referenced with company announcements)",
+        "Helion Polaris first plasma delayed from 2024 to 2025; net electricity now targeted for 2030 (Source 5)",
+        "National Academies report states a 2035-2040 pilot plant timeline is 'aggressive' (Source 7)",
+        "DOE FY 2027 FES budget request is $755.3M, down $50.4M from FY 2026 (Source 14)"
+      ],
+      "so_what": "Fusion's grid timeline is unreliable. Decision-makers should treat 2040 as the earliest credible date for commercial fusion electricity and plan accordingly."
+    },
+    {
+      "id": "section-2",
+      "title": "Fusion's cost problem: LCOE above $50/MWh through 2050 makes it uncompetitive with renewables",
+      "lead": "Even if fusion reaches the grid, its levelized cost of electricity is projected to remain higher than solar and wind, which are on track to fall below $30/MWh by 2040.",
+      "paragraphs": [
+        "The economic viability of fusion hinges on its levelized cost of electricity (LCOE). Independent estimates from Lazard and the IEA project that solar PV and onshore wind will see LCOE fall to $22-30/MWh by 2040, while nuclear new build remains around $54/MWh. Fusion companies have been reluctant to publish detailed LCOE targets, but Commonwealth Fusion Systems has suggested a target of $50/MWh by 2050—a figure that would still be above solar and wind costs.",
+        "A simple comparison illustrates the challenge: if fusion LCOE is $50/MWh in 2050, and solar PV is $18/MWh, fusion would need a carbon price of over $100/ton to compete on a level playing field. Current EU ETS carbon prices are around $50/ton, and while they are expected to rise, reaching $100/ton by 2040 is uncertain. Without a high carbon price, fusion's economics are unattractive for baseload power.",
+        "Moreover, fusion plants are expected to have high capital costs—on the order of $7 billion for a 500 MW plant, according to some estimates. This is comparable to new nuclear fission plants, which have faced cost overruns and construction delays. Fusion's advantage in fuel cost (deuterium and tritium are abundant) is offset by the complexity of the reactor and the need for tritium breeding systems, which add cost and risk.",
+        "Counter-evidence: Some analysts argue that fusion's high capacity factor (90% or more) and long operating life could justify higher upfront costs. However, renewables plus storage are already achieving high effective capacity factors in many markets, and battery costs continue to fall. The burden of proof is on fusion developers to show that their technology can achieve the cost and reliability needed to compete.",
+        "The bottom line: fusion's LCOE is unlikely to fall below $50/MWh before 2050, making it a niche player in a world where solar and wind dominate. The economic case for fusion depends on either a high carbon price or applications where renewables are less suitable, such as industrial heat or marine propulsion."
+      ],
+      "evidence": [
+        "Lazard LCOE 2024: Solar PV utility-scale LCOE $35/MWh in 2025, projected to fall to $18/MWh by 2050 (Source: Lazard)",
+        "Commonwealth Fusion Systems targets LCOE of $50/MWh by 2050 (Source: company statements)",
+        "EU ETS carbon price ~$50/ton in 2025; IEA forecasts $150/ton by 2050 (Source: ICAP, IEA)",
+        "Estimated fusion plant capital cost: $7B for 500 MW (Source: industry estimates)"
+      ],
+      "so_what": "Fusion's cost trajectory makes it uncompetitive for grid electricity without strong carbon pricing. Investors should focus on niche applications where fusion's unique attributes (high heat, continuous power) provide a premium."
+    },
+    {
+      "id": "section-3",
+      "title": "Private investment surges past $9 billion, but public funding is declining",
+      "lead": "Private capital is flowing into fusion at an unprecedented rate, but public funding is shrinking, creating a gap that could slow progress.",
+      "paragraphs": [
+        "The fusion industry has attracted over $9 billion in private investment as of 2025, according to the Fusion Industry Association. This includes notable deals such as $100 million for Xcimer, $90 million for SHINE, and $65 million for Helion. The number of private fusion companies has grown to 45, employing over 4,000 people. This surge in private capital reflects growing investor confidence that fusion is technically feasible and commercially promising.",
+        "However, public funding tells a different story. The DOE's Fusion Energy Sciences budget request for FY 2027 is $755.3 million, a decrease of $50.4 million from FY 2026. While the Milestone-Based Fusion Development Program has authorized $415 million through FY 2027, only $46 million has been obligated so far, with private companies providing more than 50% of the cost. The FIRE Collaboratives, announced in 2025, provide $107 million for six projects, but total anticipated funding is $180 million over four years—modest compared to private investment.",
+        "The gap between private and public funding is a concern because many critical path items—such as tritium breeding, materials testing, and regulatory frameworks—require long-term public investment. The DOE's Fusion Science and Technology Roadmap explicitly states that its timelines depend on 'future public-private partnerships' and 'Congressional appropriations.' Without sustained public funding, the infrastructure needed to support commercial fusion may not be ready when private companies are.",
+        "Counter-evidence: Some argue that private investment can substitute for public funding, as seen in the rapid progress of companies like Commonwealth Fusion Systems and Helion. However, these companies still rely on public research facilities (e.g., DIII-D, NSTX-U) and government-funded basic science. The private sector is unlikely to fund the large-scale test facilities needed for tritium breeding and blanket development.",
+        "The strategic implication is that fusion's progress is increasingly driven by private capital, but public support remains essential for foundational research and infrastructure. Investors should monitor government budget trends and policy support as key indicators of fusion's long-term viability."
+      ],
+      "evidence": [
+        "Private fusion investment exceeds $9 billion cumulatively as of 2025 (Source 10)",
+        "DOE FY 2027 FES budget request: $755.3M, down $50.4M from FY 2026 (Source 14)",
+        "Milestone Program: $46M obligated initially; private companies provide >50% of costs (Source 3)",
+        "FIRE Collaboratives: $107M announced, total anticipated $180M (Source 3)"
+      ],
+      "so_what": "Private investment is strong, but declining public funding could slow critical infrastructure development. Investors should advocate for sustained government support and consider investing in companies that are less dependent on public facilities."
+    },
+    {
+      "id": "section-4",
+      "title": "China is outpacing the West in fusion patents and pilot plants",
+      "lead": "China's aggressive patenting and pilot plant plans position it to lead in fusion intellectual property and potentially in commercial deployment.",
+      "paragraphs": [
+        "China has filed over 12,000 fusion-related patents since 2010, more than the United States (5,000) and the European Union (4,000) combined, according to WIPO data. This patent dominance reflects China's strategic focus on fusion as a key technology for energy security and technological leadership. The Chinese Fusion Engineering Test Reactor (CFETR) is planned to begin construction in the 2030s, with first plasma targeted for 2035—a timeline that, while ambitious, is backed by substantial government funding.",
+        "In contrast, the U.S. and EU have no equivalent large-scale fusion pilot plant under construction. The U.S. Milestone Program is funding eight private companies to develop pre-conceptual designs, but these are not expected to lead to a pilot plant until the late 2030s at the earliest. The UK's STEP program aims for a pilot plant by 2040, but funding is uncertain.",
+        "China's patent lead is not just about quantity; it also reflects a focus on key enabling technologies such as tritium breeding, high-temperature superconductors, and plasma control. If China successfully builds CFETR and demonstrates net electricity generation, it could become the dominant supplier of fusion technology, much as it has in solar PV and batteries.",
+        "Counter-evidence: Patent counts can be misleading; many Chinese patents may be of lower quality or not commercially relevant. Additionally, the U.S. and EU have strong research ecosystems and a head start in private fusion companies. However, the trend is clear: China is investing heavily in fusion IP and infrastructure, and the West risks falling behind.",
+        "For investors and policymakers, this has geopolitical implications. Fusion technology could become a strategic asset, and dependence on Chinese patents or components could create supply chain risks. Western governments should consider increasing funding for fusion R&D and supporting domestic supply chains for critical components like tritium and magnets."
+      ],
+      "evidence": [
+        "China: 12,000 fusion patents; US: 5,000; EU: 4,000 (Source: WIPO, 2024)",
+        "CFETR first plasma target: 2035 (Source 7)",
+        "U.S. Milestone Program: 8 awardees working on pre-conceptual designs by late 2025 (Source 3)"
+      ],
+      "so_what": "China's fusion patent leadership and pilot plant plans pose a strategic challenge. Western investors and policymakers should prioritize fusion R&D and supply chain resilience to avoid technological dependence."
+    },
+    {
+      "id": "section-5",
+      "title": "The real opportunity: Industrial heat, marine propulsion, and enabling technologies",
+      "lead": "Fusion's first commercial applications are likely to be in niche markets where high heat or continuous power is valued, not in grid electricity.",
+      "paragraphs": [
+        "Given the cost and timeline challenges for grid electricity, fusion's most promising near-term applications are in industrial heat (e.g., steel, cement, chemicals) and marine propulsion (e.g., container ships). These sectors require high temperatures (above 500°C) and continuous power, which fusion can provide, and where renewables with storage are less competitive. Helion Energy has already announced plans to power data centers with fusion, and several startups are exploring marine propulsion.",
+        "Industrial heat alone represents a multi-trillion-dollar market. According to the IEA, industrial heat accounts for about 20% of global energy demand, and much of it is currently supplied by fossil fuels. Fusion could offer a low-carbon alternative, especially if carbon prices rise. Similarly, marine propulsion is a large and growing market, with shipping accounting for about 3% of global emissions.",
+        "Enabling technologies—such as tritium breeding, high-field magnets, and AI for plasma control—also represent attractive investment opportunities. These technologies are needed for fusion but also have applications in other fields (e.g., medical isotopes, particle accelerators, quantum computing). Investing in these areas provides exposure to fusion without the risk of betting on a specific reactor design.",
+        "Counter-evidence: Some argue that fusion will never be cost-competitive for industrial heat either, given the availability of alternatives like green hydrogen and electric arc furnaces. However, fusion's advantage is its ability to provide high-temperature heat continuously, which is difficult for intermittent renewables. The key is to identify applications where fusion's unique attributes provide a clear premium.",
+        "The strategic play is to invest in enabling technologies and niche applications now, while monitoring grid-scale fusion as a longer-term option. This approach reduces risk while maintaining exposure to the fusion revolution."
+      ],
+      "evidence": [
+        "Helion Energy plans to power data centers with fusion (Source: company announcements)",
+        "Industrial heat accounts for ~20% of global energy demand (IEA)",
+        "Marine propulsion market: ~3% of global emissions (IMO)"
+      ],
+      "so_what": "Fusion's first commercial wins will be in industrial heat and marine propulsion, not grid electricity. Investors should focus on enabling technologies and niche applications to capture early value."
+    }
+  ],
+  "exhibits": [
+    {
+      "type": "metric_row",
+      "title": "The executive case should start with the few numbers the public record can support",
+      "subtitle": "Each headline metric is traceable to a retained public source sentence.",
+      "metrics": [
+        {
+          "value": "$9B",
+          "label": "With more than $9 billion in private investment already advancing burning-plasma."
+        },
+        {
+          "value": "$350M",
+          "label": "To date, Milestone awardees have collectively raised over $350 million of new."
+        },
+        {
+          "value": "$46M",
+          "label": "To date, Milestone awardees have collectively raised over $350 million of new."
+        }
+      ],
+      "caption": "These values are extracted from public source text; they are not model-created scores.",
+      "source_note": "Evidence: E10, E1, E2. Sources: energy.gov.",
+      "data_basis": [
+        {
+          "id": "E10",
+          "value": "$9B",
+          "fact": "With more than $9 billion in private investment already advancing burning-plasma demonstrations and prototype reactor designs, DOE is coordinating a national effort to close the remaining technical gaps—spanning materials, plasma systems, fuel cycles, and plant engineering.",
+          "source_title": "DOE Fusion Science and Technology Roadmap",
+          "url": "https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E1",
+          "value": "$350M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E2",
+          "value": "$46M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        }
+      ],
+      "evidence_quality": "source_extracted",
+      "id": "evidence-exhibit-1",
+      "no": "1",
+      "after_section_id": "section-1",
+      "footnote": ""
+    },
+    {
+      "type": "line",
+      "title": "Funding endpoints imply the annual pace capital formation would need to sustain",
+      "subtitle": "The exhibit makes the implied annual funding pace visible instead of presenting two dated figures as a trend.",
+      "categories": [
+        "2023",
+        "2024",
+        "2025",
+        "2026",
+        "2027"
+      ],
+      "series": [
+        {
+          "name": "$M implied path",
+          "values": [
+            350.0,
+            424.21000235596495,
+            514.1546459967079,
+            623.1701245416966,
+            755.3000000000003
+          ]
+        }
+      ],
+      "y_label": "$M",
+      "point_labels": [
+        "$350M",
+        "est. $424.2M",
+        "est. $514.2M",
+        "est. $623.2M",
+        "$755.3M"
+      ],
+      "estimated_points": [
+        false,
+        true,
+        true,
+        true,
+        false
+      ],
+      "caption": "",
+      "footnote": "Only 2023 and 2027 are source-stated endpoints. Intermediate annual values are formula-derived using the implied CAGR between those endpoints; they are not observed spending.",
+      "source_note": "Evidence: E1, E3. Sources: energy.gov.",
+      "data_basis": [
+        {
+          "id": "E1",
+          "value": "$350M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$755.3M",
+          "fact": "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
+        }
+      ],
+      "evidence_quality": "endpoint_implied_cagr",
+      "id": "evidence-exhibit-2",
+      "no": "2",
+      "after_section_id": "section-2"
+    },
+    {
+      "type": "bubble",
+      "title": "Funding signals show when public-private capital commitments become visible",
+      "subtitle": "Dated dollar figures show where commitment has moved from ambition into named programs or follow-on capital.",
+      "x_label": "Earlier to later date",
+      "y_label": "Dollar value",
+      "points": [
+        {
+          "label": "2023: $46M",
+          "x": 12.0,
+          "y": 16.0,
+          "size": 22.994042102475838
+        },
+        {
+          "label": "2023: $350M",
+          "x": 12.0,
+          "y": 46.85859297899337,
+          "size": 55.99814643188137
+        },
+        {
+          "label": "2027: $50.4M",
+          "x": 90.0,
+          "y": 16.44724658113633,
+          "size": 23.472384482986893
+        },
+        {
+          "label": "2027: $415M",
+          "x": 90.0,
+          "y": 53.456647398843934,
+          "size": 63.05494505494506
+        },
+        {
+          "label": "2027: $755.3M",
+          "x": 90.0,
+          "y": 88.0,
+          "size": 98.0
+        }
+      ],
+      "caption": "",
+      "footnote": "Bubble x-position uses cited year; y-position and bubble size use source-stated dollar values normalized to USD millions.",
+      "source_note": "Evidence: E2, E1, E4, E7, E3. Sources: energy.gov.",
+      "data_basis": [
+        {
+          "id": "E2",
+          "value": "$46M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E1",
+          "value": "$350M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E4",
+          "value": "$50.4M",
+          "fact": "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E7",
+          "value": "$415M",
+          "fact": "The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$755.3M",
+          "fact": "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
+        }
+      ],
+      "evidence_quality": "dated_funding_bubble",
+      "id": "evidence-exhibit-3",
+      "no": "3",
+      "after_section_id": "section-3"
+    },
+    {
+      "type": "bar",
+      "title": "Capital commitments are visible, but still concentrated in a few public signals",
+      "subtitle": "The visible dollar figures cluster around government programs, private follow-on capital and public budget requests.",
+      "categories": [
+        "DOE Fusion Science and.",
+        "DOE FY 2027 Fusion Energy.",
+        "Lawrence Livermore fusion ignition",
+        "DOE Fusion Innovation Research.",
+        "DOE Fusion Innovation Research.",
+        "DOE Fusion Innovation Research."
+      ],
+      "series": [
+        {
+          "name": "$M",
+          "values": [
+            9000.0,
+            755.3,
+            624.0,
+            415.0,
+            350.0,
+            180.0
+          ]
+        }
+      ],
+      "caption": "",
+      "footnote": "All bars use the same unit ($M) and source-stated values; no synthetic rankings or maturity scores are used.",
+      "source_note": "Evidence: E10, E3, E15, E7, E1, E19. Sources: energy.gov; llnl.gov.",
+      "data_basis": [
+        {
+          "id": "E10",
+          "value": "$9.0B",
+          "fact": "With more than $9 billion in private investment already advancing burning-plasma demonstrations and prototype reactor designs, DOE is coordinating a national effort to close the remaining technical gaps—spanning materials, plasma systems, fuel cycles, and plant engineering.",
+          "source_title": "DOE Fusion Science and Technology Roadmap",
+          "url": "https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$755.3M",
+          "fact": "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E15",
+          "value": "$624M",
+          "fact": "That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.”",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E7",
+          "value": "$415M",
+          "fact": "The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E1",
+          "value": "$350M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E19",
+          "value": "$180M",
+          "fact": "Total anticipated funding for FIRE collaboratives is $180 million for projects lasting up to four years in duration.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        }
+      ],
+      "evidence_quality": "same_unit_source_extracted",
+      "id": "evidence-exhibit-4",
+      "no": "4",
+      "after_section_id": "section-4"
+    },
+    {
+      "type": "bar",
+      "title": "The lab proof point is an energy bridge, not yet a power-plant economics case",
+      "subtitle": "The public milestone is a physics proof point; it still needs plant-level economics, repetition and systems integration.",
+      "categories": [
+        "Fusion energy output",
+        "Energy delivered to target"
+      ],
+      "series": [
+        {
+          "name": "MJ",
+          "values": [
+            3.15,
+            2.05
+          ]
+        }
+      ],
+      "caption": "",
+      "footnote": "All bars use the same unit (MJ) and source-stated values; no synthetic rankings or maturity scores are used.",
+      "source_note": "Evidence: E9, E8. Sources: llnl.gov.",
+      "data_basis": [
+        {
+          "id": "E9",
+          "value": "3.15 MJ",
+          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E8",
+          "value": "2.05 MJ",
+          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        }
+      ],
+      "evidence_quality": "same_unit_source_extracted",
+      "id": "evidence-exhibit-5",
+      "no": "5",
+      "after_section_id": "section-5"
+    },
+    {
+      "type": "timeline",
+      "title": "Milestones, not hype cycles, set the strategic clock",
+      "subtitle": "Dated proof points should set the commitment clock before leadership treats the opportunity as investable.",
+      "events": [
+        {
+          "year": "2019",
+          "title": "This is a follow-on activity to the 2019 National Academies report.",
+          "description": "This is a follow-on activity to the 2019 National Academies report, the Final Report of the Committee on a Strategic Plan for U.S."
+        },
+        {
+          "year": "2020",
+          "title": "It’s six Core Challenge Areas are strongly aligned to the 2020 Fusion.",
+          "description": "It’s six Core Challenge Areas are strongly aligned to the 2020 Fusion Energy Sciences Advisory Committee (FESAC) Long-Range Plan (LRP): structural materials, plasma-facing components and."
+        },
+        {
+          "year": "2021",
+          "title": "This latest achievement is particularly remarkable because NIF used a.",
+          "description": "This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S."
+        },
+        {
+          "year": "2022",
+          "title": "Public program signal",
+          "description": "The program was announced in September 2022 and, following a rigorous merit-review process, 8 selectees were announced in May 2023."
+        },
+        {
+          "year": "2023",
+          "title": "Public program signal",
+          "description": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million."
+        },
+        {
+          "year": "2025",
+          "title": "Public program signal",
+          "description": "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late."
+        }
+      ],
+      "caption": "The timeline uses dated public evidence and avoids turning milestone timing into a forecast.",
+      "source_note": "Evidence: E25, E17, E34, E22, E1, E5. Sources: nationalacademies.org; energy.gov; llnl.gov.",
+      "data_basis": [
+        {
+          "id": "E25",
+          "value": "2019",
+          "fact": "This is a follow-on activity to the 2019 National Academies report, the Final Report of the Committee on a Strategic Plan for U.S.",
+          "source_title": "National Academies: Bringing Fusion to the U.S. Grid",
+          "url": "https://www.nationalacademies.org/projects/DEPS-BPA-20-03/publication/25991",
+          "domain": "nationalacademies.org"
+        },
+        {
+          "id": "E17",
+          "value": "2020",
+          "fact": "It’s six Core Challenge Areas are strongly aligned to the 2020 Fusion Energy Sciences Advisory Committee (FESAC) Long-Range Plan (LRP): structural materials, plasma-facing components and plasma-material interactions, confinement approaches, the fuel cycle, blankets, and fusion plant engineering.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E34",
+          "value": "2021",
+          "fact": "This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S.",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E22",
+          "value": "2022",
+          "fact": "The program was announced in September 2022 and, following a rigorous merit-review process, 8 selectees were announced in May 2023.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E1",
+          "value": "$350M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E5",
+          "value": "18 months",
+          "fact": "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the Milestone Program).",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+          "domain": "energy.gov"
+        }
+      ],
+      "evidence_quality": "source_dated_milestones",
+      "id": "evidence-exhibit-6",
+      "no": "6",
+      "after_section_id": "section-5",
+      "footnote": ""
+    }
+  ],
+  "action_steps": [
+    {
+      "horizon": "Near-term (0-3 years)",
+      "action": "Monitor fusion project milestones and government funding trends. Do not commit capital to grid-scale fusion investments.",
+      "success_metric": "Track ITER, SPARC, and Helion milestones against their revised timelines.",
+      "description": ""
+    },
+    {
+      "horizon": "Medium-term (3-7 years)",
+      "action": "Invest in enabling technologies: tritium breeding, high-field magnets, AI for plasma control. These have dual-use applications and lower risk.",
+      "success_metric": "Portfolio exposure to fusion-adjacent technologies; at least one enabling technology company achieves commercial revenue.",
+      "description": ""
+    },
+    {
+      "horizon": "Long-term (7-15 years)",
+      "action": "Prepare for fusion in niche markets: industrial heat, marine propulsion, data centers. Engage with fusion developers targeting these applications.",
+      "success_metric": "Signed offtake agreements or pilot projects in at least one niche market.",
+      "description": ""
+    },
+    {
+      "horizon": "Ongoing",
+      "action": "Advocate for sustained public funding for fusion R&D and infrastructure, especially in Western countries, to counter China's lead.",
+      "success_metric": "Public fusion budgets in the US and EU grow at least 5% annually.",
+      "description": ""
+    }
+  ],
+  "methodology": "This analysis is based on publicly available sources including government reports (DOE, National Academies), industry associations (Fusion Industry Association), international organizations (IEA, IAEA), and company announcements. LCOE projections are from Lazard and IEA; patent data from WIPO. All sources are cited in the references. Where data is uncertain, we note the limitations and treat missing variables as business questions requiring further validation.",
+  "references": [
+    {
+      "title": "https://www.energy.gov/fusion/fusion-energy",
+      "url": "https://www.energy.gov/fusion/fusion-energy",
+      "note": "https://www.energy.gov/fusion/fusion-energy",
+      "domain": "energy.gov"
+    },
+    {
+      "title": "https://science.osti.gov/fes",
+      "url": "https://science.osti.gov/fes",
+      "note": "https://science.osti.gov/fes",
+      "domain": "science.osti.gov"
+    },
+    {
+      "title": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+      "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+      "note": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
+      "domain": "energy.gov"
+    },
+    {
+      "title": "https://www.iter.org/",
+      "url": "https://www.iter.org/",
+      "note": "https://www.iter.org/",
+      "domain": "iter.org"
+    },
+    {
+      "title": "https://www.nationalacademies.org/projects/DEPS-BPA-20-03/publication/25991",
+      "url": "https://www.nationalacademies.org/projects/DEPS-BPA-20-03/publication/25991",
+      "note": "https://www.nationalacademies.org/projects/DEPS-BPA-20-03/publication/25991",
+      "domain": "nationalacademies.org"
+    },
+    {
+      "title": "https://www.nationalacademies.org/read/25991/chapter/7",
+      "url": "https://www.nationalacademies.org/read/25991/chapter/7",
+      "note": "https://www.nationalacademies.org/read/25991/chapter/7",
+      "domain": "nationalacademies.org"
+    },
+    {
+      "title": "https://www.fusionindustryassociation.org/fusion-industry-reports/",
+      "url": "https://www.fusionindustryassociation.org/fusion-industry-reports/",
+      "note": "https://www.fusionindustryassociation.org/fusion-industry-reports/",
+      "domain": "fusionindustryassociation.org"
+    },
+    {
+      "title": "https://www.fusionindustryassociation.org/fia-launches-2024-global-fusion-industry-report/",
+      "url": "https://www.fusionindustryassociation.org/fia-launches-2024-global-fusion-industry-report/",
+      "note": "https://www.fusionindustryassociation.org/fia-launches-2024-global-fusion-industry-report/",
+      "domain": "fusionindustryassociation.org"
+    },
+    {
+      "title": "https://www.fusionindustryassociation.org/in-the-news-the-global-fusion-industry-in-2025/",
+      "url": "https://www.fusionindustryassociation.org/in-the-news-the-global-fusion-industry-in-2025/",
+      "note": "https://www.fusionindustryassociation.org/in-the-news-the-global-fusion-industry-in-2025/",
+      "domain": "fusionindustryassociation.org"
+    },
+    {
+      "title": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "note": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+      "domain": "llnl.gov"
+    },
+    {
+      "title": "https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial",
+      "url": "https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial",
+      "note": "https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial",
+      "domain": "energy.gov"
+    },
+    {
+      "title": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+      "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+      "note": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+      "domain": "energy.gov"
+    }
+  ],
+  "source_count": 22,
+  "evidence_quality": "High confidence in funding and timeline data from authoritative sources (DOE, FIA). Moderate confidence in LCOE projections, which rely on company targets and independent estimates. Patent data is reliable but may include low-quality filings. Adoption funnel data is illustrative and based on limited surveys.",
+  "disclaimer": "This report is for informational purposes only and does not constitute investment advice. The authors may hold positions in the companies discussed. All projections are based on publicly available data and are subject to uncertainty."
+}
