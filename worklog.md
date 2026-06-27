@@ -160,3 +160,13 @@
   - **Data Schemas**: Defined typed `dataclass` contracts for catalog entries, manifests, reviews, and reports (`storage/schemas/`).
   - **GitHub Actions Integration**: Added conditional R2 upload steps to both [generate_deep_research.yml](file:///d:/BlueOcean/gen_rpt-main/.github/workflows/generate_deep_research.yml) and [generate_review.yml](file:///d:/BlueOcean/gen_rpt-main/.github/workflows/generate_review.yml). Steps only run when R2 secrets are set; existing workflow behavior fully preserved.
   - **Testing**: Created 6 test modules with 31 tests covering all phases. Ran against live R2 bucket — **31/31 PASSED** in 3m 12s.
+
+# Worklog - June 23, 2026 (01:06:20)
+
+## Tasks Completed
+
+- **R2 Storage Upload & Activity Logs**:
+  - Implemented centralized logging tracking scripts for Cloudflare R2 uploads, manifest updates, and catalog index updates.
+  - Added dedicated activity logs under `storage/logs/` ([r2_upload.log](file:///d:/BlueOcean/gen_rpt-main/storage/logs/r2_upload.log), [manifest_update.log](file:///d:/BlueOcean/gen_rpt-main/storage/logs/manifest_update.log), [catalog_update.log](file:///d:/BlueOcean/gen_rpt-main/storage/logs/catalog_update.log)) to record automated updates.
+- **Test Report & AI Review Artifacts**:
+  - Generated and uploaded a mock report (`TEST-00001`) with complete AI review findings, scoring outputs, and Markdown files to verify the backend-to-R2 pipeline integration.
