@@ -5,7 +5,7 @@ name: Generate AI Review
 # If report generation fails this workflow does NOT run.
 on:
   workflow_run:
-    workflows: ["Generate Deep Research Report"]
+    workflows: ["Generate HTML Thought Leadership Report"]
     types: [completed]
 
 # ─── Permissions ────────────────────────────────────────────────────────────
@@ -69,9 +69,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Find directories under reports/ that contain a report.md
+          # Find directories under reports/ or reports_web/ that contain a report.md
           REPORT_DIR=$(
-            find reports -maxdepth 2 -name "report.md" -printf '%T@ %h\n' \
+            find reports reports_web -maxdepth 2 -name "report.md" -printf '%T@ %h\n' \
               2>/dev/null \
             | sort -nr \
             | head -1 \
