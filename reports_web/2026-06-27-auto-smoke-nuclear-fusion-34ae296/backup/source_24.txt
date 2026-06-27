@@ -1,0 +1,16 @@
+Title: General Fusion demonstration program
+URL: https://generalfusion.com/technology/
+Source Type: snippet
+Domain: generalfusion.com
+Content Type: text/plain
+Search Query: Fusion Industry Association annual report 2024
+
+General Fusion demonstration program
+
+Company technology page for magnetized target fusion development.
+
+Source URL retained for public-source review: https://generalfusion.com/technology/
+
+Search context: Fusion Industry Association annual report 2024
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

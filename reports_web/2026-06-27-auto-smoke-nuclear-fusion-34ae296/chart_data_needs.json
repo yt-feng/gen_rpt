@@ -1,0 +1,205 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Solar, Wind, and Fission (2030–2050)",
+    "chart_type": "line",
+    "executive_question": "How does fusion LCOE compare to solar, wind, and fission in 2030, 2040, and 2050?",
+    "required_metrics": [
+      "Year: 2030, 2040, 2050",
+      "Fusion LCOE ($/MWh) – median and range",
+      "Solar PV LCOE ($/MWh)",
+      "Onshore wind LCOE ($/MWh)",
+      "Nuclear fission LCOE ($/MWh)"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar PV, onshore wind, nuclear fission"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook",
+      "IRENA Renewable Power Generation Costs",
+      "Lazard Levelized Cost of Energy Analysis",
+      "Fusion Industry Association reports"
+    ],
+    "search_queries": [
+      "IEA World Energy Outlook 2024 LCOE solar wind nuclear",
+      "IRENA renewable power generation costs 2024 LCOE",
+      "Lazard levelized cost of energy 2024 fusion estimate"
+    ],
+    "data_quality_rule": "Use official or widely cited estimates; note if fusion LCOE is from developer projections or independent studies.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Fusion Startup Funding and Milestone Timeline",
+    "chart_type": "bubble",
+    "executive_question": "Which fusion companies have the most funding and what are their milestones?",
+    "required_metrics": [
+      "Company name",
+      "Total funding ($B) – cumulative to 2024",
+      "Target first commercial operation year",
+      "Current stage (R&D, demo, pilot)"
+    ],
+    "comparison_set": [
+      "Private fusion companies (e.g., Commonwealth Fusion Systems, Helion Energy, TAE Technologies, General Fusion, Zap Energy)"
+    ],
+    "preferred_sources": [
+      "Crunchbase",
+      "PitchBook",
+      "Company press releases",
+      "Fusion Industry Association annual report"
+    ],
+    "search_queries": [
+      "fusion startup funding total 2024 Crunchbase",
+      "Commonwealth Fusion Systems funding round 2024",
+      "Helion Energy commercial plant target date"
+    ],
+    "data_quality_rule": "Cross-reference funding data from at least two sources; milestone dates from official company announcements.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Projected Market Size for Fusion by Application (2050)",
+    "chart_type": "bar",
+    "executive_question": "What is the projected market size for fusion in electricity, industrial heat, and hydrogen by 2050?",
+    "required_metrics": [
+      "Application: Electricity, Industrial heat, Hydrogen",
+      "Market value ($B/year) in 2050 – low, base, high scenarios",
+      "Global electricity market value ($B) in 2050",
+      "Industrial heat market size ($B) in 2050",
+      "Hydrogen market size ($B) in 2050"
+    ],
+    "comparison_set": [
+      "Fusion value pools across applications"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook",
+      "Hydrogen Council",
+      "Grand View Research",
+      "BloombergNEF"
+    ],
+    "search_queries": [
+      "global electricity market value 2050 IEA",
+      "industrial heat market size 2050 Grand View Research",
+      "hydrogen market size 2050 Hydrogen Council"
+    ],
+    "data_quality_rule": "Use publicly available market reports; note if fusion share is assumed.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Tritium Supply vs. Fusion Reactor Demand",
+    "chart_type": "bar",
+    "executive_question": "How does tritium supply constrain fusion deployment?",
+    "required_metrics": [
+      "Year: 2030, 2040, 2050",
+      "Tritium supply (kg/year) – from CANDU reactors, other sources",
+      "Tritium demand per reactor (kg/year) – for 500 MW fusion plant",
+      "Maximum number of reactors supportable"
+    ],
+    "comparison_set": [
+      "Tritium supply vs. demand scenarios"
+    ],
+    "preferred_sources": [
+      "IAEA Tritium reports",
+      "Fusion engineering papers (e.g., Abdou et al.)",
+      "Canadian Nuclear Laboratories"
+    ],
+    "search_queries": [
+      "tritium supply fusion reactors IAEA 2024",
+      "tritium consumption per fusion reactor kg/year",
+      "CANDU tritium production 2024"
+    ],
+    "data_quality_rule": "Use IAEA or peer-reviewed data; if supply data is classified, note as uncertain.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory Timeline for Fusion Licensing by Country",
+    "chart_type": "timeline",
+    "executive_question": "What is the regulatory timeline for fusion licensing in key countries?",
+    "required_metrics": [
+      "Country: US, EU, China, Japan",
+      "Regulatory milestone: Proposed rule, public comment, final rule, first license issuance",
+      "Expected year for each milestone"
+    ],
+    "comparison_set": [
+      "US (NRC), EU (Euratom), China (CAEA), Japan (NRA)"
+    ],
+    "preferred_sources": [
+      "U.S. Nuclear Regulatory Commission (NRC) – fusion regulatory framework",
+      "IAEA fusion safety standards",
+      "Chinese government policy documents",
+      "Japan Atomic Energy Agency"
+    ],
+    "search_queries": [
+      "NRC fusion regulatory framework proposed rule 2024",
+      "IAEA fusion safety standards 2023",
+      "China fusion regulatory policy 2024"
+    ],
+    "data_quality_rule": "Use official regulatory publications; if timeline is not public, note as TBD.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Fusion LCOE Projections with Uncertainty Bands (2030–2050)",
+    "chart_type": "line",
+    "executive_question": "What is the expected range of fusion LCOE over time?",
+    "required_metrics": [
+      "Year: 2030, 2035, 2040, 2045, 2050",
+      "Fusion LCOE ($/MWh) – low, median, high estimates",
+      "Source of each estimate"
+    ],
+    "comparison_set": [
+      "Multiple fusion LCOE estimates from different sources"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association",
+      "MIT Energy Initiative",
+      "Imperial College London studies",
+      "BloombergNEF"
+    ],
+    "search_queries": [
+      "fusion LCOE estimate 2050 MIT",
+      "fusion levelized cost of energy range 2040",
+      "BloombergNEF fusion cost 2024"
+    ],
+    "data_quality_rule": "Include only estimates from published reports; note if estimates are from developers or independent analysts.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion Project Pipeline: Capacity and Status",
+    "chart_type": "bar",
+    "executive_question": "What is the planned capacity and status of major fusion projects?",
+    "required_metrics": [
+      "Project name",
+      "Country",
+      "Planned capacity (MW)",
+      "Current status (R&D, construction, operational)",
+      "Expected completion year"
+    ],
+    "comparison_set": [
+      "Major fusion projects (ITER, SPARC, CFETR, DEMO, private projects)"
+    ],
+    "preferred_sources": [
+      "ITER Organization",
+      "Commonwealth Fusion Systems",
+      "Chinese CFETR team",
+      "Fusion Industry Association"
+    ],
+    "search_queries": [
+      "ITER project status 2024 capacity",
+      "SPARC fusion plant capacity MW",
+      "CFETR timeline 2024 capacity"
+    ],
+    "data_quality_rule": "Use official project updates; if capacity is not final, note as planned.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  }
+]

@@ -1,0 +1,503 @@
+{
+  "objective": "Assess the commercial viability and strategic implications of nuclear fusion energy, focusing on timeline, cost competitiveness, and market entry scenarios.",
+  "audience": "Energy investors, corporate strategists, and policy makers evaluating long-term energy portfolios.",
+  "decision_question": "Should we invest in or prepare for nuclear fusion as a commercially viable energy source within the next 15 years?",
+  "issue_tree": {
+    "1_technology_readiness": {
+      "sub_issues": [
+        "plasma confinement approaches",
+        "engineering milestones",
+        "scaling challenges"
+      ]
+    },
+    "2_economics": {
+      "sub_issues": [
+        "levelized cost of electricity (LCOE)",
+        "capital expenditure",
+        "operating costs"
+      ]
+    },
+    "3_market_adoption": {
+      "sub_issues": [
+        "regulatory pathways",
+        "grid integration",
+        "public acceptance"
+      ]
+    },
+    "4_competitive_landscape": {
+      "sub_issues": [
+        "fusion vs. renewables vs. fission",
+        "private vs. public funding",
+        "geopolitical dynamics"
+      ]
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve grid-connected electricity generation before 2035.",
+      "decision_relevance": "Determines investment horizon and interim technology focus.",
+      "needed_evidence": [
+        "Published timelines from leading fusion projects (ITER, SPARC, private firms) and independent assessments."
+      ],
+      "search_queries": [
+        "ITER schedule delays 2024",
+        "SPARC fusion timeline 2025",
+        "Commonwealth Fusion Systems commercial plant date"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The levelized cost of fusion electricity will be above $50/MWh by 2050, making it uncompetitive with solar and wind.",
+      "decision_relevance": "Affects long-term cost competitiveness and market share.",
+      "needed_evidence": [
+        "LCOE estimates from fusion developers, academic studies, and comparison with renewable LCOE trends."
+      ],
+      "search_queries": [
+        "fusion LCOE estimate 2050",
+        "levelized cost of energy fusion vs solar",
+        "IRENA renewable cost 2024"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Private fusion companies will require over $50 billion in cumulative investment before first commercial plant.",
+      "decision_relevance": "Indicates capital intensity and risk for investors.",
+      "needed_evidence": [
+        "Funding data from Crunchbase, PitchBook, and company filings; capital expenditure projections."
+      ],
+      "search_queries": [
+        "fusion startup funding total 2024",
+        "Helion Energy funding round",
+        "TAE Technologies investment"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Regulatory frameworks for fusion will be modeled after fission, causing 10+ year licensing delays.",
+      "decision_relevance": "Impacts time-to-market and cost overruns.",
+      "needed_evidence": [
+        "Regulatory proposals from NRC, IAEA, and national regulators; comparison with fission licensing timelines."
+      ],
+      "search_queries": [
+        "NRC fusion regulatory framework 2024",
+        "IAEA fusion safety standards",
+        "fusion licensing timeline"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Fusion will first be adopted for industrial heat and hydrogen production, not electricity generation.",
+      "decision_relevance": "Identifies early market entry points and revenue streams.",
+      "needed_evidence": [
+        "Industry reports on industrial heat demand, hydrogen production costs, and fusion pilot projects for non-electric applications."
+      ],
+      "search_queries": [
+        "fusion industrial heat application",
+        "hydrogen production fusion",
+        "fusion pilot plant non-electric"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "China will lead fusion commercialization due to state-backed investment and relaxed regulatory environment.",
+      "decision_relevance": "Geopolitical implications for energy independence and technology leadership.",
+      "needed_evidence": [
+        "Chinese fusion budget, project timelines (CFETR), and policy documents."
+      ],
+      "search_queries": [
+        "CFETR timeline 2024",
+        "China fusion investment budget",
+        "Chinese fusion regulatory policy"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Public opposition to fusion will be minimal compared to fission, reducing deployment barriers.",
+      "decision_relevance": "Affects site selection and project approval speed.",
+      "needed_evidence": [
+        "Public opinion surveys, social media analysis, and case studies of fusion public engagement."
+      ],
+      "search_queries": [
+        "public perception fusion energy survey",
+        "fusion vs fission public acceptance",
+        "NIMBY fusion"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Nuclear fusion commercialization outlook and strategic implications, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "top-down",
+        "formula": "Total addressable market = global electricity generation (kWh) × fusion share assumption",
+        "variables": [
+          "global electricity generation (IEA)",
+          "fusion penetration rate (0.5%-5% by 2050)"
+        ],
+        "preferred_sources": [
+          "IEA World Energy Outlook",
+          "BP Statistical Review"
+        ],
+        "search_queries": [
+          "global electricity generation 2050 IEA",
+          "IEA net zero scenario electricity"
+        ],
+        "known_limitations": [
+          "Highly sensitive to penetration rate assumption; ignores regional variations"
+        ]
+      },
+      {
+        "method": "bottom-up",
+        "formula": "Market size = number of fusion plants × average plant capacity (MW) × capacity factor × electricity price",
+        "variables": [
+          "number of plants (from project pipelines)",
+          "plant capacity (200-500 MW)",
+          "capacity factor (90% assumed)",
+          "wholesale electricity price ($30-60/MWh)"
+        ],
+        "preferred_sources": [
+          "Fusion Industry Association reports",
+          "company websites",
+          "EIA electricity price data"
+        ],
+        "search_queries": [
+          "fusion plant capacity 2024",
+          "fusion capacity factor estimate",
+          "wholesale electricity price US 2024"
+        ],
+        "known_limitations": [
+          "Uncertain plant count; assumes technology maturity"
+        ]
+      },
+      {
+        "method": "adoption_funnel",
+        "formula": "Market size = (R&D stage → demo → commercial) conversion rates × investment per stage",
+        "variables": [
+          "number of R&D projects",
+          "demo success rate (10-30%)",
+          "commercial conversion rate (5-15%)",
+          "investment per demo ($1-5B)"
+        ],
+        "preferred_sources": [
+          "Fusion Industry Association member list",
+          "Crunchbase",
+          "PitchBook"
+        ],
+        "search_queries": [
+          "fusion demo projects 2024",
+          "fusion R&D funding stages",
+          "fusion startup success rate"
+        ],
+        "known_limitations": [
+          "Conversion rates are speculative; limited historical data"
+        ]
+      },
+      {
+        "method": "value_pool",
+        "formula": "Value pool = electricity market value + industrial heat value + hydrogen value + other applications",
+        "variables": [
+          "electricity market value (global electricity sales)",
+          "industrial heat market size",
+          "hydrogen market size"
+        ],
+        "preferred_sources": [
+          "IEA",
+          "Hydrogen Council",
+          "Grand View Research"
+        ],
+        "search_queries": [
+          "industrial heat market size 2030",
+          "hydrogen market size 2050",
+          "global electricity sales value"
+        ],
+        "known_limitations": [
+          "Overlaps between segments; double-counting risk"
+        ]
+      },
+      {
+        "method": "supply_side_sizing",
+        "formula": "Market size = (available tritium supply / tritium consumption per reactor) × reactor output",
+        "variables": [
+          "tritium supply (kg/year)",
+          "tritium consumption per reactor (kg/year)",
+          "reactor output (MWh)"
+        ],
+        "preferred_sources": [
+          "IAEA tritium reports",
+          "fusion engineering papers"
+        ],
+        "search_queries": [
+          "tritium supply fusion 2024",
+          "tritium breeding ratio",
+          "fusion tritium consumption per reactor"
+        ],
+        "known_limitations": [
+          "Tritium supply is a critical bottleneck; data is scarce and uncertain"
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Nuclear fusion commercialization outlook and strategic implications milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "IEA World Energy Outlook 2024 electricity generation",
+    "IRENA renewable power generation costs 2024",
+    "Fusion Industry Association annual report 2024",
+    "ITER project schedule 2024 delays",
+    "Commonwealth Fusion Systems SPARC timeline",
+    "Helion Energy funding round 2024",
+    "TAE Technologies investment total",
+    "NRC fusion regulatory framework proposed rule",
+    "IAEA fusion safety standards 2023",
+    "public opinion fusion energy survey 2024",
+    "tritium supply fusion reactors IAEA",
+    "CFETR China fusion engineering test reactor timeline",
+    "global industrial heat market size 2030",
+    "hydrogen production cost 2030 electrolysis",
+    "fusion patent filings 2023 USPTO",
+    "levelized cost of energy fusion 2050 estimate",
+    "ITER schedule delays 2024",
+    "SPARC fusion timeline 2025"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Company filings (10-K, annual reports)",
+      "Government reports (DOE, IAEA, IEA)",
+      "Industry associations (Fusion Industry Association)",
+      "Academic journals (Nuclear Fusion, Nature Energy)"
+    ],
+    "secondary": [
+      "Authoritative media (Reuters, Bloomberg, FT)",
+      "Consulting reports (McKinsey, BCG, BloombergNEF)",
+      "Patent databases (USPTO, WIPO)"
+    ],
+    "validation": [
+      "Cross-reference funding data from Crunchbase and PitchBook",
+      "Compare LCOE estimates from multiple sources",
+      "Verify timelines with official project updates"
+    ]
+  },
+  "outline": [
+    "1. Fusion is not coming before 2035: Evidence from project timelines and engineering challenges.",
+    "2. Fusion will struggle to compete with renewables on cost: LCOE projections and renewable learning curves.",
+    "3. The first fusion plants will serve industrial heat and hydrogen, not the grid.",
+    "4. China is poised to lead fusion commercialization due to state backing and regulatory speed.",
+    "5. Investment risk remains high: $50B+ needed before first commercial plant, with uncertain returns."
+  ],
+  "exhibit_ideas": [
+    {
+      "id": "E1",
+      "question": "How does fusion LCOE compare to solar, wind, and fission in 2030, 2040, and 2050?",
+      "type": "line chart with uncertainty bands"
+    },
+    {
+      "id": "E2",
+      "question": "Which fusion companies have the most funding and what are their milestones?",
+      "type": "bubble chart (funding vs. timeline) with company names"
+    },
+    {
+      "id": "E3",
+      "question": "What is the projected market size for fusion in electricity, industrial heat, and hydrogen by 2050?",
+      "type": "stacked bar chart showing value pools"
+    },
+    {
+      "id": "E4",
+      "question": "How does tritium supply constrain fusion deployment?",
+      "type": "scenario table showing reactors possible vs. tritium availability"
+    },
+    {
+      "id": "E5",
+      "question": "What is the regulatory timeline for fusion licensing in key countries?",
+      "type": "Gantt chart comparing US, EU, China, Japan"
+    }
+  ],
+  "risks": [
+    "Overreliance on optimistic private company timelines; need to cross-check with independent experts.",
+    "LCOE comparisons may be outdated if renewable costs continue to fall faster than expected.",
+    "Tritium supply data is scarce and may be classified; alternative assumptions needed.",
+    "Public opinion data may be limited; consider proxy indicators like social media sentiment.",
+    "Geopolitical factors (e.g., China's role) may shift rapidly; monitor policy changes."
+  ]
+}

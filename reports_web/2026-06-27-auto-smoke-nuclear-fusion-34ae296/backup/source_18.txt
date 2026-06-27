@@ -1,0 +1,16 @@
+Title: UK STEP fusion programme
+URL: https://step.ukaea.uk/
+Source Type: snippet
+Domain: step.ukaea.uk
+Content Type: text/plain
+Search Query: Fusion Industry Association annual report 2024
+
+UK STEP fusion programme
+
+UK public fusion programme source for prototype plant objectives, timeline and commercialization milestones.
+
+Source URL retained for public-source review: https://step.ukaea.uk/
+
+Search context: Fusion Industry Association annual report 2024
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

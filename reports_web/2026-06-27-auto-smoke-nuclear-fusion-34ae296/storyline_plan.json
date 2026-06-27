@@ -1,0 +1,136 @@
+{
+  "core_question": "Should we invest in or prepare for nuclear fusion as a commercially viable energy source within the next 15 years?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, adoption, technology",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the Milestone Program).",
+    "Department of Energy (DOE) today announced $107 million in funding for six projects in the Fusion Innovative Research Engine (FIRE) Collaboratives , and that several privately funded fusion companies have completed early critical-path science and technology (S&T) milestones in the Milestone-Based Fusion Development Program (“the Milestone Program”)."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve grid-connected electricity generation before 2035.",
+      "decision_relevance": "Determines investment horizon and interim technology focus.",
+      "needed_evidence": [
+        "Published timelines from leading fusion projects (ITER, SPARC, private firms) and independent assessments."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The levelized cost of fusion electricity will be above $50/MWh by 2050, making it uncompetitive with solar and wind.",
+      "decision_relevance": "Affects long-term cost competitiveness and market share.",
+      "needed_evidence": [
+        "LCOE estimates from fusion developers, academic studies, and comparison with renewable LCOE trends."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Private fusion companies will require over $50 billion in cumulative investment before first commercial plant.",
+      "decision_relevance": "Indicates capital intensity and risk for investors.",
+      "needed_evidence": [
+        "Funding data from Crunchbase, PitchBook, and company filings; capital expenditure projections."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Regulatory frameworks for fusion will be modeled after fission, causing 10+ year licensing delays.",
+      "decision_relevance": "Impacts time-to-market and cost overruns.",
+      "needed_evidence": [
+        "Regulatory proposals from NRC, IAEA, and national regulators; comparison with fission licensing timelines."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Fusion will first be adopted for industrial heat and hydrogen production, not electricity generation.",
+      "decision_relevance": "Identifies early market entry points and revenue streams.",
+      "needed_evidence": [
+        "Industry reports on industrial heat demand, hydrogen production costs, and fusion pilot projects for non-electric applications."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "China will lead fusion commercialization due to state-backed investment and relaxed regulatory environment.",
+      "decision_relevance": "Geopolitical implications for energy independence and technology leadership.",
+      "needed_evidence": [
+        "Chinese fusion budget, project timelines (CFETR), and policy documents."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Public opposition to fusion will be minimal compared to fission, reducing deployment barriers.",
+      "decision_relevance": "Affects site selection and project approval speed.",
+      "needed_evidence": [
+        "Public opinion surveys, social media analysis, and case studies of fusion public engagement."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "top-down",
+      "formula": "Total addressable market = global electricity generation (kWh) × fusion share assumption",
+      "variables": [
+        "global electricity generation (IEA)",
+        "fusion penetration rate (0.5%-5% by 2050)"
+      ],
+      "known_limitations": [
+        "Highly sensitive to penetration rate assumption; ignores regional variations"
+      ]
+    },
+    {
+      "method": "bottom-up",
+      "formula": "Market size = number of fusion plants × average plant capacity (MW) × capacity factor × electricity price",
+      "variables": [
+        "number of plants (from project pipelines)",
+        "plant capacity (200-500 MW)",
+        "capacity factor (90% assumed)",
+        "wholesale electricity price ($30-60/MWh)"
+      ],
+      "known_limitations": [
+        "Uncertain plant count; assumes technology maturity"
+      ]
+    },
+    {
+      "method": "adoption_funnel",
+      "formula": "Market size = (R&D stage → demo → commercial) conversion rates × investment per stage",
+      "variables": [
+        "number of R&D projects",
+        "demo success rate (10-30%)",
+        "commercial conversion rate (5-15%)",
+        "investment per demo ($1-5B)"
+      ],
+      "known_limitations": [
+        "Conversion rates are speculative; limited historical data"
+      ]
+    },
+    {
+      "method": "value_pool",
+      "formula": "Value pool = electricity market value + industrial heat value + hydrogen value + other applications",
+      "variables": [
+        "electricity market value (global electricity sales)",
+        "industrial heat market size",
+        "hydrogen market size"
+      ],
+      "known_limitations": [
+        "Overlaps between segments; double-counting risk"
+      ]
+    },
+    {
+      "method": "supply_side_sizing",
+      "formula": "Market size = (available tritium supply / tritium consumption per reactor) × reactor output",
+      "variables": [
+        "tritium supply (kg/year)",
+        "tritium consumption per reactor (kg/year)",
+        "reactor output (MWh)"
+      ],
+      "known_limitations": [
+        "Tritium supply is a critical bottleneck; data is scarce and uncertain"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs."
+}
