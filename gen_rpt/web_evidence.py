@@ -31,6 +31,11 @@ AUTHORITY_HINTS = (
     "ir.",
 )
 
+MIN_OBSERVED_LINE_POINTS = 4
+MAX_IMPLIED_PATH_POINTS = 8
+ENDPOINT_IMPLIED_FAMILIES = {"funding", "market", "capacity", "cost", "media", "adoption"}
+ENDPOINT_IMPLIED_UNITS = {"$M", "MW", "MWh", "articles", "mentions"}
+
 VALUE_RE = re.compile(
     r"(?P<prefix>US\$|\$|USD|RMB|CNY|EUR|HK\$)?\s*"
     r"(?P<number>\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*"
@@ -717,9 +722,29 @@ def _time_series_value_exhibits(
         existing = groups[(family, common_unit)].get(int(year))
         if existing is None or float(normalized.get("value") or 0) > float(existing.get("value") or 0):
             groups[(family, common_unit)][int(year)] = normalized
-    usable = [((family, unit), year_map) for (family, unit), year_map in groups.items() if len(year_map) >= 2]
+    usable = [
+        ((family, unit), year_map)
+        for (family, unit), year_map in groups.items()
+        if len(year_map) >= MIN_OBSERVED_LINE_POINTS
+    ]
+    endpoint_usable = [
+        ((family, unit), year_map)
+        for (family, unit), year_map in groups.items()
+        if len(year_map) == 2 and _can_build_endpoint_implied_path(family, unit, year_map)
+    ]
     if not usable:
-        return []
+        ordered_endpoints = sorted(
+            endpoint_usable,
+            key=lambda pair: (_family_rank(pair[0][0], family_order), -_unit_priority(pair[0][1])),
+        )
+        return [
+            exhibit
+            for exhibit in (
+                _endpoint_implied_line_exhibit(family, unit, year_map)
+                for (family, unit), year_map in ordered_endpoints[:limit]
+            )
+            if exhibit
+        ]
     ordered = sorted(
         usable,
         key=lambda pair: (_family_rank(pair[0][0], family_order), -len(pair[1]), -_unit_priority(pair[0][1])),
@@ -735,6 +760,9 @@ def _time_series_value_exhibits(
                 "subtitle": _time_series_reader_subtitle(family, unit),
                 "categories": [str(year) for year in years],
                 "series": [{"name": unit, "values": [float(point.get("value") or 0) for point in points]}],
+                "y_label": unit,
+                "point_labels": [_display_comparable_value(float(point.get("value") or 0), unit) for point in points],
+                "estimated_points": [False for _point in points],
                 "caption": "",
                 "footnote": f"Only dated values with the same normalized unit ({unit}) are connected; the line is not a forecast unless the cited source states a forecast year.",
                 "source_note": _source_note(points),
@@ -744,7 +772,91 @@ def _time_series_value_exhibits(
         )
         if len(exhibits) >= limit:
             break
+    if len(exhibits) < limit:
+        ordered_endpoints = sorted(
+            endpoint_usable,
+            key=lambda pair: (_family_rank(pair[0][0], family_order), -_unit_priority(pair[0][1])),
+        )
+        for (family, unit), year_map in ordered_endpoints:
+            exhibit = _endpoint_implied_line_exhibit(family, unit, year_map)
+            if exhibit:
+                exhibits.append(exhibit)
+            if len(exhibits) >= limit:
+                break
     return exhibits
+
+
+def _can_build_endpoint_implied_path(family: str, unit: str, year_map: Dict[int, Dict[str, Any]]) -> bool:
+    if str(family or "") not in ENDPOINT_IMPLIED_FAMILIES or str(unit or "") not in ENDPOINT_IMPLIED_UNITS:
+        return False
+    years = sorted(year_map)
+    if len(years) != 2:
+        return False
+    gap = years[-1] - years[0]
+    if gap < 2 or gap > MAX_IMPLIED_PATH_POINTS - 1:
+        return False
+    start = float(year_map[years[0]].get("value") or 0)
+    end = float(year_map[years[-1]].get("value") or 0)
+    return start > 0 and end > 0
+
+
+def _endpoint_implied_line_exhibit(family: str, unit: str, year_map: Dict[int, Dict[str, Any]]) -> Dict[str, Any] | None:
+    if not _can_build_endpoint_implied_path(family, unit, year_map):
+        return None
+    source_years = sorted(year_map)
+    start_year, end_year = source_years[0], source_years[-1]
+    start_value = float(year_map[start_year].get("value") or 0)
+    end_value = float(year_map[end_year].get("value") or 0)
+    gap = end_year - start_year
+    if gap <= 0:
+        return None
+    annual_factor = (end_value / start_value) ** (1.0 / gap)
+    years = list(range(start_year, end_year + 1))[:MAX_IMPLIED_PATH_POINTS]
+    values = [start_value * (annual_factor ** (year - start_year)) for year in years]
+    estimated = [year not in source_years for year in years]
+    labels = [
+        f"est. {_display_comparable_value(value, unit)}" if is_estimate else _display_comparable_value(value, unit)
+        for value, is_estimate in zip(values, estimated)
+    ]
+    endpoints = [year_map[start_year], year_map[end_year]]
+    return {
+        "type": "line",
+        "title": _endpoint_implied_title(family, unit),
+        "subtitle": _endpoint_implied_subtitle(family, unit),
+        "categories": [str(year) for year in years],
+        "series": [{"name": f"{unit} implied path", "values": values}],
+        "y_label": unit,
+        "point_labels": labels,
+        "estimated_points": estimated,
+        "caption": "",
+        "footnote": (
+            f"Only {start_year} and {end_year} are source-stated endpoints. Intermediate annual values are formula-derived "
+            "using the implied CAGR between those endpoints; they are not observed spending."
+        ),
+        "source_note": _source_note(endpoints),
+        "data_basis": [_basis_item(item) for item in endpoints],
+        "evidence_quality": "endpoint_implied_cagr",
+    }
+
+
+def _endpoint_implied_title(family: str, unit: str) -> str:
+    family_value = str(family or "evidence")
+    if family_value == "funding":
+        return "Funding endpoints imply the annual pace capital formation would need to sustain"
+    if family_value == "capacity":
+        return "Capacity endpoints imply the annual build-out pace behind the public targets"
+    if family_value == "media":
+        return "Coverage endpoints imply the attention path between public milestones"
+    return f"Source-stated endpoints imply an annual path in {unit}"
+
+
+def _endpoint_implied_subtitle(family: str, unit: str) -> str:
+    family_value = str(family or "evidence")
+    if family_value == "funding":
+        return "The exhibit makes the implied annual funding pace visible instead of presenting two dated figures as a trend."
+    if family_value == "capacity":
+        return "The exhibit separates source-stated endpoints from the annual build-out pace implied between them."
+    return "The exhibit expands two source-stated endpoints into a transparent implied path, with intermediate values marked as estimates."
 
 
 def _funding_bubble_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | None:

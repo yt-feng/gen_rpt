@@ -186,6 +186,50 @@ def main() -> None:
     assert len({str(exhibit.get("type")) for exhibit in evidence_exhibits}) >= 3
     assert not any(exhibit.get("evidence_quality") == "opportunity_case" for exhibit in evidence_exhibits)
     assert not any(exhibit.get("evidence_quality") == "hypothesis_evidence_map" for exhibit in evidence_exhibits)
+    assert all(
+        len(exhibit.get("categories") or []) >= 4
+        for exhibit in evidence_exhibits
+        if str(exhibit.get("type")) == "line"
+    )
+
+    sparse_endpoint_ledger = [
+        {
+            "id": "S1",
+            "fact": "In 2023, public funding reached $100 million.",
+            "value": 100.0,
+            "unit": "$M",
+            "display_value": "$100M",
+            "year": 2023,
+            "metric_family": "funding",
+            "source_title": "Funding endpoint source",
+            "source_url": "https://blueocean.example/funding-endpoint-2023",
+            "domain": "blueocean.example",
+            "source_type": "html",
+            "authoritative": True,
+            "score": 10,
+        },
+        {
+            "id": "S2",
+            "fact": "In 2027, public funding is authorized at $210 million.",
+            "value": 210.0,
+            "unit": "$M",
+            "display_value": "$210M",
+            "year": 2027,
+            "metric_family": "funding",
+            "source_title": "Funding endpoint source",
+            "source_url": "https://blueocean.example/funding-endpoint-2027",
+            "domain": "blueocean.example",
+            "source_type": "html",
+            "authoritative": True,
+            "score": 10,
+        },
+    ]
+    sparse_exhibits = build_evidence_exhibits("AI and process-industry talent", sparse_endpoint_ledger, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language="en")
+    sparse_line = next(exhibit for exhibit in sparse_exhibits if str(exhibit.get("type")) == "line")
+    assert sparse_line.get("evidence_quality") == "endpoint_implied_cagr"
+    assert sparse_line.get("categories") == ["2023", "2024", "2025", "2026", "2027"]
+    assert sparse_line.get("estimated_points") == [False, True, True, True, False]
+    assert any(str(label).startswith("est. ") for label in sparse_line.get("point_labels", []))
 
     payload = {
         "title": "AI Can Rebuild the Industrial Talent Model Only If Leaders Treat It as Operating Redesign",

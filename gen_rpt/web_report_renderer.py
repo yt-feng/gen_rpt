@@ -328,6 +328,18 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   font-size: 12px;
   line-height: 1.34;
 }
+.line-estimated-point {
+  fill: var(--sand-2);
+  stroke: var(--amber);
+  stroke-width: 2;
+}
+.line-value {
+  font-size: 11px;
+  fill: var(--forest);
+}
+.line-value.estimated {
+  fill: var(--amber);
+}
 .data-basis {
   margin-top: 14px;
   border-top: 1px solid var(--line);
@@ -1132,8 +1144,17 @@ def _svg_line(exhibit: Dict[str, Any]) -> str:
     for i in range(5):
         y = top + i * plot_h / 4
         out.append(f"<line class='chart-grid' x1='{left}' x2='{width - right}' y1='{y:.1f}' y2='{y:.1f}' />")
+    y_label = _text(exhibit.get("y_label") or exhibit.get("unit") or "")
+    if y_label:
+        out.append(f"<text class='chart-small' x='{left}' y='{top - 10}'>{_e(_compact(y_label, 28))}</text>")
+    for i in range(5):
+        tick_value = max_v - i * (max_v - min_v) / 4
+        y = top + i * plot_h / 4
+        out.append(f"<text class='chart-small' x='6' y='{y + 4:.1f}'>{_e(_format_axis_value(tick_value, y_label))}</text>")
     for sidx, item in enumerate(series[:3]):
         values = item.get("values", [])[: len(categories)]
+        point_labels = _line_point_labels(exhibit, values, item.get("name") or y_label)
+        estimated_flags = _line_estimated_flags(exhibit, len(values))
         points = []
         for idx, value in enumerate(values):
             x = left + (idx / max(1, len(categories) - 1)) * plot_w
@@ -1142,8 +1163,15 @@ def _svg_line(exhibit: Dict[str, Any]) -> str:
         d = " ".join(("M" if idx == 0 else "L") + f"{x:.1f},{y:.1f}" for idx, (x, y) in enumerate(points))
         klass = ["line-primary", "line-secondary", "line-tertiary"][sidx % 3]
         out.append(f"<path class='{klass}' d='{d}' />")
-        for x, y in points:
-            out.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='4' fill='white' stroke='currentColor'></circle>")
+        for idx, (x, y) in enumerate(points):
+            if estimated_flags[idx]:
+                out.append(f"<circle class='line-estimated-point' cx='{x:.1f}' cy='{y:.1f}' r='4.5'></circle>")
+            else:
+                out.append(f"<circle cx='{x:.1f}' cy='{y:.1f}' r='4' fill='white' stroke='currentColor'></circle>")
+            label = point_labels[idx] if idx < len(point_labels) else _format_axis_value(values[idx], y_label)
+            dy = -10 if idx % 2 == 0 else 18
+            klass_extra = " estimated" if estimated_flags[idx] else ""
+            out.append(f"<text class='line-value{klass_extra}' x='{x - 24:.1f}' y='{y + dy:.1f}'>{_e(_compact(label, 16))}</text>")
         out.append(f"<text class='chart-small' x='{left + sidx * 170}' y='{height - 12}'>{_e(item.get('name') or f'Series {sidx + 1}')}</text>")
     for idx, label in enumerate(categories):
         x = left + (idx / max(1, len(categories) - 1)) * plot_w
@@ -1331,7 +1359,7 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         exhibit["footnote"] = _compact(_text(exhibit.get("footnote") or exhibit.get("note") or ""), 320)
         exhibit["data_basis"] = _normalize_data_basis(exhibit.get("data_basis") or exhibit.get("basis") or [])
         exhibit["evidence_quality"] = _compact(_text(exhibit.get("evidence_quality") or ""), 120)
-        for key in ("metrics", "items", "events", "steps", "categories", "labels", "x_labels", "rows", "columns", "values", "series", "points"):
+        for key in ("metrics", "items", "events", "steps", "categories", "labels", "x_labels", "rows", "columns", "values", "series", "points", "point_labels", "estimated_points"):
             if key in exhibit:
                 exhibit[key] = clean_client_value(exhibit[key])
         if not exhibit.get("after_section_id"):
@@ -1425,6 +1453,26 @@ def _series(exhibit: Dict[str, Any]) -> List[Dict[str, Any]]:
     if not out and exhibit.get("values") is not None:
         out.append({"name": "Value", "values": _values(exhibit.get("values"))})
     return out
+
+
+def _line_point_labels(exhibit: Dict[str, Any], values: List[float], unit: str) -> List[str]:
+    labels = _list_text(exhibit.get("point_labels") or exhibit.get("value_labels"))
+    if labels:
+        return labels[: len(values)]
+    return [_format_axis_value(value, unit) for value in values]
+
+
+def _line_estimated_flags(exhibit: Dict[str, Any], count: int) -> List[bool]:
+    raw = exhibit.get("estimated_points") or exhibit.get("estimate_flags") or []
+    flags = [_truthy_flag(item) for item in raw] if isinstance(raw, list) else []
+    return (flags + [False] * count)[:count]
+
+
+def _truthy_flag(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    text_value = str(value or "").strip().lower()
+    return text_value in {"1", "true", "yes", "y", "estimate", "estimated", "est"}
 
 
 def _fallback_sections(topic: str, takeaways: List[str], language: str) -> List[Dict[str, Any]]:
@@ -1660,6 +1708,18 @@ def _format_value(value: Any) -> str:
     if abs(number - round(number)) < 1e-6:
         return f"{number:.0f}"
     return f"{number:.1f}"
+
+
+def _format_axis_value(value: Any, unit: str = "") -> str:
+    base = _format_value(value)
+    unit_value = str(unit or "").strip()
+    if not unit_value:
+        return base
+    if unit_value.startswith("$"):
+        return f"${base}{unit_value[1:]}"
+    if unit_value == "%":
+        return f"{base}%"
+    return f"{base} {unit_value}"
 
 
 def _matrix_cell_html(value: Any) -> str:

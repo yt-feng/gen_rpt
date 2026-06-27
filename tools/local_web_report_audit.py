@@ -214,6 +214,23 @@ def main() -> int:
             issues.append(f"exhibit {idx} lacks caption/source note: {title}")
         if text(exhibit.get("type")).lower() in {"metric_row", "bar", "line", "matrix", "bubble"} and not data_basis:
             issues.append(f"exhibit {idx} lacks source-backed data_basis: {title}")
+        if text(exhibit.get("type")).lower() == "line":
+            categories = [x for x in as_list(exhibit.get("categories") or exhibit.get("labels") or exhibit.get("x_labels")) if text(x)]
+            series = [x for x in as_list(exhibit.get("series")) if isinstance(x, dict)]
+            first_values = as_list(series[0].get("values") if series else exhibit.get("values"))
+            if len(categories) < 4 or len(first_values) < 4:
+                issues.append(f"line exhibit {idx} is too sparse for a client-facing trend: {title}")
+            if not text(exhibit.get("y_label") or exhibit.get("unit")):
+                issues.append(f"line exhibit {idx} lacks y_label/unit: {title}")
+            if len(as_list(exhibit.get("point_labels") or exhibit.get("value_labels"))) < min(len(categories), len(first_values)):
+                issues.append(f"line exhibit {idx} lacks visible point-value labels: {title}")
+            if text(exhibit.get("evidence_quality")) == "endpoint_implied_cagr":
+                footnote = text(exhibit.get("footnote"))
+                estimated = [truthy_flag(x) for x in as_list(exhibit.get("estimated_points"))]
+                if not any(estimated):
+                    issues.append(f"endpoint-implied line exhibit {idx} lacks estimated point flags: {title}")
+                if not re.search(r"\b(formula-derived|implied\s+CAGR|GDP|demand-driver|estimate)", footnote, re.I):
+                    issues.append(f"endpoint-implied line exhibit {idx} lacks transparent derivation footnote: {title}")
         for pattern in UNSUPPORTED_CHART_PATTERNS:
             if re.search(pattern, exhibit_text, re.I):
                 issues.append(f"exhibit {idx} appears to use unsupported synthetic chart metric ({pattern}): {title}")
@@ -275,6 +292,12 @@ def as_list(value: Any) -> List[Any]:
     if isinstance(value, list):
         return value
     return [value]
+
+
+def truthy_flag(value: Any) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value or "").strip().lower() in {"1", "true", "yes", "y", "estimate", "estimated", "est"}
 
 
 def takeaway_texts(value: Any) -> List[str]:
