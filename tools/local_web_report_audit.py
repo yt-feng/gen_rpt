@@ -7,6 +7,8 @@ import sys
 from pathlib import Path
 from typing import Any, Dict, List
 
+from bs4 import BeautifulSoup
+
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
@@ -262,6 +264,14 @@ def main() -> int:
         issues.append("HTML missing visible exhibit source drilldown")
     if "retained public sources" not in lower and "public-source collection" not in lower and "公开来源" not in lower:
         issues.append("HTML missing subtle public-source methodology text")
+    consecutive_exhibits = find_consecutive_exhibit_pairs(html)
+    metrics["consecutive_exhibit_pairs"] = len(consecutive_exhibits)
+    if consecutive_exhibits:
+        issues.append(
+            "HTML has "
+            f"{len(consecutive_exhibits)} consecutive exhibit pair(s) without interpretive prose: "
+            + "; ".join(consecutive_exhibits)
+        )
     for forbidden in ["How leaders should move next", "Management agenda", "Where to Start", "Source base", "Methodology and source boundary"]:
         if forbidden.lower() in lower:
             issues.append(f"HTML contains removed standalone module label: {forbidden}")
@@ -269,6 +279,34 @@ def main() -> int:
         issues.append("HTML contains standalone Sources heading")
 
     return emit(issues, metrics, args.warn_only)
+
+
+def find_consecutive_exhibit_pairs(html: str) -> List[str]:
+    soup = BeautifulSoup(html, "html.parser")
+    article = soup.find("article", class_="article-main")
+    if not article:
+        return []
+
+    pairs: List[str] = []
+    previous_exhibit_label = ""
+    previous_was_exhibit = False
+    for child in article.find_all(recursive=False):
+        classes = child.get("class") or []
+        is_exhibit = child.name == "section" and "exhibit" in classes
+        if is_exhibit:
+            label = _child_text(child, ".exhibit-kicker") or "unlabeled exhibit"
+            if previous_was_exhibit:
+                pairs.append(f"{previous_exhibit_label} -> {label}")
+            previous_exhibit_label = label
+            previous_was_exhibit = True
+            continue
+        previous_was_exhibit = False
+    return pairs
+
+
+def _child_text(node: Any, selector: str) -> str:
+    found = node.select_one(selector)
+    return found.get_text(" ", strip=True) if found else ""
 
 
 def read_json(path: Path, issues: List[str]) -> Any:

@@ -328,6 +328,14 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   font-size: 12px;
   line-height: 1.34;
 }
+.exhibit-bridge {
+  margin: -24px 0 38px;
+  padding: 15px 0 15px 18px;
+  border-left: 4px solid var(--lime);
+  color: #323232;
+  font-size: 17px;
+  line-height: 1.45;
+}
 .line-estimated-point {
   fill: var(--sand-2);
   stroke: var(--amber);
@@ -697,12 +705,16 @@ def render_web_report_html(
     if normalized.get("intro"):
         parts.append(f"<div class='lead-block'>{_paragraphs(list(normalized['intro']))}</div>")
     exhibit_by_after = _exhibits_by_anchor(exhibits)
+    last_output_was_exhibit = False
+    previous_exhibit: Dict[str, Any] | None = None
     for idx, section in enumerate(sections, start=1):
         _render_section(parts, section, idx, labels, assets)
-        for exhibit in exhibit_by_after.get(section.get("id") or f"section-{idx}", []):
-            _render_exhibit(parts, exhibit, labels)
-    for exhibit in exhibit_by_after.get("", []):
-        _render_exhibit(parts, exhibit, labels)
+        last_output_was_exhibit = False
+        section_exhibits = exhibit_by_after.get(section.get("id") or f"section-{idx}", [])
+        previous_exhibit = _render_exhibit_group(parts, section_exhibits, labels)
+        last_output_was_exhibit = bool(section_exhibits)
+    opening_previous = previous_exhibit if last_output_was_exhibit else None
+    _render_exhibit_group(parts, exhibit_by_after.get("", []), labels, opening_previous)
     parts.append("</article>")
     parts.append("</main>")
 
@@ -911,6 +923,57 @@ def _render_exhibit(parts: List[str], exhibit: Dict[str, Any], labels: Dict[str,
         parts.append(f"<p class='exhibit-footnote'>{_e(note)}</p>")
     _render_data_basis(parts, exhibit.get("data_basis") or [], labels)
     parts.append("</section>")
+
+
+def _render_exhibit_group(
+    parts: List[str],
+    exhibits: List[Dict[str, Any]],
+    labels: Dict[str, str],
+    opening_previous: Dict[str, Any] | None = None,
+) -> Dict[str, Any] | None:
+    previous = opening_previous
+    for exhibit in exhibits:
+        if previous is not None:
+            _render_exhibit_bridge(parts, previous, exhibit, labels)
+        _render_exhibit(parts, exhibit, labels)
+        previous = exhibit
+    return previous
+
+
+def _render_exhibit_bridge(parts: List[str], previous: Dict[str, Any], current: Dict[str, Any], labels: Dict[str, str]) -> None:
+    zh = labels.get("contents") == "目录"
+    bridge = _exhibit_bridge_text(previous, current, zh=zh)
+    if bridge:
+        parts.append(f"<p class='exhibit-bridge'>{_e(bridge)}</p>")
+
+
+def _exhibit_bridge_text(previous: Dict[str, Any], current: Dict[str, Any], *, zh: bool = False) -> str:
+    current_type = str(current.get("type") or "").lower().replace("-", "_")
+    current_quality = str(current.get("evidence_quality") or "").lower()
+    current_title = _compact(_text(current.get("title") or ""), 110)
+    previous_no = _text(previous.get("no") or "")
+    current_no = _text(current.get("no") or "")
+    if zh:
+        prefix = f"承接图表 {previous_no}，图表 {current_no}" if previous_no and current_no else "下一张图"
+        if current_type in {"timeline", "milestone_timeline"}:
+            return prefix + "把视角从资本信号切换到明确时间节点，判断公开证据是否已经形成足够可信的投入节奏。"
+        if current_type in {"bubble", "scatter", "opportunity_map", "quadrant"}:
+            return prefix + "进一步观察资金、项目或证据是否集中在少数可行动信号上，而不是分散的市场噪音。"
+        if current_quality == "endpoint_implied_cagr":
+            return prefix + "把两个公开端点翻译成隐含年度节奏，让管理层看到中间爬坡的难度，而不只看端点本身。"
+        if current_type in {"bar", "column"}:
+            return prefix + "用同单位比较延展上一张图的判断，避免把不可比数字混在同一个视觉结论里。"
+        return prefix + f"继续展开：{current_title}。"
+    prefix = f"Read after Exhibit {previous_no}, Exhibit {current_no} " if previous_no and current_no else "The next exhibit "
+    if current_type in {"timeline", "milestone_timeline"}:
+        return prefix + "shifts the lens from capital signals to dated milestones, showing whether the public evidence is forming a credible commitment clock."
+    if current_type in {"bubble", "scatter", "opportunity_map", "quadrant"}:
+        return prefix + "extends the evidence into a concentration view, separating actionable clusters of capital, projects or proof points from market noise."
+    if current_quality == "endpoint_implied_cagr":
+        return prefix + "translates the public endpoints into an implied annual pace, making the middle years of the ramp visible rather than hiding behind the endpoints."
+    if current_type in {"bar", "column"}:
+        return prefix + "puts a same-unit comparison beside the prior view, keeping the scale difference separate from visual noise across incomparable measures."
+    return prefix + ("continues the evidence thread: " + current_title[0].lower() + current_title[1:] if current_title else "continues the evidence thread for the decision.")
 
 
 def _reader_exhibit_text(value: Any) -> str:

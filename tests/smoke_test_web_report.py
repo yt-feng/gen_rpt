@@ -15,6 +15,7 @@ from gen_rpt.web_evidence import build_evidence_exhibits, build_evidence_ledger,
 from gen_rpt.web_fetch import SourceDocument
 from gen_rpt.web_publication_contract import publication_contract_prompt
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
+from tools.local_web_report_audit import find_consecutive_exhibit_pairs
 
 
 def main() -> None:
@@ -424,6 +425,8 @@ def main() -> None:
     assert "Where to Start" not in html_text
     assert ">Article<" not in html_text
     assert "exhibit-footnote" in html_text
+    assert "exhibit-bridge" in html_text
+    assert not find_consecutive_exhibit_pairs(html_text)
     assert "retained public sources" in html_text
     assert "BlueOcean sample talent cliff article" in html_text
     forbidden_internal_terms = [
