@@ -248,6 +248,48 @@
       "after_section_id": "section-2"
     },
     {
+      "type": "bar",
+      "title": "The lab proof point is an energy bridge, not yet a power-plant economics case",
+      "subtitle": "All bars use the same unit (MJ) and remain tied to public-source sentences.",
+      "categories": [
+        "Fusion energy output",
+        "Energy delivered to target"
+      ],
+      "series": [
+        {
+          "name": "MJ",
+          "values": [
+            3.15,
+            2.05
+          ]
+        }
+      ],
+      "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
+      "source_note": "Evidence: E9, E8. Sources: llnl.gov.",
+      "data_basis": [
+        {
+          "id": "E9",
+          "value": "3.15 MJ",
+          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E8",
+          "value": "2.05 MJ",
+          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        }
+      ],
+      "evidence_quality": "same_unit_source_extracted",
+      "id": "evidence-exhibit-3",
+      "no": "3",
+      "after_section_id": "section-3"
+    },
+    {
       "type": "timeline",
       "title": "Milestones, not hype cycles, set the strategic clock",
       "subtitle": "Dated proof points should set the commitment clock before leadership treats the opportunity as investable.",
@@ -336,9 +378,9 @@
         }
       ],
       "evidence_quality": "source_dated_milestones",
-      "id": "evidence-exhibit-3",
-      "no": "3",
-      "after_section_id": "section-3"
+      "id": "evidence-exhibit-4",
+      "no": "4",
+      "after_section_id": "section-4"
     }
   ],
   "action_steps": [

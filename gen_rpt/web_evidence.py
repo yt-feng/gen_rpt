@@ -146,8 +146,7 @@ def build_evidence_exhibits(
     exhibits: List[Dict[str, Any]] = []
     exhibits.append(_metric_row_exhibit(evidence_ledger, fact_pack))
 
-    comparable = _comparable_value_exhibit(evidence_ledger)
-    if comparable:
+    for comparable in _comparable_value_exhibits(evidence_ledger, limit=3):
         exhibits.append(comparable)
 
     time_series = _time_series_value_exhibit(evidence_ledger)
@@ -580,6 +579,11 @@ def _fact_pack_exhibits(
 
 
 def _comparable_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | None:
+    exhibits = _comparable_value_exhibits(ledger, limit=1)
+    return exhibits[0] if exhibits else None
+
+
+def _comparable_value_exhibits(ledger: List[Dict[str, Any]], *, limit: int = 3) -> List[Dict[str, Any]]:
     groups: Dict[tuple[str, str], List[Dict[str, Any]]] = defaultdict(list)
     for item in ledger:
         value = item.get("value")
@@ -597,20 +601,31 @@ def _comparable_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | 
         groups[(family, common_unit)].append(normalized)
     usable = [(key, items) for key, items in groups.items() if len(items) >= 2]
     if not usable:
-        return None
-    (family, unit), items = sorted(usable, key=lambda pair: (len(pair[1]), _unit_priority(pair[0][1])), reverse=True)[0]
-    items = sorted(items, key=lambda item: float(item.get("value") or 0), reverse=True)[:6]
-    return {
-        "type": "bar",
-        "title": _comparable_exhibit_title(family, unit),
-        "subtitle": f"All bars use the same unit ({unit}) and remain tied to public-source sentences.",
-        "categories": [_short_label(_chart_label(item), 34) for item in items],
-        "series": [{"name": unit, "values": [float(item.get("value") or 0) for item in items]}],
-        "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
-        "source_note": _source_note(items),
-        "data_basis": [_basis_item(item) for item in items],
-        "evidence_quality": "same_unit_source_extracted",
-    }
+        return []
+    exhibits: List[Dict[str, Any]] = []
+    seen_titles: set[str] = set()
+    for (family, unit), items in sorted(usable, key=lambda pair: (len(pair[1]), _unit_priority(pair[0][1])), reverse=True):
+        title = _comparable_exhibit_title(family, unit)
+        if title in seen_titles:
+            continue
+        seen_titles.add(title)
+        items = sorted(items, key=lambda item: float(item.get("value") or 0), reverse=True)[:6]
+        exhibits.append(
+            {
+                "type": "bar",
+                "title": title,
+                "subtitle": f"All bars use the same unit ({unit}) and remain tied to public-source sentences.",
+                "categories": [_short_label(_chart_label(item), 34) for item in items],
+                "series": [{"name": unit, "values": [float(item.get("value") or 0) for item in items]}],
+                "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
+                "source_note": _source_note(items),
+                "data_basis": [_basis_item(item) for item in items],
+                "evidence_quality": "same_unit_source_extracted",
+            }
+        )
+        if len(exhibits) >= limit:
+            break
+    return exhibits
 
 
 def _time_series_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | None:
