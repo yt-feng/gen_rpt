@@ -275,8 +275,9 @@ Requirements:
 
 要求：
 - chart_type 必须从 bar、line、bubble、matrix、timeline 中选择。
+- 至少包含 2 个 line 图需求、1 个 bubble/scatter 图需求、2 个 bar/column 图需求、1 个 timeline 图需求；line 图需求必须寻找逐年或有明确年份的数据。
 - 覆盖 top-down sizing、bottom-up sizing、adoption funnel、价值池/ROI、投资/融资、产能/项目进展、成本/经济性、监管/采用门槛中的至少六类，但输出必须是要寻找的真实指标和来源，不是测算方法图。
-- required_metrics 必须写成可搜索、可量化的数据项，不要写“战略评分/优先级指数/成熟度指数”。
+- required_metrics 必须写成可搜索、可量化的数据项，尽量包含 year/date、amount/value、unit、entity/segment；不要写“战略评分/优先级指数/成熟度指数”。
 - search_queries 每项 2-3 条，优先官方、监管、协会、公司公告、PDF 报告和权威数据源。
 - 图表只能基于真实公开数据；如果找不到数据，后续报告应把它写成仍需证明的商业问题，而不是编造或展示后台验证清单。
 """
@@ -293,8 +294,9 @@ Each item must include: title, chart_type, executive_question, required_metrics,
 
 Requirements:
 - chart_type must be one of bar, line, bubble, matrix, timeline.
+- Include at least 2 line-chart needs, 1 bubble/scatter need, 2 bar/column needs and 1 timeline need. Line-chart needs must search for annual or explicitly dated values.
 - Cover at least six of: top-down sizing, bottom-up sizing, adoption funnel, value pool/ROI, investment/funding, capacity/project progress, cost/economics, regulation/adoption gates, but output real metrics and sources to search for, not a sizing-method exhibit.
-- required_metrics must be searchable quantitative data items. Do not request strategic scores, priority indexes, maturity indexes or other synthetic metrics.
+- required_metrics must be searchable quantitative data items and should include year/date, amount/value, unit, and entity/segment where possible. Do not request strategic scores, priority indexes, maturity indexes or other synthetic metrics.
 - search_queries: 2-3 targeted queries per chart, prioritizing official sources, regulators, industry associations, company announcements, PDF reports and authoritative datasets.
 - Charts may use only real public data. If a dataset cannot be found, the report should frame it as a business question still needing proof rather than invent values or display a backstage validation checklist.
 """

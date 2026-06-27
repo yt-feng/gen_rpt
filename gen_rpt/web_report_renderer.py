@@ -322,6 +322,12 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   font-size: 13px;
   line-height: 1.35;
 }
+.exhibit-footnote {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.34;
+}
 .data-basis {
   margin-top: 14px;
   border-top: 1px solid var(--line);
@@ -589,7 +595,7 @@ LABELS = {
         "takeaways": "Key Takeaways",
         "evidence": "Evidence",
         "so_what": "",
-        "article": "Article",
+        "article": "Report",
         "part": "Part",
         "methodology": "Methodology and source boundary",
         "actions": "How leaders should move next",
@@ -865,8 +871,11 @@ def _render_exhibit(parts: List[str], exhibit: Dict[str, Any], labels: Dict[str,
     parts.append("<section class='exhibit'>")
     parts.append(f"<div class='exhibit-kicker'>{_e(labels.get('exhibit') or 'Exhibit')} {_e(str(exhibit.get('no') or ''))}</div>")
     parts.append(f"<h3>{_e(exhibit.get('title') or 'Exhibit')}</h3>")
-    if exhibit.get("subtitle"):
-        parts.append(f"<p class='exhibit-subtitle'>{_e(exhibit['subtitle'])}</p>")
+    footnotes = _exhibit_footnotes(exhibit)
+    subtitle = _reader_exhibit_text(exhibit.get("subtitle"))
+    caption = _reader_exhibit_text(exhibit.get("caption"))
+    if subtitle:
+        parts.append(f"<p class='exhibit-subtitle'>{_e(subtitle)}</p>")
     etype = str(exhibit.get("type") or "bar").lower().replace("-", "_")
     if etype in {"metric_row", "metrics", "big_numbers"}:
         _render_metrics(parts, exhibit)
@@ -882,12 +891,43 @@ def _render_exhibit(parts: List[str], exhibit: Dict[str, Any], labels: Dict[str,
         parts.append(_svg_bubble(exhibit))
     else:
         parts.append(_svg_bar(exhibit))
-    if exhibit.get("caption"):
-        parts.append(f"<p>{_e(exhibit['caption'])}</p>")
+    if caption:
+        parts.append(f"<p>{_e(caption)}</p>")
     if exhibit.get("source_note"):
         parts.append(f"<p class='source-note'>{_e(exhibit['source_note'])}</p>")
+    for note in footnotes:
+        parts.append(f"<p class='exhibit-footnote'>{_e(note)}</p>")
     _render_data_basis(parts, exhibit.get("data_basis") or [], labels)
     parts.append("</section>")
+
+
+def _reader_exhibit_text(value: Any) -> str:
+    text_value = _text(value)
+    return "" if _is_chart_method_note(text_value) else text_value
+
+
+def _exhibit_footnotes(exhibit: Dict[str, Any]) -> List[str]:
+    notes = []
+    for key in ("subtitle", "caption", "footnote"):
+        text_value = _text(exhibit.get(key))
+        if key == "footnote" or _is_chart_method_note(text_value):
+            if text_value:
+                notes.append(text_value)
+    return _dedupe(notes)[:3]
+
+
+def _is_chart_method_note(text_value: str) -> bool:
+    text_lower = str(text_value or "").lower()
+    if not text_lower:
+        return False
+    return bool(
+        re.search(
+            r"\b(all bars use|same unit|unit normalization|source-backed values|source-backed sentences|"
+            r"synthetic rankings|maturity scores|not model-created scores|not a forecast|simple unit normalization|"
+            r"dated public evidence|url traceability|extracted from public source text)\b",
+            text_lower,
+        )
+    )
 
 
 def _render_metrics(parts: List[str], exhibit: Dict[str, Any]) -> None:
@@ -1288,6 +1328,7 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         exhibit["type"] = _text(exhibit.get("type") or "bar").lower().replace("-", "_")
         exhibit["caption"] = _compact(_text(exhibit.get("caption") or exhibit.get("summary") or ""), 360)
         exhibit["source_note"] = _compact(_text(exhibit.get("source_note") or exhibit.get("source") or ""), 260)
+        exhibit["footnote"] = _compact(_text(exhibit.get("footnote") or exhibit.get("note") or ""), 320)
         exhibit["data_basis"] = _normalize_data_basis(exhibit.get("data_basis") or exhibit.get("basis") or [])
         exhibit["evidence_quality"] = _compact(_text(exhibit.get("evidence_quality") or ""), 120)
         for key in ("metrics", "items", "events", "steps", "categories", "labels", "x_labels", "rows", "columns", "values", "series", "points"):

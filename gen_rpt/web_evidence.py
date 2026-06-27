@@ -145,17 +145,25 @@ def build_evidence_exhibits(
 
     exhibits: List[Dict[str, Any]] = []
     exhibits.append(_metric_row_exhibit(evidence_ledger, fact_pack))
+    family_order = _chart_need_family_order(chart_data_needs or [])
 
-    for comparable in _comparable_value_exhibits(evidence_ledger, limit=3):
-        exhibits.append(comparable)
-
-    time_series = _time_series_value_exhibit(evidence_ledger)
-    if time_series:
+    for time_series in _time_series_value_exhibits(evidence_ledger, limit=2, family_order=family_order):
         exhibits.append(time_series)
+
+    funding_bubble = _funding_bubble_exhibit(evidence_ledger)
+    if funding_bubble:
+        exhibits.append(funding_bubble)
+
+    for comparable in _comparable_value_exhibits(evidence_ledger, limit=2, family_order=family_order):
+        exhibits.append(comparable)
 
     timeline = _milestone_timeline_exhibit(evidence_ledger, fact_pack)
     if timeline:
         exhibits.append(timeline)
+
+    if len(exhibits) < 6:
+        for comparable in _comparable_value_exhibits(evidence_ledger, limit=3, family_order=family_order):
+            exhibits.append(comparable)
 
     matrix = _opportunity_matrix_exhibit(evidence_ledger, fact_pack)
     if matrix and len(exhibits) < 3:
@@ -171,6 +179,7 @@ def build_evidence_exhibits(
     if len(exhibits) < 3:
         exhibits.extend(_fact_pack_exhibits(topic, fact_pack)[: 3 - len(exhibits)])
 
+    exhibits = _dedupe_exhibits(exhibits)
     for idx, exhibit in enumerate(exhibits[:6], start=1):
         exhibit["id"] = f"evidence-exhibit-{idx}"
         exhibit["no"] = str(idx)
@@ -183,6 +192,51 @@ def merge_evidence_exhibits(report: Dict[str, Any], evidence_exhibits: List[Dict
         return report
     report["exhibits"] = evidence_exhibits
     return report
+
+
+def _chart_need_family_order(chart_data_needs: List[Dict[str, Any]]) -> List[str]:
+    order: List[str] = []
+    for need in chart_data_needs:
+        if not isinstance(need, dict):
+            continue
+        text = " ".join(
+            str(need.get(key) or "")
+            for key in ("title", "executive_question", "required_metrics", "comparison_set", "sizing_role")
+        ).lower()
+        for family, tokens in (
+            ("funding", ("funding", "investment", "capital", "finance", "financing")),
+            ("technology", ("technology", "ignition", "breakeven", "energy", "plasma", "technical")),
+            ("capacity", ("capacity", "plant", "reactor", "supply", "project")),
+            ("market", ("market", "demand", "customer", "revenue", "adoption", "commercial")),
+            ("cost", ("cost", "lcoe", "capex", "opex", "roi", "economics")),
+            ("policy", ("policy", "regulation", "license", "approval")),
+            ("media", ("media", "news", "coverage", "gdelt", "attention")),
+            ("timeline", ("timeline", "milestone", "date", "schedule")),
+        ):
+            if any(token in text for token in tokens) and family not in order:
+                order.append(family)
+    defaults = ["funding", "technology", "capacity", "market", "cost", "policy", "media", "timeline"]
+    return order + [family for family in defaults if family not in order]
+
+
+def _family_rank(family: str, family_order: List[str] | None) -> int:
+    order = family_order or ["funding", "technology", "capacity", "market", "cost", "policy", "media", "timeline"]
+    try:
+        return order.index(str(family or ""))
+    except ValueError:
+        return len(order) + 1
+
+
+def _dedupe_exhibits(exhibits: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    out: List[Dict[str, Any]] = []
+    seen: set[tuple[str, str]] = set()
+    for exhibit in exhibits:
+        key = (str(exhibit.get("type") or ""), re.sub(r"\W+", "", str(exhibit.get("title") or "").lower())[:120])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(exhibit)
+    return out
 
 
 def _metric_row_exhibit(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack) -> Dict[str, Any]:
@@ -583,7 +637,12 @@ def _comparable_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | 
     return exhibits[0] if exhibits else None
 
 
-def _comparable_value_exhibits(ledger: List[Dict[str, Any]], *, limit: int = 3) -> List[Dict[str, Any]]:
+def _comparable_value_exhibits(
+    ledger: List[Dict[str, Any]],
+    *,
+    limit: int = 3,
+    family_order: List[str] | None = None,
+) -> List[Dict[str, Any]]:
     groups: Dict[tuple[str, str], List[Dict[str, Any]]] = defaultdict(list)
     for item in ledger:
         value = item.get("value")
@@ -604,7 +663,7 @@ def _comparable_value_exhibits(ledger: List[Dict[str, Any]], *, limit: int = 3) 
         return []
     exhibits: List[Dict[str, Any]] = []
     seen_titles: set[str] = set()
-    for (family, unit), items in sorted(usable, key=lambda pair: (len(pair[1]), _unit_priority(pair[0][1])), reverse=True):
+    for (family, unit), items in sorted(usable, key=lambda pair: (_family_rank(pair[0][0], family_order), -len(pair[1]), -_unit_priority(pair[0][1]))):
         title = _comparable_exhibit_title(family, unit)
         if title in seen_titles:
             continue
@@ -614,10 +673,11 @@ def _comparable_value_exhibits(ledger: List[Dict[str, Any]], *, limit: int = 3) 
             {
                 "type": "bar",
                 "title": title,
-                "subtitle": f"All bars use the same unit ({unit}) and remain tied to public-source sentences.",
+                "subtitle": _comparable_reader_subtitle(family, unit),
                 "categories": [_short_label(_chart_label(item), 34) for item in items],
                 "series": [{"name": unit, "values": [float(item.get("value") or 0) for item in items]}],
-                "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
+                "caption": "",
+                "footnote": f"All bars use the same unit ({unit}) and source-stated values; no synthetic rankings or maturity scores are used.",
                 "source_note": _source_note(items),
                 "data_basis": [_basis_item(item) for item in items],
                 "evidence_quality": "same_unit_source_extracted",
@@ -629,6 +689,16 @@ def _comparable_value_exhibits(ledger: List[Dict[str, Any]], *, limit: int = 3) 
 
 
 def _time_series_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | None:
+    exhibits = _time_series_value_exhibits(ledger, limit=1)
+    return exhibits[0] if exhibits else None
+
+
+def _time_series_value_exhibits(
+    ledger: List[Dict[str, Any]],
+    *,
+    limit: int = 2,
+    family_order: List[str] | None = None,
+) -> List[Dict[str, Any]]:
     groups: Dict[tuple[str, str], Dict[int, Dict[str, Any]]] = defaultdict(dict)
     for item in ledger:
         value = item.get("value")
@@ -647,22 +717,81 @@ def _time_series_value_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] |
         existing = groups[(family, common_unit)].get(int(year))
         if existing is None or float(normalized.get("value") or 0) > float(existing.get("value") or 0):
             groups[(family, common_unit)][int(year)] = normalized
-    usable = [((family, unit), year_map) for (family, unit), year_map in groups.items() if len(year_map) >= 3]
+    usable = [((family, unit), year_map) for (family, unit), year_map in groups.items() if len(year_map) >= 2]
     if not usable:
+        return []
+    ordered = sorted(
+        usable,
+        key=lambda pair: (_family_rank(pair[0][0], family_order), -len(pair[1]), -_unit_priority(pair[0][1])),
+    )
+    exhibits: List[Dict[str, Any]] = []
+    for (family, unit), year_map in ordered:
+        years = sorted(year_map)[:8]
+        points = [year_map[year] for year in years]
+        exhibits.append(
+            {
+                "type": "line",
+                "title": _time_series_exhibit_title(family, unit),
+                "subtitle": _time_series_reader_subtitle(family, unit),
+                "categories": [str(year) for year in years],
+                "series": [{"name": unit, "values": [float(point.get("value") or 0) for point in points]}],
+                "caption": "",
+                "footnote": f"Only dated values with the same normalized unit ({unit}) are connected; the line is not a forecast unless the cited source states a forecast year.",
+                "source_note": _source_note(points),
+                "data_basis": [_basis_item(item) for item in points],
+                "evidence_quality": "dated_same_unit_source_extracted",
+            }
+        )
+        if len(exhibits) >= limit:
+            break
+    return exhibits
+
+
+def _funding_bubble_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any] | None:
+    items = []
+    for item in ledger:
+        if str(item.get("metric_family") or "") != "funding" or not item.get("year"):
+            continue
+        unit = str(item.get("unit") or "")
+        value = item.get("value")
+        if value is None or unit not in {"$M", "$B"}:
+            continue
+        normalized = dict(item)
+        normalized["value"] = float(value) * (1000.0 if unit == "$B" else 1.0)
+        normalized["unit"] = "$M"
+        normalized["display_value"] = _display_comparable_value(float(normalized["value"]), "$M")
+        items.append(normalized)
+    if len(items) < 4:
         return None
-    (family, unit), year_map = sorted(usable, key=lambda pair: (len(pair[1]), _unit_priority(pair[0][1])), reverse=True)[0]
-    years = sorted(year_map)[:8]
-    points = [year_map[year] for year in years]
+    items = sorted(items, key=lambda item: (int(item.get("year") or 0), float(item.get("value") or 0)))[:8]
+    years = [int(item.get("year") or 0) for item in items]
+    values = [float(item.get("value") or 0) for item in items]
+    min_year, max_year = min(years), max(years)
+    min_value, max_value = min(values), max(values)
+    points = []
+    for item, year, value in zip(items, years, values):
+        x = 50.0 if min_year == max_year else 12.0 + ((year - min_year) / (max_year - min_year)) * 78.0
+        y = 50.0 if abs(max_value - min_value) < 1e-6 else 16.0 + ((value - min_value) / (max_value - min_value)) * 72.0
+        points.append(
+            {
+                "label": _short_label(f"{year}: {item.get('display_value')}", 34),
+                "x": x,
+                "y": y,
+                "size": 18.0 + min(80.0, (value / max(max_value, 1.0)) * 82.0),
+            }
+        )
     return {
-        "type": "line",
-        "title": _time_series_exhibit_title(family, unit),
-        "subtitle": f"Only dated values with the same normalized unit ({unit}) are connected.",
-        "categories": [str(year) for year in years],
-        "series": [{"name": unit, "values": [float(point.get("value") or 0) for point in points]}],
-        "caption": "The line connects dated public evidence; it is not a forecast unless the underlying source states a forecast year.",
-        "source_note": _source_note(points),
-        "data_basis": [_basis_item(item) for item in points],
-        "evidence_quality": "dated_same_unit_source_extracted",
+        "type": "bubble",
+        "title": "Funding signals show when public-private capital commitments become visible",
+        "subtitle": "Dated dollar figures show where commitment has moved from ambition into named programs or follow-on capital.",
+        "x_label": "Earlier to later date",
+        "y_label": "Dollar value",
+        "points": points,
+        "caption": "",
+        "footnote": "Bubble x-position uses cited year; y-position and bubble size use source-stated dollar values normalized to USD millions.",
+        "source_note": _source_note(items),
+        "data_basis": [_basis_item(item) for item in items],
+        "evidence_quality": "dated_funding_bubble",
     }
 
 
@@ -738,12 +867,14 @@ def _display_comparable_value(value: float, unit: str) -> str:
 
 def _comparable_exhibit_title(family: str, unit: str) -> str:
     family_value = str(family or "evidence")
-    if unit == "%":
-        return "The operating bridge separates the size of the pressure from the size of the performance impact"
     if family_value == "technology" and unit == "MJ":
         return "The lab proof point is an energy bridge, not yet a power-plant economics case"
     if family_value == "funding":
         return "Capital commitments are visible, but still concentrated in a few public signals"
+    if family_value == "market" and unit == "%":
+        return "Commercial timelines still depend on confidence bands, not delivered electricity"
+    if family_value == "cost" and unit == "%":
+        return "Cost sharing reveals how much public programs still rely on private balance sheets"
     if family_value == "market":
         return "Demand and market signals should be compared only where the unit is consistent"
     if family_value == "media":
@@ -752,7 +883,26 @@ def _comparable_exhibit_title(family: str, unit: str) -> str:
         return "Capacity claims need same-unit comparison before they can support scale decisions"
     if family_value == "cost":
         return "Cost benchmarks must be put on the same unit before they change allocation choices"
+    if unit == "%":
+        return "Comparable percentages show where the public record quantifies the issue"
     return f"Comparable source-backed values use one unit: {unit}"
+
+
+def _comparable_reader_subtitle(family: str, unit: str) -> str:
+    family_value = str(family or "evidence")
+    if family_value == "funding":
+        return "The visible dollar figures cluster around government programs, private follow-on capital and public budget requests."
+    if family_value == "technology" and unit == "MJ":
+        return "The public milestone is a physics proof point; it still needs plant-level economics, repetition and systems integration."
+    if family_value == "market" and unit == "%":
+        return "Surveyed or reported percentages help separate confidence in target dates from proof of commercial deployment."
+    if family_value == "cost" and unit == "%":
+        return "Public cost-share thresholds show where commercial developers still need government leverage."
+    if family_value == "capacity":
+        return "Capacity claims matter only where projects state a comparable unit and milestone."
+    if family_value == "media":
+        return "Coverage intensity can flag when policy, financing or technical milestones change external attention."
+    return "The exhibit compares only values that public sources state in the same unit."
 
 
 def _time_series_exhibit_title(family: str, unit: str) -> str:
@@ -768,6 +918,19 @@ def _time_series_exhibit_title(family: str, unit: str) -> str:
     if family_value == "cost":
         return "Dated cost benchmarks show whether economics are improving fast enough"
     return f"Dated source-backed values show the trajectory in {unit}"
+
+
+def _time_series_reader_subtitle(family: str, unit: str) -> str:
+    family_value = str(family or "evidence")
+    if family_value == "funding":
+        return "A dated view separates near-term appropriations and program authorizations from older launch milestones."
+    if family_value == "media":
+        return "The pattern shows whether external attention is accelerating, fading or clustering around specific milestones."
+    if family_value == "technology":
+        return "Dated technical milestones show how long the path is from proof point to repeatable plant evidence."
+    if family_value == "capacity":
+        return "Project timing and capacity evidence reveal whether scale-up is moving beyond announcements."
+    return f"The trajectory uses dated public values reported in {unit}."
 
 
 def _evidence_family_exhibit(ledger: List[Dict[str, Any]]) -> Dict[str, Any]:

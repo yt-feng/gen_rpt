@@ -311,6 +311,12 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   font-size: 13px;
   line-height: 1.35;
 }
+.exhibit-footnote {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.34;
+}
 .data-basis {
   margin-top: 14px;
   border-top: 1px solid var(--line);
@@ -575,7 +581,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 <nav class='site-nav'><div class='nav-inner'>
 <div class='brand'>BlueOcean</div>
 <div class='nav-links'>
-<a href='#article'>Article</a>
+<a href='#article'>Report</a>
 </div></div></nav>
 <header class='hero'>
 <div class='hero-grid'>
@@ -586,11 +592,11 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 <div class='meta'>
 <span>Prepared by: BlueOcean Strategy Research</span>
 <span>2026-06-27</span>
-<span>21 min read</span>
+<span>22 min read</span>
 </div>
 </div>
 <div class='hero-media'>
-<img src='assets/cover-ai.png' alt='' />
+<img src='assets/cover-background.png' alt='' />
 </div>
 </div>
 <div class='takeaways'>
@@ -639,8 +645,8 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 <div class='metric-card'><div class='metric'>$350M</div><div class='label'>To date, Milestone awardees have collectively raised over $350 million of new.</div></div>
 <div class='metric-card'><div class='metric'>$46M</div><div class='label'>To date, Milestone awardees have collectively raised over $350 million of new.</div></div>
 </div>
-<p>These values are extracted from public source text; they are not model-created scores.</p>
 <p class='source-note'>Evidence: E10, E1, E2. Sources: energy.gov.</p>
+<p class='exhibit-footnote'>These values are extracted from public source text; they are not model-created scores.</p>
 <details class='data-basis'>
 <summary>Sources</summary>
 <ul>
@@ -669,33 +675,28 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 </section>
 <section class='exhibit'>
 <div class='exhibit-kicker'>Exhibit 2</div>
-<h3>Capital commitments are visible, but still concentrated in a few public signals</h3>
-<p class='exhibit-subtitle'>All bars use the same unit ($M) and remain tied to public-source sentences.</p>
-<svg class='svg-chart' viewBox='0 0 760 286' role='img'>
-<text class='chart-label' x='0' y='47'>DOE Fusion Science and.</text>
-<rect class='bar-primary' x='190' y='26' width='520.0' height='26'></rect>
-<text class='chart-small' x='718.0' y='44'>9,000</text>
-<text class='chart-label' x='0' y='89'>DOE FY 2027 Fusion Energy.</text>
-<rect class='bar-secondary' x='190' y='68' width='43.6' height='26'></rect>
-<text class='chart-small' x='241.6' y='86'>755.3</text>
-<text class='chart-label' x='0' y='131'>Lawrence Livermore fusion ignition</text>
-<rect class='bar-tertiary' x='190' y='110' width='36.1' height='26'></rect>
-<text class='chart-small' x='234.1' y='128'>624</text>
-<text class='chart-label' x='0' y='173'>DOE Fusion Innovation Research.</text>
-<rect class='bar-primary' x='190' y='152' width='24.0' height='26'></rect>
-<text class='chart-small' x='222.0' y='170'>415</text>
+<h3>Dated funding signals show whether capital formation is accelerating</h3>
+<p class='exhibit-subtitle'>A dated view separates near-term appropriations and program authorizations from older launch milestones.</p>
+<svg class='svg-chart' viewBox='0 0 760 340' role='img'>
+<line class='chart-grid' x1='58' x2='732' y1='28.0' y2='28.0' />
+<line class='chart-grid' x1='58' x2='732' y1='91.5' y2='91.5' />
+<line class='chart-grid' x1='58' x2='732' y1='155.0' y2='155.0' />
+<line class='chart-grid' x1='58' x2='732' y1='218.5' y2='218.5' />
+<line class='chart-grid' x1='58' x2='732' y1='282.0' y2='282.0' />
+<path class='line-primary' d='M58.0,164.3 L732.0,28.0' />
+<circle cx='58.0' cy='164.3' r='4' fill='white' stroke='currentColor'></circle>
+<circle cx='732.0' cy='28.0' r='4' fill='white' stroke='currentColor'></circle>
+<text class='chart-small' x='58' y='328'>$M</text>
+<text class='chart-small' x='40.0' y='306'>2023</text>
+<text class='chart-small' x='714.0' y='306'>2027</text>
 </svg>
-<p>The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.</p>
-<p class='source-note'>Evidence: E10, E3, E15, E7, E1, E19. Sources: energy.gov; llnl.gov.</p>
+<p class='source-note'>Evidence: E1, E3. Sources: energy.gov.</p>
+<p class='exhibit-footnote'>Only dated values with the same normalized unit ($M) are connected; the line is not a forecast unless the cited source states a forecast year.</p>
 <details class='data-basis'>
 <summary>Sources</summary>
 <ul>
-<li><span class='basis-id'>E10</span> $9.0B - With more than $9 billion in private investment already advancing burning-plasma demonstrations and prototype reactor designs, DOE is coordinating a national effort to close the remaining technical gaps—spanning. <a href='https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial'>DOE Fusion Science and Technology Roadmap</a></li>
-<li><span class='basis-id'>E3</span> $755.3M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
-<li><span class='basis-id'>E15</span> $624M - That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this. <a href='https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition'>Lawrence Livermore fusion ignition</a></li>
-<li><span class='basis-id'>E7</span> $415M - The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
 <li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
-<li><span class='basis-id'>E19</span> $180M - Total anticipated funding for FIRE collaboratives is $180 million for projects lasting up to four years in duration. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E3</span> $755.3M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
 </ul></details>
 </section>
 <section id='section-3' class='section-block'>
@@ -718,27 +719,48 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 </section>
 <section class='exhibit'>
 <div class='exhibit-kicker'>Exhibit 3</div>
-<h3>The operating bridge separates the size of the pressure from the size of the performance impact</h3>
-<p class='exhibit-subtitle'>All bars use the same unit (%) and remain tied to public-source sentences.</p>
-<svg class='svg-chart' viewBox='0 0 760 270' role='img'>
-<text class='chart-label' x='0' y='47'>fusion-generated electricity in.</text>
-<rect class='bar-primary' x='190' y='26' width='520.0' height='26'></rect>
-<text class='chart-small' x='718.0' y='44'>89</text>
-<text class='chart-label' x='0' y='89'>electricity to the grid by the.</text>
-<rect class='bar-secondary' x='190' y='68' width='409.0' height='26'></rect>
-<text class='chart-small' x='607.0' y='86'>70</text>
-<text class='chart-label' x='0' y='131'>thousands of National Academies&#x27;.</text>
-<rect class='bar-tertiary' x='190' y='110' width='58.4' height='26'></rect>
-<text class='chart-small' x='256.4' y='128'>10</text>
+<h3>Funding signals show when public-private capital commitments become visible</h3>
+<p class='exhibit-subtitle'>Dated dollar figures show where commitment has moved from ambition into named programs or follow-on capital.</p>
+<svg class='svg-chart' viewBox='0 0 760 420' role='img'>
+<line class='chart-grid' x1='355.0' x2='355.0' y1='36' y2='352' />
+<line class='chart-grid' x1='76' x2='634' y1='194.0' y2='194.0' />
+<line class='chart-axis' x1='76' x2='634' y1='352' y2='352' />
+<line class='chart-axis' x1='76' x2='76' y1='36' y2='352' />
+<text class='chart-small' x='494' y='406'>Earlier to later date</text>
+<text class='chart-small' x='76' y='26'>Dollar value</text>
+<text class='chart-small' x='84' y='342'>Lower</text>
+<text class='chart-small' x='589' y='342'>Higher</text>
+<circle cx='578.2' cy='73.9' r='30.6' fill='var(--green)' opacity='.78'></circle>
+<circle cx='578.2' cy='183.1' r='19.7' fill='var(--forest)' opacity='.78'></circle>
+<circle cx='143.0' cy='203.9' r='17.5' fill='var(--blue)' opacity='.78'></circle>
+<circle cx='143.0' cy='301.4' r='8.0' fill='var(--green)' opacity='.78'></circle>
+<circle cx='578.2' cy='300.0' r='8.0' fill='var(--amber)' opacity='.78'></circle>
+<line class='bubble-leader' x1='143.0' y1='301.4' x2='163.0' y2='301.4' />
+<rect class='bubble-label-box' x='163.0' y='289.4' width='85.0' height='24.0' rx='3'></rect>
+<text class='chart-label' x='172.0' y='305.9'>2023: $46M</text>
+<line class='bubble-leader' x1='143.0' y1='203.9' x2='172.5' y2='203.9' />
+<rect class='bubble-label-box' x='172.5' y='191.9' width='91.7' height='24.0' rx='3'></rect>
+<text class='chart-label' x='181.5' y='208.4'>2023: $350M</text>
+<line class='bubble-leader' x1='578.2' y1='300.0' x2='558.2' y2='300.0' />
+<rect class='bubble-label-box' x='459.8' y='288.0' width='98.4' height='24.0' rx='3'></rect>
+<text class='chart-label' x='468.8' y='304.5'>2027: $50.4M</text>
+<line class='bubble-leader' x1='578.2' y1='183.1' x2='546.5' y2='183.1' />
+<rect class='bubble-label-box' x='454.8' y='171.1' width='91.7' height='24.0' rx='3'></rect>
+<text class='chart-label' x='463.8' y='187.6'>2027: $415M</text>
+<line class='bubble-leader' x1='578.2' y1='73.9' x2='535.6' y2='73.9' />
+<rect class='bubble-label-box' x='430.5' y='61.9' width='105.1' height='24.0' rx='3'></rect>
+<text class='chart-label' x='439.5' y='78.4'>2027: $755.3M</text>
 </svg>
-<p>The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.</p>
-<p class='source-note'>Evidence: E31, E32, E12. Sources: fusionindustryassociation.org; nationalacademies.org.</p>
+<p class='source-note'>Evidence: E2, E1, E4, E7, E3. Sources: energy.gov.</p>
+<p class='exhibit-footnote'>Bubble x-position uses cited year; y-position and bubble size use source-stated dollar values normalized to USD millions.</p>
 <details class='data-basis'>
 <summary>Sources</summary>
 <ul>
-<li><span class='basis-id'>E31</span> 89% - In the fourth year of this report, companies remain steadfast in their projected timelines for producing fusion-generated electricity in the 2030s, with 89% of the companies responding to the survey anticipating that. <a href='https://www.fusionindustryassociation.org/fia-launches-2024-global-fusion-industry-report/'>FIA 2024 Global Fusion Industry Report launch</a></li>
-<li><span class='basis-id'>E32</span> 70% - In the fourth year of this report, companies remain steadfast in their projected timelines for producing fusion-generated electricity in the 2030s, with 89% of the companies responding to the survey anticipating that. <a href='https://www.fusionindustryassociation.org/fia-launches-2024-global-fusion-industry-report/'>FIA 2024 Global Fusion Industry Report launch</a></li>
-<li><span class='basis-id'>E12</span> 10% - Enjoy free access to thousands of National Academies&#x27; publications, a 10% discount off every purchase, and build your personal library. <a href='https://www.nationalacademies.org/projects/DEPS-BPA-20-03/publication/25991'>National Academies: Bringing Fusion to the U.S. Grid</a></li>
+<li><span class='basis-id'>E2</span> $46M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E4</span> $50.4M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
+<li><span class='basis-id'>E7</span> $415M - The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E3</span> $755.3M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
 </ul></details>
 </section>
 <section id='section-4' class='section-block'>
@@ -761,7 +783,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 <section class='exhibit'>
 <div class='exhibit-kicker'>Exhibit 4</div>
 <h3>The lab proof point is an energy bridge, not yet a power-plant economics case</h3>
-<p class='exhibit-subtitle'>All bars use the same unit (MJ) and remain tied to public-source sentences.</p>
+<p class='exhibit-subtitle'>The public milestone is a physics proof point; it still needs plant-level economics, repetition and systems integration.</p>
 <svg class='svg-chart' viewBox='0 0 760 270' role='img'>
 <text class='chart-label' x='0' y='47'>Fusion energy output</text>
 <rect class='bar-primary' x='190' y='26' width='520.0' height='26'></rect>
@@ -770,8 +792,8 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 <rect class='bar-secondary' x='190' y='68' width='338.4' height='26'></rect>
 <text class='chart-small' x='536.4' y='86'>2.0</text>
 </svg>
-<p>The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.</p>
 <p class='source-note'>Evidence: E9, E8. Sources: llnl.gov.</p>
+<p class='exhibit-footnote'>All bars use the same unit (MJ) and source-stated values; no synthetic rankings or maturity scores are used.</p>
 <details class='data-basis'>
 <summary>Sources</summary>
 <ul>

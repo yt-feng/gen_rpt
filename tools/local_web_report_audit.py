@@ -183,10 +183,12 @@ def main() -> int:
     metrics["non_metric_exhibits"] = len(non_metric_exhibits)
     if len(exhibit_types) < 3:
         issues.append("exhibit mix is too narrow; expected at least 3 chart/exhibit types")
-    if len(non_metric_exhibits) < 2:
-        issues.append(f"expected at least 2 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
+    if len(non_metric_exhibits) < 3:
+        issues.append(f"expected at least 3 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
     if not any(text(x.get("type")).lower() in {"bar", "line", "bubble", "scatter", "opportunity_map"} for x in exhibits):
         issues.append("expected at least one data chart rendered as bar, line or bubble")
+    if not any(text(x.get("type")).lower() in {"line", "bubble", "scatter", "timeline"} for x in exhibits):
+        issues.append("expected at least one non-bar analytical exhibit such as line, bubble/scatter or timeline")
     for idx, exhibit in enumerate(exhibits, start=1):
         title = text(exhibit.get("title"))
         source_note = text(exhibit.get("source_note") or exhibit.get("caption"))

@@ -143,42 +143,36 @@
       "evidence_quality": "source_extracted",
       "id": "evidence-exhibit-1",
       "no": "1",
-      "after_section_id": "section-1"
+      "after_section_id": "section-1",
+      "footnote": ""
     },
     {
-      "type": "bar",
-      "title": "Capital commitments are visible, but still concentrated in a few public signals",
-      "subtitle": "All bars use the same unit ($M) and remain tied to public-source sentences.",
+      "type": "line",
+      "title": "Dated funding signals show whether capital formation is accelerating",
+      "subtitle": "A dated view separates near-term appropriations and program authorizations from older launch milestones.",
       "categories": [
-        "DOE Fusion Science and.",
-        "DOE FY 2027 Fusion Energy.",
-        "Lawrence Livermore fusion ignition",
-        "DOE Fusion Innovation Research.",
-        "DOE Fusion Innovation Research.",
-        "DOE Fusion Innovation Research."
+        "2023",
+        "2027"
       ],
       "series": [
         {
           "name": "$M",
           "values": [
-            9000.0,
-            755.3,
-            624.0,
-            415.0,
             350.0,
-            180.0
+            755.3
           ]
         }
       ],
-      "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
-      "source_note": "Evidence: E10, E3, E15, E7, E1, E19. Sources: energy.gov; llnl.gov.",
+      "caption": "",
+      "footnote": "Only dated values with the same normalized unit ($M) are connected; the line is not a forecast unless the cited source states a forecast year.",
+      "source_note": "Evidence: E1, E3. Sources: energy.gov.",
       "data_basis": [
         {
-          "id": "E10",
-          "value": "$9.0B",
-          "fact": "With more than $9 billion in private investment already advancing burning-plasma demonstrations and prototype reactor designs, DOE is coordinating a national effort to close the remaining technical gaps—spanning materials, plasma systems, fuel cycles, and plant engineering.",
-          "source_title": "DOE Fusion Science and Technology Roadmap",
-          "url": "https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial",
+          "id": "E1",
+          "value": "$350M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+          "source_title": "DOE Fusion Innovation Research Engine selectees",
+          "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
           "domain": "energy.gov"
         },
         {
@@ -188,19 +182,59 @@
           "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
           "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
           "domain": "energy.gov"
+        }
+      ],
+      "evidence_quality": "dated_same_unit_source_extracted",
+      "id": "evidence-exhibit-2",
+      "no": "2",
+      "after_section_id": "section-2"
+    },
+    {
+      "type": "bubble",
+      "title": "Funding signals show when public-private capital commitments become visible",
+      "subtitle": "Dated dollar figures show where commitment has moved from ambition into named programs or follow-on capital.",
+      "x_label": "Earlier to later date",
+      "y_label": "Dollar value",
+      "points": [
+        {
+          "label": "2023: $46M",
+          "x": 12.0,
+          "y": 16.0,
+          "size": 22.994042102475838
         },
         {
-          "id": "E15",
-          "value": "$624M",
-          "fact": "That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this amazing breakthrough.”",
-          "source_title": "Lawrence Livermore fusion ignition",
-          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
-          "domain": "llnl.gov"
+          "label": "2023: $350M",
+          "x": 12.0,
+          "y": 46.85859297899337,
+          "size": 55.99814643188137
         },
         {
-          "id": "E7",
-          "value": "$415M",
-          "fact": "The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022.",
+          "label": "2027: $50.4M",
+          "x": 90.0,
+          "y": 16.44724658113633,
+          "size": 23.472384482986893
+        },
+        {
+          "label": "2027: $415M",
+          "x": 90.0,
+          "y": 53.456647398843934,
+          "size": 63.05494505494506
+        },
+        {
+          "label": "2027: $755.3M",
+          "x": 90.0,
+          "y": 88.0,
+          "size": 98.0
+        }
+      ],
+      "caption": "",
+      "footnote": "Bubble x-position uses cited year; y-position and bubble size use source-stated dollar values normalized to USD millions.",
+      "source_note": "Evidence: E2, E1, E4, E7, E3. Sources: energy.gov.",
+      "data_basis": [
+        {
+          "id": "E2",
+          "value": "$46M",
+          "fact": "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
           "source_title": "DOE Fusion Innovation Research Engine selectees",
           "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
           "domain": "energy.gov"
@@ -214,23 +248,82 @@
           "domain": "energy.gov"
         },
         {
-          "id": "E19",
-          "value": "$180M",
-          "fact": "Total anticipated funding for FIRE collaboratives is $180 million for projects lasting up to four years in duration.",
+          "id": "E4",
+          "value": "$50.4M",
+          "fact": "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
+        },
+        {
+          "id": "E7",
+          "value": "$415M",
+          "fact": "The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022.",
           "source_title": "DOE Fusion Innovation Research Engine selectees",
           "url": "https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine",
           "domain": "energy.gov"
+        },
+        {
+          "id": "E3",
+          "value": "$755.3M",
+          "fact": "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+          "source_title": "DOE FY 2027 Fusion Energy Sciences budget request",
+          "url": "https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request",
+          "domain": "energy.gov"
         }
       ],
-      "evidence_quality": "same_unit_source_extracted",
-      "id": "evidence-exhibit-2",
-      "no": "2",
-      "after_section_id": "section-2"
+      "evidence_quality": "dated_funding_bubble",
+      "id": "evidence-exhibit-3",
+      "no": "3",
+      "after_section_id": "section-3"
     },
     {
       "type": "bar",
-      "title": "The operating bridge separates the size of the pressure from the size of the performance impact",
-      "subtitle": "All bars use the same unit (%) and remain tied to public-source sentences.",
+      "title": "The lab proof point is an energy bridge, not yet a power-plant economics case",
+      "subtitle": "The public milestone is a physics proof point; it still needs plant-level economics, repetition and systems integration.",
+      "categories": [
+        "Fusion energy output",
+        "Energy delivered to target"
+      ],
+      "series": [
+        {
+          "name": "MJ",
+          "values": [
+            3.15,
+            2.05
+          ]
+        }
+      ],
+      "caption": "",
+      "footnote": "All bars use the same unit (MJ) and source-stated values; no synthetic rankings or maturity scores are used.",
+      "source_note": "Evidence: E9, E8. Sources: llnl.gov.",
+      "data_basis": [
+        {
+          "id": "E9",
+          "value": "3.15 MJ",
+          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        },
+        {
+          "id": "E8",
+          "value": "2.05 MJ",
+          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
+          "source_title": "Lawrence Livermore fusion ignition",
+          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
+          "domain": "llnl.gov"
+        }
+      ],
+      "evidence_quality": "same_unit_source_extracted",
+      "id": "evidence-exhibit-4",
+      "no": "4",
+      "after_section_id": "section-4"
+    },
+    {
+      "type": "bar",
+      "title": "Commercial timelines still depend on confidence bands, not delivered electricity",
+      "subtitle": "Surveyed or reported percentages help separate confidence in target dates from proof of commercial deployment.",
       "categories": [
         "fusion-generated electricity in.",
         "electricity to the grid by the.",
@@ -246,7 +339,8 @@
           ]
         }
       ],
-      "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
+      "caption": "",
+      "footnote": "All bars use the same unit (%) and source-stated values; no synthetic rankings or maturity scores are used.",
       "source_note": "Evidence: E31, E32, E12. Sources: fusionindustryassociation.org; nationalacademies.org.",
       "data_basis": [
         {
@@ -275,51 +369,9 @@
         }
       ],
       "evidence_quality": "same_unit_source_extracted",
-      "id": "evidence-exhibit-3",
-      "no": "3",
-      "after_section_id": "section-3"
-    },
-    {
-      "type": "bar",
-      "title": "The lab proof point is an energy bridge, not yet a power-plant economics case",
-      "subtitle": "All bars use the same unit (MJ) and remain tied to public-source sentences.",
-      "categories": [
-        "Fusion energy output",
-        "Energy delivered to target"
-      ],
-      "series": [
-        {
-          "name": "MJ",
-          "values": [
-            3.15,
-            2.05
-          ]
-        }
-      ],
-      "caption": "The bars compare source-backed values after simple unit normalization; they avoid synthetic rankings or maturity scores.",
-      "source_note": "Evidence: E9, E8. Sources: llnl.gov.",
-      "data_basis": [
-        {
-          "id": "E9",
-          "value": "3.15 MJ",
-          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
-          "source_title": "Lawrence Livermore fusion ignition",
-          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
-          "domain": "llnl.gov"
-        },
-        {
-          "id": "E8",
-          "value": "2.05 MJ",
-          "fact": "LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science basis for inertial fusion energy (IFE).",
-          "source_title": "Lawrence Livermore fusion ignition",
-          "url": "https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition",
-          "domain": "llnl.gov"
-        }
-      ],
-      "evidence_quality": "same_unit_source_extracted",
-      "id": "evidence-exhibit-4",
-      "no": "4",
-      "after_section_id": "section-4"
+      "id": "evidence-exhibit-5",
+      "no": "5",
+      "after_section_id": "section-5"
     },
     {
       "type": "timeline",
@@ -410,9 +462,10 @@
         }
       ],
       "evidence_quality": "source_dated_milestones",
-      "id": "evidence-exhibit-5",
-      "no": "5",
-      "after_section_id": "section-5"
+      "id": "evidence-exhibit-6",
+      "no": "6",
+      "after_section_id": "section-5",
+      "footnote": ""
     }
   ],
   "action_steps": [

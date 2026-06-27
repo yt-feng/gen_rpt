@@ -125,6 +125,20 @@ def main() -> None:
             source_type="html",
             domain="blueocean.example",
         ),
+        SourceDocument(
+            title="BlueOcean industrial AI funding tracker",
+            url="https://blueocean.example/data/industrial-ai-funding-tracker",
+            query="industrial AI funding by year data",
+            snippet="The tracker gives dated funding amounts for industrial AI programs.",
+            content=(
+                "In 2021, industrial AI funding reached $120 million across the tracked programs. "
+                "In 2022, industrial AI funding reached $180 million across the tracked programs. "
+                "In 2023, industrial AI funding reached $260 million across the tracked programs. "
+                "In 2024, industrial AI funding reached $410 million across the tracked programs."
+            ),
+            source_type="html",
+            domain="blueocean.example",
+        ),
     ]
     fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
@@ -169,6 +183,7 @@ def main() -> None:
     assert 3 <= len(evidence_exhibits) <= 6
     assert all(exhibit.get("data_basis") for exhibit in evidence_exhibits)
     assert "bar" in {str(exhibit.get("type")) for exhibit in evidence_exhibits}
+    assert len({str(exhibit.get("type")) for exhibit in evidence_exhibits}) >= 3
     assert not any(exhibit.get("evidence_quality") == "opportunity_case" for exhibit in evidence_exhibits)
     assert not any(exhibit.get("evidence_quality") == "hypothesis_evidence_map" for exhibit in evidence_exhibits)
 
@@ -363,6 +378,8 @@ def main() -> None:
     assert "<h2>Sources</h2>" not in html_text
     assert "Management agenda" not in html_text
     assert "Where to Start" not in html_text
+    assert ">Article<" not in html_text
+    assert "exhibit-footnote" in html_text
     assert "retained public sources" in html_text
     assert "BlueOcean sample talent cliff article" in html_text
     forbidden_internal_terms = [
