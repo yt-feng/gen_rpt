@@ -234,7 +234,6 @@ jobs:
       # ── R2: Upload report ──────────────────────────────────────────────────
       - name: Upload report to R2
         if: steps.check_r2.outputs.has_r2_secrets == 'true'
-        continue-on-error: true
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -245,15 +244,19 @@ jobs:
           set -euo pipefail
           REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
           if [ -z "$REPORT_DIR" ]; then
-            echo "::warning::No report directory found — skipping R2 upload."
-            exit 0
+            echo "::error::[STAGE: REPORT_UPLOAD_FAILED] No report directory found — aborting upload." >&2
+            exit 1
           fi
-          echo "Uploading report to R2: $REPORT_DIR"
+          START_TIME=$(date +%s)
+          REPORT_ID=$(basename "$REPORT_DIR")
+          echo "[STAGE: REPORT_UPLOAD_START] Report ID: $REPORT_ID | Directory: $REPORT_DIR"
           python -m storage.upload_report \
             --report-dir "$REPORT_DIR" \
             --status generated \
             --log-level INFO
-          echo "R2 report upload complete."
+          END_TIME=$(date +%s)
+          ELAPSED=$((END_TIME - START_TIME))
+          echo "[STAGE: REPORT_UPLOAD_SUCCESS] Report ID: $REPORT_ID | Elapsed: ${ELAPSED}s"
 
       # ── R2: Upload storage logs as artifact ──────────────────────────────────
       - name: Upload R2 storage logs
