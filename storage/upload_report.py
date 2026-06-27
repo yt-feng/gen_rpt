@@ -54,6 +54,9 @@ REPORT_FILES = {
     "report_payload.json":  ("metadata/report_payload.json", "report_payload_json"),
     "sources.json":         ("metadata/sources.json",     "sources_json"),
     "research_plan.json":   ("metadata/research_plan.json", "research_plan_json"),
+    "web_report_payload.json": ("metadata/web_report_payload.json", "web_report_payload_json"),
+    "analysis_framework.json": ("metadata/analysis_framework.json", "analysis_framework_json"),
+    "research_fact_pack.json": ("metadata/research_fact_pack.json", "research_fact_pack_json"),
 }
 
 

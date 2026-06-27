@@ -25,6 +25,9 @@ class ManifestFiles:
     sources_json: str = ""
     research_plan_json: str = ""
     report_payload_json: str = ""
+    web_report_payload_json: str = ""
+    analysis_framework_json: str = ""
+    research_fact_pack_json: str = ""
 
     def to_dict(self) -> dict:
         return {k: v for k, v in asdict(self).items() if v}
