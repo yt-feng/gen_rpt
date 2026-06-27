@@ -1,0 +1,224 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Solar and Wind LCOE (2020-2050)",
+    "chart_type": "line",
+    "executive_question": "How does fusion cost compare to renewables over time?",
+    "required_metrics": [
+      "Year: 2020, 2025, 2030, 2035, 2040, 2045, 2050",
+      "Fusion LCOE ($/MWh) - central estimate and range",
+      "Solar PV LCOE ($/MWh) - central estimate",
+      "Onshore wind LCOE ($/MWh) - central estimate"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar PV vs. onshore wind"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook (LCOE projections)",
+      "IRENA Renewable Power Generation Costs",
+      "Lazard Levelized Cost of Energy Analysis",
+      "Fusion industry reports (e.g., Fusion Industry Association, company white papers)"
+    ],
+    "search_queries": [
+      "IEA LCOE projections 2024 solar wind fusion",
+      "IRENA renewable power generation costs 2023",
+      "Lazard LCOE 2023 solar wind",
+      "fusion LCOE projection 2050 Commonwealth Fusion"
+    ],
+    "data_quality_rule": "Use official IEA/IRENA/Lazard data for solar and wind. For fusion, use published estimates from credible sources (e.g., MIT, FIA). If only two endpoints exist, mark intermediate years as estimates using CAGR or public forecast benchmarks.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the cost competitiveness challenge for fusion against established renewables.",
+    "pre_exhibit_context": "The report argues that fusion will struggle to compete with solar and wind on cost. This exhibit visualizes the projected LCOE trajectories.",
+    "post_exhibit_takeaway": "Fusion LCOE remains above $50/MWh through 2050, while solar and wind continue to decline, making fusion uncompetitive for grid electricity."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Fusion Funding Timeline (2010-2024)",
+    "chart_type": "bar",
+    "executive_question": "Is investment accelerating or plateauing?",
+    "required_metrics": [
+      "Year: 2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024",
+      "Private investment ($ million) per year",
+      "Public investment ($ million) per year",
+      "Cumulative total ($ million)"
+    ],
+    "comparison_set": [
+      "Private vs. public investment over time"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "Crunchbase, PitchBook for startup funding",
+      "Government budget documents (e.g., DOE, UKAEA)"
+    ],
+    "search_queries": [
+      "Fusion Industry Association funding report 2024",
+      "fusion startup funding total 2023 Crunchbase",
+      "DOE fusion budget 2024"
+    ],
+    "data_quality_rule": "Use FIA data as primary; cross-check with Crunchbase. If annual data not available, use cumulative and interpolate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the growth in private and public investment, indicating market confidence.",
+    "pre_exhibit_context": "The report claims private fusion funding is surging. This exhibit quantifies the trend.",
+    "post_exhibit_takeaway": "Private fusion funding has grown rapidly, exceeding $5 billion cumulative by 2024, but remains small relative to other energy investments."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Project Pipeline and Milestones",
+    "chart_type": "timeline",
+    "executive_question": "What are the key upcoming milestones and their probabilities?",
+    "required_metrics": [
+      "Project name (e.g., ITER, SPARC, DEMO)",
+      "Milestone (e.g., first plasma, Q>1, net energy, grid connection)",
+      "Target year",
+      "Status (planned, under construction, delayed)"
+    ],
+    "comparison_set": [
+      "Multiple projects and milestones"
+    ],
+    "preferred_sources": [
+      "ITER organization official schedule",
+      "Commonwealth Fusion Systems (SPARC) announcements",
+      "TAE Technologies, Helion Energy roadmaps",
+      "IAEA fusion project database"
+    ],
+    "search_queries": [
+      "ITER schedule 2024 first plasma",
+      "SPARC net energy gain timeline 2025",
+      "fusion pilot plant 2030 announcement"
+    ],
+    "data_quality_rule": "Use official project announcements. Mark delays explicitly. If probability estimates exist, include them.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Maps the path to commercialization, highlighting key dates and risks.",
+    "pre_exhibit_context": "The report argues fusion is not imminent. This exhibit shows the timeline of major projects and milestones.",
+    "post_exhibit_takeaway": "Net energy gain is expected around 2035, but commercial electricity is unlikely before 2050."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Tritium Supply vs. Demand for Fusion (2030-2050)",
+    "chart_type": "line",
+    "executive_question": "Is tritium availability a showstopper?",
+    "required_metrics": [
+      "Year: 2030, 2035, 2040, 2045, 2050",
+      "Tritium demand (kg/year) from fusion plants",
+      "Tritium supply (kg/year) from CANDU reactors and other sources",
+      "Tritium breeding rate (kg/year) if technology deployed"
+    ],
+    "comparison_set": [
+      "Supply vs. demand over time"
+    ],
+    "preferred_sources": [
+      "IAEA tritium supply reports",
+      "Fusion fuel cycle studies (e.g., from ITER)",
+      "OECD Nuclear Energy Agency publications"
+    ],
+    "search_queries": [
+      "tritium supply fusion 2030 IAEA",
+      "tritium demand per fusion plant kg/year",
+      "CANDU tritium production capacity"
+    ],
+    "data_quality_rule": "Use IAEA data as primary. If breeding rates are uncertain, show as a range. Mark intermediate years as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies a critical supply chain bottleneck that could delay deployment.",
+    "pre_exhibit_context": "The report highlights tritium breeding as a key challenge. This exhibit quantifies the potential supply gap.",
+    "post_exhibit_takeaway": "Tritium supply from existing sources is insufficient; breeding technology must be demonstrated at scale to avoid a shortfall."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Utility Interest in Fusion: Survey Results",
+    "chart_type": "bar",
+    "executive_question": "How many utilities are actively planning for fusion?",
+    "required_metrics": [
+      "Region: North America, Europe, Asia-Pacific, Rest of World",
+      "Number of utilities surveyed",
+      "Percentage with active fusion plans",
+      "Percentage considering fusion",
+      "Percentage not interested"
+    ],
+    "comparison_set": [
+      "Regions or utility types"
+    ],
+    "preferred_sources": [
+      "BloombergNEF utility surveys",
+      "Fusion Industry Association member surveys",
+      "Consulting reports (McKinsey, BCG)"
+    ],
+    "search_queries": [
+      "utility interest in fusion survey 2023",
+      "BloombergNEF fusion utility survey",
+      "fusion power purchase agreement 2024"
+    ],
+    "data_quality_rule": "Use published survey results. If no recent survey, note the date and source.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates early market demand from potential customers.",
+    "pre_exhibit_context": "The report claims niche applications will come first. This exhibit shows utility interest levels.",
+    "post_exhibit_takeaway": "Only a small fraction of utilities have formal fusion plans, indicating early-stage market readiness."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Fusion LCOE Sensitivity to Key Variables",
+    "chart_type": "bubble",
+    "executive_question": "Which variables most affect fusion cost competitiveness?",
+    "required_metrics": [
+      "Variable: Capital cost ($/kW), Capacity factor (%), Fuel cost ($/MWh), Discount rate (%)",
+      "Base case LCOE ($/MWh)",
+      "Low case LCOE ($/MWh)",
+      "High case LCOE ($/MWh)"
+    ],
+    "comparison_set": [
+      "Variables and their impact on LCOE"
+    ],
+    "preferred_sources": [
+      "MIT fusion study (2018, 2023)",
+      "Fusion company cost targets",
+      "Academic papers on fusion economics"
+    ],
+    "search_queries": [
+      "fusion LCOE sensitivity analysis capital cost",
+      "MIT fusion study 2023 LCOE",
+      "fusion cost drivers capacity factor"
+    ],
+    "data_quality_rule": "Use published sensitivity analyses. If not available, create a simple model based on public data and label as estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the impact of key assumptions on LCOE, highlighting uncertainty.",
+    "pre_exhibit_context": "The report acknowledges high uncertainty in LCOE. This exhibit visualizes sensitivity.",
+    "post_exhibit_takeaway": "Capital cost and capacity factor are the most influential variables; small changes can make fusion competitive or not."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Regulatory Frameworks for Fusion by Country (2024-2030)",
+    "chart_type": "matrix",
+    "executive_question": "Which countries are leading in fusion regulation?",
+    "required_metrics": [
+      "Country: USA, UK, Japan, Canada, China, EU",
+      "Regulatory stage: None, Draft, Finalized, Enacted",
+      "Year of enactment or expected year",
+      "Key features (e.g., licensing, safety standards)"
+    ],
+    "comparison_set": [
+      "Countries and regulatory stages"
+    ],
+    "preferred_sources": [
+      "US NRC fusion regulatory framework documents",
+      "UK government fusion policy papers",
+      "Japan's fusion energy strategy",
+      "IAEA regulatory database"
+    ],
+    "search_queries": [
+      "US NRC fusion regulatory framework 2024",
+      "UK fusion regulation 2023",
+      "Japan fusion licensing framework"
+    ],
+    "data_quality_rule": "Use official government publications. If stage is uncertain, mark as 'in development'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the policy landscape and readiness for commercial deployment.",
+    "pre_exhibit_context": "The report argues regulatory frameworks are needed. This exhibit maps progress.",
+    "post_exhibit_takeaway": "Only a few countries have established frameworks; most are still developing, creating uncertainty for investors."
+  }
+]
