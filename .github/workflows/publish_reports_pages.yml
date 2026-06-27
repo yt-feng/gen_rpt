@@ -7,6 +7,13 @@ on:
     paths:
       - 'reports_web/**'
       - '.github/workflows/publish_reports_pages.yml'
+  workflow_run:
+    workflows:
+      - Generate HTML Thought Leadership Report
+    types:
+      - completed
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -20,11 +27,13 @@ concurrency:
 
 jobs:
   build:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
       - name: Configure Pages
@@ -39,6 +48,7 @@ jobs:
           import json
           import shutil
           import subprocess
+          from datetime import datetime, timezone
           from pathlib import Path
 
           root = Path("reports_web")
@@ -51,15 +61,21 @@ jobs:
           if root.exists():
               shutil.copytree(root, target)
 
-          def report_sort_key(report_dir: Path) -> tuple[int, str]:
+          def report_commit_info(report_dir: Path) -> tuple[int, str]:
               try:
                   timestamp = subprocess.check_output(
                       ["git", "log", "-1", "--format=%ct", "--", str(report_dir / "index.html")],
                       text=True,
                   ).strip()
-                  return int(timestamp or "0"), report_dir.name
+                  value = int(timestamp or "0")
+                  generated_at = datetime.fromtimestamp(value, timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if value else ""
+                  return value, generated_at
               except Exception:
-                  return 0, report_dir.name
+                  return 0, ""
+
+          def report_sort_key(report_dir: Path) -> tuple[int, str]:
+              timestamp, _generated_at = report_commit_info(report_dir)
+              return timestamp, report_dir.name
 
           reports = []
           for report_dir in sorted(root.glob("20*/"), key=report_sort_key, reverse=True):
@@ -70,6 +86,7 @@ jobs:
               title = report_dir.name
               dek = ""
               published = ""
+              _timestamp, generated_at = report_commit_info(report_dir)
               if payload.exists():
                   try:
                       data = json.loads(payload.read_text(encoding="utf-8"))
@@ -84,6 +101,7 @@ jobs:
                       "title": title,
                       "dek": dek,
                       "published": published,
+                      "generated_at": generated_at,
                       "url": f"reports_web/{report_dir.name}/index.html",
                   }
               )
@@ -99,11 +117,14 @@ jobs:
 
           rows = []
           for report in reports:
+              meta = f"Generated {report['generated_at'] or report['dir']}"
+              if report["published"]:
+                  meta += f" · Published {report['published']}"
               rows.append(
                   "<article>"
                   f"<a href='{html.escape(report['url'], quote=True)}'>{html.escape(report['title'])}</a>"
                   f"<p>{html.escape(report['dek'])}</p>"
-                  f"<small>{html.escape(report['published'] or report['dir'])}</small>"
+                  f"<small>{html.escape(meta)}</small>"
                   "</article>"
               )
 
@@ -123,7 +144,7 @@ jobs:
               article {{ border-top: 1px solid #d9e1ea; padding: 22px 0; }}
               article a {{ color: #003087; font-size: 22px; font-weight: 700; text-decoration: none; }}
               article p {{ max-width: 780px; color: #4f5b66; line-height: 1.5; }}
-              small {{ color: #697782; }}
+              small {{ color: #697782; font-weight: 600; }}
             </style>
           </head>
           <body>
