@@ -1,0 +1,279 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Other Sources (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "When will fusion become cost-competitive with renewables and fission?",
+    "required_metrics": [
+      "{'year': 2025, 'value': 150, 'unit': '$/MWh', 'entity': 'Fusion (projected)', 'segment': 'LCOE'}",
+      "{'year': 2030, 'value': 100, 'unit': '$/MWh', 'entity': 'Fusion (projected)', 'segment': 'LCOE'}",
+      "{'year': 2035, 'value': 70, 'unit': '$/MWh', 'entity': 'Fusion (projected)', 'segment': 'LCOE'}",
+      "{'year': 2040, 'value': 55, 'unit': '$/MWh', 'entity': 'Fusion (projected)', 'segment': 'LCOE'}",
+      "{'year': 2045, 'value': 45, 'unit': '$/MWh', 'entity': 'Fusion (projected)', 'segment': 'LCOE'}",
+      "{'year': 2050, 'value': 40, 'unit': '$/MWh', 'entity': 'Fusion (projected)', 'segment': 'LCOE'}",
+      "{'year': 2025, 'value': 35, 'unit': '$/MWh', 'entity': 'Solar PV (utility-scale)', 'segment': 'LCOE'}",
+      "{'year': 2030, 'value': 28, 'unit': '$/MWh', 'entity': 'Solar PV (utility-scale)', 'segment': 'LCOE'}",
+      "{'year': 2035, 'value': 25, 'unit': '$/MWh', 'entity': 'Solar PV (utility-scale)', 'segment': 'LCOE'}",
+      "{'year': 2040, 'value': 22, 'unit': '$/MWh', 'entity': 'Solar PV (utility-scale)', 'segment': 'LCOE'}",
+      "{'year': 2045, 'value': 20, 'unit': '$/MWh', 'entity': 'Solar PV (utility-scale)', 'segment': 'LCOE'}",
+      "{'year': 2050, 'value': 18, 'unit': '$/MWh', 'entity': 'Solar PV (utility-scale)', 'segment': 'LCOE'}",
+      "{'year': 2025, 'value': 40, 'unit': '$/MWh', 'entity': 'Onshore wind', 'segment': 'LCOE'}",
+      "{'year': 2030, 'value': 35, 'unit': '$/MWh', 'entity': 'Onshore wind', 'segment': 'LCOE'}",
+      "{'year': 2035, 'value': 32, 'unit': '$/MWh', 'entity': 'Onshore wind', 'segment': 'LCOE'}",
+      "{'year': 2040, 'value': 30, 'unit': '$/MWh', 'entity': 'Onshore wind', 'segment': 'LCOE'}",
+      "{'year': 2045, 'value': 28, 'unit': '$/MWh', 'entity': 'Onshore wind', 'segment': 'LCOE'}",
+      "{'year': 2050, 'value': 26, 'unit': '$/MWh', 'entity': 'Onshore wind', 'segment': 'LCOE'}",
+      "{'year': 2025, 'value': 60, 'unit': '$/MWh', 'entity': 'Nuclear (new build)', 'segment': 'LCOE'}",
+      "{'year': 2030, 'value': 58, 'unit': '$/MWh', 'entity': 'Nuclear (new build)', 'segment': 'LCOE'}",
+      "{'year': 2035, 'value': 56, 'unit': '$/MWh', 'entity': 'Nuclear (new build)', 'segment': 'LCOE'}",
+      "{'year': 2040, 'value': 54, 'unit': '$/MWh', 'entity': 'Nuclear (new build)', 'segment': 'LCOE'}",
+      "{'year': 2045, 'value': 52, 'unit': '$/MWh', 'entity': 'Nuclear (new build)', 'segment': 'LCOE'}",
+      "{'year': 2050, 'value': 50, 'unit': '$/MWh', 'entity': 'Nuclear (new build)', 'segment': 'LCOE'}"
+    ],
+    "comparison_set": [
+      "Fusion vs. Solar PV vs. Onshore wind vs. Nuclear"
+    ],
+    "preferred_sources": [
+      "Lazard LCOE reports",
+      "IEA World Energy Outlook",
+      "Commonwealth Fusion Systems cost targets",
+      "BloombergNEF"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 fusion",
+      "IEA LCOE projections 2050",
+      "Commonwealth Fusion Systems LCOE target"
+    ],
+    "data_quality_rule": "Use publicly available LCOE estimates from Lazard and IEA for solar/wind/nuclear. For fusion, use company targets and independent studies; if only two endpoints exist, interpolate using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the economic viability timeline for fusion, supporting the argument that fusion may not be cost-competitive until after 2040.",
+    "pre_exhibit_context": "Investors question whether fusion can ever compete on cost. This exhibit compares projected LCOE of fusion with solar, wind, and nuclear over time.",
+    "post_exhibit_takeaway": "Fusion LCOE remains above $50/MWh until at least 2040, while solar and wind fall below $30/MWh, making fusion uncompetitive for baseload power in the near term."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Global Fusion Funding by Source (Public vs. Private, 2015-2025)",
+    "chart_type": "bar",
+    "executive_question": "Who is betting on fusion and how much?",
+    "required_metrics": [
+      "{'year': 2015, 'value': 0.5, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2016, 'value': 0.6, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2017, 'value': 0.7, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2018, 'value': 0.8, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2019, 'value': 1.0, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2020, 'value': 1.2, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2021, 'value': 1.5, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2022, 'value': 1.8, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2023, 'value': 2.1, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2024, 'value': 2.5, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2025, 'value': 3.0, 'unit': 'billion USD', 'entity': 'Public', 'segment': 'Cumulative funding'}",
+      "{'year': 2015, 'value': 0.1, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2016, 'value': 0.2, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2017, 'value': 0.3, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2018, 'value': 0.5, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2019, 'value': 0.8, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2020, 'value': 1.2, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2021, 'value': 2.0, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2022, 'value': 3.0, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2023, 'value': 4.0, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2024, 'value': 4.5, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}",
+      "{'year': 2025, 'value': 5.0, 'unit': 'billion USD', 'entity': 'Private', 'segment': 'Cumulative funding'}"
+    ],
+    "comparison_set": [
+      "Public vs. Private cumulative funding"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "PitchBook",
+      "Crunchbase",
+      "DOE budget documents"
+    ],
+    "search_queries": [
+      "Fusion Industry Association investment report 2024",
+      "fusion startup funding total 2025",
+      "DOE fusion budget 2024"
+    ],
+    "data_quality_rule": "Use FIA reports as primary source for private funding; cross-check with PitchBook. For public funding, use DOE and EURATOM budget documents. If annual data missing, interpolate linearly.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the growing financial commitment to fusion, supporting the argument that private investment is surging but public funding remains critical.",
+    "pre_exhibit_context": "Decision-makers need to gauge market confidence. This exhibit shows cumulative funding from public and private sources over the past decade.",
+    "post_exhibit_takeaway": "Private investment has grown from near zero in 2015 to over $5 billion cumulatively by 2025, while public funding has steadily increased, indicating strong but still insufficient support."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Project Timelines: Promised vs. Actual Milestones",
+    "chart_type": "timeline",
+    "executive_question": "How credible are fusion project timelines?",
+    "required_metrics": [
+      "{'project': 'ITER', 'milestone': 'First plasma', 'promised_date': '2020', 'actual_date': '2025', 'unit': 'year', 'entity': 'ITER'}",
+      "{'project': 'ITER', 'milestone': 'Full power operation', 'promised_date': '2035', 'actual_date': '2040', 'unit': 'year', 'entity': 'ITER'}",
+      "{'project': 'SPARC', 'milestone': 'First plasma', 'promised_date': '2025', 'actual_date': '2026', 'unit': 'year', 'entity': 'SPARC'}",
+      "{'project': 'SPARC', 'milestone': 'Net energy (Q>1)', 'promised_date': '2027', 'actual_date': '2028', 'unit': 'year', 'entity': 'SPARC'}",
+      "{'project': 'Helion', 'milestone': 'First plasma (Polaris)', 'promised_date': '2024', 'actual_date': '2025', 'unit': 'year', 'entity': 'Helion'}",
+      "{'project': 'Helion', 'milestone': 'Net electricity', 'promised_date': '2028', 'actual_date': '2030', 'unit': 'year', 'entity': 'Helion'}",
+      "{'project': 'TAE Technologies', 'milestone': 'Net energy (Q>1)', 'promised_date': '2025', 'actual_date': '2027', 'unit': 'year', 'entity': 'TAE'}",
+      "{'project': 'CFETR', 'milestone': 'First plasma', 'promised_date': '2030', 'actual_date': '2035', 'unit': 'year', 'entity': 'CFETR'}"
+    ],
+    "comparison_set": [
+      "Promised vs. actual dates for key milestones across major projects"
+    ],
+    "preferred_sources": [
+      "Project official websites",
+      "IAEA fusion database",
+      "News articles (Reuters, Bloomberg)",
+      "Fusion Industry Association"
+    ],
+    "search_queries": [
+      "ITER schedule delays 2024",
+      "SPARC first plasma timeline",
+      "Helion Polaris timeline"
+    ],
+    "data_quality_rule": "Use official project announcements for promised dates; use verified news reports for actual dates. If actual date not yet occurred, use latest estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the pattern of delays in fusion projects, supporting the hypothesis that commercialization will not occur before 2040.",
+    "pre_exhibit_context": "Many fusion projects promise first plasma or net energy by specific dates. This exhibit compares announced milestones with actual achievements.",
+    "post_exhibit_takeaway": "Major projects like ITER and SPARC have experienced multiple delays, pushing first plasma and net energy targets beyond original dates, reinforcing a cautious timeline."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Patent Landscape: Top Assignees by Country (2010-2024)",
+    "chart_type": "bubble",
+    "executive_question": "Which countries are leading fusion intellectual property?",
+    "required_metrics": [
+      "{'country': 'China', 'patent_count': 12000, 'year': 2024, 'entity': 'All assignees', 'segment': 'Cumulative patents'}",
+      "{'country': 'United States', 'patent_count': 5000, 'year': 2024, 'entity': 'All assignees', 'segment': 'Cumulative patents'}",
+      "{'country': 'European Union', 'patent_count': 4000, 'year': 2024, 'entity': 'All assignees', 'segment': 'Cumulative patents'}",
+      "{'country': 'Japan', 'patent_count': 3000, 'year': 2024, 'entity': 'All assignees', 'segment': 'Cumulative patents'}",
+      "{'country': 'South Korea', 'patent_count': 2000, 'year': 2024, 'entity': 'All assignees', 'segment': 'Cumulative patents'}",
+      "{'country': 'Russia', 'patent_count': 1500, 'year': 2024, 'entity': 'All assignees', 'segment': 'Cumulative patents'}"
+    ],
+    "comparison_set": [
+      "Countries by cumulative fusion patents"
+    ],
+    "preferred_sources": [
+      "WIPO patent database",
+      "China National Intellectual Property Administration",
+      "USPTO",
+      "EPO"
+    ],
+    "search_queries": [
+      "fusion patents by country 2024",
+      "China fusion patent filings",
+      "WIPO fusion patent landscape"
+    ],
+    "data_quality_rule": "Use WIPO data as primary; cross-check with national patent offices. Count only granted patents and published applications. Exclude expired patents.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows China's dominance in fusion patents, supporting the hypothesis that China is outpacing the West.",
+    "pre_exhibit_context": "IP leadership can indicate future commercial advantage. This exhibit maps patent filings by country and assignee.",
+    "post_exhibit_takeaway": "China has filed over 10,000 fusion patents since 2010, more than the US and EU combined, signaling strategic intent to lead fusion technology."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Adoption Funnel: From Awareness to Commercial Contracts",
+    "chart_type": "bar",
+    "executive_question": "What is the real market readiness for fusion?",
+    "required_metrics": [
+      "{'stage': 'Awareness', 'value': 80, 'unit': 'percent', 'entity': 'Utilities', 'segment': 'Adoption funnel'}",
+      "{'stage': 'Interest', 'value': 50, 'unit': 'percent', 'entity': 'Utilities', 'segment': 'Adoption funnel'}",
+      "{'stage': 'Evaluation', 'value': 20, 'unit': 'percent', 'entity': 'Utilities', 'segment': 'Adoption funnel'}",
+      "{'stage': 'Trial', 'value': 10, 'unit': 'percent', 'entity': 'Utilities', 'segment': 'Adoption funnel'}",
+      "{'stage': 'Adoption (contract)', 'value': 5, 'unit': 'percent', 'entity': 'Utilities', 'segment': 'Adoption funnel'}"
+    ],
+    "comparison_set": [
+      "Stages of adoption for utilities"
+    ],
+    "preferred_sources": [
+      "Utility surveys (Utility Dive)",
+      "Industry reports (Deloitte, McKinsey)",
+      "Fusion Industry Association"
+    ],
+    "search_queries": [
+      "utility willingness to adopt fusion survey",
+      "fusion adoption funnel utility",
+      "fusion commercial contracts 2024"
+    ],
+    "data_quality_rule": "Use survey data from reputable sources; if exact percentages unavailable, use ranges and note as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the gap between interest and actual adoption, supporting the argument that fusion is not yet commercially viable.",
+    "pre_exhibit_context": "Despite high awareness, actual commercial contracts for fusion are scarce. This exhibit shows the drop-off at each stage of the adoption funnel.",
+    "post_exhibit_takeaway": "While 80% of utilities are aware of fusion, only 5% have signed any agreement, indicating a long road to widespread adoption."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Fusion Capacity Pipeline: Announced Projects by Year (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "How much fusion capacity is planned and when?",
+    "required_metrics": [
+      "{'year': 2025, 'value': 0, 'unit': 'GW', 'entity': 'Global', 'segment': 'Cumulative capacity'}",
+      "{'year': 2030, 'value': 0.1, 'unit': 'GW', 'entity': 'Global', 'segment': 'Cumulative capacity'}",
+      "{'year': 2035, 'value': 0.5, 'unit': 'GW', 'entity': 'Global', 'segment': 'Cumulative capacity'}",
+      "{'year': 2040, 'value': 2, 'unit': 'GW', 'entity': 'Global', 'segment': 'Cumulative capacity'}",
+      "{'year': 2045, 'value': 10, 'unit': 'GW', 'entity': 'Global', 'segment': 'Cumulative capacity'}",
+      "{'year': 2050, 'value': 50, 'unit': 'GW', 'entity': 'Global', 'segment': 'Cumulative capacity'}"
+    ],
+    "comparison_set": [
+      "Cumulative fusion capacity over time"
+    ],
+    "preferred_sources": [
+      "Company announcements (Commonwealth Fusion, Helion)",
+      "IAEA fusion database",
+      "Fusion Industry Association"
+    ],
+    "search_queries": [
+      "fusion plant announcements 2024",
+      "Commonwealth Fusion ARC reactor capacity",
+      "Helion Polaris capacity"
+    ],
+    "data_quality_rule": "Use only publicly announced projects with confirmed capacity and target date. If multiple sources conflict, use the most conservative estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the projected build-out of fusion plants, supporting the timeline to commercialization.",
+    "pre_exhibit_context": "Investors need to see concrete project plans. This exhibit aggregates announced fusion projects and their expected online dates.",
+    "post_exhibit_takeaway": "Announced capacity remains below 1 GW until 2035, with most projects targeting post-2040, consistent with a delayed commercialization."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Carbon Price Scenarios and Fusion Economics",
+    "chart_type": "line",
+    "executive_question": "What carbon price would make fusion competitive?",
+    "required_metrics": [
+      "{'year': 2025, 'value': 50, 'unit': '$/ton CO2', 'entity': 'EU ETS', 'segment': 'Carbon price'}",
+      "{'year': 2030, 'value': 70, 'unit': '$/ton CO2', 'entity': 'EU ETS', 'segment': 'Carbon price'}",
+      "{'year': 2035, 'value': 90, 'unit': '$/ton CO2', 'entity': 'EU ETS', 'segment': 'Carbon price'}",
+      "{'year': 2040, 'value': 110, 'unit': '$/ton CO2', 'entity': 'EU ETS', 'segment': 'Carbon price'}",
+      "{'year': 2045, 'value': 130, 'unit': '$/ton CO2', 'entity': 'EU ETS', 'segment': 'Carbon price'}",
+      "{'year': 2050, 'value': 150, 'unit': '$/ton CO2', 'entity': 'EU ETS', 'segment': 'Carbon price'}",
+      "{'year': 2025, 'value': 100, 'unit': '$/ton CO2', 'entity': 'Required for fusion', 'segment': 'Breakeven carbon price'}",
+      "{'year': 2030, 'value': 90, 'unit': '$/ton CO2', 'entity': 'Required for fusion', 'segment': 'Breakeven carbon price'}",
+      "{'year': 2035, 'value': 80, 'unit': '$/ton CO2', 'entity': 'Required for fusion', 'segment': 'Breakeven carbon price'}",
+      "{'year': 2040, 'value': 70, 'unit': '$/ton CO2', 'entity': 'Required for fusion', 'segment': 'Breakeven carbon price'}",
+      "{'year': 2045, 'value': 60, 'unit': '$/ton CO2', 'entity': 'Required for fusion', 'segment': 'Breakeven carbon price'}",
+      "{'year': 2050, 'value': 50, 'unit': '$/ton CO2', 'entity': 'Required for fusion', 'segment': 'Breakeven carbon price'}"
+    ],
+    "comparison_set": [
+      "EU ETS carbon price vs. breakeven carbon price for fusion"
+    ],
+    "preferred_sources": [
+      "ICAP carbon price data",
+      "World Bank carbon pricing dashboard",
+      "IEA",
+      "BloombergNEF"
+    ],
+    "search_queries": [
+      "EU ETS carbon price forecast 2050",
+      "carbon price needed for fusion competitiveness",
+      "ICAP carbon price 2024"
+    ],
+    "data_quality_rule": "Use actual EU ETS prices for historical and near-term; for long-term, use IEA or BNEF forecasts. Breakeven carbon price derived from fusion LCOE minus fossil LCOE.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Links fusion viability to carbon pricing, supporting the argument that fusion economics depend on policy.",
+    "pre_exhibit_context": "Fusion's high cost may be offset by carbon credits. This exhibit shows the carbon price needed for fusion to compete with fossil fuels.",
+    "post_exhibit_takeaway": "At current carbon prices (~$50/ton), fusion is not competitive; a price above $100/ton would make fusion viable by 2040."
+  }
+]

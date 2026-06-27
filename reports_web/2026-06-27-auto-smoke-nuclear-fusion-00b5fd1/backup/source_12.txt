@@ -1,0 +1,16 @@
+Title: ARPA-E BETHE fusion program
+URL: https://arpa-e.energy.gov/programs-and-initiatives/view-all-programs/bethe
+Source Type: snippet
+Domain: arpa-e.energy.gov
+Content Type: text/plain
+Search Query: SPARC first plasma timeline
+
+ARPA-E BETHE fusion program
+
+U.S. innovation-program source focused on enabling commercially viable fusion energy technology paths.
+
+Source URL retained for public-source review: https://arpa-e.energy.gov/programs-and-initiatives/view-all-programs/bethe
+
+Search context: SPARC first plasma timeline
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.
