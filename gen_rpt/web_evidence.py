@@ -34,7 +34,7 @@ AUTHORITY_HINTS = (
 VALUE_RE = re.compile(
     r"(?P<prefix>US\$|\$|USD|RMB|CNY|EUR|HK\$)?\s*"
     r"(?P<number>\d{1,3}(?:,\d{3})+|\d+(?:\.\d+)?)\s*"
-    r"(?P<unit>%|percent|percentage points?|trillion|billion|million|bn|mn|GW|MW|GWh|TWh|MWh|MJ|megajoules?|kg|kilograms?|years?|months?|days?|companies|plants|projects|components?|parts?|USD|dollars?)?",
+    r"(?P<unit>%|percent|percentage points?|trillion|billion|million|bn|mn|GW|MW|GWh|TWh|MWh|MJ|megajoules?|kg|kilograms?|years?|months?|days?|articles?|mentions?|companies|plants|projects|components?|parts?|USD|dollars?)?",
     re.I,
 )
 YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
@@ -682,7 +682,7 @@ def _comparable_unit(unit: str) -> str:
         return "MW"
     if unit_value in {"TWh", "GWh", "MWh"}:
         return "MWh"
-    if unit_value in {"%", "MJ", "KG", "years", "months", "days", "companies", "plants", "projects", "components", "parts"}:
+    if unit_value in {"%", "MJ", "KG", "years", "months", "days", "articles", "mentions", "companies", "plants", "projects", "components", "parts"}:
         return unit_value
     return unit_value if _unit_priority(unit_value) > 1 else ""
 
@@ -731,6 +731,8 @@ def _comparable_exhibit_title(family: str, unit: str) -> str:
         return "Capital commitments are visible, but still concentrated in a few public signals"
     if family_value == "market":
         return "Demand and market signals should be compared only where the unit is consistent"
+    if family_value == "media":
+        return "News coverage shows when external attention concentrates around the topic"
     if family_value == "capacity":
         return "Capacity claims need same-unit comparison before they can support scale decisions"
     if family_value == "cost":
@@ -744,6 +746,8 @@ def _time_series_exhibit_title(family: str, unit: str) -> str:
         return "Dated funding signals show whether capital formation is accelerating"
     if family_value == "market":
         return "Dated market signals show whether demand evidence is broadening"
+    if family_value == "media":
+        return "GDELT news coverage shows when public attention accelerates or fades"
     if family_value == "capacity":
         return "Dated capacity signals show whether project execution is moving beyond announcements"
     if family_value == "cost":
@@ -929,6 +933,10 @@ def _normalize_unit(prefix: str, unit: str, text: str) -> str:
         return "months"
     if unit_l in {"day", "days"}:
         return "days"
+    if unit_l in {"article", "articles"}:
+        return "articles"
+    if unit_l in {"mention", "mentions"}:
+        return "mentions"
     if unit_l in {"companies", "plants", "projects", "component", "components", "part", "parts"}:
         return unit_l
     if unit_l in {"usd", "dollars"}:
@@ -968,6 +976,8 @@ def _metric_family(text: str, unit: str, topic: str) -> str:
         return "capacity"
     if any(token in lower for token in ("customer", "companies")):
         return "market"
+    if any(token in lower for token in ("gdelt", "article", "articles", "news coverage", "media coverage")) or unit in {"articles", "mentions"}:
+        return "media"
     if any(token in lower for token in ("year", "timeline", "target", "baseline", "operation", "commercial", "202")) or unit in {"years", "months", "year"}:
         return "timeline"
     if any(token in lower for token in ("policy", "regulation", "license", "nrc", "government")):
@@ -1460,6 +1470,8 @@ def _unit_priority(unit: str) -> int:
         "months": 4,
         "days": 4,
         "companies": 3,
+        "articles": 3,
+        "mentions": 3,
         "plants": 3,
         "projects": 3,
         "components": 3,

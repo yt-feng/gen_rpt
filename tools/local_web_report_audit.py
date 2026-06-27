@@ -243,7 +243,7 @@ def main() -> int:
         issues.append("HTML missing visible exhibit source drilldown")
     if "retained public sources" not in lower and "public-source collection" not in lower and "公开来源" not in lower:
         issues.append("HTML missing subtle public-source methodology text")
-    for forbidden in ["How leaders should move next", "Source base", "Methodology and source boundary"]:
+    for forbidden in ["How leaders should move next", "Management agenda", "Where to Start", "Source base", "Methodology and source boundary"]:
         if forbidden.lower() in lower:
             issues.append(f"HTML contains removed standalone module label: {forbidden}")
     if re.search(r"<h[1-6][^>]*>\s*Sources\s*</h[1-6]>", html, re.I):

@@ -354,12 +354,15 @@ def main() -> None:
     md_text = md_path.read_text(encoding="utf-8")
     assert "Key Takeaways" in html_text
     assert "article-shell" in html_text
+    assert "Part 1" in html_text
+    assert "Article 1" not in html_text
     assert "<summary>Sources</summary>" in html_text
     assert "How leaders should move next" not in html_text
     assert "Source base" not in html_text
     assert "Methodology and source boundary" not in html_text
     assert "<h2>Sources</h2>" not in html_text
-    assert "Where to Start" in html_text
+    assert "Management agenda" not in html_text
+    assert "Where to Start" not in html_text
     assert "retained public sources" in html_text
     assert "BlueOcean sample talent cliff article" in html_text
     forbidden_internal_terms = [

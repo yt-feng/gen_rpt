@@ -124,6 +124,3 @@ Evidence:
 - Several fusion companies, including Helion Energy and General Fusion, are exploring non-electric applications
 - The ARPA-E BETHE program funds research into compact fusion concepts for applications like district heating and hydrogen production
 - Solar PV initially found success in niche markets (remote power, satellites) before scaling to grid electricity
-
-
-Near-term leadership should focus on Near-term (0-2 years): Monitor fusion project milestones and policy developments closely. Engage with regulators to shape the emerging fusion regulatory framework., with success measured by track quarterly progress of SPARC, ITER, and STEP against their timelines; participate in DOE and NRC public comment periods; Medium-term (2-5 years): Invest in enabling technologies such as advanced materials, tritium breeding, and high-temperature superconductors that are critical for multiple fusion approaches., with success measured by identify and fund at least two enabling technology startups or research projects; monitor patent filings and publications; and Medium-term (2-5 years): Explore partnerships with fusion developers for niche applications, particularly industrial heat and marine propulsion., with success measured by sign at least one memorandum of understanding or joint development agreement with a fusion company for a pilot project.

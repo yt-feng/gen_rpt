@@ -590,6 +590,7 @@ LABELS = {
         "evidence": "Evidence",
         "so_what": "",
         "article": "Article",
+        "part": "Part",
         "methodology": "Methodology and source boundary",
         "actions": "How leaders should move next",
         "prepared": "Prepared by",
@@ -604,6 +605,7 @@ LABELS = {
         "evidence": "证据",
         "so_what": "管理含义",
         "article": "正文",
+        "part": "部分",
         "methodology": "方法与证据边界",
         "actions": "管理层下一步",
         "prepared": "出品",
@@ -683,7 +685,6 @@ def render_web_report_html(
             _render_exhibit(parts, exhibit, labels)
     for exhibit in exhibit_by_after.get("", []):
         _render_exhibit(parts, exhibit, labels)
-    _render_actions(parts, normalized.get("action_steps", []), labels, language)
     parts.append("</article>")
     parts.append("</main>")
 
@@ -720,9 +721,6 @@ def render_web_report_markdown(
             for item in section["evidence"]:
                 lines.append(f"- {item}")
             lines.append("")
-    action_summary = _action_summary(normalized.get("action_steps", []), language)
-    if action_summary:
-        lines.extend(["", action_summary, ""])
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     return output_file
@@ -805,7 +803,7 @@ def _render_toc(parts: List[str], sections: List[Dict[str, Any]], labels: Dict[s
 
 def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels: Dict[str, str], assets: Dict[str, str] | None = None) -> None:
     parts.append(f"<section id='{_e(section['id'])}' class='section-block'>")
-    parts.append(f"<div class='section-kicker'>{_e(labels['article'])} {idx}</div>")
+    parts.append(f"<div class='section-kicker'>{_e(labels.get('part') or 'Part')} {idx}</div>")
     parts.append(f"<h2>{_e(section['title'])}</h2>")
     if section.get("lead"):
         parts.append(f"<p class='section-lead'>{_e(section['lead'])}</p>")

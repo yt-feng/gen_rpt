@@ -99,6 +99,8 @@ CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bexhibit-level Data basis entries preserve\b", "exhibit source links preserve"),
     (r"\bnot\s+(?:included\s+)?in\s+(?:the\s+)?fact\s*[- ]?\s*pack\b", "not validated in the retained source set"),
     (r"\bwidely\s+cited\b", "commonly referenced"),
+    (r"\bmanagement\s+agenda\b", "leadership priorities"),
+    (r"管理议程", "领导层优先事项"),
 )
 
 
