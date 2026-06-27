@@ -1,0 +1,143 @@
+name: Publish Reports to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'reports_web/**'
+      - '.github/workflows/publish_reports_pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build static report index
+        run: |
+          python - <<'PY'
+          from __future__ import annotations
+
+          import html
+          import json
+          import shutil
+          from pathlib import Path
+
+          root = Path("reports_web")
+          site = Path("_site")
+          if site.exists():
+              shutil.rmtree(site)
+          site.mkdir(parents=True)
+
+          target = site / "reports_web"
+          if root.exists():
+              shutil.copytree(root, target)
+
+          reports = []
+          for report_dir in sorted(root.glob("20*/"), key=lambda p: p.name, reverse=True):
+              index = report_dir / "index.html"
+              payload = report_dir / "web_report_payload.json"
+              if not index.exists():
+                  continue
+              title = report_dir.name
+              dek = ""
+              published = ""
+              if payload.exists():
+                  try:
+                      data = json.loads(payload.read_text(encoding="utf-8"))
+                      title = str(data.get("title") or title)
+                      dek = str(data.get("dek") or "")
+                      published = str(data.get("published_date") or "")
+                  except Exception:
+                      pass
+              reports.append(
+                  {
+                      "dir": report_dir.name,
+                      "title": title,
+                      "dek": dek,
+                      "published": published,
+                      "url": f"reports_web/{report_dir.name}/index.html",
+                  }
+              )
+
+          latest_url = reports[0]["url"] if reports else "reports_web/"
+          (site / "latest.html").write_text(
+              "<!doctype html><meta charset='utf-8'>"
+              f"<meta http-equiv='refresh' content='0; url={html.escape(latest_url, quote=True)}'>"
+              f"<link rel='canonical' href='{html.escape(latest_url, quote=True)}'>"
+              f"<a href='{html.escape(latest_url, quote=True)}'>Open latest report</a>",
+              encoding="utf-8",
+          )
+
+          rows = []
+          for report in reports:
+              rows.append(
+                  "<article>"
+                  f"<a href='{html.escape(report['url'], quote=True)}'>{html.escape(report['title'])}</a>"
+                  f"<p>{html.escape(report['dek'])}</p>"
+                  f"<small>{html.escape(report['published'] or report['dir'])}</small>"
+                  "</article>"
+              )
+
+          body = "\n".join(rows) or "<p>No reports have been generated yet.</p>"
+          (site / "index.html").write_text(
+              f"""<!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Generated Reports</title>
+            <style>
+              body {{ margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #1f2933; background: #f7f9fb; }}
+              main {{ max-width: 980px; margin: 0 auto; padding: 56px 24px; }}
+              h1 {{ margin: 0 0 10px; font-size: 38px; line-height: 1.1; }}
+              .latest {{ display: inline-block; margin: 18px 0 30px; color: #0055a4; font-weight: 700; text-decoration: none; }}
+              article {{ border-top: 1px solid #d9e1ea; padding: 22px 0; }}
+              article a {{ color: #003087; font-size: 22px; font-weight: 700; text-decoration: none; }}
+              article p {{ max-width: 780px; color: #4f5b66; line-height: 1.5; }}
+              small {{ color: #697782; }}
+            </style>
+          </head>
+          <body>
+            <main>
+              <h1>Generated Reports</h1>
+              <a class="latest" href="{html.escape(latest_url, quote=True)}">Open latest report</a>
+              {body}
+            </main>
+          </body>
+          </html>
+          """,
+              encoding="utf-8",
+          )
+          PY
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
