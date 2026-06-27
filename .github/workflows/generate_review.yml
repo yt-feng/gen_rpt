@@ -69,17 +69,17 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Find directories under reports/ or reports_web/ that contain a report.md
+          # Find directories under reports_web/ that contain a report.md
           REPORT_DIR=$(
-            find reports reports_web -maxdepth 2 -name "report.md" -printf '%T@ %h\n' \
+            find reports_web -maxdepth 2 -name "report.md" -printf '%T@ %h\n' \
               2>/dev/null \
             | sort -nr \
             | head -1 \
-            | awk '{print $2}'
+            | awk '{print $2}' || true
           )
 
           if [ -z "$REPORT_DIR" ]; then
-            echo "::error::No report.md found under reports/. Did the report workflow succeed?" >&2
+            echo "::error::No report.md found under reports_web/. Did the report workflow succeed?" >&2
             exit 1
           fi
 

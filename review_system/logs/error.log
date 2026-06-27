@@ -7,3 +7,5 @@ Traceback (most recent call last):
   File "D:\Intenship\gen_rpt-main\review_system\reviewers\review_orchestrator.py", line 107, in _run_combined_analysis
     prompt = COMBINED_ANALYSIS_USER.format(
 KeyError: '"finding"'
+2026-06-27 22:14:34 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
+2026-06-27 22:14:46 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.

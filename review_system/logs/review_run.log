@@ -119,3 +119,7 @@
 2026-06-10 14:14:10 | INFO     | review.run | Synthesis complete: 8 improvement tasks
 2026-06-10 14:14:10 | INFO     | review.run | ReviewData assembled | Score=72.0 | Grade=Bronze | Tasks=8
 2026-06-10 14:14:10 | INFO     | review.run | Review complete | score=72.0 | grade=Bronze
+2026-06-27 22:14:34 | INFO     | review.run | Review started | report=D:\BlueOcean\gen_rpt-main\reports_web\2026-06-27-auto-smoke-nuclear-fusion-e633298\report.md | output=review_outputs\test-local-run
+2026-06-27 22:14:34 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
+2026-06-27 22:14:46 | INFO     | review.run | Review started | report=D:\BlueOcean\gen_rpt-main\reports_web\2026-06-27-auto-smoke-nuclear-fusion-e633298\report.md | output=review_outputs\test-local-run
+2026-06-27 22:14:46 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
