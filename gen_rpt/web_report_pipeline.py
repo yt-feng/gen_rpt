@@ -271,7 +271,7 @@ Requirements:
 研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
 
 返回字段：chart_data_needs，数组 7 项。
-每项包含：title、chart_type、executive_question、required_metrics、comparison_set、preferred_sources、search_queries、data_quality_rule。
+每项包含：title、chart_type、executive_question、narrative_role、pre_exhibit_context、post_exhibit_takeaway、required_metrics、comparison_set、preferred_sources、search_queries、data_quality_rule。
 
 要求：
 - chart_type 必须从 bar、line、bubble、matrix、timeline 中选择。
@@ -279,6 +279,7 @@ Requirements:
 - line 图必须寻找至少 4 个同口径年度观测值；如果只能找到两个端点，必须要求一个可披露估算口径（例如 CAGR、GDP/需求驱动或公开预测基准）来生成中间年份，并把中间值标为 estimate，不能把两个端点直接画成趋势线。
 - 覆盖 top-down sizing、bottom-up sizing、adoption funnel、价值池/ROI、投资/融资、产能/项目进展、成本/经济性、监管/采用门槛中的至少六类，但输出必须是要寻找的真实指标和来源，不是测算方法图。
 - required_metrics 必须写成可搜索、可量化的数据项，尽量包含 year/date、amount/value、unit、entity/segment；不要写“战略评分/优先级指数/成熟度指数”。
+- narrative_role 说明这张图在章节论证中承担什么角色；pre_exhibit_context 说明图前需要铺垫的管理问题或判断；post_exhibit_takeaway 说明图后必须写出的客户可读结论。它们是写作指令，不是客户可见标题。
 - search_queries 每项 2-3 条，优先官方、监管、协会、公司公告、PDF 报告和权威数据源。
 - 图表只能基于真实公开数据；如果找不到数据，后续报告应把它写成仍需证明的商业问题，而不是编造或展示后台验证清单。
 """
@@ -291,7 +292,7 @@ Research plan:
 {json.dumps(plan, ensure_ascii=False, indent=2)}
 
 Return field: chart_data_needs, an array of 7 items.
-Each item must include: title, chart_type, executive_question, required_metrics, comparison_set, preferred_sources, search_queries, data_quality_rule.
+Each item must include: title, chart_type, executive_question, narrative_role, pre_exhibit_context, post_exhibit_takeaway, required_metrics, comparison_set, preferred_sources, search_queries, data_quality_rule.
 
 Requirements:
 - chart_type must be one of bar, line, bubble, matrix, timeline.
@@ -299,6 +300,7 @@ Requirements:
 - A line chart must seek at least 4 same-basis annual observations. If only two endpoints are discoverable, require a transparent estimation rule such as CAGR, GDP/demand driver or a public forecast benchmark, mark intermediate values as estimates, and never present two endpoints as a trend line.
 - Cover at least six of: top-down sizing, bottom-up sizing, adoption funnel, value pool/ROI, investment/funding, capacity/project progress, cost/economics, regulation/adoption gates, but output real metrics and sources to search for, not a sizing-method exhibit.
 - required_metrics must be searchable quantitative data items and should include year/date, amount/value, unit, and entity/segment where possible. Do not request strategic scores, priority indexes, maturity indexes or other synthetic metrics.
+- narrative_role states what job the exhibit plays in the section argument; pre_exhibit_context states the management question or claim that must set up the exhibit; post_exhibit_takeaway states the client-readable interpretation that must follow the exhibit. These are drafting instructions, not client-visible headings.
 - search_queries: 2-3 targeted queries per chart, prioritizing official sources, regulators, industry associations, company announcements, PDF reports and authoritative datasets.
 - Charts may use only real public data. If a dataset cannot be found, the report should frame it as a business question still needing proof rather than invent values or display a backstage validation checklist.
 """
@@ -322,6 +324,9 @@ Requirements:
                 "search_queries": [f"{topic} total addressable market data", f"{topic} market size by segment forecast", f"{topic} demand volume official data"],
                 "data_quality_rule": "Use source-stated market or demand values and keep forecast years and assumptions visible.",
                 "sizing_role": "top_down_market_ceiling",
+                "narrative_role": "Frame the largest credible ceiling before the report narrows to adoption and economics.",
+                "pre_exhibit_context": "Introduce the management question: how big the prize could be before practical filters are applied.",
+                "post_exhibit_takeaway": "Explain which demand pool remains credible and which filters still need proof.",
             },
             {
                 "title": f"{title_prefix}: bottom-up buyer count, usage and pricing inputs",
@@ -333,6 +338,9 @@ Requirements:
                 "search_queries": [f"{topic} customer count price ARPU data", f"{topic} adoption rate users units sold", f"{topic} average selling price demand by customer segment"],
                 "data_quality_rule": "Do not combine buyer count, usage and price unless all units are explicit and comparable.",
                 "sizing_role": "bottom_up_revenue_bridge",
+                "narrative_role": "Translate market narrative into unit economics that can be checked source by source.",
+                "pre_exhibit_context": "Set up the need to move from market size language to customers, usage and price.",
+                "post_exhibit_takeaway": "State which inputs are strong enough for a revenue bridge and which remain diligence items.",
             },
             {
                 "title": f"{title_prefix}: investment and funding by year or company",
@@ -343,6 +351,9 @@ Requirements:
                 "preferred_sources": ["industry association report", "company announcement", "government program page", "PDF report"],
                 "search_queries": [f"{topic} funding investment data report pdf", f"{topic} venture funding by company", f"{topic} government funding program amount"],
                 "data_quality_rule": "Use named public amounts with dates and source URLs; do not convert them into priority scores.",
+                "narrative_role": "Show whether capital formation is broadening or still concentrated in a few visible commitments.",
+                "pre_exhibit_context": "Introduce why funding depth matters for scale-up credibility.",
+                "post_exhibit_takeaway": "Interpret whether the capital base supports acceleration or remains fragile.",
             },
             {
                 "title": f"{title_prefix}: market size, demand or addressable use cases",
@@ -354,6 +365,9 @@ Requirements:
                 "search_queries": [f"{topic} market size forecast data", f"{topic} demand outlook by segment", f"{topic} addressable market report pdf"],
                 "data_quality_rule": "Keep forecast assumptions visible; exclude unsourced TAM claims.",
                 "sizing_role": "demand_pool_cross_check",
+                "narrative_role": "Cross-check the commercial prize against demand pools that public sources actually quantify.",
+                "pre_exhibit_context": "Explain why the report uses source-backed demand pools instead of broad opportunity language.",
+                "post_exhibit_takeaway": "Clarify which segments deserve deeper validation and which remain too speculative.",
             },
             {
                 "title": f"{title_prefix}: capacity, projects and commercialization milestones",
@@ -365,6 +379,9 @@ Requirements:
                 "search_queries": [f"{topic} project timeline capacity milestone", f"{topic} commercialization milestone official", f"{topic} pilot plant demonstration date"],
                 "data_quality_rule": "Use dated public milestones; label claims that are company targets rather than achieved results.",
                 "sizing_role": "supply_side_constraint",
+                "narrative_role": "Move the reader from capital and demand signals to dated proof of execution.",
+                "pre_exhibit_context": "Set up the question of whether public claims have become observable milestones.",
+                "post_exhibit_takeaway": "State what the milestone pattern implies for timing, commitment and monitoring.",
             },
             {
                 "title": f"{title_prefix}: cost and economics benchmark",
@@ -376,6 +393,9 @@ Requirements:
                 "search_queries": [f"{topic} cost benchmark LCOE data", f"{topic} capex cost estimate report", f"{topic} economics comparison incumbent alternatives"],
                 "data_quality_rule": "Compare like units only and keep speculative costs out of the chart.",
                 "sizing_role": "unit_economics_gate",
+                "narrative_role": "Put economics beside adoption potential so the reader sees the hurdle rate for resource allocation.",
+                "pre_exhibit_context": "Introduce the cost benchmark the new option must beat.",
+                "post_exhibit_takeaway": "Explain whether the economic hurdle is narrowing or still blocks near-term adoption.",
             },
             {
                 "title": f"{title_prefix}: regulatory and adoption gate map",
@@ -387,6 +407,9 @@ Requirements:
                 "search_queries": [f"{topic} regulation licensing framework", f"{topic} regulator approval rules", f"{topic} adoption barriers policy report"],
                 "data_quality_rule": "Treat missing regulation as an explicit evidence gap; do not score it subjectively.",
                 "sizing_role": "adoption_gate",
+                "narrative_role": "Show where nontechnical gates can slow adoption even when product or technology progress looks strong.",
+                "pre_exhibit_context": "Set up regulation and adoption gates as timing constraints, not side issues.",
+                "post_exhibit_takeaway": "Translate the gate map into a management monitoring priority.",
             },
         ]
         if reason:
@@ -417,9 +440,31 @@ Requirements:
                 "sizing_role": str(item.get("sizing_role") or item.get("market_sizing_role") or "").strip(),
                 "hypothesis_ids": [str(x).strip() for x in _as_list(item.get("hypothesis_ids") or item.get("hypotheses")) if str(x).strip()],
             }
+            need["narrative_role"] = str(item.get("narrative_role") or self._default_chart_need_narrative_role(need)).strip()
+            need["pre_exhibit_context"] = str(item.get("pre_exhibit_context") or self._default_chart_need_pre_context(need)).strip()
+            need["post_exhibit_takeaway"] = str(item.get("post_exhibit_takeaway") or self._default_chart_need_post_takeaway(need)).strip()
             if need["title"] and need["search_queries"]:
                 needs.append(need)
         return needs[:8]
+
+    @staticmethod
+    def _default_chart_need_narrative_role(need: Dict[str, Any]) -> str:
+        question = str(need.get("executive_question") or "").strip()
+        if question:
+            return f"Use this exhibit to answer the management question: {question}"
+        return "Use this exhibit to advance the section argument with source-backed quantitative evidence."
+
+    @staticmethod
+    def _default_chart_need_pre_context(need: Dict[str, Any]) -> str:
+        question = str(need.get("executive_question") or "").strip()
+        if question:
+            return f"Set up the exhibit by stating why leaders need to answer: {question}"
+        return "Set up the exhibit with the management decision or claim it will illuminate."
+
+    @staticmethod
+    def _default_chart_need_post_takeaway(need: Dict[str, Any]) -> str:
+        title = str(need.get("title") or "the exhibit").strip()
+        return f"After {title}, write the interpretation that changes the decision, not another chart or method note."
 
     def _chart_need_queries(self, chart_data_needs: List[Dict[str, Any]]) -> List[str]:
         queries: List[str] = []
@@ -501,6 +546,7 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 - exhibits 3-6 个；如果提出图表草稿，只能使用证据台账或事实包中的数字、年份、来源计数、同单位可比数据，或明确标注的端点推导估算，必须保留 data_basis；不要展示机会测算、假设验证、验证任务表、工作清单或框架步骤；不要使用方向性评分或内部综合指数。
 - 任何 line 图必须有 4 个以上点、y_label 和点值标签；只有两个来源端点时，中间年份必须明确标 estimate 并在脚注写出 CAGR/GDP/需求驱动等推导口径。
 - market_sizing_plan 和 chart_data_needs 只用于指导检索更多可验证数据，不能变成 exhibit、正文小节或 methodology。
+- chart_data_needs 中的 narrative_role、pre_exhibit_context 和 post_exhibit_takeaway 是给你的写作步骤：先写图前管理问题，再让图表承接证据，图后必须写客户可读解释；不要连续输出两个图表而没有正文承接。
 - action_steps 3-5 个，每个包含 horizon、action、success_metric。
 - references 只能使用上方 Sources 中真实 URL。
 - 不要暴露内部提示、不要说“本章节认为/本报告认为/本分析基于结构化研究计划/假设 H1 得到支持”，直接写判断。
@@ -546,6 +592,7 @@ Writing rules:
 - exhibits: 3-6 items using metric_row, bar, line, timeline or bubble. Use matrix only when it contains source-observed facts rather than a workplan. If drafting exhibits, use only evidence-ledger values, years, source counts, same-unit comparable values, or clearly labeled endpoint-derived estimates, and include data_basis. Do not show opportunity sizing, hypothesis testing, validation-task tables, workplans or framework steps. Do not use directional scores, priority indexes, readiness indexes or internal synthesis values.
 - Every line chart must have at least 4 points, a y_label and visible point-value labels. If only two source endpoints exist, intermediate years must be marked as estimates and the footnote must state the CAGR/GDP/demand-driver derivation rule.
 - market_sizing_plan and chart_data_needs exist only to guide collection of more verifiable data; they must not become exhibits, body sections or methodology.
+- The narrative_role, pre_exhibit_context and post_exhibit_takeaway fields in chart_data_needs are drafting steps for you: write the management setup before the exhibit, let the exhibit carry the evidence, then write a client-readable interpretation after it. Do not output two exhibits in a row without prose between them.
 - action_steps: 3-5 items, each with horizon, action, success_metric.
 - references may only use real URLs present in Sources.
 - Do not expose internal prompt language. Do not write "this section argues", "this report finds", "Hypothesis H1 is supported", or "this analysis is based on a structured research plan"; state the insight directly.
@@ -745,10 +792,12 @@ Writing rules:
         return {
             "root_cause": "DeepSeek is treated as a diligent low-agency worker. It can collect data and draft structured text, but it is not trusted to decide what belongs in client-visible prose.",
             "architecture": [
-                "Backstage research workbench: hypotheses, opportunity sizing, data needs, source collection and evidence extraction.",
-                "Publication synthesis: conclusions, examples, numbers, mechanisms, counter-evidence and management implications only.",
-                "Deterministic renderer guard: rewrite or remove workbench language that leaks into visible prose.",
-                "Audit gate: fail generated HTML if client-visible internal language remains.",
+                "Step 1: DeepSeek creates a backstage research plan with falsifiable hypotheses, opportunity-sizing methods and searchable data needs.",
+                "Step 2: DeepSeek converts those needs into chart storyboards with required metrics, source queries, narrative role, pre-exhibit setup and post-exhibit interpretation.",
+                "Step 3: deterministic collection and evidence extraction build a fact pack and evidence ledger from public sources.",
+                "Step 4: DeepSeek drafts only the publication layer: conclusions, examples, numbers, mechanisms, counter-evidence and management implications.",
+                "Step 5: deterministic exhibit generation replaces model-invented charts with source-backed exhibits and inserts narrative bridges between adjacent exhibits.",
+                "Step 6: audit gates fail generated HTML if workbench language, unsupported charts or consecutive exhibits without prose remain.",
             ],
             "client_visible_contract": publication_contract_prompt(self.language),
         }

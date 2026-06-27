@@ -123,6 +123,7 @@ def build_storyline_plan(
             "hypotheses_to_test": hypotheses,
             "market_sizing_logic": sizing_methods,
             "charting_rule": "图表只能使用 evidence_ledger 中可回溯到 URL 的数字、年份、来源计数或同单位可比数据。",
+            "exhibit_narrative_rule": "每张图必须嵌入章节论证：图前有管理问题或判断铺垫，图后有客户可读解释；不得连续堆放图表。",
         }
     return {
         "core_question": decision_question,
@@ -133,6 +134,7 @@ def build_storyline_plan(
         "hypotheses_to_test": hypotheses,
         "market_sizing_logic": sizing_methods,
         "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+        "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose.",
     }
 
 

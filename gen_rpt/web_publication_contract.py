@@ -113,6 +113,7 @@ Deepseek 角色合同：
 - 客户可见字段禁止出现：hypothesis、假设验证、market sizing、sizing bridge、TAM、SAM、SOM、issue tree、fact pack、evidence ledger、storyline plan、validation task、source boundary、data basis。
 - 如果你想写“假设 H2 得到支持”，改成直接判断；如果你想写“market sizing”，改成“机会判断/需求、采用、经济性和供给约束”；如果你想写“证据缺口”，改成“仍需验证的商业问题”。
 - exhibits 必须保留 JSON 键 data_basis 给机器追溯，但任何 title、subtitle、caption、source_note、正文和 methodology 都不得写 data basis 这个短语。
+- 每张图必须服务于章节论证：图前要有管理问题或判断铺垫，图后要有客户可读的解释；不得连续堆放两张图而没有正文承接。
 """.strip()
     return """
 DeepSeek role contract:
@@ -121,6 +122,7 @@ DeepSeek role contract:
 - Client-visible fields must not contain: hypothesis, hypotheses, hypothesis-driven, market sizing, sizing bridge, TAM, SAM, SOM, issue tree, fact pack, evidence ledger, storyline plan, validation task, source boundary or data basis.
 - If you want to write "Hypothesis H2 is supported", write the conclusion directly. If you want to write "market sizing", write about demand, adoption, economics and supply constraints. If you want to write "evidence gap", write it as a business question still needing proof.
 - Exhibits must keep the JSON key data_basis for machine traceability, but title, subtitle, caption, source_note, body prose and methodology must not write the phrase "data basis".
+- Every exhibit must serve the section argument: set up the management question before it and give a client-readable interpretation after it. Never stack two exhibits without prose between them.
 """.strip()
 
 

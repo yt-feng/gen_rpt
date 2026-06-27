@@ -144,12 +144,16 @@ def main() -> None:
     fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
     storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")
+    assert storyline_plan.get("exhibit_narrative_rule")
     chart_data_needs = [
         {
             "id": "chart-need-1",
             "title": "Workforce hours and output bridge",
             "chart_type": "bar",
             "executive_question": "Where does the labor gap show up as an operating gap?",
+            "narrative_role": "Connect the opening labor-risk claim to measurable operating pressure.",
+            "pre_exhibit_context": "Set up why leadership should compare workforce hours with output rather than treat labor as an HR-only issue.",
+            "post_exhibit_takeaway": "Explain whether the gap implies productivity pressure that AI must offset.",
             "required_metrics": ["workforce hours decline", "output decline"],
             "comparison_set": ["workforce hours", "output"],
             "preferred_sources": ["BlueOcean sample fixture"],
@@ -161,6 +165,9 @@ def main() -> None:
             "title": "AI performance uplift evidence",
             "chart_type": "bar",
             "executive_question": "Which measurable outcomes justify workflow redesign?",
+            "narrative_role": "Move from labor pressure to the scale of measurable AI performance upside.",
+            "pre_exhibit_context": "State why leaders need outcome evidence before funding workflow redesign.",
+            "post_exhibit_takeaway": "Explain which outcome metric is strong enough to justify deeper validation.",
             "required_metrics": ["revenue growth uplift", "adoption timing"],
             "comparison_set": ["AI leaders", "followers"],
             "preferred_sources": ["BlueOcean sample fixture"],
@@ -172,6 +179,9 @@ def main() -> None:
             "title": "Operating-model gate timeline",
             "chart_type": "timeline",
             "executive_question": "What sequence of proof gates should govern scale-up?",
+            "narrative_role": "Translate the adoption argument into a management cadence.",
+            "pre_exhibit_context": "Introduce the need for staged proof before broad AI rollout.",
+            "post_exhibit_takeaway": "Explain how the gates convert experimentation into an operating-model program.",
             "required_metrics": ["30 day gate", "90 day gate", "180 day gate"],
             "comparison_set": ["pilot stages"],
             "preferred_sources": ["responsible AI fixture"],

@@ -157,6 +157,21 @@ def main() -> int:
         issues.append(f"expected at least 3 chart data needs, got {len(chart_needs)}")
     if not isinstance(storyline_plan, dict) or not text(storyline_plan.get("core_question")):
         issues.append("storyline_plan.json lacks a core_question")
+    if not isinstance(storyline_plan, dict) or not text(storyline_plan.get("exhibit_narrative_rule")):
+        issues.append("storyline_plan.json lacks an exhibit_narrative_rule")
+    narrative_ready_needs = [
+        need
+        for need in chart_needs
+        if text(need.get("narrative_role"))
+        and text(need.get("pre_exhibit_context"))
+        and text(need.get("post_exhibit_takeaway"))
+    ]
+    metrics["narrative_ready_chart_needs"] = len(narrative_ready_needs)
+    if len(narrative_ready_needs) < min(3, len(chart_needs)):
+        issues.append(
+            f"expected at least {min(3, len(chart_needs))} chart data needs with narrative role/setup/takeaway, "
+            f"got {len(narrative_ready_needs)}"
+        )
     if len(data_backed_exhibits) < min(3, len(exhibits)):
         issues.append(f"expected at least {min(3, len(exhibits))} exhibits with data_basis, got {len(data_backed_exhibits)}")
 
