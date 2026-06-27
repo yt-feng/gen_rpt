@@ -1,0 +1,16 @@
+Title: IEA energy storage
+URL: https://www.iea.org/energy-system/electricity/grid-scale-storage
+Source Type: snippet
+Domain: iea.org
+Content Type: text/plain
+Search Query: DEMO fusion grid connection 2040
+
+IEA energy storage
+
+International Energy Agency source on grid-scale storage.
+
+Source URL retained for public-source review: https://www.iea.org/energy-system/electricity/grid-scale-storage
+
+Search context: DEMO fusion grid connection 2040
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.
