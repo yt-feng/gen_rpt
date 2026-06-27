@@ -1,0 +1,196 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Solar+Storage and Fission (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "When does fusion become cost-competitive?",
+    "required_metrics": [
+      "Fusion LCOE projections (USD/MWh) for 2025, 2030, 2035, 2040, 2045, 2050",
+      "Solar+storage LCOE projections (USD/MWh) for same years",
+      "Fission LCOE projections (USD/MWh) for same years"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar+storage vs. fission"
+    ],
+    "preferred_sources": [
+      "BloombergNEF (BNEF) LCOE database",
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook",
+      "Company roadmaps (Commonwealth Fusion Systems, TAE Technologies)"
+    ],
+    "search_queries": [
+      "BNEF LCOE fusion 2035",
+      "Lazard LCOE solar plus storage 2024",
+      "IEA World Energy Outlook 2024 LCOE nuclear"
+    ],
+    "data_quality_rule": "Use public projections from authoritative sources; if fusion LCOE is not available, note as 'not yet published' and use company targets with uncertainty bands.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Fusion Funding by Stage (2015-2024)",
+    "chart_type": "bar",
+    "executive_question": "Is fusion investment maturing or still speculative?",
+    "required_metrics": [
+      "Annual venture capital funding ($M) for fusion startups, broken down by seed, Series A, Series B, Series C+",
+      "Number of fusion startups reaching Series C or beyond"
+    ],
+    "comparison_set": [
+      "Year-over-year funding by stage"
+    ],
+    "preferred_sources": [
+      "PitchBook",
+      "Crunchbase",
+      "Fusion Industry Association reports",
+      "Cleantech Group"
+    ],
+    "search_queries": [
+      "fusion energy venture capital funding 2024 PitchBook",
+      "fusion startup series C 2023",
+      "Fusion Industry Association 2024 funding report"
+    ],
+    "data_quality_rule": "Cross-reference PitchBook and Crunchbase; if data is behind paywall, use Fusion Industry Association public summaries.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Tritium Supply vs. Demand for Fusion Fleet (2030-2050)",
+    "chart_type": "line",
+    "executive_question": "Can tritium supply support significant fusion capacity?",
+    "required_metrics": [
+      "Global tritium production capacity (kg/year) from CANDU reactors and other sources, 2025-2050",
+      "Projected tritium demand (kg/year) for fusion fleet scenarios (e.g., 1 GW, 10 GW, 50 GW installed capacity)",
+      "Tritium consumption rate per fusion plant (kg/GW-year)"
+    ],
+    "comparison_set": [
+      "Supply vs. demand under different deployment scenarios"
+    ],
+    "preferred_sources": [
+      "IAEA tritium reports",
+      "CANDU Owners Group",
+      "Fusion engineering papers (e.g., Tritium Breeding Ratio requirements)",
+      "Canadian Nuclear Laboratories"
+    ],
+    "search_queries": [
+      "IAEA tritium supply 2023",
+      "CANDU tritium production Canada",
+      "fusion tritium consumption per GW"
+    ],
+    "data_quality_rule": "Use publicly available IAEA data; if CANDU production is proprietary, use estimates from academic literature. Note uncertainty ranges.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Timeline Comparison: ITER, SPARC, CFETR, DEMO",
+    "chart_type": "timeline",
+    "executive_question": "What are the realistic milestones for first fusion power?",
+    "required_metrics": [
+      "Key milestones and target dates for ITER (first plasma, DT operation, full power)",
+      "Key milestones for SPARC (construction start, first plasma, Q>1 demonstration)",
+      "Key milestones for CFETR (design completion, construction start, operation)",
+      "Key milestones for DEMO (conceptual design, engineering design, construction)"
+    ],
+    "comparison_set": [
+      "Project timelines side by side"
+    ],
+    "preferred_sources": [
+      "ITER Organization official schedule",
+      "Commonwealth Fusion Systems public roadmap",
+      "China National Nuclear Corporation (CNNC) announcements",
+      "EU DEMO program documents"
+    ],
+    "search_queries": [
+      "ITER schedule 2024 first plasma",
+      "SPARC timeline 2025 Commonwealth Fusion",
+      "CFETR construction start date"
+    ],
+    "data_quality_rule": "Use official project announcements; if dates are delayed, note the most recent update. Include historical delays as annotations.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory Licensing Timeline: Fusion vs. Fission",
+    "chart_type": "bar",
+    "executive_question": "Does fusion have a regulatory advantage?",
+    "required_metrics": [
+      "Average licensing timeline (months) for fusion reactors (e.g., from application to approval) in US, UK, Canada",
+      "Average licensing timeline (months) for fission reactors (e.g., small modular reactors) in same countries"
+    ],
+    "comparison_set": [
+      "Fusion vs. fission licensing duration by country"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission (NRC) fusion regulatory framework documents",
+      "UK Environment Agency fusion licensing guidance",
+      "Canadian Nuclear Safety Commission (CNSC) pre-licensing reviews",
+      "IAEA licensing benchmarks"
+    ],
+    "search_queries": [
+      "NRC fusion licensing timeline 2024",
+      "UK fusion regulatory framework EA",
+      "CNSC fusion pre-licensing review duration"
+    ],
+    "data_quality_rule": "Use official regulatory documents; if fusion licensing timelines are not yet established, note as 'in development' and use fission timelines for comparison.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Industrial Heat Demand by Temperature Range (PJ/year)",
+    "chart_type": "bar",
+    "executive_question": "Which industrial sectors could be early fusion adopters?",
+    "required_metrics": [
+      "Industrial heat demand (PJ/year) by temperature range: low (<150°C), medium (150-400°C), high (400-800°C), very high (>800°C)",
+      "Sector breakdown: steel, cement, chemicals, refining, etc."
+    ],
+    "comparison_set": [
+      "Heat demand by temperature and sector"
+    ],
+    "preferred_sources": [
+      "IEA Energy Technology Perspectives",
+      "IRENA Renewable Energy for Industry",
+      "US DOE Industrial Decarbonization Roadmap",
+      "McKinsey industrial heat reports"
+    ],
+    "search_queries": [
+      "IEA industrial heat demand by temperature 2024",
+      "US DOE industrial heat decarbonization roadmap",
+      "IRENA renewable heat for industry"
+    ],
+    "data_quality_rule": "Use IEA or DOE public datasets; if temperature breakdown is not available, use sector-level data and estimate temperature ranges.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Government Fusion R&D Budgets by Country (USD/year)",
+    "chart_type": "bar",
+    "executive_question": "Which countries are investing most in fusion?",
+    "required_metrics": [
+      "Annual government fusion R&D budget (USD) for US, EU (including Euratom), China, Japan, South Korea, UK, Russia, India",
+      "Breakdown by program (e.g., ITER contribution, domestic programs)"
+    ],
+    "comparison_set": [
+      "Country budgets over time (e.g., 2020-2024)"
+    ],
+    "preferred_sources": [
+      "US DOE Fusion Energy Sciences budget documents",
+      "European Commission Euratom budget",
+      "China Ministry of Science and Technology announcements",
+      "Japan Ministry of Education, Culture, Sports, Science and Technology (MEXT)",
+      "UK Atomic Energy Authority funding"
+    ],
+    "search_queries": [
+      "DOE fusion budget 2024",
+      "Euratom fusion budget 2024",
+      "China fusion R&D spending 2024"
+    ],
+    "data_quality_rule": "Use official government budget documents; if China budget is not publicly available, use estimates from academic papers or state media. Convert all to USD using average exchange rates.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  }
+]

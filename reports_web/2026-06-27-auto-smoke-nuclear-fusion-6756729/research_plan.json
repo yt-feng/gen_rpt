@@ -1,0 +1,419 @@
+{
+  "objective": "To assess the commercial viability and strategic implications of nuclear fusion energy, focusing on timeline, cost competitiveness, and key players.",
+  "audience": "Energy investors, corporate strategists, and policy makers evaluating long-term energy portfolio risks and opportunities.",
+  "decision_question": "Should we invest in or prepare for nuclear fusion as a commercially viable energy source within the next 15 years?",
+  "issue_tree": {
+    "root": "Nuclear fusion commercialization outlook",
+    "branches": [
+      {
+        "node": "Technology readiness",
+        "children": [
+          "Current TRL of leading approaches (tokamak, stellarator, inertial confinement)",
+          "Key engineering challenges (materials, tritium breeding, plasma control)"
+        ]
+      },
+      {
+        "node": "Economic viability",
+        "children": [
+          "Levelized cost of electricity (LCOE) projections vs. renewables and fission",
+          "Capital expenditure and operational costs"
+        ]
+      },
+      {
+        "node": "Regulatory and policy landscape",
+        "children": [
+          "Licensing frameworks and safety standards",
+          "Government funding and public-private partnerships"
+        ]
+      },
+      {
+        "node": "Market adoption and competition",
+        "children": [
+          "Potential early adopters (grid, industrial heat, marine propulsion)",
+          "Competitive landscape: startups vs. incumbents vs. national labs"
+        ]
+      },
+      {
+        "node": "Timeline to commercial operation",
+        "children": [
+          "Milestones from leading projects (ITER, SPARC, DEMO)",
+          "Risk of delays and cost overruns"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve grid-connected electricity generation before 2040.",
+      "decision_relevance": "If true, near-term investment in fusion is premature; focus on other low-carbon technologies.",
+      "needed_evidence": [
+        "Published timelines from ITER, SPARC, and other major projects; historical delays in fusion research."
+      ],
+      "search_queries": [
+        "ITER schedule delays 2024",
+        "SPARC fusion timeline 2025",
+        "fusion commercial operation date 2040"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The LCOE of first-generation fusion plants will be higher than solar+storage by 2035.",
+      "decision_relevance": "If true, fusion will struggle to compete without carbon pricing or subsidies.",
+      "needed_evidence": [
+        "LCOE projections from fusion companies and independent analysts; solar+storage cost trends."
+      ],
+      "search_queries": [
+        "fusion LCOE projection 2035",
+        "solar plus storage LCOE 2035",
+        "Commonwealth Fusion Systems cost target"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Private fusion funding has shifted from early-stage to later-stage rounds, indicating maturation.",
+      "decision_relevance": "If true, fusion is attracting serious capital; if false, it remains speculative.",
+      "needed_evidence": [
+        "Funding data by round size and stage; number of startups reaching Series C or beyond."
+      ],
+      "search_queries": [
+        "fusion energy venture capital funding 2024",
+        "fusion startup series C 2023",
+        "fusion investment round size"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Tritium supply constraints will limit fusion deployment to <10 GW by 2050.",
+      "decision_relevance": "If true, fusion scale-up is bottlenecked; alternative breeding strategies needed.",
+      "needed_evidence": [
+        "Tritium production capacity from CANDU reactors and other sources; fusion reactor tritium consumption rates."
+      ],
+      "search_queries": [
+        "tritium supply fusion 2050",
+        "tritium breeding ratio requirements",
+        "CANDU tritium production"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Regulatory frameworks for fusion will be less stringent than fission, reducing licensing time and cost.",
+      "decision_relevance": "If true, fusion may have a deployment advantage over advanced fission.",
+      "needed_evidence": [
+        "Comparison of regulatory approaches (e.g., US NRC, UK EA); licensing timelines for fusion vs. fission."
+      ],
+      "search_queries": [
+        "NRC fusion regulation 2024",
+        "UK fusion licensing framework",
+        "fusion vs fission regulatory burden"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Industrial heat applications (e.g., steel, cement) will be the first commercial fusion market, not electricity.",
+      "decision_relevance": "If true, fusion companies should target industrial customers; grid electricity may be secondary.",
+      "needed_evidence": [
+        "Company announcements of industrial partnerships; heat demand and temperature requirements."
+      ],
+      "search_queries": [
+        "fusion industrial heat partnership",
+        "fusion steel production",
+        "fusion high-temperature heat"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "China will lead fusion commercialization due to state-backed projects and supply chain control.",
+      "decision_relevance": "If true, Western investors may face competitive disadvantage; policy implications.",
+      "needed_evidence": [
+        "China fusion budget and milestones; rare earth magnet supply chain; CFETR timeline."
+      ],
+      "search_queries": [
+        "China fusion budget 2024",
+        "CFETR timeline",
+        "China rare earth magnets fusion"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Nuclear fusion commercialization outlook and strategic implications, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total addressable market (TWh) = Global electricity demand (TWh) * % addressable by fusion (based on grid parity and baseload needs)",
+        "variables": [
+          "Global electricity demand 2030-2050 (IEA)",
+          "Fusion LCOE vs. alternatives",
+          "Grid integration constraints"
+        ],
+        "preferred_sources": [
+          "IEA World Energy Outlook",
+          "IRENA renewable cost database",
+          "EIA Annual Energy Outlook"
+        ],
+        "search_queries": [
+          "IEA global electricity demand 2050",
+          "fusion baseload potential",
+          "grid penetration limits baseload"
+        ],
+        "known_limitations": [
+          "Assumes fusion achieves cost parity; ignores regional variations"
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size (GW) = Number of fusion plants * average capacity per plant (GW)",
+        "variables": [
+          "Number of plants by 2050 (based on announced projects and realistic build rates)",
+          "Average plant capacity (e.g., 500 MW for ARC-class)"
+        ],
+        "preferred_sources": [
+          "Fusion Industry Association reports",
+          "Company roadmaps (Commonwealth, TAE, General Fusion)",
+          "Historical build rates for fission"
+        ],
+        "search_queries": [
+          "fusion plant capacity ARC",
+          "fusion industry association 2024 report",
+          "fission build rate history"
+        ],
+        "known_limitations": [
+          "Highly speculative; depends on technology success and regulatory approval"
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Adopted capacity (GW) = (Number of potential customers) * (adoption rate) * (average capacity per customer)",
+        "variables": [
+          "Potential customers: utilities, industrial heat users, data centers",
+          "Adoption rate based on cost competitiveness and risk appetite",
+          "Capacity per customer (e.g., 100 MW for data center)"
+        ],
+        "preferred_sources": [
+          "Utility annual reports",
+          "Data center energy consumption reports (IEA, Uptime Institute)",
+          "Industrial heat demand studies"
+        ],
+        "search_queries": [
+          "data center energy consumption 2024",
+          "industrial heat demand by sector",
+          "utility renewable energy procurement"
+        ],
+        "known_limitations": [
+          "Adoption rate is highly uncertain; early adopters may be niche"
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Value pool ($) = (Electricity revenue) + (heat revenue) + (hydrogen production revenue) + (other byproducts)",
+        "variables": [
+          "Electricity price projections",
+          "Heat market size",
+          "Hydrogen market size",
+          "Tritium value"
+        ],
+        "preferred_sources": [
+          "BloombergNEF hydrogen outlook",
+          "IEA hydrogen report",
+          "Electricity PPA prices"
+        ],
+        "search_queries": [
+          "industrial heat market size 2030",
+          "hydrogen production cost 2030",
+          "tritium market price"
+        ],
+        "known_limitations": [
+          "Byproduct markets are nascent; revenue stacking uncertain"
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Maximum deployable capacity (GW) = (Tritium supply) / (tritium consumption per GW-year) * (breeding ratio factor)",
+        "variables": [
+          "Tritium production from CANDU and other sources",
+          "Tritium consumption per fusion plant (kg/GW-year)",
+          "Breeding ratio (target >1)"
+        ],
+        "preferred_sources": [
+          "IAEA tritium reports",
+          "Fusion engineering papers",
+          "CANDU tritium production data"
+        ],
+        "search_queries": [
+          "tritium production CANDU 2024",
+          "fusion tritium consumption per GW",
+          "tritium breeding ratio"
+        ],
+        "known_limitations": [
+          "Tritium breeding not yet demonstrated; supply constraints may be binding"
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Global electricity demand projections to 2050 (TWh)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Levelized cost of electricity for fusion vs. solar+storage vs. fission (USD/MWh)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Number of fusion startups and their funding stages (seed, Series A, B, C+)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Tritium production capacity from existing sources (kg/year)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Fusion reactor tritium consumption rate (kg/GW-year)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Regulatory licensing timelines for fusion (months/years)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Industrial heat demand by temperature range (PJ/year)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Data center energy consumption growth rate (% per year)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D9",
+      "metric": "Government fusion R&D budgets by country (USD/year)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D10",
+      "metric": "Market share of leading fusion companies (by funding, patents, or partnerships)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D11",
+      "metric": "Timeline milestones from ITER, SPARC, CFETR, and DEMO",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D12",
+      "metric": "Historical cost overruns and delays in large fusion projects",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "IEA World Energy Outlook 2024 electricity demand",
+    "LCOE solar plus storage 2035 BNEF",
+    "Commonwealth Fusion Systems SPARC timeline 2025",
+    "fusion venture capital funding 2024 PitchBook",
+    "tritium supply fusion IAEA 2023",
+    "NRC fusion regulatory framework 2024",
+    "fusion industrial heat partnership steel",
+    "data center energy consumption IEA 2024",
+    "China fusion budget 2024 CFETR",
+    "ITER cost overruns history",
+    "fusion startup series C 2023",
+    "fusion LCOE projection 2035",
+    "CANDU tritium production Canada",
+    "fusion patent landscape 2024",
+    "UK fusion licensing framework EA",
+    "fusion hydrogen production cost",
+    "ITER schedule delays 2024",
+    "SPARC fusion timeline 2025"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Company filings (10-K, annual reports)",
+      "Government reports (DOE, IAEA, IEA)",
+      "Industry associations (Fusion Industry Association)",
+      "Academic journals (Nuclear Fusion, Fusion Engineering and Design)"
+    ],
+    "secondary": [
+      "Authoritative media (Nature, Reuters, Bloomberg)",
+      "Consulting reports (McKinsey, BNEF, Wood Mackenzie)",
+      "Patent databases (USPTO, WIPO)"
+    ],
+    "validation": [
+      "Cross-reference funding data from PitchBook, Crunchbase",
+      "Verify timelines with multiple sources",
+      "Use sensitivity analysis for LCOE assumptions"
+    ]
+  },
+  "outline": [
+    "I. Fusion is not coming to the grid before 2040: evidence from project timelines and historical delays",
+    "II. Fusion will be more expensive than solar+storage for at least a decade after first commercial plant",
+    "III. Tritium supply is the hidden bottleneck that could cap fusion deployment",
+    "IV. Industrial heat, not electricity, will be fusion's first commercial market",
+    "V. China is poised to lead fusion commercialization, challenging Western dominance"
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "Fusion LCOE vs. Solar+Storage and Fission (2025-2050)",
+      "question": "When does fusion become cost-competitive?",
+      "type": "Line chart with uncertainty bands"
+    },
+    {
+      "title": "Fusion Funding by Stage (2015-2024)",
+      "question": "Is fusion investment maturing or still speculative?",
+      "type": "Stacked bar chart"
+    },
+    {
+      "title": "Tritium Supply vs. Demand for Fusion Fleet (2030-2050)",
+      "question": "Can tritium supply support significant fusion capacity?",
+      "type": "Area chart with supply and demand lines"
+    },
+    {
+      "title": "Timeline Comparison: ITER, SPARC, CFETR, DEMO",
+      "question": "What are the realistic milestones for first fusion power?",
+      "type": "Gantt chart"
+    },
+    {
+      "title": "Regulatory Licensing Timeline: Fusion vs. Fission",
+      "question": "Does fusion have a regulatory advantage?",
+      "type": "Horizontal bar chart"
+    }
+  ],
+  "risks": [
+    "Overreliance on optimistic company timelines; need to cross-reference with independent experts.",
+    "LCOE comparisons may be outdated quickly due to rapid solar cost declines; use sensitivity ranges.",
+    "Tritium data is scarce and often classified; may need to rely on estimates from public sources.",
+    "Regulatory frameworks are evolving; current comparisons may become obsolete.",
+    "China's fusion progress is opaque; data may be limited to state media and academic papers."
+  ]
+}

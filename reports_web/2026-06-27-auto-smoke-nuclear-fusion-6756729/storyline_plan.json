@@ -1,0 +1,135 @@
+{
+  "core_question": "Should we invest in or prepare for nuclear fusion as a commercially viable energy source within the next 15 years?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, adoption, technology",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the Milestone Program).",
+    "Department of Energy (DOE) today announced $107 million in funding for six projects in the Fusion Innovative Research Engine (FIRE) Collaboratives , and that several privately funded fusion companies have completed early critical-path science and technology (S&T) milestones in the Milestone-Based Fusion Development Program (“the Milestone Program”)."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve grid-connected electricity generation before 2040.",
+      "decision_relevance": "If true, near-term investment in fusion is premature; focus on other low-carbon technologies.",
+      "needed_evidence": [
+        "Published timelines from ITER, SPARC, and other major projects; historical delays in fusion research."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The LCOE of first-generation fusion plants will be higher than solar+storage by 2035.",
+      "decision_relevance": "If true, fusion will struggle to compete without carbon pricing or subsidies.",
+      "needed_evidence": [
+        "LCOE projections from fusion companies and independent analysts; solar+storage cost trends."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Private fusion funding has shifted from early-stage to later-stage rounds, indicating maturation.",
+      "decision_relevance": "If true, fusion is attracting serious capital; if false, it remains speculative.",
+      "needed_evidence": [
+        "Funding data by round size and stage; number of startups reaching Series C or beyond."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Tritium supply constraints will limit fusion deployment to <10 GW by 2050.",
+      "decision_relevance": "If true, fusion scale-up is bottlenecked; alternative breeding strategies needed.",
+      "needed_evidence": [
+        "Tritium production capacity from CANDU reactors and other sources; fusion reactor tritium consumption rates."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Regulatory frameworks for fusion will be less stringent than fission, reducing licensing time and cost.",
+      "decision_relevance": "If true, fusion may have a deployment advantage over advanced fission.",
+      "needed_evidence": [
+        "Comparison of regulatory approaches (e.g., US NRC, UK EA); licensing timelines for fusion vs. fission."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Industrial heat applications (e.g., steel, cement) will be the first commercial fusion market, not electricity.",
+      "decision_relevance": "If true, fusion companies should target industrial customers; grid electricity may be secondary.",
+      "needed_evidence": [
+        "Company announcements of industrial partnerships; heat demand and temperature requirements."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "China will lead fusion commercialization due to state-backed projects and supply chain control.",
+      "decision_relevance": "If true, Western investors may face competitive disadvantage; policy implications.",
+      "needed_evidence": [
+        "China fusion budget and milestones; rare earth magnet supply chain; CFETR timeline."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market (TWh) = Global electricity demand (TWh) * % addressable by fusion (based on grid parity and baseload needs)",
+      "variables": [
+        "Global electricity demand 2030-2050 (IEA)",
+        "Fusion LCOE vs. alternatives",
+        "Grid integration constraints"
+      ],
+      "known_limitations": [
+        "Assumes fusion achieves cost parity; ignores regional variations"
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size (GW) = Number of fusion plants * average capacity per plant (GW)",
+      "variables": [
+        "Number of plants by 2050 (based on announced projects and realistic build rates)",
+        "Average plant capacity (e.g., 500 MW for ARC-class)"
+      ],
+      "known_limitations": [
+        "Highly speculative; depends on technology success and regulatory approval"
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Adopted capacity (GW) = (Number of potential customers) * (adoption rate) * (average capacity per customer)",
+      "variables": [
+        "Potential customers: utilities, industrial heat users, data centers",
+        "Adoption rate based on cost competitiveness and risk appetite",
+        "Capacity per customer (e.g., 100 MW for data center)"
+      ],
+      "known_limitations": [
+        "Adoption rate is highly uncertain; early adopters may be niche"
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value pool ($) = (Electricity revenue) + (heat revenue) + (hydrogen production revenue) + (other byproducts)",
+      "variables": [
+        "Electricity price projections",
+        "Heat market size",
+        "Hydrogen market size",
+        "Tritium value"
+      ],
+      "known_limitations": [
+        "Byproduct markets are nascent; revenue stacking uncertain"
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Maximum deployable capacity (GW) = (Tritium supply) / (tritium consumption per GW-year) * (breeding ratio factor)",
+      "variables": [
+        "Tritium production from CANDU and other sources",
+        "Tritium consumption per fusion plant (kg/GW-year)",
+        "Breeding ratio (target >1)"
+      ],
+      "known_limitations": [
+        "Tritium breeding not yet demonstrated; supply constraints may be binding"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs."
+}
