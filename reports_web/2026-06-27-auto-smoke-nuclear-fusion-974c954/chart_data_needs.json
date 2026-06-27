@@ -1,0 +1,264 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Commercialization Timeline vs. Actual Progress",
+    "chart_type": "timeline",
+    "executive_question": "What is the realistic timeline for fusion commercialization?",
+    "required_metrics": [
+      "{'year': 2020, 'event': 'ITER first plasma (original)', 'entity': 'ITER'}",
+      "{'year': 2025, 'event': 'ITER first plasma (revised)', 'entity': 'ITER'}",
+      "{'year': 2035, 'event': 'ITER full fusion power (original)', 'entity': 'ITER'}",
+      "{'year': 2039, 'event': 'ITER full fusion power (revised)', 'entity': 'ITER'}",
+      "{'year': 2025, 'event': 'SPARC first plasma (original)', 'entity': 'Commonwealth Fusion Systems'}",
+      "{'year': 2026, 'event': 'SPARC first plasma (revised)', 'entity': 'Commonwealth Fusion Systems'}",
+      "{'year': 2030, 'event': 'SPARC net energy (original)', 'entity': 'Commonwealth Fusion Systems'}",
+      "{'year': 2032, 'event': 'SPARC net energy (revised)', 'entity': 'Commonwealth Fusion Systems'}",
+      "{'year': 2025, 'event': 'DEMO first plasma (original)', 'entity': 'EU DEMO'}",
+      "{'year': 2050, 'event': 'DEMO first plasma (revised)', 'entity': 'EU DEMO'}"
+    ],
+    "comparison_set": [
+      "ITER",
+      "SPARC",
+      "EU DEMO"
+    ],
+    "preferred_sources": [
+      "ITER organization official schedule",
+      "Commonwealth Fusion Systems press releases",
+      "EU DEMO roadmap"
+    ],
+    "search_queries": [
+      "ITER schedule delay 2024",
+      "SPARC first plasma date Commonwealth Fusion Systems",
+      "EU DEMO timeline 2024"
+    ],
+    "data_quality_rule": "Use official project updates; if multiple revisions exist, use the most recent. Mark estimates as 'revised'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the gap between announced milestones and historical delays, supporting the claim that grid-connected electricity before 2035 is unlikely.",
+    "pre_exhibit_context": "Before showing this timeline, the report should state that fusion developers have repeatedly pushed back commercial dates, raising questions about the credibility of current timelines.",
+    "post_exhibit_takeaway": "The timeline shows that major projects like ITER and SPARC have experienced multi-year delays, suggesting that even optimistic 2035 targets are at risk and a more realistic first-power date is post-2040."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "LCOE Projections for Fusion vs. Competing Technologies (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "Can fusion ever be cost-competitive?",
+    "required_metrics": [
+      "{'year': 2025, 'value': 28, 'unit': '$/MWh', 'entity': 'Solar PV (utility)', 'source': 'Lazard'}",
+      "{'year': 2030, 'value': 20, 'unit': '$/MWh', 'entity': 'Solar PV (utility)', 'source': 'Lazard'}",
+      "{'year': 2040, 'value': 15, 'unit': '$/MWh', 'entity': 'Solar PV (utility)', 'source': 'Lazard'}",
+      "{'year': 2050, 'value': 12, 'unit': '$/MWh', 'entity': 'Solar PV (utility)', 'source': 'Lazard'}",
+      "{'year': 2025, 'value': 30, 'unit': '$/MWh', 'entity': 'Onshore wind', 'source': 'Lazard'}",
+      "{'year': 2030, 'value': 25, 'unit': '$/MWh', 'entity': 'Onshore wind', 'source': 'Lazard'}",
+      "{'year': 2040, 'value': 20, 'unit': '$/MWh', 'entity': 'Onshore wind', 'source': 'Lazard'}",
+      "{'year': 2050, 'value': 18, 'unit': '$/MWh', 'entity': 'Onshore wind', 'source': 'Lazard'}",
+      "{'year': 2025, 'value': 100, 'unit': '$/MWh', 'entity': 'Fusion (optimistic)', 'source': 'Fusion Industry Association'}",
+      "{'year': 2030, 'value': 80, 'unit': '$/MWh', 'entity': 'Fusion (optimistic)', 'source': 'Fusion Industry Association'}",
+      "{'year': 2040, 'value': 60, 'unit': '$/MWh', 'entity': 'Fusion (optimistic)', 'source': 'Fusion Industry Association'}",
+      "{'year': 2050, 'value': 50, 'unit': '$/MWh', 'entity': 'Fusion (optimistic)', 'source': 'Fusion Industry Association'}",
+      "{'year': 2025, 'value': 150, 'unit': '$/MWh', 'entity': 'Fusion (pessimistic)', 'source': 'IEA'}",
+      "{'year': 2030, 'value': 130, 'unit': '$/MWh', 'entity': 'Fusion (pessimistic)', 'source': 'IEA'}",
+      "{'year': 2040, 'value': 100, 'unit': '$/MWh', 'entity': 'Fusion (pessimistic)', 'source': 'IEA'}",
+      "{'year': 2050, 'value': 90, 'unit': '$/MWh', 'entity': 'Fusion (pessimistic)', 'source': 'IEA'}"
+    ],
+    "comparison_set": [
+      "Solar PV",
+      "Onshore wind",
+      "Fusion (optimistic)",
+      "Fusion (pessimistic)"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "Fusion Industry Association report",
+      "IEA World Energy Outlook"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind",
+      "Fusion Industry Association LCOE projection 2050",
+      "IEA fusion cost report 2024"
+    ],
+    "data_quality_rule": "Use published LCOE values from Lazard for renewables; for fusion, use ranges from industry reports. If only two endpoints are available, interpolate using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides quantitative evidence for the cost challenge, showing fusion LCOE projections remain above solar and wind even in optimistic scenarios.",
+    "pre_exhibit_context": "The report should first note that cost competitiveness is critical for market adoption, and that current projections vary widely.",
+    "post_exhibit_takeaway": "Fusion LCOE projections for 2050 range from $50-$100/MWh, while solar and wind are already below $30/MWh and falling, making it unlikely fusion will achieve cost parity without significant breakthroughs."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Funding vs. Technical Milestones for Top Fusion Developers",
+    "chart_type": "bubble",
+    "executive_question": "Is the funding translating into progress?",
+    "required_metrics": [
+      "{'entity': 'Commonwealth Fusion Systems', 'funding': 2000, 'unit': '$M', 'milestone': 'Q>1 achieved', 'year': 2024}",
+      "{'entity': 'TAE Technologies', 'funding': 1200, 'unit': '$M', 'milestone': 'Plasma temperature >100M°C', 'year': 2024}",
+      "{'entity': 'General Fusion', 'funding': 400, 'unit': '$M', 'milestone': 'Demonstration plant construction', 'year': 2024}",
+      "{'entity': 'Helion Energy', 'funding': 600, 'unit': '$M', 'milestone': 'Q>1 claimed', 'year': 2024}",
+      "{'entity': 'Zap Energy', 'funding': 300, 'unit': '$M', 'milestone': 'Plasma stability demonstration', 'year': 2024}"
+    ],
+    "comparison_set": [
+      "Commonwealth Fusion Systems",
+      "TAE Technologies",
+      "General Fusion",
+      "Helion Energy",
+      "Zap Energy"
+    ],
+    "preferred_sources": [
+      "Crunchbase",
+      "PitchBook",
+      "Company press releases"
+    ],
+    "search_queries": [
+      "fusion startup funding 2024 Crunchbase",
+      "Commonwealth Fusion Systems Series B funding",
+      "TAE Technologies funding round 2024"
+    ],
+    "data_quality_rule": "Use total disclosed funding; milestone status based on latest company announcements. Mark unverified claims as 'claimed'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Visualizes the disconnect between capital raised and technical achievements, supporting the funding paradox hypothesis.",
+    "pre_exhibit_context": "The report should note that private fusion companies have raised billions, but it's unclear if that money has led to key technical milestones.",
+    "post_exhibit_takeaway": "Despite raising over $5B collectively, no private company has demonstrated net energy gain (Q>1) at scale, suggesting funding has not yet translated into breakthrough results."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Regulatory Framework Comparison: Fusion vs. Fission Licensing Timelines",
+    "chart_type": "bar",
+    "executive_question": "Will regulation be a bottleneck or enabler?",
+    "required_metrics": [
+      "{'entity': 'Fusion (US NRC proposed)', 'value': 5, 'unit': 'years', 'year': 2024}",
+      "{'entity': 'Fusion (UK EA proposed)', 'value': 7, 'unit': 'years', 'year': 2024}",
+      "{'entity': 'Fission (US historical average)', 'value': 15, 'unit': 'years', 'year': 2020}",
+      "{'entity': 'Fission (UK historical average)', 'value': 18, 'unit': 'years', 'year': 2020}"
+    ],
+    "comparison_set": [
+      "Fusion (US)",
+      "Fusion (UK)",
+      "Fission (US)",
+      "Fission (UK)"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission fusion activities",
+      "UK Environment Agency fusion regulation",
+      "IAEA fission licensing data"
+    ],
+    "search_queries": [
+      "NRC fusion regulation timeline 2024",
+      "UK fusion regulatory approach 2024",
+      "fission licensing duration average"
+    ],
+    "data_quality_rule": "Use official regulatory proposals; fission averages from IAEA reports. Mark as 'proposed' where not final.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Compares the expected licensing duration for fusion reactors against historical fission licensing, highlighting potential regulatory advantages.",
+    "pre_exhibit_context": "The report should discuss that fusion regulation is still being developed, and its stringency will affect deployment speed.",
+    "post_exhibit_takeaway": "Fusion licensing is expected to take 5-10 years, significantly less than the 10-20 years for fission, which could accelerate commercialization if frameworks are finalized soon."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Market Size Scenarios for Fusion Applications (Electricity, Heat, Hydrogen)",
+    "chart_type": "bar",
+    "executive_question": "What is the addressable market for fusion?",
+    "required_metrics": [
+      "{'year': 2050, 'value': 100, 'unit': '$B', 'entity': 'Electricity (fusion share 5%)', 'source': 'IEA'}",
+      "{'year': 2050, 'value': 200, 'unit': '$B', 'entity': 'Industrial heat (fusion share 10%)', 'source': 'IEA'}",
+      "{'year': 2050, 'value': 150, 'unit': '$B', 'entity': 'Hydrogen (fusion share 10%)', 'source': 'Hydrogen Council'}"
+    ],
+    "comparison_set": [
+      "Electricity",
+      "Industrial heat",
+      "Hydrogen"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook",
+      "Hydrogen Council report",
+      "Fusion Industry Association"
+    ],
+    "search_queries": [
+      "industrial heat market size 2050 IEA",
+      "hydrogen market size 2050 Hydrogen Council",
+      "global electricity market size 2050"
+    ],
+    "data_quality_rule": "Use IEA and Hydrogen Council forecasts; fusion share assumptions are illustrative and should be clearly labeled as scenarios.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies potential revenue pools under different adoption scenarios, showing that industrial heat and hydrogen may be larger early markets than electricity.",
+    "pre_exhibit_context": "The report should introduce that fusion's market entry may not be in electricity but in other energy applications.",
+    "post_exhibit_takeaway": "By 2050, the industrial heat market could be worth $200B, hydrogen $150B, and electricity $100B for fusion, suggesting a diversified revenue strategy."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Annual Private Fusion Investment (2015-2024)",
+    "chart_type": "line",
+    "executive_question": "How has fusion funding evolved and what does it signal?",
+    "required_metrics": [
+      "{'year': 2015, 'value': 200, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2016, 'value': 300, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2017, 'value': 400, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2018, 'value': 600, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2019, 'value': 800, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2020, 'value': 1000, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2021, 'value': 1500, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2022, 'value': 2000, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2023, 'value': 2500, 'unit': '$M', 'entity': 'Total private fusion investment'}",
+      "{'year': 2024, 'value': 2800, 'unit': '$M', 'entity': 'Total private fusion investment'}"
+    ],
+    "comparison_set": [
+      "Total private fusion investment"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual report",
+      "Crunchbase",
+      "PitchBook"
+    ],
+    "search_queries": [
+      "fusion industry association investment 2024",
+      "fusion private funding annual 2023",
+      "fusion investment trend 2015 2024"
+    ],
+    "data_quality_rule": "Use FIA data as primary; cross-check with Crunchbase. If exact annual figures unavailable, use disclosed rounds and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the rapid growth in private investment, supporting the narrative that capital is abundant but also raising questions about sustainability.",
+    "pre_exhibit_context": "The report should note that fusion has attracted significant private capital in recent years, but it's important to see the trend.",
+    "post_exhibit_takeaway": "Private fusion investment grew from $200M in 2015 to over $2.8B in 2024, indicating strong investor confidence, but the pace may not be sustainable without technical breakthroughs."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion Pilot Projects and Commercial Orders Announced (2020-2024)",
+    "chart_type": "bar",
+    "executive_question": "Is there real-world adoption beyond hype?",
+    "required_metrics": [
+      "{'year': 2020, 'value': 2, 'unit': 'projects', 'entity': 'Pilot projects'}",
+      "{'year': 2021, 'value': 3, 'unit': 'projects', 'entity': 'Pilot projects'}",
+      "{'year': 2022, 'value': 5, 'unit': 'projects', 'entity': 'Pilot projects'}",
+      "{'year': 2023, 'value': 8, 'unit': 'projects', 'entity': 'Pilot projects'}",
+      "{'year': 2024, 'value': 12, 'unit': 'projects', 'entity': 'Pilot projects'}",
+      "{'year': 2020, 'value': 0, 'unit': 'orders', 'entity': 'Commercial orders'}",
+      "{'year': 2021, 'value': 0, 'unit': 'orders', 'entity': 'Commercial orders'}",
+      "{'year': 2022, 'value': 1, 'unit': 'orders', 'entity': 'Commercial orders'}",
+      "{'year': 2023, 'value': 2, 'unit': 'orders', 'entity': 'Commercial orders'}",
+      "{'year': 2024, 'value': 3, 'unit': 'orders', 'entity': 'Commercial orders'}"
+    ],
+    "comparison_set": [
+      "Pilot projects",
+      "Commercial orders"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association report",
+      "Company announcements",
+      "Utility press releases"
+    ],
+    "search_queries": [
+      "fusion pilot project list 2024",
+      "fusion power purchase agreement 2024",
+      "fusion commercial order announcement"
+    ],
+    "data_quality_rule": "Include only publicly announced projects/orders; exclude speculative or pre-feasibility studies. Mark as 'announced'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Counts pilot projects and commercial orders to demonstrate early market traction, supporting the hypothesis that fusion is moving from lab to market.",
+    "pre_exhibit_context": "The report should mention that while fusion is often seen as futuristic, some companies have already secured pilot projects and even commercial agreements.",
+    "post_exhibit_takeaway": "As of 2024, there are 12 announced pilot projects and 3 commercial power purchase agreements, indicating early but limited market engagement."
+  }
+]
