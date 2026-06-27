@@ -1,0 +1,200 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Renewables + Storage (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "When does fusion become cost-competitive?",
+    "required_metrics": [
+      "Year (2025, 2030, 2035, 2040, 2045, 2050)",
+      "Fusion LCOE ($/MWh) - central estimate and range",
+      "Solar PV + storage LCOE ($/MWh)",
+      "Onshore wind + storage LCOE ($/MWh)"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar+storage vs. wind+storage"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IRENA Renewable Cost Database",
+      "Fusion Industry Association reports",
+      "IEA World Energy Outlook"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind storage",
+      "IRENA renewable cost 2024",
+      "fusion LCOE estimate 2024"
+    ],
+    "data_quality_rule": "Use published LCOE values from Lazard and IRENA for renewables; for fusion, use ranges from FIA or developer estimates. If only two endpoints exist, interpolate using CAGR from public forecasts and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Fusion Funding Timeline (2010-2024) by Source",
+    "chart_type": "line",
+    "executive_question": "How has investment evolved and who is investing?",
+    "required_metrics": [
+      "Year (2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024)",
+      "Annual private fusion investment ($ million)",
+      "Annual government fusion funding ($ million)"
+    ],
+    "comparison_set": [
+      "Private vs. government funding over time"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "Crunchbase, PitchBook",
+      "DOE fusion budget requests",
+      "IAEA fusion funding database"
+    ],
+    "search_queries": [
+      "fusion energy startup funding 2024",
+      "fusion industry association investment report",
+      "DOE fusion budget 2024"
+    ],
+    "data_quality_rule": "Use FIA annual funding surveys for private investment; DOE budget documents for government. Ensure at least 4 annual data points; if gaps exist, use linear interpolation with source note.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Startup Survival Curve",
+    "chart_type": "bubble",
+    "executive_question": "What fraction of startups will reach commercialization?",
+    "required_metrics": [
+      "Company name",
+      "Year founded",
+      "Total funding raised ($ million)",
+      "Current stage (concept, prototype, pilot, commercial)",
+      "Status (active, acquired, closed)"
+    ],
+    "comparison_set": [
+      "Bubble size = funding, x-axis = year founded, y-axis = stage (ordinal), color = status"
+    ],
+    "preferred_sources": [
+      "Crunchbase, PitchBook",
+      "Fusion Industry Association member list",
+      "Company announcements"
+    ],
+    "search_queries": [
+      "fusion startup list 2024",
+      "Commonwealth Fusion Systems funding",
+      "TAE Technologies funding"
+    ],
+    "data_quality_rule": "Include only companies with verifiable funding data. Stage must be based on public milestones. Exclude companies with no public information.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Key Fusion Projects and Their Milestones",
+    "chart_type": "timeline",
+    "executive_question": "What is the realistic timeline for first power?",
+    "required_metrics": [
+      "Project name",
+      "Organization",
+      "Milestone (e.g., first plasma, net energy, grid connection)",
+      "Target year",
+      "Status (on track, delayed, cancelled)"
+    ],
+    "comparison_set": [
+      "Multiple projects (ITER, SPARC, STEP, etc.)"
+    ],
+    "preferred_sources": [
+      "Project official websites",
+      "IAEA fusion database",
+      "Fusion Industry Association reports"
+    ],
+    "search_queries": [
+      "ITER timeline delays 2024",
+      "SPARC fusion commercial operation date",
+      "STEP fusion project timeline"
+    ],
+    "data_quality_rule": "Use only official project announcements or independent reviews. Mark delays with source. If a milestone is not publicly dated, exclude.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Tritium Supply-Demand Gap Forecast",
+    "chart_type": "bar",
+    "executive_question": "Will tritium availability limit fusion deployment?",
+    "required_metrics": [
+      "Year (2030, 2035, 2040, 2045, 2050)",
+      "Tritium demand (kg/year) from fusion plants",
+      "Tritium supply (kg/year) from CANDU reactors and other sources"
+    ],
+    "comparison_set": [
+      "Demand vs. supply over time"
+    ],
+    "preferred_sources": [
+      "IAEA tritium reports",
+      "Fusion developer tritium breeding estimates",
+      "CANDU tritium production data"
+    ],
+    "search_queries": [
+      "tritium supply fusion 2024",
+      "tritium demand forecast fusion",
+      "CANDU tritium production"
+    ],
+    "data_quality_rule": "Use IAEA data for supply; demand based on fusion plant scenarios (e.g., 1 GW plant consumes ~56 kg/year). If only two points, use linear interpolation with source note.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Fusion vs. Fission vs. Solar vs. Wind Investment (2020-2030)",
+    "chart_type": "bar",
+    "executive_question": "How does fusion investment compare to other clean energy technologies?",
+    "required_metrics": [
+      "Year (2020, 2022, 2024, 2026, 2028, 2030)",
+      "Annual investment in fusion ($ billion)",
+      "Annual investment in nuclear fission ($ billion)",
+      "Annual investment in solar ($ billion)",
+      "Annual investment in wind ($ billion)"
+    ],
+    "comparison_set": [
+      "Fusion vs. fission vs. solar vs. wind"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Investment",
+      "BloombergNEF",
+      "Fusion Industry Association"
+    ],
+    "search_queries": [
+      "IEA world energy investment 2024",
+      "BloombergNEF clean energy investment 2024",
+      "fusion vs fission investment 2024"
+    ],
+    "data_quality_rule": "Use IEA and BNEF data for historical and projected values. For fusion, use FIA data. If projections are not available, use CAGR from recent trends and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion LCOE Sensitivity to Key Variables",
+    "chart_type": "line",
+    "executive_question": "Which variables most affect fusion cost competitiveness?",
+    "required_metrics": [
+      "Variable (capital cost, capacity factor, discount rate, fuel cost)",
+      "Value range (low, base, high)",
+      "Resulting LCOE ($/MWh)"
+    ],
+    "comparison_set": [
+      "Sensitivity lines for each variable"
+    ],
+    "preferred_sources": [
+      "Fusion developer cost models",
+      "Academic papers (e.g., MIT, Imperial College)",
+      "Fusion Industry Association cost studies"
+    ],
+    "search_queries": [
+      "fusion LCOE sensitivity analysis",
+      "fusion capital cost estimate 2024",
+      "fusion capacity factor assumption"
+    ],
+    "data_quality_rule": "Use published sensitivity ranges from credible sources. If only base case available, assume ±30% for capital cost and ±10% for capacity factor. Mark assumptions.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  }
+]
