@@ -1,0 +1,48 @@
+Title: FIA 2024 Global Fusion Industry Report launch
+URL: https://www.fusionindustryassociation.org/fia-launches-2024-global-fusion-industry-report/
+Source Type: html
+Domain: fusionindustryassociation.org
+Content Type: text/html; charset=utf-8
+Search Query: fusion LCOE projection 2050
+
+FIA Launches 2024 Global Fusion Industry Report - Fusion Industry Association
+
+FIA Launches 2024 Global Fusion Industry Report
+“Maturing” fusion industry attracts another $900m and creates over 1,000 more jobs
+17 July 2024: The fusion industry has now attracted over $7.1bn of investment, according to an annual report by the Fusion Industry Association (FIA), with over $900 million of new funds backing the technology since last year. As part of that, total public funding increased by 57% in the last 12 months to $426m, showing governments increasingly see public-private partnerships as central to making commercial fusion a reality.
+The figures come from the FIA’s The Global Fusion Industry in 2024 report, which surveyed 45 private fusion companies, up from 43 last year. There were three new entrants into this year’s survey, while one company withdrew its efforts.
+Total funding came from a wide range of investments across many of the 45 fusion companies, including notable deals such as $100m for Xcimer, $90m for SHINE, and $65m for Helion. The US is still the global leader for commercial fusion with 25 companies in the survey, followed by the UK, Germany, Japan, and China, all with three. Switzerland is a new entrant into this year’s report, hosting two fusion companies, while Australia, Canada, France, Israel, New Zealand, and Sweden all have one.
+This year has also seen a leap in job numbers, with over 4,000 people around the world now employed in private fusion companies, a 34% increase since 2023 (1,034 more employees), and up nearly 300% since 2021 (3,011 more employees). Nearly half of those employed are engineers (48%), a quarter are scientists (25%), and a quarter are in other roles (27%).
+“This year’s continued growth in investment and employee numbers are exactly what we should be seeing in a maturing industry,” says Andrew Holland, Chief Executive Officer of the Fusion Industry Association. “In the face of continued challenges in raising capital for ‘deep-tech’ ventures, the additional funding underscores confidence in fusion technology’s potential to revolutionize the global energy landscape on a timescale that is relevant to investors. Plus, with government policies shifting to direct more public funding into private fusion companies, the major players are aligning behind a shared goal.”
+Notable public-private partnerships that have moved forward in the last year include the Milestone-based fusion development program in the United States, the German government’s new “Fusion 2040” initiative; the Japanese government’s new “Fusion Moonshot” goal; and the British Government’s ambitious new “Fusion Futures” program.
+In the fourth year of this report, companies remain steadfast in their projected timelines for producing fusion-generated electricity in the 2030s, with 89% of the companies responding to the survey anticipating that fusion will provide electricity to the grid by the end of 2030s, and 70% of the companies saying that milestone will happen by the end of 2035. Since this report was first released in 2021, these questions have received similar answers. We have not seen timelines slip. “The industry is hitting its own milestones, and remains on track,” says Holland.
+However, there are still major challenges to overcome and, between 2025 and 2030, two-thirds of respondents believe power efficiency will be a major challenge, while the same proportion (66%) believe funding will be a barrier to success.
+“Ambitious targets need ambitious resources and a step change in growth will be required once private companies deliver results on their prototype machines,” says Holland. “The growth seen in the last 12 months is positive, but will not be enough to deliver fusion’s ambitious goals. The sector needs continued support from public and private investors if it is to continue to innovate. Fortunately, we are now seeing consistent progress. As prototype and proof-of-concept machines continue to deliver results, this will de-risk investment, and unlock a vast pool of lower-risk capital. The next few years are vital to making the vision of sustainable and abundant fusion energy a reality.”
+This is the fourth annual “Global Fusion Industry Report” from the Fusion Industry Association. Responses are based on answers to a survey issued to private fusion companies. We approached the fusion businesses we know about and where contact information was available. Their responses were voluntary, and we strive to be impartial, presenting the information on the various companies as it has been conveyed to us. This survey should be seen as a snapshot in time; a view of the industry when the survey was conducted in the second quarter of 2024. Repeating the activity year-on-year enables us to see the picture evolving.
+Many private fusion companies are members of the Fusion Industry Association, though this is not a requirement for the report, and we strive to treat members and non-members the same. Membership of the FIA requires companies to have a plan for fusion commercialization and to demonstrate private investment to support their mission. Companies playing a supportive role in the fusion industry may join as Affiliate Members, but these wider-industry companies are not the subject of this report; they are featured in our annual supply chain report.
+About The Fusion Industry Association (FIA)
+The FIA is the unified voice of the global fusion industry and a central point for coordination across the fusion community to support accelerated growth.
+ABOUT POLICY MEMBERSHIP NEWS FAQ MEDIA LEARN EVENTS CONTACT
+Subscribe and get fusion industry updates and stay on top of global fusion progress.
+© 2026 Fusion Industry Association - Messaging, design and development by Mind Over Markets
+Magnetic confinement: Plasma is heated to 100 million °C or more, then squeezed and held in place by strong magnetic fields, allowing many fusion reactions to occur. (Example: tokamaks, stellarators)
+Inertial confinement: Tiny fuel pellets are struck by powerful lasers. The outer layer explodes outward, compressing the core to fusion conditions for a few nanoseconds, producing a brief but intense pulse of energy from each pellet. (Example: National Ignition Facility)
+Hybrid systems: Combine compression (e.g., from lasers, plasma pistons, or mechanical impact) with moderate magnetic fields to reduce energy losses and improve confinement.
+Electrostatic fusion: Uses high electric potentials to accelerate ions toward a central reaction zone, causing them to collide at high energies and fuse. The ions are guided and confined by electric fields rather than magnets, creating a compact environment for fusion reactions.
+ABOUT ABOUT THE FIA STAFF BOARD OF DIRECTORS JOB OPPORTUNITIES
+POLICY PUBLIC PRIVATE PARTNERSHIPS REGULATORY CERTAINTY SCALING THE INDUSTRY
+NEWS FROM THE FIA BLOG INDUSTRY REPORTS FUSION NEWS VIDEOS FUSION IN THE NEWS FOR THE MEDIA
+FROM THE FIA BLOG INDUSTRY REPORTS FUSION NEWS VIDEOS
+MEMBERSHIP FULL MEMBERS AFFILIATE MEMBERS EDUCATION & RESEARCH PARTNERS
+LEARN ABOUT FUSION ENERGY FAQ FUSION VS. FISSION PATH TO COMMERCIAL FUSION
+Total investment in the fusion industry rises to over $7.1bn.
+Total government funding up 57% in 12 months to $426m.
+Timelines remain on track for fusion in the 2030s.
+But two-thirds of respondents say funding will be a major challenge in the next five years.
+ABOUT Toggle child menu ABOUT THE FIA STAFF BOARD OF DIRECTORS JOB OPPORTUNITIES
+POLICY Toggle child menu PUBLIC PRIVATE PARTNERSHIPS REGULATORY CERTAINTY SCALING THE INDUSTRY
+NEWS Toggle child menu FROM THE FIA Toggle child menu BLOG INDUSTRY REPORTS FUSION NEWS VIDEOS FUSION IN THE NEWS FOR THE MEDIA
+FROM THE FIA Toggle child menu BLOG INDUSTRY REPORTS FUSION NEWS VIDEOS
+MEMBERSHIP Toggle child menu FULL MEMBERS AFFILIATE MEMBERS EDUCATION & RESEARCH PARTNERS
+EVENTS Toggle child menu EVENTS UK FUSION FORUM 2026
+LEARN Toggle child menu ABOUT FUSION ENERGY FAQ FUSION VS. FISSION PATH TO COMMERCIAL FUSION

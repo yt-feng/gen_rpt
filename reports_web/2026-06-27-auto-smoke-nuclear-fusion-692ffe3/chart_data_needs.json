@@ -1,0 +1,204 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE Projections vs. Solar, Wind, and Natural Gas (2025-2050)",
+    "chart_type": "line",
+    "executive_question": "Can fusion ever be cost-competitive with renewables?",
+    "required_metrics": [
+      "Fusion LCOE ($/MWh) projections for 2025, 2030, 2035, 2040, 2045, 2050",
+      "Solar PV LCOE ($/MWh) projections for same years",
+      "Onshore wind LCOE ($/MWh) projections for same years",
+      "Natural gas combined cycle LCOE ($/MWh) projections for same years"
+    ],
+    "comparison_set": [
+      "Fusion vs. solar, wind, natural gas"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook",
+      "BloombergNEF New Energy Outlook",
+      "Fusion developer reports (Commonwealth Fusion, TAE, Helion)"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind gas",
+      "IEA World Energy Outlook 2024 LCOE projections",
+      "fusion LCOE projection 2050 report"
+    ],
+    "data_quality_rule": "Use only publicly available LCOE estimates from authoritative sources; if fusion LCOE data is unavailable, note as 'not yet publicly disclosed'.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Timeline of Key Fusion Milestones vs. Actual Progress",
+    "chart_type": "timeline",
+    "executive_question": "How realistic are current commercialization timelines?",
+    "required_metrics": [
+      "Date of first net energy gain (e.g., NIF 2022)",
+      "Date of sustained burn (e.g., >5 minutes)",
+      "Date of first grid-connected electricity (planned)",
+      "Date of commercial plant operation (planned)",
+      "Actual milestone achievement dates vs. planned dates"
+    ],
+    "comparison_set": [
+      "Planned vs. actual milestones for leading projects (SPARC, STEP, DEMO, Helion)"
+    ],
+    "preferred_sources": [
+      "Company press releases and roadmaps (Commonwealth Fusion, UKAEA, Helion)",
+      "IAEA Fusion Energy Conference proceedings",
+      "DOE Office of Science fusion announcements"
+    ],
+    "search_queries": [
+      "SPARC timeline first plasma 2025",
+      "STEP fusion reactor timeline 2040",
+      "Helion Polaris grid connection date"
+    ],
+    "data_quality_rule": "Use official company or government announcements; if a milestone is only projected, label as 'planned'.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Global Fusion Funding (Public + Private) by Year and Country",
+    "chart_type": "bar",
+    "executive_question": "Is the funding trend sufficient to accelerate development?",
+    "required_metrics": [
+      "Annual public fusion R&D funding ($M) for US, EU, Japan, China, UK, 2015-2025",
+      "Annual private fusion investment ($M) globally, 2015-2025",
+      "Cumulative public and private funding by country"
+    ],
+    "comparison_set": [
+      "Public vs. private funding by country"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual report",
+      "DOE budget documents",
+      "EUROfusion annual reports",
+      "Japan Ministry of Education fusion budget",
+      "China National Nuclear Corporation reports"
+    ],
+    "search_queries": [
+      "Fusion Industry Association investment report 2024",
+      "US fusion budget 2025 DOE",
+      "EU fusion program funding Horizon Europe"
+    ],
+    "data_quality_rule": "Use official budget documents and industry reports; if data for a specific country is unavailable, exclude that country.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Adoption Funnel: From Pilot Plants to Commercial Deployment Scenarios",
+    "chart_type": "bubble",
+    "executive_question": "What is the likely market penetration by 2050?",
+    "required_metrics": [
+      "Number of pilot fusion plants planned (e.g., SPARC, STEP, DEMO, Helion Polaris)",
+      "Expected capacity per pilot plant (MW)",
+      "Estimated success rate of pilot to commercial (e.g., 50%, 70%)",
+      "Commercial plant capacity (MW) and number by 2050 under different scenarios"
+    ],
+    "comparison_set": [
+      "Scenarios: optimistic, moderate, pessimistic"
+    ],
+    "preferred_sources": [
+      "Fusion company roadmaps",
+      "IAEA Fusion Projects Database",
+      "Expert elicitation studies (e.g., from Nature or Energy Policy)"
+    ],
+    "search_queries": [
+      "fusion pilot plant list capacity MW",
+      "fusion DEMO to commercial scale-up factor",
+      "fusion expert elicitation commercialization probability"
+    ],
+    "data_quality_rule": "Use only announced pilot plants; success rates must be sourced from peer-reviewed studies or expert surveys.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory Readiness Map: Countries with Fusion Licensing Frameworks",
+    "chart_type": "matrix",
+    "executive_question": "Which markets are prepared for fusion deployment?",
+    "required_metrics": [
+      "Country (US, UK, EU, Japan, China, Canada, Australia)",
+      "Fusion regulatory framework status (none, in development, established)",
+      "Year framework established or expected",
+      "Key regulatory body (e.g., NRC, ONR, ASN)"
+    ],
+    "comparison_set": [
+      "Countries by regulatory readiness"
+    ],
+    "preferred_sources": [
+      "US Nuclear Regulatory Commission fusion rulemaking",
+      "UK Department for Business, Energy & Industrial Strategy fusion regulation",
+      "IAEA fusion regulatory activities",
+      "OECD Nuclear Energy Agency reports"
+    ],
+    "search_queries": [
+      "US NRC fusion regulatory framework 2024",
+      "UK fusion licensing framework",
+      "IAEA fusion regulation status by country"
+    ],
+    "data_quality_rule": "Use official government or regulatory body publications; if status is unclear, label as 'in development'.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Private Investment in Fusion by Company (Cumulative to 2025)",
+    "chart_type": "bar",
+    "executive_question": "Which companies are attracting the most capital?",
+    "required_metrics": [
+      "Company name (Commonwealth Fusion, TAE, Helion, General Fusion, Zap Energy, etc.)",
+      "Cumulative private investment ($M) as of 2025",
+      "Year of largest funding round",
+      "Investor type (VC, corporate, government)"
+    ],
+    "comparison_set": [
+      "Top fusion startups by funding"
+    ],
+    "preferred_sources": [
+      "Crunchbase, PitchBook",
+      "Fusion Industry Association report",
+      "Company press releases",
+      "SEC filings (if available)"
+    ],
+    "search_queries": [
+      "Commonwealth Fusion funding total 2024",
+      "TAE Technologies investment round 2024",
+      "Helion Energy funding series"
+    ],
+    "data_quality_rule": "Use verified funding data from multiple sources; if a company's total is undisclosed, note as 'not publicly disclosed'.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion Capacity Factor Projections vs. Nuclear Fission and Renewables",
+    "chart_type": "bar",
+    "executive_question": "Will fusion have a capacity factor advantage?",
+    "required_metrics": [
+      "Fusion capacity factor (%) projection (e.g., 90-95%)",
+      "Nuclear fission capacity factor (%) actual (e.g., 92% in US)",
+      "Solar PV capacity factor (%) actual (e.g., 15-25%)",
+      "Onshore wind capacity factor (%) actual (e.g., 30-40%)"
+    ],
+    "comparison_set": [
+      "Fusion vs. fission, solar, wind"
+    ],
+    "preferred_sources": [
+      "EIA Annual Energy Outlook",
+      "IEA World Energy Outlook",
+      "Fusion developer design documents",
+      "Lazard LCOE report (capacity factor assumptions)"
+    ],
+    "search_queries": [
+      "US nuclear capacity factor 2023 EIA",
+      "solar capacity factor average 2023",
+      "fusion capacity factor design target"
+    ],
+    "data_quality_rule": "Use actual historical data for fission and renewables; fusion projections must be sourced from developer or independent studies.",
+    "sizing_role": "",
+    "hypothesis_ids": []
+  }
+]

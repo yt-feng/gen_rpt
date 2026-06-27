@@ -1,0 +1,16 @@
+Title: NRC fusion energy regulation
+URL: https://www.nrc.gov/materials/fusion-energy.html
+Source Type: snippet
+Domain: nrc.gov
+Content Type: text/plain
+Search Query: fusion LCOE projection 2050
+
+NRC fusion energy regulation
+
+U.S. Nuclear Regulatory Commission source on the regulatory treatment and licensing path for fusion energy systems.
+
+Source URL retained for public-source review: https://www.nrc.gov/materials/fusion-energy.html
+
+Search context: fusion LCOE projection 2050
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.
