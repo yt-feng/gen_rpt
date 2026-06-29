@@ -24,6 +24,7 @@ class Document(Base, UUIDMixin, TimestampMixin):
         nullable=True
     )
     created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
     versions: Mapped[List["DocumentVersion"]] = relationship("DocumentVersion", back_populates="document", foreign_keys="[DocumentVersion.document_id]")
 
