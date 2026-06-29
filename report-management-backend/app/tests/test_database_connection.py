@@ -59,4 +59,4 @@ async def test_health_endpoint():
     data = response.json()
     assert "status" in data
     assert "database" in data
-    assert "response_time_ms" in data["database"]
+    assert "response_time_ms" in data
