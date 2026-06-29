@@ -18,7 +18,7 @@ def test_invalid_database_url_fails():
         del os.environ["DATABASE_URL"]
     
     with pytest.raises(ValueError):
-        Settings()
+        Settings(_env_file=None)
         
     if old_val is not None:
         os.environ["DATABASE_URL"] = old_val
