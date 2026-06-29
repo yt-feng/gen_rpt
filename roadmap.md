@@ -145,19 +145,19 @@
 **Objective:** Build complete Human-in-the-Loop workflow.
 
 ### Scope
-- [ ] Reviewer assignments.
-- [ ] Review queues.
-- [ ] Comments.
-- [ ] Threaded discussions.
-- [ ] Approve.
-- [ ] Reject.
-- [ ] Needs Revision.
-- [ ] Draft review.
-- [ ] Save progress.
-- [ ] Review completion.
-- [ ] Reviewer history.
-- [ ] Multiple reviewers.
-- [ ] Review ownership.
+- [-] Reviewer assignments.
+- [-] Review queues.
+- [-] Comments.
+- [-] Threaded discussions.
+- [-] Approve.
+- [-] Reject.
+- [-] Needs Revision.
+- [-] Draft review.
+- [-] Save progress.
+- [-] Review completion.
+- [-] Reviewer history.
+- [-] Multiple reviewers.
+- [-] Review ownership.
 
 ---
 
