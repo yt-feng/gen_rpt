@@ -22,21 +22,21 @@
 **Objective:** Replace `catalog.json` with a relational database while keeping R2 as object storage.
 
 ### Scope
-- [ ] Design complete Supabase database schema.
-- [ ] Create report metadata tables.
-- [ ] Create report version tables.
-- [ ] Create AI review tables.
-- [ ] Create human review tables.
-- [ ] Create reviewer assignment tables.
-- [ ] Create workflow state tables.
-- [ ] Create audit log tables.
-- [ ] Create comments and discussion tables.
-- [ ] Create report tag system.
-- [ ] Create publish queue tables.
-- [ ] Create generation job tracking.
-- [ ] Create activity history.
-- [ ] Create notification tables.
-- [ ] Create user and role management.
+- [-] Design complete Supabase database schema.
+- [-] Create report metadata tables.
+- [-] Create report version tables.
+- [-] Create AI review tables.
+- [-] Create human review tables.
+- [-] Create reviewer assignment tables.
+- [-] Create workflow state tables.
+- [-] Create audit log tables.
+- [-] Create comments and discussion tables.
+- [-] Create report tag system.
+- [-] Create publish queue tables.
+- [-] Create generation job tracking.
+- [-] Create activity history.
+- [-] Create notification tables.
+- [-] Create user and role management.
 
 *Note: After this phase, Supabase becomes the **single source of truth**.*
 
