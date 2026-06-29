@@ -1,0 +1,197 @@
+name: [V2] Generate AI Review
+
+on:
+  workflow_run:
+    workflows: ["[V2] Generate HTML Thought Leadership Report"]
+    types: [completed]
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: gen-review-v2-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  generate-review:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    env:
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      REVIEW_MODEL: llama-3.3-70b-versatile
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install review dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r review_system/requirements.txt
+
+      - name: Validate GROQ_API_KEY secret
+        run: |
+          if [ -z "$GROQ_API_KEY" ]; then
+            echo "::error::GROQ_API_KEY secret is not set." >&2
+            exit 1
+          fi
+
+      - name: Locate latest report directory
+        id: find_report
+        run: |
+          set -euo pipefail
+
+          REPORT_DIR=$(
+            find reports_web -maxdepth 2 -name "report.md" -printf '%T@ %h\n' \
+              2>/dev/null \
+            | sort -nr \
+            | head -1 \
+            | awk '{print $2}' || true
+          )
+
+          if [ -z "$REPORT_DIR" ]; then
+            echo "::error::No report.md found under reports_web/." >&2
+            exit 1
+          fi
+
+          REPORT_ID="$(basename "$REPORT_DIR")"
+          REPORT_PATH="$REPORT_DIR/report.md"
+
+          echo "report_path=$REPORT_PATH"   >> "$GITHUB_OUTPUT"
+          echo "report_id=$REPORT_ID"       >> "$GITHUB_OUTPUT"
+          echo "output_dir=review_outputs/$REPORT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Run AI review pipeline
+        id: run_review
+        run: |
+          set -euo pipefail
+          REPORT_PATH="${{ steps.find_report.outputs.report_path }}"
+          OUTPUT_DIR="${{ steps.find_report.outputs.output_dir }}"
+
+          python review_system/main.py \
+            --report  "$REPORT_PATH" \
+            --output  "$OUTPUT_DIR" \
+            --model   "$REVIEW_MODEL"
+
+      - name: Verify review outputs
+        run: |
+          set -euo pipefail
+          OUTPUT_DIR="${{ steps.find_report.outputs.output_dir }}"
+          EXPECTED=(review.md review.json review.html claims.json findings.json scores.json)
+          MISSING=()
+
+          for f in "${EXPECTED[@]}"; do
+            if [ ! -f "$OUTPUT_DIR/$f" ]; then
+              MISSING+=("$f")
+            fi
+          done
+
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Missing mandatory review output files: ${MISSING[*]}" >&2
+            exit 1
+          fi
+
+      - name: Write review_status.json
+        if: always()
+        run: |
+          OUTPUT_DIR="${{ steps.find_report.outputs.output_dir }}"
+          REPORT_ID="${{ steps.find_report.outputs.report_id }}"
+          STATUS="${{ steps.run_review.outcome }}"   
+
+          mkdir -p "$OUTPUT_DIR"
+
+          python - <<'PYEOF'
+          import json, os
+          from datetime import datetime, timezone
+
+          output_dir = os.environ.get("OUTPUT_DIR", "review_outputs/unknown")
+          report_id  = os.environ.get("REPORT_ID", "unknown")
+          status     = os.environ.get("STATUS", "unknown")
+
+          payload = {
+              "report_id":      report_id,
+              "review_status":  status,
+              "timestamp_utc":  datetime.now(timezone.utc).isoformat(),
+              "workflow_run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "model":          os.environ.get("REVIEW_MODEL", "llama-3.3-70b-versatile"),
+          }
+          out_path = os.path.join(output_dir, "review_status.json")
+          os.makedirs(output_dir, exist_ok=True)
+          with open(out_path, "w") as f:
+              json.dump(payload, f, indent=2)
+          print(f"review_status.json written to {out_path}")
+          PYEOF
+        env:
+          OUTPUT_DIR: ${{ steps.find_report.outputs.output_dir }}
+          REPORT_ID:  ${{ steps.find_report.outputs.report_id }}
+          STATUS:     ${{ steps.run_review.outcome }}
+
+      - name: Check R2 secrets
+        id: check_r2
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          if [ -n "$R2_ACCOUNT_ID" ] && [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$R2_BUCKET" ]; then
+            echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install R2 storage dependencies
+        if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
+        run: |
+          pip install -r storage/requirements.txt
+
+      - name: Upload review to R2
+        if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+          STORAGE_LOG_DIR:      /tmp/storage-logs
+        run: |
+          set -euo pipefail
+          REPORT_ID="${{ steps.find_report.outputs.report_id }}"
+          OUTPUT_DIR="${{ steps.find_report.outputs.output_dir }}"
+          python -m storage.upload_review \
+            --review-dir "$OUTPUT_DIR" \
+            --report-id  "$REPORT_ID" \
+            --log-level  INFO \
+            --skip-catalog-update
+
+      - name: Trigger Backend Workflow Event
+        if: steps.run_review.outcome == 'success'
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "BACKEND_URL secret missing, skipping webhook"
+            exit 0
+          fi
+          
+          curl -X POST "$BACKEND_URL/api/v1/internal/events/review-generated" \
+               -H "Content-Type: application/json" \
+               -H "x-internal-token: $INTERNAL_TOKEN" \
+               -d '{
+                 "document_id": "${{ steps.find_report.outputs.report_id }}",
+                 "idempotency_key": "github-actions-review-${{ github.run_id }}-${{ github.run_attempt }}",
+                 "metadata": {
+                   "run_id": "${{ github.run_id }}"
+                 }
+               }'

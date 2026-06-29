@@ -83,20 +83,20 @@
 
 ---
 
-## [ ] Phase 5 — Workflow Migration
+## [x] Phase 5 — Workflow Migration
 **Objective:** Move workflow state management from GitHub Actions to the backend.
 
 ### Scope
-- [ ] GitHub Actions upload files only.
-- [ ] Backend receives synchronization events.
-- [ ] Backend creates report records.
-- [ ] Backend creates review records.
-- [ ] Backend updates workflow state.
-- [ ] Backend updates audit logs.
-- [ ] Backend manages assignments.
-- [ ] Backend manages report lifecycle.
-- [ ] Backend manages notifications.
-- [ ] Backend becomes workflow orchestrator.
+- [x] GitHub Actions upload files only.
+- [x] Backend receives synchronization events.
+- [x] Backend creates report records.
+- [x] Backend creates review records.
+- [x] Backend updates workflow state.
+- [x] Backend updates audit logs.
+- [x] Backend manages assignments.
+- [x] Backend manages report lifecycle.
+- [x] Backend manages notifications.
+- [x] Backend becomes workflow orchestrator.
 
 ---
 
