@@ -157,6 +157,6 @@ async def test_ai_regenerate_section(test_db: AsyncSession):
     
     # Assert IterationHistory has prompt
     hist_stmt = select(IterationHistory).where(IterationHistory.version_id == new_ver.id)
-    hist = (await db.execute(hist_stmt)).scalars().first()
+    hist = (await test_db.execute(hist_stmt)).scalars().first()
     assert hist.prompt == "Make it longer"
     assert hist.actor_type == "AI"

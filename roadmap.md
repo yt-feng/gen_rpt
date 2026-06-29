@@ -100,21 +100,21 @@
 
 ---
 
-## [ ] Phase 6 — Canonical Document Engine
+## [x] Phase 6 — Canonical Document Engine
 **Objective:** Replace Markdown as the primary editable source.
 
 ### Scope
-- [ ] Introduce canonical document model.
-- [ ] Structured document storage.
-- [ ] Section hierarchy.
-- [ ] Paragraph hierarchy.
-- [ ] Table hierarchy.
-- [ ] Figure hierarchy.
-- [ ] Citation hierarchy.
-- [ ] Metadata hierarchy.
-- [ ] Automatic Markdown generation.
-- [ ] Automatic HTML generation.
-- [ ] Automatic PDF generation.
+- [x] Introduce canonical document model.
+- [x] Structured document storage.
+- [x] Section hierarchy.
+- [x] Paragraph hierarchy.
+- [x] Table hierarchy.
+- [x] Figure hierarchy.
+- [x] Citation hierarchy.
+- [x] Metadata hierarchy.
+- [x] Automatic Markdown generation.
+- [x] Automatic HTML generation.
+- [x] Automatic PDF generation.
 - [ ] Automatic export generation.
 
 *Note: The document model becomes the only editable source.*
