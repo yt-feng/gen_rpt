@@ -28,3 +28,9 @@ class AuditLog(Base, UUIDMixin):
     new_data: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
     changed_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+
+class ProcessedEvent(Base):
+    __tablename__ = "processed_events"
+    idempotency_key: Mapped[str] = mapped_column(String, primary_key=True)
+    event_type: Mapped[str] = mapped_column(String, nullable=False)
+    processed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
