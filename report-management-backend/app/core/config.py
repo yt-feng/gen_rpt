@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     APP_ENV: str = "development"
     APP_DEBUG: bool = True
     
+    API_V1_STR: str = "/api/v1"
+    
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
