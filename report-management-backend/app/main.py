@@ -4,6 +4,7 @@ from app.core.config import settings
 from app.logging.logger import logger
 from app.api.v1.router import api_router
 from app.api.internal.router import internal_router
+from app.middleware.request_logging import RequestLoggingMiddleware
 
 app = FastAPI(
     title="Report Management Backend",
@@ -12,7 +13,8 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# CORS middleware foundation
+# Middleware
+app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], # In production, restrict this
