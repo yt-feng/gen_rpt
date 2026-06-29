@@ -4,16 +4,16 @@
 **Objective:** Introduce a dedicated backend without affecting the existing frontend or report generation pipeline.
 
 ### Scope
-- [ ] Build FastAPI backend foundation.
-- [ ] Configure project architecture and API structure.
-- [ ] Integrate Supabase project.
-- [ ] Integrate Cloudflare R2 access.
-- [ ] Configure authentication foundation.
-- [ ] Configure logging and monitoring.
-- [ ] Configure environment management.
-- [ ] Create internal service layer.
-- [ ] Create API documentation.
-- [ ] Prepare deployment environment.
+- [-] Build FastAPI backend foundation.
+- [-] Configure project architecture and API structure.
+- [-] Integrate Supabase project.
+- [-] Integrate Cloudflare R2 access.
+- [-] Configure authentication foundation.
+- [-] Configure logging and monitoring.
+- [-] Configure environment management.
+- [-] Create internal service layer.
+- [-] Create API documentation.
+- [-] Prepare deployment environment.
 
 
 ---
