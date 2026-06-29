@@ -1,0 +1,188 @@
+name: [V2] Generate HTML Thought Leadership Report
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: English thought-leadership topic.
+        required: false
+        default: Nuclear fusion commercialization outlook and strategic implications
+        type: string
+      slug:
+        description: Optional custom output directory slug
+        required: false
+        default: ""
+        type: string
+      model:
+        description: DeepSeek model name
+        required: false
+        default: deepseek-chat
+        type: string
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: gen-rpt-v2-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GEN_RPT_PER_QUERY: 5
+      GEN_RPT_MAX_SOURCES: 32
+      GEN_RPT_MAX_QUERIES: 24
+      GEN_RPT_GDELT_QUERIES: 2
+      GEN_RPT_GDELT_TIMESPAN: 36months
+      GEN_RPT_FETCH_TIMEOUT: 18
+      MAX_AI_SECTION_IMAGES: 12
+      AI_IMAGE_TIMEOUT: 45
+      AI_IMAGE_RETRIES: 3
+      SHOW_FALLBACK_IMAGES: true
+      TOPIC_INPUT: ${{ inputs.topic || '' }}
+      SLUG_INPUT: ${{ inputs.slug || '' }}
+      MODEL_INPUT: ${{ inputs.model || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo "Missing DEEPSEEK_API_KEY secret" >&2
+            exit 1
+          fi
+
+      - name: Generate report
+        id: generate_report
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          set -euo pipefail
+          TOPIC="$TOPIC_INPUT"
+          SLUG="$SLUG_INPUT"
+          MODEL="$MODEL_INPUT"
+
+          if [ -z "$TOPIC" ]; then
+            TOPIC="Nuclear fusion commercialization outlook and strategic implications"
+          fi
+          if [ -z "$MODEL" ]; then
+            MODEL="deepseek-chat"
+          fi
+          if [ -z "$SLUG" ]; then
+            SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
+            SLUG="auto-smoke-nuclear-fusion-${SHORT_SHA}"
+          fi
+
+          mkdir -p reports_web
+          GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
+          
+          python -u -m gen_rpt.main_web \
+            --topic "$TOPIC" \
+            --slug "$SLUG" \
+            --language en \
+            --model "$MODEL" \
+            --out-root reports_web > "$GEN_LOG" 2>&1
+
+          REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          if [ -z "$REPORT_DIR" ]; then
+            echo "Could not locate generated report directory" >&2
+            exit 1
+          fi
+          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
+          
+          # We extract the document ID if present, otherwise fallback to slug
+          # In a full integration, the document ID would be returned by gen_rpt.main_web
+          echo "document_id=$SLUG" >> "$GITHUB_OUTPUT"
+
+      - name: Commit generated report back to repo
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain reports_web)" ]; then
+            git add reports_web
+            git commit -m "Add generated HTML thought leadership report"
+            git pull --rebase origin main
+            git push
+          else
+            echo "No report changes to commit"
+          fi
+
+      - name: Check R2 secrets
+        id: check_r2
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          if [ -n "$R2_ACCOUNT_ID" ] && [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$R2_BUCKET" ]; then
+            echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install R2 storage dependencies
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        run: |
+          pip install -r storage/requirements.txt
+
+      - name: Upload report to R2
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+          STORAGE_LOG_DIR:      /tmp/storage-logs
+        run: |
+          set -euo pipefail
+          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
+          # Call the new stateless storage uploader or the backend API for upload URLs in future
+          # For Phase 5, we assume the upload_report handles pure artifact uploads
+          python -m storage.upload_report \
+            --report-dir "$REPORT_DIR" \
+            --status generated \
+            --log-level INFO \
+            --skip-catalog-update
+
+      - name: Trigger Backend Workflow Event
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          # V2 Actions no longer manage workflow state. They delegate this entirely to FastAPI.
+          if [ -z "$BACKEND_URL" ]; then
+            echo "BACKEND_URL secret missing, skipping webhook"
+            exit 0
+          fi
+          
+          curl -X POST "$BACKEND_URL/api/v1/internal/events/report-generated" \
+               -H "Content-Type: application/json" \
+               -H "x-internal-token: $INTERNAL_TOKEN" \
+               -d '{
+                 "document_id": "${{ steps.generate_report.outputs.document_id }}",
+                 "idempotency_key": "github-actions-${{ github.run_id }}-${{ github.run_attempt }}",
+                 "metadata": {
+                   "run_id": "${{ github.run_id }}",
+                   "slug": "${{ inputs.slug }}"
+                 }
+               }'
