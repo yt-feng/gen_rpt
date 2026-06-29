@@ -64,20 +64,20 @@
 **Objective:** Replace direct frontend R2 access with backend APIs.
 
 ### Scope
-- [ ] Reports APIs.
-- [ ] Review APIs.
-- [ ] Comments APIs.
-- [ ] Workflow APIs.
-- [ ] Assignment APIs.
-- [ ] Version APIs.
-- [ ] Publishing APIs.
-- [ ] Search APIs.
-- [ ] Dashboard APIs.
-- [ ] Statistics APIs.
-- [ ] Internal synchronization APIs.
-- [ ] Signed R2 URL generation.
-- [ ] Authentication APIs.
-- [ ] Authorization layer.
+- [-] Reports APIs.
+- [-] Review APIs.
+- [-] Comments APIs.
+- [-] Workflow APIs.
+- [-] Assignment APIs.
+- [-] Version APIs.
+- [-] Publishing APIs.
+- [-] Search APIs.
+- [-] Dashboard APIs.
+- [-] Statistics APIs.
+- [-] Internal synchronization APIs.
+- [-] Signed R2 URL generation.
+- [-] Authentication APIs.
+- [-] Authorization layer.
 
 *Note: Frontend functionality remains unchanged.*
 
