@@ -6,6 +6,7 @@ from app.models.review import AIReview, ReviewScore, ReviewFinding, ReviewClaim,
 from app.models.editing import AIEditRequest, AIEditResult, BlockEdit, ChangeHistory
 from app.models.workflow import WorkflowInstance, WorkflowEvent, GenerationJob, PublishJob
 from app.models.system import Notification, ActivityLog, AuditLog
+from app.models.iteration import IterationHistory
 
 __all__ = [
     "Base",
@@ -14,5 +15,5 @@ __all__ = [
     "AIReview", "ReviewScore", "ReviewFinding", "ReviewClaim", "HumanReview", "ReviewComment",
     "AIEditRequest", "AIEditResult", "BlockEdit", "ChangeHistory",
     "WorkflowInstance", "WorkflowEvent", "GenerationJob", "PublishJob",
-    "Notification", "ActivityLog", "AuditLog"
+    "Notification", "ActivityLog", "AuditLog", "IterationHistory"
 ]
