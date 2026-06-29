@@ -47,16 +47,24 @@ async def health_check():
         error_msg = str(e)
         logger.error(f"Health check database connection failed: {error_msg}")
         
+    from app.storage.provider import storage_provider
+    storage_health = await storage_provider.health_check()
+        
     response_time_ms = round((time.time() - start_time) * 1000, 2)
     
+    overall_status = "healthy"
+    if db_status != "healthy" or storage_health.get("status") != "healthy":
+        overall_status = "degraded"
+    
     return {
-        "status": "healthy" if db_status == "healthy" else "degraded",
+        "status": overall_status,
         "environment": settings.APP_ENV,
         "database": {
             "status": db_status,
-            "response_time_ms": response_time_ms,
             "error": error_msg
-        }
+        },
+        "storage": storage_health,
+        "response_time_ms": response_time_ms
     }
 
 # Include API routers
