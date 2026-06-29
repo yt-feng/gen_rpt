@@ -91,3 +91,16 @@ class EditorActionType(str, enum.Enum):
     AI = "AI"
     Human = "Human"
     System = "System"
+
+class ProposalStatus(str, enum.Enum):
+    pending = "pending"
+    accepted = "accepted"
+    rejected = "rejected"
+    modified_accepted = "modified_accepted"
+
+class AIProviderType(str, enum.Enum):
+    groq = "groq"
+    openai = "openai"
+    anthropic = "anthropic"
+    gemini = "gemini"
+    local = "local"

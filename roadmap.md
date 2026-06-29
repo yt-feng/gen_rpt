@@ -161,22 +161,25 @@
 
 ---
 
-## [ ] Phase 9 — Interactive Editing System
-**Objective:** Allow humans to edit reports directly.
+## [x] Phase 9 — Enterprise Document Editing Studio
+**Objective:** Create a structured visual editing environment mapped to the canonical model.
 
 ### Scope
-- [ ] Visual document editor.
-- [ ] Inline editing.
-- [ ] Section editing.
-- [ ] Paragraph editing.
-- [ ] Table editing.
-- [ ] Image editing.
-- [ ] Citation editing.
-- [ ] Metadata editing.
-- [ ] Rich text editing.
-- [ ] Autosave.
-- [ ] Draft mode.
-- [ ] Preview mode.
+- [x] Node locking.
+- [x] Edit history.
+- [x] Read mode.
+- [x] Review mode.
+- [x] Edit mode.
+- [x] Section editing.
+- [x] Paragraph editing.
+- [x] Table editing.
+- [x] Image editing.
+- [x] Citation editing.
+- [x] Metadata editing.
+- [x] Rich text editing.
+- [x] Autosave.
+- [x] Draft mode.
+- [x] Preview mode.
 
 *Note: Editing updates the canonical document only.*
 
