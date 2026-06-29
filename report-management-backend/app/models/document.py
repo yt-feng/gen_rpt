@@ -56,6 +56,7 @@ class DocumentVersion(Base, UUIDMixin):
 class DocumentSection(Base, UUIDMixin):
     __tablename__ = "document_sections"
     version_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("document_versions.id", ondelete="CASCADE"), nullable=False)
+    stable_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     section_order: Mapped[int] = mapped_column(Integer, nullable=False)
     title: Mapped[str] = mapped_column(String, nullable=False)
     
@@ -70,6 +71,7 @@ class DocumentSection(Base, UUIDMixin):
 class DocumentBlock(Base, UUIDMixin):
     __tablename__ = "document_blocks"
     section_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("document_sections.id", ondelete="CASCADE"), nullable=False)
+    stable_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     block_order: Mapped[int] = mapped_column(Integer, nullable=False)
     
     block_type: Mapped[BlockContentType] = mapped_column(
