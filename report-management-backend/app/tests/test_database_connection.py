@@ -36,19 +36,10 @@ async def test_session_creation_succeeds():
 
 @pytest.mark.asyncio
 async def test_database_connection_succeeds():
-    # If the engine is using SQLite in memory, it will connect.
-    # If it is pointing to a local Postgres, it might fail in CI if not available.
-    # The current settings in .env is postgresql+asyncpg://postgres:postgres@localhost:5432/report_management
-    # We will override it to sqlite for this test to ensure it succeeds without an external DB.
-    
-    from sqlalchemy.ext.asyncio import create_async_engine
-    test_engine = create_async_engine("sqlite+aiosqlite:///:memory:")
-    
-    async with test_engine.connect() as conn:
+    # Test the real Supabase connection using the engine configured in settings
+    async with engine.connect() as conn:
         result = await conn.execute(text("SELECT 1"))
         assert result.scalar() == 1
-    
-    await test_engine.dispose()
 
 @pytest.mark.asyncio
 async def test_rollback_succeeds():
