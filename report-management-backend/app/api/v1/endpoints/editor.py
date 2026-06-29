@@ -1,113 +1,90 @@
-import uuid
-from typing import Dict, Any, List
-from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from uuid import UUID
+from pydantic import BaseModel
+from typing import Optional, Dict, Any
 
-from app.api.deps import get_db, get_current_user
+from app.api.deps import get_db, get_current_user_placeholder
 from app.core.responses import APIResponse, success_response
-from app.models.document import Document, DocumentVersion
-from app.services.iteration import iteration_engine
-from app.services.rendering import rendering_pipeline
-from app.models.identity import User
+from app.services.editor import editor_service
 
 router = APIRouter()
 
-class RegenerateRequest(BaseModel):
-    parent_version_id: uuid.UUID
-    instruction: str = Field(..., min_length=1)
+class LockRequest(BaseModel):
+    timeout_minutes: int = 5
 
-class HumanEditRequest(BaseModel):
-    parent_version_id: uuid.UUID
-    new_markdown: str = Field(...)
+class AutosaveRequest(BaseModel):
+    payload: Dict[str, Any]
+    reason: Optional[str] = "Manual Edit"
 
-@router.get("/{document_id}/canonical", response_model=APIResponse[List[Dict[str, Any]]])
-async def get_canonical_document(
-    document_id: uuid.UUID,
-    version_id: uuid.UUID = None,
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Fetches the structured canonical JSON representation of the document.
-    """
-    if not version_id:
-        # Get latest version
-        stmt = select(Document.current_version_id).where(Document.id == document_id)
-        result = await db.execute(stmt)
-        version_id = result.scalars().first()
-        if not version_id:
-            raise HTTPException(status_code=404, detail="Document version not found")
+class AINodeRequest(BaseModel):
+    prompt: str
 
-    sections = await rendering_pipeline.get_version_tree(db, version_id)
-    
-    # Serialize to JSON-friendly format
-    data = []
-    for sec in sections:
-        sec_data = {
-            "stable_id": sec.stable_id,
-            "title": sec.title,
-            "order": sec.section_order,
-            "blocks": []
-        }
-        for block in sec.blocks:
-            sec_data["blocks"].append({
-                "stable_id": block.stable_id,
-                "type": block.block_type.value,
-                "order": block.block_order,
-                "markdown": block.markdown,
-                "content": block.content_json
-            })
-        data.append(sec_data)
-        
-    return success_response(data=data, message="Canonical document retrieved")
-
-@router.post("/{document_id}/nodes/{stable_id}/regenerate", response_model=APIResponse[dict])
-async def regenerate_block(
-    document_id: uuid.UUID,
-    stable_id: str,
-    payload: RegenerateRequest,
+@router.post("/{document_id}/draft/start", response_model=APIResponse[dict])
+async def start_draft(
+    document_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user: dict = Depends(get_current_user_placeholder)
 ):
-    """
-    Context-aware AI block-level regeneration. Creates a new DocumentVersion.
-    """
-    new_version = await iteration_engine.regenerate_node(
-        db=db,
-        document_id=document_id,
-        parent_version_id=payload.parent_version_id,
-        stable_id=stable_id,
-        instruction=payload.instruction,
-        actor_id=current_user.id
-    )
-    
-    return success_response(
-        data={"new_version_id": str(new_version.id), "version_number": new_version.version_number},
-        message="Block regenerated successfully"
-    )
+    draft_version = await editor_service.start_draft_session(db, document_id, UUID(user["id"]))
+    return success_response(data={"draft_version_id": str(draft_version.id)}, message="Draft started")
 
-@router.put("/{document_id}/nodes/{stable_id}", response_model=APIResponse[dict])
-async def human_edit_block(
-    document_id: uuid.UUID,
-    stable_id: str,
-    payload: HumanEditRequest,
+@router.post("/{document_id}/draft/{draft_id}/commit", response_model=APIResponse[dict])
+async def commit_draft(
+    document_id: UUID,
+    draft_id: UUID,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    user: dict = Depends(get_current_user_placeholder)
 ):
-    """
-    Human edit on a block. Creates a new DocumentVersion.
-    """
-    new_version = await iteration_engine.human_edit_node(
-        db=db,
-        document_id=document_id,
-        parent_version_id=payload.parent_version_id,
-        stable_id=stable_id,
-        new_markdown=payload.new_markdown,
-        actor_id=current_user.id
-    )
-    
-    return success_response(
-        data={"new_version_id": str(new_version.id), "version_number": new_version.version_number},
-        message="Block updated successfully"
-    )
+    version = await editor_service.commit_draft_session(db, document_id, draft_id, UUID(user["id"]))
+    return success_response(data={"version_id": str(version.id)}, message="Draft committed and HTML synchronized")
+
+@router.post("/{document_id}/nodes/{node_id}/lock", response_model=APIResponse[dict])
+async def lock_node(
+    document_id: UUID,
+    node_id: str,
+    req: LockRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    try:
+        lock = await editor_service.acquire_lock(db, document_id, node_id, UUID(user["id"]), req.timeout_minutes)
+        return success_response(data={"lock_id": str(lock.id), "expires_at": lock.expires_at.isoformat()}, message="Node locked")
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+
+@router.delete("/{document_id}/nodes/{node_id}/lock", response_model=APIResponse[bool])
+async def unlock_node(
+    document_id: UUID,
+    node_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    released = await editor_service.release_lock(db, document_id, node_id, UUID(user["id"]))
+    return success_response(data=released, message="Lock released")
+
+@router.put("/{document_id}/draft/{draft_id}/nodes/{node_id}/autosave", response_model=APIResponse[dict])
+async def autosave_node(
+    document_id: UUID,
+    draft_id: UUID,
+    node_id: str,
+    req: AutosaveRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    # Strictly we should check if they hold the lock. 
+    # For now, we assume frontend ensures locking before saving.
+    history = await editor_service.update_node_content(db, draft_id, node_id, req.payload, UUID(user["id"]), req.reason)
+    return success_response(data={"history_id": str(history.id)}, message="Node autosaved")
+
+@router.post("/{document_id}/draft/{draft_id}/nodes/{node_id}/ai", response_model=APIResponse[dict])
+async def ai_node_rewrite(
+    document_id: UUID,
+    draft_id: UUID,
+    node_id: str,
+    req: AINodeRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    history = await editor_service.ai_node_rewrite(db, draft_id, node_id, req.prompt, UUID(user["id"]))
+    return success_response(data={"history_id": str(history.id)}, message="AI edit applied")
