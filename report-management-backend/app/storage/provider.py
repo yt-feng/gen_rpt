@@ -33,14 +33,24 @@ class StorageProvider(ABC):
 
 class CloudflareR2Provider(StorageProvider):
     def __init__(self):
-        endpoint = f"https://{settings.R2_ACCOUNT_ID}.r2.cloudflarestorage.com" if settings.R2_ACCOUNT_ID else None
-        self.s3_client = boto3.client(
-            "s3",
-            endpoint_url=endpoint,
-            aws_access_key_id=settings.R2_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
-            region_name="auto"
+        self.is_configured = bool(
+            settings.R2_ACCOUNT_ID and
+            settings.R2_ACCESS_KEY_ID and
+            settings.R2_SECRET_ACCESS_KEY and
+            settings.R2_BUCKET
         )
+        if self.is_configured:
+            endpoint = f"https://{settings.R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+            self.s3_client = boto3.client(
+                "s3",
+                endpoint_url=endpoint,
+                aws_access_key_id=settings.R2_ACCESS_KEY_ID,
+                aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
+                region_name="auto"
+            )
+        else:
+            self.s3_client = None
+            logger.warning("Cloudflare R2 is not configured — storage operations will be unavailable.")
         self.bucket = settings.R2_BUCKET
 
     def _upload_sync(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str) -> bool:
