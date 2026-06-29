@@ -2,7 +2,7 @@ import uuid
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import String, Integer, ForeignKey, Numeric, Boolean, Enum
-from app.models.base import Base, UUIDMixin
+from app.models.base import Base, UUIDMixin, TimestampMixin
 from app.models.enums import ReviewDecisionType, ReviewAssignmentStatus, ReviewerRole, CommentActionType
 from datetime import datetime
 from sqlalchemy import DateTime, func
