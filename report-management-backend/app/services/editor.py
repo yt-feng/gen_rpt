@@ -24,7 +24,10 @@ class EditorService:
         existing_lock = result.scalars().first()
         
         if existing_lock:
-            if existing_lock.owner_id != owner_id and existing_lock.expires_at > now:
+            expires_at = existing_lock.expires_at
+            if expires_at.tzinfo is None:
+                expires_at = expires_at.replace(tzinfo=timezone.utc)
+            if existing_lock.owner_id != owner_id and expires_at > now:
                 raise ValueError("Node is currently locked by another user")
             # If owned by same user or expired, overwrite it
             existing_lock.owner_id = owner_id
