@@ -41,6 +41,9 @@ def get_current_user_placeholder(request: Request) -> dict:
     # Placeholder token decoding
     return {"id": "00000000-0000-0000-0000-000000000000", "role": "admin"}
 
+# Alias so endpoints that import get_current_user still resolve
+get_current_user = get_current_user_placeholder
+
 class RoleChecker:
     def __init__(self, allowed_roles: list[str]):
         self.allowed_roles = allowed_roles
