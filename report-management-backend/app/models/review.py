@@ -1,8 +1,7 @@
 import uuid
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, ForeignKey, Numeric, Boolean
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy import String, Integer, ForeignKey, Numeric, Boolean, Enum
 from app.models.base import Base, UUIDMixin
 from app.models.enums import ReviewDecisionType
 from datetime import datetime
@@ -49,7 +48,7 @@ class HumanReview(Base, UUIDMixin):
     reviewer: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     
     decision: Mapped[ReviewDecisionType] = mapped_column(
-        ENUM(ReviewDecisionType, name="review_decision_type", create_type=False),
+        Enum(ReviewDecisionType, name="review_decision_type", create_type=False),
         nullable=False
     )
     
