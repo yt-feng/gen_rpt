@@ -8,6 +8,7 @@ from app.models.workflow import WorkflowInstance, WorkflowEvent, GenerationJob, 
 from app.models.system import Notification, ActivityLog, AuditLog
 from app.models.iteration import IterationHistory
 from app.models.editor import NodeLock, NodeEditHistory
+from app.models.ai import AIPromptTemplate, AIProposal
 
 __all__ = [
     "Base",
@@ -17,5 +18,5 @@ __all__ = [
     "AIEditRequest", "AIEditResult", "BlockEdit", "ChangeHistory",
     "WorkflowInstance", "WorkflowEvent", "GenerationJob", "PublishJob",
     "Notification", "ActivityLog", "AuditLog", "IterationHistory",
-    "NodeLock", "NodeEditHistory"
+    "NodeLock", "NodeEditHistory", "AIPromptTemplate", "AIProposal"
 ]
