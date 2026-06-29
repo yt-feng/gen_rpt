@@ -92,7 +92,7 @@ async def test_scenario_1_rewrite_paragraph_and_accept(test_db: AsyncSession, se
     )
     res = await test_db.execute(stmt)
     block = res.scalars().first()
-    assert "Make it better" in block.markdown # Based on our mock logic
+    assert "AI Groq Rewrite" in block.markdown # Based on our mock logic
 
 @pytest.mark.asyncio
 async def test_scenario_2_generate_multiple_alternatives(test_db: AsyncSession, setup_doc):
