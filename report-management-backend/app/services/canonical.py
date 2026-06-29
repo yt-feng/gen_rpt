@@ -53,6 +53,7 @@ class VersionManager:
 
         for p_sec in parent_sections:
             new_sec = DocumentSection(
+                id=uuid.uuid4(),
                 version_id=new_version.id,
                 stable_id=p_sec.stable_id,
                 section_order=p_sec.section_order,
@@ -68,6 +69,7 @@ class VersionManager:
 
             for p_block in parent_blocks:
                 new_block = DocumentBlock(
+                    id=uuid.uuid4(),
                     section_id=new_sec.id,
                     stable_id=p_block.stable_id,
                     block_order=p_block.block_order,
