@@ -1,23 +1,7 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from app.core.config import settings
+"""
+Session module — re-exports the canonical engine and session factory from app.core.database.
+All code should import get_db from this module (or from app.api.deps which wraps it).
+"""
+from app.core.database import engine, AsyncSessionLocal as async_session_maker, get_db
 
-# Engine configuration
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=(settings.APP_ENV == "development"),
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20
-)
-
-# Session factory
-async_session_maker = async_sessionmaker(
-    engine, class_=AsyncSession, expire_on_commit=False
-)
-
-async def get_db():
-    """
-    FastAPI dependency that provides a database session.
-    """
-    async with async_session_maker() as session:
-        yield session
+__all__ = ["engine", "async_session_maker", "get_db"]
