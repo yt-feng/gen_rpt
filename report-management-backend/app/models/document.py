@@ -1,9 +1,8 @@
 import uuid
 from typing import Optional, List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, Integer, ForeignKey, UniqueConstraint, BigInteger
-from sqlalchemy.dialects.postgresql import JSONB, ENUM
-from app.models.base import Base, UUIDMixin, TimestampMixin
+from sqlalchemy import String, Integer, ForeignKey, UniqueConstraint, BigInteger, Enum
+from app.models.base import Base, UUIDMixin, TimestampMixin, JSONVariant
 from app.models.enums import DocStatus, DocChangeType, SectionContentType, BlockContentType
 
 class Document(Base, UUIDMixin, TimestampMixin):
@@ -16,7 +15,7 @@ class Document(Base, UUIDMixin, TimestampMixin):
     description: Mapped[str | None] = mapped_column(String, nullable=True)
     
     status: Mapped[DocStatus] = mapped_column(
-        ENUM(DocStatus, name="doc_status", create_type=False), 
+        Enum(DocStatus, name="doc_status", create_type=False), 
         default=DocStatus.draft
     )
     
@@ -35,7 +34,7 @@ class DocumentVersion(Base, UUIDMixin):
     parent_version: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("document_versions.id", ondelete="SET NULL"), nullable=True)
     
     change_type: Mapped[DocChangeType] = mapped_column(
-        ENUM(DocChangeType, name="doc_change_type", create_type=False), 
+        Enum(DocChangeType, name="doc_change_type", create_type=False), 
         nullable=False
     )
     
@@ -43,7 +42,7 @@ class DocumentVersion(Base, UUIDMixin):
     summary: Mapped[str | None] = mapped_column(String, nullable=True)
     
     status: Mapped[DocStatus] = mapped_column(
-        ENUM(DocStatus, name="doc_status", create_type=False), 
+        Enum(DocStatus, name="doc_status", create_type=False), 
         default=DocStatus.draft
     )
     
@@ -61,7 +60,7 @@ class DocumentSection(Base, UUIDMixin):
     title: Mapped[str] = mapped_column(String, nullable=False)
     
     section_type: Mapped[SectionContentType] = mapped_column(
-        ENUM(SectionContentType, name="section_content_type", create_type=False),
+        Enum(SectionContentType, name="section_content_type", create_type=False),
         default=SectionContentType.Custom
     )
 
@@ -74,14 +73,14 @@ class DocumentBlock(Base, UUIDMixin):
     block_order: Mapped[int] = mapped_column(Integer, nullable=False)
     
     block_type: Mapped[BlockContentType] = mapped_column(
-        ENUM(BlockContentType, name="block_content_type", create_type=False),
+        Enum(BlockContentType, name="block_content_type", create_type=False),
         nullable=False
     )
     
-    content_json: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    content_json: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
     markdown: Mapped[str | None] = mapped_column(String, nullable=True)
     html: Mapped[str | None] = mapped_column(String, nullable=True)
-    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, default=lambda: {})
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONVariant, default=lambda: {})
 
     section: Mapped["DocumentSection"] = relationship("DocumentSection", back_populates="blocks")
 

@@ -1,7 +1,6 @@
 import uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, ForeignKey
-from sqlalchemy.dialects.postgresql import ENUM
+from sqlalchemy import String, ForeignKey, Enum
 from app.models.base import Base, UUIDMixin
 from app.models.enums import JobStatusType
 from datetime import datetime
@@ -30,7 +29,7 @@ class GenerationJob(Base, UUIDMixin):
     workflow: Mapped[str | None] = mapped_column(String, nullable=True)
     
     status: Mapped[JobStatusType] = mapped_column(
-        ENUM(JobStatusType, name="job_status_type", create_type=False),
+        Enum(JobStatusType, name="job_status_type", create_type=False),
         default=JobStatusType.pending
     )
     
@@ -44,7 +43,7 @@ class PublishJob(Base, UUIDMixin):
     platform: Mapped[str] = mapped_column(String, nullable=False)
     
     status: Mapped[JobStatusType] = mapped_column(
-        ENUM(JobStatusType, name="job_status_type", create_type=False),
+        Enum(JobStatusType, name="job_status_type", create_type=False),
         default=JobStatusType.pending
     )
     
