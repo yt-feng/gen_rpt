@@ -7,21 +7,23 @@ from app.models.document import DocumentVersion, DocumentSection, DocumentBlock
 from app.models.enums import BlockContentType
 from app.logging.logger import logger
 
+from sqlalchemy.orm import selectinload
+
 class RenderingPipeline:
     @staticmethod
     async def get_version_tree(db: AsyncSession, version_id: uuid.UUID) -> List[DocumentSection]:
         stmt = select(DocumentSection).where(
             DocumentSection.version_id == version_id
+        ).options(
+            selectinload(DocumentSection.blocks)
         ).order_by(DocumentSection.section_order)
+        
         result = await db.execute(stmt)
         sections = result.scalars().all()
         
+        # Sort blocks explicitly in Python just in case
         for section in sections:
-            stmt_blocks = select(DocumentBlock).where(
-                DocumentBlock.section_id == section.id
-            ).order_by(DocumentBlock.block_order)
-            blocks_res = await db.execute(stmt_blocks)
-            section.blocks = blocks_res.scalars().all()
+            section.blocks.sort(key=lambda b: b.block_order)
             
         return sections
 
