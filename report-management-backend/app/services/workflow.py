@@ -61,11 +61,10 @@ class WorkflowService:
 
             # 5. Record Workflow Event
             wf_event = WorkflowEvent(
-                workflow_id=workflow.id if workflow.id else uuid.uuid4(), # if new, handle appropriately (usually flush needed)
+                workflow_id=workflow.id if workflow.id else uuid.uuid4(),
                 previous_state=old_state,
                 current_state=new_state,
-                actor_id=actor_id,
-                event_metadata=metadata or {}
+                triggered_by=actor_id
             )
             # If it's a brand new workflow instance, we need to flush to get the ID
             if not workflow.id:
