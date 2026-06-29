@@ -46,17 +46,17 @@
 **Objective:** Convert Cloudflare R2 into a pure object storage layer.
 
 ### Scope
-- [ ] Store report files.
-- [ ] Store HTML files.
-- [ ] Store Markdown files.
-- [ ] Store PDF files.
-- [ ] Store review files.
-- [ ] Store exported artifacts.
-- [ ] Store generated assets.
-- [ ] Store version snapshots.
-- [ ] Store attachments.
-- [ ] Remove dependency on catalog.json.
-- [ ] Link every object with database records.
+- [-] Store report files.
+- [-] Store HTML files.
+- [-] Store Markdown files.
+- [-] Store PDF files.
+- [-] Store review files.
+- [-] Store exported artifacts.
+- [-] Store generated assets.
+- [-] Store version snapshots.
+- [-] Store attachments.
+- [-] Remove dependency on catalog.json.
+- [-] Link every object with database records.
 
 ---
 
