@@ -20,7 +20,7 @@ engine = create_async_engine(
     poolclass=StaticPool,
     connect_args={'check_same_thread': False}
 )
-TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
+TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession, expire_on_commit=False)
 
 @pytest_asyncio.fixture(scope="function")
 async def test_db():
