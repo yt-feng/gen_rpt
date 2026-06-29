@@ -1,0 +1,327 @@
+-- ==========================================
+-- 0. ENUMS (Custom Data Types)
+-- ==========================================
+CREATE TYPE doc_status AS ENUM ('draft', 'ai_reviewed', 'in_review', 'approved', 'published', 'rejected');
+CREATE TYPE doc_change_type AS ENUM ('AI_GENERATION', 'AI_REGENERATION', 'HUMAN_EDIT', 'HUMAN_REVIEW', 'ROLLBACK');
+CREATE TYPE block_actor AS ENUM ('AI', 'Human', 'System');
+CREATE TYPE review_decision_type AS ENUM ('approved', 'needs_revision', 'rejected');
+CREATE TYPE job_status_type AS ENUM ('pending', 'running', 'completed', 'failed');
+CREATE TYPE block_content_type AS ENUM ('paragraph', 'table', 'chart', 'image', 'citation', 'quote', 'list', 'code', 'equation');
+CREATE TYPE section_content_type AS ENUM ('Executive Summary', 'Introduction', 'Market', 'Conclusion', 'Appendix', 'References', 'Custom');
+
+-- ==========================================
+-- 1. IDENTITY & ORGANIZATION
+-- ==========================================
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    full_name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    avatar TEXT,
+    status TEXT DEFAULT 'active',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE roles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT UNIQUE NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE permissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    resource TEXT NOT NULL,
+    action TEXT NOT NULL,
+    UNIQUE(resource, action)
+);
+
+CREATE TABLE user_roles (
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role_id UUID REFERENCES roles(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, role_id)
+);
+
+CREATE TABLE organizations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL
+);
+
+CREATE TABLE organization_members (
+    organization_id UUID REFERENCES organizations(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    role TEXT NOT NULL,
+    PRIMARY KEY (organization_id, user_id)
+);
+
+-- ==========================================
+-- 2. DOCUMENT MANAGEMENT (CORE)
+-- ==========================================
+CREATE TABLE documents (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    slug TEXT UNIQUE NOT NULL,
+    document_type TEXT,
+    industry TEXT,
+    language TEXT DEFAULT 'en',
+    description TEXT,
+    status doc_status DEFAULT 'draft',
+    current_version_id UUID, -- Foreign Key added later to avoid circular dependency
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE document_versions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) ON DELETE CASCADE NOT NULL,
+    version_number INT NOT NULL,
+    parent_version UUID REFERENCES document_versions(id) ON DELETE SET NULL,
+    change_type doc_change_type NOT NULL,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    summary TEXT,
+    status doc_status DEFAULT 'draft',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (document_id, version_number)
+);
+
+-- Resolve Circular Dependency
+ALTER TABLE documents 
+ADD CONSTRAINT fk_current_version 
+FOREIGN KEY (current_version_id) REFERENCES document_versions(id) ON DELETE SET NULL;
+
+-- ==========================================
+-- 3. DOCUMENT STRUCTURE
+-- ==========================================
+CREATE TABLE document_sections (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version_id UUID REFERENCES document_versions(id) ON DELETE CASCADE NOT NULL,
+    section_order INT NOT NULL,
+    title TEXT NOT NULL,
+    section_type section_content_type DEFAULT 'Custom'
+);
+
+CREATE TABLE document_blocks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    section_id UUID REFERENCES document_sections(id) ON DELETE CASCADE NOT NULL,
+    block_order INT NOT NULL,
+    block_type block_content_type NOT NULL,
+    content_json JSONB,
+    markdown TEXT,
+    html TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb
+);
+
+-- ==========================================
+-- 4. STORAGE
+-- ==========================================
+CREATE TABLE document_files (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version_id UUID REFERENCES document_versions(id) ON DELETE CASCADE NOT NULL,
+    file_type TEXT NOT NULL, -- e.g., 'markdown', 'html', 'pdf', 'json'
+    storage_path TEXT NOT NULL,
+    checksum TEXT,
+    size BIGINT
+);
+
+-- ==========================================
+-- 5. AI REVIEW
+-- ==========================================
+CREATE TABLE ai_reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version_id UUID REFERENCES document_versions(id) ON DELETE CASCADE NOT NULL,
+    model TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    overall_score NUMERIC(5,2),
+    grade TEXT,
+    summary TEXT,
+    status TEXT DEFAULT 'completed',
+    reviewed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE review_scores (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    review_id UUID REFERENCES ai_reviews(id) ON DELETE CASCADE NOT NULL,
+    category TEXT NOT NULL, -- e.g., 'Research', 'Evidence', 'Strategy', 'Writing'
+    score NUMERIC(5,2) NOT NULL,
+    comment TEXT
+);
+
+CREATE TABLE review_findings (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    review_id UUID REFERENCES ai_reviews(id) ON DELETE CASCADE NOT NULL,
+    category TEXT NOT NULL,
+    severity TEXT NOT NULL,
+    location TEXT NOT NULL,
+    description TEXT NOT NULL,
+    recommendation TEXT
+);
+
+CREATE TABLE review_claims (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    review_id UUID REFERENCES ai_reviews(id) ON DELETE CASCADE NOT NULL,
+    claim TEXT NOT NULL,
+    risk TEXT NOT NULL,
+    citation TEXT,
+    location TEXT NOT NULL
+);
+
+-- ==========================================
+-- 6. HUMAN REVIEW
+-- ==========================================
+CREATE TABLE human_reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version_id UUID REFERENCES document_versions(id) ON DELETE CASCADE NOT NULL,
+    reviewer UUID REFERENCES users(id) ON DELETE SET NULL,
+    decision review_decision_type NOT NULL,
+    summary TEXT,
+    completed_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE review_comments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    human_review_id UUID REFERENCES human_reviews(id) ON DELETE CASCADE NOT NULL,
+    section_id UUID REFERENCES document_sections(id) ON DELETE CASCADE,
+    block_id UUID REFERENCES document_blocks(id) ON DELETE CASCADE,
+    comment TEXT NOT NULL,
+    priority TEXT DEFAULT 'normal',
+    resolved BOOLEAN DEFAULT FALSE,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 7. AI EDITING
+-- ==========================================
+CREATE TABLE ai_edit_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    block_id UUID REFERENCES document_blocks(id) ON DELETE CASCADE NOT NULL,
+    prompt TEXT NOT NULL,
+    instruction TEXT NOT NULL,
+    status job_status_type DEFAULT 'pending',
+    model TEXT,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE ai_edit_results (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    request_id UUID REFERENCES ai_edit_requests(id) ON DELETE CASCADE NOT NULL,
+    old_content JSONB NOT NULL,
+    new_content JSONB NOT NULL,
+    accepted BOOLEAN DEFAULT FALSE,
+    accepted_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    accepted_at TIMESTAMPTZ
+);
+
+-- ==========================================
+-- 8. HUMAN EDITING
+-- ==========================================
+CREATE TABLE block_edits (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    block_id UUID REFERENCES document_blocks(id) ON DELETE CASCADE NOT NULL,
+    old_value JSONB,
+    new_value JSONB NOT NULL,
+    edited_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    reason TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 9. CHANGE TRACKING
+-- ==========================================
+CREATE TABLE change_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) ON DELETE CASCADE NOT NULL,
+    version_id UUID REFERENCES document_versions(id) ON DELETE CASCADE NOT NULL,
+    entity TEXT NOT NULL, -- e.g., 'block', 'section', 'metadata'
+    entity_id UUID NOT NULL,
+    change_type TEXT NOT NULL,
+    actor block_actor NOT NULL,
+    old_value JSONB,
+    new_value JSONB,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 10. WORKFLOW
+-- ==========================================
+CREATE TABLE workflow_instances (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) ON DELETE CASCADE NOT NULL,
+    current_state TEXT NOT NULL,
+    assigned_to UUID REFERENCES users(id) ON DELETE SET NULL,
+    started_at TIMESTAMPTZ DEFAULT NOW(),
+    completed_at TIMESTAMPTZ
+);
+
+CREATE TABLE workflow_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    workflow_id UUID REFERENCES workflow_instances(id) ON DELETE CASCADE NOT NULL,
+    previous_state TEXT,
+    current_state TEXT NOT NULL,
+    triggered_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 11. GENERATION
+-- ==========================================
+CREATE TABLE generation_jobs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    document_id UUID REFERENCES documents(id) ON DELETE CASCADE NOT NULL,
+    github_run TEXT,
+    workflow TEXT,
+    status job_status_type DEFAULT 'pending',
+    started TIMESTAMPTZ DEFAULT NOW(),
+    completed TIMESTAMPTZ,
+    logs TEXT
+);
+
+-- ==========================================
+-- 12. PUBLISH
+-- ==========================================
+CREATE TABLE publish_jobs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    version_id UUID REFERENCES document_versions(id) ON DELETE CASCADE NOT NULL,
+    platform TEXT NOT NULL, -- e.g., 'Alibaba', 'R2'
+    status job_status_type DEFAULT 'pending',
+    published_at TIMESTAMPTZ,
+    published_by UUID REFERENCES users(id) ON DELETE SET NULL
+);
+
+-- ==========================================
+-- 13. NOTIFICATIONS
+-- ==========================================
+CREATE TABLE notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    message TEXT NOT NULL,
+    read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 14. ACTIVITY
+-- ==========================================
+CREATE TABLE activity_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    action TEXT NOT NULL,
+    details JSONB DEFAULT '{}'::jsonb,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==========================================
+-- 15. AUDIT
+-- ==========================================
+CREATE TABLE audit_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    table_name TEXT NOT NULL,
+    record_id UUID NOT NULL,
+    action TEXT NOT NULL,
+    old_data JSONB,
+    new_data JSONB,
+    changed_by UUID REFERENCES users(id) ON DELETE SET NULL,
+    timestamp TIMESTAMPTZ DEFAULT NOW()
+);
