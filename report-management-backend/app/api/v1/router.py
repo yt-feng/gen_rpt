@@ -11,7 +11,8 @@ from app.api.v1.endpoints import (
     dashboard,
     statistics,
     auth,
-    internal
+    internal,
+    editor
 )
 
 api_router = APIRouter()
@@ -25,6 +26,7 @@ api_router.include_router(workflow.router, prefix="/reports", tags=["Workflow"])
 api_router.include_router(assignments.router, prefix="/assignments", tags=["Assignments"])
 api_router.include_router(versions.router, prefix="/reports", tags=["Versions"])
 api_router.include_router(publishing.router, prefix="/reports", tags=["Publishing"])
+api_router.include_router(editor.router, prefix="/editor", tags=["Editor"])
 api_router.include_router(search.router, prefix="/search", tags=["Search"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["Statistics"])
