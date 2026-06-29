@@ -1,7 +1,6 @@
-from typing import Optional, List
+from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from pydantic import AnyHttpUrl, model_validator
-import logging
+from pydantic import model_validator
 
 class Settings(BaseSettings):
     APP_NAME: str = "Report Management Backend"
@@ -13,8 +12,8 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     
-    # Single source of truth for DB
-    DATABASE_URL: str
+    # Single source of truth for DB — must be set as env var on Render
+    DATABASE_URL: str = ""
     
     # Supabase Integrations
     SUPABASE_URL: Optional[str] = None
@@ -39,10 +38,19 @@ class Settings(BaseSettings):
     
     @model_validator(mode='after')
     def validate_database_url(self) -> 'Settings':
-        if not self.DATABASE_URL:
-            raise ValueError("DATABASE_URL must be provided in environment variables")
+        if not self.DATABASE_URL or not self.DATABASE_URL.strip():
+            raise ValueError(
+                "DATABASE_URL is required but not set. "
+                "On Render: add DATABASE_URL in the Environment Variables section. "
+                "Format: postgresql+asyncpg://user:password@host:5432/dbname"
+            )
         return self
 
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        env_ignore_empty=True,   # empty DATABASE_URL= in .env won't override a real env var
+        extra="ignore"
+    )
 
 settings = Settings()

@@ -5,16 +5,22 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-# Create the async engine with pooling configurations as requested
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=settings.APP_DEBUG,
-    pool_size=10,
-    max_overflow=20,
-    pool_recycle=1800,  # Recycle connections after 30 minutes
-    pool_pre_ping=True,  # Check connection liveness before checking out from pool
-    pool_timeout=30,     # Timeout waiting for a connection from the pool
-)
+# SQLite (used in tests) doesn't support pool_size/max_overflow
+_is_sqlite = settings.DATABASE_URL.startswith("sqlite")
+
+_engine_kwargs = {
+    "echo": settings.APP_DEBUG,
+    "pool_pre_ping": True,
+}
+if not _is_sqlite:
+    _engine_kwargs.update({
+        "pool_size": 10,
+        "max_overflow": 20,
+        "pool_recycle": 1800,
+        "pool_timeout": 30,
+    })
+
+engine = create_async_engine(settings.DATABASE_URL, **_engine_kwargs)
 
 # Async session factory
 AsyncSessionLocal = async_sessionmaker(
