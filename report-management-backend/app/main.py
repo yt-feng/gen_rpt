@@ -23,12 +23,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+import time
+from sqlalchemy import text
+from app.core.database import engine
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     """
-    Health check endpoint to validate application is running.
+    Health check endpoint to validate application and database.
     """
-    return {"status": "healthy", "environment": settings.ENVIRONMENT}
+    start_time = time.time()
+    db_status = "unhealthy"
+    error_msg = None
+    
+    try:
+        if not settings.DATABASE_URL:
+            raise ValueError("DATABASE_URL is missing")
+            
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        db_status = "healthy"
+    except Exception as e:
+        error_msg = str(e)
+        logger.error(f"Health check database connection failed: {error_msg}")
+        
+    response_time_ms = round((time.time() - start_time) * 1000, 2)
+    
+    return {
+        "status": "healthy" if db_status == "healthy" else "degraded",
+        "environment": settings.APP_ENV,
+        "database": {
+            "status": db_status,
+            "response_time_ms": response_time_ms,
+            "error": error_msg
+        }
+    }
 
 # Include API routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
