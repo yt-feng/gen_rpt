@@ -60,6 +60,7 @@ class ReviewComment(Base, UUIDMixin):
     human_review_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("human_reviews.id", ondelete="CASCADE"), nullable=False)
     section_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("document_sections.id", ondelete="CASCADE"), nullable=True)
     block_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("document_blocks.id", ondelete="CASCADE"), nullable=True)
+    node_stable_id: Mapped[str | None] = mapped_column(String, index=True, nullable=True)
     comment: Mapped[str] = mapped_column(String, nullable=False)
     priority: Mapped[str] = mapped_column(String, default="normal")
     resolved: Mapped[bool] = mapped_column(Boolean, default=False)
