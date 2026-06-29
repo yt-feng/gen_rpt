@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
@@ -6,11 +7,52 @@ from app.api.v1.router import api_router, internal_router
 from app.middleware.request_logging import RequestLoggingMiddleware
 from app.core.exceptions import register_exception_handlers
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Startup/shutdown lifecycle handler."""
+    # --- STARTUP ---
+    logger.info(f"Starting {settings.APP_NAME} [{settings.APP_ENV}]")
+    logger.info(f"DATABASE_URL configured: {'YES' if settings.DATABASE_URL else 'NO'}")
+    
+    # Validate DB connection
+    try:
+        import time
+        from sqlalchemy import text
+        from app.core.database import engine
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        logger.info("Database connection: OK")
+    except Exception as e:
+        logger.error(f"Database connection FAILED at startup: {e}")
+        # Don't crash — let /health report degraded state
+    
+    # Validate R2 connection (non-fatal)
+    try:
+        from app.storage.provider import storage_provider
+        r2_health = await storage_provider.health_check()
+        if r2_health.get("status") == "healthy":
+            logger.info("Cloudflare R2 connection: OK")
+        else:
+            logger.warning(f"Cloudflare R2 degraded: {r2_health.get('error')}")
+    except Exception as e:
+        logger.warning(f"Cloudflare R2 check skipped: {e}")
+    
+    logger.info(f"API available at: {settings.API_V1_STR}")
+    logger.info("Startup complete. Ready to serve requests.")
+    
+    yield
+    
+    # --- SHUTDOWN ---
+    logger.info("Shutting down application.")
+    from app.core.database import engine
+    await engine.dispose()
+
 app = FastAPI(
     title="Report Management Backend",
-    description="Phase 1 Backend Foundation for Report Management",
+    description="Enterprise Report Management Platform — Phases 1-10",
     version="1.0.0",
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan
 )
 
 # Register central error handlers
