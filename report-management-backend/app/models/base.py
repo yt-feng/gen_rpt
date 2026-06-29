@@ -24,3 +24,8 @@ class SoftDeleteMixin:
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
     )
+
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON
+
+JSONVariant = JSON().with_variant(JSONB, "postgresql")
