@@ -17,14 +17,9 @@ def upgrade() -> None:
     
     # Manually created Enums
     reviewer_role_enum = sa.Enum('primary', 'secondary', 'technical', 'editorial', 'manager', name='reviewer_role')
-    reviewer_role_enum.create(op.get_bind(), checkfirst=True)
-    
     review_assignment_status_enum = sa.Enum('pending', 'in_progress', 'completed', 'reassigned', name='review_assignment_status')
-    review_assignment_status_enum.create(op.get_bind(), checkfirst=True)
-    
     comment_action_type_enum = sa.Enum('comment', 'ai_request', name='comment_action_type')
-    comment_action_type_enum.create(op.get_bind(), checkfirst=True)
-    
+
     # Alter existing doc_status enum if postgres
     connection = op.get_bind()
     if connection.dialect.name == 'postgresql':
