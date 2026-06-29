@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.logging.logger import logger
-from app.api.v1.router import api_router
-from app.api.internal.router import internal_router
+from app.api.v1.router import api_router, internal_router
 from app.middleware.request_logging import RequestLoggingMiddleware
+from app.core.exceptions import register_exception_handlers
 
 app = FastAPI(
     title="Report Management Backend",
@@ -12,6 +12,9 @@ app = FastAPI(
     version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
+
+# Register central error handlers
+register_exception_handlers(app)
 
 # Middleware
 app.add_middleware(RequestLoggingMiddleware)
