@@ -97,8 +97,12 @@ async def health_check():
         
     response_time_ms = round((time.time() - start_time) * 1000, 2)
     
+    # not_configured is a warning, not a full degradation — DB must be healthy
+    storage_status = storage_health.get("status")
     overall_status = "healthy"
-    if db_status != "healthy" or storage_health.get("status") != "healthy":
+    if db_status != "healthy":
+        overall_status = "degraded"
+    elif storage_status not in ("healthy", "not_configured"):
         overall_status = "degraded"
     
     return {
