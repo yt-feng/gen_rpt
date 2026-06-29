@@ -7,12 +7,18 @@ from app.main import app
 from app.core.config import settings
 from app.api.deps import get_db
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.pool import StaticPool
 from app.models.base import Base
 from app.models.document import Document
 from app.models.identity import User
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
-engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+engine = create_async_engine(
+    TEST_DATABASE_URL, 
+    echo=False,
+    poolclass=StaticPool,
+    connect_args={'check_same_thread': False}
+)
 TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
 async def override_get_db():
