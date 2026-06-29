@@ -3,10 +3,33 @@ import enum
 class DocStatus(str, enum.Enum):
     draft = "draft"
     ai_reviewed = "ai_reviewed"
+    assigned = "assigned"
     in_review = "in_review"
+    needs_revision = "needs_revision"
+    waiting_for_ai = "waiting_for_ai"
+    waiting_for_human = "waiting_for_human"
     approved = "approved"
+    ready_for_publish = "ready_for_publish"
     published = "published"
     rejected = "rejected"
+    archived = "archived"
+
+class ReviewAssignmentStatus(str, enum.Enum):
+    pending = "pending"
+    in_progress = "in_progress"
+    completed = "completed"
+    reassigned = "reassigned"
+
+class ReviewerRole(str, enum.Enum):
+    primary = "primary"
+    secondary = "secondary"
+    technical = "technical"
+    editorial = "editorial"
+    manager = "manager"
+
+class CommentActionType(str, enum.Enum):
+    comment = "comment"
+    ai_request = "ai_request"
 
 class DocChangeType(str, enum.Enum):
     AI_GENERATION = "AI_GENERATION"
