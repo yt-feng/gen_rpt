@@ -1,47 +1,34 @@
 from fastapi import APIRouter
+from app.api.v1.endpoints import (
+    reports,
+    reviews,
+    comments,
+    workflow,
+    assignments,
+    versions,
+    publishing,
+    search,
+    dashboard,
+    statistics,
+    auth,
+    internal
+)
 
 api_router = APIRouter()
 
-# Placeholder routers for major namespaces
-auth_router = APIRouter(prefix="/auth", tags=["Auth"])
-reports_router = APIRouter(prefix="/reports", tags=["Reports"])
-reviews_router = APIRouter(prefix="/reviews", tags=["Reviews"])
-comments_router = APIRouter(prefix="/comments", tags=["Comments"])
-workflows_router = APIRouter(prefix="/workflows", tags=["Workflows"])
-publish_router = APIRouter(prefix="/publish", tags=["Publishing"])
-users_router = APIRouter(prefix="/users", tags=["Users"])
+# Public API routes
+api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(reports.router, prefix="/reports", tags=["Reports"])
+api_router.include_router(reviews.router, prefix="/reports", tags=["Reviews"]) 
+api_router.include_router(comments.router, prefix="/reports", tags=["Comments"])
+api_router.include_router(workflow.router, prefix="/reports", tags=["Workflow"])
+api_router.include_router(assignments.router, prefix="/assignments", tags=["Assignments"])
+api_router.include_router(versions.router, prefix="/reports", tags=["Versions"])
+api_router.include_router(publishing.router, prefix="/reports", tags=["Publishing"])
+api_router.include_router(search.router, prefix="/search", tags=["Search"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
+api_router.include_router(statistics.router, prefix="/statistics", tags=["Statistics"])
 
-# Helper to create placeholder endpoint
-def not_implemented():
-    return {"message": "Not Implemented"}
-
-# Add placeholder endpoints
-@auth_router.post("/login")
-def login(): return not_implemented()
-
-@reports_router.get("/")
-def get_reports(): return not_implemented()
-
-@reviews_router.get("/")
-def get_reviews(): return not_implemented()
-
-@comments_router.get("/")
-def get_comments(): return not_implemented()
-
-@workflows_router.get("/")
-def get_workflows(): return not_implemented()
-
-@publish_router.post("/")
-def publish_report(): return not_implemented()
-
-@users_router.get("/me")
-def get_me(): return not_implemented()
-
-# Include sub-routers in main API router
-api_router.include_router(auth_router)
-api_router.include_router(reports_router)
-api_router.include_router(reviews_router)
-api_router.include_router(comments_router)
-api_router.include_router(workflows_router)
-api_router.include_router(publish_router)
-api_router.include_router(users_router)
+# Internal worker API routes
+internal_router = APIRouter()
+internal_router.include_router(internal.router, tags=["Internal API"])
