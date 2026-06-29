@@ -86,3 +86,8 @@ class SectionContentType(str, enum.Enum):
     Appendix = "Appendix"
     References = "References"
     Custom = "Custom"
+
+class EditorActionType(str, enum.Enum):
+    AI = "AI"
+    Human = "Human"
+    System = "System"
