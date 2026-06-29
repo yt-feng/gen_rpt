@@ -33,9 +33,10 @@ class StorageProvider(ABC):
 
 class CloudflareR2Provider(StorageProvider):
     def __init__(self):
+        endpoint = f"https://{settings.R2_ACCOUNT_ID}.r2.cloudflarestorage.com" if settings.R2_ACCOUNT_ID else None
         self.s3_client = boto3.client(
             "s3",
-            endpoint_url=settings.R2_ENDPOINT_URL,
+            endpoint_url=endpoint,
             aws_access_key_id=settings.R2_ACCESS_KEY_ID,
             aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
             region_name="auto"
