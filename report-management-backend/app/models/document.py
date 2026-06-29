@@ -45,6 +45,21 @@ class DocumentVersion(Base, UUIDMixin):
         Enum(DocStatus, name="doc_status", create_type=False), 
         default=DocStatus.draft
     )
+
+    actor_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    reason: Mapped[str | None] = mapped_column(String, nullable=True)
+    
+    from app.models.enums import ReleaseStatus
+    release_status: Mapped[ReleaseStatus] = mapped_column(
+        Enum(ReleaseStatus, name="release_status", create_type=False),
+        default=ReleaseStatus.Draft
+    )
+    
+    checksum: Mapped[str | None] = mapped_column(String, nullable=True)
+    snapshot_canonical_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    snapshot_html_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    snapshot_markdown_url: Mapped[str | None] = mapped_column(String, nullable=True)
+    snapshot_pdf_url: Mapped[str | None] = mapped_column(String, nullable=True)
     
     __table_args__ = (
         UniqueConstraint('document_id', 'version_number', name='uq_doc_version'),

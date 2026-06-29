@@ -14,6 +14,19 @@ class DocChangeType(str, enum.Enum):
     HUMAN_EDIT = "HUMAN_EDIT"
     HUMAN_REVIEW = "HUMAN_REVIEW"
     ROLLBACK = "ROLLBACK"
+    MERGE = "MERGE"
+    PUBLISH_RELEASE = "PUBLISH_RELEASE"
+    IMPORTED_VERSION = "IMPORTED_VERSION"
+    RESTORE = "RESTORE"
+    SYSTEM_UPDATE = "SYSTEM_UPDATE"
+
+class ReleaseStatus(str, enum.Enum):
+    Draft = "Draft"
+    Internal_Review = "Internal Review"
+    Approved = "Approved"
+    Release_Candidate = "Release Candidate"
+    Published = "Published"
+    Archived = "Archived"
 
 class BlockActor(str, enum.Enum):
     AI = "AI"
