@@ -8,12 +8,14 @@ from app.schemas.document import DocumentCreate
 from app.repositories.user import user_repo
 from app.services.document import document_service
 
+import pytest_asyncio
+
 # We use SQLite memory for unit testing the schemas
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession)
 
-@pytest.fixture(scope="function")
+@pytest_asyncio.fixture(scope="function")
 async def db_session():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
