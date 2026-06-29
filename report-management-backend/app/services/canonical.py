@@ -81,6 +81,7 @@ class VersionManager:
                 )
                 db.add(new_block)
 
+        await db.flush()
         return new_version
 
 class MarkdownParser:

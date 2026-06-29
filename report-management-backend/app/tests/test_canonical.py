@@ -150,7 +150,7 @@ async def test_ai_regenerate_section(test_db: AsyncSession):
     
     # Assert blocks
     stmt = select(DocumentBlock).join(DocumentSection).where(DocumentSection.version_id == new_ver.id)
-    b = (await db.execute(stmt)).scalars().first()
+    b = (await test_db.execute(stmt)).scalars().first()
     
     assert "Old summary" in b.markdown
     assert "AI Refined based on: Make it longer" in b.markdown
