@@ -35,7 +35,7 @@ class SnapshotEngine:
             for block in sec.blocks:
                 sec_data["blocks"].append({
                     "stable_id": block.stable_id,
-                    "type": block.block_type.value,
+                    "type": block.block_type.value if hasattr(block.block_type, "value") else str(block.block_type),
                     "order": block.block_order,
                     "markdown": block.markdown,
                     "content": block.content_json
