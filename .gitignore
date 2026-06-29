@@ -16,3 +16,4 @@ storage/logs/
 # Documentation
 docs/
 doc/
+!worklog.md
