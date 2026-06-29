@@ -54,6 +54,9 @@ class CloudflareR2Provider(StorageProvider):
         self.bucket = settings.R2_BUCKET
 
     def _upload_sync(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str) -> bool:
+        if not self.is_configured:
+            logger.warning("R2 upload skipped — not configured")
+            return False
         try:
             if isinstance(file_data, bytes):
                 self.s3_client.put_object(Bucket=self.bucket, Key=path, Body=file_data, ContentType=content_type)
@@ -68,6 +71,8 @@ class CloudflareR2Provider(StorageProvider):
         return await to_thread.run_sync(self._upload_sync, file_data, path, content_type)
 
     def _download_sync(self, path: str) -> Optional[bytes]:
+        if not self.is_configured:
+            return None
         try:
             response = self.s3_client.get_object(Bucket=self.bucket, Key=path)
             return response['Body'].read()
@@ -79,6 +84,8 @@ class CloudflareR2Provider(StorageProvider):
         return await to_thread.run_sync(self._download_sync, path)
 
     def _delete_sync(self, path: str) -> bool:
+        if not self.is_configured:
+            return False
         try:
             self.s3_client.delete_object(Bucket=self.bucket, Key=path)
             return True
@@ -90,11 +97,12 @@ class CloudflareR2Provider(StorageProvider):
         return await to_thread.run_sync(self._delete_sync, path)
 
     def _exists_sync(self, path: str) -> bool:
+        if not self.is_configured:
+            return False
         try:
             self.s3_client.head_object(Bucket=self.bucket, Key=path)
             return True
         except ClientError as e:
-            # 404 is expected if not found
             if e.response['Error']['Code'] == '404':
                 return False
             logger.error(f"R2 Exists check failed for {path}: {e}")
@@ -104,6 +112,8 @@ class CloudflareR2Provider(StorageProvider):
         return await to_thread.run_sync(self._exists_sync, path)
 
     def _get_signed_url_sync(self, path: str, expiration_sec: int, method: str) -> str:
+        if not self.is_configured:
+            return ""
         try:
             url = self.s3_client.generate_presigned_url(
                 ClientMethod=method,
@@ -119,6 +129,8 @@ class CloudflareR2Provider(StorageProvider):
         return await to_thread.run_sync(self._get_signed_url_sync, path, expiration_sec, method)
 
     def _health_check_sync(self) -> dict:
+        if not self.is_configured:
+            return {"status": "not_configured", "error": "R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET must all be set"}
         import time
         start = time.time()
         try:
