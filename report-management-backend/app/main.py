@@ -22,9 +22,34 @@ async def lifespan(app: FastAPI):
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("Database connection: OK")
+
+        # Seed placeholder user if not present
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy.ext.asyncio import AsyncSession
+        from sqlalchemy import select
+        from uuid import UUID
+        from app.models.identity import User
+        
+        async_session = sessionmaker(
+            engine, class_=AsyncSession, expire_on_commit=False
+        )
+        async with async_session() as session:
+            placeholder_id = UUID("00000000-0000-0000-0000-000000000000")
+            result = await session.execute(select(User).where(User.id == placeholder_id))
+            user = result.scalar_one_or_none()
+            if not user:
+                logger.info("Seeding default placeholder user...")
+                db_user = User(
+                    id=placeholder_id,
+                    full_name="Placeholder Admin",
+                    email="placeholder@admin.com",
+                    status="active"
+                )
+                session.add(db_user)
+                await session.commit()
+                logger.info("Default placeholder user seeded successfully.")
     except Exception as e:
-        logger.error(f"Database connection FAILED at startup: {e}")
-        # Don't crash — let /health report degraded state
+        logger.error(f"Database connection or seeding FAILED at startup: {e}")
     
     # Validate R2 connection (non-fatal)
     try:
