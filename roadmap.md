@@ -222,41 +222,41 @@
 
 ---
 
-## [ ] Phase 12 — HTML Synchronization Engine
+## [x] Phase 12 — HTML Synchronization Engine
 **Objective:** Keep all output formats synchronized automatically.
 
 ### Scope
-- [ ] Human edits update canonical document.
-- [ ] AI edits update canonical document.
-- [ ] Partial regeneration updates canonical document.
-- [ ] Automatically regenerate Markdown.
-- [ ] Automatically regenerate HTML.
-- [ ] Automatically regenerate PDF.
-- [ ] Automatically regenerate exports.
-- [ ] Keep every format synchronized.
-- [ ] Prevent format divergence.
-- [ ] Maintain output consistency.
+- [x] Human edits update canonical document.
+- [x] AI edits update canonical document.
+- [x] Partial regeneration updates canonical document.
+- [x] Automatically regenerate Markdown.
+- [x] Automatically regenerate HTML.
+- [x] Automatically regenerate PDF.
+- [x] Automatically regenerate exports.
+- [x] Keep every format synchronized.
+- [x] Prevent format divergence.
+- [x] Maintain output consistency.
 
 *Note: HTML is never edited as the source of truth.*
 
 ---
 
-## [ ] Phase 13 — Change Tracking & Collaboration
+## [x] Phase 13 — Change Tracking & Collaboration
 **Objective:** Introduce collaborative editing and auditing.
 
 ### Scope
-- [ ] Track changes.
-- [ ] Suggested edits.
-- [ ] Accept changes.
-- [ ] Reject changes.
-- [ ] Diff viewer.
-- [ ] Paragraph comparison.
-- [ ] Version comparison.
-- [ ] Reviewer attribution.
-- [ ] AI attribution.
-- [ ] Timeline view.
-- [ ] Activity history.
-- [ ] Collaborative editing.
+- [x] Track changes.
+- [x] Suggested edits.
+- [x] Accept changes.
+- [x] Reject changes.
+- [x] Diff viewer.
+- [x] Paragraph comparison.
+- [x] Version comparison.
+- [x] Reviewer attribution.
+- [x] AI attribution.
+- [x] Timeline view.
+- [x] Activity history.
+- [x] Collaborative editing.
 
 ---
 
