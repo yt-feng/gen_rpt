@@ -204,21 +204,21 @@
 
 ---
 
-## [ ] Phase 11 — Partial Report Regeneration
+## [x] Phase 11 — Partial Report Regeneration
 **Objective:** Regenerate only selected content instead of the entire report.
 
 ### Scope
-- [ ] Regenerate paragraph.
-- [ ] Regenerate section.
-- [ ] Regenerate chapter.
-- [ ] Regenerate executive summary.
-- [ ] Regenerate conclusion.
-- [ ] Regenerate tables.
-- [ ] Regenerate recommendations.
-- [ ] Regenerate references.
-- [ ] Context-aware regeneration.
-- [ ] Preserve unaffected content.
-- [ ] Create new document version after regeneration.
+- [x] Regenerate paragraph.
+- [x] Regenerate section.
+- [x] Regenerate chapter.
+- [x] Regenerate executive summary.
+- [x] Regenerate conclusion.
+- [x] Regenerate tables.
+- [x] Regenerate recommendations.
+- [x] Regenerate references.
+- [x] Context-aware regeneration.
+- [x] Preserve unaffected content.
+- [x] Create new document version after regeneration.
 
 ---
 
