@@ -17,6 +17,7 @@ class CreateJobRequest(BaseModel):
     prompt: str
     report_type: str = "technical"
 
+@router.post("/jobs", response_model=APIResponse[dict])
 @router.post("/", response_model=APIResponse[dict])
 async def create_job(
     req: CreateJobRequest,
@@ -36,6 +37,7 @@ async def create_job(
     )
     return success_response(data={"job_id": str(job.id), "status": job.status.value}, message="Job created and dispatched")
 
+@router.get("/jobs", response_model=APIResponse[list])
 @router.get("/", response_model=APIResponse[list])
 async def list_jobs(
     page: PageParams = Depends(),
