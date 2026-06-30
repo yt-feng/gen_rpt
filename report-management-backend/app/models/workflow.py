@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import String, ForeignKey, Enum
-from app.models.base import Base, UUIDMixin
+from sqlalchemy import String, ForeignKey, Enum, Integer
+from app.models.base import Base, UUIDMixin, JSONVariant
 from app.models.enums import JobStatusType
 from datetime import datetime
 from sqlalchemy import DateTime, func
@@ -25,6 +25,24 @@ class WorkflowEvent(Base, UUIDMixin):
 class GenerationJob(Base, UUIDMixin):
     __tablename__ = "generation_jobs"
     document_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("documents.id", ondelete="CASCADE"), nullable=False)
+    
+    topic: Mapped[str | None] = mapped_column(String, nullable=True)
+    prompt: Mapped[str | None] = mapped_column(String, nullable=True)
+    report_type: Mapped[str | None] = mapped_column(String, nullable=True)
+    priority: Mapped[int] = mapped_column(Integer, default=0)
+    
+    provider: Mapped[str | None] = mapped_column(String, nullable=True)
+    model: Mapped[str | None] = mapped_column(String, nullable=True)
+    token_usage: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    
+    artifacts: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    version: Mapped[str | None] = mapped_column(String, nullable=True)
+    
+    errors: Mapped[str | None] = mapped_column(String, nullable=True)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    audit_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    
     github_run: Mapped[str | None] = mapped_column(String, nullable=True)
     workflow: Mapped[str | None] = mapped_column(String, nullable=True)
     
@@ -35,6 +53,7 @@ class GenerationJob(Base, UUIDMixin):
     
     started: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
     completed: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    duration: Mapped[int | None] = mapped_column(Integer, nullable=True)
     logs: Mapped[str | None] = mapped_column(String, nullable=True)
 
 class PublishJob(Base, UUIDMixin):
