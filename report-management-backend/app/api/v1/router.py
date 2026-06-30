@@ -13,7 +13,8 @@ from app.api.v1.endpoints import (
     auth,
     internal,
     editor,
-    ai_assistant
+    ai_assistant,
+    generation
 )
 
 api_router = APIRouter()
@@ -32,6 +33,7 @@ api_router.include_router(ai_assistant.router, prefix="/ai", tags=["AI Assistant
 api_router.include_router(search.router, prefix="/search", tags=["Search"])
 api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboard"])
 api_router.include_router(statistics.router, prefix="/statistics", tags=["Statistics"])
+api_router.include_router(generation.router, prefix="/generation", tags=["Generation"])
 
 # Internal worker API routes
 internal_router = APIRouter()
