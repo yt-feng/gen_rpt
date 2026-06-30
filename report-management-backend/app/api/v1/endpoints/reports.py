@@ -18,11 +18,59 @@ async def list_reports(
     """
     List all reports based on filters and pagination.
     """
-    # Placeholder: Will query DocumentFile or Document tables
+    # Return mock data matching the frontend's Report interface to allow UI testing of tags
+    mock_reports = [
+        {
+            "id": "doc-1111-approved",
+            "title": "Nuclear Fusion Commercialization",
+            "version": "1.2",
+            "status": "Approved",
+            "humanStatus": "Final Review Complete",
+            "aiScore": 92,
+            "aiGrade": "Gold",
+            "commentCount": 0,
+            "lastUpdated": "2026-06-30T10:00:00Z",
+            "publishReady": True,
+            "aiReview": None,
+            "reportContent": {"brand": "GateX", "label": "Approved", "date": "2026-06-30", "sections": []},
+            "comments": []
+        },
+        {
+            "id": "doc-2222-rejected",
+            "title": "Quantum Computing Market Outlook",
+            "version": "1.0",
+            "status": "Rejected",
+            "humanStatus": "Needs rewrite",
+            "aiScore": 45,
+            "aiGrade": "Bronze",
+            "commentCount": 5,
+            "lastUpdated": "2026-06-29T14:30:00Z",
+            "publishReady": False,
+            "aiReview": None,
+            "reportContent": {"brand": "GateX", "label": "Rejected", "date": "2026-06-29", "sections": []},
+            "comments": []
+        },
+        {
+            "id": "doc-3333-review",
+            "title": "Middle East AI Strategies",
+            "version": "2.1",
+            "status": "Needs Human Review",
+            "humanStatus": "Pending Editorial Approval",
+            "aiScore": 85,
+            "aiGrade": "Silver",
+            "commentCount": 2,
+            "lastUpdated": "2026-06-30T19:00:00Z",
+            "publishReady": False,
+            "aiReview": None,
+            "reportContent": {"brand": "GateX", "label": "Review", "date": "2026-06-30", "sections": []},
+            "comments": []
+        }
+    ]
+    
     return success_response(
-        data=[],
-        message="Fetched reports successfully",
-        metadata={"total": 0, "offset": page.offset, "limit": page.limit, "has_more": False}
+        data=mock_reports,
+        message="Fetched mock reports successfully",
+        metadata={"total": 3, "offset": page.offset, "limit": page.limit, "has_more": False}
     )
 
 @router.get("/{document_id}", response_model=APIResponse[dict])
