@@ -260,19 +260,19 @@
 
 ---
 
-## [ ] Phase 14 — Publishing Workflow
+## [x] Phase 14 — Publishing Workflow
 **Objective:** Build enterprise publishing pipeline.
 
 ### Scope
-- [ ] Publish queue.
-- [ ] Approval workflow.
-- [ ] Final validation.
-- [ ] Alibaba OSS publishing.
-- [ ] Publication history.
-- [ ] Publication rollback.
-- [ ] Scheduled publishing.
-- [ ] Publish audit logs.
-- [ ] Distribution tracking.
+- [x] Publish queue.
+- [x] Approval workflow.
+- [x] Final validation.
+- [x] Alibaba OSS publishing.
+- [x] Publication history.
+- [x] Publication rollback.
+- [x] Scheduled publishing.
+- [x] Publish audit logs.
+- [x] Distribution tracking.
 
 ---
 
