@@ -7,14 +7,24 @@ from typing import List, Optional
 from app.api.deps import get_db, get_current_user_placeholder, PageParams
 from app.core.responses import APIResponse, success_response, error_response
 from app.services.generation import generation_service
+from app.services.document import document_service
+from app.schemas.document import DocumentCreate
 from app.models.enums import JobStatusType
+import re
 
 router = APIRouter()
 
+def slugify(text: str) -> str:
+    text = text.strip().lower()
+    text = re.sub(r"[^a-zA-Z0-9\u4e00-\u9fff]+", "-", text)
+    text = re.sub(r"-+", "-", text).strip("-")
+    return text[:60] or "web-research-topic"
+
 class CreateJobRequest(BaseModel):
-    document_id: UUID
+    document_id: Optional[UUID] = None
     topic: str
-    prompt: str
+    prompt: Optional[str] = None
+    industry: Optional[str] = None
     report_type: str = "technical"
 
 @router.post("/jobs", response_model=APIResponse[dict])
@@ -27,11 +37,28 @@ async def create_job(
     """
     Initiate a new report generation job.
     """
+    doc_id = req.document_id
+    if not doc_id:
+        doc_in = DocumentCreate(
+            title=req.topic,
+            slug=slugify(req.topic),
+            industry=req.industry,
+            language="en"
+        )
+        doc = await document_service.create_document(
+            db=db,
+            doc_in=doc_in,
+            user_id=UUID(user["id"])
+        )
+        doc_id = doc.id
+
+    prompt = req.prompt or req.topic
+
     job = await generation_service.create_job(
         db=db,
-        document_id=req.document_id,
+        document_id=doc_id,
         topic=req.topic,
-        prompt=req.prompt,
+        prompt=prompt,
         report_type=req.report_type,
         created_by=UUID(user["id"])
     )
