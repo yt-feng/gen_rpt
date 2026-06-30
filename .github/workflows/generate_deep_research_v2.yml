@@ -120,7 +120,7 @@ jobs:
           if [ -n "$(git status --porcelain reports_web)" ]; then
             git add reports_web
             git commit -m "Add generated HTML thought leadership report"
-            git pull --rebase origin main
+            git pull --rebase
             git push
           else
             echo "No report changes to commit"
