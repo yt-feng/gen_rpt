@@ -8,16 +8,7 @@ from app.core.responses import APIResponse, success_response, error_response
 
 router = APIRouter()
 
-@router.get("/", response_model=APIResponse[list])
-async def list_reports(
-    page: PageParams = Depends(),
-    filters: FilterParams = Depends(),
-    db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user_placeholder)
-):
-    """
-    List all reports based on filters and pagination.
-    """
+
 # Global mock state to allow frontend updates to persist across API calls
 MOCK_REPORTS = {
     "doc-1111-approved": {
