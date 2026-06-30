@@ -39,9 +39,11 @@ async def create_job(
     """
     doc_id = req.document_id
     if not doc_id:
+        import uuid
+        unique_slug = f"{slugify(req.topic)}-{uuid.uuid4().hex[:6]}"
         doc_in = DocumentCreate(
             title=req.topic,
-            slug=slugify(req.topic),
+            slug=unique_slug,
             industry=req.industry,
             language="en"
         )
