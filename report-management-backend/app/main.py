@@ -62,13 +62,27 @@ register_exception_handlers(app)
 
 # Middleware
 app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"], # In production, restrict this
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+
+origins = [o.strip() for o in settings.CORS_ORIGINS.split(",") if o.strip()]
+if "https://gen-rpt-review-frontend.pages.dev" not in origins:
+    origins.append("https://gen-rpt-review-frontend.pages.dev")
+
+if "*" in origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=False,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 import time
 from sqlalchemy import text
