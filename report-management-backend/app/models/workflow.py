@@ -68,3 +68,42 @@ class PublishJob(Base, UUIDMixin):
     
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     published_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+
+
+class GateXPublication(Base, UUIDMixin):
+    """
+    Stores the external identifiers and state returned by the GateX (MENA Compass)
+    Bulk Report Ingestion API after a successful publish operation.
+    This is the authoritative record of what was sent to GateX and when.
+    Do not overwrite — append new records for re-publishes.
+    """
+    __tablename__ = "gatex_publications"
+
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    # The document version that was published
+    version_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("document_versions.id", ondelete="SET NULL"), nullable=True
+    )
+
+    # External identifiers returned by GateX
+    external_report_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    original_object_key: Mapped[str | None] = mapped_column(String, nullable=True)  # data.key from REPORT_ORIGINAL presign
+    cover_image_key: Mapped[str | None] = mapped_column(String, nullable=True)       # data.key from REPORT_IMAGE presign
+
+    # Publication state
+    publish_status: Mapped[str] = mapped_column(String, nullable=False, default="publishing")
+    external_response: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+
+    # Audit fields
+    published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    published_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    publish_duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    retry_count: Mapped[int] = mapped_column(Integer, default=0)
+    errors: Mapped[str | None] = mapped_column(String, nullable=True)
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
+
