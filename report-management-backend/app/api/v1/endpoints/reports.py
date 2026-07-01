@@ -100,6 +100,53 @@ async def update_report_status(
     if payload.publishReady is not None:
         report["publishReady"] = payload.publishReady
         
+    if payload.status == "Needs Revision":
+        # Create a database Document if it doesn't exist
+        # This allows us to attach a GenerationJob without ForeignKey constraints failing
+        import uuid
+        import hashlib
+        try:
+            doc_uuid = uuid.UUID(document_id)
+        except ValueError:
+            # Generate deterministic UUID from mock ID
+            m = hashlib.md5()
+            m.update(document_id.encode('utf-8'))
+            doc_uuid = uuid.UUID(m.hexdigest())
+            
+        from sqlalchemy import select
+        from app.models.document import Document
+        
+        # Check if doc exists in DB
+        stmt = select(Document).where(Document.id == doc_uuid)
+        res = await db.execute(stmt)
+        db_doc = res.scalar_one_or_none()
+        
+        if not db_doc:
+            db_doc = Document(
+                id=doc_uuid,
+                title=report["title"],
+                slug=document_id,
+                industry="Financial Services",
+                language="en",
+                status="needs_revision"
+            )
+            db.add(db_doc)
+            await db.commit()
+            
+        # Create a generation job
+        from app.services.generation import generation_service
+        job = await generation_service.create_job(
+            db=db,
+            document_id=doc_uuid,
+            topic=report["title"],
+            prompt="Human review revision instructions",
+            report_type="technical",
+            created_by=UUID(user["id"])
+        )
+        # Store original string mock ID so simulator updates it
+        job.workflow = document_id
+        await db.commit()
+        
     return success_response(data=report, message="Report status updated")
 
 @router.get("/{document_id}/download-url", response_model=APIResponse[dict])

@@ -1,13 +1,4 @@
 import uuid
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-
-from app.models.workflow import GenerationJob
-from app.models.enums import JobStatusType
-
-import uuid
 import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
@@ -166,7 +157,4 @@ class GenerationService:
         
         await self.worker.cancel(job)
         return job
-
-generation_service = GenerationService()
-
 generation_service = GenerationService()

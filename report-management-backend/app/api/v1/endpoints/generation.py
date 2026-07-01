@@ -76,8 +76,30 @@ async def list_jobs(
     """
     List generation jobs.
     """
-    jobs = await generation_service.list_jobs(db, limit=page.limit, offset=page.offset)
-    data = [{"job_id": str(j.id), "status": j.status.value, "topic": j.topic, "started": j.started} for j in jobs]
+    from app.models.document import Document
+    from sqlalchemy import select
+    
+    stmt = (
+        select(GenerationJob, Document.industry)
+        .join(Document, GenerationJob.document_id == Document.id)
+        .order_by(GenerationJob.started.desc())
+        .limit(page.limit)
+        .offset(page.offset)
+    )
+    result = await db.execute(stmt)
+    
+    data = []
+    for row in result.all():
+        job = row[0]
+        industry = row[1]
+        data.append({
+            "id": str(job.id),
+            "topic": job.topic,
+            "industry": industry or "Unknown",
+            "status": job.status.value,
+            "createdAt": job.started.isoformat() if job.started else None,
+            "reportId": str(job.document_id)
+        })
     return success_response(data=data, message="Fetched jobs")
 
 @router.get("/{job_id}", response_model=APIResponse[dict])
