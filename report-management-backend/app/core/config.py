@@ -35,6 +35,15 @@ class Settings(BaseSettings):
     
     # CORS
     CORS_ORIGINS: str = "http://localhost:5173"
+
+    # GateX / MENA Compass Publishing Integration
+    GATEX_BASE_URL: str = ""                    # e.g. https://<api-host>/api
+    GATEX_API_KEY: str = ""                     # X-API-Key provided by MENA Compass team
+    GATEX_TIMEOUT: int = 30                     # HTTP timeout in seconds
+    GATEX_MAX_RETRIES: int = 3                  # Max retries for transient 5xx errors
+    GATEX_VERIFY_UPLOAD: bool = True            # Verify presigned upload succeeded before submitting metadata
+    GATEX_ENABLE_PUBLISHING: bool = False       # Master switch — keep False until credentials are configured
+    GATEX_DEFAULT_COVER_PATH: str = ""          # Optional R2 path to fallback cover image
     
     @model_validator(mode='after')
     def validate_database_url(self) -> 'Settings':
