@@ -67,6 +67,17 @@ class JobStatusType(str, enum.Enum):
     completed = "completed"
     failed = "failed"
 
+class PublishStatusType(str, enum.Enum):
+    """States for GateX external publishing lifecycle."""
+    publishing = "publishing"               # In progress — presign/upload/submit underway
+    published = "published"                 # Successfully published to GateX
+    publish_failed = "publish_failed"       # Failed; may be retried
+    external_sync_pending = "external_sync_pending"  # Submitted; awaiting GateX processing
+    external_sync_failed = "external_sync_failed"    # GateX processing failed
+    unpublishing = "unpublishing"           # Unpublish in progress
+    unpublished = "unpublished"             # Successfully removed from GateX
+    rejected = "rejected"                   # Rejected after publish attempt
+
 class BlockContentType(str, enum.Enum):
     paragraph = "paragraph"
     table = "table"
