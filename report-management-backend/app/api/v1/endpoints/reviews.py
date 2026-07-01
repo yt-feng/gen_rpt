@@ -53,17 +53,17 @@ async def assign_reviewer(
     assignment = await review_service.assign_reviewer(db, document_id, req.reviewer_id, req.role)
     return success_response(data={"assignment_id": str(assignment.id)}, message="Reviewer assigned")
 
-@router.post("/{document_id}/comments", response_model=APIResponse[dict])
-async def add_comment(
-    document_id: UUID,
-    req: CommentRequest,
-    db: AsyncSession = Depends(get_db),
-    user: dict = Depends(get_current_user_placeholder)
-):
-    comment = await review_service.add_comment(
-        db, document_id, req.node_stable_id, req.comment, CommentActionType.comment, UUID(user["id"])
-    )
-    return success_response(data={"comment_id": str(comment.id)}, message="Comment added")
+# @router.post("/{document_id}/comments", response_model=APIResponse[dict])
+# async def add_comment(
+#     document_id: UUID,
+#     req: CommentRequest,
+#     db: AsyncSession = Depends(get_db),
+#     user: dict = Depends(get_current_user_placeholder)
+# ):
+#     comment = await review_service.add_comment(
+#         db, document_id, req.node_stable_id, req.comment, CommentActionType.comment, UUID(user["id"])
+#     )
+#     return success_response(data={"comment_id": str(comment.id)}, message="Comment added")
 
 @router.post("/{document_id}/comments/{comment_id}/reply", response_model=APIResponse[dict])
 async def reply_to_comment(
