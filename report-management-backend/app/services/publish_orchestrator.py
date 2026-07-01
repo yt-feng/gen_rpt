@@ -154,6 +154,20 @@ class PublishOrchestrator:
         except (ValueError, TypeError):
             actor_uuid = None
 
+        # Ensure a Document exists for this ID (crucial for mock mode)
+        from app.models.document import Document
+        from sqlalchemy import select
+        doc_exists = await db.scalar(select(Document.id).where(Document.id == doc_uuid))
+        if not doc_exists:
+            dummy_doc = Document(
+                id=doc_uuid,
+                title=f"Mock Report {document_id}",
+                slug=f"mock-{doc_uuid}",
+                status="draft"
+            )
+            db.add(dummy_doc)
+            await db.flush()
+
         record = GateXPublication(
             document_id=doc_uuid,
             publish_status="publishing",
