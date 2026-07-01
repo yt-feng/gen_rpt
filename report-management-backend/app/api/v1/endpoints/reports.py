@@ -15,6 +15,8 @@ MOCK_REPORTS = {
         "id": "doc-1111-approved", "title": "Nuclear Fusion Commercialization", "version": "1.2",
         "status": "Approved", "humanStatus": "Final Review Complete", "aiScore": 92, "aiGrade": "Gold",
         "commentCount": 0, "lastUpdated": "2026-06-30T10:00:00Z", "publishReady": True, "aiReview": None,
+        "pdfPath": "reports/originals/doc-1111-approved.pdf",
+        "coverImagePath": "reports/images/doc-1111-approved-cover.png",
         "reportContent": {"brand": "GateX", "label": "Approved", "date": "2026-06-30", "sections": [{"heading": "Executive Summary", "body": "Mock content for approved report."}]},
         "comments": []
     },
