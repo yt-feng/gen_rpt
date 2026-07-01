@@ -77,6 +77,7 @@ async def list_jobs(
     List generation jobs.
     """
     from app.models.document import Document
+    from app.models.generation import GenerationJob
     from sqlalchemy import select
     
     stmt = (
