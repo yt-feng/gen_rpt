@@ -77,11 +77,53 @@ async def list_reports(
     List all reports based on filters and pagination.
     """
     reports_list = list(MOCK_REPORTS.values())
-    
+
+    # --- Reconcile with persisted GateXPublication records ---
+    # This ensures Published status survives server restarts (MOCK_REPORTS is in-memory)
+    try:
+        from app.models.workflow import GateXPublication
+        from sqlalchemy import select
+        import hashlib, uuid as _uuid
+
+        stmt = select(
+            GateXPublication.document_id,
+            GateXPublication.publish_status,
+            GateXPublication.external_report_id
+        ).where(
+            GateXPublication.publish_status.in_(["published", "unpublished"])
+        )
+        result = await db.execute(stmt)
+        pub_rows = result.all()
+
+        # Build a map of doc_uuid -> (publish_status, external_id)
+        pub_map = {str(row[0]): (row[1], row[2]) for row in pub_rows}
+
+        for report in reports_list:
+            rid = report.get("id", "")
+            # Compute UUID that the orchestrator would have used
+            try:
+                doc_uuid = str(_uuid.UUID(rid))
+            except ValueError:
+                m = hashlib.md5()
+                m.update(rid.encode("utf-8"))
+                doc_uuid = str(_uuid.UUID(m.hexdigest()))
+
+            if doc_uuid in pub_map:
+                db_status, ext_id = pub_map[doc_uuid]
+                if db_status == "published" and report.get("status") != "Published":
+                    report["status"] = "Published"
+                    report["publishStatus"] = "published"
+                    report["externalReportId"] = ext_id
+                elif db_status == "unpublished" and report.get("status") not in ("Rejected",):
+                    report["status"] = "Rejected"
+                    report["publishStatus"] = "unpublished"
+    except Exception as _e:
+        pass  # DB reconciliation is best-effort; never break the reports list
+
     # Simple mock filtering to support frontend tabs
     if filters.status:
         reports_list = [r for r in reports_list if r["status"].lower() == filters.status.lower()]
-        
+
     return success_response(
         data=reports_list,
         message="Fetched mock reports successfully",

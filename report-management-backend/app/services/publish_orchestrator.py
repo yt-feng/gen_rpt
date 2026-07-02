@@ -130,7 +130,12 @@ class PublishOrchestrator:
             .where(GateXPublication.publish_status.in_(["published", "publishing", "external_sync_pending"]))
         )
         result = await db.execute(stmt)
-        return result.scalars().first()
+        record = result.scalars().first()
+        if record:
+            # If already fully published or in-progress, block duplicate
+            if record.publish_status in ("published", "external_sync_pending", "publishing"):
+                return record
+        return None
 
     # ------------------------------------------------------------------
     # Helper: resolve or create a GateXPublication record
@@ -387,7 +392,7 @@ class PublishOrchestrator:
             pub_record.last_synced_at = datetime.now(timezone.utc)
 
             if result.success:
-                pub_record.publish_status = "external_sync_pending"
+                pub_record.publish_status = "published"
                 _audit(f"External identifiers stored: external_id={result.external_report_id}")
 
                 # ---- Step 14: Mark report as Published in MOCK_REPORTS ----
@@ -397,7 +402,7 @@ class PublishOrchestrator:
                     MOCK_REPORTS[report_id]["status"] = "Published"
                     MOCK_REPORTS[report_id]["publishReady"] = True
                     MOCK_REPORTS[report_id]["externalReportId"] = result.external_report_id
-                    MOCK_REPORTS[report_id]["publishStatus"] = "external_sync_pending"
+                    MOCK_REPORTS[report_id]["publishStatus"] = "published"
                 _audit("Report marked as Published in internal state.")
 
                 # ---- Step 15: Audit log ----
@@ -437,7 +442,7 @@ class PublishOrchestrator:
                     external_report_id=result.external_report_id,
                     external_status=result.external_status,
                     processing_status=result.processing_status,
-                    publish_status="external_sync_pending",
+                    publish_status="published",
                     duration_ms=_elapsed_ms(),
                     audit_trail=audit_trail,
                 )
@@ -546,6 +551,7 @@ class PublishOrchestrator:
             MOCK_REPORTS[report_id]["status"] = "Rejected"
             MOCK_REPORTS[report_id]["publishReady"] = False
             MOCK_REPORTS[report_id]["publishStatus"] = "unpublished"
+            MOCK_REPORTS[report_id]["externalReportId"] = None
 
         # Audit
         try:

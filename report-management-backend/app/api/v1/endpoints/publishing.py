@@ -92,17 +92,19 @@ async def publish_report(
                 "publish_status": result.publish_status,
                 "duration_ms": result.duration_ms,
                 "audit_trail": result.audit_trail,
+                "message": f"Report successfully published to GateX (MENA Compass). External ID: {result.external_report_id}. Status: {result.external_status}.",
             },
-            message="Report successfully published to GateX / MENA Compass.",
+            message=f"✅ Report published to GateX. External ID: {result.external_report_id}.",
         )
     else:
-        return error_response(
-            message=result.error or "Publish failed.",
-            errors=[{
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": result.error or "Publish failed.",
                 "report_id": result.report_id,
                 "publish_status": result.publish_status,
                 "audit_trail": result.audit_trail,
-            }]
+            }
         )
 
 
