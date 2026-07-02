@@ -384,13 +384,13 @@ class GateXClient:
         """
         Calls the GateX API to block/remove a report.
         """
-        url = f"{self.base_url}/reports/{external_report_id}/block/by-api-key"
-        headers = {"X-API-Key": self.api_key}
+        url = f"{self._base()}/reports/{external_report_id}/block/by-api-key"
+        headers = {"X-API-Key": settings.GATEX_API_KEY}
 
         logger.info(f"Calling GateX unpublish API: PATCH {url}")
         try:
             # We don't use the retry client here because 403s should fail fast
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=settings.GATEX_TIMEOUT) as client:
                 resp = await client.patch(url, headers=headers)
                 
             resp_json = resp.json() if resp.text else {}
