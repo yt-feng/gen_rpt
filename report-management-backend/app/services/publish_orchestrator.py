@@ -370,7 +370,7 @@ class PublishOrchestrator:
                 tag_ids=tag_ids,
                 description=report.get("description") or report.get("humanStatus"),
                 region_id=region_id,
-                price=0.0,
+                price=5800.0,   # GateX minimum price requirement
                 is_featured=False,
                 publish=True,  # Publish immediately in GateX
             )
