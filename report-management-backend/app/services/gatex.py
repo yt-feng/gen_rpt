@@ -90,7 +90,7 @@ class GateXReportPayload:
     tag_ids: List[int]
     description: Optional[str] = None
     region_id: Optional[int] = None
-    price: float = 0.0
+    price: float = 5800.0     # GateX minimum price requirement is 5800
     is_featured: bool = False
     publish: bool = False      # Set True to publish immediately on creation
 
@@ -353,7 +353,13 @@ class GateXClient:
         if resp.status_code == 207 or failed:
             # Partial or full failure
             first_error = failed[0].get("error", {}) if failed else {}
-            logger.error(f"GateX bulk submission partially failed: {failed}")
+            # Include field-level details if present (e.g. price minimum validation)
+            details = first_error.get("details", [])
+            detail_str = "; ".join(f"{d.get('field','?')}: {d.get('message','?')}" for d in details)
+            error_msg = first_error.get("message", "GateX reported a failure for this report")
+            if detail_str:
+                error_msg = f"{error_msg} — {detail_str}"
+            logger.error(f"GateX bulk submission failed: {failed}")
             return GateXSubmitResult(
                 success=False,
                 external_report_id=items[0]["id"] if items else None,
@@ -361,7 +367,7 @@ class GateXClient:
                 processing_status=items[0].get("processingStatus") if items else None,
                 raw_response=resp_json,
                 failed_entries=failed,
-                error_message=first_error.get("message", "GateX reported a failure for this report"),
+                error_message=error_msg,
             )
 
         # 201 — all succeeded
