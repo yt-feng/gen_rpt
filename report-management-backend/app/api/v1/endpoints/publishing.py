@@ -139,12 +139,27 @@ async def unpublish_report(
 
     logger.info(f"Unpublish requested: report_id={report_id} by user={user.get('id')}")
 
-    result = await publish_orchestrator.unpublish(
-        db=db,
-        report=report,
-        report_id=report_id,
-        actor_id=user.get("id", "00000000-0000-0000-0000-000000000000"),
-    )
+    from app.services.gatex import GateXError
+
+    try:
+        result = await publish_orchestrator.unpublish(
+            db=db,
+            report=report,
+            report_id=report_id,
+            actor_id=user.get("id", "00000000-0000-0000-0000-000000000000"),
+        )
+    except GateXError as e:
+        logger.error(f"GateX error during unpublish: {e}")
+        raise HTTPException(
+            status_code=422,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.exception(f"Unexpected error during unpublish: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An unexpected error occurred while unpublishing the report.",
+        )
 
     return success_response(
         data=result,
