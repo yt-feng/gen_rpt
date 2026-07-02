@@ -14,7 +14,69 @@ MOCK_REPORTS = {
     "doc-1111-approved": {
         "id": "doc-1111-approved", "title": "Nuclear Fusion Commercialization", "version": "1.2",
         "status": "Approved", "humanStatus": "Final Review Complete", "aiScore": 92, "aiGrade": "Gold",
-        "commentCount": 0, "lastUpdated": "2026-06-30T10:00:00Z", "publishReady": True, "aiReview": None,
+        "commentCount": 0, "lastUpdated": "2026-06-30T10:00:00Z", "publishReady": True, 
+        "aiReview": {
+            "scores": {
+                "overall_score": 92,
+                "grade": "Gold",
+                "components": {
+                    "research_quality": 28,
+                    "strategic_insight": 22,
+                    "source_quality": 22,
+                    "writing_quality": 10,
+                    "design_quality": 5,
+                    "executive_readiness": 5
+                }
+            },
+            "recommendations": {
+                "strengths": [
+                    "Comprehensive analysis of fusion timelines and rigorous examination of cost projections.",
+                    "Excellent triangulation of authoritative government sources (DOE, National Academies) with private sector data."
+                ],
+                "weaknesses": [
+                    "Economic analysis lacks sensitivity scenarios for carbon pricing impacts on fusion LCOE.",
+                    "Could be strengthened with a more explicit visual bridge for market sizing."
+                ],
+                "priority_improvements": [
+                    {
+                        "issue": "Missing Carbon Pricing Scenarios",
+                        "impact": "Reduces clarity on exactly when fusion might cross the competitiveness threshold against renewables.",
+                        "suggested_fix": "Add a sensitivity table showing fusion LCOE vs Solar/Wind at $50, $100, and $150/ton carbon prices.",
+                        "priority_level": "High"
+                    },
+                    {
+                        "issue": "Tritium Supply Chain Detail",
+                        "impact": "Leaves a critical bottleneck under-explained.",
+                        "suggested_fix": "Expand the paragraph on Tritium supply to include specific global inventory projections.",
+                        "priority_level": "Medium"
+                    }
+                ],
+                "executive_readiness": {
+                    "board_members": True,
+                    "ministers": True,
+                    "ceos": True,
+                    "sovereign_wealth_funds": False,
+                    "senior_executives": True,
+                    "justification": "The report is highly analytical and directly addresses strategic implications. It is ready for corporate and policy leadership, though SWF audiences might require a deeper dive into capital deployment vehicles."
+                }
+            },
+            "claims_audit": {
+                "claims": [
+                    {
+                        "claim": "Commercial grid-scale fusion electricity is unlikely before 2040",
+                        "classification": "supported",
+                        "evidence": "Supported by the National Academies' 2021 report and updated ITER timelines.",
+                        "confidence": 0.95
+                    },
+                    {
+                        "claim": "First-of-a-kind fusion plants will have an LCOE of $100-200/MWh",
+                        "classification": "partially_supported",
+                        "evidence": "Consistent with independent analyses, but some private models project lower. Acknowledged as highly uncertain.",
+                        "confidence": 0.85
+                    }
+                ]
+            }
+        },
         "pdfPath": "reports/originals/doc-1111-approved.pdf",
         "coverImagePath": "reports/images/doc-1111-approved-cover.png",
                 "reportContent": {
