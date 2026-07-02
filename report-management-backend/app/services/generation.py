@@ -15,53 +15,115 @@ class WorkerInterface:
     async def cancel(self, job: GenerationJob) -> bool:
         raise NotImplementedError
 
+import httpx
+from app.core.config import settings
+
 class GitHubActionsWorker(WorkerInterface):
     async def dispatch(self, job: GenerationJob) -> bool:
-        print(f"Triggering GitHub Action for Job {job.id}")
-        return True
+        if not settings.GITHUB_TOKEN:
+            print("GITHUB_TOKEN not set. Cannot dispatch to GitHub Actions.")
+            return False
+            
+        # Get the slug from the document
+        from app.database.session import async_session_maker
+        from app.models.document import Document
+        
+        slug = ""
+        async with async_session_maker() as session:
+            doc = await session.get(Document, job.document_id)
+            if doc and doc.slug:
+                slug = doc.slug
+            else:
+                slug = f"doc-{str(job.id)[:8]}"
+
+        url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/workflows/generate_deep_research_v2.yml/dispatches"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
+        payload = {
+            "ref": "main",
+            "inputs": {
+                "topic": job.topic,
+                "slug": slug
+            }
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code == 204:
+                    print(f"Successfully dispatched GitHub Action for Job {job.id}")
+                    return True
+                else:
+                    print(f"Failed to dispatch GitHub Action: {resp.status_code} - {resp.text}")
+                    return False
+        except Exception as e:
+            print(f"Exception dispatching GitHub Action: {e}")
+            return False
 
     async def cancel(self, job: GenerationJob) -> bool:
-        print(f"Cancelling GitHub Action for Job {job.id}")
+        print(f"Cancelling GitHub Action for Job {job.id} (not implemented)")
         return True
 
-class LocalPythonWorker(WorkerInterface):
-    async def dispatch(self, job: GenerationJob) -> bool:
-        print(f"Dispatching to Local Python Worker for Job {job.id}")
-        return True
-
-    async def cancel(self, job: GenerationJob) -> bool:
-        print(f"Cancelling Local Python Worker for Job {job.id}")
-        return True
-
-async def simulate_job_execution(job_id: uuid.UUID):
-    # Wait 3 seconds: pending -> running
-    await asyncio.sleep(3)
+async def poll_r2_for_completion(job_id: uuid.UUID):
+    """
+    Polls Cloudflare R2 every 30 seconds for the report.md file.
+    If found, marks the job as completed and injects it into MOCK_REPORTS for the UI.
+    Times out after 45 minutes.
+    """
     from app.database.session import async_session_maker
+    from app.storage.provider import storage_provider
+    from app.models.document import Document
+    
+    # Wait initially to allow the workflow to start
+    await asyncio.sleep(10)
+    
+    # Mark as running
     async with async_session_maker() as session:
         job = await session.get(GenerationJob, job_id)
         if job and job.status == JobStatusType.pending:
             job.status = JobStatusType.running
             await session.commit()
+            
+    # Get slug
+    slug = ""
+    async with async_session_maker() as session:
+        doc = await session.get(Document, job.document_id)
+        slug = doc.slug if (doc and doc.slug) else f"doc-{str(job.id)[:8]}"
 
-    # Wait 5 seconds: running -> completed
-    await asyncio.sleep(5)
+    # Poll R2
+    max_attempts = 90  # 90 * 30s = 45 minutes
+    r2_path = f"reports_web/{slug}/report.md"
+    
+    for attempt in range(max_attempts):
+        exists = await storage_provider.exists(r2_path)
+        if exists:
+            print(f"Report found in R2 for Job {job_id} at {r2_path}!")
+            break
+        await asyncio.sleep(30)
+    else:
+        print(f"Timed out waiting for report in R2 for Job {job_id}")
+        async with async_session_maker() as session:
+            job = await session.get(GenerationJob, job_id)
+            if job:
+                job.status = JobStatusType.failed
+                job.errors = "Timed out waiting for GH Action to produce report.md in R2."
+                await session.commit()
+        return
+
+    # Job is completed!
     async with async_session_maker() as session:
         job = await session.get(GenerationJob, job_id)
         if job and job.status == JobStatusType.running:
             job.status = JobStatusType.completed
             job.completed = datetime.now(timezone.utc)
             
-            # Fetch the document to get the topic and industry
-            from app.models.document import Document
             doc = await session.get(Document, job.document_id)
             if doc:
-                # Bridge to MOCK_REPORTS so it shows up in the frontend Dashboard / Reports list
                 from app.api.v1.endpoints.reports import MOCK_REPORTS
-                
-                # Check if it was triggered for a mock report (stored in job.workflow)
                 doc_str_id = job.workflow if job.workflow else str(doc.id)
-                
-                # Add/Update the mock report
                 MOCK_REPORTS[doc_str_id] = {
                     "id": doc_str_id, 
                     "title": doc.title or job.topic, 
@@ -79,7 +141,7 @@ async def simulate_job_execution(job_id: uuid.UUID):
                         "label": "AI Reviewed", 
                         "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"), 
                         "sections": [
-                            {"heading": "Executive Summary", "body": f"This is an AI generated report about '{doc.title or job.topic}' in the {doc.industry or 'General'} industry."}
+                            {"heading": "Executive Summary", "body": f"This is an AI generated report about '{doc.title or job.topic}'. The full content is in R2 at {r2_path}."}
                         ]
                     },
                     "comments": []
@@ -120,8 +182,8 @@ class GenerationService:
             job.errors = "Failed to dispatch to worker"
             await db.commit()
         else:
-            # Trigger the async simulation
-            asyncio.create_task(simulate_job_execution(job.id))
+            # Trigger the async background poller
+            asyncio.create_task(poll_r2_for_completion(job.id))
             
         return job
 
@@ -144,7 +206,7 @@ class GenerationService:
         await db.commit()
         
         await self.worker.dispatch(job)
-        asyncio.create_task(simulate_job_execution(job.id))
+        asyncio.create_task(poll_r2_for_completion(job.id))
         return job
 
     async def cancel_job(self, db: AsyncSession, job_id: uuid.UUID) -> GenerationJob:
