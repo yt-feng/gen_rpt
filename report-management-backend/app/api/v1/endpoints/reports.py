@@ -173,6 +173,32 @@ async def update_report_status(
         report["humanStatus"] = payload.humanStatus
     if payload.publishReady is not None:
         report["publishReady"] = payload.publishReady
+
+    # When a report is explicitly re-approved, clear the "unpublished" DB record
+    # so the reconciliation logic does NOT override it back to "Rejected"
+    if payload.status in ("Approved", "approved"):
+        import uuid, hashlib
+        from sqlalchemy import update as sql_update
+        from app.models.workflow import GateXPublication
+        try:
+            try:
+                doc_uuid = uuid.UUID(document_id)
+            except ValueError:
+                m = hashlib.md5()
+                m.update(document_id.encode("utf-8"))
+                doc_uuid = uuid.UUID(m.hexdigest())
+            await db.execute(
+                sql_update(GateXPublication)
+                .where(GateXPublication.document_id == doc_uuid)
+                .where(GateXPublication.publish_status == "unpublished")
+                .values(publish_status="re_approved")
+            )
+            await db.commit()
+            # Also clear in-memory markers so it doesn't linger
+            report["publishStatus"] = None
+            report["externalReportId"] = None
+        except Exception:
+            pass  # Best-effort — never break the status update
         
     if payload.status == "Needs Revision":
         # Create a database Document if it doesn't exist
