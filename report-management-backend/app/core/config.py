@@ -45,6 +45,10 @@ class Settings(BaseSettings):
     GATEX_ENABLE_PUBLISHING: bool = False       # Master switch — keep False until credentials are configured
     GATEX_DEFAULT_COVER_PATH: str = ""          # Optional R2 path to fallback cover image
     
+    # GitHub Workflow Dispatch
+    GITHUB_TOKEN: Optional[str] = None
+    GITHUB_REPO: str = "yt-feng/gen_rpt"
+    
     @model_validator(mode='after')
     def validate_database_url(self) -> 'Settings':
         if not self.DATABASE_URL or not self.DATABASE_URL.strip():

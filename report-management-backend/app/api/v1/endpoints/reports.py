@@ -263,5 +263,28 @@ async def get_report_download_url(
     url = await storage_service.get_signed_url(db, file_id)
     if not url:
         return error_response(message="File not found or unauthorized")
-        
     return success_response(data={"url": url}, message="Generated signed URL successfully")
+
+from pydantic import BaseModel
+class AIEditRequest(BaseModel):
+    action: str
+    paragraphId: str
+    text: str
+
+@router.post("/edit", response_model=APIResponse[dict])
+async def ai_edit_mock(
+    req: AIEditRequest,
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Mock endpoint to handle AI Rewrite toolbar actions from the frontend 
+    until it is fully wired to the specific document_id editor endpoints.
+    """
+    import asyncio
+    # Simulate AI processing delay
+    await asyncio.sleep(1)
+    
+    return success_response(
+        data={"edited_text": f"Mock AI edit applied for action: {req.action}"}, 
+        message="AI edit applied"
+    )
