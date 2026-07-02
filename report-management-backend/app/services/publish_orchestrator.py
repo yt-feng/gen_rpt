@@ -537,8 +537,16 @@ class PublishOrchestrator:
 
         external_id = pub_record.external_report_id if pub_record else None
 
-        # Call unpublish abstraction
-        unpublish_result = await gatex_client.unpublish_report(external_id or 0)
+        # Call unpublish API (only if there is an external ID)
+        if external_id:
+            unpublish_result = await gatex_client.unpublish_report(external_id)
+            if not unpublish_result.success:
+                raise GateXError(f"GateX unpublish failed: {unpublish_result.error_message}")
+            api_supported = True
+            msg = unpublish_result.message
+        else:
+            api_supported = False
+            msg = "No external ID found. Marked unpublished locally."
 
         # Update internal records
         if pub_record:
@@ -566,7 +574,7 @@ class PublishOrchestrator:
                 record_id=pub_record.id,
                 action="unpublish_requested",
                 old_data={"publish_status": "published"},
-                new_data={"publish_status": "unpublished", "external_api_supported": False},
+                new_data={"publish_status": "unpublished", "external_api_supported": api_supported},
                 changed_by=actor_uuid,
             )
 
@@ -576,13 +584,8 @@ class PublishOrchestrator:
             "report_id": report_id,
             "external_report_id": external_id,
             "internal_status": "unpublished",
-            "external_api_supported": unpublish_result.supported,
-            "message": unpublish_result.message,
-            "action_required": (
-                f"Please manually remove report ID {external_id} from the MENA Compass admin panel."
-                if external_id else
-                "No external report ID found — no manual action required."
-            ),
+            "external_api_supported": api_supported,
+            "message": msg,
         }
 
 

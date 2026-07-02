@@ -109,17 +109,13 @@ class GateXSubmitResult:
 @dataclass
 class GateXUnpublishResult:
     """
-    Unpublish abstraction layer.
-    GateX does not document an official unpublish/delete endpoint as of this integration.
-    This result always returns supported=False until the endpoint is confirmed by the team.
+    Unpublish result from the GateX block API.
     """
-    supported: bool = False
-    message: str = (
-        "GateX unpublish API is not yet available. "
-        "The internal publication record has been marked as unpublished. "
-        "Manual removal from the MENA Compass admin panel is required."
-    )
+    success: bool
+    supported: bool = True
+    message: str = "Report successfully blocked on GateX."
     external_report_id: Optional[int] = None
+    error_message: Optional[str] = None
 
 
 # ---------------------------------------------------------------------------
@@ -382,20 +378,45 @@ class GateXClient:
         )
 
     # -----------------------------------------------------------------------
-    # Unpublish abstraction (pending external API support)
+    # Unpublish (Block) Report
     # -----------------------------------------------------------------------
     async def unpublish_report(self, external_report_id: int) -> GateXUnpublishResult:
         """
-        GateX does not document an official delete/unpublish endpoint.
-        This method returns a structured result indicating the operation is not supported.
-        The caller is responsible for updating internal state accordingly.
-        DO NOT invent or call unsupported API endpoints.
+        Calls the GateX API to block/remove a report.
         """
-        logger.warning(
-            f"GateX unpublish called for external_report_id={external_report_id}. "
-            "No official GateX unpublish API is available. Returning abstraction result."
-        )
-        return GateXUnpublishResult(external_report_id=external_report_id)
+        url = f"{self.base_url}/reports/{external_report_id}/block/by-api-key"
+        headers = {"X-API-Key": self.api_key}
+
+        logger.info(f"Calling GateX unpublish API: PATCH {url}")
+        try:
+            # We don't use the retry client here because 403s should fail fast
+            async with httpx.AsyncClient(timeout=self.timeout) as client:
+                resp = await client.patch(url, headers=headers)
+                
+            resp_json = resp.json() if resp.text else {}
+            
+            if resp.status_code in (200, 204):
+                logger.info(f"GateX unpublish successful for external_report_id={external_report_id}")
+                return GateXUnpublishResult(
+                    success=True,
+                    external_report_id=external_report_id,
+                )
+                
+            # Handle failure
+            error_msg = resp_json.get("error", {}).get("message", f"HTTP {resp.status_code}")
+            logger.error(f"GateX unpublish failed: {resp.status_code} - {error_msg}")
+            return GateXUnpublishResult(
+                success=False,
+                external_report_id=external_report_id,
+                error_message=error_msg,
+            )
+        except Exception as e:
+            logger.exception(f"Exception during GateX unpublish for {external_report_id}")
+            return GateXUnpublishResult(
+                success=False,
+                external_report_id=external_report_id,
+                error_message=str(e),
+            )
 
 
 # ---------------------------------------------------------------------------
