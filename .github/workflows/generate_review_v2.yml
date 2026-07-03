@@ -172,8 +172,7 @@ jobs:
           python -m storage.upload_review \
             --review-dir "$OUTPUT_DIR" \
             --report-id  "$REPORT_ID" \
-            --log-level  INFO \
-            --skip-catalog-update
+            --log-level  INFO
 
       - name: Trigger Backend Workflow Event
         if: steps.run_review.outcome == 'success'
