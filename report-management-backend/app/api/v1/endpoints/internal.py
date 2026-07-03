@@ -59,32 +59,42 @@ async def _mark_job_completed_by_slug(db: AsyncSession, slug: str):
             pass
 
     if not doc:
-        logger.warning(f"[webhook] Could not find Document with slug='{slug}'")
-        return {"status": "document_not_found", "slug": slug}
+        logger.warning(f"[webhook] Could not find Document with slug='{slug}', attempting to load from R2 anyway.")
+        doc_id_str = slug
+        title = slug.replace('-', ' ').title()
+    else:
+        doc_id_str = str(doc.id)
+        title = doc.title or slug
 
     # Find latest running/pending job for this document
-    stmt = (
-        select(GenerationJob)
-        .where(GenerationJob.document_id == doc.id)
-        .order_by(GenerationJob.started.desc())
-        .limit(1)
-    )
-    job_result = await db.execute(stmt)
-    job = job_result.scalar_one_or_none()
+    job = None
+    if doc:
+        stmt = (
+            select(GenerationJob)
+            .where(GenerationJob.document_id == doc.id)
+            .order_by(GenerationJob.started.desc())
+            .limit(1)
+        )
+        job_result = await db.execute(stmt)
+        job = job_result.scalar_one_or_none()
 
-    if job and job.status in (JobStatusType.running, JobStatusType.pending):
-        job.status = JobStatusType.completed
-        job.completed = datetime.now(timezone.utc)
-        await db.commit()
-        logger.info(f"[webhook] Job {job.id} marked completed via webhook for slug={slug}")
+        if job and job.status in (JobStatusType.running, JobStatusType.pending):
+            job.status = JobStatusType.completed
+            job.completed = datetime.now(timezone.utc)
+            await db.commit()
+            logger.info(f"[webhook] Job {job.id} marked completed via webhook for slug={slug}")
 
     # Load payload from R2 and inject into MOCK_REPORTS
-    payload = await _load_report_payload_from_r2(slug, doc.title or slug)
-    title = doc.title or slug
-    entry = _build_mock_report_entry(slug, title, slug, payload)
-    MOCK_REPORTS[slug] = entry
-    MOCK_REPORTS[str(doc.id)] = entry
-    logger.info(f"[webhook] MOCK_REPORTS injected for slug={slug}")
+    try:
+        payload = await _load_report_payload_from_r2(slug, title)
+        entry = _build_mock_report_entry(slug, title, slug, payload)
+        MOCK_REPORTS[slug] = entry
+        MOCK_REPORTS[doc_id_str] = entry
+        logger.info(f"[webhook] MOCK_REPORTS injected for slug={slug}")
+    except Exception as e:
+        logger.error(f"[webhook] Failed to load payload from R2 for slug={slug}: {e}")
+        if not doc:
+             return {"status": "document_not_found_and_r2_failed", "slug": slug}
 
     return {"status": "completed", "slug": slug, "job_id": str(job.id) if job else None}
 
@@ -132,18 +142,25 @@ async def handle_review_generated(
             pass
             
     if not doc:
-        logger.warning(f"[webhook] review-generated: Could not find Document with slug='{slug}'")
-        return error_response(message=f"Could not find Document with slug='{slug}'")
+        logger.warning(f"[webhook] review-generated: Could not find Document with slug='{slug}', updating cache anyway")
+        doc_id_str = slug
+        title = slug.replace('-', ' ').title()
+    else:
+        doc_id_str = str(doc.id)
+        title = doc.title or slug
 
-    title = doc.title or slug
     # Fetch latest payload from R2 (which now includes the reviews/review.json)
-    r2_payload = await _load_report_payload_from_r2(slug, title)
-    entry = _build_mock_report_entry(slug, title, slug, r2_payload)
-    
-    # Update mock cache
-    MOCK_REPORTS[slug] = entry
-    MOCK_REPORTS[str(doc.id)] = entry
-    logger.info(f"[webhook] MOCK_REPORTS updated with AI Review for slug={slug}")
+    try:
+        r2_payload = await _load_report_payload_from_r2(slug, title)
+        entry = _build_mock_report_entry(slug, title, slug, r2_payload)
+        
+        # Update mock cache
+        MOCK_REPORTS[slug] = entry
+        MOCK_REPORTS[doc_id_str] = entry
+        logger.info(f"[webhook] MOCK_REPORTS updated with AI Review for slug={slug}")
+    except Exception as e:
+        logger.error(f"[webhook] Failed to load payload from R2 for review update slug={slug}: {e}")
+        return error_response(message=f"Could not load payload from R2 for slug='{slug}'")
 
     return success_response(data={"slug": slug}, message="Review generation event processed and cached")
 
