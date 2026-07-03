@@ -9,3 +9,4 @@ Traceback (most recent call last):
 KeyError: '"finding"'
 2026-06-27 22:14:34 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
 2026-06-27 22:14:46 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
+2026-07-03 11:52:00 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.

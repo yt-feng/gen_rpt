@@ -137,8 +137,54 @@ async def list_reports(
 ):
     """
     List all reports based on filters and pagination.
+    Merges in-memory MOCK_REPORTS with actual completed GenerationJobs from the DB.
     """
-    reports_list = list(MOCK_REPORTS.values())
+    from sqlalchemy import select
+    from app.models.workflow import GenerationJob
+    from app.models.document import Document
+    from app.models.enums import JobStatusType
+
+    # Base list from MOCK_REPORTS
+    mock_reports_dict = {r["id"]: r for r in MOCK_REPORTS.values() if "id" in r}
+
+    # Fetch completed jobs from DB to persist across server restarts
+    stmt = (
+        select(GenerationJob, Document)
+        .join(Document, GenerationJob.document_id == Document.id)
+        .where(GenerationJob.status == JobStatusType.completed)
+        .order_by(GenerationJob.started.desc())
+    )
+    result = await db.execute(stmt)
+    
+    for job, doc in result.all():
+        doc_id = doc.slug or str(doc.id)
+        # Avoid overriding if already present in MOCK_REPORTS (it might have richer real-time data)
+        if doc_id not in mock_reports_dict:
+            mock_reports_dict[doc_id] = {
+                "id": doc_id,
+                "title": doc.title or job.topic,
+                "version": "1.0",
+                "status": "Generated",
+                "humanStatus": "Pending Review",
+                "aiScore": 85,
+                "aiGrade": "Silver",
+                "commentCount": 0,
+                "lastUpdated": (job.completed or job.started).isoformat() + "Z",
+                "publishReady": False,
+                "aiReview": None,
+                "slug": doc.slug,
+                "reportContent": {
+                    "brand": "GateX",
+                    "label": "Deep Research",
+                    "date": (job.completed or job.started).strftime("%B %d, %Y"),
+                    "sections": [
+                        {"heading": "Executive Summary", "body": "Click 'View Report' to load full report content."}
+                    ]
+                },
+                "comments": []
+            }
+    
+    reports_list = list(mock_reports_dict.values())
 
     # --- Reconcile with persisted GateXPublication records ---
     # This ensures Published status survives server restarts (MOCK_REPORTS is in-memory)
@@ -201,8 +247,43 @@ async def get_report_details(
     """
     Get detailed metadata for a specific report document.
     """
+    if document_id in MOCK_REPORTS:
+        return success_response(data=MOCK_REPORTS[document_id], message="Fetched report details")
+        
+    # If not in MOCK_REPORTS, try loading dynamically from R2
+    from sqlalchemy import select
+    from app.models.document import Document
+    from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
+    import uuid
+
+    stmt = select(Document).where(Document.slug == document_id)
+    result = await db.execute(stmt)
+    doc = result.scalar_one_or_none()
+    
+    if not doc:
+        try:
+            doc_uuid = uuid.UUID(document_id)
+            doc = await db.get(Document, doc_uuid)
+        except ValueError:
+            pass
+            
+    if doc:
+        slug = doc.slug or str(doc.id)
+        topic = doc.title or slug
+        payload = await _load_report_payload_from_r2(slug, topic)
+        entry = _build_mock_report_entry(document_id, topic, slug, payload)
+        
+        # Cache it in MOCK_REPORTS
+        MOCK_REPORTS[document_id] = entry
+        MOCK_REPORTS[str(doc.id)] = entry
+        if doc.slug:
+            MOCK_REPORTS[doc.slug] = entry
+            
+        return success_response(data=entry, message="Loaded report details from storage")
+
+    # Fallback to a mock report if truly not found
     report = MOCK_REPORTS.get(document_id, MOCK_REPORTS["doc-3333-review"])
-    return success_response(data=report, message="Fetched report details")
+    return success_response(data=report, message="Fetched fallback report details")
 
 from pydantic import BaseModel
 from typing import Optional
