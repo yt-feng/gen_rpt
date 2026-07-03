@@ -1,4 +1,4 @@
-name: [V2] Generate AI Review
+name: "[V2] Generate AI Review"
 
 on:
   workflow_run:

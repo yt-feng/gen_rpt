@@ -1,4 +1,4 @@
-name: [V2] Generate HTML Thought Leadership Report
+name: "[V2] Generate HTML Thought Leadership Report"
 
 on:
   workflow_dispatch:
