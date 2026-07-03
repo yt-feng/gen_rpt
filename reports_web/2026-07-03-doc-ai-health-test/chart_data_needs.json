@@ -1,0 +1,220 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "AI Healthcare Market Size by Segment (2024-2026)",
+    "chart_type": "bar",
+    "executive_question": "Which segments are growing fastest and where is the largest opportunity?",
+    "required_metrics": [
+      "Year: 2024, 2025, 2026",
+      "Segment: Diagnostic Imaging, Drug Discovery, Virtual Nursing, Remote Monitoring, Clinical Decision Support, Others",
+      "Market size in USD billions",
+      "Source: Grand View Research, Frost & Sullivan, MarketsandMarkets"
+    ],
+    "comparison_set": [
+      "Segment-level market size for each year"
+    ],
+    "preferred_sources": [
+      "Grand View Research",
+      "Frost & Sullivan",
+      "MarketsandMarkets"
+    ],
+    "search_queries": [
+      "AI healthcare market size by segment 2024 2025 2026",
+      "AI diagnostic imaging market size 2026",
+      "AI drug discovery market size 2025"
+    ],
+    "data_quality_rule": "Use only published reports; if segment data unavailable, note as estimate and cite CAGR from credible source.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provide top-down sizing to establish market scale and segment prioritization.",
+    "pre_exhibit_context": "The report claims the AI healthcare market will reach $XX billion by 2026. This exhibit quantifies the total and segment breakdown.",
+    "post_exhibit_takeaway": "Diagnostic imaging and drug discovery are the largest segments; virtual care shows highest growth rate."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "FDA AI Device Approvals by Year and Specialty (2018-2026)",
+    "chart_type": "line",
+    "executive_question": "How is regulatory momentum shifting across specialties?",
+    "required_metrics": [
+      "Year: 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026",
+      "Specialty: Radiology, Cardiology, Neurology, Pathology, Others",
+      "Number of FDA 510(k) clearances per year",
+      "Source: FDA database, industry analyses"
+    ],
+    "comparison_set": [
+      "Year-over-year approval counts by specialty"
+    ],
+    "preferred_sources": [
+      "FDA 510(k) database",
+      "Statista",
+      "Rock Health"
+    ],
+    "search_queries": [
+      "FDA AI medical device approvals by year 2018 2024",
+      "FDA AI device clearances by specialty 2025",
+      "number of FDA AI approvals 2026"
+    ],
+    "data_quality_rule": "Require at least 4 annual data points; if 2026 not available, use 2025 as latest and note estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show regulatory tailwind for AI adoption, especially in imaging.",
+    "pre_exhibit_context": "The report argues that FDA clearances are accelerating. This exhibit tracks annual approvals.",
+    "post_exhibit_takeaway": "Radiology dominates approvals, but cardiology and neurology are growing fast."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Hospital AI Adoption by Bed Size (2024-2026)",
+    "chart_type": "bar",
+    "executive_question": "Which hospitals are adopting AI and where are the gaps?",
+    "required_metrics": [
+      "Year: 2024, 2025, 2026",
+      "Hospital bed size category: <100, 100-299, 300-499, 500+",
+      "Percentage of hospitals that have deployed at least one AI solution",
+      "Source: HIMSS, AHA survey, KLAS"
+    ],
+    "comparison_set": [
+      "Adoption rate by bed size over time"
+    ],
+    "preferred_sources": [
+      "HIMSS Analytics",
+      "American Hospital Association (AHA) survey",
+      "KLAS Research"
+    ],
+    "search_queries": [
+      "hospital AI adoption rate by bed size 2025",
+      "HIMSS AI adoption survey 2025",
+      "percentage of hospitals using AI 2024 2025"
+    ],
+    "data_quality_rule": "Use survey data; if 2026 not available, use 2025 and note as latest.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrate adoption unevenness to support hypothesis that large hospitals lead.",
+    "pre_exhibit_context": "The report claims adoption is real but uneven. This exhibit shows adoption rates by hospital size.",
+    "post_exhibit_takeaway": "Large hospitals (>500 beds) have >50% adoption; small hospitals (<100 beds) lag below 20%."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "AI Healthcare Funding by Stage and Geography (2020-2026)",
+    "chart_type": "bubble",
+    "executive_question": "Where is venture capital flowing and what does it signal?",
+    "required_metrics": [
+      "Year: 2020, 2021, 2022, 2023, 2024, 2025, 2026",
+      "Geography: US, China, Europe, Rest of World",
+      "Stage: Seed, Series A, Series B, Growth",
+      "Total funding amount in USD billions",
+      "Number of deals",
+      "Source: CB Insights, PitchBook, Rock Health"
+    ],
+    "comparison_set": [
+      "Bubble size = total funding; x-axis = year; y-axis = stage; color = geography"
+    ],
+    "preferred_sources": [
+      "CB Insights",
+      "PitchBook",
+      "Rock Health"
+    ],
+    "search_queries": [
+      "AI healthcare funding by stage 2025",
+      "AI healthcare venture capital by geography 2025",
+      "AI healthcare funding deals 2024 2025"
+    ],
+    "data_quality_rule": "Use only published funding data; if 2026 not available, use 2025 as latest.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show investment trends to validate market growth and geographic hotspots.",
+    "pre_exhibit_context": "The report discusses competitive dynamics and funding. This exhibit maps funding by stage and region.",
+    "post_exhibit_takeaway": "US leads in total funding, but China's share is growing; early-stage deals dominate."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Projected Cost Savings from AI in Key Use Cases (2026)",
+    "chart_type": "bar",
+    "executive_question": "What is the ROI of AI adoption for different stakeholders?",
+    "required_metrics": [
+      "Use case: Diagnostic Imaging, Drug Discovery, Virtual Nursing, Remote Monitoring, Clinical Decision Support",
+      "Projected annual cost savings in USD billions (2026)",
+      "Source: McKinsey, Accenture, academic studies"
+    ],
+    "comparison_set": [
+      "Savings across use cases"
+    ],
+    "preferred_sources": [
+      "McKinsey Global Institute",
+      "Accenture",
+      "JAMA studies"
+    ],
+    "search_queries": [
+      "AI healthcare cost savings 2026 forecast",
+      "AI remote monitoring cost savings 2025",
+      "AI readmission reduction savings 2025"
+    ],
+    "data_quality_rule": "Use only published estimates; if multiple sources, cite range.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantify value pool to support investment thesis.",
+    "pre_exhibit_context": "The report claims AI will reduce costs. This exhibit shows projected savings per use case.",
+    "post_exhibit_takeaway": "Remote monitoring and readmission reduction offer highest savings per patient."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "AI Drug Discovery Time Reduction Milestones (2020-2026)",
+    "chart_type": "line",
+    "executive_question": "How is AI reducing drug development timelines?",
+    "required_metrics": [
+      "Year: 2020, 2021, 2022, 2023, 2024, 2025, 2026",
+      "Metric: Average time (in months) from target identification to preclinical candidate",
+      "Source: Pharma company announcements, Nature Reviews Drug Discovery"
+    ],
+    "comparison_set": [
+      "Year-over-year time reduction"
+    ],
+    "preferred_sources": [
+      "Nature Reviews Drug Discovery",
+      "Company press releases (e.g., Insilico, Recursion)",
+      "Deloitte report"
+    ],
+    "search_queries": [
+      "AI drug discovery time reduction 2024 2025",
+      "average time AI drug discovery preclinical 2025",
+      "AI drug development timeline savings 2026"
+    ],
+    "data_quality_rule": "Require at least 4 annual data points; if 2026 not available, use 2025 and note estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Support hypothesis that AI reduces development time by 30% by 2026.",
+    "pre_exhibit_context": "The report claims AI will cut drug discovery time. This exhibit tracks reported time savings.",
+    "post_exhibit_takeaway": "Time from target identification to lead optimization has decreased from 4 years to 2.5 years."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Key Regulatory Milestones for AI in Healthcare (2018-2026)",
+    "chart_type": "timeline",
+    "executive_question": "What are the critical regulatory events shaping AI adoption?",
+    "required_metrics": [
+      "Date: Year and month",
+      "Event: FDA guidance, EU AI Act passage, CMS reimbursement decision, NMPA approval",
+      "Impact: Positive, Negative, Neutral",
+      "Source: Regulatory agency announcements"
+    ],
+    "comparison_set": [
+      "Chronological list of events"
+    ],
+    "preferred_sources": [
+      "FDA website",
+      "European Commission",
+      "CMS",
+      "NMPA"
+    ],
+    "search_queries": [
+      "FDA AI guidance 2024 2025",
+      "EU AI Act healthcare 2025",
+      "CMS AI reimbursement 2025"
+    ],
+    "data_quality_rule": "Include only confirmed dates from official sources; if future event, note as proposed.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provide chronological context for regulatory tailwinds and headwinds.",
+    "pre_exhibit_context": "The report discusses regulatory landscape. This exhibit maps key milestones.",
+    "post_exhibit_takeaway": "FDA guidance updates and EU AI Act implementation are pivotal events."
+  }
+]

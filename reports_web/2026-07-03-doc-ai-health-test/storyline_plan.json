@@ -1,0 +1,117 @@
+{
+  "core_question": "Where should we invest in AI healthcare solutions to achieve the highest ROI by 2026?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "By 2026, AI-powered diagnostic imaging will be the largest segment by revenue, driven by FDA clearances and reimbursement expansion.",
+      "decision_relevance": "Determines where to allocate R&D and sales resources.",
+      "needed_evidence": [
+        "Revenue growth rates of top AI imaging companies, number of FDA clearances per year, reimbursement codes added."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "AI-driven drug discovery will reduce average development time by 30% by 2026, but will not yet significantly impact blockbuster drug revenues.",
+      "decision_relevance": "Informs investment in drug discovery AI vs. clinical-stage AI.",
+      "needed_evidence": [
+        "Time savings reported by pharma companies using AI, number of AI-discovered drugs in Phase III, revenue from AI-discovered drugs."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Virtual nursing assistants and AI triage will reduce hospital readmission rates by 15% by 2026, but adoption will be limited to large hospital systems.",
+      "decision_relevance": "Target market for patient engagement AI solutions.",
+      "needed_evidence": [
+        "Readmission rate reductions from pilot studies, adoption rates by hospital size, cost savings per bed."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "By 2026, over 50% of US hospitals will have deployed at least one AI-powered clinical decision support system, but physician burnout will remain a barrier.",
+      "decision_relevance": "Indicates market saturation and need for workflow integration.",
+      "needed_evidence": [
+        "Survey data on CDS adoption, physician satisfaction scores, EHR integration rates."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "China will surpass the US in AI healthcare patent filings by 2026, but US will lead in clinical validation and commercial revenue.",
+      "decision_relevance": "Geographic investment strategy.",
+      "needed_evidence": [
+        "Patent filing counts by country, clinical trial registrations, revenue by region."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "AI-powered remote patient monitoring will reduce chronic disease management costs by 20% by 2026, driven by value-based care models.",
+      "decision_relevance": "Validates investment in RPM platforms.",
+      "needed_evidence": [
+        "Cost reduction studies, RPM adoption rates, value-based care contract growth."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "By 2026, the AI healthcare market will consolidate around 3-5 major platform players, with startups focusing on niche applications.",
+      "decision_relevance": "M&A strategy and partnership decisions.",
+      "needed_evidence": [
+        "Market share data, funding rounds, acquisition announcements."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total AI healthcare market = Global healthcare expenditure * AI penetration rate",
+      "variables": [
+        "Global healthcare expenditure (WHO)",
+        "AI penetration rate (industry reports)"
+      ],
+      "known_limitations": [
+        "Penetration rate estimates vary widely; may overstate market if adoption is slower."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Sum over segments (Number of units * Average price per unit)",
+      "variables": [
+        "Number of hospitals/clinics adopting AI",
+        "Average spend per AI solution"
+      ],
+      "known_limitations": [
+        "Requires granular data on adoption and pricing; may miss smaller segments."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Market size = Total addressable organizations * Awareness rate * Trial rate * Adoption rate * Average revenue per customer",
+      "variables": [
+        "Number of healthcare organizations",
+        "Awareness (surveys)",
+        "Trial (pilot programs)",
+        "Adoption (contracts)",
+        "ARPU"
+      ],
+      "known_limitations": [
+        "Funnel rates are often proprietary; assumptions needed."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Market size = Sum of value created (cost savings + revenue uplift) * capture rate",
+      "variables": [
+        "Cost savings per use case (e.g., readmission reduction)",
+        "Revenue uplift (e.g., faster drug discovery)",
+        "Capture rate (vendor share of value)"
+      ],
+      "known_limitations": [
+        "Value creation is difficult to measure; capture rate is speculative."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
