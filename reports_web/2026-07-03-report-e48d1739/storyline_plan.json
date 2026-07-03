@@ -1,0 +1,129 @@
+{
+  "core_question": "How should multinational corporations adjust their China-Europe strategy in light of evolving economic relations, trade policies, and geopolitical risks?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "China-Europe trade growth has decelerated since 2022 due to geopolitical tensions and EU de-risking, but absolute volumes remain high.",
+      "decision_relevance": "Affects supply chain diversification decisions and market entry timing.",
+      "needed_evidence": [
+        "Year-over-year trade volume data from 2019-2024; EU import statistics from China; sector breakdown."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Chinese FDI into Europe is shifting from traditional sectors (e.g., automotive) to high-tech and green energy, driven by China's industrial policy.",
+      "decision_relevance": "Impacts competitive dynamics in European tech and energy sectors.",
+      "needed_evidence": [
+        "FDI data by sector from China Ministry of Commerce; EU FDI screening reports; deal announcements."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "European companies are reducing technology transfer to China due to EU export controls and IP concerns, slowing joint R&D.",
+      "decision_relevance": "Affects innovation partnerships and licensing strategies.",
+      "needed_evidence": [
+        "Survey data on technology transfer; EU export control regulations; patent filings by European firms in China."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly increase costs for Chinese exports of steel, aluminum, and cement, altering trade patterns.",
+      "decision_relevance": "Impacts pricing and sourcing strategies for European importers.",
+      "needed_evidence": [
+        "CBAM implementation timeline; Chinese export volumes of covered goods; carbon pricing data."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "China's Belt and Road Initiative (BRI) investments in Europe have plateaued, with a focus on smaller, high-return projects in Eastern Europe.",
+      "decision_relevance": "Affects infrastructure and logistics investment opportunities.",
+      "needed_evidence": [
+        "BRI project database; Chinese policy bank lending data; project completion rates."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The electric vehicle (EV) sector is becoming a flashpoint, with EU anti-subsidy investigations reducing Chinese EV market share in Europe.",
+      "decision_relevance": "Impacts automotive OEMs and battery supply chain investments.",
+      "needed_evidence": [
+        "EU anti-subsidy investigation findings; Chinese EV sales in Europe; battery import data."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Financial integration between China and Europe is deepening through currency swap agreements and increased use of RMB in trade settlements.",
+      "decision_relevance": "Affects currency risk management and financing options.",
+      "needed_evidence": [
+        "PBOC swap line data; RMB settlement volumes; SWIFT data on RMB usage."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total bilateral trade = EU exports to China + EU imports from China (from Eurostat and China Customs)",
+      "variables": [
+        "EU exports to China (EUR)",
+        "EU imports from China (EUR)"
+      ],
+      "known_limitations": [
+        "Currency conversion differences",
+        "Timing of data release"
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Sum of trade values for top 20 traded goods categories (HS 2-digit) from Eurostat",
+      "variables": [
+        "Trade value per HS code",
+        "Number of categories"
+      ],
+      "known_limitations": [
+        "Data granularity",
+        "Missing categories"
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Number of European companies exporting to China = (Total EU exporters) * (% that export to China) from Eurostat",
+      "variables": [
+        "Total EU exporters",
+        "Percentage exporting to China"
+      ],
+      "known_limitations": [
+        "Data not annually updated",
+        "Double counting"
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Total addressable market for European luxury goods in China = (Chinese luxury goods market size) * (European brand share)",
+      "variables": [
+        "Chinese luxury goods market size (USD)",
+        "European brand market share (%)"
+      ],
+      "known_limitations": [
+        "Estimates vary",
+        "Gray market not captured"
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Total Chinese EV battery production capacity for export to Europe = (Chinese battery production) * (% exported to Europe)",
+      "variables": [
+        "Chinese battery production (GWh)",
+        "Export share to Europe (%)"
+      ],
+      "known_limitations": [
+        "Capacity vs. actual production",
+        "Data lag"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
