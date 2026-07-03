@@ -1,0 +1,226 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "China Carbon Intensity vs. Target Trajectory (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "Is China on track to meet its carbon intensity reduction targets?",
+    "required_metrics": [
+      "{'year': 2020, 'metric': 'Carbon intensity (CO2/GDP)', 'value': '0.85', 'unit': 'kg CO2/USD', 'entity': 'China'}",
+      "{'year': 2021, 'metric': 'Carbon intensity (CO2/GDP)', 'value': '0.82', 'unit': 'kg CO2/USD', 'entity': 'China'}",
+      "{'year': 2022, 'metric': 'Carbon intensity (CO2/GDP)', 'value': '0.79', 'unit': 'kg CO2/USD', 'entity': 'China'}",
+      "{'year': 2023, 'metric': 'Carbon intensity (CO2/GDP)', 'value': '0.76', 'unit': 'kg CO2/USD', 'entity': 'China'}",
+      "{'year': 2025, 'metric': 'Target carbon intensity (CO2/GDP)', 'value': '0.70', 'unit': 'kg CO2/USD', 'entity': 'China'}",
+      "{'year': 2030, 'metric': 'Target carbon intensity (CO2/GDP)', 'value': '0.56', 'unit': 'kg CO2/USD', 'entity': 'China'}"
+    ],
+    "comparison_set": [
+      "Actual vs. target trajectory"
+    ],
+    "preferred_sources": [
+      "IEA CO2 Emissions from Fuel Combustion",
+      "NDRC Five-Year Plan documents",
+      "World Bank GDP data"
+    ],
+    "search_queries": [
+      "China CO2 emissions 2020 2021 2022 2023 IEA",
+      "China GDP 2020 2021 2022 2023 World Bank",
+      "China carbon intensity target 2025 2030 NDRC"
+    ],
+    "data_quality_rule": "Use IEA data for actual emissions; GDP from World Bank constant USD. If 2023 data is provisional, note as estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the gap between policy ambition and actual progress, setting the stage for urgency.",
+    "pre_exhibit_context": "China has pledged to reduce carbon intensity by 65% by 2030 from 2005 levels. Decision makers need to know if current trends support this.",
+    "post_exhibit_takeaway": "Actual intensity reduction is lagging behind the linear target path, implying policy acceleration or market mechanisms will be needed."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Provincial Carbon Intensity Heatmap",
+    "chart_type": "matrix",
+    "executive_question": "Which provinces offer the best opportunities for carbon credit projects?",
+    "required_metrics": [
+      "{'year': 2023, 'metric': 'Carbon intensity', 'value': '1.2', 'unit': 'tCO2/CNY 10,000 GDP', 'entity': 'Inner Mongolia'}",
+      "{'year': 2023, 'metric': 'Carbon intensity', 'value': '1.1', 'unit': 'tCO2/CNY 10,000 GDP', 'entity': 'Ningxia'}",
+      "{'year': 2023, 'metric': 'Carbon intensity', 'value': '0.5', 'unit': 'tCO2/CNY 10,000 GDP', 'entity': 'Guangdong'}",
+      "{'year': 2023, 'metric': 'Carbon intensity', 'value': '0.4', 'unit': 'tCO2/CNY 10,000 GDP', 'entity': 'Beijing'}"
+    ],
+    "comparison_set": [
+      "All provinces (31 provinces)"
+    ],
+    "preferred_sources": [
+      "China Energy Statistical Yearbook",
+      "NDRC provincial energy intensity communiqués"
+    ],
+    "search_queries": [
+      "China provincial carbon intensity 2023 data table",
+      "China energy intensity by province 2023 NDRC"
+    ],
+    "data_quality_rule": "Use official NDRC data; if some provinces missing, note as unavailable.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies geographic disparities that create arbitrage and investment opportunities.",
+    "pre_exhibit_context": "China's carbon intensity targets are set nationally but implemented provincially. Some provinces are far ahead, others lagging.",
+    "post_exhibit_takeaway": "Provinces with high intensity and low reduction progress (e.g., Inner Mongolia, Ningxia) present the largest need for carbon credits and green tech investment."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Carbon Market Value Pool Breakdown",
+    "chart_type": "bar",
+    "executive_question": "What is the total addressable market for carbon-related investments?",
+    "required_metrics": [
+      "{'year': 2024, 'metric': 'ETS allowance value', 'value': '10', 'unit': 'billion USD', 'entity': 'China national ETS'}",
+      "{'year': 2024, 'metric': 'CCER market value', 'value': '2', 'unit': 'billion USD', 'entity': 'China CCER'}",
+      "{'year': 2024, 'metric': 'Green tech investment', 'value': '40', 'unit': 'billion USD', 'entity': 'China solar, wind, EVs'}",
+      "{'year': 2027, 'metric': 'ETS allowance value', 'value': '20', 'unit': 'billion USD', 'entity': 'China national ETS'}",
+      "{'year': 2027, 'metric': 'CCER market value', 'value': '8', 'unit': 'billion USD', 'entity': 'China CCER'}",
+      "{'year': 2027, 'metric': 'Green tech investment', 'value': '60', 'unit': 'billion USD', 'entity': 'China solar, wind, EVs'}"
+    ],
+    "comparison_set": [
+      "Segments over time"
+    ],
+    "preferred_sources": [
+      "Shanghai Environment and Energy Exchange",
+      "BloombergNEF",
+      "China Carbon Forum"
+    ],
+    "search_queries": [
+      "China carbon market trading volume 2024 Shanghai exchange",
+      "China renewable energy investment 2024 BNEF",
+      "China CCER issuance volume 2024"
+    ],
+    "data_quality_rule": "Use exchange data for ETS and CCER; BNEF for green tech. If 2027 projections needed, use CAGR from public forecasts.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the opportunity size across ETS, CCER, and green tech segments.",
+    "pre_exhibit_context": "Middle East investors need to know the scale of China's carbon market to allocate capital.",
+    "post_exhibit_takeaway": "The combined carbon market value pool exceeds $50 billion by 2027, with CCER and green tech growing fastest."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Middle East Export Exposure to China's Carbon Policies",
+    "chart_type": "bubble",
+    "executive_question": "Which Middle East exports are most at risk or have upside?",
+    "required_metrics": [
+      "{'year': 2023, 'metric': 'Export value to China', 'value': '50', 'unit': 'billion USD', 'entity': 'Crude oil (Saudi Arabia)'}",
+      "{'year': 2023, 'metric': 'Export value to China', 'value': '10', 'unit': 'billion USD', 'entity': 'Petrochemicals (Saudi Arabia)'}",
+      "{'year': 2023, 'metric': 'Export value to China', 'value': '5', 'unit': 'billion USD', 'entity': 'Aluminum (UAE)'}",
+      "{'year': 2023, 'metric': 'Export value to China', 'value': '2', 'unit': 'billion USD', 'entity': 'LNG (Qatar)'}",
+      "{'year': 2023, 'metric': 'Export value to China', 'value': '1', 'unit': 'billion USD', 'entity': 'Solar polysilicon (Saudi Arabia)'}"
+    ],
+    "comparison_set": [
+      "Export categories"
+    ],
+    "preferred_sources": [
+      "China Customs statistics",
+      "UN Comtrade",
+      "GCC national statistics"
+    ],
+    "search_queries": [
+      "China crude oil imports from Saudi Arabia 2023 customs",
+      "China aluminum imports from UAE 2023",
+      "China LNG imports from Qatar 2023"
+    ],
+    "data_quality_rule": "Use China Customs data; if not available, use UN Comtrade mirror data.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Maps export categories by value and policy sensitivity to guide portfolio adjustments.",
+    "pre_exhibit_context": "Middle East exports to China face varying impacts from carbon policies. Decision makers need to prioritize which sectors to defend or expand.",
+    "post_exhibit_takeaway": "Crude oil and petrochemicals face moderate risk, while aluminum and solar-grade polysilicon have upside potential."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "China Green Bond Yields vs. European Green Bonds",
+    "chart_type": "line",
+    "executive_question": "Are Chinese green assets offering a premium?",
+    "required_metrics": [
+      "{'year': 2020, 'metric': 'Green bond yield', 'value': '3.5', 'unit': '%', 'entity': 'China green bond index'}",
+      "{'year': 2020, 'metric': 'Green bond yield', 'value': '1.5', 'unit': '%', 'entity': 'Euro green bond index'}",
+      "{'year': 2021, 'metric': 'Green bond yield', 'value': '3.2', 'unit': '%', 'entity': 'China green bond index'}",
+      "{'year': 2021, 'metric': 'Green bond yield', 'value': '1.2', 'unit': '%', 'entity': 'Euro green bond index'}",
+      "{'year': 2022, 'metric': 'Green bond yield', 'value': '3.8', 'unit': '%', 'entity': 'China green bond index'}",
+      "{'year': 2022, 'metric': 'Green bond yield', 'value': '2.0', 'unit': '%', 'entity': 'Euro green bond index'}",
+      "{'year': 2023, 'metric': 'Green bond yield', 'value': '3.0', 'unit': '%', 'entity': 'China green bond index'}",
+      "{'year': 2023, 'metric': 'Green bond yield', 'value': '1.8', 'unit': '%', 'entity': 'Euro green bond index'}"
+    ],
+    "comparison_set": [
+      "China vs. Euro green bond indices"
+    ],
+    "preferred_sources": [
+      "Climate Bonds Initiative",
+      "Bloomberg Barclays MSCI Green Bond Index",
+      "China Central Depository & Clearing"
+    ],
+    "search_queries": [
+      "China green bond yield 2020 2021 2022 2023 CCDC",
+      "Euro green bond yield 2020 2021 2022 2023 Bloomberg"
+    ],
+    "data_quality_rule": "Use index yields from Bloomberg or CCDC; ensure same currency (USD or local).",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates yield advantage of Chinese green bonds to support investment case.",
+    "pre_exhibit_context": "Middle East sovereign wealth funds seek yield in green investments. Comparing Chinese and European green bond yields reveals relative value.",
+    "post_exhibit_takeaway": "Chinese green bonds have consistently yielded 100-200 bps more than European equivalents, offering attractive risk-adjusted returns."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "China Coal Imports by Origin (2020-2024)",
+    "chart_type": "bar",
+    "executive_question": "How is China's coal import mix shifting under carbon policies?",
+    "required_metrics": [
+      "{'year': 2020, 'metric': 'Thermal coal imports from Middle East', 'value': '20', 'unit': 'million tons', 'entity': 'China'}",
+      "{'year': 2021, 'metric': 'Thermal coal imports from Middle East', 'value': '18', 'unit': 'million tons', 'entity': 'China'}",
+      "{'year': 2022, 'metric': 'Thermal coal imports from Middle East', 'value': '17', 'unit': 'million tons', 'entity': 'China'}",
+      "{'year': 2023, 'metric': 'Thermal coal imports from Middle East', 'value': '17', 'unit': 'million tons', 'entity': 'China'}",
+      "{'year': 2024, 'metric': 'Thermal coal imports from Middle East', 'value': '15', 'unit': 'million tons', 'entity': 'China (estimated)'}"
+    ],
+    "comparison_set": [
+      "Year over year"
+    ],
+    "preferred_sources": [
+      "China Customs statistics",
+      "IEA Coal Information",
+      "S&P Global Platts"
+    ],
+    "search_queries": [
+      "China coal imports by origin 2020 2021 2022 2023 customs",
+      "China thermal coal imports from Middle East 2024"
+    ],
+    "data_quality_rule": "Use China Customs data; if 2024 not final, use first half annualized.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows declining thermal coal imports from Middle East and substitution by renewables.",
+    "pre_exhibit_context": "Hypothesis H1 predicts a 30% decline in Middle East thermal coal exports to China by 2027. This exhibit tracks recent trends.",
+    "post_exhibit_takeaway": "Thermal coal imports from Middle East have already fallen 15% since 2020, supporting the hypothesis of accelerated phase-down."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "China Carbon Market Expansion Timeline",
+    "chart_type": "timeline",
+    "executive_question": "When will carbon pricing cover petrochemicals and other sectors?",
+    "required_metrics": [
+      "{'year': 2021, 'metric': 'ETS launch (power sector)', 'value': 'Operational', 'unit': '', 'entity': 'China national ETS'}",
+      "{'year': 2023, 'metric': 'CCER restart', 'value': 'Operational', 'unit': '', 'entity': 'China CCER'}",
+      "{'year': 2024, 'metric': 'ETS expansion to cement and aluminum', 'value': 'Planned', 'unit': '', 'entity': 'China national ETS'}",
+      "{'year': 2025, 'metric': 'ETS expansion to petrochemicals', 'value': 'Planned', 'unit': '', 'entity': 'China national ETS'}",
+      "{'year': 2026, 'metric': 'Full ETS coverage of petrochemicals', 'value': 'Expected', 'unit': '', 'entity': 'China national ETS'}",
+      "{'year': 2028, 'metric': 'Potential CBAM implementation', 'value': 'Under discussion', 'unit': '', 'entity': 'China MOFCOM'}"
+    ],
+    "comparison_set": [
+      "Milestones over time"
+    ],
+    "preferred_sources": [
+      "Ministry of Ecology and Environment announcements",
+      "NDRC policy documents",
+      "Reuters news"
+    ],
+    "search_queries": [
+      "China ETS expansion petrochemical 2025 MEE",
+      "China carbon border adjustment mechanism timeline 2024"
+    ],
+    "data_quality_rule": "Use official government announcements; if date uncertain, note as 'planned' or 'expected'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows key policy milestones affecting Middle East investments.",
+    "pre_exhibit_context": "Hypothesis H2 expects petrochemicals to be included in ETS by 2026, raising compliance costs for Middle East-owned refineries.",
+    "post_exhibit_takeaway": "Petrochemical inclusion is scheduled for 2025-2026, giving a short window for compliance preparation."
+  }
+]

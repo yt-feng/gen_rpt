@@ -1,0 +1,68 @@
+{
+  "topic": "China Carbon-Intensity Policy Playbook for Middle East Decision Makers",
+  "objective": "To provide Middle East decision makers with a data-driven playbook for navigating China's carbon-intensity policy landscape, identifying investment opportunities and regulatory risks.",
+  "decision_question": "How should Middle East entities adjust their China investment and partnership strategies in response to China's evolving carbon-intensity reduction policies?",
+  "source_count": 2,
+  "authoritative_source_count": 2,
+  "source_domains": [
+    "iea.org",
+    "energy.gov"
+  ],
+  "source_refs": [
+    "[Source 1][authoritative][snippet] IEA energy storage | https://www.iea.org/energy-system/electricity/grid-scale-storage",
+    "[Source 2][authoritative][html] U.S. DOE Office of Electricity | https://www.energy.gov/oe/office-electricity"
+  ],
+  "high_confidence_facts": [
+    "[Source 2: U.S. DOE Office of Electricity] Policy Understand the laws, regulations, and strategies that guide energy decisions and national priorities.",
+    "[Source 2: U.S. DOE Office of Electricity] Featured Hydrocarbons and Geothermal Energy Office Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 2: U.S. DOE Office of Electricity] The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "[Source 2: U.S. DOE Office of Electricity] The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "[Source 2: U.S. DOE Office of Electricity] Department of Energy 1000 Independence Avenue, SW Washington, DC 20585 Committed to Restoring America’s Energy Dominance.",
+    "[Source 2: U.S. DOE Office of Electricity] Federal financing tools Funding opportunities and requests for information State and Tribal Grid Resilience and Transmission Planning Resource Hub Transmission Facilitation Program Learn how the Community Microgrid Assistance Partnership (C-MAP) supports microgrid development in electrically isolated communities.",
+    "[Source 2: U.S. DOE Office of Electricity] electric grid test bed inventory aims to capture and summarize information and capabilities available at domestic, publicly accessible facilities (“test beds”) that perform testing, evaluation, validation, and certification of transmission and distribution (T&D) grid technologies.",
+    "[Source 2: U.S. DOE Office of Electricity] Policy & Priorities Main Menu Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 2: U.S. DOE Office of Electricity] Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 2: U.S. DOE Office of Electricity] Leadership & Organization Main Menu Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 2: U.S. DOE Office of Electricity] Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 2: U.S. DOE Office of Electricity] Share sensitive information only on official, secure websites.",
+    "[Source 2: U.S. DOE Office of Electricity] To stabilize, optimize, and grow the electricity system to ensure the grid delivers affordable, reliable, and secure energy to the American people.",
+    "[Source 2: U.S. DOE Office of Electricity] Grid Enhancing Technologies Microgrid Systems Transformer Resilience and Advanced Components (TRAC) Enabling next-generation grid operations and planning through advanced controls, information and communication technologies, and analytics.",
+    "[Source 2: U.S. DOE Office of Electricity] Controls and Data Science Distribution Grid Transformation Grid Cybersecurity and Communications Grid Modeling NAERM Improving the safety, reliability, and performance of energy storage, while making it as cost-effective as possible.",
+    "[Source 2: U.S. DOE Office of Electricity] Get informed about grid modernization through GridTalk podcasts with leading electricity industry innovators.",
+    "[Source 2: U.S. DOE Office of Electricity] Learn how OE uses expert feedback to improve program quality, and the peer reviews to improve project efforts.",
+    "[Source 2: U.S. DOE Office of Electricity] Stay up-to-date on the Office of Electricity's latest news, including the Current, our newsletter for stakeholders.",
+    "[Source 2: U.S. DOE Office of Electricity] Affordable Energy for Consumers Promoting access to reliable and cost-effective energy for households and businesses.",
+    "[Source 2: U.S. DOE Office of Electricity] Nuclear Security Offices Overseeing national security efforts related to nuclear safety and defense.",
+    "[Source 2: U.S. DOE Office of Electricity] Featured Hydrocarbons and Geothermal Energy Office Topics Main Menu Topics View all Topics Energy Sources Learn about the resources and technologies used to produce power across the United States.",
+    "[Source 2: U.S. DOE Office of Electricity] Energy Storage R&DD Energy Storage Grand Challenge Grid Storage Launchpad Rapid Operational Validation Initiative Grid Resilience and Innovation Partnerships (GRIP) Grid Resilience State/Tribal Formula Grants Program Grid Resilience State and Tribal Formula Grant Subawards Presidential Permits Territory Recovery and Assistance Learn about federal financial tools and more.",
+    "[Source 1: IEA energy storage] International Energy Agency source on grid-scale storage.",
+    "[Source 1: IEA energy storage] IEA energy storage International Energy Agency source on grid-scale storage."
+  ],
+  "numeric_facts": [
+    "[Source 2: U.S. DOE Office of Electricity] Policy Understand the laws, regulations, and strategies that guide energy decisions and national priorities.",
+    "[Source 2: U.S. DOE Office of Electricity] Featured Hydrocarbons and Geothermal Energy Office Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 2: U.S. DOE Office of Electricity] The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "[Source 2: U.S. DOE Office of Electricity] The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "[Source 2: U.S. DOE Office of Electricity] Department of Energy 1000 Independence Avenue, SW Washington, DC 20585 Committed to Restoring America’s Energy Dominance.",
+    "[Source 2: U.S. DOE Office of Electricity] Federal financing tools Funding opportunities and requests for information State and Tribal Grid Resilience and Transmission Planning Resource Hub Transmission Facilitation Program Learn how the Community Microgrid Assistance Partnership (C-MAP) supports microgrid development in electrically isolated communities.",
+    "[Source 2: U.S. DOE Office of Electricity] electric grid test bed inventory aims to capture and summarize information and capabilities available at domestic, publicly accessible facilities (“test beds”) that perform testing, evaluation, validation, and certification of transmission and distribution (T&D) grid technologies.",
+    "[Source 2: U.S. DOE Office of Electricity] Policy & Priorities Main Menu Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 2: U.S. DOE Office of Electricity] Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 2: U.S. DOE Office of Electricity] Leadership & Organization Main Menu Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 2: U.S. DOE Office of Electricity] Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 2: U.S. DOE Office of Electricity] Share sensitive information only on official, secure websites.",
+    "[Source 2: U.S. DOE Office of Electricity] To stabilize, optimize, and grow the electricity system to ensure the grid delivers affordable, reliable, and secure energy to the American people.",
+    "[Source 2: U.S. DOE Office of Electricity] Grid Enhancing Technologies Microgrid Systems Transformer Resilience and Advanced Components (TRAC) Enabling next-generation grid operations and planning through advanced controls, information and communication technologies, and analytics.",
+    "[Source 2: U.S. DOE Office of Electricity] Controls and Data Science Distribution Grid Transformation Grid Cybersecurity and Communications Grid Modeling NAERM Improving the safety, reliability, and performance of energy storage, while making it as cost-effective as possible.",
+    "[Source 2: U.S. DOE Office of Electricity] Get informed about grid modernization through GridTalk podcasts with leading electricity industry innovators."
+  ],
+  "dated_facts": [
+    "[Source 2: U.S. DOE Office of Electricity] The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "[Source 2: U.S. DOE Office of Electricity] The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "[Source 2: U.S. DOE Office of Electricity] Department of Energy 1000 Independence Avenue, SW Washington, DC 20585 Committed to Restoring America’s Energy Dominance."
+  ],
+  "validation_issues": [
+    "资料来源偏少，当前仅2个。",
+    "来源域名多样性不足，当前2个。"
+  ]
+}

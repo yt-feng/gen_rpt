@@ -1,0 +1,129 @@
+{
+  "core_question": "How should Middle East entities adjust their China investment and partnership strategies in response to China's evolving carbon-intensity reduction policies?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "The Southline project originated with the Grid Deployment Office (GDO) in 2023."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "China's carbon intensity reduction will accelerate coal phase-down faster than official targets, reducing Middle East thermal coal export volumes to China by 30% by 2027.",
+      "decision_relevance": "Impacts revenue projections for coal exporters and infrastructure investments.",
+      "needed_evidence": [
+        "Monthly coal import data from China Customs, provincial intensity targets vs. actuals, power plant retirement announcements."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "China's carbon market expansion to cover petrochemicals will increase compliance costs for Middle East-owned refineries in China by 15-20% by 2026.",
+      "decision_relevance": "Affects profitability of existing and planned refinery investments.",
+      "needed_evidence": [
+        "Carbon market coverage expansion timeline, petrochemical sector emissions data, allowance price trends."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Chinese green technology exports (solar, wind, EVs) will undercut Middle East domestic manufacturing ambitions, making import partnerships more viable than local production.",
+      "decision_relevance": "Guides Middle East industrial policy and trade negotiations.",
+      "needed_evidence": [
+        "Chinese solar module export prices vs. Middle East production costs, EV import tariffs, local content requirements."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China's carbon border adjustment mechanism (CBAM-like) on imported goods will not be implemented before 2028, giving Middle East exporters a window to decarbonize supply chains.",
+      "decision_relevance": "Affects timing of compliance investments for Middle East exporters to China.",
+      "needed_evidence": [
+        "Policy announcements, draft regulations, expert commentary."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Middle East sovereign wealth funds' green investments in China will yield 200-300 bps higher returns than similar investments in Europe due to lower entry valuations and faster policy-driven demand growth.",
+      "decision_relevance": "Informs asset allocation decisions for SWFs.",
+      "needed_evidence": [
+        "China green bond yields vs. European green bonds, China renewable energy company valuations, policy subsidy rates."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "China's provincial carbon intensity targets will create a 50 million ton CO2 gap between top-performing and lagging provinces, driving inter-provincial carbon credit trading.",
+      "decision_relevance": "Creates arbitrage opportunities for carbon credit traders and project developers.",
+      "needed_evidence": [
+        "Provincial intensity data, carbon credit prices, trading volumes."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "China's demand for low-carbon aluminum will increase imports from Middle East smelters using solar power, boosting Middle East aluminum exports to China by 20% by 2027.",
+      "decision_relevance": "Identifies growth opportunity for Middle East aluminum producers.",
+      "needed_evidence": [
+        "China aluminum import data by origin, carbon footprint requirements, Middle East smelter solar capacity."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market = China's total carbon credit demand (tons) × average carbon credit price (USD/ton)",
+      "variables": [
+        "China carbon credit demand (from national ETS cap)",
+        "Average carbon credit price (from exchanges)"
+      ],
+      "known_limitations": [
+        "Assumes full compliance and liquidity; actual trading volumes may be lower."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Σ (emissions from covered sectors × reduction requirement) × carbon price",
+      "variables": [
+        "Sector emissions (power, steel, cement)",
+        "Reduction requirement per sector",
+        "Carbon price"
+      ],
+      "known_limitations": [
+        "Data granularity varies; some sectors not yet covered by ETS."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Market size = Number of companies covered × average compliance cost per company",
+      "variables": [
+        "Number of companies in ETS",
+        "Average compliance cost (allowance purchases + abatement)"
+      ],
+      "known_limitations": [
+        "Compliance cost data is often proprietary; estimates may be rough."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value pool = (carbon credit trading volume × price) + (green technology investment) + (energy efficiency services)",
+      "variables": [
+        "Trading volume",
+        "Green tech investment (solar, wind, EVs)",
+        "Energy efficiency market size"
+      ],
+      "known_limitations": [
+        "Overlaps between categories may double-count."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Market size = Total carbon credit supply (from offset projects) × price",
+      "variables": [
+        "Offset project credits (CCERs)",
+        "Price of CCERs"
+      ],
+      "known_limitations": [
+        "CCER supply is intermittent and policy-dependent."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

@@ -1,0 +1,491 @@
+{
+  "objective": "To provide Middle East decision makers with a data-driven playbook for navigating China's carbon-intensity policy landscape, identifying investment opportunities and regulatory risks.",
+  "audience": "Middle East sovereign wealth funds, energy ministers, and corporate strategy executives.",
+  "decision_question": "How should Middle East entities adjust their China investment and partnership strategies in response to China's evolving carbon-intensity reduction policies?",
+  "issue_tree": {
+    "root": "China Carbon-Intensity Policy Impact on Middle East",
+    "branches": [
+      {
+        "node": "Policy Trajectory",
+        "children": [
+          "Current intensity targets vs. actual progress",
+          "Provincial vs. national policy divergence",
+          "Sector-specific mandates (power, steel, cement)"
+        ]
+      },
+      {
+        "node": "Market Implications",
+        "children": [
+          "Demand shifts for fossil fuels vs. renewables",
+          "Carbon pricing and trading mechanisms",
+          "Technology transfer and joint venture opportunities"
+        ]
+      },
+      {
+        "node": "Strategic Options for Middle East",
+        "children": [
+          "Direct investment in Chinese green tech",
+          "Carbon credit trading partnerships",
+          "Adjusting oil/gas export contracts for carbon content"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "China's carbon intensity reduction will accelerate coal phase-down faster than official targets, reducing Middle East thermal coal export volumes to China by 30% by 2027.",
+      "decision_relevance": "Impacts revenue projections for coal exporters and infrastructure investments.",
+      "needed_evidence": [
+        "Monthly coal import data from China Customs, provincial intensity targets vs. actuals, power plant retirement announcements."
+      ],
+      "search_queries": [
+        "China coal imports by origin 2023 2024 customs data",
+        "China provincial carbon intensity targets 2025",
+        "China coal power plant retirement list 2024"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "China's carbon market expansion to cover petrochemicals will increase compliance costs for Middle East-owned refineries in China by 15-20% by 2026.",
+      "decision_relevance": "Affects profitability of existing and planned refinery investments.",
+      "needed_evidence": [
+        "Carbon market coverage expansion timeline, petrochemical sector emissions data, allowance price trends."
+      ],
+      "search_queries": [
+        "China national ETS expansion petrochemical 2025",
+        "China carbon allowance price history 2023 2024",
+        "China petrochemical sector emissions intensity"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Chinese green technology exports (solar, wind, EVs) will undercut Middle East domestic manufacturing ambitions, making import partnerships more viable than local production.",
+      "decision_relevance": "Guides Middle East industrial policy and trade negotiations.",
+      "needed_evidence": [
+        "Chinese solar module export prices vs. Middle East production costs, EV import tariffs, local content requirements."
+      ],
+      "search_queries": [
+        "China solar module export price FOB 2024",
+        "Saudi Arabia solar manufacturing cost per watt",
+        "China EV export to UAE tariff 2024"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China's carbon border adjustment mechanism (CBAM-like) on imported goods will not be implemented before 2028, giving Middle East exporters a window to decarbonize supply chains.",
+      "decision_relevance": "Affects timing of compliance investments for Middle East exporters to China.",
+      "needed_evidence": [
+        "Policy announcements, draft regulations, expert commentary."
+      ],
+      "search_queries": [
+        "China carbon border adjustment mechanism draft 2024",
+        "China MOFCOM carbon tariff timeline",
+        "China CBAM pilot provinces"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Middle East sovereign wealth funds' green investments in China will yield 200-300 bps higher returns than similar investments in Europe due to lower entry valuations and faster policy-driven demand growth.",
+      "decision_relevance": "Informs asset allocation decisions for SWFs.",
+      "needed_evidence": [
+        "China green bond yields vs. European green bonds, China renewable energy company valuations, policy subsidy rates."
+      ],
+      "search_queries": [
+        "China green bond yield vs euro green bond 2024",
+        "China solar company P/E ratio 2024",
+        "China renewable energy subsidy per kWh 2024"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "China's provincial carbon intensity targets will create a 50 million ton CO2 gap between top-performing and lagging provinces, driving inter-provincial carbon credit trading.",
+      "decision_relevance": "Creates arbitrage opportunities for carbon credit traders and project developers.",
+      "needed_evidence": [
+        "Provincial intensity data, carbon credit prices, trading volumes."
+      ],
+      "search_queries": [
+        "China provincial carbon intensity 2023 data",
+        "China carbon credit price by province 2024",
+        "China inter-provincial carbon trading volume"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "China's demand for low-carbon aluminum will increase imports from Middle East smelters using solar power, boosting Middle East aluminum exports to China by 20% by 2027.",
+      "decision_relevance": "Identifies growth opportunity for Middle East aluminum producers.",
+      "needed_evidence": [
+        "China aluminum import data by origin, carbon footprint requirements, Middle East smelter solar capacity."
+      ],
+      "search_queries": [
+        "China aluminum imports from UAE 2023 2024",
+        "China low carbon aluminum standard",
+        "UAE aluminum smelter solar power capacity"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for China Carbon-Intensity Policy Playbook for Middle East Decision Makers, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total addressable market = China's total carbon credit demand (tons) × average carbon credit price (USD/ton)",
+        "variables": [
+          "China carbon credit demand (from national ETS cap)",
+          "Average carbon credit price (from exchanges)"
+        ],
+        "preferred_sources": [
+          "China National Development and Reform Commission (NDRC)",
+          "Shanghai Environment and Energy Exchange"
+        ],
+        "search_queries": [
+          "China national ETS cap 2025",
+          "China carbon credit price Shanghai exchange 2024"
+        ],
+        "known_limitations": [
+          "Assumes full compliance and liquidity; actual trading volumes may be lower."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Σ (emissions from covered sectors × reduction requirement) × carbon price",
+        "variables": [
+          "Sector emissions (power, steel, cement)",
+          "Reduction requirement per sector",
+          "Carbon price"
+        ],
+        "preferred_sources": [
+          "China Energy Statistical Yearbook",
+          "Ministry of Ecology and Environment (MEE) reports"
+        ],
+        "search_queries": [
+          "China power sector CO2 emissions 2023",
+          "China steel sector emission reduction target 2025"
+        ],
+        "known_limitations": [
+          "Data granularity varies; some sectors not yet covered by ETS."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Market size = Number of companies covered × average compliance cost per company",
+        "variables": [
+          "Number of companies in ETS",
+          "Average compliance cost (allowance purchases + abatement)"
+        ],
+        "preferred_sources": [
+          "MEE list of covered entities",
+          "Company annual reports (e.g., Huaneng, Baowu)"
+        ],
+        "search_queries": [
+          "China ETS covered companies list 2024",
+          "Baowu carbon compliance cost annual report"
+        ],
+        "known_limitations": [
+          "Compliance cost data is often proprietary; estimates may be rough."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Value pool = (carbon credit trading volume × price) + (green technology investment) + (energy efficiency services)",
+        "variables": [
+          "Trading volume",
+          "Green tech investment (solar, wind, EVs)",
+          "Energy efficiency market size"
+        ],
+        "preferred_sources": [
+          "China Carbon Forum",
+          "BloombergNEF",
+          "International Energy Agency (IEA)"
+        ],
+        "search_queries": [
+          "China carbon market trading volume 2023",
+          "China renewable energy investment 2024 BNEF"
+        ],
+        "known_limitations": [
+          "Overlaps between categories may double-count."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Market size = Total carbon credit supply (from offset projects) × price",
+        "variables": [
+          "Offset project credits (CCERs)",
+          "Price of CCERs"
+        ],
+        "preferred_sources": [
+          "China Certified Emission Reduction (CCER) registry",
+          "Beijing Green Exchange"
+        ],
+        "search_queries": [
+          "China CCER issuance volume 2024",
+          "China CCER price 2024"
+        ],
+        "known_limitations": [
+          "CCER supply is intermittent and policy-dependent."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Carbon-Intensity Policy Playbook for Middle East Decision Makers milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "China CO2 emissions 2023 IEA",
+    "China carbon intensity target 2025 NDRC",
+    "China provincial carbon intensity 2023 data table",
+    "China national ETS cap 2024",
+    "China carbon allowance price 2024",
+    "China coal imports by country 2023 customs",
+    "China solar capacity additions 2023 NEA",
+    "China wind power investment 2024",
+    "China green bond issuance 2023 climate bonds",
+    "UAE sovereign wealth fund China green investment 2024",
+    "China carbon border adjustment mechanism 2024",
+    "China aluminum imports from GCC 2023",
+    "China petrochemical CO2 emissions 2023",
+    "China ETS petrochemical 2025",
+    "China solar module export price 2024",
+    "China CCER issuance 2024",
+    "China coal imports by origin 2023 2024 customs data",
+    "China provincial carbon intensity targets 2025"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Government releases (NDRC, MEE, NEA)",
+      "Customs statistics",
+      "Exchange data (Shanghai Environment and Energy Exchange, Beijing Green Exchange)"
+    ],
+    "secondary": [
+      "IEA, BloombergNEF, Climate Bonds Initiative",
+      "Company annual reports (Huaneng, Baowu, Sinopec)",
+      "Industry associations (China Iron and Steel Association, China Photovoltaic Industry Association)"
+    ],
+    "validation": [
+      "Cross-check provincial data with national totals",
+      "Triangulate carbon prices from multiple exchanges",
+      "Use academic papers for methodology verification"
+    ]
+  },
+  "outline": [
+    "1. China's Carbon Intensity Targets: Reality vs. Rhetoric – Key data on progress and gaps.",
+    "2. The Carbon Market Opportunity: Sizing the ETS and CCER markets for Middle East investors.",
+    "3. Sector Deep Dives: Coal, Aluminum, and Petrochemicals – Where the risks and opportunities lie.",
+    "4. Strategic Playbook: Investment, Trade, and Partnership Recommendations for Middle East Decision Makers.",
+    "5. Timeline and Scenarios: What to expect by 2027 and 2030 under different policy pathways."
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "China Carbon Intensity vs. Target Trajectory (2020-2030)",
+      "executive_question": "Is China on track to meet its intensity targets?",
+      "type": "Line chart with actual vs. target lines"
+    },
+    {
+      "title": "Provincial Carbon Intensity Heatmap",
+      "executive_question": "Which provinces offer the best opportunities for carbon credit projects?",
+      "type": "Map of China with color-coded intensity levels"
+    },
+    {
+      "title": "Carbon Market Value Pool Breakdown",
+      "executive_question": "What is the total addressable market for carbon-related investments?",
+      "type": "Stacked bar chart showing ETS, CCER, and green tech components"
+    },
+    {
+      "title": "Middle East Export Exposure to China's Carbon Policies",
+      "executive_question": "Which Middle East exports are most at risk or have upside?",
+      "type": "Bubble chart with export value vs. carbon policy impact score"
+    },
+    {
+      "title": "China Green Bond Yields vs. European Green Bonds",
+      "executive_question": "Are Chinese green assets offering a premium?",
+      "type": "Line chart comparing yield spreads over time"
+    }
+  ],
+  "risks": [
+    "Policy reversal or slowdown in enforcement due to economic pressures.",
+    "Data opacity: Chinese emissions data may be underreported or delayed.",
+    "Geopolitical tensions could disrupt trade and investment flows.",
+    "Carbon market liquidity may remain low, limiting trading opportunities.",
+    "Technological breakthroughs (e.g., cheap green hydrogen) could alter sector dynamics."
+  ]
+}
