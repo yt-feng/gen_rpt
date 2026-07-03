@@ -1,0 +1,12 @@
+[
+  {
+    "id": "report-0001",
+    "company": "Acme Financial Holdings",
+    "data": "Q2 revenue: $12.4M, up 8% YoY. Total assets: $340M. Debt/equity: 0.6..."
+  },
+  {
+    "id": "report-0002",
+    "company": "Meridian Capital Group",
+    "data": "Q2 revenue: $9.1M, down 3% YoY. Total assets: $210M. Debt/equity: 1.1..."
+  }
+]
