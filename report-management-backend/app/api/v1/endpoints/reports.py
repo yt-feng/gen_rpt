@@ -329,24 +329,83 @@ async def get_report_download_url(
 
 from pydantic import BaseModel
 class AIEditRequest(BaseModel):
+    documentId: str
     action: str
     paragraphId: str
     text: str
 
 @router.post("/edit", response_model=APIResponse[dict])
-async def ai_edit_mock(
+async def ai_edit_block(
     req: AIEditRequest,
     user: dict = Depends(get_current_user_placeholder)
 ):
     """
-    Mock endpoint to handle AI Rewrite toolbar actions from the frontend 
-    until it is fully wired to the specific document_id editor endpoints.
+    Handle AI Rewrite toolbar actions from the frontend for specific document blocks.
+    Replaces the exact paragraph text in the mock database.
     """
-    import asyncio
-    # Simulate AI processing delay
-    await asyncio.sleep(1)
+    import httpx
+    import os
+    from app.core.config import settings
+
+    doc_id = req.documentId
+    if doc_id not in MOCK_REPORTS:
+        return error_response(message="Report not found")
+
+    report = MOCK_REPORTS[doc_id]
+    original_text = req.text.strip()
     
+    # Simple prompt depending on action
+    prompt_instruction = "Rewrite the following text."
+    if req.action == "expand":
+        prompt_instruction = "Expand on the following text, providing more detail and context."
+    elif req.action == "rewrite":
+        prompt_instruction = "Rewrite the following text to make it more concise and professional."
+    elif req.action == "regenerate":
+        prompt_instruction = "Completely regenerate the following text, providing a fresh perspective."
+
+    # Call AI (DeepSeek or Groq if available)
+    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
+    new_text = f"[AI {req.action.capitalize()}] {original_text} (simulated update)"
+
+    if api_key:
+        try:
+            is_groq = "gsk_" in api_key
+            url = "https://api.groq.com/openai/v1/chat/completions" if is_groq else "https://api.deepseek.com/chat/completions"
+            model = "llama-3.3-70b-versatile" if is_groq else "deepseek-chat"
+            
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "You are a professional report editor. Return only the edited text without any conversational filler or quotes."},
+                    {"role": "user", "content": f"{prompt_instruction}\n\n{original_text}"}
+                ]
+            }
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(url, headers=headers, json=payload, timeout=20.0)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    new_text = data["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            print(f"AI API failed: {e}")
+
+    # Find the paragraph in the report content and replace it
+    updated = False
+    for section in report.get("reportContent", {}).get("sections", []):
+        body = section.get("body", "")
+        if original_text in body:
+            # Replace the paragraph in the body
+            section["body"] = body.replace(original_text, new_text)
+            updated = True
+            break
+            
+    if not updated:
+        return error_response(message="Could not find the specified text in the report body to edit.")
+
     return success_response(
-        data={"edited_text": f"Mock AI edit applied for action: {req.action}"}, 
-        message="AI edit applied"
+        data={"edited_text": new_text}, 
+        message=f"AI {req.action} applied successfully"
     )
