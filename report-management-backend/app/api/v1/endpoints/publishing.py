@@ -68,12 +68,28 @@ async def publish_report(
     """
     from app.api.v1.endpoints.reports import MOCK_REPORTS
     from app.services.publish_orchestrator import publish_orchestrator
+    from app.models.identity import User
+    from sqlalchemy import select
 
     report = MOCK_REPORTS.get(report_id)
     if not report:
         raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found.")
 
     logger.info(f"Publish requested: report_id={report_id} by user={user.get('id')}")
+
+    # Ensure user exists in the DB to avoid foreign key violations on gatex_publications
+    stmt = select(User).where(User.email == user["email"])
+    res = await db.execute(stmt)
+    db_user = res.scalar_one_or_none()
+    if not db_user:
+        db_user = User(
+            id=UUID(user["id"]),
+            full_name=user["full_name"],
+            email=user["email"],
+            status="active"
+        )
+        db.add(db_user)
+        await db.commit()
 
     result = await publish_orchestrator.publish(
         db=db,
