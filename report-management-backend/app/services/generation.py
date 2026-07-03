@@ -67,6 +67,40 @@ class GitHubActionsWorker(WorkerInterface):
         print(f"Cancelling GitHub Action for Job {job.id} (not implemented)")
         return True
 
+    async def dispatch_bulk(self, slug: str, topic: str, model: str = "deepseek-chat") -> bool:
+        """Dispatch a single job to generate_deep_research_bulk.yml."""
+        if not settings.GITHUB_TOKEN:
+            print("GITHUB_TOKEN not set. Cannot dispatch bulk job to GitHub Actions.")
+            return False
+
+        url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/workflows/generate_deep_research_bulk.yml/dispatches"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
+        payload = {
+            "ref": "main",
+            "inputs": {
+                "topic": topic,
+                "slug": slug,
+                "model": model,
+            }
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code == 204:
+                    print(f"[bulk] Dispatched GHA for slug={slug}")
+                    return True
+                else:
+                    print(f"[bulk] Failed to dispatch slug={slug}: {resp.status_code} - {resp.text}")
+                    return False
+        except Exception as e:
+            print(f"[bulk] Exception dispatching slug={slug}: {e}")
+            return False
+
 async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
     """
     Tries to load the web_report_payload.json from R2 to get real report content.
@@ -436,6 +470,48 @@ class GenerationService:
             # Trigger the async background poller
             asyncio.create_task(poll_r2_for_completion(job.id))
             
+        return job
+
+    async def create_bulk_job(
+        self,
+        db: AsyncSession,
+        document_id: uuid.UUID,
+        topic: str,
+        slug: str,
+        industry: Optional[str] = None,
+        created_by: Optional[uuid.UUID] = None,
+    ) -> GenerationJob:
+        """
+        Create and immediately dispatch a single bulk report generation job.
+        Uses generate_deep_research_bulk.yml instead of the standard v2 workflow.
+        Marks the job with report_type='bulk' so it shows in the bulk queue.
+        """
+        from datetime import datetime, timezone
+
+        job = GenerationJob(
+            id=uuid.uuid4(),
+            document_id=document_id,
+            topic=topic,
+            prompt=topic,
+            report_type="bulk",
+            created_by=created_by or uuid.UUID("00000000-0000-0000-0000-000000000000"),
+            status=JobStatusType.pending,
+            started=datetime.now(timezone.utc)
+        )
+        db.add(job)
+        await db.commit()
+        await db.refresh(job)
+
+        # Dispatch to the bulk workflow
+        success = await self.worker.dispatch_bulk(slug=slug, topic=topic)
+        if not success:
+            job.status = JobStatusType.failed
+            job.errors = "Failed to dispatch bulk job to GitHub Actions"
+            await db.commit()
+        else:
+            # Re-use the existing poller so completed jobs hydrate into MOCK_REPORTS
+            asyncio.create_task(poll_r2_for_completion(job.id))
+
         return job
 
     async def get_job(self, db: AsyncSession, job_id: uuid.UUID) -> Optional[GenerationJob]:
