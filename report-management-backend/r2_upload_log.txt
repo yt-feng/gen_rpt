@@ -1,0 +1,42 @@
+﻿2026-07-03T05:03:09.2278060Z ##[group]Run set -euo pipefail
+2026-07-03T05:03:09.2278693Z [36;1mset -euo pipefail[0m
+2026-07-03T05:03:09.2279417Z [36;1mREPORT_DIR="reports_web/2026-07-03-neet-ug-2026-exam-retests-and-the-rise-of-local-tech-unicorn-c27014"[0m
+2026-07-03T05:03:09.2280388Z [36;1m# Call the new stateless storage uploader or the backend API for upload URLs in future[0m
+2026-07-03T05:03:09.2281090Z [36;1m# For Phase 5, we assume the upload_report handles pure artifact uploads[0m
+2026-07-03T05:03:09.2281729Z [36;1mpython -m storage.upload_report \[0m
+2026-07-03T05:03:09.2282197Z [36;1m  --report-dir "$REPORT_DIR" \[0m
+2026-07-03T05:03:09.2297129Z [36;1m  --status generated \[0m
+2026-07-03T05:03:09.2297491Z [36;1m  --log-level INFO \[0m
+2026-07-03T05:03:09.2297779Z [36;1m  --skip-catalog-update[0m
+2026-07-03T05:03:09.2332794Z shell: /usr/bin/bash -e {0}
+2026-07-03T05:03:09.2333064Z env:
+2026-07-03T05:03:09.2333276Z   GEN_RPT_PER_QUERY: 5
+2026-07-03T05:03:09.2333517Z   GEN_RPT_MAX_SOURCES: 32
+2026-07-03T05:03:09.2333916Z   GEN_RPT_MAX_QUERIES: 24
+2026-07-03T05:03:09.2334145Z   GEN_RPT_GDELT_QUERIES: 2
+2026-07-03T05:03:09.2334396Z   GEN_RPT_GDELT_TIMESPAN: 36months
+2026-07-03T05:03:09.2334656Z   GEN_RPT_FETCH_TIMEOUT: 18
+2026-07-03T05:03:09.2334899Z   MAX_AI_SECTION_IMAGES: 12
+2026-07-03T05:03:09.2335137Z   AI_IMAGE_TIMEOUT: 45
+2026-07-03T05:03:09.2335365Z   AI_IMAGE_RETRIES: 3
+2026-07-03T05:03:09.2335598Z   SHOW_FALLBACK_IMAGES: true
+2026-07-03T05:03:09.2335963Z   TOPIC_INPUT: NEET-UG 2026 exam retests and the rise of local tech unicorns
+2026-07-03T05:03:09.2336514Z   SLUG_INPUT: neet-ug-2026-exam-retests-and-the-rise-of-local-tech-unicorn-c27014
+2026-07-03T05:03:09.2336943Z   MODEL_INPUT: deepseek-chat
+2026-07-03T05:03:09.2337272Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T05:03:09.2337717Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-03T05:03:09.2338152Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T05:03:09.2338534Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T05:03:09.2338925Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T05:03:09.2339300Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-03T05:03:09.2339926Z   R2_ACCOUNT_ID: ***
+2026-07-03T05:03:09.2340199Z   R2_ACCESS_KEY_ID: ***
+2026-07-03T05:03:09.2340594Z   R2_SECRET_ACCESS_KEY: ***
+2026-07-03T05:03:09.2340879Z   R2_BUCKET: ***
+2026-07-03T05:03:09.2341112Z   STORAGE_LOG_DIR: /tmp/storage-logs
+2026-07-03T05:03:09.2341388Z ##[endgroup]
+2026-07-03T05:03:09.5657916Z usage: upload_report.py [-h] --report-dir REPORT_DIR [--title TITLE]
+2026-07-03T05:03:09.5658660Z                         [--tags TAGS] [--status STATUS]
+2026-07-03T05:03:09.5659172Z                         [--log-level LOG_LEVEL]
+2026-07-03T05:03:09.5659780Z upload_report.py: error: unrecognized arguments: --skip-catalog-update
+2026-07-03T05:03:09.5922354Z ##[error]Process completed with exit code 2.

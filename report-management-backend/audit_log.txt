@@ -1,0 +1,102 @@
+﻿2026-07-03T04:29:50.6068262Z ##[group]Run echo "[estimate] Audit should finish in <10s."
+2026-07-03T04:29:50.6068717Z [36;1mecho "[estimate] Audit should finish in <10s."[0m
+2026-07-03T04:29:50.6069222Z [36;1mpython tools/local_web_report_audit.py "reports_web/2026-07-03-doc-ai-health-test"[0m
+2026-07-03T04:29:50.6105017Z shell: /usr/bin/bash -e {0}
+2026-07-03T04:29:50.6105315Z env:
+2026-07-03T04:29:50.6105534Z   GEN_RPT_PER_QUERY: 5
+2026-07-03T04:29:50.6105782Z   GEN_RPT_MAX_SOURCES: 32
+2026-07-03T04:29:50.6106029Z   GEN_RPT_MAX_QUERIES: 24
+2026-07-03T04:29:50.6106266Z   GEN_RPT_GDELT_QUERIES: 2
+2026-07-03T04:29:50.6106512Z   GEN_RPT_GDELT_TIMESPAN: 36months
+2026-07-03T04:29:50.6106778Z   GEN_RPT_FETCH_TIMEOUT: 18
+2026-07-03T04:29:50.6107025Z   MAX_AI_SECTION_IMAGES: 12
+2026-07-03T04:29:50.6107256Z   AI_IMAGE_TIMEOUT: 45
+2026-07-03T04:29:50.6107479Z   AI_IMAGE_RETRIES: 3
+2026-07-03T04:29:50.6107709Z   SHOW_FALLBACK_IMAGES: true
+2026-07-03T04:29:50.6107981Z   TOPIC_INPUT: AI in Healthcare 2026 Trends
+2026-07-03T04:29:50.6108303Z   SLUG_INPUT: doc-ai-health-test
+2026-07-03T04:29:50.6108600Z   MODEL_INPUT: deepseek-chat
+2026-07-03T04:29:50.6108908Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T04:29:50.6109346Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib/pkgconfig
+2026-07-03T04:29:50.6109770Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T04:29:50.6110153Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T04:29:50.6110669Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.15/x64
+2026-07-03T04:29:50.6111055Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.15/x64/lib
+2026-07-03T04:29:50.6111392Z ##[endgroup]
+2026-07-03T04:29:50.6167595Z [estimate] Audit should finish in <10s.
+2026-07-03T04:29:50.7641360Z {
+2026-07-03T04:29:50.7641718Z   "ok": false,
+2026-07-03T04:29:50.7642052Z   "issues": [
+2026-07-03T04:29:50.7642455Z     "expected at least 4 retained references, got 0",
+2026-07-03T04:29:50.7643011Z     "expected at least 3 chartable evidence ledger points, got 0",
+2026-07-03T04:29:50.7643968Z     "expected at least 3 exhibits with data_basis, got 0",
+2026-07-03T04:29:50.7644615Z     "expected at least 3 non-metric analytical charts/exhibits, got 2",
+2026-07-03T04:29:50.7645444Z     "expected at least one non-bar analytical exhibit such as line, bubble/scatter or timeline",
+2026-07-03T04:29:50.7646465Z     "exhibit 1 lacks source-backed data_basis: The report starts from a retained public-source base",
+2026-07-03T04:29:50.7647520Z     "exhibit 2 lacks source-backed data_basis: Fact extraction determines which charts are safe to publish",
+2026-07-03T04:29:50.7648831Z     "exhibit 2 is still a research-process/meta chart (\\bfact extraction determines\\b): Fact extraction determines which charts are safe to publish",
+2026-07-03T04:29:50.7649735Z     "exhibit 3 lacks source-backed data_basis: Evidence gaps should become explicit validation work",
+2026-07-03T04:29:50.7650243Z     "HTML missing visible exhibit source drilldown",
+2026-07-03T04:29:50.7650910Z     "HTML contains removed standalone module label: Source base"
+2026-07-03T04:29:50.7651260Z   ],
+2026-07-03T04:29:50.7651453Z   "metrics": {
+2026-07-03T04:29:50.7651740Z     "report_dir": "reports_web/2026-07-03-doc-ai-health-test",
+2026-07-03T04:29:50.7652074Z     "sections": 5,
+2026-07-03T04:29:50.7652295Z     "exhibits": 3,
+2026-07-03T04:29:50.7652504Z     "takeaways": 3,
+2026-07-03T04:29:50.7652718Z     "actions": 5,
+2026-07-03T04:29:50.7652942Z     "references": 0,
+2026-07-03T04:29:50.7653185Z     "evidence_ledger_points": 0,
+2026-07-03T04:29:50.7653448Z     "chart_data_needs": 7,
+2026-07-03T04:29:50.7653702Z     "data_backed_exhibits": 0,
+2026-07-03T04:29:50.7653947Z     "sources": 0,
+2026-07-03T04:29:50.7654172Z     "fact_pack_sources": 0,
+2026-07-03T04:29:50.7654417Z     "storyline_keys": [
+2026-07-03T04:29:50.7654655Z       "central_thesis",
+2026-07-03T04:29:50.7654879Z       "charting_rule",
+2026-07-03T04:29:50.7655103Z       "core_question",
+2026-07-03T04:29:50.7655328Z       "evidence_must_cover",
+2026-07-03T04:29:50.7655868Z       "exhibit_narrative_rule",
+2026-07-03T04:29:50.7656125Z       "hypotheses_to_test",
+2026-07-03T04:29:50.7656393Z       "market_sizing_logic",
+2026-07-03T04:29:50.7656632Z       "narrative_focus",
+2026-07-03T04:29:50.7656865Z       "structure_logic"
+2026-07-03T04:29:50.7657084Z     ],
+2026-07-03T04:29:50.7657301Z     "publication_contract_keys": [
+2026-07-03T04:29:50.7657569Z       "architecture",
+2026-07-03T04:29:50.7657803Z       "client_visible_contract",
+2026-07-03T04:29:50.7658057Z       "root_cause"
+2026-07-03T04:29:50.7658273Z     ],
+2026-07-03T04:29:50.7658470Z     "html_chars": 14275,
+2026-07-03T04:29:50.7658709Z     "payload_keys": [
+2026-07-03T04:29:50.7658926Z       "action_steps",
+2026-07-03T04:29:50.7659143Z       "authors",
+2026-07-03T04:29:50.7659368Z       "category",
+2026-07-03T04:29:50.7659577Z       "dek",
+2026-07-03T04:29:50.7659785Z       "disclaimer",
+2026-07-03T04:29:50.7660009Z       "evidence_quality",
+2026-07-03T04:29:50.7660252Z       "exhibits",
+2026-07-03T04:29:50.7660652Z       "intro",
+2026-07-03T04:29:50.7660863Z       "key_takeaways",
+2026-07-03T04:29:50.7661086Z       "methodology",
+2026-07-03T04:29:50.7661318Z       "published_date",
+2026-07-03T04:29:50.7661556Z       "read_time_minutes",
+2026-07-03T04:29:50.7661785Z       "references",
+2026-07-03T04:29:50.7661996Z       "sections",
+2026-07-03T04:29:50.7662201Z       "source_count",
+2026-07-03T04:29:50.7662409Z       "title"
+2026-07-03T04:29:50.7662605Z     ],
+2026-07-03T04:29:50.7662819Z     "takeaway_candidate_counts": {
+2026-07-03T04:29:50.7663090Z       "key_takeaways": 3
+2026-07-03T04:29:50.7663310Z     },
+2026-07-03T04:29:50.7663521Z     "narrative_ready_chart_needs": 7,
+2026-07-03T04:29:50.7663792Z     "exhibit_types": [
+2026-07-03T04:29:50.7664007Z       "bar",
+2026-07-03T04:29:50.7664209Z       "matrix",
+2026-07-03T04:29:50.7664416Z       "metric_row"
+2026-07-03T04:29:50.7664617Z     ],
+2026-07-03T04:29:50.7664819Z     "non_metric_exhibits": 2,
+2026-07-03T04:29:50.7665260Z     "consecutive_exhibit_pairs": 0
+2026-07-03T04:29:50.7665520Z   }
+2026-07-03T04:29:50.7665705Z }
+2026-07-03T04:29:50.7822617Z ##[error]Process completed with exit code 1.
