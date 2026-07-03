@@ -381,14 +381,24 @@ async def revise_section(
     if not target_section:
         return error_response(message="Section not found in report")
 
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
-    new_text = f"[AI Revision based on: {req.instructions}] {original_text} (simulated update)"
-
-    if api_key:
+    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
+        new_text = f"[AI Revision based on: {req.instructions}] {original_text} (simulated update)"
+    else:
         try:
             is_groq = "gsk_" in api_key
-            url = "https://api.groq.com/openai/v1/chat/completions" if is_groq else "https://api.deepseek.com/chat/completions"
-            model = "llama-3.3-70b-versatile" if is_groq else "deepseek-chat"
+            is_openai = api_key.startswith("sk-") and "deepseek" not in os.getenv("OPENAI_API_KEY", "")
+            
+            if is_groq:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+                model = "llama-3.3-70b-versatile"
+            elif is_openai:
+                url = "https://api.openai.com/v1/chat/completions"
+                model = "gpt-4o-mini"
+            else:
+                url = "https://api.deepseek.com/chat/completions"
+                model = "deepseek-chat"
             
             headers = {
                 "Authorization": f"Bearer {api_key}",
@@ -407,8 +417,10 @@ async def revise_section(
                 if resp.status_code == 200:
                     data = resp.json()
                     new_text = data["choices"][0]["message"]["content"].strip()
+                else:
+                    return error_response(message=f"AI API failed with status {resp.status_code}: {resp.text}")
         except Exception as e:
-            print(f"AI API failed: {e}")
+            return error_response(message=f"AI API request failed: {str(e)}")
 
     # Update the section
     target_section["body"] = new_text
@@ -484,14 +496,24 @@ async def ai_edit_block(
         prompt_instruction = "Completely regenerate the following text, providing a fresh perspective."
 
     # Call AI (DeepSeek or Groq if available)
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
-    new_text = f"[AI {req.action.capitalize()}] {original_text} (simulated update)"
+    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
 
-    if api_key:
+    if not api_key:
+        new_text = f"[AI {req.action.capitalize()}] {original_text} (simulated update)"
+    else:
         try:
             is_groq = "gsk_" in api_key
-            url = "https://api.groq.com/openai/v1/chat/completions" if is_groq else "https://api.deepseek.com/chat/completions"
-            model = "llama-3.3-70b-versatile" if is_groq else "deepseek-chat"
+            is_openai = api_key.startswith("sk-") and "deepseek" not in os.getenv("OPENAI_API_KEY", "")
+            
+            if is_groq:
+                url = "https://api.groq.com/openai/v1/chat/completions"
+                model = "llama-3.3-70b-versatile"
+            elif is_openai:
+                url = "https://api.openai.com/v1/chat/completions"
+                model = "gpt-4o-mini"
+            else:
+                url = "https://api.deepseek.com/chat/completions"
+                model = "deepseek-chat"
             
             headers = {
                 "Authorization": f"Bearer {api_key}",
@@ -509,8 +531,10 @@ async def ai_edit_block(
                 if resp.status_code == 200:
                     data = resp.json()
                     new_text = data["choices"][0]["message"]["content"].strip()
+                else:
+                    return error_response(message=f"AI API failed with status {resp.status_code}: {resp.text}")
         except Exception as e:
-            print(f"AI API failed: {e}")
+            return error_response(message=f"AI API request failed: {str(e)}")
 
     # Find the paragraph in the report content and replace it
     updated = False
