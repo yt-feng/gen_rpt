@@ -88,7 +88,6 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
-          set -euo pipefail
           TOPIC="$TOPIC_INPUT"
           SLUG="$SLUG_INPUT"
           MODEL="$MODEL_INPUT"
@@ -96,23 +95,37 @@ jobs:
           mkdir -p reports_web
           GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
           
+          # Run the generation script — capture exit code rather than letting
+          # set -e kill the step. The script sometimes exits non-zero even
+          # after a successful report (soft warning at cleanup), so we validate
+          # success by checking for the actual output files instead.
+          set +e
           python -u -m gen_rpt.main_web \
             --topic "$TOPIC" \
             --slug "$SLUG" \
             --language en \
             --model "$MODEL" \
             --out-root reports_web > "$GEN_LOG" 2>&1
+          GEN_EXIT=$?
+          set -e
 
-          REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
-          if [ -z "$REPORT_DIR" ]; then
-            echo "::error::Could not locate generated report directory" >&2
+          # Always print the log so the step output is visible
+          cat "$GEN_LOG" || true
+
+          # Validate success by checking that the report files actually exist
+          REPORT_MD="$(find reports_web -maxdepth 3 -name "report.md" | sort -r | head -1 || true)"
+          if [ -z "$REPORT_MD" ]; then
+            echo "::error::Generation failed — report.md not found. Generation exit code: $GEN_EXIT" >&2
             exit 1
           fi
-          
+
+          REPORT_DIR="$(dirname "$REPORT_MD")"
           REPORT_ID="$(basename "$REPORT_DIR")"
+
           echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
-          echo "report_id=$REPORT_ID" >> "$GITHUB_OUTPUT"
-          echo "document_id=$SLUG" >> "$GITHUB_OUTPUT"
+          echo "report_id=$REPORT_ID"   >> "$GITHUB_OUTPUT"
+          echo "document_id=$SLUG"      >> "$GITHUB_OUTPUT"
+          echo "Generation succeeded. Report dir: $REPORT_DIR"
 
       # NOTE: No Git Commit Step here. Makes workflow stateless & concurrent.
 
