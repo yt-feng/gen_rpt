@@ -196,14 +196,40 @@ class PublishOrchestrator:
     # ------------------------------------------------------------------
     # Helper: resolve PDF and cover image R2 paths from mock report
     # ------------------------------------------------------------------
-    def _resolve_file_paths(self, report: dict) -> Dict[str, Optional[str]]:
+    async def _resolve_file_paths(self, db: AsyncSession, report: dict, report_id: str) -> Dict[str, Optional[str]]:
         """
         Resolves R2 paths for PDF and cover image.
         In the current mock-mode system, we look for these keys in the report dict.
         In production, these would be retrieved from DocumentFile records.
         """
+        pdf_path = report.get("pdfPath") or report.get("snapshot_pdf_url")
+        
+        # Override with latest PdfRelease storage path if available
+        try:
+            import uuid
+            import hashlib
+            from sqlalchemy import select
+            from app.models.pdf_release import PdfRelease
+            
+            try:
+                doc_uuid = uuid.UUID(report_id)
+            except ValueError:
+                m = hashlib.md5()
+                m.update(report_id.encode("utf-8"))
+                doc_uuid = uuid.UUID(m.hexdigest())
+
+            stmt = select(PdfRelease.storage_path).where(
+                PdfRelease.document_id == doc_uuid,
+                PdfRelease.is_active == True
+            )
+            res = await db.scalar(stmt)
+            if res:
+                pdf_path = res
+        except Exception as e:
+            logger.warning(f"Failed to fetch latest PdfRelease path for {report_id}: {e}")
+
         return {
-            "pdf_path": report.get("pdfPath") or report.get("snapshot_pdf_url"),
+            "pdf_path": pdf_path,
             "cover_path": report.get("coverImagePath") or settings.GATEX_DEFAULT_COVER_PATH or None,
         }
 
@@ -286,7 +312,7 @@ class PublishOrchestrator:
 
         try:
             # ---- Steps 4–5: Fetch files from R2 ----
-            paths = self._resolve_file_paths(report)
+            paths = await self._resolve_file_paths(db, report, report_id)
             pdf_path = paths.get("pdf_path")
             cover_path = paths.get("cover_path")
 
