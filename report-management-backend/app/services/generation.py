@@ -70,32 +70,48 @@ class GitHubActionsWorker(WorkerInterface):
 async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
     """
     Tries to load the web_report_payload.json from R2 to get real report content.
-    Falls back to a minimal stub if not found.
+    The GitHub Actions workflow often prepends a date (YYYY-MM-DD-) to the slug in R2.
     """
     from app.storage.provider import storage_provider
     import json
+    from anyio import to_thread
+    
+    if not storage_provider.is_configured:
+        return {}
 
-    # The upload_report.py stores under reports/{slug}/metadata/web_report_payload.json
-    payload_path = f"reports/{slug}/metadata/web_report_payload.json"
-    try:
-        data = await storage_provider.download(payload_path)
-        if data:
-            payload = json.loads(data.decode("utf-8"))
-            print(f"[poll_r2] Loaded payload from R2: {payload_path}")
-            return payload
-    except Exception as e:
-        print(f"[poll_r2] Could not load payload from {payload_path}: {e}")
+    def _find_and_download():
+        try:
+            # Check reports/
+            res = storage_provider.s3_client.list_objects_v2(
+                Bucket=storage_provider.bucket, Prefix='reports/', Delimiter='/'
+            )
+            for prefix_obj in res.get('CommonPrefixes', []):
+                folder = prefix_obj['Prefix']
+                if slug in folder:
+                    path = f"{folder}metadata/web_report_payload.json"
+                    response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
+                    return response['Body'].read()
+                    
+            # Check reports_web/
+            res2 = storage_provider.s3_client.list_objects_v2(
+                Bucket=storage_provider.bucket, Prefix='reports_web/', Delimiter='/'
+            )
+            for prefix_obj in res2.get('CommonPrefixes', []):
+                folder = prefix_obj['Prefix']
+                if slug in folder:
+                    path = f"{folder}web_report_payload.json"
+                    response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
+                    return response['Body'].read()
+        except Exception as e:
+            print(f"[poll_r2] Error finding payload for {slug}: {e}")
+        return None
 
-    # Also try the reports_web path (in case it was uploaded there)
-    payload_path2 = f"reports_web/{slug}/web_report_payload.json"
-    try:
-        data = await storage_provider.download(payload_path2)
-        if data:
-            payload = json.loads(data.decode("utf-8"))
-            print(f"[poll_r2] Loaded payload from R2: {payload_path2}")
-            return payload
-    except Exception as e:
-        print(f"[poll_r2] Could not load payload from {payload_path2}: {e}")
+    data = await to_thread.run_sync(_find_and_download)
+    if data:
+        try:
+            return json.loads(data.decode("utf-8"))
+        except Exception as e:
+            print(f"[poll_r2] Failed to parse payload for {slug}: {e}")
 
     return {}
 
