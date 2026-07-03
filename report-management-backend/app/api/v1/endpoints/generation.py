@@ -183,6 +183,7 @@ class BulkJobItem(BaseModel):
 
 class BulkCreateRequest(BaseModel):
     jobs: List[BulkJobItem]
+    limit: Optional[int] = None
 
 @router.post("/bulk", response_model=APIResponse[dict])
 async def create_bulk_jobs(
@@ -205,7 +206,10 @@ async def create_bulk_jobs(
     if not req.jobs:
         return error_response(message="No jobs provided")
 
-    items = req.jobs[:MAX_CONCURRENT_BULK]
+    user_limit = min(req.limit, MAX_CONCURRENT_BULK) if req.limit is not None else MAX_CONCURRENT_BULK
+    user_limit = max(1, user_limit)
+
+    items = req.jobs[:user_limit]
     overflow = len(req.jobs) - len(items)
 
     created = []
