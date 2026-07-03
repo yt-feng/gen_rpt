@@ -1,0 +1,529 @@
+{
+  "objective": "To map the current state and strategic outlook of China-Europe economic relations, identify key sectors and dependencies, and assess implications for global business strategy.",
+  "audience": "Senior executives and strategists in multinational corporations, investment firms, and policy advisory bodies.",
+  "decision_question": "How should multinational corporations adjust their China-Europe strategy in response to evolving economic relations over the next 3-5 years?",
+  "issue_tree": {
+    "root": "China-Europe Economic Relations",
+    "branches": [
+      {
+        "name": "Trade Flows",
+        "sub_branches": [
+          "Bilateral trade volume and balance",
+          "Key traded goods and services",
+          "Tariff and non-tariff barriers"
+        ]
+      },
+      {
+        "name": "Investment",
+        "sub_branches": [
+          "FDI flows (both directions)",
+          "Sectoral distribution",
+          "Regulatory environment"
+        ]
+      },
+      {
+        "name": "Technology & Innovation",
+        "sub_branches": [
+          "R&D collaboration",
+          "Technology transfer",
+          "Digital economy and data flows"
+        ]
+      },
+      {
+        "name": "Finance & Monetary",
+        "sub_branches": [
+          "Currency swap agreements",
+          "Financial market integration",
+          "Belt and Road Initiative financing"
+        ]
+      },
+      {
+        "name": "Geopolitical Factors",
+        "sub_branches": [
+          "EU-China strategic dialogue",
+          "US-China tensions impact",
+          "Human rights and sanctions"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "China's share of EU imports has plateaued since 2022 due to diversification strategies and geopolitical tensions.",
+      "decision_relevance": "Affects sourcing and supply chain decisions for European firms.",
+      "needed_evidence": [
+        "EU import data from Eurostat showing China's share over time; evidence of diversification (e.g., Vietnam, India)."
+      ],
+      "search_queries": [
+        "EU imports from China share 2022 2023 2024",
+        "Eurostat China share of extra-EU imports",
+        "EU trade diversification from China"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Chinese FDI in Europe has shifted from M&A to greenfield investments in EV and battery sectors.",
+      "decision_relevance": "Impacts competitive dynamics in European automotive and energy storage markets.",
+      "needed_evidence": [
+        "FDI data from China Ministry of Commerce, fDi Markets, and reports on Chinese EV battery investments in Europe."
+      ],
+      "search_queries": [
+        "Chinese FDI in Europe greenfield EV battery",
+        "China Ministry of Commerce outward FDI Europe",
+        "fDi Markets Chinese investment Europe"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "EU's anti-subsidy investigation on Chinese EVs will lead to tariff increases that reduce Chinese EV market share in Europe by 10-15% by 2026.",
+      "decision_relevance": "Affects pricing, market entry, and investment decisions for automakers.",
+      "needed_evidence": [
+        "EU investigation details, tariff rates, Chinese EV sales in Europe, and impact estimates."
+      ],
+      "search_queries": [
+        "EU anti-subsidy investigation Chinese EVs tariff",
+        "Chinese EV market share Europe 2023 2024",
+        "impact of EU tariffs on Chinese EVs"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China-Europe cooperation in green finance has accelerated, with China issuing more green bonds in euros.",
+      "decision_relevance": "Opportunities for financial institutions and green project financing.",
+      "needed_evidence": [
+        "Green bond issuance data from Climate Bonds Initiative, PBOC, and EU sustainable finance reports."
+      ],
+      "search_queries": [
+        "China green bond issuance in euros",
+        "Climate Bonds Initiative China green bonds",
+        "EU-China green finance cooperation"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly increase costs for Chinese steel and aluminum exports to Europe.",
+      "decision_relevance": "Impacts pricing and competitiveness of Chinese industrial exports.",
+      "needed_evidence": [
+        "CBAM implementation details, Chinese export volumes of steel/aluminum to EU, carbon intensity data."
+      ],
+      "search_queries": [
+        "CBAM impact on Chinese steel exports",
+        "China steel exports to EU carbon intensity",
+        "EU CBAM Chinese aluminum"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "China's Belt and Road Initiative (BRI) investments in Europe have declined since 2021 due to EU scrutiny and geopolitical risks.",
+      "decision_relevance": "Affects infrastructure and logistics projects in Europe.",
+      "needed_evidence": [
+        "BRI investment data from American Enterprise Institute's China Global Investment Tracker, EU policy statements."
+      ],
+      "search_queries": [
+        "China Belt and Road investment Europe 2021 2022 2023",
+        "AEI China Global Investment Tracker Europe",
+        "EU scrutiny of BRI projects"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Chinese tech companies are increasing R&D centers in Europe to circumvent technology transfer restrictions.",
+      "decision_relevance": "Impacts innovation ecosystems and talent competition.",
+      "needed_evidence": [
+        "Announcements of R&D centers by Chinese firms in Europe, patent filings, and R&D expenditure data."
+      ],
+      "search_queries": [
+        "Chinese tech R&D centers Europe 2023 2024",
+        "Huawei R&D investment Europe",
+        "Chinese patent filings in Europe"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total bilateral trade = EU imports from China + EU exports to China",
+        "variables": [
+          "EU imports from China (Eurostat)",
+          "EU exports to China (Eurostat)"
+        ],
+        "preferred_sources": [
+          "Eurostat Comext",
+          "China Customs Statistics"
+        ],
+        "search_queries": [
+          "EU imports from China 2023 Eurostat",
+          "China exports to EU 2023 customs"
+        ],
+        "known_limitations": [
+          "Does not capture services trade",
+          "Currency fluctuations"
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Sum of trade in key sectors (e.g., machinery, vehicles, chemicals) using product-level data",
+        "variables": [
+          "HS code level trade data for top 10 sectors"
+        ],
+        "preferred_sources": [
+          "UN Comtrade",
+          "Eurostat"
+        ],
+        "search_queries": [
+          "EU China trade machinery HS84",
+          "EU China vehicle trade HS87"
+        ],
+        "known_limitations": [
+          "Data granularity may be limited",
+          "Time lag in reporting"
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Market share of Chinese EVs in Europe = (Chinese EV sales in EU) / (Total EV sales in EU)",
+        "variables": [
+          "Chinese EV sales (e.g., BYD, SAIC)",
+          "Total EV sales (ACEA)"
+        ],
+        "preferred_sources": [
+          "ACEA",
+          "InsideEVs",
+          "MarkLines"
+        ],
+        "search_queries": [
+          "Chinese EV sales Europe 2023",
+          "ACEA EV market share 2023"
+        ],
+        "known_limitations": [
+          "Sales data may not include all brands",
+          "Definition of Chinese vs. European brands"
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Total value of Chinese FDI in Europe = sum of M&A and greenfield investments",
+        "variables": [
+          "M&A deal values (Refinitiv)",
+          "Greenfield project values (fDi Markets)"
+        ],
+        "preferred_sources": [
+          "Refinitiv",
+          "fDi Markets",
+          "China Ministry of Commerce"
+        ],
+        "search_queries": [
+          "Chinese M&A Europe 2023 value",
+          "fDi Markets Chinese greenfield Europe"
+        ],
+        "known_limitations": [
+          "Deal values may be undisclosed",
+          "Greenfield estimates vary"
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Capacity of Chinese battery factories in Europe = sum of announced production capacities",
+        "variables": [
+          "Announced capacity (GWh) from CATL, BYD, etc."
+        ],
+        "preferred_sources": [
+          "Company announcements",
+          "Benchmark Mineral Intelligence"
+        ],
+        "search_queries": [
+          "CATL battery factory Hungary capacity",
+          "Chinese battery gigafactories Europe"
+        ],
+        "known_limitations": [
+          "Announced capacity may not be realized",
+          "Timeline uncertainty"
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "Eurostat China EU trade statistics 2023",
+    "China Customs Statistics EU exports 2023",
+    "ACEA new car registrations by brand Europe 2023",
+    "Chinese FDI in Europe 2023 fDi Markets",
+    "EU anti-subsidy investigation Chinese electric vehicles timeline",
+    "CBAM carbon border adjustment mechanism steel aluminum",
+    "China green bond issuance in euros 2023",
+    "Belt and Road Initiative Europe investment tracker",
+    "Chinese battery gigafactories Europe capacity",
+    "EU-China technology transfer restrictions",
+    "China Ministry of Commerce outward FDI report",
+    "Refinitiv Chinese M&A Europe 2023",
+    "Climate Bonds Initiative China green bonds",
+    "American Enterprise Institute China Global Investment Tracker Europe",
+    "Huawei R&D centers Europe 2023",
+    "BYD Europe sales 2023",
+    "EU imports from China share 2022 2023 2024",
+    "Eurostat China share of extra-EU imports"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Eurostat",
+      "China Customs",
+      "ACEA",
+      "fDi Markets",
+      "Refinitiv",
+      "China Ministry of Commerce"
+    ],
+    "secondary": [
+      "UN Comtrade",
+      "World Bank",
+      "IMF",
+      "OECD",
+      "European Commission"
+    ],
+    "tertiary": [
+      "McKinsey",
+      "BCG",
+      "Deloitte reports",
+      "Financial Times",
+      "Reuters",
+      "Caixin"
+    ],
+    "validation": [
+      "Cross-reference trade data from both EU and China sources",
+      "Use multiple sources for FDI data"
+    ]
+  },
+  "outline": [
+    "1. Executive Summary: China-Europe economic relations are at a strategic inflection point, with trade plateauing, investment shifting, and technology competition intensifying.",
+    "2. Trade Dynamics: Bilateral trade has peaked; diversification and tariffs are reshaping flows.",
+    "3. Investment Trends: Chinese FDI is pivoting from M&A to greenfield in EVs and batteries; European FDI in China faces headwinds.",
+    "4. Technology and Innovation: Cooperation in green tech and digital economy is growing, but restrictions on sensitive tech are tightening.",
+    "5. Geopolitical and Regulatory Landscape: EU's CBAM, anti-subsidy probes, and human rights concerns are creating new barriers.",
+    "6. Strategic Implications for Multinationals: Companies must hedge, localize, and invest in compliance and innovation to navigate the new normal."
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "China's Share of EU Imports (2019-2024)",
+      "type": "line chart",
+      "question": "Has China's share plateaued?",
+      "data_source": "Eurostat"
+    },
+    {
+      "title": "Chinese FDI in Europe by Sector (2020-2024)",
+      "type": "stacked bar chart",
+      "question": "Which sectors are attracting Chinese investment?",
+      "data_source": "fDi Markets, Refinitiv"
+    },
+    {
+      "title": "Impact of EU Tariffs on Chinese EV Market Share",
+      "type": "waterfall chart",
+      "question": "How much market share could Chinese EVs lose?",
+      "data_source": "ACEA, tariff scenarios"
+    },
+    {
+      "title": "CBAM Cost Impact on Chinese Steel Exports",
+      "type": "heatmap",
+      "question": "Which Chinese steel products are most exposed?",
+      "data_source": "Eurostat, carbon intensity data"
+    },
+    {
+      "title": "Timeline of Key Policy Events (2020-2025)",
+      "type": "Gantt chart",
+      "question": "What are the critical decision points?",
+      "data_source": "European Commission, Chinese government announcements"
+    }
+  ],
+  "risks": [
+    "Data availability: Some Chinese data may be opaque or delayed.",
+    "Geopolitical volatility: Sudden policy changes (e.g., sanctions) could invalidate assumptions.",
+    "Counter-evidence: Hypotheses may be disproven if trade or investment trends reverse.",
+    "Numbers needed: Trade volumes, FDI values, market shares, tariff rates, carbon costs.",
+    "Cases needed: Specific company examples (e.g., BYD, CATL, Huawei) to illustrate trends.",
+    "Timeline evidence: Dates of policy announcements, investment commitments, and market entries.",
+    "Counter-evidence: Look for data showing continued growth in China-EU trade or investment despite tensions."
+  ]
+}

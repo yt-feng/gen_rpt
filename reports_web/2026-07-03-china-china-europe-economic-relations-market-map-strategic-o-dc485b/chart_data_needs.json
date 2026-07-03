@@ -1,0 +1,220 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "China's Share of EU Imports (2019-2024)",
+    "chart_type": "line",
+    "executive_question": "Has China's share of EU imports plateaued since 2022?",
+    "required_metrics": [
+      "Year: 2019, 2020, 2021, 2022, 2023, 2024",
+      "Value: China's share of extra-EU imports (percentage)",
+      "Unit: %",
+      "Entity: EU27 (or EU28 pre-Brexit)",
+      "Segment: Total goods imports"
+    ],
+    "comparison_set": [
+      "None (single series); optionally add EU imports from Vietnam or India for diversification context."
+    ],
+    "preferred_sources": [
+      "Eurostat Comext",
+      "Eurostat news releases"
+    ],
+    "search_queries": [
+      "Eurostat China share of extra-EU imports 2019 2020 2021 2022 2023",
+      "China share of EU imports percentage 2024 Eurostat"
+    ],
+    "data_quality_rule": "Use official Eurostat data; if 2024 data is incomplete, use first three quarters annualized. If only two endpoints available, estimate intermediate values using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provide evidence for the claim that trade diversification and geopolitical tensions have halted China's import share growth.",
+    "pre_exhibit_context": "The report argues that China's share of EU imports has plateaued. This exhibit tests that hypothesis with annual data.",
+    "post_exhibit_takeaway": "If the share is flat or declining, it supports the plateau thesis; if still rising, the hypothesis needs revision."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Chinese FDI in Europe by Sector (2020-2024)",
+    "chart_type": "bar",
+    "executive_question": "Which sectors are attracting Chinese investment and how has the mix changed?",
+    "required_metrics": [
+      "Year: 2020, 2021, 2022, 2023, 2024",
+      "Value: FDI amount (USD millions)",
+      "Unit: USD millions",
+      "Entity: Chinese investment in EU27+UK",
+      "Segment: By sector (e.g., automotive, batteries, technology, infrastructure) and by type (M&A vs greenfield)"
+    ],
+    "comparison_set": [
+      "Sectors compared within each year; optionally compare M&A vs greenfield totals."
+    ],
+    "preferred_sources": [
+      "fDi Markets",
+      "Refinitiv",
+      "China Ministry of Commerce"
+    ],
+    "search_queries": [
+      "Chinese FDI in Europe by sector 2020 2021 2022 2023 fDi Markets",
+      "Chinese greenfield investment Europe EV battery 2023 2024"
+    ],
+    "data_quality_rule": "Use fDi Markets for greenfield, Refinitiv for M&A; if sector breakdown incomplete, use top 5 sectors. Mark estimates if data is partial.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show the shift from M&A to greenfield in EV and battery sectors.",
+    "pre_exhibit_context": "The report claims Chinese FDI is pivoting to greenfield in EVs and batteries. This exhibit breaks down FDI by sector and type.",
+    "post_exhibit_takeaway": "If EV/battery greenfield dominates recent years, the pivot is confirmed; if M&A still leads, the hypothesis is weak."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Impact of EU Tariffs on Chinese EV Market Share",
+    "chart_type": "line",
+    "executive_question": "How much market share could Chinese EVs lose due to EU anti-subsidy tariffs?",
+    "required_metrics": [
+      "Year: 2022, 2023, 2024, 2025, 2026",
+      "Value: Chinese EV market share in EU (percentage of total EV sales)",
+      "Unit: %",
+      "Entity: EU27",
+      "Segment: Battery electric vehicles (BEVs) only"
+    ],
+    "comparison_set": [
+      "Baseline scenario (no tariff) vs tariff scenario."
+    ],
+    "preferred_sources": [
+      "ACEA",
+      "InsideEVs",
+      "MarkLines",
+      "European Commission tariff announcements"
+    ],
+    "search_queries": [
+      "Chinese EV market share Europe 2022 2023 2024 ACEA",
+      "EU anti-subsidy tariff Chinese EVs impact estimate 2025 2026"
+    ],
+    "data_quality_rule": "Use actual sales data for 2022-2024; for 2025-2026, use public forecasts or estimate using CAGR from 2022-2024 and apply tariff elasticity. Mark forecast years as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantify the potential impact of tariff increases on Chinese EV market share in Europe.",
+    "pre_exhibit_context": "The report hypothesizes that EU tariffs will reduce Chinese EV market share by 10-15% by 2026. This exhibit models the impact.",
+    "post_exhibit_takeaway": "If the model shows a 10-15% drop, the hypothesis is supported; if less, the impact may be overstated."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "CBAM Cost Impact on Chinese Steel Exports",
+    "chart_type": "matrix",
+    "executive_question": "Which Chinese steel products are most exposed to CBAM costs?",
+    "required_metrics": [
+      "Year: 2023 (or latest available)",
+      "Value: Export volume (tonnes) and carbon intensity (kg CO2 per tonne)",
+      "Unit: Tonnes, kg CO2/tonne",
+      "Entity: China",
+      "Segment: By HS code (e.g., 7208, 7209, 7210) and by EU importing country"
+    ],
+    "comparison_set": [
+      "Products compared by carbon intensity and export volume."
+    ],
+    "preferred_sources": [
+      "Eurostat Comext",
+      "World Steel Association",
+      "European Commission CBAM impact assessment"
+    ],
+    "search_queries": [
+      "Chinese steel exports to EU by HS code 2023 volume",
+      "carbon intensity Chinese steel production kg CO2 per tonne"
+    ],
+    "data_quality_rule": "Use official trade data for volumes; carbon intensity from World Steel Association or academic sources. If product-level carbon data unavailable, use sector averages.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identify the products and countries most affected by the Carbon Border Adjustment Mechanism.",
+    "pre_exhibit_context": "The report claims CBAM will significantly increase costs for Chinese steel and aluminum. This exhibit maps the exposure.",
+    "post_exhibit_takeaway": "If certain products (e.g., flat-rolled steel) have high carbon intensity and export volume, they are most at risk."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Chinese Battery Gigafactory Capacity in Europe (2022-2026)",
+    "chart_type": "bar",
+    "executive_question": "How much battery production capacity are Chinese companies building in Europe?",
+    "required_metrics": [
+      "Year: 2022, 2023, 2024, 2025, 2026",
+      "Value: Announced production capacity (GWh)",
+      "Unit: GWh",
+      "Entity: Chinese companies (CATL, BYD, SVOLT, etc.)",
+      "Segment: By company and by country (Hungary, Germany, etc.)"
+    ],
+    "comparison_set": [
+      "Companies compared; optionally add total European battery demand."
+    ],
+    "preferred_sources": [
+      "Company announcements",
+      "Benchmark Mineral Intelligence",
+      "Transport & Environment"
+    ],
+    "search_queries": [
+      "CATL battery factory Hungary capacity GWh 2023",
+      "Chinese battery gigafactories Europe announced capacity 2024 2025"
+    ],
+    "data_quality_rule": "Use announced capacities from company press releases; if actual production data unavailable, use announced. Mark as 'announced' not 'operational'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show the scale and timeline of Chinese investment in European battery manufacturing.",
+    "pre_exhibit_context": "The report highlights Chinese FDI in EV batteries. This exhibit quantifies the capacity buildout.",
+    "post_exhibit_takeaway": "If capacity is large and growing, it confirms the greenfield pivot; if delayed, the impact may be slower."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Timeline of Key Policy Events Affecting China-Europe Economic Relations (2020-2025)",
+    "chart_type": "timeline",
+    "executive_question": "What are the critical policy milestones and decision points?",
+    "required_metrics": [
+      "Date: Specific dates (month/year)",
+      "Event: Description (e.g., EU anti-subsidy investigation launched, CBAM phase-in starts)",
+      "Entity: EU or China",
+      "Category: Trade, investment, technology, climate"
+    ],
+    "comparison_set": [
+      "None (single timeline)."
+    ],
+    "preferred_sources": [
+      "European Commission press releases",
+      "Chinese government announcements",
+      "Reuters",
+      "Financial Times"
+    ],
+    "search_queries": [
+      "EU anti-subsidy investigation Chinese EVs launch date 2023",
+      "CBAM implementation timeline 2023 2024 2025",
+      "China EU investment agreement ratification 2021"
+    ],
+    "data_quality_rule": "Use official sources for dates; if exact date unavailable, use month/year. Mark uncertain dates with 'approx.'",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provide a chronological context for the strategic outlook.",
+    "pre_exhibit_context": "The report discusses geopolitical and regulatory factors. This exhibit maps the key events.",
+    "post_exhibit_takeaway": "The timeline shows accelerating policy actions, indicating a more restrictive environment."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "China Green Bond Issuance in Euros (2020-2024)",
+    "chart_type": "line",
+    "executive_question": "Has China-Europe cooperation in green finance accelerated?",
+    "required_metrics": [
+      "Year: 2020, 2021, 2022, 2023, 2024",
+      "Value: Total issuance amount (EUR millions)",
+      "Unit: EUR millions",
+      "Entity: Chinese issuers (banks, corporates, sovereign)",
+      "Segment: Green bonds only (use CBI definition)"
+    ],
+    "comparison_set": [
+      "None (single series); optionally compare with total Chinese green bond issuance."
+    ],
+    "preferred_sources": [
+      "Climate Bonds Initiative",
+      "PBOC",
+      "Bloomberg"
+    ],
+    "search_queries": [
+      "China green bond issuance in euros 2020 2021 2022 2023 Climate Bonds Initiative",
+      "Chinese green bonds denominated in euros amount 2024"
+    ],
+    "data_quality_rule": "Use Climate Bonds Initiative data; if 2024 data incomplete, use first three quarters annualized. If only two endpoints, estimate using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provide evidence for the hypothesis that China is issuing more green bonds in euros.",
+    "pre_exhibit_context": "The report claims green finance cooperation is growing. This exhibit tracks euro-denominated green bond issuance by Chinese entities.",
+    "post_exhibit_takeaway": "If issuance is rising, cooperation is deepening; if flat, the hypothesis is weak."
+  }
+]

@@ -1,0 +1,71 @@
+{
+  "topic": "China China-Europe Economic Relations Market Map: Strategic Outlook and Strategic Implications",
+  "objective": "To map the current state and strategic outlook of China-Europe economic relations, identify key sectors and dependencies, and assess implications for global business strategy.",
+  "decision_question": "How should multinational corporations adjust their China-Europe strategy in response to evolving economic relations over the next 3-5 years?",
+  "source_count": 7,
+  "authoritative_source_count": 2,
+  "source_domains": [
+    "bing.com",
+    "iea.org",
+    "energy.gov"
+  ],
+  "source_refs": [
+    "[Source 1][supplement][snippet] Home - Eurostat - Die Europäische Kommission | https://www.bing.com/ck/a?!&&p=4e88817ee01808a687de090cf851089961e71b75fe24864c201dcc9734a1d0e7JmltdHM9MTc4MzAzNjgwMA&ptn=3&ver=2&hsh=4&fclid=36baf923-3461-6f93-2fa1-eea8351b6e66&u=a1aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQv&ntb=1",
+    "[Source 2][supplement][snippet] Database - Eurostat - Die Europäische Kommission | https://www.bing.com/ck/a?!&&p=8257c2320c435dd386f5b6092435c11dfda5019ee3d78ffb17f15b3a99d27bdfJmltdHM9MTc4MzAzNjgwMA&ptn=3&ver=2&hsh=4&fclid=36baf923-3461-6f93-2fa1-eea8351b6e66&u=a1aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvZGF0YS9kYXRhYmFzZQ&ntb=1",
+    "[Source 3][supplement][snippet] EU Statistics and Data - EU Sources and Information - ec-europa-eu ... | https://www.bing.com/ck/a?!&&p=fe120916f41ff2beab6e89dd72b839e1902913d95050a8ca3983adb7c85399d5JmltdHM9MTc4MzAzNjgwMA&ptn=3&ver=2&hsh=4&fclid=36baf923-3461-6f93-2fa1-eea8351b6e66&u=a1aHR0cHM6Ly9lYy1ldXJvcGEtZXUubGliZ3VpZGVzLmNvbS9FVV9zb3VyY2VzL3N0YXRpc3RpY3MtYW5kLWRhdGE&ntb=1",
+    "[Source 4][supplement][snippet] Eurostat - European statistics | https://www.bing.com/ck/a?!&&p=82f1f0493b249222c4cc5ace3d60927f7e347cc033154e6d334b66f05a803b2aJmltdHM9MTc4MzAzNjgwMA&ptn=3&ver=2&hsh=4&fclid=36baf923-3461-6f93-2fa1-eea8351b6e66&u=a1aHR0cHM6Ly9jb21taXNzaW9uLmV1cm9wYS5ldS9hYm91dC9kZXBhcnRtZW50cy1hbmQtZXhlY3V0aXZlLWFnZW5jaWVzL2V1cm9zdGF0LWV1cm9wZWFuLXN0YXRpc3RpY3NfZW4&ntb=1",
+    "[Source 5][supplement][snippet] Data - Eurostat - Die Europäische Kommission | https://www.bing.com/ck/a?!&&p=6f28812a6701cf87d10edbf1e9eede8d74109130cd3ed87986b6a5abd2681464JmltdHM9MTc4MzAzNjgwMA&ptn=3&ver=2&hsh=4&fclid=36baf923-3461-6f93-2fa1-eea8351b6e66&u=a1aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvZGF0YS8&ntb=1",
+    "[Source 6][authoritative][snippet] IEA energy storage | https://www.iea.org/energy-system/electricity/grid-scale-storage",
+    "[Source 7][authoritative][html] U.S. DOE Office of Electricity | https://www.energy.gov/oe/office-electricity"
+  ],
+  "high_confidence_facts": [
+    "[Source 7: U.S. DOE Office of Electricity] The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "[Source 7: U.S. DOE Office of Electricity] Economy Discover how energy affects jobs, markets, investment, and economic growth.",
+    "[Source 7: U.S. DOE Office of Electricity] Federal financing tools Funding opportunities and requests for information State and Tribal Grid Resilience and Transmission Planning Resource Hub Transmission Facilitation Program Learn how the Community Microgrid Assistance Partnership (C-MAP) supports microgrid development in electrically isolated communities.",
+    "[Source 7: U.S. DOE Office of Electricity] Policy & Priorities Main Menu Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 7: U.S. DOE Office of Electricity] Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 7: U.S. DOE Office of Electricity] Policy Understand the laws, regulations, and strategies that guide energy decisions and national priorities.",
+    "[Source 7: U.S. DOE Office of Electricity] The Office of Electricity has released its Strategic Plan , outlining its focus on supporting President Trump’s and Secretary Wright’s administration priorities.",
+    "[Source 7: U.S. DOE Office of Electricity] The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "[Source 7: U.S. DOE Office of Electricity] Department of Energy 1000 Independence Avenue, SW Washington, DC 20585 Committed to Restoring America’s Energy Dominance.",
+    "[Source 7: U.S. DOE Office of Electricity] electric grid test bed inventory aims to capture and summarize information and capabilities available at domestic, publicly accessible facilities (“test beds”) that perform testing, evaluation, validation, and certification of transmission and distribution (T&D) grid technologies.",
+    "[Source 7: U.S. DOE Office of Electricity] Leadership & Organization Main Menu Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 7: U.S. DOE Office of Electricity] Featured Hydrocarbons and Geothermal Energy Office Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 7: U.S. DOE Office of Electricity] Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 3: EU Statistics and Data - EU Sources and Information - ec-europa-eu ...] 1 day ago · Statistics Explained is an official Eurostat website presenting statistical topics in an easily understandable way.",
+    "[Source 7: U.S. DOE Office of Electricity] Public source on grid modernization and storage programs.",
+    "[Source 7: U.S. DOE Office of Electricity] To stabilize, optimize, and grow the electricity system to ensure the grid delivers affordable, reliable, and secure energy to the American people.",
+    "[Source 7: U.S. DOE Office of Electricity] A seamless electricity system, capable of meeting all energy demands, powering the U.",
+    "[Source 7: U.S. DOE Office of Electricity] on a pathway of prosperity, national security, and energy dominance.",
+    "[Source 7: U.S. DOE Office of Electricity] Grid Enhancing Technologies Microgrid Systems Transformer Resilience and Advanced Components (TRAC) Enabling next-generation grid operations and planning through advanced controls, information and communication technologies, and analytics.",
+    "[Source 7: U.S. DOE Office of Electricity] Controls and Data Science Distribution Grid Transformation Grid Cybersecurity and Communications Grid Modeling NAERM Improving the safety, reliability, and performance of energy storage, while making it as cost-effective as possible.",
+    "[Source 7: U.S. DOE Office of Electricity] Through support from Congress, OE invests in research and development to advance grid reliability, grid modernization, transmission deployment, and critical generation facilities.",
+    "[Source 7: U.S. DOE Office of Electricity] Learn how OE uses expert feedback to improve program quality, and the peer reviews to improve project efforts.",
+    "[Source 7: U.S. DOE Office of Electricity] Energy Innovation Driving research and development to shape the future of energy systems and technologies.",
+    "[Source 7: U.S. DOE Office of Electricity] Energy Exports Supporting global energy markets through U."
+  ],
+  "numeric_facts": [
+    "[Source 7: U.S. DOE Office of Electricity] The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "[Source 7: U.S. DOE Office of Electricity] Economy Discover how energy affects jobs, markets, investment, and economic growth.",
+    "[Source 7: U.S. DOE Office of Electricity] Federal financing tools Funding opportunities and requests for information State and Tribal Grid Resilience and Transmission Planning Resource Hub Transmission Facilitation Program Learn how the Community Microgrid Assistance Partnership (C-MAP) supports microgrid development in electrically isolated communities.",
+    "[Source 7: U.S. DOE Office of Electricity] Policy & Priorities Main Menu Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 7: U.S. DOE Office of Electricity] Policy & Priorities View all Policy & Priorities Increase American Energy Production Expanding domestic energy resources to support national needs and economic growth.",
+    "[Source 7: U.S. DOE Office of Electricity] Policy Understand the laws, regulations, and strategies that guide energy decisions and national priorities.",
+    "[Source 7: U.S. DOE Office of Electricity] The Office of Electricity has released its Strategic Plan , outlining its focus on supporting President Trump’s and Secretary Wright’s administration priorities.",
+    "[Source 7: U.S. DOE Office of Electricity] The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "[Source 7: U.S. DOE Office of Electricity] Department of Energy 1000 Independence Avenue, SW Washington, DC 20585 Committed to Restoring America’s Energy Dominance.",
+    "[Source 7: U.S. DOE Office of Electricity] electric grid test bed inventory aims to capture and summarize information and capabilities available at domestic, publicly accessible facilities (“test beds”) that perform testing, evaluation, validation, and certification of transmission and distribution (T&D) grid technologies.",
+    "[Source 7: U.S. DOE Office of Electricity] Leadership & Organization Main Menu Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 7: U.S. DOE Office of Electricity] Featured Hydrocarbons and Geothermal Energy Office Leadership & Organization View all Leadership & Organization Chris Wright Secretary of Energy James Danly Deputy Secretary of Energy Leadership & Organization Pages Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 7: U.S. DOE Office of Electricity] Staff Offices Supporting DOE operations through policy, administration, and mission services.",
+    "[Source 3: EU Statistics and Data - EU Sources and Information - ec-europa-eu ...] 1 day ago · Statistics Explained is an official Eurostat website presenting statistical topics in an easily understandable way.",
+    "[Source 7: U.S. DOE Office of Electricity] Public source on grid modernization and storage programs.",
+    "[Source 7: U.S. DOE Office of Electricity] To stabilize, optimize, and grow the electricity system to ensure the grid delivers affordable, reliable, and secure energy to the American people."
+  ],
+  "dated_facts": [
+    "[Source 7: U.S. DOE Office of Electricity] The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "[Source 7: U.S. DOE Office of Electricity] The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "[Source 7: U.S. DOE Office of Electricity] Department of Energy 1000 Independence Avenue, SW Washington, DC 20585 Committed to Restoring America’s Energy Dominance."
+  ],
+  "validation_issues": []
+}

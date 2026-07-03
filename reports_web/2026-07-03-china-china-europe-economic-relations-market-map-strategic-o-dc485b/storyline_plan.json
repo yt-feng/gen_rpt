@@ -1,0 +1,131 @@
+{
+  "core_question": "How should multinational corporations adjust their China-Europe strategy in response to evolving economic relations over the next 3-5 years?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, market",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "1 day ago · Statistics Explained is an official Eurostat website presenting statistical topics in an easily understandable way."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "China's share of EU imports has plateaued since 2022 due to diversification strategies and geopolitical tensions.",
+      "decision_relevance": "Affects sourcing and supply chain decisions for European firms.",
+      "needed_evidence": [
+        "EU import data from Eurostat showing China's share over time; evidence of diversification (e.g., Vietnam, India)."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Chinese FDI in Europe has shifted from M&A to greenfield investments in EV and battery sectors.",
+      "decision_relevance": "Impacts competitive dynamics in European automotive and energy storage markets.",
+      "needed_evidence": [
+        "FDI data from China Ministry of Commerce, fDi Markets, and reports on Chinese EV battery investments in Europe."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "EU's anti-subsidy investigation on Chinese EVs will lead to tariff increases that reduce Chinese EV market share in Europe by 10-15% by 2026.",
+      "decision_relevance": "Affects pricing, market entry, and investment decisions for automakers.",
+      "needed_evidence": [
+        "EU investigation details, tariff rates, Chinese EV sales in Europe, and impact estimates."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China-Europe cooperation in green finance has accelerated, with China issuing more green bonds in euros.",
+      "decision_relevance": "Opportunities for financial institutions and green project financing.",
+      "needed_evidence": [
+        "Green bond issuance data from Climate Bonds Initiative, PBOC, and EU sustainable finance reports."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly increase costs for Chinese steel and aluminum exports to Europe.",
+      "decision_relevance": "Impacts pricing and competitiveness of Chinese industrial exports.",
+      "needed_evidence": [
+        "CBAM implementation details, Chinese export volumes of steel/aluminum to EU, carbon intensity data."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "China's Belt and Road Initiative (BRI) investments in Europe have declined since 2021 due to EU scrutiny and geopolitical risks.",
+      "decision_relevance": "Affects infrastructure and logistics projects in Europe.",
+      "needed_evidence": [
+        "BRI investment data from American Enterprise Institute's China Global Investment Tracker, EU policy statements."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Chinese tech companies are increasing R&D centers in Europe to circumvent technology transfer restrictions.",
+      "decision_relevance": "Impacts innovation ecosystems and talent competition.",
+      "needed_evidence": [
+        "Announcements of R&D centers by Chinese firms in Europe, patent filings, and R&D expenditure data."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total bilateral trade = EU imports from China + EU exports to China",
+      "variables": [
+        "EU imports from China (Eurostat)",
+        "EU exports to China (Eurostat)"
+      ],
+      "known_limitations": [
+        "Does not capture services trade",
+        "Currency fluctuations"
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Sum of trade in key sectors (e.g., machinery, vehicles, chemicals) using product-level data",
+      "variables": [
+        "HS code level trade data for top 10 sectors"
+      ],
+      "known_limitations": [
+        "Data granularity may be limited",
+        "Time lag in reporting"
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Market share of Chinese EVs in Europe = (Chinese EV sales in EU) / (Total EV sales in EU)",
+      "variables": [
+        "Chinese EV sales (e.g., BYD, SAIC)",
+        "Total EV sales (ACEA)"
+      ],
+      "known_limitations": [
+        "Sales data may not include all brands",
+        "Definition of Chinese vs. European brands"
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Total value of Chinese FDI in Europe = sum of M&A and greenfield investments",
+      "variables": [
+        "M&A deal values (Refinitiv)",
+        "Greenfield project values (fDi Markets)"
+      ],
+      "known_limitations": [
+        "Deal values may be undisclosed",
+        "Greenfield estimates vary"
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Capacity of Chinese battery factories in Europe = sum of announced production capacities",
+      "variables": [
+        "Announced capacity (GWh) from CATL, BYD, etc."
+      ],
+      "known_limitations": [
+        "Announced capacity may not be realized",
+        "Timeline uncertainty"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

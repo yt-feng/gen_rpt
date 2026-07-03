@@ -1,0 +1,47 @@
+[
+  {
+    "id": "E1",
+    "fact": "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "value": null,
+    "unit": "year",
+    "display_value": "2025",
+    "year": 2025,
+    "metric_family": "funding",
+    "source_title": "U.S. DOE Office of Electricity",
+    "source_url": "https://www.energy.gov/oe/office-electricity",
+    "domain": "energy.gov",
+    "source_type": "html",
+    "authoritative": true,
+    "score": 11
+  },
+  {
+    "id": "E2",
+    "fact": "The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "value": null,
+    "unit": "year",
+    "display_value": "2023",
+    "year": 2023,
+    "metric_family": "timeline",
+    "source_title": "U.S. DOE Office of Electricity",
+    "source_url": "https://www.energy.gov/oe/office-electricity",
+    "domain": "energy.gov",
+    "source_type": "html",
+    "authoritative": true,
+    "score": 10
+  },
+  {
+    "id": "E3",
+    "fact": "1 day ago · Statistics Explained is an official Eurostat website presenting statistical topics in an easily understandable way.",
+    "value": 1.0,
+    "unit": "days",
+    "display_value": "1 days",
+    "year": null,
+    "metric_family": "market",
+    "source_title": "EU Statistics and Data - EU Sources and Information - ec-europa-eu ...",
+    "source_url": "https://www.bing.com/ck/a?!&&p=fe120916f41ff2beab6e89dd72b839e1902913d95050a8ca3983adb7c85399d5JmltdHM9MTc4MzAzNjgwMA&ptn=3&ver=2&hsh=4&fclid=36baf923-3461-6f93-2fa1-eea8351b6e66&u=a1aHR0cHM6Ly9lYy1ldXJvcGEtZXUubGliZ3VpZGVzLmNvbS9FVV9zb3VyY2VzL3N0YXRpc3RpY3MtYW5kLWRhdGE&ntb=1",
+    "domain": "bing.com",
+    "source_type": "snippet",
+    "authoritative": false,
+    "score": 7
+  }
+]
