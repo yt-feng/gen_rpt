@@ -301,7 +301,7 @@ jobs:
                -H "Content-Type: application/json" \
                -H "x-internal-token: $INTERNAL_TOKEN" \
                -d '{
-                 "document_id": "${{ steps.generate_report.outputs.report_id }}",
+                 "document_id": "${{ inputs.slug }}",
                  "idempotency_key": "github-actions-bulk-review-${{ github.run_id }}-${{ github.run_attempt }}",
                  "metadata": {
                    "run_id": "${{ github.run_id }}",
