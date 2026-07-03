@@ -366,3 +366,76 @@ async def refresh_taxonomy_cache(
         data=gatex_taxonomy.get_cache_status(),
         message="GateX taxonomy cache refreshed successfully.",
     )
+
+
+# ---------------------------------------------------------------------------
+# POST /pdf-release/{report_id}/preview
+# ---------------------------------------------------------------------------
+@router.post("/pdf-release/{report_id}/preview", response_model=APIResponse[dict])
+async def get_pdf_release_preview(
+    report_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+):
+    """
+    Generate (or reuse) a versioned PDF for the given report and return a
+    presigned preview URL.
+
+    This endpoint does NOT publish the report. It is the first step in the
+    two-step PDF Release Preview flow:
+      1. Client calls this endpoint → receives preview metadata + URL.
+      2. Client shows the preview modal.
+      3. If user clicks Publish → client calls the existing POST /publish/{id}.
+      4. If user clicks Cancel → client closes modal; PDF remains stored in R2.
+
+    Change detection:
+      - If the HTML checksum matches the latest stored PDF, the existing PDF
+        is reused (is_new=false) with no regeneration cost.
+      - If the content changed, a new immutable PDF version is created in R2.
+
+    This endpoint DOES NOT modify any existing publish, unpublish, or GateX logic.
+    """
+    from app.api.v1.endpoints.reports import MOCK_REPORTS
+    from app.services.pdf_release import pdf_release_service
+
+    report = MOCK_REPORTS.get(report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found.")
+
+    logger.info(
+        f"PDF release preview requested: report_id={report_id} by user={user.get('id')}"
+    )
+
+    try:
+        result = await pdf_release_service.get_or_generate(
+            db=db,
+            report_id=report_id,
+            report=report,
+            actor_id=user.get("id", "00000000-0000-0000-0000-000000000000"),
+        )
+    except Exception as e:
+        logger.exception(f"PDF release generation failed for {report_id}: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"PDF generation failed: {str(e)}",
+        )
+
+    return success_response(
+        data={
+            "pdf_release_id": result.pdf_release_id,
+            "version_number": result.version_number,
+            "is_new": result.is_new,
+            "preview_url": result.preview_url,
+            "file_size_bytes": result.file_size_bytes,
+            "generated_at": result.generated_at,
+            "html_checksum": result.html_checksum,
+            "document_version": result.document_version,
+            "status": "generated" if result.is_new else "reused",
+        },
+        message=(
+            f"PDF v{result.version_number} generated successfully."
+            if result.is_new
+            else f"PDF v{result.version_number} reused (no content changes detected)."
+        ),
+    )
+
