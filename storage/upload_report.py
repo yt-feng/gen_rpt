@@ -66,6 +66,7 @@ def upload_report(
     title: Optional[str] = None,
     tags: Optional[List[str]] = None,
     status: str = "generated",
+    skip_catalog: bool = False,
     r2: Optional[R2Client] = None,
     catalog: Optional[CatalogManager] = None,
     manifests: Optional[ManifestManager] = None,
@@ -191,40 +192,41 @@ def upload_report(
         raise
 
     # ── Update catalog ──────────────────────────────────────────────────────
-    catalog_start = time.monotonic()
-    try:
-        entry = CatalogEntry(
-            report_id=report_id,
-            title=title,
-            slug=slug,
-            status=status,
-            review_status="pending",
-            ai_score=0.0,
-            tags=tags,
-        )
-        catalog_mgr.upsert(entry)
-        catalog_elapsed = (time.monotonic() - catalog_start) * 1000
-        current_catalog = catalog_mgr.get_catalog()
-        log_catalog_update(
-            report_id=report_id,
-            action="upsert",
-            status_set=status,
-            ai_score=0.0,
-            catalog_size=len(current_catalog),
-            elapsed_ms=catalog_elapsed,
-            status="success",
-        )
-    except Exception as exc:
-        catalog_elapsed = (time.monotonic() - catalog_start) * 1000
-        log_catalog_update(
-            report_id=report_id,
-            action="upsert",
-            status_set=status,
-            elapsed_ms=catalog_elapsed,
-            status="error",
-            error=str(exc),
-        )
-        raise
+    if not skip_catalog:
+        catalog_start = time.monotonic()
+        try:
+            entry = CatalogEntry(
+                report_id=report_id,
+                title=title,
+                slug=slug,
+                status=status,
+                review_status="pending",
+                ai_score=0.0,
+                tags=tags,
+            )
+            catalog_mgr.upsert(entry)
+            catalog_elapsed = (time.monotonic() - catalog_start) * 1000
+            current_catalog = catalog_mgr.get_catalog()
+            log_catalog_update(
+                report_id=report_id,
+                action="upsert",
+                status_set=status,
+                ai_score=0.0,
+                catalog_size=len(current_catalog),
+                elapsed_ms=catalog_elapsed,
+                status="success",
+            )
+        except Exception as exc:
+            catalog_elapsed = (time.monotonic() - catalog_start) * 1000
+            log_catalog_update(
+                report_id=report_id,
+                action="upsert",
+                status_set=status,
+                elapsed_ms=catalog_elapsed,
+                status="error",
+                error=str(exc),
+            )
+            raise
 
     return {
         "report_id": report_id,
@@ -245,6 +247,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--tags", default="", help="Comma-separated tag list")
     parser.add_argument("--status", default="generated", help="Initial catalog status")
     parser.add_argument("--log-level", default="INFO", help="Logging level")
+    parser.add_argument("--skip-catalog-update", action="store_true", help="Skip updating the catalog")
     return parser.parse_args()
 
 
@@ -261,6 +264,7 @@ if __name__ == "__main__":
             title=args.title or None,
             tags=tags,
             status=args.status,
+            skip_catalog=args.skip_catalog_update,
         )
         print("Report uploaded successfully.")
         for k, v in result.items():
