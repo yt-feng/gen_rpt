@@ -231,6 +231,27 @@ def _build_mock_report_entry(
                 "confidence": 0.85
             })
 
+        data_gaps = []
+        for g in raw_recs.get("data_gaps", []):
+            text = f"[{g.get('severity', 'High')}] {g.get('claim', g.get('finding', ''))}"
+            if g.get("location_ref"):
+                text += f" {g['location_ref']}"
+            data_gaps.append(text)
+            
+        writing_flaws = []
+        for f in raw_recs.get("writing_flaws", []):
+            text = f"[{f.get('severity', 'Medium')}] {f.get('suggestion', f.get('finding', ''))}"
+            if f.get("location_ref"):
+                text += f" {f['location_ref']}"
+            writing_flaws.append(text)
+            
+        strategic_gaps = []
+        for s in raw_recs.get("strategic_gaps", []):
+            text = f"[{s.get('severity', 'High')}] {s.get('finding', '')}"
+            if s.get("location_ref"):
+                text += f" {s['location_ref']}"
+            strategic_gaps.append(text)
+
         formatted_ai_review = {
             "scores": {
                 "overall_score": raw_scores.get("overall_score", 85),
@@ -243,6 +264,10 @@ def _build_mock_report_entry(
                 "priority_improvements": priority_improvements,
                 "executive_readiness": exec_ready
             },
+            "dataGaps": data_gaps,
+            "writingFlaws": writing_flaws,
+            "strategicGaps": strategic_gaps,
+            "gccGaps": [],
             "claims_audit": {
                 "claims": formatted_claims
             }
