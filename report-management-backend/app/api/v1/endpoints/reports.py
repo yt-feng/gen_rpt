@@ -28,20 +28,23 @@ async def list_reports(
     from app.models.workflow import GenerationJob
     from app.models.document import Document
     from app.models.enums import JobStatusType
+    from app.models.identity import User
 
     # Base list from MOCK_REPORTS
     mock_reports_dict = {r["id"]: r for r in MOCK_REPORTS.values() if "id" in r}
 
-    # Fetch completed jobs from DB to persist across server restarts
+    # Fetch completed jobs from DB to persist across server restarts, joining the User table
     stmt = (
-        select(GenerationJob, Document)
+        select(GenerationJob, Document, User)
         .join(Document, GenerationJob.document_id == Document.id)
+        .outerjoin(User, Document.owner_id == User.id)
         .where(GenerationJob.status == JobStatusType.completed)
         .order_by(GenerationJob.started.desc())
     )
     result = await db.execute(stmt)
     
-    for job, doc in result.all():
+    for row in result.all():
+        job, doc, owner = row[0], row[1], row[2]
         doc_id = doc.slug or str(doc.id)
         # Avoid overriding if already present in MOCK_REPORTS (it might have richer real-time data)
         if doc_id not in mock_reports_dict:
@@ -58,6 +61,11 @@ async def list_reports(
                 "publishReady": False,
                 "aiReview": None,
                 "slug": doc.slug,
+                "assignedTo": {
+                    "id": str(owner.id),
+                    "full_name": owner.full_name,
+                    "email": owner.email
+                } if owner else None,
                 "reportContent": {
                     "brand": "GateX",
                     "label": "Deep Research",
@@ -68,6 +76,14 @@ async def list_reports(
                 },
                 "comments": []
             }
+        else:
+            # If already present in MOCK_REPORTS, ensure it has the owner sync'd from DB if not set
+            if owner and not mock_reports_dict[doc_id].get("assignedTo"):
+                mock_reports_dict[doc_id]["assignedTo"] = {
+                    "id": str(owner.id),
+                    "full_name": owner.full_name,
+                    "email": owner.email
+                }
     
     reports_list = list(mock_reports_dict.values())
 
@@ -132,11 +148,29 @@ async def get_report_details(
     """
     Get detailed metadata for a specific report document.
     """
+    from app.models.identity import User
+    from sqlalchemy import select
+    
     if document_id in MOCK_REPORTS:
-        return success_response(data=MOCK_REPORTS[document_id], message="Fetched report details")
+        report = MOCK_REPORTS[document_id]
+        # Sync owner details just in case they're in DB but missing in cache
+        if not report.get("assignedTo"):
+            from app.models.document import Document
+            stmt = select(Document).where(Document.slug == document_id)
+            res = await db.execute(stmt)
+            doc = res.scalar_one_or_none()
+            if doc and doc.owner_id:
+                owner_res = await db.execute(select(User).where(User.id == doc.owner_id))
+                owner = owner_res.scalar_one_or_none()
+                if owner:
+                    report["assignedTo"] = {
+                        "id": str(owner.id),
+                        "full_name": owner.full_name,
+                        "email": owner.email
+                    }
+        return success_response(data=report, message="Fetched report details")
         
     # If not in MOCK_REPORTS, try loading dynamically from R2
-    from sqlalchemy import select
     from app.models.document import Document
     from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
     import uuid
@@ -157,6 +191,20 @@ async def get_report_details(
         topic = doc.title or slug
         payload = await _load_report_payload_from_r2(slug, topic)
         entry = _build_mock_report_entry(document_id, topic, slug, payload)
+        
+        # Load owner details if set in DB
+        if doc.owner_id:
+            owner_res = await db.execute(select(User).where(User.id == doc.owner_id))
+            owner = owner_res.scalar_one_or_none()
+            if owner:
+                entry["assignedTo"] = {
+                    "id": str(owner.id),
+                    "full_name": owner.full_name,
+                    "email": owner.email
+                }
+        else:
+            entry["assignedTo"] = None
+
         MOCK_REPORTS[document_id] = entry
         MOCK_REPORTS[str(doc.id)] = entry
         if doc.slug:
@@ -175,6 +223,7 @@ async def get_report_details(
                 or document_id.replace('-', ' ').title()
             )
             entry = _build_mock_report_entry(document_id, title, document_id, payload)
+            entry["assignedTo"] = None
             MOCK_REPORTS[document_id] = entry
             return success_response(data=entry, message="Loaded report details directly from R2")
     except Exception as e:
@@ -443,4 +492,80 @@ async def ai_edit_block(
     return success_response(
         data={"edited_text": new_text}, 
         message=f"AI {req.action} applied successfully"
+    )
+
+@router.post("/{document_id}/claim", response_model=APIResponse[dict])
+async def claim_report(
+    document_id: str,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Claim a report and assign it to the currently logged in reviewer.
+    """
+    from app.models.document import Document
+    from app.models.identity import User
+    from sqlalchemy import select
+    import uuid
+    
+    # 1. Verify user exists in the DB
+    stmt = select(User).where(User.email == user["email"])
+    res = await db.execute(stmt)
+    db_user = res.scalar_one_or_none()
+    if not db_user:
+        # Create user record dynamically if missing
+        db_user = User(
+            id=uuid.UUID(user["id"]),
+            full_name=user["full_name"],
+            email=user["email"],
+            status="active"
+        )
+        db.add(db_user)
+        await db.commit()
+    
+    # 2. Find document
+    stmt = select(Document).where(Document.slug == document_id)
+    res = await db.execute(stmt)
+    doc = res.scalar_one_or_none()
+    
+    if not doc:
+        try:
+            doc_uuid = uuid.UUID(document_id)
+            doc = await db.get(Document, doc_uuid)
+        except ValueError:
+            pass
+            
+    if not doc:
+        return error_response(message="Document not found")
+        
+    # 3. Update owner_id in DB
+    doc.owner_id = db_user.id
+    await db.commit()
+    
+    # 4. Update in-memory MOCK_REPORTS
+    report = MOCK_REPORTS.get(document_id)
+    if not report:
+        report = MOCK_REPORTS.get(doc.slug) or MOCK_REPORTS.get(str(doc.id))
+        
+    if report:
+        report["assignedTo"] = {
+            "id": str(db_user.id),
+            "full_name": db_user.full_name,
+            "email": db_user.email
+        }
+        report["humanStatus"] = "In Progress"
+        MOCK_REPORTS[document_id] = report
+        MOCK_REPORTS[doc.slug] = report
+        MOCK_REPORTS[str(doc.id)] = report
+        
+    return success_response(
+        data={
+            "document_id": document_id,
+            "assignedTo": {
+                "id": str(db_user.id),
+                "full_name": db_user.full_name,
+                "email": db_user.email
+            }
+        },
+        message="Report claimed successfully"
     )

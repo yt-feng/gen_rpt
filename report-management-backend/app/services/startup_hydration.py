@@ -81,18 +81,35 @@ async def hydrate_mock_reports_from_r2():
                     )
                     entry = _build_mock_report_entry(bare_slug, title, bare_slug, payload)
                     
+                    # 3. Document UUID key (if matches DB)
+                    from app.models.identity import User
+                    stmt = select(Document).where(Document.slug == bare_slug)
+                    res = await session.execute(stmt)
+                    doc = res.scalar_one_or_none()
+                    
+                    if doc:
+                        MOCK_REPORTS[str(doc.id)] = entry
+                        if doc.owner_id:
+                            owner_res = await session.execute(select(User).where(User.id == doc.owner_id))
+                            owner = owner_res.scalar_one_or_none()
+                            if owner:
+                                entry["assignedTo"] = {
+                                    "id": str(owner.id),
+                                    "full_name": owner.full_name,
+                                    "email": owner.email
+                                }
+                            else:
+                                entry["assignedTo"] = None
+                        else:
+                            entry["assignedTo"] = None
+                    else:
+                        entry["assignedTo"] = None
+
                     # Store under multiple keys to guarantee lookup matches:
                     # 1. Bare slug key (what frontend uses)
                     MOCK_REPORTS[bare_slug] = entry
                     # 2. Folder name key (date-prefixed slug)
                     MOCK_REPORTS[folder_name] = entry
-
-                    # 3. Document UUID key (if matches DB)
-                    stmt = select(Document).where(Document.slug == bare_slug)
-                    res = await session.execute(stmt)
-                    doc = res.scalar_one_or_none()
-                    if doc:
-                        MOCK_REPORTS[str(doc.id)] = entry
 
                     loaded += 1
                     logger.info(f"[startup_hydration] Loaded report: {bare_slug}")

@@ -29,17 +29,34 @@ class FilterParams:
 
 def get_current_user_placeholder(request: Request) -> dict:
     """
-    Placeholder for actual JWT validation.
-    In Phase 4, we just mock a user object.
+    Parses dynamic Bearer tokens matching static mock credentials.
     """
     token = request.headers.get("Authorization")
-    if not token:
-        # For development purposes, allow anonymous access as a default user
-        # In a real scenario, this would raise 401
-        return {"id": "00000000-0000-0000-0000-000000000000", "role": "admin"}
+    if not token or not token.startswith("Bearer "):
+        return {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "email": "placeholder@admin.com",
+            "full_name": "Placeholder Admin",
+            "role": "admin"
+        }
     
-    # Placeholder token decoding
-    return {"id": "00000000-0000-0000-0000-000000000000", "role": "admin"}
+    email = token.replace("Bearer ", "").strip().lower()
+    from app.api.v1.endpoints.auth import MOCK_USERS
+    user = next((u for u in MOCK_USERS if u["email"] == email), None)
+    if not user:
+        return {
+            "id": "00000000-0000-0000-0000-000000000000",
+            "email": "placeholder@admin.com",
+            "full_name": "Placeholder Admin",
+            "role": "admin"
+        }
+        
+    return {
+        "id": user["id"],
+        "email": user["email"],
+        "full_name": user["full_name"],
+        "role": user["role"]
+    }
 
 # Alias so endpoints that import get_current_user still resolve
 get_current_user = get_current_user_placeholder
