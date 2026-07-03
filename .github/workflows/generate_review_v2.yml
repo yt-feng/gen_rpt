@@ -158,7 +158,7 @@ jobs:
           pip install -r storage/requirements.txt
 
       - name: Upload review to R2
-        if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -185,7 +185,7 @@ jobs:
             exit 0
           fi
           
-          curl -X POST "$BACKEND_URL/api/v1/internal/events/review-generated" \
+          curl -X POST "$BACKEND_URL/api/internal/events/review-generated" \
                -H "Content-Type: application/json" \
                -H "x-internal-token: $INTERNAL_TOKEN" \
                -d '{

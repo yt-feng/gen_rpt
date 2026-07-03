@@ -175,11 +175,11 @@ jobs:
             exit 0
           fi
           
-          curl -X POST "$BACKEND_URL/api/v1/internal/events/report-generated" \
+          curl -X POST "$BACKEND_URL/api/internal/events/report-generated" \
                -H "Content-Type: application/json" \
                -H "x-internal-token: $INTERNAL_TOKEN" \
                -d '{
-                 "document_id": "${{ steps.generate_report.outputs.document_id }}",
+                 "document_id": "${{ inputs.slug }}",
                  "idempotency_key": "github-actions-${{ github.run_id }}-${{ github.run_attempt }}",
                  "metadata": {
                    "run_id": "${{ github.run_id }}",
