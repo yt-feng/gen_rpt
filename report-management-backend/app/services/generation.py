@@ -138,6 +138,10 @@ def _build_mock_report_entry(
     for s in raw_sections:
         heading = s.get("heading") or s.get("title") or s.get("id", "Section")
         body = s.get("body") or s.get("content") or s.get("html") or s.get("markdown") or ""
+        
+        if not body and "paragraphs" in s:
+            body = "\n\n".join(s["paragraphs"])
+            
         # Strip any HTML tags for MOCK_REPORTS text preview
         import re
         body_text = re.sub(r"<[^>]+>", "", str(body))[:2000]

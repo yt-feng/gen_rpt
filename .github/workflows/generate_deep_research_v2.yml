@@ -21,7 +21,7 @@ on:
 
 permissions:
   contents: write
-  actions: read
+  actions: write
 
 concurrency:
   group: gen-rpt-v2-${{ github.ref }}
@@ -186,3 +186,10 @@ jobs:
                    "slug": "${{ inputs.slug }}"
                  }
                }'
+
+      - name: Trigger AI Review Workflow
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Triggering AI Review workflow..."
+          gh workflow run generate_review_v2.yml
