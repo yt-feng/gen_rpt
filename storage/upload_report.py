@@ -137,6 +137,26 @@ def upload_report(
             file_paths[schema_field] = r2_key
             logger.info("  → Uploaded: %s", r2_key)
 
+        # Explicitly upload index.html if it exists
+        index_file = report_path / "index.html"
+        if index_file.exists():
+            r2_key = f"reports/{report_id}/current/index.html"
+            r2.upload_file(str(index_file), r2_key)
+            uploaded_keys["index.html"] = r2_key
+            logger.info("  → Uploaded HTML frontend: %s", r2_key)
+
+        # Upload all assets if the directory exists
+        assets_dir = report_path / "assets"
+        if assets_dir.is_dir():
+            for root, dirs, files in os.walk(assets_dir):
+                for f in files:
+                    local_asset = Path(root) / f
+                    rel_path = local_asset.relative_to(report_path) # e.g. assets/image-1.png
+                    r2_key = f"reports/{report_id}/current/{rel_path.as_posix()}"
+                    r2.upload_file(str(local_asset), r2_key)
+                    uploaded_keys[rel_path.as_posix()] = r2_key
+                    logger.info("  → Uploaded asset: %s", r2_key)
+
         upload_elapsed = (time.monotonic() - upload_start) * 1000
         logger.info("Uploaded %d report files in %.0fms", len(uploaded_keys), upload_elapsed)
         log_r2_upload(

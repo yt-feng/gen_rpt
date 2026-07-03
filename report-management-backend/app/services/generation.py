@@ -82,6 +82,7 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
     def _find_and_download():
         payload_data = None
         review_data = None
+        found_folder = None
         try:
             # Check reports/
             res = storage_provider.s3_client.list_objects_v2(
@@ -105,7 +106,8 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
                         print(f"[poll_r2] No review found for {slug} or error: {e}")
                         
                     if payload_data:
-                        return payload_data, review_data
+                        found_folder = folder
+                        return payload_data, review_data, found_folder
                     
             # Check reports_web/
             res2 = storage_provider.s3_client.list_objects_v2(
@@ -122,16 +124,19 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
                         print(f"[poll_r2] Error downloading payload for {slug} in reports_web: {e}")
                         
                     if payload_data:
-                        return payload_data, review_data
+                        found_folder = folder
+                        return payload_data, review_data, found_folder
         except Exception as e:
             print(f"[poll_r2] Error finding payload for {slug}: {e}")
-        return None, None
+        return None, None, None
 
-    p_data, r_data = await to_thread.run_sync(_find_and_download)
+    p_data, r_data, r2_folder = await to_thread.run_sync(_find_and_download)
     result_payload = {}
     if p_data:
         try:
             result_payload = json.loads(p_data.decode("utf-8"))
+            if r2_folder:
+                result_payload["r2_prefix"] = r2_folder
         except Exception as e:
             print(f"[poll_r2] Failed to parse payload for {slug}: {e}")
             
@@ -269,6 +274,7 @@ def _build_mock_report_entry(
             "date": now.strftime("%B %d, %Y"),
             "sections": sections,
         },
+        "r2_prefix": payload.get("r2_prefix"),
         "comments": [],
     }
 

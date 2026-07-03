@@ -331,7 +331,20 @@ class PdfReleaseService:
                 except Exception as e:
                     logger.warning(f"[PdfRelease] Could not load companion HTML ({html_path}): {e}")
 
-        # Try reports_web slug-based path
+        # Try r2_prefix-based path (the new standard for generated HTML)
+        if not html_str:
+            r2_prefix = report.get("r2_prefix")
+            if r2_prefix:
+                web_html_path = f"{r2_prefix}current/index.html"
+                try:
+                    data = await storage_provider.download(web_html_path)
+                    if data:
+                        logger.info(f"[PdfRelease] HTML loaded from R2 prefix path: {web_html_path}")
+                        html_str = data.decode("utf-8", errors="replace")
+                except Exception as e:
+                    logger.warning(f"[PdfRelease] Could not load R2 prefix HTML ({web_html_path}): {e}")
+                    
+        # Try reports_web slug-based path (legacy fallback)
         if not html_str:
             slug = report.get("slug") or report_id
             web_html_path = f"reports_web/{slug}/index.html"
@@ -359,10 +372,12 @@ class PdfReleaseService:
             soup = BeautifulSoup(html_str, "html.parser")
             
             # 1. Replace relative image paths with R2 presigned URLs
+            r2_prefix = report.get("r2_prefix")
             for img in soup.find_all("img"):
                 src = img.get("src")
                 if src and not src.startswith("http") and not src.startswith("data:"):
-                    r2_path = f"reports_web/{slug}/{src}"
+                    # Use r2_prefix if available, else fallback to reports_web/{slug}
+                    r2_path = f"{r2_prefix}current/{src}" if r2_prefix else f"reports_web/{slug}/{src}"
                     signed_url = await storage_provider.get_signed_url(r2_path, expiration_sec=3600)
                     if signed_url:
                         img["src"] = signed_url
