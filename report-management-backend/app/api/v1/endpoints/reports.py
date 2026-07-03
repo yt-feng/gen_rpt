@@ -381,21 +381,17 @@ async def revise_section(
     if not target_section:
         return error_response(message="Section not found in report")
 
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
     
     if not api_key:
         new_text = f"[AI Revision based on: {req.instructions}] {original_text} (simulated update)"
     else:
         try:
             is_groq = "gsk_" in api_key
-            is_openai = api_key.startswith("sk-") and "deepseek" not in os.getenv("OPENAI_API_KEY", "")
             
             if is_groq:
                 url = "https://api.groq.com/openai/v1/chat/completions"
                 model = "llama-3.3-70b-versatile"
-            elif is_openai:
-                url = "https://api.openai.com/v1/chat/completions"
-                model = "gpt-4o-mini"
             else:
                 url = "https://api.deepseek.com/chat/completions"
                 model = "deepseek-chat"
@@ -496,21 +492,17 @@ async def ai_edit_block(
         prompt_instruction = "Completely regenerate the following text, providing a fresh perspective."
 
     # Call AI (DeepSeek or Groq if available)
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
 
     if not api_key:
         new_text = f"[AI {req.action.capitalize()}] {original_text} (simulated update)"
     else:
         try:
             is_groq = "gsk_" in api_key
-            is_openai = api_key.startswith("sk-") and "deepseek" not in os.getenv("OPENAI_API_KEY", "")
             
             if is_groq:
                 url = "https://api.groq.com/openai/v1/chat/completions"
                 model = "llama-3.3-70b-versatile"
-            elif is_openai:
-                url = "https://api.openai.com/v1/chat/completions"
-                model = "gpt-4o-mini"
             else:
                 url = "https://api.deepseek.com/chat/completions"
                 model = "deepseek-chat"
