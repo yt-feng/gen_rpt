@@ -8,14 +8,20 @@ from app.core.responses import APIResponse, success_response
 from app.api.deps import get_db
 from app.services.workflow import workflow_service
 from app.logging.logger import logger
+from app.core.config import settings
 
 router = APIRouter()
 
 def verify_internal_token(x_internal_token: str = Header(...)):
-    """Verifies internal requests."""
-    # Placeholder for actual internal token check
-    if x_internal_token != "trusted-worker-secret":
+    """
+    Verifies internal requests from GitHub Actions workers.
+    Reads INTERNAL_TOKEN from settings (env var). Falls back to
+    'trusted-worker-secret' if not configured (local dev only).
+    """
+    expected = getattr(settings, "INTERNAL_TOKEN", None) or "trusted-worker-secret"
+    if x_internal_token != expected:
         raise HTTPException(status_code=403, detail="Invalid internal token")
+
 
 class WorkflowEventPayload(BaseModel):
     document_id: UUID = Field(description="Target document ID")

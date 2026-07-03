@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     # GitHub Workflow Dispatch
     GITHUB_TOKEN: Optional[str] = None
     GITHUB_REPO: str = "yt-feng/gen_rpt"
+
+    # Internal webhook token — must match INTERNAL_TOKEN secret set in GitHub Actions
+    INTERNAL_TOKEN: Optional[str] = None
+
     
     @model_validator(mode='after')
     def validate_database_url(self) -> 'Settings':
