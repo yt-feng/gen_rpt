@@ -1,6 +1,7 @@
 name: "[V2] Generate AI Review"
 
 on:
+  workflow_dispatch:
   workflow_run:
     workflows: ["[V2] Generate HTML Thought Leadership Report"]
     types: [completed]
