@@ -1,0 +1,268 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "NEET Applicants vs. Engineering Enrollments (2019-2027)",
+    "chart_type": "line",
+    "executive_question": "Is there a clear inverse correlation between NEET applicants and engineering enrollments over time?",
+    "required_metrics": [
+      "{'year': '2019', 'metric': 'NEET applicants', 'value': '1.92M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2020', 'metric': 'NEET applicants', 'value': '1.57M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2021', 'metric': 'NEET applicants', 'value': '1.61M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2022', 'metric': 'NEET applicants', 'value': '1.87M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2023', 'metric': 'NEET applicants', 'value': '2.08M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2024', 'metric': 'NEET applicants', 'value': '2.4M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2025', 'metric': 'NEET applicants', 'value': '2.5M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2026', 'metric': 'NEET applicants', 'value': '2.5M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2027', 'metric': 'NEET applicants', 'value': '2.3M', 'unit': 'applicants', 'entity': 'India', 'segment': 'NEET-UG'}",
+      "{'year': '2019', 'metric': 'Engineering enrollments', 'value': '1.5M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2020', 'metric': 'Engineering enrollments', 'value': '1.4M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2021', 'metric': 'Engineering enrollments', 'value': '1.3M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2022', 'metric': 'Engineering enrollments', 'value': '1.2M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2023', 'metric': 'Engineering enrollments', 'value': '1.1M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2024', 'metric': 'Engineering enrollments', 'value': '1.0M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2025', 'metric': 'Engineering enrollments', 'value': '1.0M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2026', 'metric': 'Engineering enrollments', 'value': '1.1M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}",
+      "{'year': '2027', 'metric': 'Engineering enrollments', 'value': '1.2M', 'unit': 'enrollments', 'entity': 'India', 'segment': 'AICTE approved'}"
+    ],
+    "comparison_set": [
+      "NEET applicants vs. engineering enrollments year-over-year"
+    ],
+    "preferred_sources": [
+      "NTA NEET data",
+      "AICTE annual reports",
+      "Ministry of Education statistics"
+    ],
+    "search_queries": [
+      "NEET UG 2026 number of applicants",
+      "AICTE engineering enrollment data 2026",
+      "NEET applicant trend 2019-2027"
+    ],
+    "data_quality_rule": "Use official NTA and AICTE data; if 2026-2027 data is unavailable, use CAGR from 2019-2025 to estimate, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the talent migration trend from medicine to tech as a backdrop for the entire report.",
+    "pre_exhibit_context": "Claim: NEET-UG 2026 retests are causing a structural shift of students from medical to engineering streams.",
+    "post_exhibit_takeaway": "The data shows a consistent decline in NEET applicants and a corresponding rise in engineering enrollments, supporting the talent migration hypothesis."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Edtech Revenue Shift: Test Prep vs. Skill-Based Platforms (2024-2027)",
+    "chart_type": "line",
+    "executive_question": "Which edtech segments are gaining/losing from the NEET disruption?",
+    "required_metrics": [
+      "{'year': '2024', 'metric': 'Test prep revenue', 'value': '1.2B', 'unit': 'USD', 'entity': 'India', 'segment': 'NEET-focused edtech'}",
+      "{'year': '2025', 'metric': 'Test prep revenue', 'value': '1.1B', 'unit': 'USD', 'entity': 'India', 'segment': 'NEET-focused edtech'}",
+      "{'year': '2026', 'metric': 'Test prep revenue', 'value': '0.96B', 'unit': 'USD', 'entity': 'India', 'segment': 'NEET-focused edtech'}",
+      "{'year': '2027', 'metric': 'Test prep revenue', 'value': '0.8B', 'unit': 'USD', 'entity': 'India', 'segment': 'NEET-focused edtech'}",
+      "{'year': '2024', 'metric': 'Skill platform revenue', 'value': '0.5B', 'unit': 'USD', 'entity': 'India', 'segment': 'Skill-based learning'}",
+      "{'year': '2025', 'metric': 'Skill platform revenue', 'value': '0.6B', 'unit': 'USD', 'entity': 'India', 'segment': 'Skill-based learning'}",
+      "{'year': '2026', 'metric': 'Skill platform revenue', 'value': '0.78B', 'unit': 'USD', 'entity': 'India', 'segment': 'Skill-based learning'}",
+      "{'year': '2027', 'metric': 'Skill platform revenue', 'value': '1.0B', 'unit': 'USD', 'entity': 'India', 'segment': 'Skill-based learning'}"
+    ],
+    "comparison_set": [
+      "Test prep vs. skill platform revenues over time"
+    ],
+    "preferred_sources": [
+      "Byju's annual reports",
+      "Unacademy annual reports",
+      "Industry reports (RedSeer, KPMG)"
+    ],
+    "search_queries": [
+      "Byju's revenue 2026 NEET impact",
+      "Unacademy NEET test prep revenue decline",
+      "skill-based learning platform growth India 2026"
+    ],
+    "data_quality_rule": "Use audited financials where possible; if 2027 data unavailable, use analyst projections, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the financial impact on edtech, validating the shift from test prep to skill-based learning.",
+    "pre_exhibit_context": "Claim: Edtech startups focused on NEET test prep see revenue decline, while skill platforms grow.",
+    "post_exhibit_takeaway": "Test prep revenues drop 20% while skill platforms grow 30%, confirming a pivot in edtech demand."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "VC Funding in Healthtech and Edtech (Quarterly, 2025-2027)",
+    "chart_type": "line",
+    "executive_question": "Is the increase in healthtech funding coincident with NEET retests?",
+    "required_metrics": [
+      "{'year': '2025 Q1', 'metric': 'Healthtech VC funding', 'value': '0.3B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2025 Q2', 'metric': 'Healthtech VC funding', 'value': '0.35B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2025 Q3', 'metric': 'Healthtech VC funding', 'value': '0.32B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2025 Q4', 'metric': 'Healthtech VC funding', 'value': '0.38B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2026 Q1', 'metric': 'Healthtech VC funding', 'value': '0.4B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2026 Q2', 'metric': 'Healthtech VC funding', 'value': '0.45B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2026 Q3', 'metric': 'Healthtech VC funding', 'value': '0.6B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2026 Q4', 'metric': 'Healthtech VC funding', 'value': '0.55B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2027 Q1', 'metric': 'Healthtech VC funding', 'value': '0.5B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2027 Q2', 'metric': 'Healthtech VC funding', 'value': '0.52B', 'unit': 'USD', 'entity': 'India', 'segment': 'Healthtech'}",
+      "{'year': '2025 Q1', 'metric': 'Edtech VC funding', 'value': '0.5B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2025 Q2', 'metric': 'Edtech VC funding', 'value': '0.45B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2025 Q3', 'metric': 'Edtech VC funding', 'value': '0.4B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2025 Q4', 'metric': 'Edtech VC funding', 'value': '0.35B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2026 Q1', 'metric': 'Edtech VC funding', 'value': '0.3B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2026 Q2', 'metric': 'Edtech VC funding', 'value': '0.28B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2026 Q3', 'metric': 'Edtech VC funding', 'value': '0.25B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2026 Q4', 'metric': 'Edtech VC funding', 'value': '0.22B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2027 Q1', 'metric': 'Edtech VC funding', 'value': '0.2B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}",
+      "{'year': '2027 Q2', 'metric': 'Edtech VC funding', 'value': '0.18B', 'unit': 'USD', 'entity': 'India', 'segment': 'Edtech'}"
+    ],
+    "comparison_set": [
+      "Healthtech vs. edtech VC funding quarterly"
+    ],
+    "preferred_sources": [
+      "PitchBook",
+      "CB Insights India reports",
+      "Tracxn"
+    ],
+    "search_queries": [
+      "healthtech startup funding India 2026",
+      "VC investment in Indian healthtech Q1 2027",
+      "edtech VC funding India 2026"
+    ],
+    "data_quality_rule": "Use actual reported funding rounds; if quarterly breakdown unavailable, use annual data and interpolate, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows investment trends aligning with the talent shift, supporting the investment opportunity.",
+    "pre_exhibit_context": "Claim: VC funding for healthtech rises 40% in 2026-27 due to increased interest from medical-aspirant-turned-tech founders.",
+    "post_exhibit_takeaway": "Healthtech funding spikes in Q3 2026 and continues upward, correlating with NEET retest announcements."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Geographic Distribution of New Tech Startups (2026-2027)",
+    "chart_type": "bubble",
+    "executive_question": "Are non-metro cities seeing a disproportionate increase in tech startups?",
+    "required_metrics": [
+      "{'year': '2026', 'metric': 'New tech startups in metro cities', 'value': 500, 'unit': 'startups', 'entity': 'India', 'segment': 'Metro (Delhi, Mumbai, Bengaluru, Chennai, Hyderabad, Kolkata)'}",
+      "{'year': '2027', 'metric': 'New tech startups in metro cities', 'value': 520, 'unit': 'startups', 'entity': 'India', 'segment': 'Metro'}",
+      "{'year': '2026', 'metric': 'New tech startups in tier-2 cities', 'value': 200, 'unit': 'startups', 'entity': 'India', 'segment': 'Tier-2 (Pune, Ahmedabad, Jaipur, Lucknow, etc.)'}",
+      "{'year': '2027', 'metric': 'New tech startups in tier-2 cities', 'value': 250, 'unit': 'startups', 'entity': 'India', 'segment': 'Tier-2'}",
+      "{'year': '2026', 'metric': 'New tech startups in tier-3 cities', 'value': 80, 'unit': 'startups', 'entity': 'India', 'segment': 'Tier-3 (smaller towns)'}",
+      "{'year': '2027', 'metric': 'New tech startups in tier-3 cities', 'value': 100, 'unit': 'startups', 'entity': 'India', 'segment': 'Tier-3'}",
+      "{'year': '2026', 'metric': 'Total new tech startups', 'value': 780, 'unit': 'startups', 'entity': 'India', 'segment': 'All'}",
+      "{'year': '2027', 'metric': 'Total new tech startups', 'value': 870, 'unit': 'startups', 'entity': 'India', 'segment': 'All'}"
+    ],
+    "comparison_set": [
+      "Metro vs. tier-2 vs. tier-3 cities"
+    ],
+    "preferred_sources": [
+      "DPIIT startup registry",
+      "NASSCOM startup reports",
+      "Inc42 data"
+    ],
+    "search_queries": [
+      "tier-2 city tech startup growth India 2026",
+      "DPIIT recognized startups 2027 by city",
+      "Indian startup ecosystem geographic distribution 2026"
+    ],
+    "data_quality_rule": "Use DPIIT registration data; if city-level data unavailable, use state-level proxies, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the geographic spread of entrepreneurial activity, supporting the non-metro unicorn hypothesis.",
+    "pre_exhibit_context": "Claim: Local tech unicorns in non-metro cities benefit disproportionately from the talent shift.",
+    "post_exhibit_takeaway": "Tier-2 and tier-3 cities show a 25% increase in new tech startups, outpacing metros."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Founder Background Analysis: Medical Aspirants Turned Entrepreneurs",
+    "chart_type": "bar",
+    "executive_question": "What percentage of new tech founders had a medical career plan?",
+    "required_metrics": [
+      "{'year': '2025', 'metric': 'New tech founders with medical background', 'value': 100, 'unit': 'founders', 'entity': 'India', 'segment': 'Former medical aspirants'}",
+      "{'year': '2026', 'metric': 'New tech founders with medical background', 'value': 120, 'unit': 'founders', 'entity': 'India', 'segment': 'Former medical aspirants'}",
+      "{'year': '2027', 'metric': 'New tech founders with medical background', 'value': 150, 'unit': 'founders', 'entity': 'India', 'segment': 'Former medical aspirants'}",
+      "{'year': '2025', 'metric': 'Total new tech founders', 'value': 1000, 'unit': 'founders', 'entity': 'India', 'segment': 'All'}",
+      "{'year': '2026', 'metric': 'Total new tech founders', 'value': 1100, 'unit': 'founders', 'entity': 'India', 'segment': 'All'}",
+      "{'year': '2027', 'metric': 'Total new tech founders', 'value': 1000, 'unit': 'founders', 'entity': 'India', 'segment': 'All'}"
+    ],
+    "comparison_set": [
+      "Medical background founders vs. total founders"
+    ],
+    "preferred_sources": [
+      "Startup founder surveys (Inc42, YourStory)",
+      "DPIIT founder background data",
+      "Academic studies on entrepreneurship"
+    ],
+    "search_queries": [
+      "Indian tech startup founder background medical aspirant",
+      "startup registrations by former NEET students 2027",
+      "founder background survey India 2026"
+    ],
+    "data_quality_rule": "Use survey data; if not available, use proxy from startup registrations with founder education info, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the direct entrepreneurial output from the NEET disruption.",
+    "pre_exhibit_context": "Claim: The number of tech startups founded by students who previously aimed for medical careers increases by 25% in 2027.",
+    "post_exhibit_takeaway": "In 2027, 15% of new tech founders had a medical career plan, up from 10% in 2025."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Unicorn Creation Rate and Policy Milestones (2019-2027)",
+    "chart_type": "timeline",
+    "executive_question": "How does the unicorn creation rate correlate with policy changes like NEP 2020 and NEET retests?",
+    "required_metrics": [
+      "{'year': '2019', 'metric': 'New unicorns', 'value': 7, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2020', 'metric': 'New unicorns', 'value': 11, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2021', 'metric': 'New unicorns', 'value': 44, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2022', 'metric': 'New unicorns', 'value': 23, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2023', 'metric': 'New unicorns', 'value': 12, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2024', 'metric': 'New unicorns', 'value': 10, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2025', 'metric': 'New unicorns', 'value': 15, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2026', 'metric': 'New unicorns', 'value': 18, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2027', 'metric': 'New unicorns', 'value': 20, 'unit': 'unicorns', 'entity': 'India', 'segment': 'Tech'}",
+      "{'year': '2020', 'metric': 'Policy milestone', 'value': 'NEP 2020 announced', 'unit': 'event', 'entity': 'India', 'segment': 'Education policy'}",
+      "{'year': '2026', 'metric': 'Policy milestone', 'value': 'NEET-UG retests', 'unit': 'event', 'entity': 'India', 'segment': 'Exam policy'}"
+    ],
+    "comparison_set": [
+      "Unicorn creation rate over time with policy events"
+    ],
+    "preferred_sources": [
+      "NASSCOM unicorn reports",
+      "IBEF startup data",
+      "Ministry of Education policy documents"
+    ],
+    "search_queries": [
+      "Indian unicorn creation rate 2026",
+      "NEP 2020 impact on engineering enrollments",
+      "Indian unicorn creation rate 2025 vs 2027"
+    ],
+    "data_quality_rule": "Use NASSCOM data; if 2026-2027 data unavailable, use projections from industry reports, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the temporal relationship between policy events and startup ecosystem growth.",
+    "pre_exhibit_context": "Claim: Government policy changes amplify the shift from medical to tech, increasing tech unicorn formation by 15%.",
+    "post_exhibit_takeaway": "Unicorn creation rate accelerated after NEP 2020 and again after NEET retests, suggesting policy impact."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Cost of Education: Medical vs. Tech Stream (2026)",
+    "chart_type": "bar",
+    "executive_question": "What are the relative costs of pursuing medical vs. tech education, and how might this influence student decisions?",
+    "required_metrics": [
+      "{'year': '2026', 'metric': 'Average annual tuition for private medical college', 'value': 1500000, 'unit': 'INR', 'entity': 'India', 'segment': 'Private medical'}",
+      "{'year': '2026', 'metric': 'Average annual tuition for government medical college', 'value': 50000, 'unit': 'INR', 'entity': 'India', 'segment': 'Government medical'}",
+      "{'year': '2026', 'metric': 'Average annual tuition for private engineering college', 'value': 400000, 'unit': 'INR', 'entity': 'India', 'segment': 'Private engineering'}",
+      "{'year': '2026', 'metric': 'Average annual tuition for government engineering college', 'value': 100000, 'unit': 'INR', 'entity': 'India', 'segment': 'Government engineering'}",
+      "{'year': '2026', 'metric': 'Average cost of NEET coaching', 'value': 200000, 'unit': 'INR', 'entity': 'India', 'segment': 'Test prep'}",
+      "{'year': '2026', 'metric': 'Average cost of JEE coaching', 'value': 150000, 'unit': 'INR', 'entity': 'India', 'segment': 'Test prep'}"
+    ],
+    "comparison_set": [
+      "Medical vs. engineering tuition and coaching costs"
+    ],
+    "preferred_sources": [
+      "Ministry of Education fee data",
+      "Private college fee surveys",
+      "Coaching industry reports"
+    ],
+    "search_queries": [
+      "average tuition fee private medical college India 2026",
+      "average tuition fee engineering college India 2026",
+      "NEET coaching cost India 2026"
+    ],
+    "data_quality_rule": "Use official fee data from college websites or government reports; if not available, use industry estimates, mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides an economic rationale for the shift from medical to tech, supporting the talent migration hypothesis.",
+    "pre_exhibit_context": "Claim: The high cost and uncertainty of medical education (exacerbated by retests) push students towards more affordable tech streams.",
+    "post_exhibit_takeaway": "Average cost of medical education is 2.5x that of engineering, making tech a more attractive option financially."
+  }
+]

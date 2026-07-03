@@ -1,0 +1,127 @@
+{
+  "core_question": "Should investors increase allocation to Indian tech startups (especially in edtech and healthtech) given the NEET-UG retest disruptions?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "NEET-UG 2026 retests cause a 10-15% decline in medical aspirants, leading to a corresponding increase in engineering/tech enrollments.",
+      "decision_relevance": "Confirms talent shift towards tech, increasing startup potential.",
+      "needed_evidence": [
+        "Year-over-year enrollment data for medical vs. engineering programs; survey data on career intentions."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Edtech startups focusing on test prep for NEET see a 20% drop in revenue, while skill-based platforms grow 30%.",
+      "decision_relevance": "Indicates which edtech segments to invest in.",
+      "needed_evidence": [
+        "Revenue reports of major edtech firms; user growth data for skill platforms."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The number of tech startups founded by students who previously aimed for medical careers increases by 25% in 2027.",
+      "decision_relevance": "Directly measures entrepreneurial output from the shift.",
+      "needed_evidence": [
+        "Founder background data from startup registrations; surveys of new founders."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "VC funding for Indian healthtech startups rises 40% in 2026-27 due to increased interest from medical-aspirant-turned-tech founders.",
+      "decision_relevance": "Identifies funding opportunities in healthtech.",
+      "needed_evidence": [
+        "Quarterly VC funding data for healthtech; deal counts."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Government policy changes (e.g., NEP 2020 implementation) amplify the shift from medical to tech, increasing tech unicorn formation by 15%.",
+      "decision_relevance": "Assesses policy tailwinds for tech ecosystem.",
+      "needed_evidence": [
+        "Policy documents; unicorn creation rates before/after policy changes."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The NEET retest controversy reduces trust in medical education, leading to a 10% increase in students pursuing computer science abroad.",
+      "decision_relevance": "May reduce local tech talent if students go abroad.",
+      "needed_evidence": [
+        "Study abroad application data; CS enrollment in foreign universities."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Local tech unicorns in non-metro cities benefit disproportionately from the talent shift, as students from smaller towns opt for tech over medicine.",
+      "decision_relevance": "Geographic focus for investment.",
+      "needed_evidence": [
+        "Startup location data; founder hometown analysis."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market = Number of NEET aspirants × % shifting to tech × average startup funding per founder",
+      "variables": [
+        "NEET aspirants (2026): 2.5M",
+        "Shift %: 10-15%",
+        "Avg funding per founder: $500K"
+      ],
+      "known_limitations": [
+        "Assumes all shifters become founders; overestimates"
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Sum of revenues of new tech startups founded by former medical aspirants",
+      "variables": [
+        "Number of such startups",
+        "Average revenue per startup"
+      ],
+      "known_limitations": [
+        "Hard to attribute founder background; lag in revenue data"
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Potential unicorns = (Number of shifters) × (fraction who start a company) × (fraction that achieve unicorn status)",
+      "variables": [
+        "Shifters: 250K-375K",
+        "Start fraction: 1%",
+        "Unicorn fraction: 0.1%"
+      ],
+      "known_limitations": [
+        "Conversion rates are speculative; small sample"
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value created = Total VC funding in edtech/healthtech × (share attributable to NEET shift)",
+      "variables": [
+        "Total VC funding in edtech: $2B",
+        "Healthtech: $1.5B",
+        "Share: 20%"
+      ],
+      "known_limitations": [
+        "Attribution is subjective; funding may have other drivers"
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Market size = Number of tech graduates available × average startup revenue per graduate",
+      "variables": [
+        "Tech graduates: 1.5M/year",
+        "Revenue per graduate: $10K"
+      ],
+      "known_limitations": [
+        "Does not account for quality of graduates; assumes all graduates contribute equally"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

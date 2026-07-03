@@ -1,0 +1,492 @@
+{
+  "objective": "To analyze the impact of NEET-UG 2026 exam retests on the rise of local tech unicorns in India, focusing on how disruptions in medical entrance exams may shift talent and investment towards tech entrepreneurship.",
+  "audience": "Venture capitalists, policymakers, edtech founders, and healthcare investors interested in the intersection of education policy and startup ecosystems.",
+  "decision_question": "Should investors increase allocation to Indian tech startups (especially in edtech and healthtech) given the NEET-UG retest disruptions?",
+  "issue_tree": {
+    "root": "NEET-UG 2026 retests and local tech unicorns",
+    "branches": [
+      {
+        "node": "Impact on student career choices",
+        "subnodes": [
+          "Shift from medical to tech streams",
+          "Increase in computer science enrollments"
+        ]
+      },
+      {
+        "node": "Effect on edtech startups",
+        "subnodes": [
+          "Demand for test prep alternatives",
+          "Growth of skill-based learning platforms"
+        ]
+      },
+      {
+        "node": "Talent pool for tech unicorns",
+        "subnodes": [
+          "Availability of STEM graduates",
+          "Entrepreneurial inclination among affected students"
+        ]
+      },
+      {
+        "node": "Investment climate",
+        "subnodes": [
+          "VC funding trends in edtech/healthtech",
+          "Policy support for startups"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "NEET-UG 2026 retests cause a 10-15% decline in medical aspirants, leading to a corresponding increase in engineering/tech enrollments.",
+      "decision_relevance": "Confirms talent shift towards tech, increasing startup potential.",
+      "needed_evidence": [
+        "Year-over-year enrollment data for medical vs. engineering programs; survey data on career intentions."
+      ],
+      "search_queries": [
+        "NEET UG 2026 retest impact on medical admissions",
+        "engineering enrollment trends India 2026",
+        "student career shift after NEET retest survey"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Edtech startups focusing on test prep for NEET see a 20% drop in revenue, while skill-based platforms grow 30%.",
+      "decision_relevance": "Indicates which edtech segments to invest in.",
+      "needed_evidence": [
+        "Revenue reports of major edtech firms; user growth data for skill platforms."
+      ],
+      "search_queries": [
+        "Byju's revenue 2026 NEET impact",
+        "Unacademy NEET test prep revenue decline",
+        "skill-based learning platform growth India 2026"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The number of tech startups founded by students who previously aimed for medical careers increases by 25% in 2027.",
+      "decision_relevance": "Directly measures entrepreneurial output from the shift.",
+      "needed_evidence": [
+        "Founder background data from startup registrations; surveys of new founders."
+      ],
+      "search_queries": [
+        "Indian tech startup founder background medical aspirant",
+        "startup registrations by former NEET students 2027"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "VC funding for Indian healthtech startups rises 40% in 2026-27 due to increased interest from medical-aspirant-turned-tech founders.",
+      "decision_relevance": "Identifies funding opportunities in healthtech.",
+      "needed_evidence": [
+        "Quarterly VC funding data for healthtech; deal counts."
+      ],
+      "search_queries": [
+        "healthtech startup funding India 2026",
+        "VC investment in Indian healthtech Q1 2027"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Government policy changes (e.g., NEP 2020 implementation) amplify the shift from medical to tech, increasing tech unicorn formation by 15%.",
+      "decision_relevance": "Assesses policy tailwinds for tech ecosystem.",
+      "needed_evidence": [
+        "Policy documents; unicorn creation rates before/after policy changes."
+      ],
+      "search_queries": [
+        "NEP 2020 impact on engineering enrollments",
+        "Indian unicorn creation rate 2025 vs 2027"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The NEET retest controversy reduces trust in medical education, leading to a 10% increase in students pursuing computer science abroad.",
+      "decision_relevance": "May reduce local tech talent if students go abroad.",
+      "needed_evidence": [
+        "Study abroad application data; CS enrollment in foreign universities."
+      ],
+      "search_queries": [
+        "Indian students abroad computer science 2026",
+        "NEET retest impact on study abroad intentions"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Local tech unicorns in non-metro cities benefit disproportionately from the talent shift, as students from smaller towns opt for tech over medicine.",
+      "decision_relevance": "Geographic focus for investment.",
+      "needed_evidence": [
+        "Startup location data; founder hometown analysis."
+      ],
+      "search_queries": [
+        "tier-2 city tech startup growth India 2026",
+        "founder background tier-3 cities tech unicorn"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for NEET-UG 2026 exam retests and the rise of local tech unicorns, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total addressable market = Number of NEET aspirants × % shifting to tech × average startup funding per founder",
+        "variables": [
+          "NEET aspirants (2026): 2.5M",
+          "Shift %: 10-15%",
+          "Avg funding per founder: $500K"
+        ],
+        "preferred_sources": [
+          "NTA NEET data",
+          "Ministry of Education reports",
+          "Tracxn funding data"
+        ],
+        "search_queries": [
+          "NEET UG 2026 number of applicants",
+          "average seed funding Indian tech startup 2026"
+        ],
+        "known_limitations": [
+          "Assumes all shifters become founders; overestimates"
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Sum of revenues of new tech startups founded by former medical aspirants",
+        "variables": [
+          "Number of such startups",
+          "Average revenue per startup"
+        ],
+        "preferred_sources": [
+          "Startup registry (DPIIT)",
+          "Annual reports of new unicorns"
+        ],
+        "search_queries": [
+          "DPIIT recognized startups 2027",
+          "revenue of Indian tech unicorns 2026"
+        ],
+        "known_limitations": [
+          "Hard to attribute founder background; lag in revenue data"
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Potential unicorns = (Number of shifters) × (fraction who start a company) × (fraction that achieve unicorn status)",
+        "variables": [
+          "Shifters: 250K-375K",
+          "Start fraction: 1%",
+          "Unicorn fraction: 0.1%"
+        ],
+        "preferred_sources": [
+          "Startup failure rates (IBEF)",
+          "Unicorn creation rates (NASSCOM)"
+        ],
+        "search_queries": [
+          "Indian startup failure rate 2026",
+          "unicorn creation rate India 2026"
+        ],
+        "known_limitations": [
+          "Conversion rates are speculative; small sample"
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Value created = Total VC funding in edtech/healthtech × (share attributable to NEET shift)",
+        "variables": [
+          "Total VC funding in edtech: $2B",
+          "Healthtech: $1.5B",
+          "Share: 20%"
+        ],
+        "preferred_sources": [
+          "PitchBook",
+          "CB Insights India reports"
+        ],
+        "search_queries": [
+          "edtech VC funding India 2026",
+          "healthtech VC funding India 2026"
+        ],
+        "known_limitations": [
+          "Attribution is subjective; funding may have other drivers"
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Market size = Number of tech graduates available × average startup revenue per graduate",
+        "variables": [
+          "Tech graduates: 1.5M/year",
+          "Revenue per graduate: $10K"
+        ],
+        "preferred_sources": [
+          "AICTE data",
+          "Ministry of Labour employment surveys"
+        ],
+        "search_queries": [
+          "engineering graduates India 2026",
+          "average revenue per employee Indian tech startup"
+        ],
+        "known_limitations": [
+          "Does not account for quality of graduates; assumes all graduates contribute equally"
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "NEET-UG 2026 exam retests and the rise of local tech unicorns milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "NEET UG 2026 application numbers",
+    "engineering enrollment India 2026 AICTE",
+    "computer science admissions India 2026",
+    "NEET retest student survey career choice",
+    "edtech ARPU India 2026",
+    "Indian startup burn rate 2026",
+    "engineering graduates India 2026",
+    "edtech funding India 2026",
+    "healthtech funding India 2026",
+    "NEP 2020 implementation status",
+    "edtech market share India 2026",
+    "startup founded by former NEET student",
+    "NEET 2026 retest timeline",
+    "students still pursuing medicine after retest",
+    "Indian unicorn creation rate 2026",
+    "VC investment in Indian healthtech Q1 2027",
+    "NEET UG 2026 retest impact on medical admissions",
+    "engineering enrollment trends India 2026"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Government reports (NTA, AICTE, Ministry of Education)",
+      "Company filings (Byju's, Unacademy annual reports)",
+      "Industry associations (NASSCOM, IBEF)",
+      "International organizations (World Bank education data)"
+    ],
+    "secondary": [
+      "Authoritative media (Economic Times, Business Standard)",
+      "Consulting research (McKinsey, BCG education reports)",
+      "Academic papers on education-to-entrepreneurship"
+    ],
+    "validation": [
+      "Cross-reference enrollment data from multiple sources",
+      "Triangulate funding data from PitchBook, CB Insights, and Tracxn"
+    ]
+  },
+  "outline": [
+    "1. NEET-UG 2026 Retests: A Catalyst for Talent Migration from Medicine to Tech",
+    "2. The Edtech Shakeout: Test Prep Decline vs. Skill Platform Rise",
+    "3. From Aspiring Doctors to Tech Founders: Quantifying the Entrepreneurial Shift",
+    "4. Investment Implications: Where the Money is Flowing (Edtech, Healthtech, and Beyond)",
+    "5. Policy and Geographic Dynamics: NEP 2020 and the Rise of Non-Metro Unicorns",
+    "6. Conclusion: A Structural Shift or a Temporary Blip? Evidence and Counter-Evidence"
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "NEET Applicant Trends vs. Engineering Enrollment (2019-2027)",
+      "question": "Is there a clear inverse correlation between NEET applicants and engineering enrollments?",
+      "type": "line chart with dual axes"
+    },
+    {
+      "title": "Edtech Revenue Shift: Test Prep vs. Skill-Based Platforms (2024-2027)",
+      "question": "Which edtech segments are gaining/losing from the NEET disruption?",
+      "type": "stacked bar chart"
+    },
+    {
+      "title": "VC Funding in Healthtech and Edtech (Quarterly, 2025-2027)",
+      "question": "Is the increase in healthtech funding coincident with NEET retests?",
+      "type": "time series with event markers"
+    },
+    {
+      "title": "Geographic Distribution of New Tech Startups (2026-2027)",
+      "question": "Are non-metro cities seeing a disproportionate increase in tech startups?",
+      "type": "heat map of India"
+    },
+    {
+      "title": "Founder Background Analysis: Medical Aspirants Turned Entrepreneurs",
+      "question": "What percentage of new tech founders had a medical career plan?",
+      "type": "pie chart with case callouts"
+    }
+  ],
+  "risks": [
+    "Data availability: NEET retest impact data may be delayed or not publicly available.",
+    "Attribution: Difficulty isolating NEET effect from other factors (e.g., economic cycles).",
+    "Counter-narrative: Students may still pursue medicine despite retests, weakening the hypothesis.",
+    "Time lag: Entrepreneurial outcomes may take years to materialize, making immediate analysis speculative.",
+    "Policy changes: Government may alter NEET or NEP, changing the landscape mid-analysis."
+  ]
+}
