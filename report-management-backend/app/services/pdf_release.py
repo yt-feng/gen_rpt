@@ -137,17 +137,23 @@ def _build_html_from_report(report: dict) -> str:
 
 
 def _generate_pdf_bytes(html_content: str) -> bytes:
-    """
-    Converts HTML to PDF bytes using xhtml2pdf (pure-Python, no system deps).
-    Returns raw PDF bytes.
-    """
-    from xhtml2pdf import pisa  # type: ignore
+    # Deprecated xhtml2pdf function, no longer used
+    pass
 
-    buf = io.BytesIO()
-    pisa_status = pisa.CreatePDF(html_content, dest=buf)
-    if pisa_status.err:
-        raise RuntimeError(f"PDF generation failed with {pisa_status.err} error(s).")
-    return buf.getvalue()
+
+async def _generate_pdf_via_playwright(html_content: str) -> bytes:
+    """
+    Converts HTML to PDF bytes using Playwright.
+    """
+    from playwright.async_api import async_playwright
+
+    async with async_playwright() as p:
+        browser = await p.chromium.launch()
+        page = await browser.new_page()
+        await page.set_content(html_content, wait_until="networkidle")
+        pdf_bytes = await page.pdf(format="A4", print_background=True)
+        await browser.close()
+        return pdf_bytes
 
 
 def _checksum(data: bytes) -> str:
@@ -300,6 +306,7 @@ class PdfReleaseService:
         Attempts to fetch the HTML from R2 (snapshot_html_url or companion path).
         Falls back to building HTML from the report dict (mock mode).
         """
+        html_str = None
         # Try R2 snapshot HTML path (real mode)
         snapshot_html_path = report.get("snapshot_html_url")
         if snapshot_html_path:
@@ -307,41 +314,79 @@ class PdfReleaseService:
                 data = await storage_provider.download(snapshot_html_path)
                 if data:
                     logger.info(f"[PdfRelease] HTML loaded from R2: {snapshot_html_path}")
-                    return data.decode("utf-8", errors="replace")
+                    html_str = data.decode("utf-8", errors="replace")
             except Exception as e:
                 logger.warning(f"[PdfRelease] Could not load HTML from R2 ({snapshot_html_path}): {e}")
 
         # Try companion path derived from pdfPath
-        pdf_path = report.get("pdfPath", "")
-        if pdf_path.endswith(".pdf"):
-            html_path = pdf_path.replace(".pdf", ".html")
-            try:
-                data = await storage_provider.download(html_path)
-                if data:
-                    logger.info(f"[PdfRelease] HTML loaded from R2 companion path: {html_path}")
-                    return data.decode("utf-8", errors="replace")
-            except Exception as e:
-                logger.warning(f"[PdfRelease] Could not load companion HTML ({html_path}): {e}")
+        if not html_str:
+            pdf_path = report.get("pdfPath", "")
+            if pdf_path.endswith(".pdf"):
+                html_path = pdf_path.replace(".pdf", ".html")
+                try:
+                    data = await storage_provider.download(html_path)
+                    if data:
+                        logger.info(f"[PdfRelease] HTML loaded from R2 companion path: {html_path}")
+                        html_str = data.decode("utf-8", errors="replace")
+                except Exception as e:
+                    logger.warning(f"[PdfRelease] Could not load companion HTML ({html_path}): {e}")
 
         # Try reports_web slug-based path
-        slug = report.get("slug") or report_id
-        web_html_path = f"reports_web/{slug}/index.html"
-        try:
-            data = await storage_provider.download(web_html_path)
-            if data:
-                logger.info(f"[PdfRelease] HTML loaded from reports_web path: {web_html_path}")
-                return data.decode("utf-8", errors="replace")
-        except Exception as e:
-            logger.warning(f"[PdfRelease] Could not load reports_web HTML ({web_html_path}): {e}")
+        if not html_str:
+            slug = report.get("slug") or report_id
+            web_html_path = f"reports_web/{slug}/index.html"
+            try:
+                data = await storage_provider.download(web_html_path)
+                if data:
+                    logger.info(f"[PdfRelease] HTML loaded from reports_web path: {web_html_path}")
+                    html_str = data.decode("utf-8", errors="replace")
+            except Exception as e:
+                logger.warning(f"[PdfRelease] Could not load reports_web HTML ({web_html_path}): {e}")
+
+        if html_str:
+            return self._inject_html_content(html_str, report)
 
         # Fallback: build from report dict
         logger.info(f"[PdfRelease] Building HTML from report dict for {report_id}")
         return _build_html_from_report(report)
 
+    def _inject_html_content(self, html_str: str, report: dict) -> str:
+        report_text = report.get("reportContent", {}).get("text")
+        if not report_text:
+            return html_str
+        
+        try:
+            from bs4 import BeautifulSoup
+            import markdown
+            soup = BeautifulSoup(html_str, "html.parser")
+            article = soup.find("article", class_="article-main")
+            if article:
+                # Convert markdown text to HTML
+                md_html = markdown.markdown(report_text)
+                article.clear()
+                new_content = BeautifulSoup(md_html, "html.parser")
+                article.append(new_content)
+                return str(soup)
+        except Exception as e:
+            logger.warning(f"[PdfRelease] Failed to inject dynamic content: {e}")
+        return html_str
+
     async def _generate_pdf(self, html_content: str) -> bytes:
-        """Runs xhtml2pdf in a thread to avoid blocking the event loop."""
-        from anyio import to_thread
-        return await to_thread.run_sync(_generate_pdf_bytes, html_content)
+        from playwright.async_api import async_playwright
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True, 
+                args=['--no-sandbox', '--disable-setuid-sandbox']
+            )
+            page = await browser.new_page()
+            await page.set_content(html_content, wait_until="load")
+            pdf_bytes = await page.pdf(
+                format="A4",
+                print_background=True,
+                margin={"top": "2cm", "bottom": "2cm", "left": "2.5cm", "right": "2.5cm"}
+            )
+            await browser.close()
+            return pdf_bytes
 
     async def _get_latest_active(
         self, db: AsyncSession, doc_uuid: uuid.UUID

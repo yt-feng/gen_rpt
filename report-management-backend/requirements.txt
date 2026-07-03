@@ -16,4 +16,6 @@ pytest>=8.2.2
 pytest-asyncio>=0.23.0
 aiosqlite>=0.20.0
 python-dotenv>=1.0.0
-xhtml2pdf>=0.2.16
+playwright>=1.44.0
+beautifulsoup4>=4.12.3
+markdown>=3.6.0
