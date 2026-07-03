@@ -343,54 +343,93 @@ async def update_report_status(
         except Exception:
             pass  # Best-effort — never break the status update
         
-    if payload.status == "Needs Revision":
-        # Create a database Document if it doesn't exist
-        # This allows us to attach a GenerationJob without ForeignKey constraints failing
-        import uuid
-        import hashlib
-        try:
-            doc_uuid = uuid.UUID(document_id)
-        except ValueError:
-            # Generate deterministic UUID from mock ID
-            m = hashlib.md5()
-            m.update(document_id.encode('utf-8'))
-            doc_uuid = uuid.UUID(m.hexdigest())
-            
-        from sqlalchemy import select
-        from app.models.document import Document
-        
-        # Check if doc exists in DB
-        stmt = select(Document).where(Document.id == doc_uuid)
-        res = await db.execute(stmt)
-        db_doc = res.scalar_one_or_none()
-        
-        if not db_doc:
-            db_doc = Document(
-                id=doc_uuid,
-                title=report["title"],
-                slug=document_id,
-                industry="Financial Services",
-                language="en",
-                status="needs_revision"
-            )
-            db.add(db_doc)
-            await db.commit()
-            
-        # Create a generation job
-        from app.services.generation import generation_service
-        job = await generation_service.create_job(
-            db=db,
-            document_id=doc_uuid,
-            topic=report["title"],
-            prompt="Human review revision instructions",
-            report_type="technical",
-            created_by=UUID(user["id"])
-        )
-        # Store original string mock ID so simulator updates it
-        job.workflow = document_id
-        await db.commit()
+    # Removed the legacy 'Needs Revision' full report generation job.
+    # Revisions are now handled by the surgical /revise-section endpoint.
         
     return success_response(data=report, message="Report status updated")
+
+class SectionRevisionRequest(BaseModel):
+    section_heading: str
+    instructions: str
+
+@router.post("/{document_id}/revise-section", response_model=APIResponse[dict])
+async def revise_section(
+    document_id: str,
+    req: SectionRevisionRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Surgically revise a single section of the report using AI.
+    """
+    import httpx
+    import os
+
+    if document_id not in MOCK_REPORTS:
+        return error_response(message="Report not found")
+
+    report = MOCK_REPORTS[document_id]
+    original_text = ""
+    target_section = None
+    
+    for section in report.get("reportContent", {}).get("sections", []):
+        if section.get("heading") == req.section_heading:
+            original_text = section.get("body", "")
+            target_section = section
+            break
+            
+    if not target_section:
+        return error_response(message="Section not found in report")
+
+    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
+    new_text = f"[AI Revision based on: {req.instructions}] {original_text} (simulated update)"
+
+    if api_key:
+        try:
+            is_groq = "gsk_" in api_key
+            url = "https://api.groq.com/openai/v1/chat/completions" if is_groq else "https://api.deepseek.com/chat/completions"
+            model = "llama-3.3-70b-versatile" if is_groq else "deepseek-chat"
+            
+            headers = {
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json"
+            }
+            prompt = f"Rewrite the following report section based on these instructions from a reviewer:\nReviewer Instructions: {req.instructions}\n\nOriginal Section Text:\n{original_text}"
+            payload = {
+                "model": model,
+                "messages": [
+                    {"role": "system", "content": "You are a professional report editor. Return only the edited text without any conversational filler or quotes. Maintain the professional tone of the report."},
+                    {"role": "user", "content": prompt}
+                ]
+            }
+            async with httpx.AsyncClient() as client:
+                resp = await client.post(url, headers=headers, json=payload, timeout=30.0)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    new_text = data["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            print(f"AI API failed: {e}")
+
+    # Update the section
+    target_section["body"] = new_text
+
+    # Try to push the updated JSON back to R2 and trigger PDF generation
+    try:
+        from app.services.generation import _save_report_payload_to_r2
+        from app.services.pdf_release import pdf_release_service
+        
+        slug = report.get("slug") or document_id
+        await _save_report_payload_to_r2(slug, report.get("title", ""), report)
+        
+        # Trigger PDF generation so the preview will have the new text
+        await pdf_release_service.get_or_generate_pdf(slug, report, force=True)
+    except Exception as e:
+        print(f"Failed to sync revised report to R2 or PDF: {e}")
+
+    return success_response(
+        data={"edited_text": new_text}, 
+        message="Section revised successfully"
+    )
 
 @router.get("/{document_id}/download-url", response_model=APIResponse[dict])
 async def get_report_download_url(
