@@ -1,4 +1,4 @@
-name: "[BULK] Generate HTML Thought Leadership Report"
+name: "[BULK] Generate HTML Thought Leadership Report + AI Review"
 
 on:
   workflow_dispatch:
@@ -21,16 +21,17 @@ permissions:
   contents: read
   actions: write
 
-# KEY CHANGE: scoped per-slug so 10 simultaneous reports never block each other.
+# KEY CHANGE: scoped per-slug so simultaneous reports never block each other.
 concurrency:
   group: bulk-gen-${{ inputs.slug || github.run_id }}
   cancel-in-progress: false
 
 jobs:
-  generate-report:
+  generate-and-review-report:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     env:
+      # Generation Config
       GEN_RPT_PER_QUERY: 5
       GEN_RPT_MAX_SOURCES: 32
       GEN_RPT_MAX_QUERIES: 24
@@ -44,6 +45,10 @@ jobs:
       TOPIC_INPUT: ${{ inputs.topic }}
       SLUG_INPUT: ${{ inputs.slug }}
       MODEL_INPUT: ${{ inputs.model || 'deepseek-chat' }}
+      
+      # Review Config
+      REVIEW_MODEL: llama-3.3-70b-versatile
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,20 +60,29 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install dependencies (Generation + Review)
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install -r review_system/requirements.txt
 
-      - name: Validate secret
+      - name: Validate API keys
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
           if [ -z "$DEEPSEEK_API_KEY" ]; then
-            echo "Missing DEEPSEEK_API_KEY secret" >&2
+            echo "::error::Missing DEEPSEEK_API_KEY secret" >&2
+            exit 1
+          fi
+          if [ -z "$GROQ_API_KEY" ]; then
+            echo "::error::Missing GROQ_API_KEY secret" >&2
             exit 1
           fi
 
+      # ---------------------------------------------------------
+      # PHASE 1: GENERATION
+      # ---------------------------------------------------------
       - name: Generate report
         id: generate_report
         env:
@@ -91,17 +105,95 @@ jobs:
 
           REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
           if [ -z "$REPORT_DIR" ]; then
-            echo "Could not locate generated report directory" >&2
+            echo "::error::Could not locate generated report directory" >&2
             exit 1
           fi
+          
+          REPORT_ID="$(basename "$REPORT_DIR")"
           echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
+          echo "report_id=$REPORT_ID" >> "$GITHUB_OUTPUT"
           echo "document_id=$SLUG" >> "$GITHUB_OUTPUT"
 
-      # NOTE: The "Commit generated report back to repo" step is intentionally
-      # OMITTED here. With concurrent bulk generation, multiple runners writing
-      # to the same git branch simultaneously causes race conditions and merge
-      # conflicts. R2 + the Postgres webhook are the sole source of truth.
+      # NOTE: No Git Commit Step here. Makes workflow stateless & concurrent.
 
+      # ---------------------------------------------------------
+      # PHASE 2: AI REVIEW
+      # ---------------------------------------------------------
+      - name: Run AI review pipeline
+        id: run_review
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+        run: |
+          set -euo pipefail
+          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
+          REPORT_ID="${{ steps.generate_report.outputs.report_id }}"
+          REPORT_PATH="$REPORT_DIR/report.md"
+          OUTPUT_DIR="review_outputs/$REPORT_ID"
+          
+          echo "output_dir=$OUTPUT_DIR" >> "$GITHUB_OUTPUT"
+
+          python review_system/main.py \
+            --report  "$REPORT_PATH" \
+            --output  "$OUTPUT_DIR" \
+            --model   "$REVIEW_MODEL"
+
+      - name: Verify review outputs
+        run: |
+          set -euo pipefail
+          OUTPUT_DIR="${{ steps.run_review.outputs.output_dir }}"
+          EXPECTED=(review.md review.json review.html claims.json findings.json scores.json)
+          MISSING=()
+
+          for f in "${EXPECTED[@]}"; do
+            if [ ! -f "$OUTPUT_DIR/$f" ]; then
+              MISSING+=("$f")
+            fi
+          done
+
+          if [ ${#MISSING[@]} -gt 0 ]; then
+            echo "::error::Missing mandatory review output files: ${MISSING[*]}" >&2
+            exit 1
+          fi
+
+      - name: Write review_status.json
+        if: always()
+        run: |
+          OUTPUT_DIR="review_outputs/${{ steps.generate_report.outputs.report_id }}"
+          REPORT_ID="${{ steps.generate_report.outputs.report_id }}"
+          STATUS="${{ steps.run_review.outcome }}"   
+
+          mkdir -p "$OUTPUT_DIR"
+
+          python - <<'PYEOF'
+          import json, os
+          from datetime import datetime, timezone
+
+          output_dir = os.environ.get("OUTPUT_DIR", "review_outputs/unknown")
+          report_id  = os.environ.get("REPORT_ID", "unknown")
+          status     = os.environ.get("STATUS", "unknown")
+
+          payload = {
+              "report_id":      report_id,
+              "review_status":  status,
+              "timestamp_utc":  datetime.now(timezone.utc).isoformat(),
+              "workflow_run_id": os.environ.get("GITHUB_RUN_ID", ""),
+              "model":          os.environ.get("REVIEW_MODEL", "llama-3.3-70b-versatile"),
+              "bulk":           True
+          }
+          out_path = os.path.join(output_dir, "review_status.json")
+          os.makedirs(output_dir, exist_ok=True)
+          with open(out_path, "w") as f:
+              json.dump(payload, f, indent=2)
+          print(f"review_status.json written to {out_path}")
+          PYEOF
+        env:
+          OUTPUT_DIR: review_outputs/${{ steps.generate_report.outputs.report_id }}
+          REPORT_ID:  ${{ steps.generate_report.outputs.report_id }}
+          STATUS:     ${{ steps.run_review.outcome }}
+
+      # ---------------------------------------------------------
+      # PHASE 3: UPLOAD TO R2 & TRIGGER WEBHOOKS
+      # ---------------------------------------------------------
       - name: Check R2 secrets
         id: check_r2
         env:
@@ -121,7 +213,7 @@ jobs:
         run: |
           pip install -r storage/requirements.txt
 
-      - name: Upload report to R2
+      - name: Upload GENERATED REPORT to R2
         if: steps.check_r2.outputs.has_r2_secrets == 'true'
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
@@ -138,7 +230,7 @@ jobs:
             --log-level INFO \
             --skip-catalog-update
 
-      - name: Trigger Backend Workflow Event
+      - name: Trigger Backend Report Webhook
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
@@ -161,11 +253,42 @@ jobs:
                  }
                }'
 
-      - name: Trigger AI Review Workflow (Bulk)
+      - name: Upload REVIEW to R2
+        if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+          STORAGE_LOG_DIR:      /tmp/storage-logs
         run: |
-          echo "Triggering Bulk AI Review workflow..."
-          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
-          REPORT_ID="$(basename "$REPORT_DIR")"
-          gh workflow run generate_review_bulk.yml -f report_id="$REPORT_ID"
+          set -euo pipefail
+          REPORT_ID="${{ steps.generate_report.outputs.report_id }}"
+          OUTPUT_DIR="review_outputs/$REPORT_ID"
+          python -m storage.upload_review \
+            --review-dir "$OUTPUT_DIR" \
+            --report-id  "$REPORT_ID" \
+            --log-level  INFO
+
+      - name: Trigger Backend Review Webhook
+        if: steps.run_review.outcome == 'success'
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "BACKEND_URL secret missing, skipping webhook"
+            exit 0
+          fi
+          
+          curl -X POST "$BACKEND_URL/api/internal/events/review-generated" \
+               -H "Content-Type: application/json" \
+               -H "x-internal-token: $INTERNAL_TOKEN" \
+               -d '{
+                 "document_id": "${{ steps.generate_report.outputs.report_id }}",
+                 "idempotency_key": "github-actions-bulk-review-${{ github.run_id }}-${{ github.run_attempt }}",
+                 "metadata": {
+                   "run_id": "${{ github.run_id }}",
+                   "bulk": true
+                 }
+               }'

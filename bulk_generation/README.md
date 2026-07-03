@@ -15,8 +15,7 @@ bulk_generation/
 .github/workflows/
 ├── generate_deep_research_v2.yml   ← ORIGINAL (untouched, production)
 ├── generate_review_v2.yml          ← ORIGINAL (untouched, production)
-├── generate_deep_research_bulk.yml ← NEW: bulk generation (this system)
-└── generate_review_bulk.yml        ← NEW: bulk review (this system)
+└── generate_deep_research_bulk.yml ← NEW: combined bulk generation + review
 ```
 
 ---
@@ -76,7 +75,7 @@ python bulk_generation/dispatch_bulk.py --jobs bulk_generation/my_jobs.json --dr
 | Git commit/push | ✅ Yes (report HTML committed to repo) | ❌ Removed (race condition risk) |
 | R2 upload | ✅ Yes | ✅ Yes (unchanged) |
 | Backend webhook | ✅ Yes | ✅ Yes (unchanged) |
-| Review trigger | `generate_review_v2.yml` | `generate_review_bulk.yml` |
+| Review trigger | `generate_review_v2.yml` | Combined inside `generate_deep_research_bulk.yml` |
 | Trigger method | Single manual dispatch or API | `dispatch_bulk.py` dispatcher |
 
 ---
