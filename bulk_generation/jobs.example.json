@@ -1,0 +1,17 @@
+[
+  {
+    "topic": "AI in Healthcare: Strategic Outlook 2026",
+    "slug": "ai-healthcare-2026",
+    "model": "deepseek-chat"
+  },
+  {
+    "topic": "Quantum Computing Commercialization and Strategic Implications",
+    "slug": "quantum-computing-2026",
+    "model": "deepseek-chat"
+  },
+  {
+    "topic": "Green Hydrogen Economy: Investment Landscape",
+    "slug": "green-hydrogen-2026",
+    "model": "deepseek-chat"
+  }
+]

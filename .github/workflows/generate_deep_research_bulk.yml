@@ -1,0 +1,171 @@
+name: "[BULK] Generate HTML Thought Leadership Report"
+
+on:
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: English thought-leadership topic.
+        required: true
+        type: string
+      slug:
+        description: Required unique output directory slug (must be unique per report).
+        required: true
+        type: string
+      model:
+        description: DeepSeek model name
+        required: false
+        default: deepseek-chat
+        type: string
+
+permissions:
+  contents: read
+  actions: write
+
+# KEY CHANGE: scoped per-slug so 10 simultaneous reports never block each other.
+concurrency:
+  group: bulk-gen-${{ inputs.slug || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  generate-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GEN_RPT_PER_QUERY: 5
+      GEN_RPT_MAX_SOURCES: 32
+      GEN_RPT_MAX_QUERIES: 24
+      GEN_RPT_GDELT_QUERIES: 2
+      GEN_RPT_GDELT_TIMESPAN: 36months
+      GEN_RPT_FETCH_TIMEOUT: 18
+      MAX_AI_SECTION_IMAGES: 12
+      AI_IMAGE_TIMEOUT: 45
+      AI_IMAGE_RETRIES: 3
+      SHOW_FALLBACK_IMAGES: true
+      TOPIC_INPUT: ${{ inputs.topic }}
+      SLUG_INPUT: ${{ inputs.slug }}
+      MODEL_INPUT: ${{ inputs.model || 'deepseek-chat' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Validate secret
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          if [ -z "$DEEPSEEK_API_KEY" ]; then
+            echo "Missing DEEPSEEK_API_KEY secret" >&2
+            exit 1
+          fi
+
+      - name: Generate report
+        id: generate_report
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+        run: |
+          set -euo pipefail
+          TOPIC="$TOPIC_INPUT"
+          SLUG="$SLUG_INPUT"
+          MODEL="$MODEL_INPUT"
+
+          mkdir -p reports_web
+          GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
+          
+          python -u -m gen_rpt.main_web \
+            --topic "$TOPIC" \
+            --slug "$SLUG" \
+            --language en \
+            --model "$MODEL" \
+            --out-root reports_web > "$GEN_LOG" 2>&1
+
+          REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
+          if [ -z "$REPORT_DIR" ]; then
+            echo "Could not locate generated report directory" >&2
+            exit 1
+          fi
+          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
+          echo "document_id=$SLUG" >> "$GITHUB_OUTPUT"
+
+      # NOTE: The "Commit generated report back to repo" step is intentionally
+      # OMITTED here. With concurrent bulk generation, multiple runners writing
+      # to the same git branch simultaneously causes race conditions and merge
+      # conflicts. R2 + the Postgres webhook are the sole source of truth.
+
+      - name: Check R2 secrets
+        id: check_r2
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+        run: |
+          if [ -n "$R2_ACCOUNT_ID" ] && [ -n "$R2_ACCESS_KEY_ID" ] && [ -n "$R2_SECRET_ACCESS_KEY" ] && [ -n "$R2_BUCKET" ]; then
+            echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install R2 storage dependencies
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        run: |
+          pip install -r storage/requirements.txt
+
+      - name: Upload report to R2
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        env:
+          R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET:            ${{ secrets.R2_BUCKET }}
+          STORAGE_LOG_DIR:      /tmp/storage-logs
+        run: |
+          set -euo pipefail
+          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
+          python -m storage.upload_report \
+            --report-dir "$REPORT_DIR" \
+            --status generated \
+            --log-level INFO \
+            --skip-catalog-update
+
+      - name: Trigger Backend Workflow Event
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "BACKEND_URL secret missing, skipping webhook"
+            exit 0
+          fi
+          
+          curl -X POST "$BACKEND_URL/api/internal/events/report-generated" \
+               -H "Content-Type: application/json" \
+               -H "x-internal-token: $INTERNAL_TOKEN" \
+               -d '{
+                 "document_id": "${{ inputs.slug }}",
+                 "idempotency_key": "github-actions-bulk-${{ github.run_id }}-${{ github.run_attempt }}",
+                 "metadata": {
+                   "run_id": "${{ github.run_id }}",
+                   "slug": "${{ inputs.slug }}",
+                   "bulk": true
+                 }
+               }'
+
+      - name: Trigger AI Review Workflow (Bulk)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Triggering Bulk AI Review workflow..."
+          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
+          REPORT_ID="$(basename "$REPORT_DIR")"
+          gh workflow run generate_review_bulk.yml -f report_id="$REPORT_ID"
