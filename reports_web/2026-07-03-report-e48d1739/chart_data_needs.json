@@ -1,275 +1,226 @@
 [
   {
     "id": "chart-need-1",
-    "title": "EU-China Bilateral Trade Volume (2019-2024)",
+    "title": "Bilateral Trade Volume and Share Trend (2018-2024)",
     "chart_type": "line",
-    "executive_question": "How has the total trade volume between the EU and China evolved over the past six years?",
+    "executive_question": "Has China's share of EU imports peaked and started declining?",
     "required_metrics": [
-      "{'year': 2019, 'value': 'EU imports from China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2020, 'value': 'EU imports from China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2021, 'value': 'EU imports from China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2022, 'value': 'EU imports from China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2023, 'value': 'EU imports from China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2024, 'value': 'EU imports from China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2019, 'value': 'EU exports to China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2020, 'value': 'EU exports to China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2021, 'value': 'EU exports to China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2022, 'value': 'EU exports to China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2023, 'value': 'EU exports to China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}",
-      "{'year': 2024, 'value': 'EU exports to China (EUR billion)', 'unit': 'EUR billion', 'entity': 'EU27'}"
+      "Year: 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+      "EU imports from China (EUR billion)",
+      "Total EU extra-EU imports (EUR billion)",
+      "China share of EU imports (%)",
+      "Entity: EU27",
+      "Source: Eurostat Comext"
     ],
     "comparison_set": [
-      "EU imports from China vs EU exports to China, year over year"
+      "EU imports from other top partners (US, UK, Switzerland) for context."
     ],
     "preferred_sources": [
-      "Eurostat (Comext database)",
-      "China Customs General Administration"
+      "Eurostat Comext",
+      "European Commission DG Trade"
     ],
     "search_queries": [
-      "Eurostat EU China trade statistics 2023",
-      "China Customs EU trade data 2023",
-      "EU China trade volume 2024 Eurostat"
+      "Eurostat EU imports from China 2018 2023",
+      "EU extra-EU imports by partner 2023",
+      "China share of EU imports 2024 estimate"
     ],
-    "data_quality_rule": "Use Eurostat as primary source; if 2024 data is incomplete, use first half annualized or IMF Direction of Trade Statistics as proxy, and mark as estimate.",
+    "data_quality_rule": "Use official Eurostat data; if 2024 data is preliminary, note as estimate. Require at least 4 annual observations; if only 2 endpoints, use CAGR from 2018-2023 and apply to 2024 as estimate.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Establishes the baseline trend of trade deceleration and resilience.",
-    "pre_exhibit_context": "Before showing this chart, the report claims that trade growth has decelerated since 2022 but volumes remain high.",
-    "post_exhibit_takeaway": "Trade peaked in 2022 and has since declined slightly, but remains above pre-pandemic levels, indicating deep interdependence."
+    "narrative_role": "Establishes the macro trend of trade decoupling.",
+    "pre_exhibit_context": "Claim: China's share of EU imports has peaked and is declining due to de-risking policies.",
+    "post_exhibit_takeaway": "China's share of EU imports declined from 22.4% in 2020 to 20.5% in 2023, supporting the decoupling narrative."
   },
   {
     "id": "chart-need-2",
-    "title": "Chinese FDI into Europe by Sector (2020-2023)",
-    "chart_type": "bar",
-    "executive_question": "Which sectors are attracting Chinese FDI in Europe, and how has the sector mix changed?",
+    "title": "FDI Flows: Chinese Investment in EU vs. European Investment in China (2018-2023)",
+    "chart_type": "line",
+    "executive_question": "How have bilateral investment flows changed in recent years?",
     "required_metrics": [
-      "{'year': 2020, 'sector': 'Automotive', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2021, 'sector': 'Automotive', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2022, 'sector': 'Automotive', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2023, 'sector': 'Automotive', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2020, 'sector': 'Technology', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2021, 'sector': 'Technology', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2022, 'sector': 'Technology', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2023, 'sector': 'Technology', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2020, 'sector': 'Renewable Energy', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2021, 'sector': 'Renewable Energy', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2022, 'sector': 'Renewable Energy', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2023, 'sector': 'Renewable Energy', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2020, 'sector': 'Other', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2021, 'sector': 'Other', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2022, 'sector': 'Other', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}",
-      "{'year': 2023, 'sector': 'Other', 'value': 'FDI value (EUR million)', 'unit': 'EUR million', 'entity': 'China to EU'}"
+      "Year: 2018, 2019, 2020, 2021, 2022, 2023",
+      "Chinese FDI in EU (USD billion)",
+      "European FDI in China (USD billion)",
+      "Entity: EU27, China",
+      "Source: Rhodium Group, MOFCOM, fDi Markets"
     ],
     "comparison_set": [
-      "Sector breakdown over time"
+      "None needed, but can add sector breakdown if available."
     ],
     "preferred_sources": [
-      "China Ministry of Commerce (MOFCOM) outward FDI statistics",
-      "Rhodium Group / MERICS China Investment Monitor",
-      "EU FDI screening reports"
+      "Rhodium Group China Investment Monitor",
+      "MOFCOM FDI Statistics",
+      "fDi Markets"
     ],
     "search_queries": [
-      "Chinese FDI in Europe 2023 sector breakdown",
-      "China Ministry of Commerce outward FDI statistics",
-      "Rhodium Group China investment monitor Europe 2023"
+      "Rhodium Group Chinese investment in Europe 2023",
+      "MOFCOM European FDI in China 2023",
+      "fDi Markets China EU FDI flows 2018 2023"
     ],
-    "data_quality_rule": "Use Rhodium Group/MERICS as primary source; if sector breakdown not available for all years, use MOFCOM aggregate and allocate using deal-level data from fDi Markets.",
+    "data_quality_rule": "Use Rhodium Group data for Chinese FDI; MOFCOM for European FDI. If data gaps exist, note as estimates. Require at least 4 annual observations; if only 2 endpoints, use CAGR from 2018-2023 and apply to 2024 as estimate.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Supports the hypothesis that Chinese investment is shifting from traditional sectors to high-tech and green energy.",
-    "pre_exhibit_context": "Before showing, the report states that Chinese FDI is pivoting away from automotive toward tech and renewables.",
-    "post_exhibit_takeaway": "Investment in renewable energy and technology has grown significantly, while automotive and real estate have declined."
+    "narrative_role": "Shows the shift in investment patterns and the impact of regulatory scrutiny.",
+    "pre_exhibit_context": "Claim: European FDI in China is shifting from manufacturing to services and R&D, while Chinese investment in Europe faces increasing scrutiny.",
+    "post_exhibit_takeaway": "Chinese FDI in Europe peaked in 2016 and declined sharply after 2019, while European FDI in China remained stable but shifted towards services."
   },
   {
     "id": "chart-need-3",
-    "title": "Impact of CBAM on Chinese Exports of Steel, Aluminum, and Cement",
+    "title": "Sectoral Trade Breakdown: Top 5 Sectors (2023)",
     "chart_type": "bar",
-    "executive_question": "How much additional cost will the EU's Carbon Border Adjustment Mechanism impose on Chinese exports?",
+    "executive_question": "Which sectors dominate bilateral trade and which are most exposed to decoupling?",
     "required_metrics": [
-      "{'year': 2023, 'product': 'Steel', 'value': 'Export volume (tonnes)', 'unit': 'tonnes', 'entity': 'China to EU'}",
-      "{'year': 2023, 'product': 'Aluminum', 'value': 'Export volume (tonnes)', 'unit': 'tonnes', 'entity': 'China to EU'}",
-      "{'year': 2023, 'product': 'Cement', 'value': 'Export volume (tonnes)', 'unit': 'tonnes', 'entity': 'China to EU'}",
-      "{'year': 2024, 'product': 'Steel', 'value': 'Export volume (tonnes)', 'unit': 'tonnes', 'entity': 'China to EU'}",
-      "{'year': 2024, 'product': 'Aluminum', 'value': 'Export volume (tonnes)', 'unit': 'tonnes', 'entity': 'China to EU'}",
-      "{'year': 2024, 'product': 'Cement', 'value': 'Export volume (tonnes)', 'unit': 'tonnes', 'entity': 'China to EU'}",
-      "{'year': 2024, 'product': 'Steel', 'value': 'CBAM carbon price (EUR per tonne CO2)', 'unit': 'EUR/tonne CO2', 'entity': 'EU ETS'}",
-      "{'year': 2024, 'product': 'Aluminum', 'value': 'CBAM carbon price (EUR per tonne CO2)', 'unit': 'EUR/tonne CO2', 'entity': 'EU ETS'}",
-      "{'year': 2024, 'product': 'Cement', 'value': 'CBAM carbon price (EUR per tonne CO2)', 'unit': 'EUR/tonne CO2', 'entity': 'EU ETS'}",
-      "{'year': 2024, 'product': 'Steel', 'value': 'Carbon intensity (tonnes CO2 per tonne product)', 'unit': 'tonnes CO2/tonne', 'entity': 'Chinese production'}",
-      "{'year': 2024, 'product': 'Aluminum', 'value': 'Carbon intensity (tonnes CO2 per tonne product)', 'unit': 'tonnes CO2/tonne', 'entity': 'Chinese production'}",
-      "{'year': 2024, 'product': 'Cement', 'value': 'Carbon intensity (tonnes CO2 per tonne product)', 'unit': 'tonnes CO2/tonne', 'entity': 'Chinese production'}"
+      "Year: 2023",
+      "Sector: Machinery, Electronics, Automotive, Chemicals, Consumer Goods",
+      "EU imports from China (EUR billion)",
+      "EU exports to China (EUR billion)",
+      "Entity: EU27, China",
+      "Source: Eurostat Comext"
     ],
     "comparison_set": [
-      "Additional cost per product category"
+      "Compare 2023 values to 2018 values to show change."
     ],
     "preferred_sources": [
-      "European Commission CBAM regulation",
-      "Eurostat trade data",
-      "World Steel Association",
-      "International Aluminum Institute",
-      "Cembureau"
+      "Eurostat Comext",
+      "UN Comtrade"
     ],
     "search_queries": [
-      "CBAM implementation 2024",
-      "China steel exports to EU 2023",
-      "EU carbon price 2024"
+      "Eurostat EU imports from China by sector 2023",
+      "EU exports to China machinery electronics automotive 2023",
+      "China EU trade by HS code 2023"
     ],
-    "data_quality_rule": "Use official EU ETS carbon price (average of 2024); carbon intensity from industry benchmarks; if 2024 export volumes not available, use 2023 as proxy and note.",
+    "data_quality_rule": "Use official Eurostat data; if sector definitions differ, note as approximate. Require actual values; no estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Quantifies the financial impact of a key policy risk on specific sectors.",
-    "pre_exhibit_context": "Before showing, the report introduces CBAM as a major regulatory change affecting Chinese exports.",
-    "post_exhibit_takeaway": "CBAM could add hundreds of millions of euros in costs for Chinese steel, aluminum, and cement exports, potentially reducing competitiveness."
+    "narrative_role": "Identifies key sectors for deeper analysis.",
+    "pre_exhibit_context": "Claim: Trade decoupling is sector-specific, with some sectors more affected than others.",
+    "post_exhibit_takeaway": "Machinery, electronics, and automotive are the top sectors, with electronics showing the largest decline in trade share."
   },
   {
     "id": "chart-need-4",
-    "title": "European EV Market Share by Origin (2022-2024)",
-    "chart_type": "line",
-    "executive_question": "Are Chinese electric vehicles gaining market share in Europe?",
+    "title": "CBAM Exposure: China's Exports of Covered Goods to EU (2023)",
+    "chart_type": "bar",
+    "executive_question": "How much of China's exports to the EU will be affected by CBAM?",
     "required_metrics": [
-      "{'year': 2022, 'origin': 'Chinese brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2023, 'origin': 'Chinese brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2024, 'origin': 'Chinese brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2022, 'origin': 'European brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2023, 'origin': 'European brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2024, 'origin': 'European brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2022, 'origin': 'Other brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2023, 'origin': 'Other brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}",
-      "{'year': 2024, 'origin': 'Other brands', 'value': 'Market share (%)', 'unit': '%', 'entity': 'EU new EV registrations'}"
+      "Year: 2023",
+      "Product: Steel, Aluminum, Cement, Fertilizers, Electricity",
+      "EU imports from China (EUR billion)",
+      "Entity: EU27, China",
+      "Source: Eurostat Comext, European Commission"
     ],
     "comparison_set": [
-      "Market share by origin over time"
+      "Compare to total EU imports of these goods from all sources."
     ],
     "preferred_sources": [
-      "ACEA (European Automobile Manufacturers Association)",
-      "EV Volumes",
-      "IEA Global EV Outlook"
+      "Eurostat Comext",
+      "European Commission CBAM documentation"
     ],
     "search_queries": [
-      "ACEA EV market share 2023",
-      "Chinese EV market share Europe 2023",
-      "IEA Global EV Outlook 2024"
+      "Eurostat EU imports of steel from China 2023",
+      "CBAM covered goods China exports to EU 2023",
+      "EU aluminum imports from China 2023"
     ],
-    "data_quality_rule": "Use ACEA data as primary; if 2024 not available, use EV Volumes estimates and mark as provisional.",
+    "data_quality_rule": "Use official Eurostat data; if product codes are not exact, note as approximate. Require actual values; no estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Provides evidence for the EV flashpoint hypothesis and the impact of EU anti-subsidy investigations.",
-    "pre_exhibit_context": "Before showing, the report claims that the EV sector is becoming a flashpoint with EU investigations.",
-    "post_exhibit_takeaway": "Chinese EV market share in Europe has risen from around 3% in 2022 to an estimated 8% in 2024, despite trade barriers."
+    "narrative_role": "Quantifies the impact of a key regulatory change.",
+    "pre_exhibit_context": "Claim: The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly impact China's exports of steel, aluminum, and cement.",
+    "post_exhibit_takeaway": "China's exports of CBAM-covered goods to the EU totaled €12 billion in 2023, with steel accounting for 70%."
   },
   {
     "id": "chart-need-5",
-    "title": "RMB Usage in China-Europe Trade Settlements (2019-2024)",
+    "title": "Green Technology Trade: EVs, Solar, Wind (2018-2023)",
     "chart_type": "line",
-    "executive_question": "Is the renminbi becoming more widely used in trade settlements between China and Europe?",
+    "executive_question": "Is green tech cooperation growing despite geopolitical tensions?",
     "required_metrics": [
-      "{'year': 2019, 'currency': 'RMB', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2020, 'currency': 'RMB', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2021, 'currency': 'RMB', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2022, 'currency': 'RMB', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2023, 'currency': 'RMB', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2024, 'currency': 'RMB', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2019, 'currency': 'EUR', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2020, 'currency': 'EUR', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2021, 'currency': 'EUR', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2022, 'currency': 'EUR', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2023, 'currency': 'EUR', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}",
-      "{'year': 2024, 'currency': 'EUR', 'value': 'Share of trade settlements (%)', 'unit': '%', 'entity': 'China-EU trade'}"
+      "Year: 2018, 2019, 2020, 2021, 2022, 2023",
+      "EU imports of green tech from China (EUR billion)",
+      "EU exports of green tech to China (EUR billion)",
+      "Entity: EU27, China",
+      "Source: Eurostat Comext, UN Comtrade"
     ],
     "comparison_set": [
-      "RMB vs EUR share over time"
+      "None needed, but can add total trade for context."
     ],
     "preferred_sources": [
-      "SWIFT RMB Tracker",
-      "People's Bank of China (PBOC) reports",
-      "Bank for International Settlements (BIS)"
+      "Eurostat Comext",
+      "UN Comtrade",
+      "IEA"
     ],
     "search_queries": [
-      "SWIFT RMB international payments 2024",
-      "RMB trade settlement China Europe 2023",
-      "PBOC RMB internationalization report 2023"
+      "Eurostat EU imports of electric vehicles from China 2023",
+      "China solar panel exports to EU 2023",
+      "EU wind turbine exports to China 2023"
     ],
-    "data_quality_rule": "Use SWIFT data as primary; if bilateral settlement share not available, use overall RMB share in EU payments as proxy and note.",
+    "data_quality_rule": "Use official trade data; if product codes are not exact, note as approximate. Require at least 4 annual observations; if only 2 endpoints, use CAGR from 2018-2023 and apply to 2024 as estimate.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Demonstrates financial integration and the internationalization of the RMB.",
-    "pre_exhibit_context": "Before showing, the report claims that financial integration is deepening through currency swaps and RMB usage.",
-    "post_exhibit_takeaway": "RMB settlement share has grown from about 2% in 2019 to an estimated 5% in 2024, indicating gradual but steady adoption."
+    "narrative_role": "Highlights a bright spot in bilateral economic relations.",
+    "pre_exhibit_context": "Claim: China-Europe cooperation in green technology is growing despite geopolitical tensions.",
+    "post_exhibit_takeaway": "Trade in green tech products (EVs, solar panels, wind turbines) grew at 15% CAGR from 2018 to 2023, reaching €25 billion."
   },
   {
     "id": "chart-need-6",
-    "title": "Belt and Road Initiative Projects in Europe: Number and Value (2019-2024)",
-    "chart_type": "timeline",
-    "executive_question": "How has the scale of China's Belt and Road investments in Europe changed over time?",
+    "title": "Semiconductor Supply Chain Fragmentation (2018-2023)",
+    "chart_type": "bubble",
+    "executive_question": "How are export controls affecting semiconductor trade between China and Europe?",
     "required_metrics": [
-      "{'year': 2019, 'metric': 'Number of new projects', 'value': 'Count', 'unit': 'projects', 'entity': 'BRI in Europe'}",
-      "{'year': 2020, 'metric': 'Number of new projects', 'value': 'Count', 'unit': 'projects', 'entity': 'BRI in Europe'}",
-      "{'year': 2021, 'metric': 'Number of new projects', 'value': 'Count', 'unit': 'projects', 'entity': 'BRI in Europe'}",
-      "{'year': 2022, 'metric': 'Number of new projects', 'value': 'Count', 'unit': 'projects', 'entity': 'BRI in Europe'}",
-      "{'year': 2023, 'metric': 'Number of new projects', 'value': 'Count', 'unit': 'projects', 'entity': 'BRI in Europe'}",
-      "{'year': 2024, 'metric': 'Number of new projects', 'value': 'Count', 'unit': 'projects', 'entity': 'BRI in Europe'}",
-      "{'year': 2019, 'metric': 'Total investment value', 'value': 'USD billion', 'unit': 'USD billion', 'entity': 'BRI in Europe'}",
-      "{'year': 2020, 'metric': 'Total investment value', 'value': 'USD billion', 'unit': 'USD billion', 'entity': 'BRI in Europe'}",
-      "{'year': 2021, 'metric': 'Total investment value', 'value': 'USD billion', 'unit': 'USD billion', 'entity': 'BRI in Europe'}",
-      "{'year': 2022, 'metric': 'Total investment value', 'value': 'USD billion', 'unit': 'USD billion', 'entity': 'BRI in Europe'}",
-      "{'year': 2023, 'metric': 'Total investment value', 'value': 'USD billion', 'unit': 'USD billion', 'entity': 'BRI in Europe'}",
-      "{'year': 2024, 'metric': 'Total investment value', 'value': 'USD billion', 'unit': 'USD billion', 'entity': 'BRI in Europe'}"
+      "Year: 2018, 2019, 2020, 2021, 2022, 2023",
+      "EU exports of semiconductor equipment to China (EUR million)",
+      "China's total semiconductor imports (EUR billion)",
+      "China's semiconductor imports from EU share (%)",
+      "Entity: EU27, China",
+      "Source: Eurostat Comext, China Customs Statistics"
     ],
     "comparison_set": [
-      "Year-over-year project count and value"
+      "Bubble size: total semiconductor imports; x-axis: year; y-axis: EU share."
     ],
     "preferred_sources": [
-      "American Enterprise Institute's China Global Investment Tracker",
-      "BRI Database (Green Finance & Development Center)",
-      "China Ministry of Commerce"
+      "Eurostat Comext",
+      "China Customs Statistics",
+      "SEMI"
     ],
     "search_queries": [
-      "Belt and Road Europe projects 2023",
-      "China Global Investment Tracker Europe 2023",
-      "BRI project completion Europe"
+      "Eurostat EU exports of semiconductor equipment to China 2023",
+      "China semiconductor imports from EU 2023",
+      "SEMI China semiconductor equipment imports 2023"
     ],
-    "data_quality_rule": "Use AEI China Global Investment Tracker as primary; if 2024 data incomplete, use first half annualized and mark as estimate.",
+    "data_quality_rule": "Use official trade data; if product codes are not exact, note as approximate. Require at least 4 annual observations; if only 2 endpoints, use CAGR from 2018-2023 and apply to 2024 as estimate.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Supports the hypothesis that BRI investments have plateaued and shifted to smaller projects.",
-    "pre_exhibit_context": "Before showing, the report claims that BRI investments in Europe have plateaued with a focus on smaller projects in Eastern Europe.",
-    "post_exhibit_takeaway": "The number of new BRI projects in Europe has declined since 2021, and average project value has decreased, confirming a shift to smaller, targeted investments."
+    "narrative_role": "Illustrates the impact of technology decoupling.",
+    "pre_exhibit_context": "Claim: The semiconductor supply chain between China and Europe is becoming more fragmented due to export controls.",
+    "post_exhibit_takeaway": "EU exports of semiconductor equipment to China declined 30% from 2021 to 2023, while China's imports from other regions increased."
   },
   {
     "id": "chart-need-7",
-    "title": "European Patent Filings in China vs Chinese Patent Filings in Europe (2019-2023)",
-    "chart_type": "bubble",
-    "executive_question": "How does the intensity of patent filings between Europe and China compare, and is there a trend?",
+    "title": "Regulatory Timeline: Key Policies Affecting China-EU Economic Relations (2018-2025)",
+    "chart_type": "timeline",
+    "executive_question": "What are the critical regulatory milestones and their expected impact?",
     "required_metrics": [
-      "{'year': 2019, 'origin': 'European entities', 'destination': 'China', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'European Patent Office (EPO) applicants'}",
-      "{'year': 2020, 'origin': 'European entities', 'destination': 'China', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'EPO applicants'}",
-      "{'year': 2021, 'origin': 'European entities', 'destination': 'China', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'EPO applicants'}",
-      "{'year': 2022, 'origin': 'European entities', 'destination': 'China', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'EPO applicants'}",
-      "{'year': 2023, 'origin': 'European entities', 'destination': 'China', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'EPO applicants'}",
-      "{'year': 2019, 'origin': 'Chinese entities', 'destination': 'Europe', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'China National Intellectual Property Administration (CNIPA) applicants'}",
-      "{'year': 2020, 'origin': 'Chinese entities', 'destination': 'Europe', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'CNIPA applicants'}",
-      "{'year': 2021, 'origin': 'Chinese entities', 'destination': 'Europe', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'CNIPA applicants'}",
-      "{'year': 2022, 'origin': 'Chinese entities', 'destination': 'Europe', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'CNIPA applicants'}",
-      "{'year': 2023, 'origin': 'Chinese entities', 'destination': 'Europe', 'value': 'Number of patent filings', 'unit': 'count', 'entity': 'CNIPA applicants'}"
+      "Year: 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025",
+      "Policy: EU FDI Screening Regulation, CBAM, EU Export Controls, China Anti-Sanctions Law, etc.",
+      "Impact: Qualitative (e.g., high, medium, low)",
+      "Entity: EU, China",
+      "Source: European Commission, Chinese government announcements"
     ],
     "comparison_set": [
-      "European filings in China vs Chinese filings in Europe, year over year"
+      "None needed."
     ],
     "preferred_sources": [
-      "European Patent Office (EPO) annual reports",
-      "China National Intellectual Property Administration (CNIPA) statistics",
-      "World Intellectual Property Organization (WIPO)"
+      "European Commission",
+      "Chinese Ministry of Commerce",
+      "Official Journal of the EU"
     ],
     "search_queries": [
-      "European patent filings in China 2023",
-      "EPO annual report 2023 patent filings",
-      "CNIPA patent statistics 2023"
+      "EU FDI screening regulation 2020",
+      "CBAM implementation timeline 2023",
+      "EU export controls semiconductors 2023"
     ],
-    "data_quality_rule": "Use EPO and CNIPA official data; if 2023 not available, use 2022 as latest and note.",
+    "data_quality_rule": "Use official policy documents; if impact is subjective, note as author assessment. Require actual policy dates; no estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Indirectly measures technology transfer and IP activity, supporting the hypothesis of reduced technology transfer.",
-    "pre_exhibit_context": "Before showing, the report claims that European companies are reducing technology transfer to China due to export controls.",
-    "post_exhibit_takeaway": "European patent filings in China have grown slowly, while Chinese filings in Europe have surged, suggesting asymmetric innovation activity."
+    "narrative_role": "Provides context for regulatory divergence.",
+    "pre_exhibit_context": "Claim: Regulatory divergence is the new normal, with CBAM, export controls, and FDI screening reshaping the landscape.",
+    "post_exhibit_takeaway": "Key milestones include EU FDI Screening Regulation (2020), CBAM phase-in (2023), and EU export controls on semiconductors (2023)."
   }
 ]

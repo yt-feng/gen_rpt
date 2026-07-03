@@ -1,5 +1,5 @@
 {
-  "core_question": "How should multinational corporations adjust their China-Europe strategy in light of evolving economic relations, trade policies, and geopolitical risks?",
+  "core_question": "How should multinational corporations adjust their China-Europe strategy in response to shifting economic dependencies, regulatory changes, and geopolitical tensions?",
   "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
   "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
   "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
@@ -7,120 +7,117 @@
   "hypotheses_to_test": [
     {
       "id": "H1",
-      "hypothesis": "China-Europe trade growth has decelerated since 2022 due to geopolitical tensions and EU de-risking, but absolute volumes remain high.",
-      "decision_relevance": "Affects supply chain diversification decisions and market entry timing.",
+      "hypothesis": "China's share of EU imports has peaked and is declining due to de-risking policies.",
+      "decision_relevance": "Affects sourcing and supply chain location decisions.",
       "needed_evidence": [
-        "Year-over-year trade volume data from 2019-2024; EU import statistics from China; sector breakdown."
+        "Eurostat trade data showing import share trends from 2018-2024."
       ]
     },
     {
       "id": "H2",
-      "hypothesis": "Chinese FDI into Europe is shifting from traditional sectors (e.g., automotive) to high-tech and green energy, driven by China's industrial policy.",
-      "decision_relevance": "Impacts competitive dynamics in European tech and energy sectors.",
+      "hypothesis": "European FDI in China is shifting from manufacturing to services and R&D.",
+      "decision_relevance": "Impacts investment strategy and joint venture focus.",
       "needed_evidence": [
-        "FDI data by sector from China Ministry of Commerce; EU FDI screening reports; deal announcements."
+        "MOFCOM and Eurostat FDI data by sector."
       ]
     },
     {
       "id": "H3",
-      "hypothesis": "European companies are reducing technology transfer to China due to EU export controls and IP concerns, slowing joint R&D.",
-      "decision_relevance": "Affects innovation partnerships and licensing strategies.",
+      "hypothesis": "Chinese investment in Europe is concentrated in strategic sectors (e.g., ports, energy, tech) and faces increasing scrutiny.",
+      "decision_relevance": "Informs competitive intelligence and regulatory risk assessment.",
       "needed_evidence": [
-        "Survey data on technology transfer; EU export control regulations; patent filings by European firms in China."
+        "Rhodium Group data, EU screening regulations, and case examples."
       ]
     },
     {
       "id": "H4",
-      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly increase costs for Chinese exports of steel, aluminum, and cement, altering trade patterns.",
-      "decision_relevance": "Impacts pricing and sourcing strategies for European importers.",
+      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly impact China's exports of steel, aluminum, and cement.",
+      "decision_relevance": "Affects pricing and compliance costs for Chinese exporters and European buyers.",
       "needed_evidence": [
-        "CBAM implementation timeline; Chinese export volumes of covered goods; carbon pricing data."
+        "CBAM implementation details, China's export volumes of covered goods, and carbon intensity data."
       ]
     },
     {
       "id": "H5",
-      "hypothesis": "China's Belt and Road Initiative (BRI) investments in Europe have plateaued, with a focus on smaller, high-return projects in Eastern Europe.",
-      "decision_relevance": "Affects infrastructure and logistics investment opportunities.",
+      "hypothesis": "China-Europe cooperation in green technology (e.g., EVs, solar, wind) is growing despite geopolitical tensions.",
+      "decision_relevance": "Identifies opportunities for joint ventures and technology licensing.",
       "needed_evidence": [
-        "BRI project database; Chinese policy bank lending data; project completion rates."
+        "Trade data for green tech products, joint venture announcements, and policy support."
       ]
     },
     {
       "id": "H6",
-      "hypothesis": "The electric vehicle (EV) sector is becoming a flashpoint, with EU anti-subsidy investigations reducing Chinese EV market share in Europe.",
-      "decision_relevance": "Impacts automotive OEMs and battery supply chain investments.",
+      "hypothesis": "The semiconductor supply chain between China and Europe is becoming more fragmented due to export controls.",
+      "decision_relevance": "Impairs access to critical components and drives localization.",
       "needed_evidence": [
-        "EU anti-subsidy investigation findings; Chinese EV sales in Europe; battery import data."
+        "Export control lists, trade data for semiconductor equipment, and company announcements."
       ]
     },
     {
       "id": "H7",
-      "hypothesis": "Financial integration between China and Europe is deepening through currency swap agreements and increased use of RMB in trade settlements.",
-      "decision_relevance": "Affects currency risk management and financing options.",
+      "hypothesis": "RMB internationalization is accelerating in Europe, reducing reliance on USD in bilateral trade.",
+      "decision_relevance": "Affects currency risk management and payment infrastructure.",
       "needed_evidence": [
-        "PBOC swap line data; RMB settlement volumes; SWIFT data on RMB usage."
+        "SWIFT data on RMB usage, bilateral swap agreements, and offshore RMB bond issuance."
       ]
     }
   ],
   "market_sizing_logic": [
     {
       "method": "Top-down",
-      "formula": "Total bilateral trade = EU exports to China + EU imports from China (from Eurostat and China Customs)",
+      "formula": "Total bilateral trade = EU imports from China + EU exports to China",
       "variables": [
-        "EU exports to China (EUR)",
-        "EU imports from China (EUR)"
+        "EU imports from China (Eurostat)",
+        "EU exports to China (Eurostat)"
       ],
       "known_limitations": [
-        "Currency conversion differences",
-        "Timing of data release"
+        "Currency conversion and reporting differences",
+        "Re-exports via Hong Kong"
       ]
     },
     {
       "method": "Bottom-up",
-      "formula": "Sum of trade values for top 20 traded goods categories (HS 2-digit) from Eurostat",
+      "formula": "Sector trade = sum of top product categories (HS codes) for key sectors",
       "variables": [
-        "Trade value per HS code",
-        "Number of categories"
+        "HS code trade values for automotive, machinery, chemicals, electronics"
       ],
       "known_limitations": [
-        "Data granularity",
-        "Missing categories"
+        "Product classification changes",
+        "Data lag"
       ]
     },
     {
       "method": "Adoption funnel",
-      "formula": "Number of European companies exporting to China = (Total EU exporters) * (% that export to China) from Eurostat",
+      "formula": "Market penetration = number of Chinese companies with EU subsidiaries / total Chinese companies",
       "variables": [
-        "Total EU exporters",
-        "Percentage exporting to China"
+        "Number of Chinese subsidiaries in EU (from fDi Markets)",
+        "Total Chinese companies (from NBS)"
       ],
       "known_limitations": [
-        "Data not annually updated",
-        "Double counting"
+        "Private company data incomplete",
+        "Definition of subsidiary varies"
       ]
     },
     {
       "method": "Value pool",
-      "formula": "Total addressable market for European luxury goods in China = (Chinese luxury goods market size) * (European brand share)",
+      "formula": "Value pool = sum of profits in bilateral trade for key sectors",
       "variables": [
-        "Chinese luxury goods market size (USD)",
-        "European brand market share (%)"
+        "Revenue and profit margins for top companies in automotive, tech, etc."
       ],
       "known_limitations": [
-        "Estimates vary",
-        "Gray market not captured"
+        "Profit data not publicly available for private firms",
+        "Transfer pricing issues"
       ]
     },
     {
       "method": "Supply-side sizing",
-      "formula": "Total Chinese EV battery production capacity for export to Europe = (Chinese battery production) * (% exported to Europe)",
+      "formula": "Capacity = production capacity of Chinese factories exporting to EU + European factories exporting to China",
       "variables": [
-        "Chinese battery production (GWh)",
-        "Export share to Europe (%)"
+        "Production capacity data from industry associations (e.g., CEC for electronics)"
       ],
       "known_limitations": [
-        "Capacity vs. actual production",
-        "Data lag"
+        "Capacity utilization not always reported",
+        "Aggregation across sectors difficult"
       ]
     }
   ],

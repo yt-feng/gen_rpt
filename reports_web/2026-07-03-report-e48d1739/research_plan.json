@@ -1,57 +1,48 @@
 {
-  "objective": "To map the current state and strategic outlook of China-Europe economic relations, identify key sectors and dependencies, and assess implications for global business strategy.",
-  "audience": "Senior executives and strategists in multinational corporations, investment firms, and policy advisory bodies.",
-  "decision_question": "How should multinational corporations adjust their China-Europe strategy in light of evolving economic relations, trade policies, and geopolitical risks?",
+  "objective": "To map the current state and strategic outlook of China-Europe economic relations, identify key sectors and dependencies, and assess implications for global supply chains and geopolitical alignment.",
+  "audience": "Senior executives, strategists, and policy analysts in multinational corporations, investment firms, and government agencies focused on international trade and geopolitical risk.",
+  "decision_question": "How should multinational corporations adjust their China-Europe strategy in response to shifting economic dependencies, regulatory changes, and geopolitical tensions?",
   "issue_tree": {
-    "root": "China-Europe Economic Relations",
+    "root": "China-Europe Economic Relations Market Map",
     "branches": [
       {
-        "name": "Trade Flows",
-        "sub_branches": [
-          "Bilateral trade volume and balance",
-          "Key traded goods and services",
+        "node": "Trade Flows and Sectoral Dependencies",
+        "children": [
+          "Bilateral trade volume and balance trends",
+          "Key sectors: automotive, machinery, chemicals, electronics, consumer goods",
           "Tariff and non-tariff barriers"
         ]
       },
       {
-        "name": "Investment Links",
-        "sub_branches": [
-          "FDI flows (both directions)",
-          "M&A activity",
-          "Joint ventures and strategic alliances"
+        "node": "Investment and Financial Linkages",
+        "children": [
+          "FDI flows: Chinese investment in Europe and European investment in China",
+          "M&A activity and joint ventures",
+          "Financial market integration (e.g., bond connect, RMB internationalization)"
         ]
       },
       {
-        "name": "Technology & Innovation",
-        "sub_branches": [
-          "Technology transfer and cooperation",
-          "R&D collaboration",
-          "Digital economy and data flows"
+        "node": "Technology and Innovation Cooperation",
+        "children": [
+          "R&D partnerships and technology transfer",
+          "Digital economy and data governance",
+          "Semiconductor and green tech collaboration"
         ]
       },
       {
-        "name": "Financial Integration",
-        "sub_branches": [
-          "Currency swap agreements",
-          "Capital market linkages",
-          "Banking and insurance"
+        "node": "Regulatory and Geopolitical Landscape",
+        "children": [
+          "EU's de-risking strategy and China's countermeasures",
+          "Sanctions, export controls, and investment screening",
+          "Role of the US and global alliances"
         ]
       },
       {
-        "name": "Policy & Geopolitics",
-        "sub_branches": [
-          "EU's de-risking strategy",
-          "China's Belt and Road Initiative",
-          "Sanctions and export controls"
-        ]
-      },
-      {
-        "name": "Sectoral Deep Dives",
-        "sub_branches": [
-          "Automotive",
-          "Renewable energy",
-          "Pharmaceuticals",
-          "Luxury goods"
+        "node": "Strategic Implications and Scenarios",
+        "children": [
+          "Supply chain resilience and diversification",
+          "Market access and competitive dynamics",
+          "Scenario analysis: decoupling vs. managed interdependence"
         ]
       }
     ]
@@ -59,93 +50,86 @@
   "hypotheses": [
     {
       "id": "H1",
-      "hypothesis": "China-Europe trade growth has decelerated since 2022 due to geopolitical tensions and EU de-risking, but absolute volumes remain high.",
-      "decision_relevance": "Affects supply chain diversification decisions and market entry timing.",
+      "hypothesis": "China's share of EU imports has peaked and is declining due to de-risking policies.",
+      "decision_relevance": "Affects sourcing and supply chain location decisions.",
       "needed_evidence": [
-        "Year-over-year trade volume data from 2019-2024; EU import statistics from China; sector breakdown."
+        "Eurostat trade data showing import share trends from 2018-2024."
       ],
       "search_queries": [
-        "EU-China trade statistics 2023",
-        "China-Europe trade volume 2024",
-        "Eurostat China imports 2023"
+        "EU imports from China share 2023",
+        "Eurostat China import share trend"
       ]
     },
     {
       "id": "H2",
-      "hypothesis": "Chinese FDI into Europe is shifting from traditional sectors (e.g., automotive) to high-tech and green energy, driven by China's industrial policy.",
-      "decision_relevance": "Impacts competitive dynamics in European tech and energy sectors.",
+      "hypothesis": "European FDI in China is shifting from manufacturing to services and R&D.",
+      "decision_relevance": "Impacts investment strategy and joint venture focus.",
       "needed_evidence": [
-        "FDI data by sector from China Ministry of Commerce; EU FDI screening reports; deal announcements."
+        "MOFCOM and Eurostat FDI data by sector."
       ],
       "search_queries": [
-        "Chinese FDI in Europe 2023 sector breakdown",
-        "China Ministry of Commerce outward FDI statistics",
-        "EU FDI screening cases 2023"
+        "European FDI in China by sector 2023",
+        "MOFCOM FDI statistics"
       ]
     },
     {
       "id": "H3",
-      "hypothesis": "European companies are reducing technology transfer to China due to EU export controls and IP concerns, slowing joint R&D.",
-      "decision_relevance": "Affects innovation partnerships and licensing strategies.",
+      "hypothesis": "Chinese investment in Europe is concentrated in strategic sectors (e.g., ports, energy, tech) and faces increasing scrutiny.",
+      "decision_relevance": "Informs competitive intelligence and regulatory risk assessment.",
       "needed_evidence": [
-        "Survey data on technology transfer; EU export control regulations; patent filings by European firms in China."
+        "Rhodium Group data, EU screening regulations, and case examples."
       ],
       "search_queries": [
-        "EU export control dual-use regulation 2023",
-        "European patent filings in China 2023",
-        "technology transfer China Europe survey"
+        "Chinese M&A in Europe 2023",
+        "EU FDI screening cases"
       ]
     },
     {
       "id": "H4",
-      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly increase costs for Chinese exports of steel, aluminum, and cement, altering trade patterns.",
-      "decision_relevance": "Impacts pricing and sourcing strategies for European importers.",
+      "hypothesis": "The EU's Carbon Border Adjustment Mechanism (CBAM) will significantly impact China's exports of steel, aluminum, and cement.",
+      "decision_relevance": "Affects pricing and compliance costs for Chinese exporters and European buyers.",
       "needed_evidence": [
-        "CBAM implementation timeline; Chinese export volumes of covered goods; carbon pricing data."
+        "CBAM implementation details, China's export volumes of covered goods, and carbon intensity data."
       ],
       "search_queries": [
-        "CBAM implementation 2024",
-        "China steel exports to EU 2023",
-        "EU carbon price 2024"
+        "CBAM impact on China exports",
+        "China steel exports to EU carbon intensity"
       ]
     },
     {
       "id": "H5",
-      "hypothesis": "China's Belt and Road Initiative (BRI) investments in Europe have plateaued, with a focus on smaller, high-return projects in Eastern Europe.",
-      "decision_relevance": "Affects infrastructure and logistics investment opportunities.",
+      "hypothesis": "China-Europe cooperation in green technology (e.g., EVs, solar, wind) is growing despite geopolitical tensions.",
+      "decision_relevance": "Identifies opportunities for joint ventures and technology licensing.",
       "needed_evidence": [
-        "BRI project database; Chinese policy bank lending data; project completion rates."
+        "Trade data for green tech products, joint venture announcements, and policy support."
       ],
       "search_queries": [
-        "Belt and Road Europe projects 2023",
-        "China Development Bank BRI lending Europe",
-        "BRI project completion Europe"
+        "China EU green technology trade 2023",
+        "China Europe EV battery joint ventures"
       ]
     },
     {
       "id": "H6",
-      "hypothesis": "The electric vehicle (EV) sector is becoming a flashpoint, with EU anti-subsidy investigations reducing Chinese EV market share in Europe.",
-      "decision_relevance": "Impacts automotive OEMs and battery supply chain investments.",
+      "hypothesis": "The semiconductor supply chain between China and Europe is becoming more fragmented due to export controls.",
+      "decision_relevance": "Impairs access to critical components and drives localization.",
       "needed_evidence": [
-        "EU anti-subsidy investigation findings; Chinese EV sales in Europe; battery import data."
+        "Export control lists, trade data for semiconductor equipment, and company announcements."
       ],
       "search_queries": [
-        "EU anti-subsidy investigation Chinese EVs 2024",
-        "Chinese EV market share Europe 2023",
-        "China battery exports to EU 2023"
+        "EU semiconductor export controls China",
+        "China semiconductor imports from Europe"
       ]
     },
     {
       "id": "H7",
-      "hypothesis": "Financial integration between China and Europe is deepening through currency swap agreements and increased use of RMB in trade settlements.",
-      "decision_relevance": "Affects currency risk management and financing options.",
+      "hypothesis": "RMB internationalization is accelerating in Europe, reducing reliance on USD in bilateral trade.",
+      "decision_relevance": "Affects currency risk management and payment infrastructure.",
       "needed_evidence": [
-        "PBOC swap line data; RMB settlement volumes; SWIFT data on RMB usage."
+        "SWIFT data on RMB usage, bilateral swap agreements, and offshore RMB bond issuance."
       ],
       "search_queries": [
-        "PBOC swap agreements Europe 2023",
-        "RMB trade settlement China Europe 2023",
-        "SWIFT RMB international payments 2024"
+        "RMB internationalization Europe 2023",
+        "China Europe RMB settlement trade"
       ]
     }
   ],
@@ -154,104 +138,99 @@
     "methods": [
       {
         "method": "Top-down",
-        "formula": "Total bilateral trade = EU exports to China + EU imports from China (from Eurostat and China Customs)",
+        "formula": "Total bilateral trade = EU imports from China + EU exports to China",
         "variables": [
-          "EU exports to China (EUR)",
-          "EU imports from China (EUR)"
+          "EU imports from China (Eurostat)",
+          "EU exports to China (Eurostat)"
         ],
         "preferred_sources": [
-          "Eurostat",
-          "China Customs General Administration"
+          "Eurostat Comext",
+          "China Customs Statistics"
         ],
         "search_queries": [
-          "Eurostat EU China trade 2023",
-          "China Customs EU trade statistics 2023"
+          "EU China bilateral trade 2023 Eurostat",
+          "China EU trade statistics 2023"
         ],
         "known_limitations": [
-          "Currency conversion differences",
-          "Timing of data release"
+          "Currency conversion and reporting differences",
+          "Re-exports via Hong Kong"
         ]
       },
       {
         "method": "Bottom-up",
-        "formula": "Sum of trade values for top 20 traded goods categories (HS 2-digit) from Eurostat",
+        "formula": "Sector trade = sum of top product categories (HS codes) for key sectors",
         "variables": [
-          "Trade value per HS code",
-          "Number of categories"
+          "HS code trade values for automotive, machinery, chemicals, electronics"
         ],
         "preferred_sources": [
-          "Eurostat COMEXT database",
+          "Eurostat Comext",
           "UN Comtrade"
         ],
         "search_queries": [
-          "Eurostat COMEXT EU China HS2 2023",
-          "UN Comtrade EU China trade by product"
+          "EU China automotive trade HS 2023",
+          "China machinery exports to EU HS code"
         ],
         "known_limitations": [
-          "Data granularity",
-          "Missing categories"
+          "Product classification changes",
+          "Data lag"
         ]
       },
       {
         "method": "Adoption funnel",
-        "formula": "Number of European companies exporting to China = (Total EU exporters) * (% that export to China) from Eurostat",
+        "formula": "Market penetration = number of Chinese companies with EU subsidiaries / total Chinese companies",
         "variables": [
-          "Total EU exporters",
-          "Percentage exporting to China"
+          "Number of Chinese subsidiaries in EU (from fDi Markets)",
+          "Total Chinese companies (from NBS)"
         ],
         "preferred_sources": [
-          "Eurostat international trade in goods statistics",
-          "European Commission SME performance review"
+          "fDi Markets",
+          "China National Bureau of Statistics"
         ],
         "search_queries": [
-          "Eurostat number of EU exporters 2023",
-          "share of EU exporters to China"
+          "Chinese subsidiaries in EU 2023",
+          "fDi Markets China Europe investment"
         ],
         "known_limitations": [
-          "Data not annually updated",
-          "Double counting"
+          "Private company data incomplete",
+          "Definition of subsidiary varies"
         ]
       },
       {
         "method": "Value pool",
-        "formula": "Total addressable market for European luxury goods in China = (Chinese luxury goods market size) * (European brand share)",
+        "formula": "Value pool = sum of profits in bilateral trade for key sectors",
         "variables": [
-          "Chinese luxury goods market size (USD)",
-          "European brand market share (%)"
+          "Revenue and profit margins for top companies in automotive, tech, etc."
         ],
         "preferred_sources": [
-          "Bain & Company luxury report",
-          "Euromonitor",
-          "China Luxury Association"
+          "Company annual reports (e.g., Volkswagen, Huawei)",
+          "Industry reports (McKinsey, BCG)"
         ],
         "search_queries": [
-          "China luxury goods market size 2023",
-          "European luxury brands market share China"
+          "Volkswagen China revenue 2023",
+          "Huawei Europe revenue 2023"
         ],
         "known_limitations": [
-          "Estimates vary",
-          "Gray market not captured"
+          "Profit data not publicly available for private firms",
+          "Transfer pricing issues"
         ]
       },
       {
         "method": "Supply-side sizing",
-        "formula": "Total Chinese EV battery production capacity for export to Europe = (Chinese battery production) * (% exported to Europe)",
+        "formula": "Capacity = production capacity of Chinese factories exporting to EU + European factories exporting to China",
         "variables": [
-          "Chinese battery production (GWh)",
-          "Export share to Europe (%)"
+          "Production capacity data from industry associations (e.g., CEC for electronics)"
         ],
         "preferred_sources": [
-          "China EV100",
-          "SNE Research",
-          "China Customs"
+          "China Electronics Association",
+          "European Automobile Manufacturers Association (ACEA)"
         ],
         "search_queries": [
-          "China battery production 2023 GWh",
-          "China battery exports to Europe 2023"
+          "China electronics production capacity 2023",
+          "ACEA production statistics"
         ],
         "known_limitations": [
-          "Capacity vs. actual production",
-          "Data lag"
+          "Capacity utilization not always reported",
+          "Aggregation across sectors difficult"
         ]
       }
     ],
@@ -440,113 +419,89 @@
     }
   ],
   "search_queries": [
-    "Eurostat EU China trade statistics 2023",
-    "China Customs EU trade data 2023",
-    "Chinese FDI in Europe 2023 sector breakdown",
-    "EU FDI screening cases 2023",
-    "EU export control dual-use regulation 2023",
-    "European patent filings in China 2023",
-    "CBAM implementation timeline 2024",
-    "China steel exports to EU 2023",
-    "Belt and Road Europe projects 2023",
-    "EU anti-subsidy investigation Chinese EVs 2024",
-    "Chinese EV market share Europe 2023",
-    "PBOC swap agreements Europe 2023",
-    "RMB trade settlement China Europe 2023",
-    "China battery exports to EU 2023",
-    "China luxury goods market size 2023",
-    "European luxury brands market share China",
-    "EU-China trade statistics 2023",
-    "China-Europe trade volume 2024"
+    "Eurostat China EU trade statistics 2023",
+    "China Customs bilateral trade data 2023",
+    "EU FDI screening regulation 2023 cases",
+    "Rhodium Group Chinese investment in Europe 2023",
+    "MOFCOM FDI statistics China inbound",
+    "CBAM impact on China steel exports",
+    "China EU green technology trade 2023",
+    "EU semiconductor export controls China 2023",
+    "RMB internationalization SWIFT data Europe",
+    "Volkswagen China sales 2023 annual report",
+    "BYD Europe market share 2023",
+    "ACEA production statistics 2023",
+    "China Electronics Association production capacity",
+    "World Bank logistics performance index China EU",
+    "EU China joint venture announcements 2023",
+    "China anti-sanctions law 2023",
+    "EU imports from China share 2023",
+    "Eurostat China import share trend"
   ],
   "source_strategy": {
     "primary": [
-      "Eurostat",
-      "China Customs",
-      "European Commission",
-      "China Ministry of Commerce",
-      "PBOC",
-      "SWIFT"
+      "Eurostat Comext",
+      "China Customs Statistics",
+      "MOFCOM",
+      "European Commission (DG Trade)",
+      "Rhodium Group",
+      "fDi Markets"
     ],
     "secondary": [
-      "UN Comtrade",
-      "IMF",
       "World Bank",
-      "OECD",
-      "WTO"
+      "IMF",
+      "WTO",
+      "UN Comtrade",
+      "OECD"
     ],
-    "industry_reports": [
-      "Bain & Company",
-      "McKinsey",
-      "SNE Research",
-      "China EV100"
+    "industry": [
+      "ACEA",
+      "China Electronics Association",
+      "German Automotive Industry Association (VDA)",
+      "European Chemical Industry Council (CEFIC)"
+    ],
+    "consulting": [
+      "McKinsey Global Institute",
+      "BCG",
+      "Deloitte",
+      "PwC"
     ],
     "media": [
       "Financial Times",
-      "Reuters",
       "South China Morning Post",
-      "Caixin"
-    ],
-    "academic": [
-      "Journal of International Economics",
-      "China Economic Review",
-      "European Journal of Political Economy"
+      "Caixin",
+      "Reuters"
     ]
   },
   "outline": [
-    "1. Executive Summary: China-Europe economic ties are at a strategic inflection point, with trade decelerating but remaining deep, and investment shifting toward high-tech and green sectors.",
-    "2. Trade Dynamics: Bilateral trade has plateaued since 2022, with EU imports from China declining slightly, but sectoral shifts (e.g., EVs, renewables) are creating new dependencies.",
-    "3. Investment and Technology Flows: Chinese FDI is pivoting to green energy and tech, while European companies are reducing technology transfer due to export controls.",
-    "4. Policy and Geopolitical Risks: CBAM, anti-subsidy investigations, and de-risking strategies are reshaping the landscape, with significant implications for specific sectors.",
-    "5. Sectoral Deep Dives: Automotive (EVs), renewable energy, luxury goods, and pharmaceuticals are the most exposed and offer both risks and opportunities.",
-    "6. Strategic Implications: Multinationals must adopt a dual-track strategy: maintain engagement in China while diversifying supply chains and investing in Europe's green transition."
+    "1. China-Europe Trade Has Peaked: Evidence of Decoupling in Key Sectors",
+    "2. Investment Flows Are Reshaping: From Manufacturing to Services and Green Tech",
+    "3. Regulatory Divergence Is the New Normal: CBAM, Export Controls, and FDI Screening",
+    "4. Strategic Implications: Supply Chain Resilience, Market Access, and Scenario Planning"
   ],
   "exhibit_ideas": [
     {
-      "title": "Bilateral Trade Trend (2019-2024)",
-      "description": "Line chart showing EU exports to China and EU imports from China, with annotations for key policy events (e.g., CBAM, anti-subsidy investigations). Answers: How has trade evolved?",
-      "data_needs": [
-        "Trade volume data from Eurostat and China Customs"
-      ]
+      "title": "Bilateral Trade Trend (2018-2024) with Sector Breakdown",
+      "executive_question": "Which sectors are driving the decline or growth in trade?"
     },
     {
-      "title": "Chinese FDI into Europe by Sector (2020-2023)",
-      "description": "Stacked bar chart showing FDI value by sector (automotive, tech, energy, etc.) over time. Answers: Where is Chinese investment flowing?",
-      "data_needs": [
-        "FDI data from China Ministry of Commerce and EU FDI screening reports"
-      ]
+      "title": "FDI Flows Comparison: Chinese Investment in EU vs. European Investment in China",
+      "executive_question": "Where is capital flowing and how has it changed?"
     },
     {
-      "title": "Impact of CBAM on Chinese Exports",
-      "description": "Waterfall chart estimating additional costs for steel, aluminum, and cement under CBAM. Answers: How much will CBAM cost Chinese exporters?",
-      "data_needs": [
-        "CBAM carbon price",
-        "Chinese export volumes",
-        "carbon intensity data"
-      ]
+      "title": "Regulatory Timeline: Key Policies Affecting China-EU Economic Relations",
+      "executive_question": "What are the critical regulatory milestones and their expected impact?"
     },
     {
-      "title": "European EV Market Share by Origin (2022-2024)",
-      "description": "Pie chart or stacked bar showing market share of Chinese, European, and other EVs in Europe. Answers: Are Chinese EVs gaining share?",
-      "data_needs": [
-        "EV sales data from ACEA",
-        "Chinese EV sales in Europe"
-      ]
-    },
-    {
-      "title": "RMB Usage in China-Europe Trade Settlements",
-      "description": "Line chart showing percentage of trade settled in RMB vs. EUR/USD over time. Answers: Is financial integration deepening?",
-      "data_needs": [
-        "SWIFT RMB data",
-        "PBOC swap line usage"
-      ]
+      "title": "Scenario Matrix: Decoupling vs. Managed Interdependence",
+      "executive_question": "What are the likely outcomes under different geopolitical scenarios?"
     }
   ],
   "risks": [
-    "Data reliability: Chinese official statistics may be politically influenced; cross-check with international sources.",
-    "Geopolitical volatility: Sudden policy changes (e.g., new sanctions) could invalidate assumptions.",
-    "Sectoral bias: Overemphasis on high-profile sectors (EVs) may miss important trends in other areas.",
-    "Time lag: Official data often released with 6-12 month delay; use real-time proxies where possible.",
-    "Counter-evidence: Be prepared to find that de-risking is more rhetoric than reality; trade volumes may remain robust."
+    "Data availability: Some trade and investment data may be delayed or incomplete, especially for services and digital trade.",
+    "Geopolitical volatility: Sudden policy changes (e.g., sanctions, tariffs) could invalidate assumptions.",
+    "Measurement challenges: Transfer pricing and re-exports distort trade and FDI figures.",
+    "Counter-evidence: Some hypotheses may be contradicted by data (e.g., trade share may not be declining).",
+    "Scope creep: The analysis could become too broad; focus on top 5 sectors and key regulatory changes."
   ]
 }
