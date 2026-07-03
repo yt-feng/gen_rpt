@@ -57,12 +57,15 @@ MOCK_USERS = [
 ]
 
 class LoginRequest(BaseModel):
-    email: str
+    username: Optional[str] = None
+    email: Optional[str] = None
     password: str
 
 @router.post("/login", response_model=APIResponse[dict])
 async def login(req: LoginRequest):
-    identity = req.email.strip().lower()
+    identity = (req.email or req.username or "").strip().lower()
+    if not identity:
+        raise HTTPException(status_code=400, detail="Missing username or email")
     password = req.password
     
     user = next(
