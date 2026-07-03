@@ -185,9 +185,67 @@ def _build_mock_report_entry(
     ai_review_data = payload.get("ai_review_data")
     review_info = payload.get("review") or {}
     
-    if ai_review_data and "scores" in ai_review_data:
-        ai_score = ai_review_data["scores"].get("overall_score") or 85
-        ai_grade = ai_review_data["scores"].get("grade") or "Silver"
+    formatted_ai_review = None
+    if ai_review_data:
+        # Transform the review data to match what the frontend expects
+        raw_scores = ai_review_data.get("scores", {})
+        components = {}
+        for k, v in raw_scores.items():
+            if k not in ("overall_score", "grade") and isinstance(v, dict):
+                components[k] = v.get("score", 0)
+
+        raw_recs = ai_review_data.get("recommendations", {})
+        strengths = [s.get("finding", "") for s in raw_recs.get("strengths", []) if isinstance(s, dict)]
+        weaknesses = [w.get("finding", "") for w in raw_recs.get("weaknesses", []) if isinstance(w, dict)]
+        
+        priority_improvements = []
+        for task in raw_recs.get("improvement_tasks", []):
+            priority_improvements.append({
+                "issue": task.get("issue", ""),
+                "priority_level": task.get("priority", "Medium"),
+                "suggested_fix": task.get("fix", "")
+            })
+
+        raw_exec = raw_recs.get("executive_communication", {})
+        exec_ready = {
+            "board_members": raw_exec.get("board_ready", False),
+            "ministers": raw_exec.get("minister_ready", False),
+            "ceos": raw_exec.get("board_ready", False),
+            "sovereign_wealth_funds": raw_exec.get("swf_ready", False),
+            "senior_executives": raw_exec.get("board_ready", False),
+            "justification": " ".join(filter(None, [raw_exec.get("board_reason"), raw_exec.get("minister_reason"), raw_exec.get("swf_reason")]))
+        }
+
+        claims_audit = ai_review_data.get("claims_audit", {})
+        formatted_claims = []
+        for c in claims_audit.get("claims", []):
+            formatted_claims.append({
+                "claim": c.get("claim", ""),
+                "classification": c.get("classification", "unsupported"),
+                "evidence": c.get("location_ref", ""),
+                "confidence": 0.85
+            })
+
+        formatted_ai_review = {
+            "scores": {
+                "overall_score": raw_scores.get("overall_score", 85),
+                "grade": raw_scores.get("grade", "Silver"),
+                "components": components
+            },
+            "recommendations": {
+                "strengths": strengths,
+                "weaknesses": weaknesses,
+                "priority_improvements": priority_improvements,
+                "executive_readiness": exec_ready
+            },
+            "claims_audit": {
+                "claims": formatted_claims
+            }
+        }
+    
+    if formatted_ai_review and "scores" in formatted_ai_review:
+        ai_score = formatted_ai_review["scores"].get("overall_score") or 85
+        ai_grade = formatted_ai_review["scores"].get("grade") or "Silver"
     else:
         ai_score = review_info.get("overall_score") or 85
         ai_grade = review_info.get("grade") or "Silver"
@@ -203,7 +261,7 @@ def _build_mock_report_entry(
         "commentCount": 0,
         "lastUpdated": now.isoformat() + "Z",
         "publishReady": False,
-        "aiReview": ai_review_data,
+        "aiReview": formatted_ai_review,
         "slug": slug,
         "reportContent": {
             "brand": payload.get("brand") or "GateX Intelligence",
