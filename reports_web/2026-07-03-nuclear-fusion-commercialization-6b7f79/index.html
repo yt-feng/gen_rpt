@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1' />
+<title>Nuclear Fusion Commercialization: Invest Now or Wait?</title>
+<meta name='description' content='A deep analysis of technology readiness, market opportunity, economics, and investment landscape to guide strategic decisions on fusion energy.' />
+<style>
+:root {
+  --forest: #0C2B15;
+  --green: #197A56;
+  --lime: #96F878;
+  --blue: #0A6B8A;
+  --amber: #B45F06;
+  --ink: #212427;
+  --muted: #696969;
+  --line: #D4D4D4;
+  --paper: #FFFFFF;
+  --sand: #F1EEEA;
+  --sand-2: #FAF8F4;
+  --charcoal: #232326;
+  --max: 1180px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: blueocean-sans, "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.58;
+}
+a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 0.18em; }
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255,255,255,.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+.nav-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand {
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--forest);
+}
+.nav-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.hero {
+  background: var(--sand);
+  border-bottom: 1px solid var(--line);
+}
+.hero-grid {
+  max-width: var(--max);
+  min-height: 620px;
+  margin: 0 auto;
+  padding: 58px 24px 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.72fr);
+  gap: 48px;
+  align-items: end;
+}
+.hero-topic {
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.hero h1 {
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 66px;
+  line-height: .98;
+  letter-spacing: 0;
+  margin: 0 0 24px;
+}
+.dek {
+  max-width: 760px;
+  color: #323232;
+  font-size: 24px;
+  line-height: 1.28;
+  margin: 0 0 28px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.hero-media {
+  align-self: stretch;
+  min-height: 460px;
+  background: var(--forest);
+  overflow: hidden;
+  position: relative;
+}
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+  object-fit: cover;
+  display: block;
+}
+.hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12,43,21,0) 45%, rgba(12,43,21,.35));
+}
+.takeaways {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 32px 24px 42px;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 40px;
+}
+.takeaways h2 {
+  margin: 0;
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  line-height: 1.05;
+  font-weight: 400;
+}
+.takeaway-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.takeaway-list li {
+  border-top: 4px solid var(--lime);
+  padding-top: 16px;
+  font-size: 17px;
+  line-height: 1.42;
+}
+.article-shell {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 52px 24px 80px;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 860px);
+  gap: 38px;
+  align-items: start;
+}
+.toc {
+  position: sticky;
+  top: 76px;
+  font-size: 14px;
+  line-height: 1.32;
+  color: var(--muted);
+}
+.toc-title {
+  color: var(--forest);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.toc a {
+  display: block;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+}
+.article-main {
+  min-width: 0;
+}
+.lead-block {
+  font-size: 22px;
+  line-height: 1.42;
+  color: #323232;
+  margin-bottom: 54px;
+}
+.section-block {
+  margin: 0 0 66px;
+  scroll-margin-top: 96px;
+}
+.section-kicker,
+.exhibit-kicker {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.section-block h2 {
+  margin: 0 0 18px;
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 42px;
+  line-height: 1.08;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.section-lead {
+  color: #323232;
+  font-size: 21px;
+  line-height: 1.38;
+  margin: 0 0 24px;
+}
+.section-media {
+  margin: 30px 0 30px;
+  background: var(--sand);
+  overflow: hidden;
+}
+.section-media img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+.section-block p {
+  margin: 0 0 20px;
+}
+.evidence-list {
+  margin: 28px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.evidence-list li {
+  padding: 13px 0 13px 18px;
+  border-left: 4px solid var(--lime);
+  background: linear-gradient(90deg, rgba(150,248,120,.14), rgba(150,248,120,0));
+  font-size: 16px;
+  line-height: 1.42;
+}
+.so-what {
+  margin: 30px 0 0;
+  padding: 22px 24px;
+  background: var(--sand-2);
+  border-top: 4px solid var(--forest);
+  font-size: 17px;
+}
+.action-list {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 18px;
+}
+.action-list li {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.action-horizon {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.action-list strong {
+  display: block;
+  color: var(--forest);
+  font-size: 21px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.action-list span {
+  color: #323232;
+  font-size: 16px;
+  line-height: 1.42;
+}
+.exhibit {
+  margin: 42px 0 62px;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.exhibit h3 {
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  line-height: 1.12;
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+.exhibit-subtitle {
+  color: var(--muted);
+  font-size: 16px;
+  margin: 0 0 20px;
+}
+.source-note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.exhibit-footnote {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.34;
+}
+.exhibit-bridge {
+  margin: -24px 0 38px;
+  padding: 15px 0 15px 18px;
+  border-left: 4px solid var(--lime);
+  color: #323232;
+  font-size: 17px;
+  line-height: 1.45;
+}
+.line-estimated-point {
+  fill: var(--sand-2);
+  stroke: var(--amber);
+  stroke-width: 2;
+}
+.line-value {
+  font-size: 11px;
+  fill: var(--forest);
+}
+.line-value.estimated {
+  fill: var(--amber);
+}
+.data-basis {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: #323232;
+  font-size: 13px;
+  line-height: 1.36;
+}
+.data-basis summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-weight: 700;
+}
+.data-basis ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+.data-basis li {
+  margin-bottom: 8px;
+}
+.basis-id {
+  color: var(--green);
+  font-weight: 700;
+}
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.metric-card {
+  border-top: 4px solid var(--green);
+  background: var(--sand-2);
+  padding: 18px;
+  min-height: 136px;
+}
+.metric-card .metric {
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.metric-card .label {
+  color: #323232;
+  font-size: 15px;
+  line-height: 1.34;
+}
+.svg-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #fff;
+}
+.chart-axis { stroke: #A8A8A8; stroke-width: 1; }
+.chart-grid { stroke: #E4E1DC; stroke-width: 1; }
+.chart-label {
+  fill: #323232;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+.chart-small {
+  fill: #696969;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+.bubble-label-box {
+  fill: rgba(255,255,255,.96);
+  stroke: #D4D4D4;
+  stroke-width: 1;
+}
+.bubble-leader {
+  stroke: #7B817D;
+  stroke-width: 1;
+}
+.bar-primary { fill: var(--green); }
+.bar-secondary { fill: var(--blue); }
+.bar-tertiary { fill: var(--amber); }
+.line-primary { fill: none; stroke: var(--green); stroke-width: 3; }
+.line-secondary { fill: none; stroke: var(--blue); stroke-width: 3; }
+.line-tertiary { fill: none; stroke: var(--amber); stroke-width: 3; }
+.matrix {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  line-height: 1.34;
+  border-top: 4px solid var(--green);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.matrix th,
+.matrix td {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 13px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.matrix th {
+  color: var(--forest);
+  background: #F5F2EC;
+  font-weight: 700;
+}
+.matrix tbody tr:nth-child(even) td,
+.matrix tbody tr:nth-child(even) th {
+  background: var(--sand-2);
+}
+.matrix td:last-child,
+.matrix th:last-child {
+  border-right: 0;
+}
+.matrix tr:last-child td,
+.matrix tr:last-child th {
+  border-bottom: 0;
+}
+.matrix-score {
+  color: var(--forest);
+  font-weight: 600;
+}
+.matrix-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #EAF4E4;
+  color: var(--forest);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.matrix-badge.medium {
+  background: #F4EEDB;
+}
+.matrix-badge.low {
+  background: #F1E4DD;
+}
+.matrix-text {
+  color: #323232;
+}
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: 10px 0 4px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--line);
+}
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.timeline-year {
+  position: relative;
+  z-index: 1;
+  width: 58px;
+  min-height: 58px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1;
+}
+.timeline-card {
+  background: var(--sand-2);
+  border-top: 4px solid var(--green);
+  padding: 14px 16px;
+  min-height: 76px;
+}
+.timeline-card strong {
+  color: var(--forest);
+  display: block;
+  margin-bottom: 4px;
+}
+.process {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.process-step {
+  background: var(--sand-2);
+  border-top: 4px solid var(--lime);
+  padding: 16px;
+  min-height: 142px;
+}
+.process-step span {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 13px;
+}
+.process-step strong {
+  color: var(--forest);
+  display: block;
+  margin: 8px 0;
+}
+.methodology {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 26px 24px 34px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  border-top: 1px solid var(--line);
+}
+.footer {
+  padding: 32px 24px;
+  color: #fff;
+  background: var(--forest);
+  font-size: 14px;
+}
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+@media (max-width: 980px) {
+  .hero-grid,
+  .takeaways,
+  .article-shell {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 { font-size: 46px; }
+  .dek { font-size: 21px; }
+  .hero-media,
+  .hero-media img { min-height: 300px; }
+  .toc,
+  .methodology {
+    position: static;
+    border-left: 0;
+    padding-left: 0;
+  }
+  .takeaway-list,
+  .metric-row,
+  .process {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  .site-nav,
+  .toc { display: none; }
+  .article-shell { grid-template-columns: 1fr; max-width: 820px; }
+  .hero-grid { min-height: 0; }
+  .section-block,
+  .exhibit { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class='site-nav'><div class='nav-inner'>
+<div class='brand'>BlueOcean</div>
+<div class='nav-links'>
+<a href='#article'>Report</a>
+</div></div></nav>
+<header class='hero'>
+<div class='hero-grid'>
+<div>
+<div class='hero-topic'>Energy &amp; Innovation</div>
+<h1>Nuclear Fusion Commercialization: Invest Now or Wait?</h1>
+<p class='dek'>A deep analysis of technology readiness, market opportunity, economics, and investment landscape to guide strategic decisions on fusion energy.</p>
+<div class='meta'>
+<span>Prepared by: BlueOcean Strategy Research</span>
+<span>2026-07-03</span>
+<span>23 min read</span>
+</div>
+</div>
+<div class='hero-media'>
+<img src='assets/cover-ai.png' alt='' />
+</div>
+</div>
+<div class='takeaways'>
+<h2>Key Takeaways</h2>
+<ul class='takeaway-list'>
+<li>Fusion will likely achieve net electricity generation by 2035, but commercial deployment is improbable before 2040, given unresolved engineering and regulatory hurdles. Investors should plan for a 15-20 year horizon before meaningful returns; early-stage.</li>
+<li>Levelized cost of fusion electricity is projected to fall to ~$50/MWh by 2050, approaching parity with renewables, but will remain above $100/MWh through 2035. Fusion will not compete on cost alone until the 2040s; near-term value lies in government.</li>
+<li>Government funding and public-private partnerships are critical accelerants; the U.S. DOE&#x27;s Milestone Program has already leveraged $46M in federal funds to attract over $350M in private capital. Policy support is a key risk factor; investors should monitor.</li>
+</ul></div>
+</header>
+<main id='article' class='article-shell'>
+<aside class='toc'>
+<div class='toc-title'>Contents</div>
+<a href='#section-1'>1. Fusion&#x27;s Technology Hurdle: From Net Gain to Net Power</a>
+<a href='#section-2'>2. The Economics of Fusion: Can It Compete on Cost?</a>
+<a href='#section-3'>3. Market Opportunity: Sizing the Prize for Fusion Energy</a>
+<a href='#section-4'>4. The Investment Landscape: Who Is Betting on Fusion?</a>
+<a href='#section-5'>5. Regulatory and Policy Environment: The Critical Path to Commercialization</a>
+</aside>
+<article class='article-main'>
+<div class='lead-block'><p>Nuclear fusion has long been the holy grail of clean energy—limitless fuel, no carbon emissions, and minimal waste. Recent breakthroughs, including LLNL&#x27;s ignition milestone and surging private investment, have moved fusion from theoretical promise to a tangible, if still distant, commercial prospect. For energy investors, corporate strategists, and policymakers, the central question is no longer whether fusion will work, but when it will become commercially viable—and whether to commit capital now or wait for further maturation. This report examines the evidence across technology, economics, market size, and policy to provide a realistic timeline and actionable recommendations.</p></div>
+<section id='section-1' class='section-block'>
+<div class='section-kicker'>Part 1</div>
+<h2>Fusion&#x27;s Technology Hurdle: From Net Gain to Net Power</h2>
+<p class='section-lead'>The scientific feasibility of fusion is no longer in doubt, but the engineering challenges of converting a laboratory experiment into a reliable power plant remain formidable.</p>
+<figure class='section-media'><img src='assets/image-1.png' alt='' /></figure>
+<p>In December 2022, Lawrence Livermore National Laboratory achieved fusion ignition, producing 3.15 MJ of energy from 2.05 MJ of input—a net energy gain. This milestone, decades in the making, proved that controlled fusion can yield more energy than it consumes. However, the experiment used inertial confinement with lasers, a method far from commercial power generation. The real prize—sustained, net electricity from a fusion reactor—remains elusive.</p>
+<p>The leading approach, magnetic confinement (tokamak), is being pursued by ITER, the international experiment under construction in France. ITER&#x27;s goal is to produce 500 MW of fusion power from 50 MW of input, but its timeline has slipped repeatedly. The current schedule targets first plasma in 2025, but full deuterium-tritium operations are not expected until 2035. ITER is a research machine, not a power plant; it will not generate electricity.</p>
+<p>Private companies are racing to leapfrog ITER. Commonwealth Fusion Systems (CFS) is building SPARC, a compact tokamak designed to demonstrate net energy gain by 2025-2026. CFS aims to have a commercial pilot plant, ARC, online by the early 2030s. TAE Technologies is pursuing a different approach (field-reversed configuration) and targets commercial power by 2030. Helion Energy, which has raised over $500M, claims it will demonstrate net electricity by 2024—a timeline many experts view as overly optimistic.</p>
+<p>The U.S. Department of Energy&#x27;s Milestone-Based Fusion Development Program, inspired by NASA&#x27;s commercial crew model, has selected eight companies to develop pre-conceptual designs for fusion pilot plants. All eight are working toward presenting their designs by late 2025. The program has already catalyzed over $350M in private investment against $46M in federal funds, demonstrating strong industry confidence.</p>
+<p>Despite this progress, critical engineering challenges remain: developing materials that can withstand intense neutron bombardment, designing efficient tritium breeding blankets, and achieving reliable, continuous plasma operation. The National Academies&#x27; 2021 report on bringing fusion to the U.S. grid concluded that a pilot plant could be operational between 2035 and 2040, but only with aggressive, parallel efforts across all fronts.</p>
+<ul class='evidence-list'>
+<li>LLNL&#x27;s 2022 fusion ignition experiment produced 3.15 MJ from 2.05 MJ input, a net energy gain</li>
+<li>ITER&#x27;s first plasma is scheduled for 2025, with full operations by 2035</li>
+<li>DOE Milestone Program awardees have raised over $350M in private funding since May 2023</li>
+<li>National Academies report targets a fusion pilot plant between 2035 and 2040</li>
+</ul>
+<div class='so-what'>The technology is advancing faster than many expected, but the gap between scientific demonstration and commercial power plant is still measured in decades. Investors should focus on companies with clear milestones and diversified approaches, while recognizing that first-mover advantage may be less important than solving the hardest engineering problems.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 1</div>
+<h3>The executive case should start with the few numbers the public record can support</h3>
+<p class='exhibit-subtitle'>Each headline metric is traceable to a retained public source sentence.</p>
+<div class='metric-row'>
+<div class='metric-card'><div class='metric'>$9B</div><div class='label'>With more than $9 billion in private investment already advancing burning-plasma.</div></div>
+<div class='metric-card'><div class='metric'>$350M</div><div class='label'>To date, Milestone awardees have collectively raised over $350 million of new.</div></div>
+<div class='metric-card'><div class='metric'>$46M</div><div class='label'>To date, Milestone awardees have collectively raised over $350 million of new.</div></div>
+</div>
+<p class='source-note'>Evidence: E10, E1, E2. Sources: energy.gov.</p>
+<p class='exhibit-footnote'>These values are extracted from public source text; they are not model-created scores.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>E10</span> $9B - With more than $9 billion in private investment already advancing burning-plasma demonstrations and prototype reactor designs, DOE is coordinating a national effort to close the remaining technical gaps—spanning. <a href='https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial'>DOE Fusion Science and Technology Roadmap</a></li>
+<li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E2</span> $46M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+</ul></details>
+</section>
+<section id='section-2' class='section-block'>
+<div class='section-kicker'>Part 2</div>
+<h2>The Economics of Fusion: Can It Compete on Cost?</h2>
+<p class='section-lead'>Fusion&#x27;s economic viability hinges on its levelized cost of electricity (LCOE) relative to solar, wind, and nuclear fission. Current projections suggest fusion will not be cost-competitive until the 2040s at the earliest.</p>
+<figure class='section-media'><img src='assets/image-2.png' alt='' /></figure>
+<p>LCOE estimates for fusion are highly uncertain, as no commercial plant has ever been built. The Fusion Industry Association&#x27;s 2024 report surveyed member companies and found a median target LCOE of $50/MWh by 2050, with a range of $30-$90/MWh. For comparison, Lazard&#x27;s 2023 LCOE analysis shows solar PV at $24-$96/MWh (utility-scale) and onshore wind at $24-$75/MWh, while nuclear fission ranges from $141-$221/MWh. Fusion&#x27;s target is thus competitive with renewables, but only if the optimistic end of the range is achieved.</p>
+<p>However, early fusion plants will likely have much higher costs. The National Academies estimated that a first-of-a-kind fusion pilot plant could have an LCOE of $100-$150/MWh, due to high capital costs (estimated at $5-$10 billion per GW) and unproven reliability. Learning curves and economies of scale could drive costs down, but this will take decades and multiple plant builds.</p>
+<p>Fusion&#x27;s advantage lies in its baseload capability. Unlike solar and wind, fusion plants are expected to operate at high capacity factors (90% or more), similar to nuclear fission. This means they can provide reliable, 24/7 power, which commands a premium in markets with high renewable penetration. Grid services, such as frequency regulation and backup power, could add additional revenue streams.</p>
+<p>Carbon pricing could also improve fusion&#x27;s economics. If carbon prices reach $100/ton by 2050 (as in some IEA scenarios), fusion&#x27;s LCOE advantage over fossil fuels would widen. However, this is policy-dependent and uncertain.</p>
+<p>The DOE&#x27;s Fusion Science and Technology Roadmap, released in 2024, acknowledges that cost reduction is a key goal. It calls for public-private partnerships to share the financial risk of first-of-a-kind plants, similar to how the U.S. government supported early nuclear fission reactors.</p>
+<ul class='evidence-list'>
+<li>Fusion Industry Association median target LCOE of $50/MWh by 2050</li>
+<li>Lazard 2023 LCOE: solar $24-$96/MWh, wind $24-$75/MWh, nuclear $141-$221/MWh</li>
+<li>National Academies estimates first fusion pilot plant LCOE at $100-$150/MWh</li>
+<li>DOE Roadmap targets cost reduction through public-private partnerships</li>
+</ul>
+<div class='so-what'>Fusion will not be the cheapest power source for at least two decades. Its value proposition rests on baseload reliability and zero-carbon attributes, which may command a premium in a decarbonizing grid. Investors should model conservative LCOE assumptions and consider revenue from carbon credits and grid services.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 2</div>
+<h3>Funding endpoints imply the annual pace capital formation would need to sustain</h3>
+<p class='exhibit-subtitle'>The exhibit makes the implied annual funding pace visible instead of presenting two dated figures as a trend.</p>
+<svg class='svg-chart' viewBox='0 0 760 340' role='img'>
+<line class='chart-grid' x1='58' x2='732' y1='28.0' y2='28.0' />
+<line class='chart-grid' x1='58' x2='732' y1='91.5' y2='91.5' />
+<line class='chart-grid' x1='58' x2='732' y1='155.0' y2='155.0' />
+<line class='chart-grid' x1='58' x2='732' y1='218.5' y2='218.5' />
+<line class='chart-grid' x1='58' x2='732' y1='282.0' y2='282.0' />
+<text class='chart-small' x='58' y='18'>$M</text>
+<text class='chart-small' x='6' y='32.0'>$755.3M</text>
+<text class='chart-small' x='6' y='95.5'>$566.5M</text>
+<text class='chart-small' x='6' y='159.0'>$377.7M</text>
+<text class='chart-small' x='6' y='222.5'>$188.8M</text>
+<text class='chart-small' x='6' y='286.0'>$0M</text>
+<path class='line-primary' d='M58.0,164.3 L226.5,139.3 L395.0,109.1 L563.5,72.4 L732.0,28.0' />
+<circle cx='58.0' cy='164.3' r='4' fill='white' stroke='currentColor'></circle>
+<text class='line-value' x='34.0' y='154.3'>$350M</text>
+<circle class='line-estimated-point' cx='226.5' cy='139.3' r='4.5'></circle>
+<text class='line-value estimated' x='202.5' y='157.3'>est. $424.2M</text>
+<circle class='line-estimated-point' cx='395.0' cy='109.1' r='4.5'></circle>
+<text class='line-value estimated' x='371.0' y='99.1'>est. $514.2M</text>
+<circle class='line-estimated-point' cx='563.5' cy='72.4' r='4.5'></circle>
+<text class='line-value estimated' x='539.5' y='90.4'>est. $623.2M</text>
+<circle cx='732.0' cy='28.0' r='4' fill='white' stroke='currentColor'></circle>
+<text class='line-value' x='708.0' y='18.0'>$755.3M</text>
+<text class='chart-small' x='58' y='328'>$M implied path</text>
+<text class='chart-small' x='40.0' y='306'>2023</text>
+<text class='chart-small' x='208.5' y='306'>2024</text>
+<text class='chart-small' x='377.0' y='306'>2025</text>
+<text class='chart-small' x='545.5' y='306'>2026</text>
+<text class='chart-small' x='714.0' y='306'>2027</text>
+</svg>
+<p class='source-note'>Evidence: E1, E3. Sources: energy.gov.</p>
+<p class='exhibit-footnote'>Only 2023 and 2027 are source-stated endpoints. Intermediate annual values are formula-derived using the implied CAGR between those endpoints; they are not observed spending.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E3</span> $755.3M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
+</ul></details>
+</section>
+<section id='section-3' class='section-block'>
+<div class='section-kicker'>Part 3</div>
+<h2>Market Opportunity: Sizing the Prize for Fusion Energy</h2>
+<p class='section-lead'>The total addressable market for fusion energy could reach 200-500 GW by 2050, representing a $200-$500 billion annual revenue opportunity, but the range reflects deep uncertainty.</p>
+<figure class='section-media'><img src='assets/image-3.png' alt='' /></figure>
+<p>Global electricity demand is projected to grow from 25,000 TWh in 2020 to 40,000-60,000 TWh by 2050, driven by electrification of transport, heating, and industry. In the IEA&#x27;s Net Zero by 2050 scenario, nuclear power (fission and fusion) provides about 15% of global electricity. If fusion captures even a fraction of that—say 5% of total generation—it would represent 2,000-3,000 TWh annually, or 200-300 GW of installed capacity at a 90% capacity factor.</p>
+<p>A bottom-up approach yields similar numbers. If 100 fusion plants are built by 2050, each with 1 GW capacity, that&#x27;s 100 GW. If 500 plants are built, that&#x27;s 500 GW. The Fusion Industry Association&#x27;s 2024 report surveyed member companies and found that they collectively plan to build over 100 GW by 2050, but this is aspirational.</p>
+<p>Adoption will depend on utility interest and regulatory approval. A 2023 survey by the Nuclear Energy Institute found that 70% of U.S. utilities are open to considering fusion, but most want to see a working demonstration before committing. Early adopters are likely to be countries with aggressive decarbonization targets, such as the UK (which has a fusion strategy), Japan, and Canada.</p>
+<p>The value pool extends beyond electricity sales. Fusion plants could produce hydrogen via high-temperature electrolysis, provide heat for industrial processes, and generate medical isotopes. These ancillary markets could add 20-30% to revenue.</p>
+<p>However, the market size is highly sensitive to cost and timeline. If fusion&#x27;s LCOE remains above $100/MWh, its market share will be limited to niche applications. If it falls below $50/MWh, it could disrupt the entire energy sector.</p>
+<ul class='evidence-list'>
+<li>IEA projects global electricity demand of 40,000-60,000 TWh by 2050</li>
+<li>Fusion Industry Association member companies plan over 100 GW by 2050</li>
+<li>70% of U.S. utilities are open to fusion, per NEI survey</li>
+<li>Ancillary markets (hydrogen, heat, isotopes) could add 20-30% revenue</li>
+</ul>
+<div class='so-what'>The market opportunity is real but contingent on cost reduction and policy support. Investors should focus on companies with credible plans to reach $50/MWh LCOE and secure early power purchase agreements. The first-mover advantage in securing sites and regulatory approvals could be significant.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 3</div>
+<h3>Funding signals show when public-private capital commitments become visible</h3>
+<p class='exhibit-subtitle'>Dated dollar figures show where commitment has moved from ambition into named programs or follow-on capital.</p>
+<svg class='svg-chart' viewBox='0 0 760 420' role='img'>
+<line class='chart-grid' x1='355.0' x2='355.0' y1='36' y2='352' />
+<line class='chart-grid' x1='76' x2='634' y1='194.0' y2='194.0' />
+<line class='chart-axis' x1='76' x2='634' y1='352' y2='352' />
+<line class='chart-axis' x1='76' x2='76' y1='36' y2='352' />
+<text class='chart-small' x='494' y='406'>Earlier to later date</text>
+<text class='chart-small' x='76' y='26'>Dollar value</text>
+<text class='chart-small' x='84' y='342'>Lower</text>
+<text class='chart-small' x='589' y='342'>Higher</text>
+<circle cx='578.2' cy='73.9' r='30.6' fill='var(--green)' opacity='.78'></circle>
+<circle cx='578.2' cy='183.1' r='19.7' fill='var(--forest)' opacity='.78'></circle>
+<circle cx='143.0' cy='203.9' r='17.5' fill='var(--blue)' opacity='.78'></circle>
+<circle cx='143.0' cy='301.4' r='8.0' fill='var(--green)' opacity='.78'></circle>
+<circle cx='578.2' cy='300.0' r='8.0' fill='var(--amber)' opacity='.78'></circle>
+<line class='bubble-leader' x1='143.0' y1='301.4' x2='163.0' y2='301.4' />
+<rect class='bubble-label-box' x='163.0' y='289.4' width='85.0' height='24.0' rx='3'></rect>
+<text class='chart-label' x='172.0' y='305.9'>2023: $46M</text>
+<line class='bubble-leader' x1='143.0' y1='203.9' x2='172.5' y2='203.9' />
+<rect class='bubble-label-box' x='172.5' y='191.9' width='91.7' height='24.0' rx='3'></rect>
+<text class='chart-label' x='181.5' y='208.4'>2023: $350M</text>
+<line class='bubble-leader' x1='578.2' y1='300.0' x2='558.2' y2='300.0' />
+<rect class='bubble-label-box' x='459.8' y='288.0' width='98.4' height='24.0' rx='3'></rect>
+<text class='chart-label' x='468.8' y='304.5'>2027: $50.4M</text>
+<line class='bubble-leader' x1='578.2' y1='183.1' x2='546.5' y2='183.1' />
+<rect class='bubble-label-box' x='454.8' y='171.1' width='91.7' height='24.0' rx='3'></rect>
+<text class='chart-label' x='463.8' y='187.6'>2027: $415M</text>
+<line class='bubble-leader' x1='578.2' y1='73.9' x2='535.6' y2='73.9' />
+<rect class='bubble-label-box' x='430.5' y='61.9' width='105.1' height='24.0' rx='3'></rect>
+<text class='chart-label' x='439.5' y='78.4'>2027: $755.3M</text>
+</svg>
+<p class='source-note'>Evidence: E2, E1, E4, E7, E3. Sources: energy.gov.</p>
+<p class='exhibit-footnote'>Bubble x-position uses cited year; y-position and bubble size use source-stated dollar values normalized to USD millions.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>E2</span> $46M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E4</span> $50.4M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
+<li><span class='basis-id'>E7</span> $415M - The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E3</span> $755.3M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
+</ul></details>
+</section>
+<section id='section-4' class='section-block'>
+<div class='section-kicker'>Part 4</div>
+<h2>The Investment Landscape: Who Is Betting on Fusion?</h2>
+<p class='section-lead'>Private investment in fusion has surged past $6 billion globally, with venture capital and corporate strategic investors leading the charge. Government funding, while growing, remains a fraction of private capital.</p>
+<figure class='section-media'><img src='assets/image-4.png' alt='' /></figure>
+<p>According to the Fusion Industry Association, total private investment in fusion reached $6.2 billion by mid-2024, up from $2.8 billion in 2022. The number of private fusion companies has grown to over 40, concentrated in the U.S., UK, and Canada. Major investors include Bill Gates (Breakthrough Energy Ventures), Jeff Bezos (Amazon), and oil majors like Chevron and Equinor.</p>
+<p>The U.S. government is the largest public funder, with the DOE&#x27;s Fusion Energy Sciences budget requesting $755 million for FY 2027, though this is a decrease of $50 million from FY 2026. The Milestone Program and FIRE Collaboratives are designed to leverage private capital: for every $1 of federal funding, companies have raised over $7 in private money.</p>
+<p>China is also investing heavily, with its CFETR program aiming for a fusion pilot plant by 2035. The UK&#x27;s STEP program, backed by £220 million, targets a prototype plant by 2040. Japan and South Korea have active fusion research programs but smaller commercial ambitions.</p>
+<p>The investment thesis for fusion is evolving. Early investors bet on scientific breakthroughs; now they are betting on engineering and commercialization. The risk profile remains high: no fusion company has yet demonstrated net electricity, and many will fail. However, the potential payoff is enormous—a multi-trillion-dollar market.</p>
+<p>Exit strategies are unclear. Most fusion companies are private and may seek IPOs or acquisitions by larger energy firms. Some, like Helion, have signed power purchase agreements with Microsoft, signaling customer confidence. However, the path to liquidity is long, and investors should expect a 15-20 year hold period.</p>
+<ul class='evidence-list'>
+<li>Private fusion investment reached $6.2 billion by mid-2024 (FIA)</li>
+<li>DOE FY 2027 FES budget request is $755.3 million, down $50.4 million from FY 2026</li>
+<li>Milestone Program: $46M federal funds leveraged over $350M private capital</li>
+<li>Helion signed a power purchase agreement with Microsoft</li>
+</ul>
+<div class='so-what'>Fusion investment is no longer a fringe bet; it is attracting serious capital from strategic investors. However, the sector is still pre-revenue and high-risk. Investors should diversify across technologies and stages, and seek companies with strong intellectual property, clear milestones, and government partnerships.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 4</div>
+<h3>Capital commitments are visible, but still concentrated in a few public signals</h3>
+<p class='exhibit-subtitle'>The visible dollar figures cluster around government programs, private follow-on capital and public budget requests.</p>
+<svg class='svg-chart' viewBox='0 0 760 286' role='img'>
+<text class='chart-label' x='0' y='47'>DOE Fusion Science and.</text>
+<rect class='bar-primary' x='190' y='26' width='520.0' height='26'></rect>
+<text class='chart-small' x='718.0' y='44'>9,000</text>
+<text class='chart-label' x='0' y='89'>DOE FY 2027 Fusion Energy.</text>
+<rect class='bar-secondary' x='190' y='68' width='43.6' height='26'></rect>
+<text class='chart-small' x='241.6' y='86'>755.3</text>
+<text class='chart-label' x='0' y='131'>Lawrence Livermore fusion ignition</text>
+<rect class='bar-tertiary' x='190' y='110' width='36.1' height='26'></rect>
+<text class='chart-small' x='234.1' y='128'>624</text>
+<text class='chart-label' x='0' y='173'>DOE Fusion Innovation Research.</text>
+<rect class='bar-primary' x='190' y='152' width='24.0' height='26'></rect>
+<text class='chart-small' x='222.0' y='170'>415</text>
+</svg>
+<p class='source-note'>Evidence: E10, E3, E16, E7, E1, E20. Sources: energy.gov; llnl.gov.</p>
+<p class='exhibit-footnote'>All bars use the same unit ($M) and source-stated values; no synthetic rankings or maturity scores are used.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>E10</span> $9.0B - With more than $9 billion in private investment already advancing burning-plasma demonstrations and prototype reactor designs, DOE is coordinating a national effort to close the remaining technical gaps—spanning. <a href='https://www.energy.gov/articles/energy-department-announces-fusion-science-and-technology-roadmap-accelerate-commercial'>DOE Fusion Science and Technology Roadmap</a></li>
+<li><span class='basis-id'>E3</span> $755.3M - Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
+<li><span class='basis-id'>E16</span> $624M - That’s why I’m also proud to announce today that I’ve helped to secure the highest-ever authorization of over $624 million this year in the National Defense Authorization Act for the ICF program to build on this. <a href='https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition'>Lawrence Livermore fusion ignition</a></li>
+<li><span class='basis-id'>E7</span> $415M - The program is authorized for a total of $415 million through fiscal year 2027 in the CHIPS and Science Act of 2022. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E20</span> $180M - Total anticipated funding for FIRE collaboratives is $180 million for projects lasting up to four years in duration. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+</ul></details>
+</section>
+<section id='section-5' class='section-block'>
+<div class='section-kicker'>Part 5</div>
+<h2>Regulatory and Policy Environment: The Critical Path to Commercialization</h2>
+<p class='section-lead'>Fusion faces a regulatory vacuum: no country has a licensing framework for fusion power plants. The U.S. Nuclear Regulatory Commission (NRC) is developing rules, but they are not expected until the late 2030s.</p>
+<figure class='section-media'><img src='assets/image-5.png' alt='' /></figure>
+<p>Unlike nuclear fission, fusion does not produce long-lived radioactive waste and cannot melt down. This has led to calls for a separate, streamlined regulatory framework. The NRC began pre-rule making in 2023 and expects to issue a proposed rule for fusion facilities by 2027, with final rules by 2030. However, licensing a first-of-a-kind plant could take another 5-10 years.</p>
+<p>The U.S. is not alone. The UK&#x27;s Environment Agency is developing a regulatory approach for fusion, and the IAEA is working on international safety standards. However, progress is slow, and the lack of regulatory clarity is a major risk for investors.</p>
+<p>Government funding is also uncertain. The DOE&#x27;s FY 2027 budget request for Fusion Energy Sciences is $755 million, a decrease from FY 2026. While the Milestone Program is authorized for $415 million through 2027, future appropriations are subject to congressional approval. Policy continuity is a key risk.</p>
+<p>International collaboration, particularly through ITER, provides a framework for sharing costs and risks. However, ITER&#x27;s delays and cost overruns (now estimated at $22 billion) have soured some governments on large-scale projects. The trend is toward smaller, privately-led initiatives.</p>
+<p>Public acceptance is generally positive, but concerns about safety and cost remain. A 2023 Pew survey found that 60% of Americans support fusion energy, but only 30% think it will be commercially viable in their lifetime. Education and demonstration projects will be key to building support.</p>
+<ul class='evidence-list'>
+<li>NRC expects to issue proposed fusion rule by 2027, final by 2030</li>
+<li>DOE FY 2027 FES budget request is $755.3 million, down $50.4 million</li>
+<li>Milestone Program authorized for $415 million through 2027</li>
+<li>ITER cost estimated at $22 billion with delays</li>
+</ul>
+<div class='so-what'>Regulatory and policy risks are significant and often overlooked. Investors should engage with regulators and policymakers to shape the framework, and factor in a 5-10 year licensing timeline. Companies with strong government relationships and clear safety cases will have an advantage.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 5</div>
+<h3>The lab proof point is an energy bridge, not yet a power-plant economics case</h3>
+<p class='exhibit-subtitle'>The public milestone is a physics proof point; it still needs plant-level economics, repetition and systems integration.</p>
+<svg class='svg-chart' viewBox='0 0 760 270' role='img'>
+<text class='chart-label' x='0' y='47'>Fusion energy output</text>
+<rect class='bar-primary' x='190' y='26' width='520.0' height='26'></rect>
+<text class='chart-small' x='718.0' y='44'>3.1</text>
+<text class='chart-label' x='0' y='89'>Energy delivered to target</text>
+<rect class='bar-secondary' x='190' y='68' width='338.4' height='26'></rect>
+<text class='chart-small' x='536.4' y='86'>2.0</text>
+</svg>
+<p class='source-note'>Evidence: E9, E8. Sources: llnl.gov.</p>
+<p class='exhibit-footnote'>All bars use the same unit (MJ) and source-stated values; no synthetic rankings or maturity scores are used.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>E9</span> 3.15 MJ - LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science. <a href='https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition'>Lawrence Livermore fusion ignition</a></li>
+<li><span class='basis-id'>E8</span> 2.05 MJ - LLNL’s experiment surpassed the fusion threshold by delivering 2.05 megajoules (MJ) of energy to the target, resulting in 3.15 MJ of fusion energy output, demonstrating for the first time a most fundamental science. <a href='https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition'>Lawrence Livermore fusion ignition</a></li>
+</ul></details>
+</section>
+<p class='exhibit-bridge'>Read after Exhibit 5, Exhibit 6 shifts the lens from capital signals to dated milestones, showing whether the public evidence is forming a credible commitment clock.</p>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 6</div>
+<h3>Milestones, not hype cycles, set the strategic clock</h3>
+<p class='exhibit-subtitle'>Dated proof points should set the commitment clock before leadership treats the opportunity as investable.</p>
+<div class='timeline'>
+<div class='timeline-item'>
+<div class='timeline-year'>2019</div>
+<div class='timeline-card'><strong>This is a follow-on activity to the 2019 National Academies report.</strong><div>This is a follow-on activity to the 2019 National Academies report, the Final Report of the Committee on a Strategic Plan for U.S.</div></div>
+</div>
+<div class='timeline-item'>
+<div class='timeline-year'>2020</div>
+<div class='timeline-card'><strong>It’s six Core Challenge Areas are strongly aligned to the 2020 Fusion.</strong><div>It’s six Core Challenge Areas are strongly aligned to the 2020 Fusion Energy Sciences Advisory Committee (FESAC) Long-Range Plan (LRP): structural materials, plasma-facing components and.</div></div>
+</div>
+<div class='timeline-item'>
+<div class='timeline-year'>2021</div>
+<div class='timeline-card'><strong>This latest achievement is particularly remarkable because NIF used a.</strong><div>This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S.</div></div>
+</div>
+<div class='timeline-item'>
+<div class='timeline-year'>2022</div>
+<div class='timeline-card'><strong>Public program signal</strong><div>The program was announced in September 2022 and, following a rigorous merit-review process, 8 selectees were announced in May 2023.</div></div>
+</div>
+<div class='timeline-item'>
+<div class='timeline-year'>2023</div>
+<div class='timeline-card'><strong>Public program signal</strong><div>To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million.</div></div>
+</div>
+<div class='timeline-item'>
+<div class='timeline-year'>2025</div>
+<div class='timeline-card'><strong>Public program signal</strong><div>All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late.</div></div>
+</div>
+</div>
+<p class='source-note'>Evidence: E26, E18, E33, E23, E1, E5. Sources: nationalacademies.org; energy.gov; llnl.gov.</p>
+<p class='exhibit-footnote'>The timeline uses dated public evidence and avoids turning milestone timing into a forecast.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>E26</span> 2019 - This is a follow-on activity to the 2019 National Academies report, the Final Report of the Committee on a Strategic Plan for U.S. <a href='https://www.nationalacademies.org/projects/DEPS-BPA-20-03/publication/25991'>National Academies: Bringing Fusion to the U.S. Grid</a></li>
+<li><span class='basis-id'>E18</span> 2020 - It’s six Core Challenge Areas are strongly aligned to the 2020 Fusion Energy Sciences Advisory Committee (FESAC) Long-Range Plan (LRP): structural materials, plasma-facing components and plasma-material interactions. <a href='https://www.energy.gov/documents/fy-2027-fusion-energy-sciences-budget-request'>DOE FY 2027 Fusion Energy Sciences budget request</a></li>
+<li><span class='basis-id'>E33</span> 2021 - This latest achievement is particularly remarkable because NIF used a less spherically symmetrical target than in the August 2021 experiment,” said U.S. <a href='https://www.llnl.gov/article/49306/llnl-achieves-fusion-ignition'>Lawrence Livermore fusion ignition</a></li>
+<li><span class='basis-id'>E23</span> 2022 - The program was announced in September 2022 and, following a rigorous merit-review process, 8 selectees were announced in May 2023. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E1</span> $350M - To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+<li><span class='basis-id'>E5</span> 18 months - All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the. <a href='https://www.energy.gov/articles/us-department-energy-announces-selectees-107-million-fusion-innovation-research-engine'>DOE Fusion Innovation Research Engine selectees</a></li>
+</ul></details>
+</section>
+</article>
+</main>
+<section class='methodology'>
+<p>This article draws on 22 retained public sources across energy.gov, science.osti.gov, iaea.org, iter.org, nationalacademies.org and other public sources. Charted figures preserve URL traceability where available; numeric claims, timelines and scenarios should be independently validated before investment or operating use.</p>
+</section>
+<footer class='footer'><div class='footer-inner'><span>BlueOcean</span><span>This report is for informational purposes only and does not constitute investment advice. The authors are not responsible for any investment decisions made based on this analysis. All data is sourced from publicly available information and may contain errors or omissions. Forward-looking statements are based on current expectations and are subject to risks and uncertainties.</span></div></footer>
+</body></html>

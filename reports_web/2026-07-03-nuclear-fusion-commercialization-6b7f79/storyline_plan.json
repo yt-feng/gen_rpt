@@ -1,0 +1,137 @@
+{
+  "core_question": "Should we invest in or develop nuclear fusion technology now, or wait for further maturation?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, funding, adoption, technology",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the Milestone Program).",
+    "Department of Energy (DOE) today announced $107 million in funding for six projects in the Fusion Innovative Research Engine (FIRE) Collaboratives , and that several privately funded fusion companies have completed early critical-path science and technology (S&T) milestones in the Milestone-Based Fusion Development Program (“the Milestone Program”)."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will achieve net electricity generation by 2035, but commercial deployment will not occur before 2040.",
+      "decision_relevance": "Determines investment horizon and risk profile.",
+      "needed_evidence": [
+        "Timelines from leading fusion projects (e.g., ITER, SPARC, private startups) and independent assessments."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The levelized cost of electricity (LCOE) from fusion will be competitive with renewables and nuclear fission by 2050, but not before.",
+      "decision_relevance": "Affects market adoption and pricing strategy.",
+      "needed_evidence": [
+        "LCOE estimates from fusion companies, academic studies, and comparisons with solar, wind, and fission."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Government funding and policy support are critical for fusion commercialization, with public-private partnerships accelerating timelines.",
+      "decision_relevance": "Indicates dependency on policy and risk of funding cuts.",
+      "needed_evidence": [
+        "Government fusion budgets (US, UK, Japan, EU), private investment data, and policy announcements."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Fusion will initially target baseload power generation, not intermittent or distributed applications, due to high capital costs and scale requirements.",
+      "decision_relevance": "Defines market segment and competitive positioning.",
+      "needed_evidence": [
+        "Company statements, technical papers on fusion plant design, and grid integration studies."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Private fusion companies will require at least $10 billion in cumulative investment before achieving commercial viability.",
+      "decision_relevance": "Estimates total capital needed and risk of underfunding.",
+      "needed_evidence": [
+        "Funding rounds, capital expenditure plans, and analyst reports."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Fusion will face significant regulatory hurdles, with licensing frameworks not expected until the late 2030s.",
+      "decision_relevance": "Impacts timeline and legal risks.",
+      "needed_evidence": [
+        "Regulatory body statements, licensing proposals, and expert commentary."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The total addressable market for fusion energy will be at least 500 GW by 2050, driven by decarbonization goals and rising electricity demand.",
+      "decision_relevance": "Validates market size and growth potential.",
+      "needed_evidence": [
+        "Energy demand forecasts, decarbonization scenarios, and fusion market studies."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "TAM = Global electricity generation (kWh) in 2050 * Fusion share (%)",
+      "variables": [
+        "Global electricity generation 2050 (IEA, EIA)",
+        "Fusion share (expert consensus, policy targets)"
+      ],
+      "known_limitations": [
+        "Assumes fusion can compete on cost and scale; share is highly uncertain."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "TAM = Number of fusion plants * Average plant capacity (GW) * Capacity factor * Hours per year",
+      "variables": [
+        "Number of plants (based on investment and construction timelines)",
+        "Average plant capacity (1-2 GW)",
+        "Capacity factor (90% assumed)"
+      ],
+      "known_limitations": [
+        "Plant count is speculative; capacity factors unproven."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Adoption = Awareness * Interest * Trial * Adoption * (1 - Churn)",
+      "variables": [
+        "Awareness (policy support, media coverage)",
+        "Interest (utility surveys)",
+        "Trial (demonstration projects)",
+        "Adoption (commercial contracts)"
+      ],
+      "known_limitations": [
+        "Funnel stages are qualitative; data scarce."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value = Revenue from electricity sales + Carbon credits + Grid services + Technology licensing",
+      "variables": [
+        "Electricity price ($/MWh)",
+        "Carbon price ($/ton)",
+        "Ancillary services value",
+        "Royalty rates"
+      ],
+      "known_limitations": [
+        "Revenue streams uncertain; carbon markets vary."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Supply = Total investment / Cost per GW * Capacity factor",
+      "variables": [
+        "Total investment in fusion (public + private)",
+        "Cost per GW (capital cost)",
+        "Capacity factor"
+      ],
+      "known_limitations": [
+        "Cost per GW is highly uncertain; investment data may be incomplete."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
