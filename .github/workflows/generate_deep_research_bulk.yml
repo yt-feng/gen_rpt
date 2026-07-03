@@ -92,6 +92,9 @@ jobs:
           SLUG="$SLUG_INPUT"
           MODEL="$MODEL_INPUT"
 
+          # IMPORTANT FIX: Delete any existing reports_web folder that was checked out 
+          # from the git repo, so `find` below only matches the newly generated report.
+          rm -rf reports_web
           mkdir -p reports_web
           GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
           
