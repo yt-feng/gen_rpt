@@ -344,31 +344,43 @@ class PdfReleaseService:
                 logger.warning(f"[PdfRelease] Could not load reports_web HTML ({web_html_path}): {e}")
 
         if html_str:
-            return self._inject_html_content(html_str, report)
+            return await self._inject_html_content(html_str, report)
 
         # Fallback: build from report dict
         logger.info(f"[PdfRelease] Building HTML from report dict for {report_id}")
         return _build_html_from_report(report)
 
-    def _inject_html_content(self, html_str: str, report: dict) -> str:
-        report_text = report.get("reportContent", {}).get("text")
-        if not report_text:
-            return html_str
+    async def _inject_html_content(self, html_str: str, report: dict) -> str:
+        slug = report.get("slug") or report.get("id") or "doc-1111-approved"
         
         try:
             from bs4 import BeautifulSoup
             import markdown
             soup = BeautifulSoup(html_str, "html.parser")
-            article = soup.find("article", class_="article-main")
-            if article:
-                # Convert markdown text to HTML
-                md_html = markdown.markdown(report_text)
-                article.clear()
-                new_content = BeautifulSoup(md_html, "html.parser")
-                article.append(new_content)
-                return str(soup)
+            
+            # 1. Replace relative image paths with R2 presigned URLs
+            for img in soup.find_all("img"):
+                src = img.get("src")
+                if src and not src.startswith("http") and not src.startswith("data:"):
+                    r2_path = f"reports_web/{slug}/{src}"
+                    signed_url = await storage_provider.get_signed_url(r2_path, expiration_sec=3600)
+                    if signed_url:
+                        img["src"] = signed_url
+                        
+            # 2. Inject updated text content
+            report_text = report.get("reportContent", {}).get("text")
+            if report_text:
+                article = soup.find("article", class_="article-main")
+                if article:
+                    md_html = markdown.markdown(report_text)
+                    article.clear()
+                    new_content = BeautifulSoup(md_html, "html.parser")
+                    article.append(new_content)
+                    
+            return str(soup)
         except Exception as e:
-            logger.warning(f"[PdfRelease] Failed to inject dynamic content: {e}")
+            logger.warning(f"[PdfRelease] Failed to inject dynamic content/images: {e}")
+            
         return html_str
 
     async def _generate_pdf(self, html_content: str) -> bytes:
