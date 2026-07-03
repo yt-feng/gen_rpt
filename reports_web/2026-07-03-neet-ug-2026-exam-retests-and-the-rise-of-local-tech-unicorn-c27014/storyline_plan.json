@@ -1,0 +1,118 @@
+{
+  "core_question": "Should investors and policymakers expect a sustained increase in tech unicorn formation due to NEET-UG retest disruptions?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "NEET-UG retests cause a measurable increase in engineering enrollment (CS/IT) in top Indian institutes (IITs, NITs) within 2 years.",
+      "decision_relevance": "Confirms talent shift; affects startup hiring and founding teams.",
+      "needed_evidence": [
+        "Year-over-year enrollment data from JEE Advanced and state CETs; correlation with NEET retest years."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Startups founded by students who switched from medical to tech after NEET retests have higher survival rates than average.",
+      "decision_relevance": "Indicates quality of entrepreneurial talent.",
+      "needed_evidence": [
+        "Founder background data from Crunchbase; survey of startup founders who attempted NEET."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "VC funding for healthtech and edtech startups increases by 20% YoY following NEET retest announcements.",
+      "decision_relevance": "Shows investor confidence in sectors related to exam disruption.",
+      "needed_evidence": [
+        "Quarterly VC funding data for healthtech/edtech from Tracxn; timeline of NEET retest news."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Number of tech unicorns founded in 2027-2028 is 15% higher than baseline projection due to NEET retest talent influx.",
+      "decision_relevance": "Directly measures the phenomenon's impact on unicorn creation.",
+      "needed_evidence": [
+        "Historical unicorn formation rates; projected vs actual for 2027-2028; founder background data."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Government policies (e.g., Startup India) amplify the effect of NEET retests on tech entrepreneurship.",
+      "decision_relevance": "Policy lever for maximizing impact.",
+      "needed_evidence": [
+        "Policy changes timeline; correlation with startup registrations; interviews with policymakers."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The effect is concentrated in states with high NEET aspirant numbers (e.g., Uttar Pradesh, Maharashtra, Rajasthan).",
+      "decision_relevance": "Geographic targeting for investors and incubators.",
+      "needed_evidence": [
+        "State-wise NEET applicant data; startup formation by state; correlation analysis."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Increased tech talent supply leads to lower average salaries for entry-level tech roles, reducing startup burn rate.",
+      "decision_relevance": "Affects startup unit economics and funding needs.",
+      "needed_evidence": [
+        "Salary surveys for fresh engineers; startup burn rate data; correlation with talent supply."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market = Number of NEET retest-affected students * % who switch to tech * average startup creation rate per capita",
+      "variables": [
+        "NEET retest affected students (approx 1.5M)",
+        "switch rate (estimated 5-10%)",
+        "startup creation rate (0.1% of tech graduates)"
+      ],
+      "known_limitations": [
+        "Switch rate is uncertain; startup creation rate may not be linear."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Sum over top 10 tech hubs of (number of new tech graduates from NEET switchers * local startup density)",
+      "variables": [
+        "Hub-specific graduate numbers",
+        "startup density (startups per capita)"
+      ],
+      "known_limitations": [
+        "Data granularity may be low; hub definitions vary."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Number of new tech startups = (NEET affected) * (switch rate) * (entrepreneurial intent rate) * (conversion to funded startup)",
+      "variables": [
+        "NEET affected (1.5M)",
+        "switch rate (5-10%)",
+        "entrepreneurial intent (2-5%)",
+        "conversion (1-2%)"
+      ],
+      "known_limitations": [
+        "Funnel rates are estimates; survey data may not be representative."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Total value = Number of new unicorns * average unicorn valuation + number of other startups * average exit value",
+      "variables": [
+        "New unicorns (estimated 5-10 over 2 years)",
+        "average valuation ($1B)",
+        "other startups (100-200)",
+        "average exit ($50M)"
+      ],
+      "known_limitations": [
+        "Unicorn count is speculative; exit values are volatile."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

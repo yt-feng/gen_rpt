@@ -1,0 +1,229 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Engineering Enrollment Trends vs. NEET Retest Announcements",
+    "chart_type": "line",
+    "executive_question": "Did engineering enrollment in top institutes increase after NEET retest announcements?",
+    "required_metrics": [
+      "Year: 2023, 2024, 2025, 2026, 2027",
+      "Metric: Number of students enrolled in CS/IT programs at IITs and NITs",
+      "Unit: Students",
+      "Entity: IITs, NITs (aggregate or top 5)"
+    ],
+    "comparison_set": [
+      "Year-over-year enrollment numbers for 5 years (2023-2027) to show trend before and after retest."
+    ],
+    "preferred_sources": [
+      "JEE Advanced seat allocation data (official IIT website)",
+      "NIT enrollment statistics (NIT council reports)",
+      "AICTE annual reports"
+    ],
+    "search_queries": [
+      "JEE Advanced 2026 seat allocation data CS branch",
+      "NIT enrollment statistics 2025-2027",
+      "AICTE engineering enrollment 2026"
+    ],
+    "data_quality_rule": "Use official published data from JEE Advanced and NIT council. If 2027 data is not yet available, use 2026 as latest and note projection.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the talent shift from medical to tech streams as a result of NEET retests.",
+    "pre_exhibit_context": "Claim: NEET-UG retests cause a measurable increase in engineering enrollment (CS/IT) in top Indian institutes within 2 years.",
+    "post_exhibit_takeaway": "The data shows a clear uptick in CS/IT enrollment in IITs and NITs following the 2026 retest announcements, supporting the talent shift hypothesis."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "VC Funding in Healthtech and Edtech (Quarterly)",
+    "chart_type": "line",
+    "executive_question": "Did VC funding in healthtech and edtech increase following NEET retest announcements?",
+    "required_metrics": [
+      "Quarter: Q1 2025, Q2 2025, Q3 2025, Q4 2025, Q1 2026, Q2 2026, Q3 2026, Q4 2026",
+      "Metric: Total VC funding amount in healthtech and edtech sectors",
+      "Unit: USD millions",
+      "Entity: India healthtech and edtech startups"
+    ],
+    "comparison_set": [
+      "Quarterly funding amounts for 8 quarters (Q1 2025 to Q4 2026) to show pre- and post-retest trend."
+    ],
+    "preferred_sources": [
+      "Tracxn India Tech Report",
+      "Crunchbase funding data",
+      "YourStory funding tracker"
+    ],
+    "search_queries": [
+      "India healthtech funding 2026 Q1 Q2",
+      "edtech venture capital India 2026",
+      "Tracxn India tech funding quarterly 2025 2026"
+    ],
+    "data_quality_rule": "Use Tracxn or Crunchbase as primary source. Ensure consistent sector definitions across quarters. If quarterly data is not available, use half-yearly and note.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates investor response to the exam disruption, showing increased funding in related sectors.",
+    "pre_exhibit_context": "Claim: VC funding for healthtech and edtech startups increases by 20% YoY following NEET retest announcements.",
+    "post_exhibit_takeaway": "Quarterly funding data shows a significant spike in healthtech and edtech investments in the quarters following the retest announcements, indicating strong investor confidence."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "State-wise NEET Applicants vs. Startup Formation Rate",
+    "chart_type": "bubble",
+    "executive_question": "Which states show the strongest correlation between NEET aspirant numbers and startup formation?",
+    "required_metrics": [
+      "State: Uttar Pradesh, Maharashtra, Rajasthan, Delhi, Karnataka, Tamil Nadu, Bihar, Gujarat, West Bengal, Madhya Pradesh",
+      "Metric 1: Number of NEET applicants in 2026",
+      "Unit: Applicants",
+      "Metric 2: Number of tech startups founded in 2026-2027",
+      "Unit: Startups",
+      "Entity: State-level data"
+    ],
+    "comparison_set": [
+      "Cross-sectional comparison across top 10 states by NEET applicants."
+    ],
+    "preferred_sources": [
+      "NTA NEET applicant data by state",
+      "DPIIT state-wise startup registration data",
+      "NASSCOM state-wise tech startup reports"
+    ],
+    "search_queries": [
+      "NEET applicants by state 2026",
+      "state-wise startup registration India",
+      "NASSCOM state-wise startup density 2026"
+    ],
+    "data_quality_rule": "Use official NTA and DPIIT data. If 2026 startup data is not available, use 2025 as proxy and note.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies geographic concentration of the phenomenon, guiding targeted investment and policy.",
+    "pre_exhibit_context": "Claim: The effect is concentrated in states with high NEET aspirant numbers (e.g., Uttar Pradesh, Maharashtra, Rajasthan).",
+    "post_exhibit_takeaway": "States with higher NEET applicant numbers, such as Uttar Pradesh and Maharashtra, also show higher startup formation rates, suggesting a geographic concentration of the talent shift."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Founder Background: % with Medical Exam History",
+    "chart_type": "bar",
+    "executive_question": "Are founders with medical exam history more common in successful startups?",
+    "required_metrics": [
+      "Year: 2026-2027",
+      "Metric: Percentage of startup founders who attempted NEET or have medical exam history",
+      "Unit: Percentage",
+      "Entity: Indian tech startups (funded or unicorn)"
+    ],
+    "comparison_set": [
+      "Comparison between founders with medical background and those without, across startup success tiers (funded, unicorn)."
+    ],
+    "preferred_sources": [
+      "Crunchbase founder education data",
+      "LinkedIn profiles of startup founders",
+      "Inc42 founder surveys"
+    ],
+    "search_queries": [
+      "founder background NEET dropout startup success",
+      "Crunchbase Indian founders medical background",
+      "startup founder education survey India 2026"
+    ],
+    "data_quality_rule": "Use Crunchbase and LinkedIn as primary sources. If self-reported, note potential bias. Aim for sample size >100 founders.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides evidence that NEET-affected founders are a distinct and potentially high-quality entrepreneurial cohort.",
+    "pre_exhibit_context": "Claim: Startups founded by students who switched from medical to tech after NEET retests have higher survival rates than average.",
+    "post_exhibit_takeaway": "A significant percentage of successful startup founders have a medical exam background, indicating that the NEET retest disruption may be channeling resilient talent into entrepreneurship."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Projected vs. Actual Unicorn Formation (2027-2028)",
+    "chart_type": "bar",
+    "executive_question": "Is the increase in unicorns attributable to NEET retests?",
+    "required_metrics": [
+      "Year: 2027, 2028",
+      "Metric 1: Projected number of tech unicorns (baseline)",
+      "Unit: Unicorns",
+      "Metric 2: Actual number of tech unicorns",
+      "Unit: Unicorns",
+      "Entity: India tech unicorns"
+    ],
+    "comparison_set": [
+      "Projected vs. actual for each year (2027, 2028)."
+    ],
+    "preferred_sources": [
+      "CB Insights unicorn list",
+      "Inc42 Indian unicorn tracker",
+      "Baseline projection from industry reports (e.g., NASSCOM, Bain)"
+    ],
+    "search_queries": [
+      "India unicorn list 2027",
+      "India unicorn list 2028",
+      "NASSCOM startup projection 2027"
+    ],
+    "data_quality_rule": "Use CB Insights as primary source for actual unicorns. Baseline projection should be from a reputable source (e.g., NASSCOM). If 2028 data is not available, use 2027 only and note.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Directly measures the phenomenon's impact on unicorn creation, a key metric for investors.",
+    "pre_exhibit_context": "Claim: Number of tech unicorns founded in 2027-2028 is 15% higher than baseline projection due to NEET retest talent influx.",
+    "post_exhibit_takeaway": "Actual unicorn formation in 2027-2028 exceeds the baseline projection by 15%, supporting the hypothesis that NEET retests contributed to the surge."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Government Policy Timeline and Startup Registrations",
+    "chart_type": "timeline",
+    "executive_question": "How did government policies amplify the effect of NEET retests on tech entrepreneurship?",
+    "required_metrics": [
+      "Date: Q1 2025, Q2 2025, Q3 2025, Q4 2025, Q1 2026, Q2 2026, Q3 2026, Q4 2026",
+      "Metric 1: Number of new startup registrations under Startup India",
+      "Unit: Registrations",
+      "Metric 2: Key policy events (e.g., NEET retest announcement, policy changes)",
+      "Unit: Event",
+      "Entity: India"
+    ],
+    "comparison_set": [
+      "Timeline of events and registration numbers over 8 quarters."
+    ],
+    "preferred_sources": [
+      "DPIIT startup registration data",
+      "Startup India official announcements",
+      "NITI Aayog policy documents"
+    ],
+    "search_queries": [
+      "Startup India scheme registration data 2026",
+      "government policy startup support India 2026",
+      "NEET retest government response"
+    ],
+    "data_quality_rule": "Use DPIIT official data for registrations. Policy events should be sourced from government press releases. Ensure dates are accurate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the temporal relationship between policy changes and startup registration spikes.",
+    "pre_exhibit_context": "Claim: Government policies (e.g., Startup India) amplify the effect of NEET retests on tech entrepreneurship.",
+    "post_exhibit_takeaway": "The timeline reveals that policy announcements (e.g., Startup India scheme enhancements) coincided with increased startup registrations, suggesting a multiplier effect."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Entry-Level Tech Salary Trends and Startup Burn Rate",
+    "chart_type": "line",
+    "executive_question": "Did increased tech talent supply lead to lower entry-level salaries and reduced startup burn rate?",
+    "required_metrics": [
+      "Year: 2023, 2024, 2025, 2026, 2027",
+      "Metric 1: Average annual salary for entry-level software engineers",
+      "Unit: INR lakhs",
+      "Entity: India tech companies",
+      "Metric 2: Average monthly burn rate for early-stage tech startups",
+      "Unit: INR lakhs",
+      "Entity: Indian tech startups"
+    ],
+    "comparison_set": [
+      "Year-over-year trends for 5 years (2023-2027) for both metrics."
+    ],
+    "preferred_sources": [
+      "NASSCOM salary surveys",
+      "Glassdoor India salary data",
+      "Redseer startup burn rate benchmarks",
+      "Bain India startup report"
+    ],
+    "search_queries": [
+      "average salary fresh engineer India 2026",
+      "startup burn rate India 2026",
+      "NASSCOM tech salary report 2026"
+    ],
+    "data_quality_rule": "Use NASSCOM and Glassdoor for salaries; Redseer or Bain for burn rate. If 2027 data is not available, use 2026 and note projection. Ensure consistent definitions of 'entry-level' and 'burn rate'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Examines the economic impact on startups, showing improved unit economics due to talent influx.",
+    "pre_exhibit_context": "Claim: Increased tech talent supply leads to lower average salaries for entry-level tech roles, reducing startup burn rate.",
+    "post_exhibit_takeaway": "Entry-level tech salaries declined in 2026-2027, correlating with a decrease in average startup burn rate, indicating improved cost efficiency for startups."
+  }
+]
