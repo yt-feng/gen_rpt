@@ -80,6 +80,8 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
         return {}
 
     def _find_and_download():
+        payload_data = None
+        review_data = None
         try:
             # Check reports/
             res = storage_provider.s3_client.list_objects_v2(
@@ -89,8 +91,21 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
                 folder = prefix_obj['Prefix']
                 if slug in folder:
                     path = f"{folder}metadata/web_report_payload.json"
-                    response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
-                    return response['Body'].read()
+                    try:
+                        response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
+                        payload_data = response['Body'].read()
+                    except Exception as e:
+                        print(f"[poll_r2] Error downloading payload for {slug}: {e}")
+                        
+                    review_path = f"{folder}reviews/review.json"
+                    try:
+                        review_res = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=review_path)
+                        review_data = review_res['Body'].read()
+                    except Exception as e:
+                        print(f"[poll_r2] No review found for {slug} or error: {e}")
+                        
+                    if payload_data:
+                        return payload_data, review_data
                     
             # Check reports_web/
             res2 = storage_provider.s3_client.list_objects_v2(
@@ -100,20 +115,33 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
                 folder = prefix_obj['Prefix']
                 if slug in folder:
                     path = f"{folder}web_report_payload.json"
-                    response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
-                    return response['Body'].read()
+                    try:
+                        response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
+                        payload_data = response['Body'].read()
+                    except Exception as e:
+                        print(f"[poll_r2] Error downloading payload for {slug} in reports_web: {e}")
+                        
+                    if payload_data:
+                        return payload_data, review_data
         except Exception as e:
             print(f"[poll_r2] Error finding payload for {slug}: {e}")
-        return None
+        return None, None
 
-    data = await to_thread.run_sync(_find_and_download)
-    if data:
+    p_data, r_data = await to_thread.run_sync(_find_and_download)
+    result_payload = {}
+    if p_data:
         try:
-            return json.loads(data.decode("utf-8"))
+            result_payload = json.loads(p_data.decode("utf-8"))
         except Exception as e:
             print(f"[poll_r2] Failed to parse payload for {slug}: {e}")
+            
+    if r_data:
+        try:
+            result_payload["ai_review_data"] = json.loads(r_data.decode("utf-8"))
+        except Exception as e:
+            print(f"[poll_r2] Failed to parse review for {slug}: {e}")
 
-    return {}
+    return result_payload
 
 
 def _build_mock_report_entry(
@@ -154,9 +182,15 @@ def _build_mock_report_entry(
         }]
 
     # Determine AI review info from payload if available
+    ai_review_data = payload.get("ai_review_data")
     review_info = payload.get("review") or {}
-    ai_score = review_info.get("overall_score") or 85
-    ai_grade = review_info.get("grade") or "Silver"
+    
+    if ai_review_data and "scores" in ai_review_data:
+        ai_score = ai_review_data["scores"].get("overall_score") or 85
+        ai_grade = ai_review_data["scores"].get("grade") or "Silver"
+    else:
+        ai_score = review_info.get("overall_score") or 85
+        ai_grade = review_info.get("grade") or "Silver"
 
     return {
         "id": doc_str_id,
@@ -169,7 +203,7 @@ def _build_mock_report_entry(
         "commentCount": 0,
         "lastUpdated": now.isoformat() + "Z",
         "publishReady": False,
-        "aiReview": None,
+        "aiReview": ai_review_data,
         "slug": slug,
         "reportContent": {
             "brand": payload.get("brand") or "GateX Intelligence",
