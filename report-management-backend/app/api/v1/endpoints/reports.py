@@ -272,16 +272,30 @@ async def get_report_details(
         topic = doc.title or slug
         payload = await _load_report_payload_from_r2(slug, topic)
         entry = _build_mock_report_entry(document_id, topic, slug, payload)
-        
-        # Cache it in MOCK_REPORTS
         MOCK_REPORTS[document_id] = entry
         MOCK_REPORTS[str(doc.id)] = entry
         if doc.slug:
             MOCK_REPORTS[doc.slug] = entry
-            
         return success_response(data=entry, message="Loaded report details from storage")
 
-    # Fallback to a mock report if truly not found
+    # No DB row — try loading directly from R2 by the slug itself.
+    # This handles bulk-generated reports that bypassed the frontend UI.
+    from app.logging.logger import logger
+    try:
+        payload = await _load_report_payload_from_r2(document_id, document_id)
+        if payload:
+            title = (
+                payload.get("topic")
+                or payload.get("title")
+                or document_id.replace('-', ' ').title()
+            )
+            entry = _build_mock_report_entry(document_id, title, document_id, payload)
+            MOCK_REPORTS[document_id] = entry
+            return success_response(data=entry, message="Loaded report details directly from R2")
+    except Exception as e:
+        logger.warning(f"[get_report_details] R2 fallback failed for {document_id}: {e}")
+
+    # Last-resort fallback
     report = MOCK_REPORTS.get(document_id, MOCK_REPORTS["doc-3333-review"])
     return success_response(data=report, message="Fetched fallback report details")
 

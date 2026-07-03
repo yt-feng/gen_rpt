@@ -68,6 +68,17 @@ async def lifespan(app: FastAPI):
             logger.warning(f"Cloudflare R2 degraded: {r2_health.get('error')}")
     except Exception as e:
         logger.warning(f"Cloudflare R2 check skipped: {e}")
+
+    # Hydrate MOCK_REPORTS from R2 so reports survive backend restarts.
+    # This is critical for bulk-generated reports which have no DB rows.
+    try:
+        import asyncio
+        from app.services.startup_hydration import hydrate_mock_reports_from_r2
+        # Run in background so startup isn't blocked by a slow R2 scan
+        asyncio.create_task(hydrate_mock_reports_from_r2())
+        logger.info("R2 hydration task scheduled.")
+    except Exception as e:
+        logger.warning(f"R2 hydration scheduling failed: {e}")
     
     logger.info(f"API available at: {settings.API_V1_STR}")
     logger.info("Startup complete. Ready to serve requests.")
