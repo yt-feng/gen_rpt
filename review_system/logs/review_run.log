@@ -125,3 +125,5 @@
 2026-06-27 22:14:46 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
 2026-07-03 11:52:00 | INFO     | review.run | Review started | report=D:\BlueOcean\gen_rpt-main\reports_web\2026-07-03-neet-ug-2026-exam-retests-and-the-rise-of-local-tech-unicorn-887edd\report.md | output=review_outputs\2026-07-03-neet-ug-2026-exam-retests-and-the-rise-of-local-tech-unicorn-887edd
 2026-07-03 11:52:00 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
+2026-07-03 15:34:11 | INFO     | review.run | Review started | report=D:\BlueOcean\gen_rpt-main\reports_web\2026-07-03-china-carbon-intensity-policy-playbook-for-middle-east-decis-5c82cd\report.md | output=review_outputs\2026-07-03-china-carbon-intensity-policy-playbook-for-middle-east-decis-5c82cd
+2026-07-03 15:34:11 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
