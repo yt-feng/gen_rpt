@@ -87,8 +87,6 @@ def _build_html_from_report(report: dict) -> str:
     @page {{
       size: A4;
       margin: 2cm 2.5cm;
-      @top-center {{ content: "{brand} | CONFIDENTIAL"; font-size: 8pt; color: #999; }}
-      @bottom-right {{ content: "Page " counter(page) " of " counter(pages); font-size: 8pt; color: #999; }}
     }}
     body {{
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
