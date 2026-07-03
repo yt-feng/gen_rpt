@@ -192,4 +192,6 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo "Triggering AI Review workflow..."
-          gh workflow run generate_review_v2.yml
+          REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
+          REPORT_ID="$(basename "$REPORT_DIR")"
+          gh workflow run generate_review_v2.yml -f report_id="$REPORT_ID"

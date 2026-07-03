@@ -2,6 +2,11 @@ name: "[V2] Generate AI Review"
 
 on:
   workflow_dispatch:
+    inputs:
+      report_id:
+        description: "The report directory name in reports_web/ (or slug)"
+        required: false
+        default: ""
   workflow_run:
     workflows: ["[V2] Generate HTML Thought Leadership Report"]
     types: [completed]
@@ -28,8 +33,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.workflow_run.head_branch }}
-          fetch-depth: 1
+          ref: ${{ github.event.workflow_run.head_branch || github.ref }}
+          fetch-depth: 2 # Fetch at least 2 commits to support git diff HEAD~1
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -50,25 +55,54 @@ jobs:
 
       - name: Locate latest report directory
         id: find_report
+        env:
+          INPUT_REPORT_ID: ${{ inputs.report_id }}
         run: |
           set -euo pipefail
 
-          REPORT_DIR=$(
-            find reports_web -maxdepth 2 -name "report.md" -printf '%T@ %h\n' \
-              2>/dev/null \
-            | sort -nr \
-            | head -1 \
-            | awk '{print $2}' || true
-          )
+          REPORT_ID=""
+          
+          # 1. Try input report_id first
+          if [ -n "$INPUT_REPORT_ID" ]; then
+            if [ -d "reports_web/$INPUT_REPORT_ID" ]; then
+              REPORT_ID="$INPUT_REPORT_ID"
+              echo "Using report_id from inputs: $REPORT_ID"
+            else
+              # Search for folder containing this slug if it's not a full folder name
+              MATCH=$(find reports_web -maxdepth 1 -type d -name "*$INPUT_REPORT_ID*" | head -1 || true)
+              if [ -n "$MATCH" ]; then
+                REPORT_ID="$(basename "$MATCH")"
+                echo "Resolved input $INPUT_REPORT_ID to folder: $REPORT_ID"
+              fi
+            fi
+          fi
 
-          if [ -z "$REPORT_DIR" ]; then
-            echo "::error::No report.md found under reports_web/." >&2
+          # 2. Try inspecting last git commit to see what was modified under reports_web/
+          if [ -z "$REPORT_ID" ]; then
+            # Show name of modified files in HEAD
+            GIT_MATCH=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null | grep '^reports_web/' | cut -d/ -f2 | uniq | head -1 || true)
+            if [ -n "$GIT_MATCH" ] && [ -d "reports_web/$GIT_MATCH" ]; then
+              REPORT_ID="$GIT_MATCH"
+              echo "Using report_id from last git commit: $REPORT_ID"
+            fi
+          fi
+
+          # 3. Fallback to latest alphabetical report (which sorts YYYY-MM-DD correctly)
+          if [ -z "$REPORT_ID" ]; then
+            MATCH=$(find reports_web -maxdepth 2 -name "report.md" 2>/dev/null | sort -r | head -1 || true)
+            if [ -n "$MATCH" ]; then
+              REPORT_DIR="$(dirname "$MATCH")"
+              REPORT_ID="$(basename "$REPORT_DIR")"
+              echo "Fallback to latest alphabetical report: $REPORT_ID"
+            fi
+          fi
+
+          if [ -z "$REPORT_ID" ]; then
+            echo "::error::No report directory resolved." >&2
             exit 1
           fi
 
-          REPORT_ID="$(basename "$REPORT_DIR")"
-          REPORT_PATH="$REPORT_DIR/report.md"
-
+          REPORT_PATH="reports_web/$REPORT_ID/report.md"
           echo "report_path=$REPORT_PATH"   >> "$GITHUB_OUTPUT"
           echo "report_id=$REPORT_ID"       >> "$GITHUB_OUTPUT"
           echo "output_dir=review_outputs/$REPORT_ID" >> "$GITHUB_OUTPUT"

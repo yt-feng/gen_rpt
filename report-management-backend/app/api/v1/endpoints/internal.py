@@ -111,9 +111,41 @@ async def handle_review_generated(
     db: AsyncSession = Depends(get_db)
 ):
     """Webhook invoked by GitHub Actions when AI review generation completes."""
-    logger.info(f"[webhook] review-generated received for document_id/slug: {payload.document_id}")
-    # For now, just acknowledge — the R2 poller handles the status
-    return success_response(data={"slug": payload.document_id}, message="Review generation event acknowledged")
+    slug = payload.document_id
+    logger.info(f"[webhook] review-generated received for document_id/slug: {slug}")
+    
+    from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
+    from app.api.v1.endpoints.reports import MOCK_REPORTS
+    from sqlalchemy import select
+    from app.models.document import Document
+    import uuid as _uuid
+    
+    # Resolve document by slug
+    doc_result = await db.execute(select(Document).where(Document.slug == slug))
+    doc = doc_result.scalar_one_or_none()
+    
+    if not doc:
+        try:
+            doc_uuid = _uuid.UUID(slug)
+            doc = await db.get(Document, doc_uuid)
+        except ValueError:
+            pass
+            
+    if not doc:
+        logger.warning(f"[webhook] review-generated: Could not find Document with slug='{slug}'")
+        return error_response(message=f"Could not find Document with slug='{slug}'")
+
+    title = doc.title or slug
+    # Fetch latest payload from R2 (which now includes the reviews/review.json)
+    r2_payload = await _load_report_payload_from_r2(slug, title)
+    entry = _build_mock_report_entry(slug, title, slug, r2_payload)
+    
+    # Update mock cache
+    MOCK_REPORTS[slug] = entry
+    MOCK_REPORTS[str(doc.id)] = entry
+    logger.info(f"[webhook] MOCK_REPORTS updated with AI Review for slug={slug}")
+
+    return success_response(data={"slug": slug}, message="Review generation event processed and cached")
 
 
 @router.post("/events/upload-complete", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_token)])
