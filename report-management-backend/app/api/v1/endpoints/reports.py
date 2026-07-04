@@ -569,3 +569,109 @@ async def claim_report(
         },
         message="Report claimed successfully"
     )
+
+
+# ── Inline Text Edit ────────────────────────────────────────────────────────
+# Accepts a map of paragraphId → newText from the frontend contentEditable editor.
+# paragraphId format: "<section-slug>-p<N>" e.g. "key-highlights-p2"
+# Strategy: scan every section body, split into paragraphs, match by 1-based
+# counter (the same logic used by paragraphId() in the frontend), replace
+# matching paragraphs, and persist the update back to R2.
+
+class ContentEditPayload(BaseModel):
+    edits: dict  # { paragraphId: str -> newText: str }
+
+@router.put("/{document_id}/content", response_model=APIResponse[dict])
+async def save_content_edits(
+    document_id: str,
+    payload: ContentEditPayload,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+):
+    """
+    Persist inline text edits made via the contentEditable document viewer.
+
+    Accepts a dict of { paragraphId: newText } pairs and applies them to the
+    report's section bodies.  After updating MOCK_REPORTS, the new payload is
+    pushed back to R2 and a fresh PDF is generated so that the next publish
+    operation uses the updated text.
+    """
+    import re
+
+    report = MOCK_REPORTS.get(document_id)
+    if not report:
+        return error_response(message="Report not found")
+
+    if not payload.edits:
+        return success_response(data={}, message="No edits to apply")
+
+    # paragraphId format (mirrors frontend paragraphId() util):
+    #   "<section-heading-slugified>-p<N>"
+    # e.g. heading "Key Highlights" -> "key-highlights" -> "key-highlights-p2"
+    def heading_slug(heading: str) -> str:
+        return re.sub(r"[^\w]+", "-", heading.lower()).strip("-")
+
+    applied: list[str] = []
+    skipped: list[str] = []
+
+    for para_id, new_text in payload.edits.items():
+        # Parse paragraphId: split off "-p<N>" suffix
+        m = re.match(r"^(.+)-p(\d+)$", para_id)
+        if not m:
+            skipped.append(para_id)
+            continue
+
+        target_slug = m.group(1)
+        target_idx = int(m.group(2))  # 1-based
+
+        found = False
+        for section in report.get("reportContent", {}).get("sections", []):
+            if heading_slug(section.get("heading", "")) != target_slug:
+                continue
+
+            # Split body into paragraphs the same way as the frontend
+            raw_paragraphs = [p.strip() for p in section.get("body", "").split("\n\n") if p.strip()]
+
+            para_counter = 0
+            new_paragraphs = list(raw_paragraphs)
+            for i, para in enumerate(raw_paragraphs):
+                lines = para.split("\n")
+                is_list = any(
+                    l.strip().startswith("- ") or bool(re.match(r"^\d+\.", l.strip()))
+                    for l in lines
+                )
+                if is_list:
+                    continue  # lists don't get paragraph IDs
+                para_counter += 1
+                if para_counter == target_idx:
+                    new_paragraphs[i] = new_text.strip()
+                    found = True
+                    break
+
+            if found:
+                section["body"] = "\n\n".join(new_paragraphs)
+                applied.append(para_id)
+                break
+
+        if not found:
+            skipped.append(para_id)
+
+    # Update in-memory store with all key aliases
+    slug = report.get("slug") or document_id
+    MOCK_REPORTS[document_id] = report
+    MOCK_REPORTS[slug] = report
+
+    # Persist to R2 + force PDF regeneration (best-effort; never fails the request)
+    try:
+        from app.services.generation import _save_report_payload_to_r2
+        await _save_report_payload_to_r2(slug, report.get("title", ""), report)
+
+        from app.services.pdf_release import pdf_release_service
+        await pdf_release_service.get_or_generate_pdf(slug, report, force=True)
+    except Exception as e:
+        print(f"[content-edit] R2/PDF sync failed (non-fatal): {e}")
+
+    return success_response(
+        data={"applied": applied, "skipped": skipped},
+        message=f"Applied {len(applied)} edit(s) successfully",
+    )

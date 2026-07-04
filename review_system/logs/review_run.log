@@ -127,3 +127,5 @@
 2026-07-03 11:52:00 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
 2026-07-03 15:34:11 | INFO     | review.run | Review started | report=D:\BlueOcean\gen_rpt-main\reports_web\2026-07-03-china-carbon-intensity-policy-playbook-for-middle-east-decis-5c82cd\report.md | output=review_outputs\2026-07-03-china-carbon-intensity-policy-playbook-for-middle-east-decis-5c82cd
 2026-07-03 15:34:11 | ERROR    | review.run | GROQ_API_KEY not set. Aborting.
+2026-07-04 16:29:37 | INFO     | review.run | Groq Retry-After header specifies wait: 5.0s (attempt 1)
+2026-07-04 16:29:37 | WARNING  | review.run | Rate-limited (429). Waiting 15.2s (includes 8.2s jitter) (attempt 1)

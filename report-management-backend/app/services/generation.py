@@ -183,6 +183,64 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
     return result_payload
 
 
+async def _save_report_payload_to_r2(slug: str, title: str, report_payload: dict) -> bool:
+    """
+    Write an updated web_report_payload.json back to R2 for the given slug.
+
+    Mirrors the folder-scanning logic from _load_report_payload_from_r2 so it
+    writes to the same path that the report was originally loaded from.
+    Returns True on success, False if R2 is not configured or the key was not
+    found (non-fatal — the caller logs and continues).
+    """
+    from app.storage.provider import storage_provider
+    import json
+    from anyio import to_thread
+
+    if not storage_provider.is_configured:
+        return False
+
+    def _find_key_sync() -> str | None:
+        """Locate the existing payload key in R2 so we overwrite the right path."""
+        try:
+            for prefix in ("reports/", "reports_web/"):
+                res = storage_provider.s3_client.list_objects_v2(
+                    Bucket=storage_provider.bucket, Prefix=prefix, Delimiter="/"
+                )
+                for obj in res.get("CommonPrefixes", []):
+                    folder = obj["Prefix"]
+                    if slug not in folder:
+                        continue
+                    # Determine the path based on which prefix we're in
+                    if prefix == "reports/":
+                        path = f"{folder}metadata/web_report_payload.json"
+                    else:
+                        path = f"{folder}web_report_payload.json"
+                    # Confirm the key exists before returning it
+                    try:
+                        storage_provider.s3_client.head_object(
+                            Bucket=storage_provider.bucket, Key=path
+                        )
+                        return path
+                    except Exception:
+                        pass
+        except Exception as e:
+            print(f"[save_r2] Folder scan failed for slug={slug}: {e}")
+        return None
+
+    key = await to_thread.run_sync(_find_key_sync)
+    if not key:
+        # Fall back to the canonical reports/ path even if it didn't exist before
+        key = f"reports/{slug}/metadata/web_report_payload.json"
+
+    encoded = json.dumps(report_payload, ensure_ascii=False, indent=2).encode("utf-8")
+    ok = await storage_provider.upload(encoded, key, content_type="application/json")
+    if ok:
+        print(f"[save_r2] Saved updated payload to {key}")
+    else:
+        print(f"[save_r2] Upload failed for {key}")
+    return ok
+
+
 def _build_mock_report_entry(
     doc_str_id: str,
     title: str,
