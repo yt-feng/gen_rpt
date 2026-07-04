@@ -423,6 +423,31 @@ def _build_mock_report_entry(
         ai_score = review_info.get("overall_score") or 85
         ai_grade = review_info.get("grade") or "Silver"
 
+    images = []
+    try:
+        from app.storage.provider import storage_provider
+        r2_prefix = payload.get("r2_prefix") or f"reports/{slug}/"
+        if r2_prefix and not r2_prefix.endswith("/"):
+            r2_prefix += "/"
+        
+        prefix = f"{r2_prefix}current/assets/"
+        res_list = storage_provider.s3_client.list_objects_v2(
+            Bucket=storage_provider.bucket,
+            Prefix=prefix
+        )
+        for obj in res_list.get("Contents", []):
+            key = obj["Key"]
+            fname = key.split("/")[-1]
+            if fname.startswith("image-") and fname.endswith(".png"):
+                url = storage_provider.s3_client.generate_presigned_url(
+                    ClientMethod="get_object",
+                    Params={"Bucket": storage_provider.bucket, "Key": key},
+                    ExpiresIn=3600
+                )
+                images.append({"key": fname, "url": url})
+    except Exception as e:
+        print(f"[mock_report_entry] Image generation failed: {e}")
+
     return {
         "id": doc_str_id,
         "title": title,
@@ -441,6 +466,7 @@ def _build_mock_report_entry(
             "label": payload.get("label") or "Deep Research",
             "date": now.strftime("%B %d, %Y"),
             "sections": sections,
+            "images": images,
         },
         "r2_prefix": payload.get("r2_prefix"),
         "comments": [],
