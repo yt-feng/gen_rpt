@@ -185,12 +185,19 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
 
 async def _save_report_payload_to_r2(slug: str, title: str, report_payload: dict) -> bool:
     """
-    Write an updated web_report_payload.json back to R2 for the given slug.
+    Write updated section bodies back to the raw R2 web_report_payload.json.
 
-    Mirrors the folder-scanning logic from _load_report_payload_from_r2 so it
-    writes to the same path that the report was originally loaded from.
-    Returns True on success, False if R2 is not configured or the key was not
-    found (non-fatal — the caller logs and continues).
+    IMPORTANT — format contract:
+    - R2 stores the *raw* payload format: { "sections": [{heading, body}, ...], ... }
+    - _build_mock_report_entry reads payload["sections"] to rebuild the report
+    - report_payload here is a MOCK_REPORTS entry: { "reportContent": {"sections": [...]}, ... }
+
+    We therefore MUST:
+      1. Load the existing raw JSON from R2
+      2. Patch only the "sections" list with the updated bodies from report_payload
+      3. Write the patched raw JSON back to R2
+
+    This way _build_mock_report_entry can still parse it correctly on next load.
     """
     from app.storage.provider import storage_provider
     import json
@@ -199,9 +206,19 @@ async def _save_report_payload_to_r2(slug: str, title: str, report_payload: dict
     if not storage_provider.is_configured:
         return False
 
-    def _find_key_sync() -> str | None:
-        """Locate the existing payload key in R2 so we overwrite the right path."""
+    # Extract the updated sections from the MOCK_REPORTS entry format
+    updated_sections: list = (
+        report_payload.get("reportContent", {}).get("sections", [])
+    )
+    if not updated_sections:
+        # Nothing to persist
+        return True
+
+    def _read_write_sync() -> bool:
+        """Find the existing R2 key, read raw JSON, patch sections, write back."""
         try:
+            # ── Step 1: locate the existing payload key ──────────────────
+            key_to_update: str | None = None
             for prefix in ("reports/", "reports_web/"):
                 res = storage_provider.s3_client.list_objects_v2(
                     Bucket=storage_provider.bucket, Prefix=prefix, Delimiter="/"
@@ -210,35 +227,69 @@ async def _save_report_payload_to_r2(slug: str, title: str, report_payload: dict
                     folder = obj["Prefix"]
                     if slug not in folder:
                         continue
-                    # Determine the path based on which prefix we're in
-                    if prefix == "reports/":
-                        path = f"{folder}metadata/web_report_payload.json"
-                    else:
-                        path = f"{folder}web_report_payload.json"
-                    # Confirm the key exists before returning it
+                    candidate = (
+                        f"{folder}metadata/web_report_payload.json"
+                        if prefix == "reports/"
+                        else f"{folder}web_report_payload.json"
+                    )
                     try:
                         storage_provider.s3_client.head_object(
-                            Bucket=storage_provider.bucket, Key=path
+                            Bucket=storage_provider.bucket, Key=candidate
                         )
-                        return path
+                        key_to_update = candidate
+                        break
                     except Exception:
                         pass
+                if key_to_update:
+                    break
+
+            if not key_to_update:
+                # Fallback key — may be a first-time write for this slug
+                key_to_update = f"reports/{slug}/metadata/web_report_payload.json"
+
+            # ── Step 2: read existing raw payload ────────────────────────
+            raw_payload: dict = {}
+            try:
+                response = storage_provider.s3_client.get_object(
+                    Bucket=storage_provider.bucket, Key=key_to_update
+                )
+                raw_payload = json.loads(response["Body"].read().decode("utf-8"))
+            except Exception as e:
+                print(f"[save_r2] Could not read existing payload at {key_to_update}: {e}")
+                # raw_payload stays empty; we'll still try to write the sections
+
+            # ── Step 3: patch only the sections ─────────────────────────
+            # Build a section map from updated_sections (heading → body)
+            updated_map = {s["heading"]: s["body"] for s in updated_sections if s.get("heading")}
+
+            existing_raw_sections = raw_payload.get("sections", [])
+            if existing_raw_sections:
+                # Patch matching sections in-place; preserve all other raw fields
+                for raw_sec in existing_raw_sections:
+                    h = raw_sec.get("heading") or raw_sec.get("title") or raw_sec.get("id", "")
+                    if h in updated_map:
+                        raw_sec["body"] = updated_map[h]
+            else:
+                # No existing sections in raw payload — write sections directly
+                raw_payload["sections"] = updated_sections
+
+            # ── Step 4: write patched payload back ──────────────────────
+            encoded = json.dumps(raw_payload, ensure_ascii=False, indent=2).encode("utf-8")
+            storage_provider.s3_client.put_object(
+                Bucket=storage_provider.bucket,
+                Key=key_to_update,
+                Body=encoded,
+                ContentType="application/json",
+            )
+            print(f"[save_r2] Successfully patched sections in {key_to_update}")
+            return True
+
         except Exception as e:
-            print(f"[save_r2] Folder scan failed for slug={slug}: {e}")
-        return None
+            print(f"[save_r2] Failed to patch R2 payload for slug={slug}: {e}")
+            return False
 
-    key = await to_thread.run_sync(_find_key_sync)
-    if not key:
-        # Fall back to the canonical reports/ path even if it didn't exist before
-        key = f"reports/{slug}/metadata/web_report_payload.json"
+    return await to_thread.run_sync(_read_write_sync)
 
-    encoded = json.dumps(report_payload, ensure_ascii=False, indent=2).encode("utf-8")
-    ok = await storage_provider.upload(encoded, key, content_type="application/json")
-    if ok:
-        print(f"[save_r2] Saved updated payload to {key}")
-    else:
-        print(f"[save_r2] Upload failed for {key}")
-    return ok
 
 
 def _build_mock_report_entry(
