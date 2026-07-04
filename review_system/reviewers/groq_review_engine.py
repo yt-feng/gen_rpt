@@ -77,8 +77,23 @@ class GroqReviewEngine:
                 status = getattr(resp, "status_code", 0)
 
                 if status == 429 and attempt < max_retries - 1:
-                    wait = GROQ_RATE_LIMIT_BASE_WAIT * (2 ** attempt)
-                    log.warning("Rate-limited (429). Waiting %ds (attempt %d)", wait, attempt + 1)
+                    retry_after = resp.headers.get("Retry-After") or resp.headers.get("retry-after")
+                    if retry_after:
+                        try:
+                            wait = float(retry_after) + 2.0
+                            log.info("Groq Retry-After header specifies wait: %.1fs (attempt %d)", wait - 2.0, attempt + 1)
+                        except ValueError:
+                            wait = GROQ_RATE_LIMIT_BASE_WAIT * (2 ** attempt)
+                    else:
+                        wait = GROQ_RATE_LIMIT_BASE_WAIT * (2 ** attempt)
+                    
+                    import random
+                    jitter = random.uniform(1.0, 12.0)
+                    wait += jitter
+                    log.warning(
+                        "Rate-limited (429). Waiting %.1fs (includes %.1fs jitter) (attempt %d)",
+                        wait, jitter, attempt + 1
+                    )
                     time.sleep(wait)
                     last_exc = e
 

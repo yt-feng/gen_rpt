@@ -12,8 +12,8 @@ GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
 GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile"
 GROQ_FALLBACK_MODEL = "llama-3.1-70b-versatile"
 GROQ_REQUEST_TIMEOUT = 90          # seconds
-GROQ_MAX_RETRIES = 5
-GROQ_RATE_LIMIT_BASE_WAIT = 10     # seconds, doubles on each retry
+GROQ_MAX_RETRIES = 12
+GROQ_RATE_LIMIT_BASE_WAIT = 15     # seconds, doubles on each retry
 
 # ---------------------------------------------------------------------------
 # Scoring dimensions
