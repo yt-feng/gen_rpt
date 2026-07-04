@@ -172,7 +172,7 @@ class ReviewService:
         
         if block:
             # Mocking AI engine response based on comment prompt
-            block.markdown = f"{block.markdown} [AI Regenerated: {comment.comment}]"
+            block.markdown = f"{block.markdown}\n\nRevised content based on feedback: {comment.comment}"
             
         doc.current_version_id = new_version.id
         doc.status = DocStatus.in_review

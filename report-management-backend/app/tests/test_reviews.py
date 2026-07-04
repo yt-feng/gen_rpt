@@ -112,7 +112,7 @@ async def test_scenario_3_ai_regeneration(test_db: AsyncSession, setup_doc):
     result = await test_db.execute(stmt)
     block = result.scalars().first()
     
-    assert "AI Regenerated: Rewrite this better." in block.markdown
+    assert "Revised content based on feedback: Rewrite this better." in block.markdown
     
     doc = await test_db.get(Document, doc_id)
     assert doc.current_version_id == new_version.id
