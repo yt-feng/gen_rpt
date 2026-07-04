@@ -377,8 +377,55 @@ async def revise_section(
         slug = report.get("slug") or document_id
         await _save_report_payload_to_r2(slug, report.get("title", ""), report)
         
-        # Trigger PDF generation so the preview will have the new text
-        await pdf_release_service.get_or_generate_pdf(slug, report, force=True)
+        # Reconstruct updated markdown and save to R2 as well
+        markdown_lines = []
+        for sec in report.get("reportContent", {}).get("sections", []):
+            h = sec.get("heading", "")
+            b = sec.get("body", "")
+            if h:
+                markdown_lines.append(f"## {h}\n")
+            markdown_lines.append(f"{b}\n")
+        updated_md = "\n".join(markdown_lines)
+        
+        try:
+            folder_prefix = None
+            from app.storage.provider import storage_provider
+            import json
+            for prefix in ("reports/", "reports_web/"):
+                res_obj = storage_provider.s3_client.list_objects_v2(
+                    Bucket=storage_provider.bucket, Prefix=prefix, Delimiter="/"
+                )
+                for obj in res_obj.get("CommonPrefixes", []):
+                    folder = obj["Prefix"]
+                    if slug in folder:
+                        folder_prefix = folder
+                        break
+                if folder_prefix:
+                    break
+            
+            if not folder_prefix:
+                folder_prefix = f"reports/{slug}/"
+                
+            report_md_path = f"{folder_prefix}current/report.md"
+            try:
+                resp = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=f"{folder_prefix}manifest.json")
+                m_data = json.loads(resp['Body'].read().decode('utf-8'))
+                if m_data.get("files", {}).get("report_md"):
+                    report_md_path = m_data["files"]["report_md"]
+            except Exception:
+                pass
+                
+            storage_provider.s3_client.put_object(
+                Bucket=storage_provider.bucket,
+                Key=report_md_path,
+                Body=updated_md.encode("utf-8"),
+                ContentType="text/markdown; charset=utf-8",
+            )
+        except Exception as e_md:
+            print(f"Failed to write report.md to R2: {e_md}")
+            
+        actor_id = str(user.get("id")) if user and user.get("id") else "00000000-0000-0000-0000-000000000000"
+        await pdf_release_service.get_or_generate(db, slug, report, actor_id)
     except Exception as e:
         print(f"Failed to sync revised report to R2 or PDF: {e}")
 
@@ -664,10 +711,59 @@ async def save_content_edits(
     # Persist to R2 + force PDF regeneration (best-effort; never fails the request)
     try:
         from app.services.generation import _save_report_payload_to_r2
-        await _save_report_payload_to_r2(slug, report.get("title", ""), report)
-
         from app.services.pdf_release import pdf_release_service
-        await pdf_release_service.get_or_generate_pdf(slug, report, force=True)
+        
+        await _save_report_payload_to_r2(slug, report.get("title", ""), report)
+        
+        # Reconstruct updated markdown and save to R2 as well
+        markdown_lines = []
+        for sec in report.get("reportContent", {}).get("sections", []):
+            h = sec.get("heading", "")
+            b = sec.get("body", "")
+            if h:
+                markdown_lines.append(f"## {h}\n")
+            markdown_lines.append(f"{b}\n")
+        updated_md = "\n".join(markdown_lines)
+        
+        try:
+            folder_prefix = None
+            from app.storage.provider import storage_provider
+            import json
+            for prefix in ("reports/", "reports_web/"):
+                res_obj = storage_provider.s3_client.list_objects_v2(
+                    Bucket=storage_provider.bucket, Prefix=prefix, Delimiter="/"
+                )
+                for obj in res_obj.get("CommonPrefixes", []):
+                    folder = obj["Prefix"]
+                    if slug in folder:
+                        folder_prefix = folder
+                        break
+                if folder_prefix:
+                    break
+            
+            if not folder_prefix:
+                folder_prefix = f"reports/{slug}/"
+                
+            report_md_path = f"{folder_prefix}current/report.md"
+            try:
+                resp = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=f"{folder_prefix}manifest.json")
+                m_data = json.loads(resp['Body'].read().decode('utf-8'))
+                if m_data.get("files", {}).get("report_md"):
+                    report_md_path = m_data["files"]["report_md"]
+            except Exception:
+                pass
+                
+            storage_provider.s3_client.put_object(
+                Bucket=storage_provider.bucket,
+                Key=report_md_path,
+                Body=updated_md.encode("utf-8"),
+                ContentType="text/markdown; charset=utf-8",
+            )
+        except Exception as e_md:
+            print(f"Failed to write report.md to R2: {e_md}")
+            
+        actor_id = str(user.get("id")) if user and user.get("id") else "00000000-0000-0000-0000-000000000000"
+        await pdf_release_service.get_or_generate(db, slug, report, actor_id)
     except Exception as e:
         print(f"[content-edit] R2/PDF sync failed (non-fatal): {e}")
 

@@ -384,6 +384,18 @@ class PdfReleaseService:
                         
             # 2. Inject updated text content
             report_text = report.get("reportContent", {}).get("text")
+            if not report_text:
+                sections = report.get("reportContent", {}).get("sections", [])
+                if sections:
+                    markdown_lines = []
+                    for sec in sections:
+                        h = sec.get("heading", "")
+                        b = sec.get("body", "")
+                        if h:
+                            markdown_lines.append(f"## {h}\n")
+                        markdown_lines.append(f"{b}\n")
+                    report_text = "\n".join(markdown_lines)
+
             if report_text:
                 article = soup.find("article", class_="article-main")
                 if article:
