@@ -421,3 +421,32 @@ async def update_bulk_queue_state(
         return success_response(data={"paused": is_paused, "limit": limit_val}, message="Queue state updated")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update queue state: {e}")
+
+
+@router.post("/bulk/clear-queue", response_model=APIResponse[dict])
+async def clear_bulk_queue(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    from app.models.workflow import GenerationJob
+    from app.models.enums import JobStatusType
+    from sqlalchemy import update
+    try:
+        stmt = (
+            update(GenerationJob)
+            .where(
+                GenerationJob.report_type == "bulk",
+                GenerationJob.status == JobStatusType.pending
+            )
+            .values(
+                status=JobStatusType.failed,
+                errors="Job cancelled by user via queue clearing"
+            )
+        )
+        res = await db.execute(stmt)
+        await db.commit()
+        # Note: res.rowcount represents the number of cleared rows
+        cleared = res.rowcount if hasattr(res, "rowcount") else 0
+        return success_response(data={"cleared_count": cleared}, message="Bulk pending queue cleared successfully")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to clear pending queue: {e}")
