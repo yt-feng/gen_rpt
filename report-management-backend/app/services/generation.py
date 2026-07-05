@@ -701,13 +701,15 @@ class GenerationService:
         from app.models.document import Document
         import asyncio
 
-        # 1. Fetch pause state from R2
+        # 1. Fetch pause state and limit threshold from R2
         is_paused = False
+        limit_val = 20
         try:
-            obj = await storage_provider.get("catalog/bulk_queue_state.json")
-            if obj:
-                state = json.loads(obj.decode("utf-8") if isinstance(obj, bytes) else obj.text())
+            data_bytes = await storage_provider.download("catalog/bulk_queue_state.json")
+            if data_bytes:
+                state = json.loads(data_bytes.decode("utf-8"))
                 is_paused = state.get("paused", False)
+                limit_val = state.get("limit", 20)
         except Exception:
             pass
 
@@ -723,10 +725,9 @@ class GenerationService:
         res_active = await db.execute(stmt_active)
         running_count = res_active.scalar() or 0
 
-        MAX_CONCURRENT_BULK = 20
-        slots_available = max(0, MAX_CONCURRENT_BULK - running_count)
+        slots_available = max(0, limit_val - running_count)
         if slots_available == 0:
-            print(f"[process_bulk_queue] Max concurrent runs reached ({running_count}/{MAX_CONCURRENT_BULK}).")
+            print(f"[process_bulk_queue] Max concurrent runs reached ({running_count}/{limit_val}).")
             return
 
         # 3. Fetch oldest pending bulk jobs to fill slots

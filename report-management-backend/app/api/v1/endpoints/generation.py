@@ -206,17 +206,32 @@ async def create_bulk_jobs(
     if not req.jobs:
         return error_response(message="No jobs provided")
 
-    # 1. Fetch queue pause state from R2
+    # 1. Fetch queue pause state and concurrency threshold limit from R2
     is_paused = False
+    limit_val = MAX_CONCURRENT_BULK
+    from app.storage.provider import storage_provider
+    import json
     try:
-        from app.storage.provider import storage_provider
-        import json
-        obj = await storage_provider.get("catalog/bulk_queue_state.json")
-        if obj:
-            state = json.loads(obj.decode("utf-8") if isinstance(obj, bytes) else obj.text())
+        data_bytes = await storage_provider.download("catalog/bulk_queue_state.json")
+        if data_bytes:
+            state = json.loads(data_bytes.decode("utf-8"))
             is_paused = state.get("paused", False)
+            limit_val = state.get("limit", MAX_CONCURRENT_BULK)
     except Exception:
         pass
+
+    # If the request contains a new limit, update the persistent queue state
+    if req.limit is not None and req.limit != limit_val:
+        limit_val = req.limit
+        try:
+            state_data = json.dumps({"paused": is_paused, "limit": limit_val})
+            await storage_provider.upload(
+                file_data=state_data.encode("utf-8"),
+                path="catalog/bulk_queue_state.json",
+                content_type="application/json"
+            )
+        except Exception:
+            pass
 
     # 2. Query currently running bulk jobs in DB
     from app.models.workflow import GenerationJob
@@ -230,7 +245,7 @@ async def create_bulk_jobs(
     res = await db.execute(stmt)
     running_count = res.scalar() or 0
 
-    slots_available = max(0, MAX_CONCURRENT_BULK - running_count)
+    slots_available = max(0, limit_val - running_count)
     if is_paused:
         slots_available = 0
 
@@ -344,7 +359,8 @@ async def get_bulk_queue(
 
 
 class QueueStateUpdate(BaseModel):
-    paused: bool
+    paused: Optional[bool] = None
+    limit: Optional[int] = None
 
 
 @router.get("/bulk/queue-state", response_model=APIResponse[dict])
@@ -354,14 +370,16 @@ async def get_bulk_queue_state(
     from app.storage.provider import storage_provider
     import json
     is_paused = False
+    limit_val = 20
     try:
-        obj = await storage_provider.get("catalog/bulk_queue_state.json")
-        if obj:
-            state = json.loads(obj.decode("utf-8") if isinstance(obj, bytes) else obj.text())
+        data_bytes = await storage_provider.download("catalog/bulk_queue_state.json")
+        if data_bytes:
+            state = json.loads(data_bytes.decode("utf-8"))
             is_paused = state.get("paused", False)
+            limit_val = state.get("limit", 20)
     except Exception:
         pass
-    return success_response(data={"paused": is_paused}, message="Fetched queue state")
+    return success_response(data={"paused": is_paused, "limit": limit_val}, message="Fetched queue state")
 
 
 @router.post("/bulk/queue-state", response_model=APIResponse[dict])
@@ -374,14 +392,32 @@ async def update_bulk_queue_state(
     from app.services.generation import generation_service
     import json
     try:
-        state_data = json.dumps({"paused": req.paused})
-        await storage_provider.put(
-            "catalog/bulk_queue_state.json",
-            state_data.encode("utf-8"),
-            options={"httpMetadata": {"contentType": "application/json"}}
+        # Load existing state to preserve parameters
+        is_paused = False
+        limit_val = 20
+        try:
+            data_bytes = await storage_provider.download("catalog/bulk_queue_state.json")
+            if data_bytes:
+                state = json.loads(data_bytes.decode("utf-8"))
+                is_paused = state.get("paused", False)
+                limit_val = state.get("limit", 20)
+        except Exception:
+            pass
+
+        # Update values
+        if req.paused is not None:
+            is_paused = req.paused
+        if req.limit is not None:
+            limit_val = req.limit
+
+        state_data = json.dumps({"paused": is_paused, "limit": limit_val})
+        await storage_provider.upload(
+            file_data=state_data.encode("utf-8"),
+            path="catalog/bulk_queue_state.json",
+            content_type="application/json"
         )
-        if not req.paused:
+        if not is_paused:
             await generation_service.process_bulk_queue(db)
-        return success_response(data={"paused": req.paused}, message="Queue state updated")
+        return success_response(data={"paused": is_paused, "limit": limit_val}, message="Queue state updated")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to update queue state: {e}")
