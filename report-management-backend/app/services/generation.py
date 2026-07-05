@@ -3,7 +3,7 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 from app.models.workflow import GenerationJob
 from app.models.enums import JobStatusType
@@ -543,6 +543,8 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
                 job.status = JobStatusType.failed
                 job.errors = "Timed out: report.md not found in R2 after 45 min."
                 await session.commit()
+                # Trigger queue manager to run next pending jobs
+                await generation_service.process_bulk_queue(session)
         return
 
     # Load the real payload from R2 (for richer MOCK_REPORTS entry)
@@ -567,6 +569,9 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
 
             print(f"[poll_r2] MOCK_REPORTS updated: {doc_str_id}")
             await session.commit()
+
+            # Trigger queue manager to run next pending jobs
+            await generation_service.process_bulk_queue(session)
 
 class GenerationService:
     def __init__(self):
@@ -615,10 +620,11 @@ class GenerationService:
         slug: str,
         industry: Optional[str] = None,
         created_by: Optional[uuid.UUID] = None,
+        dispatch: bool = True,
     ) -> GenerationJob:
         """
-        Create and immediately dispatch a single bulk report generation job.
-        Uses generate_deep_research_bulk.yml instead of the standard v2 workflow.
+        Create a single bulk report generation job.
+        If dispatch=True, immediately dispatches to GHA; otherwise leaves status as pending.
         Marks the job with report_type='bulk' so it shows in the bulk queue.
         """
         from datetime import datetime, timezone
@@ -637,15 +643,16 @@ class GenerationService:
         await db.commit()
         await db.refresh(job)
 
-        # Dispatch to the bulk workflow
-        success = await self.worker.dispatch_bulk(slug=slug, topic=topic)
-        if not success:
-            job.status = JobStatusType.failed
-            job.errors = "Failed to dispatch bulk job to GitHub Actions"
-            await db.commit()
-        else:
-            # Re-use the existing poller so completed jobs hydrate into MOCK_REPORTS
-            asyncio.create_task(poll_r2_for_completion(job.id))
+        if dispatch:
+            # Dispatch to the bulk workflow
+            success = await self.worker.dispatch_bulk(slug=slug, topic=topic)
+            if not success:
+                job.status = JobStatusType.failed
+                job.errors = "Failed to dispatch bulk job to GitHub Actions"
+                await db.commit()
+            else:
+                # Re-use the existing poller so completed jobs hydrate into MOCK_REPORTS
+                asyncio.create_task(poll_r2_for_completion(job.id))
 
         return job
 
@@ -681,4 +688,92 @@ class GenerationService:
         
         await self.worker.cancel(job)
         return job
+
+    async def process_bulk_queue(self, db: AsyncSession) -> None:
+        """
+        Process the pending bulk jobs queue.
+        Checks R2 for the pause state. If not paused, counts active running bulk jobs
+        and dispatches next pending jobs from DB up to the concurrent threshold of 20.
+        """
+        import json
+        from app.storage.provider import storage_provider
+        from app.models.enums import JobStatusType
+        from app.models.document import Document
+        import asyncio
+
+        # 1. Fetch pause state from R2
+        is_paused = False
+        try:
+            obj = await storage_provider.get("catalog/bulk_queue_state.json")
+            if obj:
+                state = json.loads(obj.decode("utf-8") if isinstance(obj, bytes) else obj.text())
+                is_paused = state.get("paused", False)
+        except Exception:
+            pass
+
+        if is_paused:
+            print("[process_bulk_queue] Bulk queue is paused. Skipping execution.")
+            return
+
+        # 2. Count active running bulk jobs
+        stmt_active = select(func.count(GenerationJob.id)).where(
+            GenerationJob.report_type == "bulk",
+            GenerationJob.status == JobStatusType.running
+        )
+        res_active = await db.execute(stmt_active)
+        running_count = res_active.scalar() or 0
+
+        MAX_CONCURRENT_BULK = 20
+        slots_available = max(0, MAX_CONCURRENT_BULK - running_count)
+        if slots_available == 0:
+            print(f"[process_bulk_queue] Max concurrent runs reached ({running_count}/{MAX_CONCURRENT_BULK}).")
+            return
+
+        # 3. Fetch oldest pending bulk jobs to fill slots
+        stmt_pending = (
+            select(GenerationJob, Document)
+            .join(Document, GenerationJob.document_id == Document.id)
+            .where(
+                GenerationJob.report_type == "bulk",
+                GenerationJob.status == JobStatusType.pending
+            )
+            .order_by(GenerationJob.started.asc())
+            .limit(slots_available)
+        )
+        res_pending = await db.execute(stmt_pending)
+        pending_jobs = res_pending.all()
+
+        if not pending_jobs:
+            print("[process_bulk_queue] No pending bulk jobs in queue.")
+            return
+
+        print(f"[process_bulk_queue] Promoting and dispatching {len(pending_jobs)} job(s) (headroom={slots_available}).")
+
+        for job, doc in pending_jobs:
+            try:
+                # Set status to running immediately so they don't get double dispatched
+                job.status = JobStatusType.running
+                await db.commit()
+
+                slug = doc.slug or f"doc-{str(job.id)[:8]}"
+                topic = job.topic or "Unknown Topic"
+
+                success = await self.worker.dispatch_bulk(slug=slug, topic=topic)
+                if not success:
+                    job.status = JobStatusType.failed
+                    job.errors = "Failed to dispatch bulk job to GitHub Actions"
+                    await db.commit()
+                    print(f"[process_bulk_queue] Dispatch failed for job {job.id}")
+                else:
+                    # Spawn poller task to wait for completion
+                    asyncio.create_task(poll_r2_for_completion(job.id))
+                    print(f"[process_bulk_queue] Dispatched job {job.id} - slug={slug}")
+
+                # Stagger dispatches to respect rate limits
+                await asyncio.sleep(2.0)
+
+            except Exception as e:
+                print(f"[process_bulk_queue] Error dispatching job {job.id}: {e}")
+
+
 generation_service = GenerationService()

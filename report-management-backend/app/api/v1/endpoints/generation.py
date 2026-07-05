@@ -206,16 +206,40 @@ async def create_bulk_jobs(
     if not req.jobs:
         return error_response(message="No jobs provided")
 
-    user_limit = min(req.limit, MAX_CONCURRENT_BULK) if req.limit is not None else MAX_CONCURRENT_BULK
-    user_limit = max(1, user_limit)
+    # 1. Fetch queue pause state from R2
+    is_paused = False
+    try:
+        from app.storage.provider import storage_provider
+        import json
+        obj = await storage_provider.get("catalog/bulk_queue_state.json")
+        if obj:
+            state = json.loads(obj.decode("utf-8") if isinstance(obj, bytes) else obj.text())
+            is_paused = state.get("paused", False)
+    except Exception:
+        pass
 
-    items = req.jobs[:user_limit]
-    overflow = len(req.jobs) - len(items)
+    # 2. Query currently running bulk jobs in DB
+    from app.models.workflow import GenerationJob
+    from app.models.enums import JobStatusType
+    from sqlalchemy import select, func
+
+    stmt = select(func.count(GenerationJob.id)).where(
+        GenerationJob.report_type == "bulk",
+        GenerationJob.status == JobStatusType.running
+    )
+    res = await db.execute(stmt)
+    running_count = res.scalar() or 0
+
+    slots_available = max(0, MAX_CONCURRENT_BULK - running_count)
+    if is_paused:
+        slots_available = 0
 
     created = []
     errors = []
+    dispatched_count = 0
+    queued_count = 0
 
-    for item in items:
+    for item in req.jobs:
         try:
             topic = item.topic.strip()
             industry = (item.industry or "").strip() or None
@@ -236,36 +260,49 @@ async def create_bulk_jobs(
                 user_id=UUID(user["id"])
             )
 
+            # Determine whether to dispatch immediately or keep in queue
+            should_dispatch = slots_available > 0
+            
             job = await generation_service.create_bulk_job(
                 db=db,
                 document_id=doc.id,
                 topic=topic,
                 slug=unique_slug,
                 industry=industry,
-                created_by=UUID(user["id"])
+                created_by=UUID(user["id"]),
+                dispatch=should_dispatch
             )
+
+            status_val = job.status.value
+            if should_dispatch:
+                slots_available -= 1
+                dispatched_count += 1
+                # Stagger dispatches to respect GitHub API rate limits
+                await asyncio.sleep(DISPATCH_STAGGER_SEC)
+            else:
+                queued_count += 1
+                # If not dispatched, keep status as pending
+                status_val = "pending"
+
             created.append({
                 "job_id": str(job.id),
                 "slug": unique_slug,
                 "topic": topic,
                 "industry": industry,
-                "status": job.status.value,
+                "status": status_val,
             })
-
-            # Stagger dispatches to respect GitHub API rate limits
-            await asyncio.sleep(DISPATCH_STAGGER_SEC)
 
         except Exception as e:
             errors.append({"topic": item.topic, "error": str(e)})
 
     return success_response(
         data={
-            "dispatched": len(created),
-            "overflow_skipped": overflow,
+            "dispatched": dispatched_count,
+            "queued": queued_count,
             "errors": errors,
             "jobs": created,
         },
-        message=f"Dispatched {len(created)} of {len(req.jobs)} jobs."
+        message=f"Submitted {len(created)} jobs. Dispatched {dispatched_count}, queued {queued_count}."
     )
 
 
@@ -304,3 +341,47 @@ async def get_bulk_queue(
             "errors": job.errors,
         })
     return success_response(data=data, message="Fetched bulk queue")
+
+
+class QueueStateUpdate(BaseModel):
+    paused: bool
+
+
+@router.get("/bulk/queue-state", response_model=APIResponse[dict])
+async def get_bulk_queue_state(
+    user: dict = Depends(get_current_user_placeholder)
+):
+    from app.storage.provider import storage_provider
+    import json
+    is_paused = False
+    try:
+        obj = await storage_provider.get("catalog/bulk_queue_state.json")
+        if obj:
+            state = json.loads(obj.decode("utf-8") if isinstance(obj, bytes) else obj.text())
+            is_paused = state.get("paused", False)
+    except Exception:
+        pass
+    return success_response(data={"paused": is_paused}, message="Fetched queue state")
+
+
+@router.post("/bulk/queue-state", response_model=APIResponse[dict])
+async def update_bulk_queue_state(
+    req: QueueStateUpdate,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    from app.storage.provider import storage_provider
+    from app.services.generation import generation_service
+    import json
+    try:
+        state_data = json.dumps({"paused": req.paused})
+        await storage_provider.put(
+            "catalog/bulk_queue_state.json",
+            state_data.encode("utf-8"),
+            options={"httpMetadata": {"contentType": "application/json"}}
+        )
+        if not req.paused:
+            await generation_service.process_bulk_queue(db)
+        return success_response(data={"paused": req.paused}, message="Queue state updated")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to update queue state: {e}")
