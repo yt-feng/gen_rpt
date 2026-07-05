@@ -450,3 +450,66 @@ async def clear_bulk_queue(
         return success_response(data={"cleared_count": cleared}, message="Bulk pending queue cleared successfully")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to clear pending queue: {e}")
+
+
+@router.post("/bulk/cancel-all", response_model=APIResponse[dict])
+async def cancel_all_bulk_jobs(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    from app.models.workflow import GenerationJob
+    from app.models.enums import JobStatusType
+    from sqlalchemy import update
+    import httpx
+    from app.core.config import settings
+
+    try:
+        # 1. Update all pending and running bulk jobs to failed in the database
+        stmt = (
+            update(GenerationJob)
+            .where(
+                GenerationJob.report_type == "bulk",
+                GenerationJob.status.in_([JobStatusType.pending, JobStatusType.running])
+            )
+            .values(
+                status=JobStatusType.failed,
+                errors="Job manually cancelled via Cancel All workflows"
+            )
+        )
+        res = await db.execute(stmt)
+        await db.commit()
+        cleared_count = res.rowcount if hasattr(res, "rowcount") else 0
+
+        # 2. Call GitHub API to cancel all active runs
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "Antigravity-Agent"
+        }
+        
+        runs = []
+        async with httpx.AsyncClient() as client:
+            for status in ["queued", "in_progress"]:
+                url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/runs?status={status}"
+                resp = await client.get(url, headers=headers)
+                if resp.status_code == 200:
+                    data = resp.json()
+                    runs.extend(data.get("workflow_runs", []))
+
+            # Cancel each active run
+            cancelled_runs_count = 0
+            for run in runs:
+                run_id = run.get("id")
+                if run_id:
+                    cancel_url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/runs/{run_id}/cancel"
+                    cancel_resp = await client.post(cancel_url, headers=headers)
+                    if cancel_resp.status_code in [202, 204, 200]:
+                        cancelled_runs_count += 1
+
+        return success_response(
+            data={"cleared_jobs": cleared_count, "cancelled_github_runs": cancelled_runs_count},
+            message="Successfully cancelled all bulk jobs and active workflows"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to cancel workflows: {e}")
