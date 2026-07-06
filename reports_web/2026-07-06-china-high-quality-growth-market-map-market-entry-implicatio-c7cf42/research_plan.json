@@ -1,0 +1,569 @@
+{
+  "objective": "To map the market-entry and strategic implications of China's high-quality growth transition for foreign firms and investors.",
+  "audience": "Senior executives and strategists at multinational corporations and investment firms considering or expanding operations in China.",
+  "decision_question": "How should foreign firms adjust their market-entry and growth strategies in response to China's shift from quantitative to high-quality growth?",
+  "issue_tree": {
+    "node": "China High-Quality Growth Market Map",
+    "children": [
+      {
+        "node": "Policy & Regulatory Environment",
+        "children": [
+          {
+            "node": "Dual Circulation Strategy"
+          },
+          {
+            "node": "Sectoral Priorities (e.g., tech, green, healthcare)"
+          },
+          {
+            "node": "Foreign Investment Regulations (Negative List, FIEs)"
+          }
+        ]
+      },
+      {
+        "node": "Market Demand & Consumer Shifts",
+        "children": [
+          {
+            "node": "Rising middle-class and premiumization"
+          },
+          {
+            "node": "Digital and green consumption trends"
+          },
+          {
+            "node": "Aging population and healthcare demand"
+          }
+        ]
+      },
+      {
+        "node": "Competitive Landscape & Local Champions",
+        "children": [
+          {
+            "node": "State-owned vs private enterprises"
+          },
+          {
+            "node": "Domestic tech giants (BAT, Huawei, etc.)"
+          },
+          {
+            "node": "Emerging unicorns in high-quality sectors"
+          }
+        ]
+      },
+      {
+        "node": "Supply Chain & Innovation Ecosystem",
+        "children": [
+          {
+            "node": "R&D spending and patent output"
+          },
+          {
+            "node": "Manufacturing upgrading (Industry 4.0)"
+          },
+          {
+            "node": "Green supply chain requirements"
+          }
+        ]
+      },
+      {
+        "node": "Market Entry & Strategic Implications",
+        "children": [
+          {
+            "node": "Entry modes (JV, WFOE, M&A)"
+          },
+          {
+            "node": "Localization of products and services"
+          },
+          {
+            "node": "Risk mitigation (regulatory, geopolitical)"
+          }
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "China's high-quality growth policy prioritizes sectors like green tech, AI, and biotech, creating new market opportunities for foreign firms with advanced technology.",
+      "decision_relevance": "Determines which sectors to enter and whether to invest in R&D localization.",
+      "needed_evidence": [
+        "Policy documents (14th Five-Year Plan), sectoral growth rates, foreign investment approvals."
+      ],
+      "search_queries": [
+        "14th Five-Year Plan priority sectors",
+        "China foreign investment negative list 2024",
+        "China green tech market size 2024"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Domestic competitors in high-quality sectors are gaining market share due to government support, making it harder for foreign firms to compete without strong local partnerships.",
+      "decision_relevance": "Informs partnership vs. solo entry strategy.",
+      "needed_evidence": [
+        "Market share data for foreign vs domestic firms in key sectors, government procurement policies."
+      ],
+      "search_queries": [
+        "China domestic AI market share 2024",
+        "Chinese government procurement domestic preference",
+        "foreign vs local EV market share China 2024"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The rising middle class in China is shifting consumption towards premium, health, and sustainable products, benefiting foreign brands with strong reputations.",
+      "decision_relevance": "Guides product positioning and marketing strategy.",
+      "needed_evidence": [
+        "Consumer spending data, premium segment growth, brand preference surveys."
+      ],
+      "search_queries": [
+        "China middle class consumption trends 2024",
+        "premium goods market growth China",
+        "foreign brand trust index China 2024"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China's push for self-sufficiency in critical technologies (e.g., semiconductors) is reducing reliance on foreign imports, posing risks for foreign tech firms.",
+      "decision_relevance": "Affects supply chain strategy and technology transfer decisions.",
+      "needed_evidence": [
+        "Import/export data for semiconductors, domestic production capacity, policy incentives."
+      ],
+      "search_queries": [
+        "China semiconductor import dependency 2024",
+        "China domestic chip production capacity",
+        "Made in China 2025 semiconductor progress"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Foreign firms that localize R&D and align with China's green goals (e.g., carbon neutrality) gain preferential access and regulatory support.",
+      "decision_relevance": "Justifies investment in local R&D and sustainability initiatives.",
+      "needed_evidence": [
+        "Case studies of foreign firms benefiting from localization, green policy incentives."
+      ],
+      "search_queries": [
+        "foreign R&D centers in China benefits",
+        "China carbon neutrality incentives for foreign firms",
+        "Tesla China local supply chain success"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The dual circulation strategy is leading to increased domestic consumption but also export restrictions, affecting foreign firms' ability to use China as an export hub.",
+      "decision_relevance": "Impacts production location and export strategy.",
+      "needed_evidence": [
+        "Export data from China, domestic consumption growth, trade policy changes."
+      ],
+      "search_queries": [
+        "China dual circulation impact on exports",
+        "China domestic consumption vs export growth 2024",
+        "China export restrictions 2024"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Geopolitical tensions (US-China trade war) are causing foreign firms to diversify supply chains away from China, but high-quality growth sectors remain attractive.",
+      "decision_relevance": "Informs risk assessment and diversification decisions.",
+      "needed_evidence": [
+        "FDI trends, supply chain relocation surveys, sector-specific investment data."
+      ],
+      "search_queries": [
+        "China FDI inflows 2024 by sector",
+        "US-China trade war supply chain relocation",
+        "foreign investment in China high-tech 2024"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total Addressable Market (TAM) = GDP of China * (share of high-quality growth sectors) * (foreign firm accessible share)",
+        "variables": [
+          "China GDP (IMF)",
+          "Sector share from National Bureau of Statistics",
+          "Foreign share from MOFCOM data"
+        ],
+        "preferred_sources": [
+          "IMF World Economic Outlook",
+          "National Bureau of Statistics of China",
+          "Ministry of Commerce (MOFCOM)"
+        ],
+        "search_queries": [
+          "China GDP 2024 IMF",
+          "China high-tech sector share of GDP 2024",
+          "foreign invested enterprises share of China GDP"
+        ],
+        "known_limitations": [
+          "Overestimates if foreign access is restricted; sector definitions vary."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market Size = Sum over key sectors (Number of customers * Average revenue per customer)",
+        "variables": [
+          "Number of firms/consumers in sector",
+          "ARPU/ASP from industry reports"
+        ],
+        "preferred_sources": [
+          "China Industry Information Network",
+          "Frost & Sullivan",
+          "Euromonitor"
+        ],
+        "search_queries": [
+          "China AI market number of enterprises 2024",
+          "China EV average selling price 2024",
+          "China healthcare spending per capita 2024"
+        ],
+        "known_limitations": [
+          "Data granularity may be low; double-counting across sectors."
+        ]
+      },
+      {
+        "method": "Adoption Funnel",
+        "formula": "Market Size = Target population * Awareness % * Consideration % * Purchase % * Average spend",
+        "variables": [
+          "Population (urban middle class)",
+          "Awareness from surveys",
+          "Consideration from brand tracking",
+          "Purchase from sales data"
+        ],
+        "preferred_sources": [
+          "McKinsey China consumer survey",
+          "Nielsen brand share data",
+          "JD.com sales data"
+        ],
+        "search_queries": [
+          "China urban middle class population 2024",
+          "foreign brand awareness China survey",
+          "China premium product purchase conversion rate"
+        ],
+        "known_limitations": [
+          "Requires proprietary survey data; assumptions on funnel rates."
+        ]
+      },
+      {
+        "method": "Value Pool",
+        "formula": "Value Pool = Industry revenue * Profit margin * Foreign share of profits",
+        "variables": [
+          "Industry revenue from Wind or Bloomberg",
+          "Profit margins from annual reports",
+          "Foreign share from competitive analysis"
+        ],
+        "preferred_sources": [
+          "Wind Financial Terminal",
+          "Bloomberg",
+          "Company annual reports (10-K)"
+        ],
+        "search_queries": [
+          "China semiconductor industry revenue 2024",
+          "average profit margin Chinese tech firms",
+          "foreign company market share China EV"
+        ],
+        "known_limitations": [
+          "Profit margins vary; foreign share may be small."
+        ]
+      },
+      {
+        "method": "Supply-side Sizing",
+        "formula": "Market Size = Domestic production + Imports - Exports (adjusted for inventory)",
+        "variables": [
+          "Production data from National Bureau of Statistics",
+          "Trade data from Customs",
+          "Inventory from industry reports"
+        ],
+        "preferred_sources": [
+          "China Customs Statistics",
+          "National Bureau of Statistics",
+          "China Association of Automobile Manufacturers"
+        ],
+        "search_queries": [
+          "China EV production volume 2024",
+          "China semiconductor imports 2024",
+          "China steel production 2024"
+        ],
+        "known_limitations": [
+          "Does not capture services; inventory adjustments difficult."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China High-Quality Growth Market Map: Market-Entry Implications and Strategic Implications milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "14th Five-Year Plan priority sectors",
+    "China foreign investment negative list 2024",
+    "China green tech market size 2024",
+    "China domestic AI market share 2024",
+    "foreign vs local EV market share China 2024",
+    "China middle class consumption trends 2024",
+    "premium goods market growth China",
+    "China semiconductor import dependency 2024",
+    "China domestic chip production capacity",
+    "foreign R&D centers in China benefits",
+    "China carbon neutrality incentives for foreign firms",
+    "China dual circulation impact on exports",
+    "China FDI inflows 2024 by sector",
+    "US-China trade war supply chain relocation",
+    "China EV average selling price 2024",
+    "China patent filings foreign vs domestic 2024",
+    "Chinese government procurement domestic preference",
+    "foreign brand trust index China 2024"
+  ],
+  "source_strategy": {
+    "government_regulators": [
+      "National Bureau of Statistics",
+      "Ministry of Commerce (MOFCOM)",
+      "National Development and Reform Commission (NDRC)"
+    ],
+    "company_filings": [
+      "Annual reports of foreign firms in China (e.g., Tesla, Apple, Volkswagen)",
+      "Chinese company filings (e.g., BYD, Huawei)"
+    ],
+    "industry_associations": [
+      "China Association of Automobile Manufacturers",
+      "China Semiconductor Industry Association",
+      "China Green Building Council"
+    ],
+    "international_organizations": [
+      "IMF",
+      "World Bank",
+      "OECD",
+      "WIPO"
+    ],
+    "authoritative_media": [
+      "Caixin",
+      "South China Morning Post",
+      "Financial Times China"
+    ],
+    "academic_sources": [
+      "China Economic Review",
+      "Journal of Chinese Economic and Business Studies"
+    ],
+    "consulting_research": [
+      "McKinsey China consumer reports",
+      "BCG China market studies",
+      "Deloitte China insights"
+    ]
+  },
+  "outline": [
+    "1. Executive Summary: China's high-quality growth transition is reshaping market opportunities; foreign firms must pivot to tech, green, and health sectors while navigating regulatory and competitive shifts.",
+    "2. Policy Landscape: Dual circulation, sectoral priorities, and foreign investment regulations create both opportunities and barriers.",
+    "3. Market Demand: Rising middle class and premiumization trends favor foreign brands, but localization is key.",
+    "4. Competitive Dynamics: Domestic champions are gaining ground; partnerships and R&D localization are critical.",
+    "5. Strategic Implications: Entry modes, supply chain adjustments, and risk mitigation strategies for foreign firms.",
+    "6. Conclusion: Actionable recommendations for market entry and growth in China's high-quality growth era."
+  ],
+  "exhibit_ideas": [
+    {
+      "exhibit": "Market Size of High-Quality Growth Sectors (2024-2030)",
+      "question": "Which sectors offer the largest addressable market for foreign firms?",
+      "type": "Bar chart with projections"
+    },
+    {
+      "exhibit": "Foreign vs Domestic Market Share in Key Sectors",
+      "question": "Where are foreign firms losing or gaining ground?",
+      "type": "Stacked bar chart"
+    },
+    {
+      "exhibit": "Policy Incentives Map: Subsidies and Tax Breaks by Sector",
+      "question": "Which sectors receive the most government support?",
+      "type": "Heatmap"
+    },
+    {
+      "exhibit": "Consumer Preference Shift: Premium and Green Product Adoption",
+      "question": "How is consumer behavior changing?",
+      "type": "Line chart over time"
+    },
+    {
+      "exhibit": "Supply Chain Relocation Trends: FDI and Trade Data",
+      "question": "Are foreign firms diversifying away from China?",
+      "type": "Bubble chart (FDI vs trade)"
+    }
+  ],
+  "risks": [
+    "Data reliability: Chinese government data may be politically influenced; cross-check with international sources.",
+    "Rapid policy changes: New regulations can alter market access overnight; monitor policy announcements.",
+    "Geopolitical escalation: US-China tensions could lead to sanctions or trade barriers; scenario planning needed.",
+    "Local competition: Domestic firms may receive preferential treatment; underestimate at own risk.",
+    "Cultural and operational challenges: Localization requires deep understanding of Chinese business practices."
+  ]
+}

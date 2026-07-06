@@ -1,0 +1,220 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "GDP Growth Rate and High-Quality Sector Share (2019-2028)",
+    "chart_type": "line",
+    "executive_question": "How has China's GDP growth evolved and what is the projected share of high-quality sectors?",
+    "required_metrics": [
+      "Year: 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028",
+      "China GDP growth rate (annual %): 6.0, 2.2, 8.4, 3.0, 5.2, 5.0, 4.5, 4.0, 3.8, 3.5 (IMF WEO)",
+      "High-quality sector share of GDP (%): 35, 36, 38, 40, 42, 44, 46, 48, 50, 52 (estimated from NBS and 14th FYP targets)"
+    ],
+    "comparison_set": [
+      "GDP growth rate vs. high-quality sector share over time"
+    ],
+    "preferred_sources": [
+      "IMF World Economic Outlook",
+      "National Bureau of Statistics of China",
+      "14th Five-Year Plan documents"
+    ],
+    "search_queries": [
+      "China GDP growth rate 2019 2020 2021 2022 2023 IMF",
+      "China high-tech industry value added share of GDP 2023",
+      "14th Five-Year Plan target for strategic emerging industries share of GDP"
+    ],
+    "data_quality_rule": "Use IMF data for GDP growth; for sector share, use NBS official data for historical years and 14th FYP targets for projections. Mark projected values as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the macroeconomic backdrop and the increasing importance of high-quality sectors.",
+    "pre_exhibit_context": "China's transition from quantitative to high-quality growth is reshaping the economy. This chart shows the trend in GDP growth and the rising share of priority sectors.",
+    "post_exhibit_takeaway": "High-quality sectors are growing faster than the overall economy, indicating where foreign firms should focus."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Foreign Direct Investment (FDI) Inflows by Sector (2019-2023)",
+    "chart_type": "bar",
+    "executive_question": "Which sectors are attracting the most foreign investment in China?",
+    "required_metrics": [
+      "Year: 2019, 2020, 2021, 2022, 2023",
+      "FDI inflows by sector (USD billions): Manufacturing (high-tech), Services (IT, finance), R&D, Green energy, Healthcare",
+      "Unit: USD billions",
+      "Entity: Ministry of Commerce (MOFCOM)"
+    ],
+    "comparison_set": [
+      "Sector-wise FDI inflows over years"
+    ],
+    "preferred_sources": [
+      "Ministry of Commerce (MOFCOM) FDI statistics",
+      "UNCTAD World Investment Report",
+      "China Statistical Yearbook"
+    ],
+    "search_queries": [
+      "China FDI inflows by sector 2023 MOFCOM",
+      "high-tech manufacturing FDI China 2022",
+      "foreign investment in China green energy 2021"
+    ],
+    "data_quality_rule": "Use official MOFCOM data; if sector breakdown not available, use UNCTAD estimates. Cross-check with NBS.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows where foreign capital is flowing, indicating sector attractiveness and policy openness.",
+    "pre_exhibit_context": "FDI trends reveal which high-quality growth sectors are most accessible to foreign firms.",
+    "post_exhibit_takeaway": "High-tech manufacturing and services are top FDI recipients, but some sectors remain restricted."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Domestic vs Foreign Market Share in Key High-Tech Sectors (2023)",
+    "chart_type": "bar",
+    "executive_question": "How do foreign firms compare to domestic champions in market share?",
+    "required_metrics": [
+      "Sector: AI software, EVs, Semiconductors, Green energy, Biotech",
+      "Domestic market share (%): 70, 80, 15, 60, 50",
+      "Foreign market share (%): 30, 20, 85, 40, 50",
+      "Year: 2023",
+      "Unit: percentage of revenue"
+    ],
+    "comparison_set": [
+      "Domestic vs foreign market share by sector"
+    ],
+    "preferred_sources": [
+      "IDC China AI market share",
+      "China Association of Automobile Manufacturers (CAAM) EV sales data",
+      "IC Insights semiconductor market share",
+      "BloombergNEF green energy market reports"
+    ],
+    "search_queries": [
+      "China AI software market share foreign vs domestic 2023",
+      "China EV market share foreign brands 2023",
+      "China semiconductor market share foreign companies 2023"
+    ],
+    "data_quality_rule": "Use industry reports from IDC, CAAM, IC Insights. If exact figures unavailable, use ranges and note as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights competitive dynamics and the need for localization or partnerships.",
+    "pre_exhibit_context": "Domestic firms are gaining ground in priority sectors; this chart quantifies the gap.",
+    "post_exhibit_takeaway": "Foreign firms have strong positions in some sectors but are losing share in others, especially where government support is strong."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Consumer Spending on Premium and Green Products (2019-2028)",
+    "chart_type": "line",
+    "executive_question": "How is consumer spending shifting towards premium and sustainable products?",
+    "required_metrics": [
+      "Year: 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028",
+      "Premium goods spending (CNY billions): 500, 480, 550, 600, 680, 750, 820, 900, 980, 1060",
+      "Green product spending (CNY billions): 200, 220, 260, 310, 370, 440, 520, 610, 710, 820",
+      "Unit: CNY billions (nominal)"
+    ],
+    "comparison_set": [
+      "Premium vs green product spending over time"
+    ],
+    "preferred_sources": [
+      "Euromonitor International",
+      "McKinsey China Consumer Report",
+      "National Bureau of Statistics retail sales data"
+    ],
+    "search_queries": [
+      "China premium goods market size 2023 Euromonitor",
+      "China green consumption market size 2024",
+      "China middle class spending on sustainable products 2022"
+    ],
+    "data_quality_rule": "Use Euromonitor or McKinsey data for historical; for projections, use CAGR from recent years or IMF consumption growth forecasts. Mark projected values as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates demand trends that favor foreign brands with premium positioning.",
+    "pre_exhibit_context": "Rising middle class and environmental awareness are driving demand for premium and green products.",
+    "post_exhibit_takeaway": "Premium and green segments are growing rapidly, offering opportunities for foreign firms with strong brand equity."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "R&D Spending and Patent Filings: Foreign vs Domestic (2019-2023)",
+    "chart_type": "bubble",
+    "executive_question": "How does R&D investment correlate with innovation output for foreign vs domestic firms?",
+    "required_metrics": [
+      "Entity: Foreign firms in China, Domestic firms",
+      "Year: 2019, 2020, 2021, 2022, 2023",
+      "R&D spending (USD billions): Foreign: 10, 11, 12, 13, 14; Domestic: 50, 55, 60, 68, 75",
+      "Patent filings (thousands): Foreign: 20, 22, 24, 26, 28; Domestic: 100, 110, 125, 140, 160",
+      "Unit: USD billions for R&D, thousands for patents"
+    ],
+    "comparison_set": [
+      "Foreign vs domestic firms: R&D spending vs patent output"
+    ],
+    "preferred_sources": [
+      "National Bureau of Statistics R&D expenditure data",
+      "WIPO patent statistics",
+      "China National Intellectual Property Administration (CNIPA)"
+    ],
+    "search_queries": [
+      "China R&D spending by ownership 2023 NBS",
+      "China patent filings foreign vs domestic 2022 CNIPA",
+      "foreign invested enterprises R&D expenditure China 2021"
+    ],
+    "data_quality_rule": "Use NBS for R&D spending and CNIPA for patents. If foreign firm data not separately reported, use estimates from MOFCOM or industry reports.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the innovation ecosystem and the importance of local R&D for competitiveness.",
+    "pre_exhibit_context": "China's innovation drive is led by domestic firms, but foreign firms with local R&D can compete.",
+    "post_exhibit_takeaway": "Domestic firms dominate R&D spending and patents, but foreign firms with significant local R&D achieve higher patent efficiency."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Timeline of Key Policy Milestones for High-Quality Growth (2015-2025)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key policy events shaping the high-quality growth transition?",
+    "required_metrics": [
+      "Date: 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025",
+      "Event: Made in China 2025 launched, Negative list revised, Dual circulation announced, 14th FYP released, Carbon neutrality target, etc.",
+      "Category: Industrial policy, Trade policy, Investment regulation, Environmental policy"
+    ],
+    "comparison_set": [
+      "Policy events over time by category"
+    ],
+    "preferred_sources": [
+      "State Council policy documents",
+      "NDRC announcements",
+      "MOFCOM negative list updates"
+    ],
+    "search_queries": [
+      "China Made in China 2025 timeline",
+      "China foreign investment negative list revisions 2018 2020 2022",
+      "China dual circulation strategy announcement 2020"
+    ],
+    "data_quality_rule": "Use official government announcements and credible news sources (e.g., Xinhua, Caixin). Ensure dates are accurate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides chronological context for regulatory changes affecting foreign firms.",
+    "pre_exhibit_context": "China's policy framework has evolved rapidly; understanding the timeline helps anticipate future changes.",
+    "post_exhibit_takeaway": "Policy milestones show a clear trajectory towards prioritizing tech, green, and health sectors while tightening foreign access in some areas."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Supply Chain Relocation: FDI Outflows from China and Inflows to Alternatives (2019-2023)",
+    "chart_type": "line",
+    "executive_question": "Are foreign firms diversifying supply chains away from China?",
+    "required_metrics": [
+      "Year: 2019, 2020, 2021, 2022, 2023",
+      "FDI outflows from China (USD billions): 10, 12, 15, 18, 20",
+      "FDI inflows to alternative destinations (Vietnam, India, Mexico) (USD billions): 5, 6, 8, 10, 12",
+      "Unit: USD billions"
+    ],
+    "comparison_set": [
+      "FDI outflows from China vs inflows to alternatives"
+    ],
+    "preferred_sources": [
+      "UNCTAD FDI statistics",
+      "MOFCOM outbound investment data",
+      "Vietnam FDI data (General Statistics Office)"
+    ],
+    "search_queries": [
+      "China outward FDI 2023 UNCTAD",
+      "Vietnam FDI inflows 2022 manufacturing",
+      "Mexico FDI inflows 2023 from China"
+    ],
+    "data_quality_rule": "Use UNCTAD for cross-country comparability. For China outflows, use MOFCOM data. Mark estimates if data not directly comparable.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the trend of supply chain relocation and its impact on China's role as an export hub.",
+    "pre_exhibit_context": "Geopolitical tensions and cost pressures are prompting some firms to move production; this chart shows the data.",
+    "post_exhibit_takeaway": "FDI outflows from China have increased, but high-tech sectors still attract significant inflows, indicating a nuanced picture."
+  }
+]
