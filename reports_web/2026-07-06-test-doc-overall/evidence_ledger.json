@@ -1,0 +1,32 @@
+[
+  {
+    "id": "E1",
+    "fact": "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "value": null,
+    "unit": "year",
+    "display_value": "2025",
+    "year": 2025,
+    "metric_family": "funding",
+    "source_title": "U.S. DOE Office of Electricity",
+    "source_url": "https://www.energy.gov/oe/office-electricity",
+    "domain": "energy.gov",
+    "source_type": "html",
+    "authoritative": true,
+    "score": 11
+  },
+  {
+    "id": "E2",
+    "fact": "The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "value": null,
+    "unit": "year",
+    "display_value": "2023",
+    "year": 2023,
+    "metric_family": "timeline",
+    "source_title": "U.S. DOE Office of Electricity",
+    "source_url": "https://www.energy.gov/oe/office-electricity",
+    "domain": "energy.gov",
+    "source_type": "html",
+    "authoritative": true,
+    "score": 10
+  }
+]

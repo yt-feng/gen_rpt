@@ -1,0 +1,222 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Robotaxi Cost per Mile vs Human-Driven Ride-Hailing (2024-2030)",
+    "chart_type": "line",
+    "executive_question": "When will robotaxis become cheaper than human-driven ride-hailing?",
+    "required_metrics": [
+      "Year: 2024, 2025, 2026, 2027, 2028, 2029, 2030",
+      "Waymo cost per mile (USD)",
+      "Cruise cost per mile (USD)",
+      "Uber cost per mile (USD)",
+      "Lyft cost per mile (USD)"
+    ],
+    "comparison_set": [
+      "Waymo, Cruise, Uber, Lyft"
+    ],
+    "preferred_sources": [
+      "Company filings (Waymo, Cruise, Uber, Lyft annual reports)",
+      "Analyst reports (ARK Invest, Morgan Stanley)",
+      "Industry benchmarks (Uber cost per mile breakdown)"
+    ],
+    "search_queries": [
+      "Waymo cost per mile robotaxi 2024 annual report",
+      "Cruise cost per mile 2023 SEC filing",
+      "Uber cost per mile breakdown 2023"
+    ],
+    "data_quality_rule": "Use publicly reported cost per mile from company disclosures or credible analyst estimates. If only two endpoints are available, interpolate using CAGR from company targets and mark intermediate years as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrate the economic tipping point for robotaxi adoption.",
+    "pre_exhibit_context": "The report argues that robotaxis will achieve profitability in dense urban areas by 2027. This exhibit must show the cost trajectory.",
+    "post_exhibit_takeaway": "Robotaxis are projected to undercut human-driven ride-hailing on cost per mile by 2027, supporting the hypothesis of near-term commercial viability."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Global Level 4 Autonomous Vehicle Sales Forecast by Region (2025-2030)",
+    "chart_type": "bar",
+    "executive_question": "Which region will lead Level 4 autonomous vehicle adoption?",
+    "required_metrics": [
+      "Year: 2025, 2026, 2027, 2028, 2029, 2030",
+      "China Level 4 vehicle sales (units)",
+      "US Level 4 vehicle sales (units)",
+      "EU Level 4 vehicle sales (units)",
+      "Rest of World Level 4 vehicle sales (units)"
+    ],
+    "comparison_set": [
+      "China, US, EU, Rest of World"
+    ],
+    "preferred_sources": [
+      "McKinsey Center for Future Mobility",
+      "IHS Markit autonomous vehicle forecasts",
+      "Statista market reports"
+    ],
+    "search_queries": [
+      "autonomous vehicle sales forecast by region 2030 McKinsey",
+      "Level 4 autonomous car sales China 2025 forecast",
+      "IHS Markit autonomous vehicle penetration rate by region"
+    ],
+    "data_quality_rule": "Use published forecasts from at least two credible sources. If regional breakdowns are not available, use global forecast and apply regional shares from regulatory progress reports.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantify the market size and regional distribution to support the claim that China leads.",
+    "pre_exhibit_context": "The report hypothesizes that China will grant regulatory approval first. This exhibit must show the resulting sales forecast.",
+    "post_exhibit_takeaway": "China is expected to account for over 40% of global Level 4 sales by 2030, validating the focus on Chinese markets."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Lidar Cost Reduction Curve (2015-2030)",
+    "chart_type": "line",
+    "executive_question": "When will lidar become affordable for mass-market Level 4 systems?",
+    "required_metrics": [
+      "Year: 2015, 2017, 2019, 2021, 2023, 2025, 2027, 2030",
+      "Average lidar cost per unit (USD)",
+      "Luminar lidar cost per unit (USD)",
+      "Velodyne lidar cost per unit (USD)",
+      "Hesai lidar cost per unit (USD)"
+    ],
+    "comparison_set": [
+      "Luminar, Velodyne, Hesai, Industry average"
+    ],
+    "preferred_sources": [
+      "Company earnings calls and investor presentations",
+      "Teardown reports (System Plus Consulting, Yole)",
+      "Industry reports (McKinsey, BCG)"
+    ],
+    "search_queries": [
+      "Luminar lidar cost per unit 2023 earnings call",
+      "Velodyne lidar price history 2015 2023",
+      "Hesai lidar cost per unit 2024"
+    ],
+    "data_quality_rule": "Use actual historical pricing from teardowns or company disclosures. For future years, use company roadmaps or analyst consensus. Mark projected values as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show the cost trajectory of a key sensor to support the hypothesis that lidar costs will drop below $500 by 2027.",
+    "pre_exhibit_context": "The report argues that lidar cost reduction is critical for adoption. This exhibit must show historical and projected costs.",
+    "post_exhibit_takeaway": "Lidar costs are on track to fall below $500 per unit by 2027, making Level 4 economically feasible for mass-market vehicles."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Consumer Willingness to Pay for Level 4 Autonomy",
+    "chart_type": "bar",
+    "executive_question": "How much are consumers willing to pay for Level 4 autonomous features?",
+    "required_metrics": [
+      "Region: US, China, EU",
+      "Income segment: Low, Medium, High",
+      "Maximum willingness to pay (USD)",
+      "Percentage of respondents willing to pay at each price point"
+    ],
+    "comparison_set": [
+      "US, China, EU; Income segments"
+    ],
+    "preferred_sources": [
+      "J.D. Power mobility surveys",
+      "McKinsey consumer surveys on autonomous driving",
+      "Deloitte global automotive consumer study"
+    ],
+    "search_queries": [
+      "consumer willingness to pay autonomous driving feature survey 2024 J.D. Power",
+      "McKinsey autonomous driving consumer survey 2023 willingness to pay",
+      "Deloitte global automotive consumer study 2024 autonomous features"
+    ],
+    "data_quality_rule": "Use published survey data from reputable firms. If regional breakdowns are not available, use global averages and note limitations.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Support the hypothesis that willingness to pay is less than $5,000, limiting adoption to premium segments.",
+    "pre_exhibit_context": "The report claims that consumer willingness to pay is low. This exhibit must show survey results.",
+    "post_exhibit_takeaway": "Most consumers are unwilling to pay more than $5,000 for Level 4 autonomy, confirming that it will remain a premium option."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory Approval Timeline for Driverless Operations",
+    "chart_type": "timeline",
+    "executive_question": "How does regulatory pace differ across regions?",
+    "required_metrics": [
+      "Date: Year and month",
+      "Event: Regulatory milestone (e.g., permit granted, law passed)",
+      "Region: China, US, EU",
+      "Entity: City or state"
+    ],
+    "comparison_set": [
+      "China, US, EU"
+    ],
+    "preferred_sources": [
+      "Government announcements (China MIIT, US NHTSA, EU Commission)",
+      "Permit databases (California DMV, Beijing autonomous vehicle office)",
+      "News articles (Reuters, Bloomberg)"
+    ],
+    "search_queries": [
+      "China autonomous driving permit Beijing 2023",
+      "California DMV autonomous vehicle permit timeline",
+      "EU autonomous driving legislation progress 2024"
+    ],
+    "data_quality_rule": "Use only official announcements or credible news reports. Include exact dates when available; otherwise, use month/year.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Illustrate the regulatory fragmentation and China's lead.",
+    "pre_exhibit_context": "The report argues that regulatory approval will be granted first in China. This exhibit must show key milestones.",
+    "post_exhibit_takeaway": "China has already granted permits for driverless robotaxis in multiple cities, while US and EU approvals remain limited, supporting the hypothesis of China's lead."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Autonomous Vehicle Accident Rate per Mile vs Human Drivers",
+    "chart_type": "bubble",
+    "executive_question": "Are autonomous vehicles safer than human drivers?",
+    "required_metrics": [
+      "Entity: Waymo, Cruise, Human drivers (US average)",
+      "Year: 2020, 2021, 2022, 2023",
+      "Accident rate per million miles (number)",
+      "Miles driven (million miles)"
+    ],
+    "comparison_set": [
+      "Waymo, Cruise, Human drivers"
+    ],
+    "preferred_sources": [
+      "NHTSA crash data",
+      "California DMV disengagement reports",
+      "Company safety reports (Waymo, Cruise)"
+    ],
+    "search_queries": [
+      "Waymo accident rate per mile 2023 safety report",
+      "Cruise accident rate per mile 2023",
+      "NHTSA human driver accident rate per mile 2022"
+    ],
+    "data_quality_rule": "Use official data from NHTSA and state DMV reports. For autonomous vehicles, use company disclosures. Ensure miles driven are reported consistently.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Support the hypothesis that insurance premiums will be lower due to fewer accidents.",
+    "pre_exhibit_context": "The report claims that autonomous vehicles have fewer accidents. This exhibit must compare accident rates.",
+    "post_exhibit_takeaway": "Autonomous vehicles have significantly lower accident rates per mile than human drivers, supporting the case for lower insurance costs."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Autonomous Driving Startup Funding by Year (2015-2024)",
+    "chart_type": "bar",
+    "executive_question": "How has investment in autonomous driving evolved?",
+    "required_metrics": [
+      "Year: 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+      "Total funding (USD billions)",
+      "Number of deals",
+      "Top funded companies (Waymo, Cruise, Aurora, etc.)"
+    ],
+    "comparison_set": [
+      "Year over year"
+    ],
+    "preferred_sources": [
+      "Crunchbase",
+      "PitchBook",
+      "CB Insights"
+    ],
+    "search_queries": [
+      "autonomous driving startup funding 2023 Crunchbase",
+      "autonomous vehicle investment by year 2015 2024 PitchBook",
+      "Waymo funding rounds history"
+    ],
+    "data_quality_rule": "Use data from venture capital databases. Include only disclosed funding rounds. If exact figures are not available, use estimates from reputable sources.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show capital formation and investor conviction in the sector.",
+    "pre_exhibit_context": "The report needs to validate that significant capital is flowing into autonomous driving. This exhibit must show funding trends.",
+    "post_exhibit_takeaway": "Funding peaked in 2021 but remains substantial, indicating sustained investor interest despite commercialization delays."
+  }
+]

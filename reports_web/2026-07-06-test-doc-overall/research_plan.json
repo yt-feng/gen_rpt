@@ -1,0 +1,500 @@
+{
+  "objective": "To determine the realistic timeline and market potential for Level 4+ autonomous driving adoption in passenger vehicles, and identify the key inflection points and risks for investors and automakers.",
+  "audience": "Automotive executives, mobility investors, and strategy consultants.",
+  "decision_question": "When and under what conditions will Level 4 autonomous driving become commercially viable in major passenger car markets, and what is the addressable market size by 2030?",
+  "issue_tree": {
+    "root": "Future of Autonomous Driving",
+    "branches": [
+      {
+        "name": "Technology Readiness",
+        "sub_branches": [
+          "Sensor maturity",
+          "AI/software reliability",
+          "Edge cases handling"
+        ]
+      },
+      {
+        "name": "Regulatory & Legal",
+        "sub_branches": [
+          "Federal vs state frameworks",
+          "Liability standards",
+          "Cross-border harmonization"
+        ]
+      },
+      {
+        "name": "Market Demand & Economics",
+        "sub_branches": [
+          "Consumer willingness to pay",
+          "Total cost of ownership",
+          "Fleet vs personal ownership"
+        ]
+      },
+      {
+        "name": "Competitive Landscape",
+        "sub_branches": [
+          "OEM strategies",
+          "Tech players (Waymo, Cruise, Tesla)",
+          "Tier-1 suppliers"
+        ]
+      },
+      {
+        "name": "Infrastructure & Ecosystem",
+        "sub_branches": [
+          "HD mapping",
+          "V2X communication",
+          "Charging/refueling for autonomous fleets"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Level 4 autonomous driving will not achieve widespread consumer adoption in passenger cars before 2030 due to unresolved edge cases and regulatory hurdles.",
+      "decision_relevance": "If true, investment should focus on commercial fleets and geofenced services rather than consumer vehicles.",
+      "needed_evidence": [
+        "Data on current disengagement rates, regulatory approvals for driverless operations, and consumer surveys on trust."
+      ],
+      "search_queries": [
+        "Waymo disengagement report 2023",
+        "California DMV autonomous vehicle disengagement data",
+        "Consumer trust autonomous driving survey 2024"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Robotaxi services will achieve profitability in dense urban areas by 2027, driven by lower per-mile costs compared to human-driven ride-hailing.",
+      "decision_relevance": "If true, robotaxi operators will capture significant market share from Uber/Lyft.",
+      "needed_evidence": [
+        "Cost per mile data for robotaxis vs human drivers, utilization rates, and pricing strategies."
+      ],
+      "search_queries": [
+        "Waymo cost per mile robotaxi",
+        "Cruise revenue per vehicle 2023",
+        "Uber cost per mile breakdown"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Regulatory approval for Level 4 autonomous driving will be granted first in China (e.g., Beijing, Shanghai) before the US or EU, due to more favorable government policies.",
+      "decision_relevance": "If true, China will lead in autonomous deployment and related supply chains.",
+      "needed_evidence": [
+        "Timeline of regulatory approvals in China vs US vs EU, number of autonomous vehicle permits issued."
+      ],
+      "search_queries": [
+        "China autonomous driving regulations 2024",
+        "Beijing autonomous vehicle permits",
+        "EU autonomous driving legislation progress"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The total addressable market for Level 4 autonomous vehicles in passenger transport will be less than 5% of new car sales by 2030, primarily limited to robotaxis and premium vehicles.",
+      "decision_relevance": "If true, mass-market OEMs should delay heavy investment in consumer autonomous features.",
+      "needed_evidence": [
+        "Market forecasts from multiple sources, adoption curves of past advanced technologies (e.g., EVs)."
+      ],
+      "search_queries": [
+        "Autonomous vehicle market forecast 2030",
+        "Level 4 autonomous car sales projection",
+        "EV adoption curve S-curve"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Lidar costs will drop below $500 per unit by 2027, making it economically feasible for mass-market Level 4 systems.",
+      "decision_relevance": "If true, sensor cost reduction will accelerate adoption; if false, reliance on camera-only solutions (Tesla) may win.",
+      "needed_evidence": [
+        "Lidar pricing trends from suppliers (Luminar, Velodyne, Hesai), teardown reports."
+      ],
+      "search_queries": [
+        "Lidar cost per unit 2024",
+        "Luminar lidar price reduction roadmap",
+        "Tesla camera vs lidar cost comparison"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Insurance premiums for Level 4 autonomous vehicles will be 30-50% lower than human-driven vehicles by 2028, due to fewer accidents.",
+      "decision_relevance": "If true, lower TCO will drive adoption; if false, insurance costs may offset savings.",
+      "needed_evidence": [
+        "Insurance data from autonomous vehicle pilots, accident rates per mile for autonomous vs human."
+      ],
+      "search_queries": [
+        "Autonomous vehicle insurance premium comparison",
+        "Waymo accident rate per mile",
+        "NHTSA autonomous vehicle crash data"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Consumer willingness to pay for Level 4 autonomy is less than $5,000 per vehicle, limiting adoption to high-end models.",
+      "decision_relevance": "If true, autonomous features will remain a premium option, not mass-market.",
+      "needed_evidence": [
+        "Consumer surveys on willingness to pay, conjoint analysis results."
+      ],
+      "search_queries": [
+        "Consumer willingness to pay autonomous driving feature",
+        "Autonomous driving option price survey",
+        "Tesla FSD take rate"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Future of Autonomous Driving (Sector: Automotive), and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total Addressable Market (TAM) = Global passenger vehicle sales * % of vehicles with Level 4 capability * average selling price premium",
+        "variables": [
+          "Global passenger vehicle sales (units)",
+          "Level 4 penetration rate (%)",
+          "ASP premium ($)"
+        ],
+        "preferred_sources": [
+          "IHS Markit",
+          "Statista",
+          "OICA"
+        ],
+        "search_queries": [
+          "global passenger vehicle sales 2023",
+          "autonomous vehicle penetration forecast 2030",
+          "autonomous driving option price"
+        ],
+        "known_limitations": [
+          "Assumes uniform adoption across regions; may overestimate if adoption is concentrated."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market Size = Sum over regions (Robotaxi fleet size * revenue per robotaxi + Consumer autonomous vehicle sales * ASP)",
+        "variables": [
+          "Robotaxi fleet size by city",
+          "Revenue per robotaxi per year",
+          "Consumer autonomous vehicle sales by region",
+          "ASP"
+        ],
+        "preferred_sources": [
+          "Company filings (Waymo, Cruise, Baidu)",
+          "City-level mobility reports",
+          "J.D. Power"
+        ],
+        "search_queries": [
+          "Waymo fleet size 2024",
+          "Cruise revenue per vehicle",
+          "Baidu Apollo robotaxi revenue"
+        ],
+        "known_limitations": [
+          "Requires granular data that may not be publicly available; estimates may be speculative."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Potential adopters = Total population * % urban * % with high income * % willing to use autonomous mobility",
+        "variables": [
+          "Urban population",
+          "High-income population",
+          "Willingness to use autonomous mobility (%)",
+          "Adoption rate over time"
+        ],
+        "preferred_sources": [
+          "World Bank urban population data",
+          "McKinsey consumer surveys",
+          "Pew Research"
+        ],
+        "search_queries": [
+          "urban population share 2024",
+          "autonomous mobility willingness survey",
+          "high income population by country"
+        ],
+        "known_limitations": [
+          "Funnel conversion rates are uncertain; willingness may not translate to actual use."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Value pool = (Cost savings from reduced accidents + time savings + fuel efficiency) * number of autonomous miles driven",
+        "variables": [
+          "Accident cost per mile",
+          "Value of time ($/hour)",
+          "Fuel savings per mile",
+          "Autonomous miles driven"
+        ],
+        "preferred_sources": [
+          "NHTSA accident cost data",
+          "Bureau of Labor Statistics value of time",
+          "EPA fuel economy data"
+        ],
+        "search_queries": [
+          "cost of car accident per mile",
+          "value of travel time savings",
+          "autonomous driving fuel efficiency improvement"
+        ],
+        "known_limitations": [
+          "Requires assumptions about utilization and behavioral changes; difficult to measure directly."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Future of Autonomous Driving (Sector: Automotive) milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "global passenger vehicle sales 2023 OICA",
+    "autonomous vehicle market forecast 2030 McKinsey",
+    "Waymo fleet size 2024 annual report",
+    "Cruise revenue per vehicle 2023 SEC filing",
+    "consumer willingness to pay autonomous driving feature survey 2024",
+    "Lidar cost per unit 2024 Luminar earnings",
+    "autonomous vehicle accident rate per mile NHTSA",
+    "autonomous vehicle insurance premium comparison 2024",
+    "California DMV autonomous vehicle disengagement report 2023",
+    "China autonomous driving regulations 2024 Beijing",
+    "EU autonomous driving legislation progress 2024",
+    "autonomous driving startup funding 2023 Crunchbase",
+    "Mobileye market share autonomous driving 2023",
+    "Waymo robotaxi cost per mile vs Uber",
+    "urban population share 2024 World Bank",
+    "value of travel time savings Bureau of Labor Statistics",
+    "Waymo disengagement report 2023",
+    "California DMV autonomous vehicle disengagement data"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Company filings (10-K, annual reports)",
+      "Government databases (NHTSA, DMV, NHTSA)",
+      "Industry associations (OICA, SAE)"
+    ],
+    "secondary": [
+      "Consulting reports (McKinsey, BCG, Deloitte)",
+      "Academic papers (IEEE, arXiv)",
+      "Authoritative media (Reuters, Bloomberg, WSJ)"
+    ],
+    "validation": [
+      "Cross-reference multiple sources for market size",
+      "Use official statistics for baseline",
+      "Triangulate with expert interviews if needed"
+    ]
+  },
+  "outline": [
+    "Conclusion: Level 4 autonomous driving will not reach mass-market consumer adoption by 2030; the near-term opportunity is in robotaxis and commercial fleets in geofenced areas.",
+    "Technology and cost barriers remain significant: edge cases, sensor costs, and software reliability.",
+    "Regulatory fragmentation will slow deployment: China leads, US and EU lag.",
+    "Market sizing: robotaxi TAM of $XX billion by 2030, consumer Level 4 sales <5% of new cars.",
+    "Investment implications: focus on robotaxi operators, lidar suppliers, and simulation software; avoid consumer autonomous features for mass-market OEMs.",
+    "Key risks: safety incidents, regulatory backlash, and competition from Tesla's camera-only approach."
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "Robotaxi Cost per Mile vs Human-Driven Ride-Hailing (2024-2030)",
+      "description": "Line chart comparing cost per mile for Waymo, Cruise, Uber, and Lyft, with projections. Answers: When will robotaxis become cheaper?",
+      "data_needs": "Cost per mile data from company reports and analyst estimates."
+    },
+    {
+      "title": "Global Level 4 Autonomous Vehicle Sales Forecast by Region (2025-2030)",
+      "description": "Stacked bar chart showing units sold by region (China, US, EU, Rest of World). Answers: Which market will lead adoption?",
+      "data_needs": "Market forecasts from multiple consulting firms and government targets."
+    },
+    {
+      "title": "Lidar Cost Reduction Curve (2015-2030)",
+      "description": "Line chart showing average lidar cost per unit over time, with milestones. Answers: When will lidar become affordable for mass-market?",
+      "data_needs": "Historical pricing from teardowns and supplier roadmaps."
+    },
+    {
+      "title": "Consumer Willingness to Pay for Autonomous Features",
+      "description": "Bar chart showing maximum price consumers are willing to pay for Level 4 autonomy, segmented by income and region. Answers: Is there sufficient demand at current costs?",
+      "data_needs": "Survey data from J.D. Power, McKinsey, etc."
+    },
+    {
+      "title": "Regulatory Approval Timeline for Driverless Operations",
+      "description": "Gantt chart showing key regulatory milestones in China, US, and EU. Answers: How does regulation pace affect deployment?",
+      "data_needs": "Government announcements and permit databases."
+    }
+  ],
+  "risks": {
+    "numbers": "Market size forecasts, cost projections, penetration rates, revenue per vehicle, accident rates, insurance premiums.",
+    "cases": "Waymo, Cruise, Baidu, Tesla, Mobileye, Luminar, Uber, Lyft.",
+    "timeline_evidence": "Regulatory approval dates, deployment milestones, disengagement reports, funding rounds.",
+    "counter_evidence": "Tesla's FSD progress, unexpected regulatory breakthroughs, cost reductions faster than expected, consumer adoption spikes."
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "core_question": "When and under what conditions will Level 4 autonomous driving become commercially viable in major passenger car markets, and what is the addressable market size by 2030?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "The Southline project originated with the Grid Deployment Office (GDO) in 2023."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Level 4 autonomous driving will not achieve widespread consumer adoption in passenger cars before 2030 due to unresolved edge cases and regulatory hurdles.",
+      "decision_relevance": "If true, investment should focus on commercial fleets and geofenced services rather than consumer vehicles.",
+      "needed_evidence": [
+        "Data on current disengagement rates, regulatory approvals for driverless operations, and consumer surveys on trust."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Robotaxi services will achieve profitability in dense urban areas by 2027, driven by lower per-mile costs compared to human-driven ride-hailing.",
+      "decision_relevance": "If true, robotaxi operators will capture significant market share from Uber/Lyft.",
+      "needed_evidence": [
+        "Cost per mile data for robotaxis vs human drivers, utilization rates, and pricing strategies."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Regulatory approval for Level 4 autonomous driving will be granted first in China (e.g., Beijing, Shanghai) before the US or EU, due to more favorable government policies.",
+      "decision_relevance": "If true, China will lead in autonomous deployment and related supply chains.",
+      "needed_evidence": [
+        "Timeline of regulatory approvals in China vs US vs EU, number of autonomous vehicle permits issued."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The total addressable market for Level 4 autonomous vehicles in passenger transport will be less than 5% of new car sales by 2030, primarily limited to robotaxis and premium vehicles.",
+      "decision_relevance": "If true, mass-market OEMs should delay heavy investment in consumer autonomous features.",
+      "needed_evidence": [
+        "Market forecasts from multiple sources, adoption curves of past advanced technologies (e.g., EVs)."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Lidar costs will drop below $500 per unit by 2027, making it economically feasible for mass-market Level 4 systems.",
+      "decision_relevance": "If true, sensor cost reduction will accelerate adoption; if false, reliance on camera-only solutions (Tesla) may win.",
+      "needed_evidence": [
+        "Lidar pricing trends from suppliers (Luminar, Velodyne, Hesai), teardown reports."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Insurance premiums for Level 4 autonomous vehicles will be 30-50% lower than human-driven vehicles by 2028, due to fewer accidents.",
+      "decision_relevance": "If true, lower TCO will drive adoption; if false, insurance costs may offset savings.",
+      "needed_evidence": [
+        "Insurance data from autonomous vehicle pilots, accident rates per mile for autonomous vs human."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Consumer willingness to pay for Level 4 autonomy is less than $5,000 per vehicle, limiting adoption to high-end models.",
+      "decision_relevance": "If true, autonomous features will remain a premium option, not mass-market.",
+      "needed_evidence": [
+        "Consumer surveys on willingness to pay, conjoint analysis results."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total Addressable Market (TAM) = Global passenger vehicle sales * % of vehicles with Level 4 capability * average selling price premium",
+      "variables": [
+        "Global passenger vehicle sales (units)",
+        "Level 4 penetration rate (%)",
+        "ASP premium ($)"
+      ],
+      "known_limitations": [
+        "Assumes uniform adoption across regions; may overestimate if adoption is concentrated."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market Size = Sum over regions (Robotaxi fleet size * revenue per robotaxi + Consumer autonomous vehicle sales * ASP)",
+      "variables": [
+        "Robotaxi fleet size by city",
+        "Revenue per robotaxi per year",
+        "Consumer autonomous vehicle sales by region",
+        "ASP"
+      ],
+      "known_limitations": [
+        "Requires granular data that may not be publicly available; estimates may be speculative."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Potential adopters = Total population * % urban * % with high income * % willing to use autonomous mobility",
+      "variables": [
+        "Urban population",
+        "High-income population",
+        "Willingness to use autonomous mobility (%)",
+        "Adoption rate over time"
+      ],
+      "known_limitations": [
+        "Funnel conversion rates are uncertain; willingness may not translate to actual use."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value pool = (Cost savings from reduced accidents + time savings + fuel efficiency) * number of autonomous miles driven",
+      "variables": [
+        "Accident cost per mile",
+        "Value of time ($/hour)",
+        "Fuel savings per mile",
+        "Autonomous miles driven"
+      ],
+      "known_limitations": [
+        "Requires assumptions about utilization and behavioral changes; difficult to measure directly."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
