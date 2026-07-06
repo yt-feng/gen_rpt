@@ -101,6 +101,80 @@ class GitHubActionsWorker(WorkerInterface):
             print(f"[bulk] Exception dispatching slug={slug}: {e}")
             return False
 
+    async def dispatch_single_report(self, topic: str, slug: str, model: str = "deepseek-chat") -> bool:
+        """Dispatch a single job to generate_deep_research_v2.yml."""
+        if not settings.GITHUB_TOKEN:
+            print("GITHUB_TOKEN not set. Cannot dispatch v2 job to GitHub Actions.")
+            return False
+
+        url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/workflows/generate_deep_research_v2.yml/dispatches"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
+        payload = {
+            "ref": "main",
+            "inputs": {
+                "topic": topic,
+                "slug": slug,
+                "model": model,
+            }
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code == 204:
+                    print(f"[v2] Dispatched GHA for slug={slug}")
+                    return True
+                else:
+                    print(f"[v2] Failed to dispatch slug={slug}: {resp.status_code} - {resp.text}")
+                    return False
+        except Exception as e:
+            print(f"[v2] Exception dispatching slug={slug}: {e}")
+            return False
+
+async def delete_report_files_from_r2(slug: str) -> None:
+    """Delete all files belonging to a report slug in R2 to cleanly overwrite."""
+    from app.storage.provider import storage_provider
+    import asyncio
+    
+    if not storage_provider.is_configured:
+        return
+        
+    def _delete_prefix(prefix: str):
+        try:
+            paginator = storage_provider.s3_client.get_paginator('list_objects_v2')
+            for page in paginator.paginate(Bucket=storage_provider.bucket, Prefix=prefix):
+                if 'Contents' in page:
+                    objects_to_delete = [{'Key': obj['Key']} for obj in page['Contents']]
+                    storage_provider.s3_client.delete_objects(
+                        Bucket=storage_provider.bucket,
+                        Delete={'Objects': objects_to_delete}
+                    )
+                    print(f"[r2] Deleted {len(objects_to_delete)} objects for prefix {prefix}")
+        except Exception as e:
+            print(f"[r2] Exception deleting prefix {prefix}: {e}")
+
+    # The GHA output could be under reports/{slug}/ or reports_web/{slug}/ (and potentially prepended with a date).
+    # Since we know the slug uniquely identifies the job, we'll try to find the full folder prefix first.
+    def _find_and_delete():
+        deleted = False
+        for base_prefix in ['reports/', 'reports_web/']:
+            res = storage_provider.s3_client.list_objects_v2(
+                Bucket=storage_provider.bucket, Prefix=base_prefix, Delimiter='/'
+            )
+            for prefix_obj in res.get('CommonPrefixes', []):
+                folder = prefix_obj['Prefix']
+                if slug in folder:
+                    _delete_prefix(folder)
+                    deleted = True
+        return deleted
+
+    from anyio import to_thread
+    await to_thread.run_sync(_find_and_delete)
+
 async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
     """
     Tries to load the web_report_payload.json from R2 to get real report content.

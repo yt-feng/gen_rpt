@@ -346,6 +346,33 @@ async def revise_section(
         return error_response(message="Report not found")
 
     report = MOCK_REPORTS[document_id]
+    
+    if req.section_heading == "Overall Report":
+        # Full report regeneration
+        title = report.get("title", "")
+        industry = report.get("industry", "")
+        topic_input = title
+        if industry:
+            topic_input = f"{title} (Sector: {industry})"
+            
+        slug = report.get("slug") or document_id
+        
+        # 1. Delete previous files from R2
+        from app.services.generation import delete_report_files_from_r2, GitHubActionsWorker
+        await delete_report_files_from_r2(slug)
+        
+        # 2. Dispatch GHA workflow
+        worker = GitHubActionsWorker()
+        success = await worker.dispatch_single_report(topic=topic_input, slug=slug)
+        
+        if success:
+            # Update status to running so frontend queue updates
+            report["status"] = "running"
+            report["humanStatus"] = "Regenerating"
+            return success_response(data=report, message="Full report regeneration started.")
+        else:
+            return error_response(message="Failed to dispatch full report regeneration to GitHub Actions.")
+
     original_text = ""
     target_section = None
     
