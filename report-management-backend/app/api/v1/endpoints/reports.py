@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from typing import List
@@ -343,7 +343,7 @@ async def revise_section(
     import os
 
     if document_id not in MOCK_REPORTS:
-        return error_response(message="Report not found")
+        raise HTTPException(status_code=404, detail="Report not found")
 
     report = MOCK_REPORTS[document_id]
     
@@ -371,7 +371,7 @@ async def revise_section(
             report["humanStatus"] = "Regenerating"
             return success_response(data=report, message="Full report regeneration started.")
         else:
-            return error_response(message="Failed to dispatch full report regeneration to GitHub Actions.")
+            raise HTTPException(status_code=500, detail="Failed to dispatch full report regeneration to GitHub Actions.")
 
     original_text = ""
     target_section = None
@@ -383,7 +383,7 @@ async def revise_section(
             break
             
     if not target_section:
-        return error_response(message="Section not found in report")
+        raise HTTPException(status_code=404, detail="Section not found in report")
 
     api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
     
