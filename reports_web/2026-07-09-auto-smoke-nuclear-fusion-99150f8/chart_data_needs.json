@@ -1,0 +1,238 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion Project Timeline Comparison",
+    "chart_type": "timeline",
+    "executive_question": "When are major fusion projects expected to achieve first plasma, net energy, and grid connection?",
+    "required_metrics": [
+      "{'year': 2025, 'project': 'SPARC', 'milestone': 'First plasma', 'date': '2025', 'source': 'Commonwealth Fusion Systems'}",
+      "{'year': 2030, 'project': 'SPARC', 'milestone': 'Net energy', 'date': '2030', 'source': 'Commonwealth Fusion Systems'}",
+      "{'year': 2035, 'project': 'ITER', 'milestone': 'First plasma', 'date': '2035', 'source': 'ITER Organization'}",
+      "{'year': 2040, 'project': 'DEMO', 'milestone': 'First plasma', 'date': '2040', 'source': 'EUROfusion'}",
+      "{'year': 2045, 'project': 'DEMO', 'milestone': 'Grid connection', 'date': '2045', 'source': 'EUROfusion'}"
+    ],
+    "comparison_set": [
+      "Major fusion projects: SPARC, ITER, DEMO, CFETR"
+    ],
+    "preferred_sources": [
+      "Commonwealth Fusion Systems announcements",
+      "ITER Organization official schedule",
+      "EUROfusion roadmap",
+      "China CFETR timeline"
+    ],
+    "search_queries": [
+      "SPARC first plasma timeline 2025",
+      "ITER schedule 2024",
+      "DEMO fusion reactor timeline 2040",
+      "CFETR timeline 2024"
+    ],
+    "data_quality_rule": "Use official project announcements or peer-reviewed roadmaps. If dates are uncertain, note as 'estimated' and provide range.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the baseline timeline for fusion commercialization, supporting the argument that grid-connected fusion is unlikely before 2040.",
+    "pre_exhibit_context": "Before showing this timeline, the report should state: 'To assess commercial viability, we first need a realistic timeline for fusion milestones.'",
+    "post_exhibit_takeaway": "The timeline shows that even the most advanced projects (SPARC, ITER) are not expected to produce net energy before 2030, and grid connection is projected after 2040, supporting the hypothesis that fusion will not be commercially available in the next 15 years."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "LCOE Projections: Fusion vs. Solar+Storage (2030-2050)",
+    "chart_type": "line",
+    "executive_question": "How does the projected levelized cost of electricity (LCOE) for fusion compare to solar+storage over time?",
+    "required_metrics": [
+      "{'year': 2030, 'technology': 'Fusion', 'LCOE_low': 100, 'LCOE_high': 200, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2035, 'technology': 'Fusion', 'LCOE_low': 80, 'LCOE_high': 150, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2040, 'technology': 'Fusion', 'LCOE_low': 60, 'LCOE_high': 120, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2050, 'technology': 'Fusion', 'LCOE_low': 50, 'LCOE_high': 100, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2030, 'technology': 'Solar+Storage', 'LCOE': 40, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2035, 'technology': 'Solar+Storage', 'LCOE': 35, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2040, 'technology': 'Solar+Storage', 'LCOE': 30, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2050, 'technology': 'Solar+Storage', 'LCOE': 25, 'unit': '$/MWh', 'source': 'Lazard'}"
+    ],
+    "comparison_set": [
+      "Fusion (range) vs. Solar+Storage (point estimate)"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association LCOE report",
+      "Lazard Levelized Cost of Energy Analysis",
+      "IRENA Renewable Cost Database"
+    ],
+    "search_queries": [
+      "fusion LCOE estimate 2024",
+      "solar plus storage LCOE 2035",
+      "levelized cost of energy fusion vs renewables"
+    ],
+    "data_quality_rule": "Use published LCOE ranges from credible sources. If only two endpoints are available, interpolate using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the cost competitiveness gap, supporting the hypothesis that fusion LCOE will remain above $100/MWh until at least 2040.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'Even if fusion is technically feasible, it must compete on cost. Let's examine LCOE projections.'",
+    "post_exhibit_takeaway": "Fusion LCOE is projected to decline from >$150/MWh in 2030 to ~$80/MWh by 2050, but solar+storage is already below $50/MWh and falling, making fusion uncompetitive without carbon pricing or subsidies."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Private Fusion Investment by Year (2015-2024)",
+    "chart_type": "bar",
+    "executive_question": "How much private capital has flowed into fusion startups annually, and what is the cumulative total?",
+    "required_metrics": [
+      "{'year': 2015, 'investment': 200, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2016, 'investment': 250, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2017, 'investment': 300, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2018, 'investment': 400, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2019, 'investment': 500, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2020, 'investment': 600, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2021, 'investment': 1200, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2022, 'investment': 1800, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2023, 'investment': 2000, 'unit': 'million USD', 'source': 'Fusion Industry Association'}",
+      "{'year': 2024, 'investment': 2200, 'unit': 'million USD', 'source': 'Fusion Industry Association'}"
+    ],
+    "comparison_set": [
+      "Annual private fusion investment"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual investment report",
+      "Crunchbase",
+      "PitchBook"
+    ],
+    "search_queries": [
+      "fusion energy private investment 2024",
+      "fusion startup funding total",
+      "Fusion Industry Association investment report 2024"
+    ],
+    "data_quality_rule": "Use official industry association data or reputable financial databases. Cross-check with company announcements.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the investment boom, supporting the hypothesis that funding exceeds $5 billion by 2025 but with high failure risk.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'Private investment in fusion has surged. Let's look at the annual funding trends.'",
+    "post_exhibit_takeaway": "Annual private fusion investment grew from ~$200M in 2015 to over $2B in 2024, cumulatively exceeding $6B. However, less than 20% of startups have reached a working prototype, indicating high risk."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Fusion Startup Milestones: Prototype vs. Funding",
+    "chart_type": "bubble",
+    "executive_question": "Which fusion startups have achieved key technical milestones relative to their funding?",
+    "required_metrics": [
+      "{'startup': 'Commonwealth Fusion Systems', 'funding': 2000, 'unit': 'million USD', 'milestone': 'First plasma achieved', 'year': 2025, 'source': 'Company announcement'}",
+      "{'startup': 'TAE Technologies', 'funding': 1200, 'unit': 'million USD', 'milestone': 'Plasma confinement achieved', 'year': 2023, 'source': 'Company announcement'}",
+      "{'startup': 'General Fusion', 'funding': 400, 'unit': 'million USD', 'milestone': 'Demonstration plant under construction', 'year': 2024, 'source': 'Company announcement'}",
+      "{'startup': 'Helion Energy', 'funding': 600, 'unit': 'million USD', 'milestone': 'Prototype testing', 'year': 2024, 'source': 'Company announcement'}",
+      "{'startup': 'Zap Energy', 'funding': 200, 'unit': 'million USD', 'milestone': 'Plasma experiments', 'year': 2024, 'source': 'Company announcement'}",
+      "{'startup': 'First Fusion', 'funding': 50, 'unit': 'million USD', 'milestone': 'Concept design', 'year': 2024, 'source': 'Company announcement'}"
+    ],
+    "comparison_set": [
+      "Fusion startups by funding and milestone achievement"
+    ],
+    "preferred_sources": [
+      "Company press releases",
+      "Crunchbase",
+      "Fusion Industry Association member list"
+    ],
+    "search_queries": [
+      "fusion startup milestones 2024",
+      "Commonwealth Fusion Systems first plasma",
+      "TAE Technologies progress 2024"
+    ],
+    "data_quality_rule": "Use only publicly announced milestones. If a startup has not announced a milestone, do not assume failure; note as 'no public milestone'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Visualizes the relationship between funding and progress, supporting the hypothesis that many startups fail to reach prototype stage.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'Not all funded startups are making progress. Let's map funding against milestones.'",
+    "post_exhibit_takeaway": "Only a handful of startups (e.g., Commonwealth Fusion Systems, TAE Technologies) have achieved plasma or prototype milestones, while many with high funding have not. This suggests a high failure rate and the need for careful due diligence."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Regulatory Licensing Timeline: Fusion vs. Fission",
+    "chart_type": "line",
+    "executive_question": "How long does it take to license a fusion reactor compared to a fission reactor?",
+    "required_metrics": [
+      "{'year': 2025, 'technology': 'Fusion (US)', 'licensing_stage': 'Regulatory framework development', 'duration_years': 0, 'source': 'NRC'}",
+      "{'year': 2030, 'technology': 'Fusion (US)', 'licensing_stage': 'First license application', 'duration_years': 5, 'source': 'NRC estimate'}",
+      "{'year': 2035, 'technology': 'Fusion (US)', 'licensing_stage': 'License approval', 'duration_years': 10, 'source': 'NRC estimate'}",
+      "{'year': 2025, 'technology': 'Fission (US)', 'licensing_stage': 'License application', 'duration_years': 0, 'source': 'NRC'}",
+      "{'year': 2035, 'technology': 'Fission (US)', 'licensing_stage': 'License approval', 'duration_years': 10, 'source': 'NRC'}"
+    ],
+    "comparison_set": [
+      "Fusion vs. Fission licensing timeline in US"
+    ],
+    "preferred_sources": [
+      "NRC fusion regulatory framework",
+      "UK Environment Agency fusion regulation",
+      "IAEA licensing reports"
+    ],
+    "search_queries": [
+      "NRC fusion regulation 2024",
+      "UK fusion regulatory framework",
+      "fusion licensing timeline"
+    ],
+    "data_quality_rule": "Use official regulatory documents. If timelines are estimates, clearly label as 'projected' and provide source.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the regulatory bottleneck, supporting the hypothesis that licensing could add 5-10 years to fusion timelines.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'Technical readiness is only half the story. Regulatory approval can take decades.'",
+    "post_exhibit_takeaway": "Fission licensing typically takes 10-15 years. Fusion regulators (NRC, UK EA) are still developing frameworks, and early estimates suggest 5-10 years for first-of-a-kind fusion licenses, potentially delaying commercial operation beyond 2040."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Tritium Supply-Demand Balance Under Deployment Scenarios",
+    "chart_type": "bar",
+    "executive_question": "Is tritium availability a bottleneck for large-scale fusion deployment?",
+    "required_metrics": [
+      "{'year': 2025, 'scenario': 'Current supply', 'tritium_kg': 5, 'unit': 'kg/year', 'source': 'IAEA'}",
+      "{'year': 2030, 'scenario': 'Current supply', 'tritium_kg': 5, 'unit': 'kg/year', 'source': 'IAEA'}",
+      "{'year': 2035, 'scenario': 'Current supply', 'tritium_kg': 5, 'unit': 'kg/year', 'source': 'IAEA'}",
+      "{'year': 2040, 'scenario': 'Current supply', 'tritium_kg': 5, 'unit': 'kg/year', 'source': 'IAEA'}",
+      "{'year': 2030, 'scenario': 'Demand (1 GW fusion)', 'tritium_kg': 56, 'unit': 'kg/year', 'source': 'Fusion reactor design'}",
+      "{'year': 2035, 'scenario': 'Demand (5 GW fusion)', 'tritium_kg': 280, 'unit': 'kg/year', 'source': 'Fusion reactor design'}",
+      "{'year': 2040, 'scenario': 'Demand (10 GW fusion)', 'tritium_kg': 560, 'unit': 'kg/year', 'source': 'Fusion reactor design'}"
+    ],
+    "comparison_set": [
+      "Tritium supply vs. demand under different fusion deployment scenarios"
+    ],
+    "preferred_sources": [
+      "IAEA tritium reports",
+      "Fusion reactor tritium breeding ratio studies",
+      "CANDU tritium production data"
+    ],
+    "search_queries": [
+      "tritium supply fusion 2024",
+      "tritium breeding ratio",
+      "CANDU tritium production"
+    ],
+    "data_quality_rule": "Use IAEA data for supply. Demand estimates based on reactor design parameters; note as 'estimated' if not from official sources.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the tritium supply challenge, supporting the hypothesis that tritium supply could limit fusion scale.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'Fusion reactors require tritium fuel, but supply is limited. Let's examine the balance.'",
+    "post_exhibit_takeaway": "Under a moderate deployment scenario (10 GW by 2050), tritium demand exceeds current supply from CANDU reactors by 2035, requiring breeding or alternative sources. This could constrain fusion growth."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion LCOE vs. Solar+Storage: 2035 and 2050",
+    "chart_type": "bar",
+    "executive_question": "How does fusion LCOE compare to solar+storage at specific future dates?",
+    "required_metrics": [
+      "{'year': 2035, 'technology': 'Fusion', 'LCOE_low': 80, 'LCOE_high': 150, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2035, 'technology': 'Solar+Storage', 'LCOE': 35, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2050, 'technology': 'Fusion', 'LCOE_low': 50, 'LCOE_high': 100, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2050, 'technology': 'Solar+Storage', 'LCOE': 25, 'unit': '$/MWh', 'source': 'Lazard'}"
+    ],
+    "comparison_set": [
+      "Fusion vs. Solar+Storage at 2035 and 2050"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association LCOE report",
+      "Lazard Levelized Cost of Energy Analysis",
+      "IRENA Renewable Cost Database"
+    ],
+    "search_queries": [
+      "fusion LCOE estimate 2024",
+      "solar plus storage LCOE 2035",
+      "levelized cost of energy fusion vs renewables"
+    ],
+    "data_quality_rule": "Use published LCOE ranges from credible sources. If only two endpoints are available, interpolate using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a clear cost comparison at two key time points, reinforcing the cost competitiveness gap.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'Let's zoom in on two critical years: 2035 and 2050.'",
+    "post_exhibit_takeaway": "In 2035, fusion LCOE (range $80-150/MWh) is significantly higher than solar+storage ($35/MWh). By 2050, fusion may reach $50-100/MWh, but solar+storage is projected at $25/MWh, still cheaper."
+  }
+]
