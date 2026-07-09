@@ -896,3 +896,83 @@ async def replace_report_image(
         data={"key": safe_key, "url": new_url},
         message="Image replaced successfully",
     )
+
+
+class ImageRegenerateRequest(BaseModel):
+    image_key: str = Field(..., description="The key of the image to replace, e.g. image-0.png")
+    prompt: str = Field(..., description="Briefing about image to generate")
+
+@router.post("/{document_id}/regenerate-image", response_model=APIResponse[dict])
+async def regenerate_report_image(
+    document_id: str,
+    payload: ImageRegenerateRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Simulates AI Image Generation based on a text prompt.
+    The new image is generated and overwrites the existing image in R2.
+    """
+    from app.storage.provider import storage_provider
+    import httpx
+    import asyncio
+
+    # Locate report in memory cache
+    report = MOCK_REPORTS.get(document_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    slug = report.get("slug") or document_id
+    r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
+    if r2_prefix and not r2_prefix.endswith("/"):
+        r2_prefix += "/"
+
+    # Safety: only allow replacing known image files
+    safe_key = payload.image_key.split("/")[-1]
+    if not (safe_key.endswith(".png") or safe_key.endswith(".jpg") or safe_key.endswith(".jpeg")):
+        raise HTTPException(status_code=400, detail="Only PNG and JPG images are supported")
+
+    r2_key = f"{r2_prefix}current/assets/{safe_key}"
+    print(f"[regenerate-image] Starting AI generation for {safe_key} with prompt: {payload.prompt}")
+
+    # Simulate AI Generation (e.g. 2-3 seconds delay)
+    await asyncio.sleep(2)
+    
+    # Download a placeholder image dynamically based on the prompt text
+    display_text = payload.prompt[:30].replace(' ', '+')
+    placeholder_url = f"https://placehold.co/800x600/png?text=AI+Gen:+{display_text}"
+    
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            resp = await client.get(placeholder_url)
+            resp.raise_for_status()
+            content_bytes = resp.content
+    except Exception as e:
+        print(f"[regenerate-image] Failed to download mock generated image: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate AI image")
+
+    if not content_bytes:
+        raise HTTPException(status_code=500, detail="Generated image is empty")
+
+    content_type = "image/png"
+
+    # PUT to R2 (idempotent — overwrites existing object at same key)
+    success = await storage_provider.upload(content_bytes, r2_key, content_type)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to upload AI generated image to R2")
+
+    # Generate a fresh presigned GET URL for the new image
+    new_url = await storage_provider.get_signed_url(r2_key, expiration_sec=3600)
+
+    # Update in-memory cache so subsequent GET /reports/:id returns the fresh URL
+    report_content = report.get("reportContent", {})
+    for img in report_content.get("images", []):
+        if img.get("key") == safe_key:
+            img["url"] = new_url
+            break
+
+    print(f"[regenerate-image] Successfully generated and replaced {safe_key} for document {document_id}")
+    return success_response(
+        data={"key": safe_key, "url": new_url},
+        message="Image regenerated successfully",
+    )
