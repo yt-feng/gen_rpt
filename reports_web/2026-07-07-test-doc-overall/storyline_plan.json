@@ -1,0 +1,120 @@
+{
+  "core_question": "Where and when will Level 4/5 autonomous driving achieve commercial viability at scale, and which business models (robotaxi, autonomous trucking, personal AV) will generate the highest returns?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, funding",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "Power willingness to pay autonomous driving 2024",
+    "The Southline project originated with the Grid Deployment Office (GDO) in 2023."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Robotaxis will achieve commercial viability in dense urban areas by 2027, with unit economics breakeven at $0.50 per mile.",
+      "decision_relevance": "Determines whether to invest in robotaxi fleets vs. other AV applications.",
+      "needed_evidence": [
+        "TCO breakdown for robotaxis (vehicle cost, sensors, maintenance, insurance, charging, remote ops) and revenue per mile from pilot programs."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Autonomous trucking will reach Level 4 on highways by 2026, reducing long-haul costs by 30%.",
+      "decision_relevance": "Guides investment in trucking automation vs. other segments.",
+      "needed_evidence": [
+        "Pilot data on fuel savings, driver cost elimination, and accident rates; regulatory approvals for driverless trucks."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Consumer willingness to pay for Level 4 personal AVs will be less than $5,000, limiting adoption to luxury segments.",
+      "decision_relevance": "Impacts product strategy for OEMs considering AV options.",
+      "needed_evidence": [
+        "Survey data on consumer willingness to pay, price elasticity, and feature valuation."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China will lead in AV deployment by 2028 due to favorable regulation and high EV adoption, capturing 40% of global robotaxi miles.",
+      "decision_relevance": "Informs geographic allocation of R&D and partnerships.",
+      "needed_evidence": [
+        "Regulatory timelines in China vs. US/EU, robotaxi pilot scale (Baidu, Pony.ai), EV penetration as proxy for AV readiness."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Lidar costs will drop below $500 per unit by 2026, enabling mass-market AV deployment.",
+      "decision_relevance": "Affects sensor strategy and supplier selection.",
+      "needed_evidence": [
+        "Lidar pricing trends from manufacturers (Luminar, Hesai, Valeo), teardown reports, and volume forecasts."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Regulatory approval for driverless AVs without safety drivers will remain limited to 10 cities globally by 2027.",
+      "decision_relevance": "Constrains addressable market and scaling timeline.",
+      "needed_evidence": [
+        "List of cities with driverless AV permits, regulatory frameworks (NHTSA, EU, China), and pace of new approvals."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Autonomous driving will reduce accident rates by 50% in early deployment areas, but public trust will remain low until 2030.",
+      "decision_relevance": "Affects marketing, insurance, and liability strategies.",
+      "needed_evidence": [
+        "Accident data from Waymo, Cruise, and Tesla FSD; public opinion polls on AV safety."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market = (Global vehicle miles traveled) * (AV penetration rate) * (revenue per mile)",
+      "variables": [
+        "Global VMT (from DOT/statista)",
+        "AV penetration rate (from adoption curve assumptions)",
+        "Revenue per mile (from robotaxi/trucking pricing)"
+      ],
+      "known_limitations": [
+        "Penetration rate is highly uncertain; top-down can overestimate if adoption is slower."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Sum over segments (Number of AVs deployed * Average revenue per AV per year)",
+      "variables": [
+        "Number of AVs by segment (robotaxi, trucking, personal) from company announcements and pilot data",
+        "Revenue per AV (subscription, per-mile, or purchase premium)"
+      ],
+      "known_limitations": [
+        "Requires granular data on deployments, which may be proprietary; scaling from pilots to mass market is uncertain."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Market size = (Target population) * (Awareness) * (Interest) * (Trial) * (Adoption) * (Revenue per user)",
+      "variables": [
+        "Target population (urban drivers, fleet operators)",
+        "Funnel conversion rates from surveys and pilot data",
+        "Revenue per user (subscription or per-mile)"
+      ],
+      "known_limitations": [
+        "Funnel rates are speculative; limited public data on conversion."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value pool = (Cost savings from AV) + (New revenue from mobility services) - (Implementation costs)",
+      "variables": [
+        "Cost savings (driver cost elimination, fuel efficiency, accident reduction)",
+        "New revenue (robotaxi, data monetization)",
+        "Implementation costs (R&D, infrastructure)"
+      ],
+      "known_limitations": [
+        "Requires assumptions on cost curves and adoption; value may be double-counted."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

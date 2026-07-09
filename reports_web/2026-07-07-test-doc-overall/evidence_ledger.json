@@ -1,0 +1,47 @@
+[
+  {
+    "id": "E1",
+    "fact": "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+    "value": null,
+    "unit": "year",
+    "display_value": "2025",
+    "year": 2025,
+    "metric_family": "funding",
+    "source_title": "U.S. DOE Office of Electricity",
+    "source_url": "https://www.energy.gov/oe/office-electricity",
+    "domain": "energy.gov",
+    "source_type": "html",
+    "authoritative": true,
+    "score": 11
+  },
+  {
+    "id": "E2",
+    "fact": "Power willingness to pay autonomous driving 2024",
+    "value": null,
+    "unit": "year",
+    "display_value": "2024",
+    "year": 2024,
+    "metric_family": "timeline",
+    "source_title": "IEA energy storage",
+    "source_url": "https://www.iea.org/energy-system/electricity/grid-scale-storage",
+    "domain": "iea.org",
+    "source_type": "snippet",
+    "authoritative": true,
+    "score": 10
+  },
+  {
+    "id": "E3",
+    "fact": "The Southline project originated with the Grid Deployment Office (GDO) in 2023.",
+    "value": null,
+    "unit": "year",
+    "display_value": "2023",
+    "year": 2023,
+    "metric_family": "timeline",
+    "source_title": "U.S. DOE Office of Electricity",
+    "source_url": "https://www.energy.gov/oe/office-electricity",
+    "domain": "energy.gov",
+    "source_type": "html",
+    "authoritative": true,
+    "score": 10
+  }
+]

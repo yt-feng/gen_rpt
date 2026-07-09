@@ -1,0 +1,604 @@
+{
+  "decision_question": "Where and when will Level 4/5 autonomous driving achieve commercial viability at scale, and which business models (robotaxi, autonomous trucking, personal AV) will generate the highest returns?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Robotaxis will achieve commercial viability in dense urban areas by 2027, with unit economics breakeven at $0.50 per mile.",
+      "decision_relevance": "Determines whether to invest in robotaxi fleets vs. other AV applications.",
+      "needed_evidence": [
+        "TCO breakdown for robotaxis (vehicle cost, sensors, maintenance, insurance, charging, remote ops) and revenue per mile from pilot programs."
+      ],
+      "search_queries": [
+        "Waymo robotaxi cost per mile 2024",
+        "Cruise autonomous vehicle operating cost",
+        "robotaxi unit economics breakdown"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Autonomous trucking will reach Level 4 on highways by 2026, reducing long-haul costs by 30%.",
+      "decision_relevance": "Guides investment in trucking automation vs. other segments.",
+      "needed_evidence": [
+        "Pilot data on fuel savings, driver cost elimination, and accident rates; regulatory approvals for driverless trucks."
+      ],
+      "search_queries": [
+        "autonomous trucking cost savings per mile",
+        "TuSimple Level 4 highway pilot results",
+        "regulatory approval autonomous trucks 2025"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Consumer willingness to pay for Level 4 personal AVs will be less than $5,000, limiting adoption to luxury segments.",
+      "decision_relevance": "Impacts product strategy for OEMs considering AV options.",
+      "needed_evidence": [
+        "Survey data on consumer willingness to pay, price elasticity, and feature valuation."
+      ],
+      "search_queries": [
+        "consumer willingness to pay for autonomous driving features 2024",
+        "autonomous driving option price premium",
+        "J.D. Power autonomous driving consumer survey"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "China will lead in AV deployment by 2028 due to favorable regulation and high EV adoption, capturing 40% of global robotaxi miles.",
+      "decision_relevance": "Informs geographic allocation of R&D and partnerships.",
+      "needed_evidence": [
+        "Regulatory timelines in China vs. US/EU, robotaxi pilot scale (Baidu, Pony.ai), EV penetration as proxy for AV readiness."
+      ],
+      "search_queries": [
+        "China autonomous driving regulations 2025",
+        "Baidu Apollo robotaxi miles 2024",
+        "EV penetration China 2024"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Lidar costs will drop below $500 per unit by 2026, enabling mass-market AV deployment.",
+      "decision_relevance": "Affects sensor strategy and supplier selection.",
+      "needed_evidence": [
+        "Lidar pricing trends from manufacturers (Luminar, Hesai, Valeo), teardown reports, and volume forecasts."
+      ],
+      "search_queries": [
+        "lidar cost per unit 2024 2025 forecast",
+        "Luminar lidar price volume",
+        "automotive lidar cost reduction roadmap"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Regulatory approval for driverless AVs without safety drivers will remain limited to 10 cities globally by 2027.",
+      "decision_relevance": "Constrains addressable market and scaling timeline.",
+      "needed_evidence": [
+        "List of cities with driverless AV permits, regulatory frameworks (NHTSA, EU, China), and pace of new approvals."
+      ],
+      "search_queries": [
+        "cities with driverless autonomous vehicle permits 2024",
+        "NHTSA autonomous vehicle regulations 2025",
+        "EU autonomous driving legislation"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Autonomous driving will reduce accident rates by 50% in early deployment areas, but public trust will remain low until 2030.",
+      "decision_relevance": "Affects marketing, insurance, and liability strategies.",
+      "needed_evidence": [
+        "Accident data from Waymo, Cruise, and Tesla FSD; public opinion polls on AV safety."
+      ],
+      "search_queries": [
+        "Waymo accident rate per mile 2024",
+        "public trust in autonomous vehicles 2024 survey",
+        "autonomous vehicle safety statistics"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Future of Autonomous Driving (Sector: Automotive), and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total addressable market = (Global vehicle miles traveled) * (AV penetration rate) * (revenue per mile)",
+        "variables": [
+          "Global VMT (from DOT/statista)",
+          "AV penetration rate (from adoption curve assumptions)",
+          "Revenue per mile (from robotaxi/trucking pricing)"
+        ],
+        "preferred_sources": [
+          "US DOT FHWA",
+          "Statista",
+          "IEA"
+        ],
+        "search_queries": [
+          "global vehicle miles traveled 2024",
+          "US vehicle miles traveled 2024",
+          "robotaxi revenue per mile forecast"
+        ],
+        "known_limitations": [
+          "Penetration rate is highly uncertain; top-down can overestimate if adoption is slower."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Sum over segments (Number of AVs deployed * Average revenue per AV per year)",
+        "variables": [
+          "Number of AVs by segment (robotaxi, trucking, personal) from company announcements and pilot data",
+          "Revenue per AV (subscription, per-mile, or purchase premium)"
+        ],
+        "preferred_sources": [
+          "Company filings (Waymo, Cruise, Tesla, Baidu)",
+          "Industry reports (McKinsey, BCG)"
+        ],
+        "search_queries": [
+          "Waymo fleet size 2024",
+          "Cruise robotaxi fleet size",
+          "autonomous trucking fleet size 2024"
+        ],
+        "known_limitations": [
+          "Requires granular data on deployments, which may be proprietary; scaling from pilots to mass market is uncertain."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Market size = (Target population) * (Awareness) * (Interest) * (Trial) * (Adoption) * (Revenue per user)",
+        "variables": [
+          "Target population (urban drivers, fleet operators)",
+          "Funnel conversion rates from surveys and pilot data",
+          "Revenue per user (subscription or per-mile)"
+        ],
+        "preferred_sources": [
+          "Consumer surveys (J.D. Power, Deloitte)",
+          "Pilot program conversion data"
+        ],
+        "search_queries": [
+          "autonomous vehicle consumer adoption funnel",
+          "AV trial to adoption rate",
+          "robotaxi subscription pricing"
+        ],
+        "known_limitations": [
+          "Funnel rates are speculative; limited public data on conversion."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Value pool = (Cost savings from AV) + (New revenue from mobility services) - (Implementation costs)",
+        "variables": [
+          "Cost savings (driver cost elimination, fuel efficiency, accident reduction)",
+          "New revenue (robotaxi, data monetization)",
+          "Implementation costs (R&D, infrastructure)"
+        ],
+        "preferred_sources": [
+          "TCO models from consulting reports",
+          "Insurance data",
+          "Fuel savings studies"
+        ],
+        "search_queries": [
+          "autonomous driving cost savings trucking",
+          "robotaxi value pool 2030",
+          "AV accident cost savings"
+        ],
+        "known_limitations": [
+          "Requires assumptions on cost curves and adoption; value may be double-counted."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Global vehicle miles traveled (VMT) by region (US, EU, China) - annual data from DOT, Eurostat, China NBS",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Number of Level 4 AVs deployed in pilot programs (Waymo, Cruise, Baidu, Pony.ai) - from company reports and news",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Consumer willingness to pay for AV features - survey data from J.D. Power, Deloitte, McKinsey",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Average revenue per mile for robotaxis (Waymo, Cruise) - from pilot pricing and analyst estimates",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Total cost of ownership for robotaxis (vehicle, sensors, maintenance, insurance, remote ops) - from teardown reports and company disclosures",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Lidar and sensor costs (per unit, historical and forecast) - from Luminar, Hesai, Valeo earnings and teardowns",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Regulatory approvals for driverless AVs (number of cities, permits issued) - from NHTSA, EU Commission, China MIIT",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Funding and investment in AV startups (annual totals, by segment) - from PitchBook, CB Insights",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D9",
+      "metric": "Market share of AV technology providers (Waymo, Cruise, Tesla, Mobileye, Baidu) - from sales, partnerships, and deployment data",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D10",
+      "metric": "Accident rates for AVs vs. human drivers - from Waymo, Cruise safety reports and NHTSA data",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D11",
+      "metric": "Timeline evidence: milestones in AV development (e.g., first driverless ride, first commercial deployment) - from news archives and company timelines",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D12",
+      "metric": "Electric vehicle penetration as proxy for AV readiness (EV share of new car sales) - from IEA, BloombergNEF",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Robotaxi Cost per Mile vs. Revenue per Mile (2024-2030)",
+      "chart_type": "line",
+      "executive_question": "When will robotaxis achieve unit economic breakeven?",
+      "required_metrics": [
+        "Year: 2024, 2025, 2026, 2027, 2028, 2029, 2030",
+        "Cost per mile (USD): Waymo, Cruise, Baidu Apollo",
+        "Revenue per mile (USD): Waymo, Cruise, Baidu Apollo"
+      ],
+      "comparison_set": [
+        "Waymo vs. Cruise vs. Baidu Apollo"
+      ],
+      "preferred_sources": [
+        "Waymo annual reports and safety reports",
+        "Cruise blog posts and investor updates",
+        "Baidu Apollo financial disclosures"
+      ],
+      "search_queries": [
+        "Waymo cost per mile 2024 annual report",
+        "Cruise revenue per mile 2024",
+        "Baidu Apollo robotaxi pricing per mile"
+      ],
+      "data_quality_rule": "Use only publicly reported figures from company filings or official announcements. If annual data is missing for some years, interpolate using CAGR from available endpoints and mark as estimate.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Demonstrate the declining cost curve and revenue trajectory to pinpoint the breakeven year.",
+      "pre_exhibit_context": "We claim robotaxis will be commercially viable by 2027. This chart tests that claim by comparing cost and revenue per mile over time.",
+      "post_exhibit_takeaway": "Robotaxis are on track to breakeven around 2027, with costs falling below $0.50/mile and revenue stabilizing near $0.60/mile."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Autonomous Trucking Cost Savings per Mile (Traditional vs. Autonomous)",
+      "chart_type": "bar",
+      "executive_question": "How much cost reduction can autonomous trucking deliver?",
+      "required_metrics": [
+        "Cost per mile (USD) for traditional long-haul trucking: driver, fuel, maintenance, insurance, other",
+        "Cost per mile (USD) for autonomous trucking: same categories, with driver cost replaced by remote ops and technology amortization",
+        "Year: 2024 or latest available"
+      ],
+      "comparison_set": [
+        "Traditional vs. Autonomous (Level 4 highway)"
+      ],
+      "preferred_sources": [
+        "American Transportation Research Institute (ATRI) operational costs report",
+        "TuSimple and Plus investor presentations",
+        "McKinsey or BCG reports on autonomous trucking economics"
+      ],
+      "search_queries": [
+        "ATRI trucking operational cost per mile 2024",
+        "TuSimple autonomous trucking cost savings per mile",
+        "autonomous trucking total cost of ownership breakdown"
+      ],
+      "data_quality_rule": "Use ATRI data for traditional costs; for autonomous, use company pilot data or consulting estimates. Clearly label estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantify the value proposition of autonomous trucking by breaking down cost components.",
+      "pre_exhibit_context": "We hypothesize autonomous trucking will reduce long-haul costs by 30% by 2026. This exhibit validates that claim.",
+      "post_exhibit_takeaway": "Autonomous trucking can save $0.30-$0.50 per mile, primarily from eliminating driver costs and improving fuel efficiency."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Consumer Willingness to Pay for Level 4 AV Features (US, China, Europe)",
+      "chart_type": "bar",
+      "executive_question": "What price premium can OEMs charge for Level 4 autonomy?",
+      "required_metrics": [
+        "Region: US, China, Europe",
+        "Willingness to pay (USD) for Level 4 autonomy feature",
+        "Survey year: 2024"
+      ],
+      "comparison_set": [
+        "US vs. China vs. Europe"
+      ],
+      "preferred_sources": [
+        "J.D. Power 2024 Mobility Confidence Index Study",
+        "Deloitte 2024 Global Automotive Consumer Study",
+        "McKinsey 2024 consumer survey on AV"
+      ],
+      "search_queries": [
+        "J.D. Power willingness to pay autonomous driving 2024",
+        "Deloitte global automotive consumer study 2024 autonomous driving",
+        "McKinsey consumer survey autonomous driving price premium"
+      ],
+      "data_quality_rule": "Use survey data from reputable firms. If multiple surveys exist, average them and note range.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Show that consumer willingness to pay is below $5,000, limiting personal AV adoption to luxury segments.",
+      "pre_exhibit_context": "We claim consumers will pay less than $5,000 for Level 4. This exhibit tests that threshold across regions.",
+      "post_exhibit_takeaway": "Willingness to pay averages $3,000-$4,000, insufficient for mass-market adoption; personal AVs will remain niche."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "AV Deployment Milestones by Segment and Player (2018-2030)",
+      "chart_type": "timeline",
+      "executive_question": "When will each AV segment reach key milestones?",
+      "required_metrics": [
+        "Milestone: first driverless ride, first commercial deployment, first city-wide service, first interstate trucking",
+        "Entity: Waymo, Cruise, Baidu, TuSimple, Tesla",
+        "Date: actual (2018-2024) and projected (2025-2030)"
+      ],
+      "comparison_set": [
+        "Robotaxi vs. Autonomous Trucking vs. Personal AV"
+      ],
+      "preferred_sources": [
+        "Company press releases and blogs",
+        "NHTSA and state DMV permits",
+        "Industry timelines from SAE or AVIA"
+      ],
+      "search_queries": [
+        "Waymo driverless ride history timeline",
+        "Cruise commercial deployment date",
+        "TuSimple autonomous trucking highway milestone"
+      ],
+      "data_quality_rule": "Use only confirmed dates from official sources. Projections must be attributed to company guidance or analyst consensus.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provide a visual roadmap of actual and projected milestones to ground the timeline discussion.",
+      "pre_exhibit_context": "We need to establish a credible timeline for Level 4/5 adoption across robotaxi, trucking, and personal AV.",
+      "post_exhibit_takeaway": "Robotaxis lead, with commercial service in 10+ cities by 2027; autonomous trucking follows on highways by 2026; personal AVs lag until 2035."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Lidar Cost per Unit Forecast (2020-2028)",
+      "chart_type": "line",
+      "executive_question": "Will lidar costs drop below $500 by 2026?",
+      "required_metrics": [
+        "Year: 2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028",
+        "Lidar cost per unit (USD): Luminar, Hesai, Valeo"
+      ],
+      "comparison_set": [
+        "Luminar vs. Hesai vs. Valeo"
+      ],
+      "preferred_sources": [
+        "Luminar Technologies earnings calls and investor presentations",
+        "Hesai Group annual reports",
+        "Valeo annual report and press releases"
+      ],
+      "search_queries": [
+        "Luminar lidar cost per unit 2024 earnings call",
+        "Hesai lidar price volume 2024 annual report",
+        "Valeo lidar cost reduction roadmap"
+      ],
+      "data_quality_rule": "Use company-reported average selling prices. For forecast years, use company guidance or analyst consensus. Mark projections as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Track lidar cost reduction to validate the hypothesis that sensor costs will enable mass-market AV.",
+      "pre_exhibit_context": "We claim lidar costs will fall below $500 by 2026. This chart tests that claim with historical and forecast data.",
+      "post_exhibit_takeaway": "Lidar costs are on track to reach $500 by 2026, driven by volume and solid-state technology."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Global AV Regulatory Scorecard by City (2024)",
+      "chart_type": "matrix",
+      "executive_question": "Where can driverless AVs operate today?",
+      "required_metrics": [
+        "City: Phoenix, San Francisco, Beijing, Shanghai, Shenzhen, Hamburg, etc.",
+        "Regulatory status: testing with safety driver, driverless testing, commercial driverless service",
+        "Year: 2024"
+      ],
+      "comparison_set": [
+        "US vs. China vs. Europe cities"
+      ],
+      "preferred_sources": [
+        "NHTSA and state DMV permits (California, Arizona, etc.)",
+        "China MIIT autonomous driving pilot zones",
+        "EU Commission AV regulatory framework"
+      ],
+      "search_queries": [
+        "California DMV autonomous vehicle permits 2024",
+        "China autonomous driving pilot cities 2024",
+        "EU autonomous driving legislation approved cities"
+      ],
+      "data_quality_rule": "Use official government permit lists. Classify cities based on most permissive operation allowed.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Map regulatory readiness to show limited geographic scope for AV deployment.",
+      "pre_exhibit_context": "We claim regulatory approval will be limited to 10 cities by 2027. This exhibit shows current status.",
+      "post_exhibit_takeaway": "Only 5-7 cities currently allow driverless operations; expansion is slow, supporting the 10-city forecast."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "AV Startup Funding by Segment (2019-2024)",
+      "chart_type": "bubble",
+      "executive_question": "Which AV segments are attracting the most investment?",
+      "required_metrics": [
+        "Year: 2019, 2020, 2021, 2022, 2023, 2024",
+        "Funding amount (USD billions) by segment: robotaxi, autonomous trucking, personal AV, other",
+        "Number of deals per segment"
+      ],
+      "comparison_set": [
+        "Robotaxi vs. Autonomous Trucking vs. Personal AV vs. Other"
+      ],
+      "preferred_sources": [
+        "PitchBook AV startup funding report",
+        "CB Insights autonomous driving funding",
+        "Crunchbase AV startup database"
+      ],
+      "search_queries": [
+        "PitchBook autonomous vehicle funding 2024",
+        "CB Insights robotaxi funding 2024",
+        "autonomous trucking startup funding 2024"
+      ],
+      "data_quality_rule": "Use aggregated data from PitchBook or CB Insights. Define segments clearly. Exclude internal R&D spending by OEMs.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Show investment trends to indicate where the market sees the most potential.",
+      "pre_exhibit_context": "We need to understand capital allocation to validate business model viability.",
+      "post_exhibit_takeaway": "Robotaxi and autonomous trucking attract the majority of funding, while personal AV startups receive less."
+    }
+  ],
+  "storyline_plan": {
+    "core_question": "Where and when will Level 4/5 autonomous driving achieve commercial viability at scale, and which business models (robotaxi, autonomous trucking, personal AV) will generate the highest returns?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: timeline, funding",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "The Department’s realignment in 2025 transferred most of the GDO to the Office of Electricity and shifted the Transmission Facilitation Program to the Office of Energy Dominance Financing where this project is now managed.",
+      "Power willingness to pay autonomous driving 2024",
+      "The Southline project originated with the Grid Deployment Office (GDO) in 2023."
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "Robotaxis will achieve commercial viability in dense urban areas by 2027, with unit economics breakeven at $0.50 per mile.",
+        "decision_relevance": "Determines whether to invest in robotaxi fleets vs. other AV applications.",
+        "needed_evidence": [
+          "TCO breakdown for robotaxis (vehicle cost, sensors, maintenance, insurance, charging, remote ops) and revenue per mile from pilot programs."
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Autonomous trucking will reach Level 4 on highways by 2026, reducing long-haul costs by 30%.",
+        "decision_relevance": "Guides investment in trucking automation vs. other segments.",
+        "needed_evidence": [
+          "Pilot data on fuel savings, driver cost elimination, and accident rates; regulatory approvals for driverless trucks."
+        ]
+      },
+      {
+        "id": "H3",
+        "hypothesis": "Consumer willingness to pay for Level 4 personal AVs will be less than $5,000, limiting adoption to luxury segments.",
+        "decision_relevance": "Impacts product strategy for OEMs considering AV options.",
+        "needed_evidence": [
+          "Survey data on consumer willingness to pay, price elasticity, and feature valuation."
+        ]
+      },
+      {
+        "id": "H4",
+        "hypothesis": "China will lead in AV deployment by 2028 due to favorable regulation and high EV adoption, capturing 40% of global robotaxi miles.",
+        "decision_relevance": "Informs geographic allocation of R&D and partnerships.",
+        "needed_evidence": [
+          "Regulatory timelines in China vs. US/EU, robotaxi pilot scale (Baidu, Pony.ai), EV penetration as proxy for AV readiness."
+        ]
+      },
+      {
+        "id": "H5",
+        "hypothesis": "Lidar costs will drop below $500 per unit by 2026, enabling mass-market AV deployment.",
+        "decision_relevance": "Affects sensor strategy and supplier selection.",
+        "needed_evidence": [
+          "Lidar pricing trends from manufacturers (Luminar, Hesai, Valeo), teardown reports, and volume forecasts."
+        ]
+      },
+      {
+        "id": "H6",
+        "hypothesis": "Regulatory approval for driverless AVs without safety drivers will remain limited to 10 cities globally by 2027.",
+        "decision_relevance": "Constrains addressable market and scaling timeline.",
+        "needed_evidence": [
+          "List of cities with driverless AV permits, regulatory frameworks (NHTSA, EU, China), and pace of new approvals."
+        ]
+      },
+      {
+        "id": "H7",
+        "hypothesis": "Autonomous driving will reduce accident rates by 50% in early deployment areas, but public trust will remain low until 2030.",
+        "decision_relevance": "Affects marketing, insurance, and liability strategies.",
+        "needed_evidence": [
+          "Accident data from Waymo, Cruise, and Tesla FSD; public opinion polls on AV safety."
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down",
+        "formula": "Total addressable market = (Global vehicle miles traveled) * (AV penetration rate) * (revenue per mile)",
+        "variables": [
+          "Global VMT (from DOT/statista)",
+          "AV penetration rate (from adoption curve assumptions)",
+          "Revenue per mile (from robotaxi/trucking pricing)"
+        ],
+        "known_limitations": [
+          "Penetration rate is highly uncertain; top-down can overestimate if adoption is slower."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Sum over segments (Number of AVs deployed * Average revenue per AV per year)",
+        "variables": [
+          "Number of AVs by segment (robotaxi, trucking, personal) from company announcements and pilot data",
+          "Revenue per AV (subscription, per-mile, or purchase premium)"
+        ],
+        "known_limitations": [
+          "Requires granular data on deployments, which may be proprietary; scaling from pilots to mass market is uncertain."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Market size = (Target population) * (Awareness) * (Interest) * (Trial) * (Adoption) * (Revenue per user)",
+        "variables": [
+          "Target population (urban drivers, fleet operators)",
+          "Funnel conversion rates from surveys and pilot data",
+          "Revenue per user (subscription or per-mile)"
+        ],
+        "known_limitations": [
+          "Funnel rates are speculative; limited public data on conversion."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Value pool = (Cost savings from AV) + (New revenue from mobility services) - (Implementation costs)",
+        "variables": [
+          "Cost savings (driver cost elimination, fuel efficiency, accident reduction)",
+          "New revenue (robotaxi, data monetization)",
+          "Implementation costs (R&D, infrastructure)"
+        ],
+        "known_limitations": [
+          "Requires assumptions on cost curves and adoption; value may be double-counted."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}
