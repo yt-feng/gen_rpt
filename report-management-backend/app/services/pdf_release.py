@@ -62,18 +62,40 @@ def _build_html_from_report(report: dict) -> str:
     brand = content.get("brand", "Thought Leadership")
     date_str = content.get("date", datetime.now(timezone.utc).strftime("%B %d, %Y"))
     sections = content.get("sections", [])
+    images = content.get("images", [])
+
+    # Map image filenames to their presigned URLs for fallback rendering
+    img_map = {img.get("key"): img.get("url") for img in images if img.get("key")}
 
     section_html = ""
-    for sec in sections:
+    for idx, sec in enumerate(sections, start=1):
         heading = sec.get("heading", "")
         body = sec.get("body", "")
         is_disclaimer = sec.get("isDisclaimer", False)
         style = "font-size: 8pt; color: #666;" if is_disclaimer else ""
         tag = "p" if is_disclaimer else "div"
+
+        # Check if there is an exhibit image for this section
+        img_url = None
+        for ext in ("png", "jpg", "jpeg"):
+            candidate = f"image-{idx}.{ext}"
+            if candidate in img_map:
+                img_url = img_map[candidate]
+                break
+
+        img_html = ""
+        if img_url:
+            img_html = f"""
+            <figure style="margin: 16pt 0; text-align: center; page-break-inside: avoid;">
+                <img src="{img_url}" style="max-width: 100%; max-height: 280pt; object-fit: contain; border-radius: 6px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);" />
+            </figure>
+            """
+
         section_html += f"""
         <section style="margin-bottom: 24pt; page-break-inside: avoid;">
             <h2 style="font-size: 13pt; font-weight: bold; color: #1a1a2e; margin-bottom: 8pt;
                        border-bottom: 1px solid #e0e0e0; padding-bottom: 4pt;">{heading}</h2>
+            {img_html}
             <{tag} style="font-size: 10pt; line-height: 1.6; color: #333; {style}">{body}</{tag}>
         </section>
         """
@@ -399,10 +421,48 @@ class PdfReleaseService:
             if report_text:
                 article = soup.find("article", class_="article-main")
                 if article:
-                    md_html = markdown.markdown(report_text)
-                    article.clear()
-                    new_content = BeautifulSoup(md_html, "html.parser")
-                    article.append(new_content)
+                    html_sections = soup.find_all("section", class_="section-block")
+                    sections_in_report = report.get("reportContent", {}).get("sections", [])
+
+                    if html_sections and sections_in_report:
+                        # Surgical in-place replacement to preserve all layout, kickers, list items,
+                        # custom styles, figures, and most importantly: the images (figures)!
+                        import re
+                        def heading_slug(heading: str) -> str:
+                            return re.sub(r"[^\w]+", "-", heading.lower()).strip("-")
+
+                        for idx, html_sec in enumerate(html_sections):
+                            if idx >= len(sections_in_report):
+                                break
+                            sec = sections_in_report[idx]
+                            report_paras = [p.strip() for p in sec.get("body", "").split("\n\n") if p.strip()]
+
+                            # Collect all paragraphs that are NOT lead text blocks
+                            html_ps = [p for p in html_sec.find_all("p") if "section-lead" not in p.get("class", [])]
+
+                            # Replace text in-place / insert new paragraphs if count changes
+                            for p_idx, text in enumerate(report_paras):
+                                if p_idx < len(html_ps):
+                                    html_ps[p_idx].string = text
+                                else:
+                                    new_p = soup.new_tag("p")
+                                    new_p.string = text
+                                    if html_ps:
+                                        html_ps[-1].insert_after(new_p)
+                                    else:
+                                        html_sec.append(new_p)
+                                    html_ps.append(new_p)
+
+                            # Remove extra paragraphs if text has been deleted
+                            if len(html_ps) > len(report_paras):
+                                for extra_p in html_ps[len(report_paras):]:
+                                    extra_p.decompose()
+                    else:
+                        # Fallback for reports with standard flat article formats
+                        md_html = markdown.markdown(report_text)
+                        article.clear()
+                        new_content = BeautifulSoup(md_html, "html.parser")
+                        article.append(new_content)
                     
             return str(soup)
         except Exception as e:
