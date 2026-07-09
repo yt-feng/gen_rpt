@@ -939,18 +939,29 @@ async def regenerate_report_image(
     # Simulate AI Generation (e.g. 2-3 seconds delay)
     await asyncio.sleep(2)
     
-    # Download a placeholder image dynamically based on the prompt text
-    display_text = payload.prompt[:30].replace(' ', '+')
-    placeholder_url = f"https://placehold.co/800x600/png?text=AI+Gen:+{display_text}"
+    # Download a high-quality AI generated image from Pollinations AI
+    from urllib.parse import quote
+    encoded_prompt = quote(payload.prompt, safe="")
+    pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1536&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux"
     
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            resp = await client.get(placeholder_url)
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.get(pollinations_url)
             resp.raise_for_status()
             content_bytes = resp.content
     except Exception as e:
-        print(f"[regenerate-image] Failed to download mock generated image: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate AI image")
+        print(f"[regenerate-image] Failed to download generated image from Pollinations: {e}")
+        # Fallback to placehold.co if Pollinations fails
+        try:
+            display_text = payload.prompt[:30].replace(' ', '+')
+            fallback_url = f"https://placehold.co/800x600/png?text=AI+Gen:+{display_text}"
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.get(fallback_url)
+                resp.raise_for_status()
+                content_bytes = resp.content
+        except Exception as fallback_err:
+            print(f"[regenerate-image] Fallback download failed: {fallback_err}")
+            raise HTTPException(status_code=500, detail="Failed to generate AI image")
 
     if not content_bytes:
         raise HTTPException(status_code=500, detail="Generated image is empty")
@@ -972,8 +983,16 @@ async def regenerate_report_image(
             img["url"] = new_url
             break
 
-    print(f"[regenerate-image] Successfully generated and replaced {safe_key} for document {document_id}")
+    # Dispatch to GitHub Actions in the background so it runs the workflow
+    try:
+        from app.services.generation import GitHubActionsWorker
+        worker = GitHubActionsWorker()
+        asyncio.create_task(worker.dispatch_image_regeneration(slug, safe_key, payload.prompt))
+    except Exception as gha_err:
+        print(f"[regenerate-image] Warning: Failed to dispatch GitHub Action task: {gha_err}")
+
+    print(f"[regenerate-image] Successfully generated, replaced {safe_key} and triggered GitHub Action for document {document_id}")
     return success_response(
         data={"key": safe_key, "url": new_url},
-        message="Image regenerated successfully",
+        message="Image regenerated and GitHub Action workflow triggered successfully",
     )

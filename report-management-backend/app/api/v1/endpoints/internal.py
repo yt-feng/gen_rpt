@@ -184,3 +184,53 @@ async def handle_publish_requested(
     logger.info(f"[webhook] publish-requested for: {payload.document_id}")
     return success_response(data={"slug": payload.document_id}, message="Publish requested event acknowledged")
 
+
+class ImageRegeneratedPayload(BaseModel):
+    document_id: str
+    image_key: str
+    prompt: str
+
+@router.post("/events/image-regenerated", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_token)])
+async def handle_image_regenerated(
+    payload: ImageRegeneratedPayload,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Webhook invoked by GitHub Actions when image regeneration finishes.
+    Refreshes the R2 presigned URL in MOCK_REPORTS cache.
+    """
+    from app.api.v1.endpoints.reports import MOCK_REPORTS
+    from app.storage.provider import storage_provider
+    
+    slug = payload.document_id
+    safe_key = payload.image_key.split("/")[-1]
+    logger.info(f"[webhook] image-regenerated received for slug: {slug}, key: {safe_key}")
+
+    # Resolve R2 path and generate fresh presigned URL
+    report = MOCK_REPORTS.get(slug)
+    if not report:
+        logger.warning(f"[webhook] image-regenerated: report not found in MOCK_REPORTS cache for slug: {slug}")
+        return success_response(data={}, message="Report not cached, skipping update")
+
+    r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
+    if r2_prefix and not r2_prefix.endswith("/"):
+        r2_prefix += "/"
+    
+    r2_key = f"{r2_prefix}current/assets/{safe_key}"
+    
+    try:
+        new_url = await storage_provider.get_signed_url(r2_key, expiration_sec=3600)
+        
+        # Update in-memory cache URL
+        report_content = report.get("reportContent", {})
+        for img in report_content.get("images", []):
+            if img.get("key") == safe_key:
+                img["url"] = new_url
+                break
+                
+        logger.info(f"[webhook] Successfully refreshed presigned URL in cache for {slug} {safe_key}")
+    except Exception as e:
+        logger.error(f"[webhook] Failed to get signed URL for regenerated image: {e}")
+        
+    return success_response(data={"slug": slug}, message="Image regeneration event processed")
+

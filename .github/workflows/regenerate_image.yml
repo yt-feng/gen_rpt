@@ -1,0 +1,57 @@
+name: "[V2] AI Image Regeneration"
+
+on:
+  workflow_dispatch:
+    inputs:
+      slug:
+        description: "Report output directory slug"
+        required: true
+        type: string
+      image_key:
+        description: "Target image filename (e.g. image-1.png)"
+        required: true
+        type: string
+      prompt:
+        description: "AI generation briefing / prompt"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: regenerate-image-${{ inputs.slug }}-${{ inputs.image_key }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate-image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests boto3
+
+      - name: Run Image Regeneration
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          python -u tools/regenerate_image.py \
+            --slug "${{ inputs.slug }}" \
+            --image-key "${{ inputs.image_key }}" \
+            --prompt "${{ inputs.prompt }}"

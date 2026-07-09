@@ -135,6 +135,40 @@ class GitHubActionsWorker(WorkerInterface):
             print(f"[v2] Exception dispatching slug={slug}: {e}")
             return False
 
+    async def dispatch_image_regeneration(self, slug: str, image_key: str, prompt: str) -> bool:
+        """Dispatch a job to regenerate_image.yml to regenerate a specific report image."""
+        if not settings.GITHUB_TOKEN:
+            print("GITHUB_TOKEN not set. Cannot dispatch image regeneration to GitHub Actions.")
+            return False
+
+        url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/workflows/regenerate_image.yml/dispatches"
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "Authorization": f"Bearer {settings.GITHUB_TOKEN}",
+            "X-GitHub-Api-Version": "2022-11-28"
+        }
+        payload = {
+            "ref": "main",
+            "inputs": {
+                "slug": slug,
+                "image_key": image_key,
+                "prompt": prompt
+            }
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(url, headers=headers, json=payload)
+                if resp.status_code == 204:
+                    print(f"[image-regeneration] Dispatched GHA for slug={slug}, image_key={image_key}")
+                    return True
+                else:
+                    print(f"[image-regeneration] Failed to dispatch slug={slug}: {resp.status_code} - {resp.text}")
+                    return False
+        except Exception as e:
+            print(f"[image-regeneration] Exception dispatching slug={slug}: {e}")
+            return False
+
 async def delete_report_files_from_r2(slug: str) -> None:
     """Delete all files belonging to a report slug in R2 to cleanly overwrite."""
     from app.storage.provider import storage_provider
