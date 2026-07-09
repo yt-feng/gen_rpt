@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from typing import List
+from pydantic import BaseModel, Field
 
 from app.api.deps import get_db, PageParams, FilterParams, get_current_user_placeholder
 from app.core.responses import APIResponse, success_response, error_response
