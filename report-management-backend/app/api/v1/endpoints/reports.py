@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from typing import List
@@ -831,4 +831,68 @@ async def save_content_edits(
     return success_response(
         data={"applied": applied, "skipped": skipped},
         message=f"Applied {len(applied)} edit(s) successfully",
+    )
+
+
+@router.post("/{document_id}/replace-image", response_model=APIResponse[dict])
+async def replace_report_image(
+    document_id: str,
+    image_key: str = Form(...),
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Replace a specific image in the report's R2 assets folder.
+    The new image is uploaded to the exact same R2 key so that:
+      - The report viewer picks it up immediately (new presigned URL returned).
+      - PDF generation (which resolves relative asset paths from R2) automatically
+        uses the new image on the next PDF build — no other files need updating.
+    """
+    from app.storage.provider import storage_provider
+
+    # Locate report in memory cache
+    report = MOCK_REPORTS.get(document_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
+
+    slug = report.get("slug") or document_id
+    r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
+    if r2_prefix and not r2_prefix.endswith("/"):
+        r2_prefix += "/"
+
+    # Safety: only allow replacing known image files (prevent path traversal)
+    safe_key = image_key.split("/")[-1]  # strip any path prefix the caller may have sent
+    if not (safe_key.endswith(".png") or safe_key.endswith(".jpg") or safe_key.endswith(".jpeg")):
+        raise HTTPException(status_code=400, detail="Only PNG and JPG images are supported")
+
+    r2_key = f"{r2_prefix}current/assets/{safe_key}"
+    print(f"[replace-image] Uploading {safe_key} to R2 key: {r2_key}")
+
+    # Read file bytes
+    content_bytes = await file.read()
+    if not content_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded file is empty")
+
+    content_type = file.content_type or "image/png"
+
+    # PUT to R2 (idempotent — overwrites existing object at same key)
+    success = await storage_provider.upload(content_bytes, r2_key, content_type)
+    if not success:
+        raise HTTPException(status_code=500, detail="Failed to upload image to R2")
+
+    # Generate a fresh presigned GET URL for the new image
+    new_url = await storage_provider.get_signed_url(r2_key, expiration_sec=3600)
+
+    # Update in-memory cache so subsequent GET /reports/:id returns the fresh URL
+    report_content = report.get("reportContent", {})
+    for img in report_content.get("images", []):
+        if img.get("key") == safe_key:
+            img["url"] = new_url
+            break
+
+    print(f"[replace-image] Successfully replaced {safe_key} for document {document_id}")
+    return success_response(
+        data={"key": safe_key, "url": new_url},
+        message="Image replaced successfully",
     )
