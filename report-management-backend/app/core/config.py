@@ -66,6 +66,18 @@ class Settings(BaseSettings):
     KNOWLEDGE_STORAGE_PROVIDER: str = "r2"
     KNOWLEDGE_VECTOR_PROVIDER: str = "pgvector"
 
+    # --- Knowledge Object Storage Settings ---
+    KNOWLEDGE_R2_BUCKET: Optional[str] = None
+    KNOWLEDGE_STORAGE_PREFIX: str = "knowledge/"
+    KNOWLEDGE_ARCHIVE_PREFIX: str = "archive/"
+    KNOWLEDGE_EXPORT_PREFIX: str = "exports/"
+    KNOWLEDGE_LOG_PREFIX: str = "logs/"
+    KNOWLEDGE_PROCESSING_PREFIX: str = "processing/"
+    KNOWLEDGE_RETENTION_POLICY_DAYS: int = 30
+    KNOWLEDGE_STORAGE_VERSIONING: bool = True
+    KNOWLEDGE_STORAGE_CHECKSUM_ALGO: str = "sha256"
+    KNOWLEDGE_STORAGE_COMPRESSION: bool = False
+
     # --- Knowledge Pipeline Settings (Placeholders) ---
     KNOWLEDGE_SETTINGS: dict = {}
     KNOWLEDGE_PROCESSING_SETTINGS: dict = {}

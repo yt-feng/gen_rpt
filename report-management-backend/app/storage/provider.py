@@ -144,4 +144,109 @@ class CloudflareR2Provider(StorageProvider):
     async def health_check(self) -> dict:
         return await to_thread.run_sync(self._health_check_sync)
 
+class S3StorageProvider(StorageProvider):
+    def __init__(self):
+        self.is_configured = False
+
+    async def upload(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str = "application/octet-stream") -> bool:
+        raise NotImplementedError("S3 storage upload is not implemented.")
+
+    async def download(self, path: str) -> Optional[bytes]:
+        raise NotImplementedError("S3 storage download is not implemented.")
+
+    async def delete(self, path: str) -> bool:
+        raise NotImplementedError("S3 storage delete is not implemented.")
+
+    async def exists(self, path: str) -> bool:
+        raise NotImplementedError("S3 storage exists check is not implemented.")
+
+    async def get_signed_url(self, path: str, expiration_sec: int = 3600, method: str = 'get_object') -> str:
+        raise NotImplementedError("S3 signed URL generation is not implemented.")
+
+    async def health_check(self) -> dict:
+        return {"status": "not_implemented", "provider": "s3"}
+
+class GoogleCloudStorageProvider(StorageProvider):
+    def __init__(self):
+        self.is_configured = False
+
+    async def upload(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str = "application/octet-stream") -> bool:
+        raise NotImplementedError("GCS upload is not implemented.")
+
+    async def download(self, path: str) -> Optional[bytes]:
+        raise NotImplementedError("GCS download is not implemented.")
+
+    async def delete(self, path: str) -> bool:
+        raise NotImplementedError("GCS delete is not implemented.")
+
+    async def exists(self, path: str) -> bool:
+        raise NotImplementedError("GCS exists check is not implemented.")
+
+    async def get_signed_url(self, path: str, expiration_sec: int = 3600, method: str = 'get_object') -> str:
+        raise NotImplementedError("GCS signed URL generation is not implemented.")
+
+    async def health_check(self) -> dict:
+        return {"status": "not_implemented", "provider": "gcs"}
+
+class AzureBlobStorageProvider(StorageProvider):
+    def __init__(self):
+        self.is_configured = False
+
+    async def upload(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str = "application/octet-stream") -> bool:
+        raise NotImplementedError("Azure Blob upload is not implemented.")
+
+    async def download(self, path: str) -> Optional[bytes]:
+        raise NotImplementedError("Azure Blob download is not implemented.")
+
+    async def delete(self, path: str) -> bool:
+        raise NotImplementedError("Azure Blob delete is not implemented.")
+
+    async def exists(self, path: str) -> bool:
+        raise NotImplementedError("Azure Blob exists check is not implemented.")
+
+    async def get_signed_url(self, path: str, expiration_sec: int = 3600, method: str = 'get_object') -> str:
+        raise NotImplementedError("Azure Blob signed URL generation is not implemented.")
+
+    async def health_check(self) -> dict:
+        return {"status": "not_implemented", "provider": "azure"}
+
+class MinIOStorageProvider(StorageProvider):
+    def __init__(self):
+        self.is_configured = False
+
+    async def upload(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str = "application/octet-stream") -> bool:
+        raise NotImplementedError("MinIO upload is not implemented.")
+
+    async def download(self, path: str) -> Optional[bytes]:
+        raise NotImplementedError("MinIO download is not implemented.")
+
+    async def delete(self, path: str) -> bool:
+        raise NotImplementedError("MinIO delete is not implemented.")
+
+    async def exists(self, path: str) -> bool:
+        raise NotImplementedError("MinIO exists check is not implemented.")
+
+    async def get_signed_url(self, path: str, expiration_sec: int = 3600, method: str = 'get_object') -> str:
+        raise NotImplementedError("MinIO signed URL generation is not implemented.")
+
+    async def health_check(self) -> dict:
+        return {"status": "not_implemented", "provider": "minio"}
+
+
 storage_provider = CloudflareR2Provider()
+
+# Factory method to retrieve correct storage provider
+def get_storage_provider(provider_type: str) -> StorageProvider:
+    provider_type = provider_type.lower()
+    if provider_type == "r2":
+        return storage_provider
+    elif provider_type == "s3":
+        return S3StorageProvider()
+    elif provider_type == "gcs":
+        return GoogleCloudStorageProvider()
+    elif provider_type == "azure":
+        return AzureBlobStorageProvider()
+    elif provider_type == "minio":
+        return MinIOStorageProvider()
+    else:
+        raise ValueError(f"Unknown storage provider type: {provider_type}")
