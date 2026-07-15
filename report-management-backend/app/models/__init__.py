@@ -7,29 +7,8 @@ from app.models.editing import AIEditRequest, AIEditResult, BlockEdit, ChangeHis
 from app.models.workflow import WorkflowInstance, WorkflowEvent, GenerationJob, PublishJob
 from app.models.system import Notification, ActivityLog, AuditLog
 from app.models.iteration import IterationHistory
-from app.models.editor import NodeLock, NodeEditHistory
 from app.models.ai import AIPromptTemplate, AIProposal
 from app.models.pdf_release import PdfRelease
-from app.models.knowledge import (
-    KnowledgeCollection,
-    KnowledgeDocument,
-    KnowledgeSource,
-    KnowledgeCategory,
-    KnowledgeTag,
-    KnowledgeChunk,
-    EmbeddingMetadata,
-    RetrievalSession,
-    RetrievalResult,
-    ValidationResult,
-    KnowledgeRelationship,
-    KnowledgeProcessingQueue,
-    KnowledgeActivityHistory,
-    CollectionPermission,
-    KnowledgeAnalytics,
-    KnowledgeVersionHistory,
-    KnowledgeSynchronizationLog,
-    KnowledgeProcessingAuditLog
-)
 
 __all__ = [
     "Base",
@@ -40,23 +19,5 @@ __all__ = [
     "WorkflowInstance", "WorkflowEvent", "GenerationJob", "PublishJob",
     "Notification", "ActivityLog", "AuditLog", "IterationHistory",
     "NodeLock", "NodeEditHistory", "AIPromptTemplate", "AIProposal",
-    "PdfRelease",
-    "KnowledgeCollection",
-    "KnowledgeDocument",
-    "KnowledgeSource",
-    "KnowledgeCategory",
-    "KnowledgeTag",
-    "KnowledgeChunk",
-    "EmbeddingMetadata",
-    "RetrievalSession",
-    "RetrievalResult",
-    "ValidationResult",
-    "KnowledgeRelationship",
-    "KnowledgeProcessingQueue",
-    "KnowledgeActivityHistory",
-    "CollectionPermission",
-    "KnowledgeAnalytics",
-    "KnowledgeVersionHistory",
-    "KnowledgeSynchronizationLog",
-    "KnowledgeProcessingAuditLog"
+    "PdfRelease"
 ]
