@@ -224,7 +224,7 @@ class RetrievalResult(Base, UUIDMixin):
     ranking: Mapped[int] = mapped_column(Integer, nullable=False)
     confidence: Mapped[float] = mapped_column(Float, default=1.0)
     source_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("knowledge_sources.id", ondelete="SET NULL"), nullable=True)
-    metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    result_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
 
     __table_args__ = (
         Index("ix_retrieval_results_session_id", "session_id"),
@@ -257,7 +257,7 @@ class KnowledgeRelationship(Base, UUIDMixin):
     source_document_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("knowledge_documents.id", ondelete="CASCADE"), nullable=False)
     target_document_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("knowledge_documents.id", ondelete="CASCADE"), nullable=False)
     relationship_type: Mapped[str] = mapped_column(String, nullable=False) # references, duplicate_of, derived_from, related_to, parent_of, child_of, citation
-    metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    relationship_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
     __table_args__ = (
