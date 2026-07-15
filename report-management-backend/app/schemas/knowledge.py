@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional, Dict, Any
 from datetime import datetime
 from uuid import UUID
@@ -40,8 +40,7 @@ class CategoryResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 3. Tag Schemas
@@ -56,8 +55,7 @@ class TagResponse(BaseModel):
     slug: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 4. Collection Permissions
@@ -73,8 +71,7 @@ class PermissionResponse(BaseModel):
     permission_level: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 5. Collection Schemas
@@ -108,8 +105,7 @@ class CollectionResponse(BaseModel):
     updated_at: datetime
     tags: List[TagResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 6. Source Schemas
@@ -140,8 +136,7 @@ class SourceResponse(BaseModel):
     region: Optional[str]
     language: Optional[str]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 7. Document Schemas
@@ -189,8 +184,7 @@ class DocumentResponse(BaseModel):
     tags: List[TagResponse] = []
     sources: List[SourceResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DocumentVersionResponse(BaseModel):
     id: UUID
@@ -202,8 +196,7 @@ class DocumentVersionResponse(BaseModel):
     created_by: Optional[UUID]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 8. Chunk & Embedding Schemas
@@ -234,8 +227,7 @@ class ChunkResponse(BaseModel):
     chunk_metadata: Optional[Dict[str, Any]]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class EmbeddingMetadataCreate(BaseModel):
     chunk_id: UUID
@@ -258,8 +250,7 @@ class EmbeddingMetadataResponse(BaseModel):
     checksum: Optional[str]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 9. Retrieval Session & Results Schemas
@@ -280,8 +271,7 @@ class RetrievalSessionResponse(BaseModel):
     duration_ms: Optional[int]
     status: str
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RetrievalResultResponse(BaseModel):
     id: UUID
@@ -293,8 +283,7 @@ class RetrievalResultResponse(BaseModel):
     source_id: Optional[UUID]
     result_metadata: Optional[Dict[str, Any]]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 10. Validation & Relationships Schemas
@@ -321,8 +310,7 @@ class ValidationResponse(BaseModel):
     summary: Optional[str]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class KnowledgeRelationshipCreate(BaseModel):
     source_document_id: UUID
@@ -338,8 +326,7 @@ class KnowledgeRelationshipResponse(BaseModel):
     relationship_metadata: Optional[Dict[str, Any]]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 11. Queue & Audit Logs Schemas
@@ -360,8 +347,7 @@ class ProcessingJobResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ProcessingAuditLogResponse(BaseModel):
     id: UUID
@@ -374,8 +360,7 @@ class ProcessingAuditLogResponse(BaseModel):
     outputs: Optional[Dict[str, Any]]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 # ==========================================
 # 12. History, Sync & Analytics Schemas
@@ -389,8 +374,7 @@ class ActivityHistoryResponse(BaseModel):
     details: Optional[Dict[str, Any]]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class SynchronizationLogResponse(BaseModel):
     id: UUID
@@ -399,8 +383,7 @@ class SynchronizationLogResponse(BaseModel):
     details: Optional[Dict[str, Any]]
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AnalyticsResponse(BaseModel):
     id: UUID
@@ -413,5 +396,4 @@ class AnalyticsResponse(BaseModel):
     usage_metrics: Optional[Dict[str, Any]]
     recorded_date: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
