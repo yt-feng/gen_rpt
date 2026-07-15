@@ -61,7 +61,7 @@ def test_path_generation_schemas():
     # Test log path
     now = datetime(2026, 7, 16, 12, 0, 0, tzinfo=timezone.utc)
     log_path = knowledge_storage_service.generate_log_path("ingestion", now)
-    assert log_path == "logs/ingestion/2026-07-16/1781611200.log"
+    assert log_path == "logs/ingestion/2026-07-16/1784203200.log"
 
 def test_checksum_and_validation():
     data = b"Testing content validation"
