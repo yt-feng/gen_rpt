@@ -163,6 +163,30 @@ async def health_check():
         overall_status = "degraded"
     elif storage_status not in ("healthy", "not_configured"):
         overall_status = "degraded"
+
+    # --- Knowledge Module Health Check ---
+    knowledge_status = "idle"
+    if settings.KNOWLEDGE_ENABLED:
+        knowledge_status = "healthy"
+
+    knowledge_health = {
+        "status": knowledge_status,
+        "module_loaded": True,
+        "workers_status": "idle",
+        "queue_status": "idle",
+        "processing_status": "idle",
+        "storage_provider": settings.KNOWLEDGE_STORAGE_PROVIDER,
+        "vector_provider": settings.KNOWLEDGE_VECTOR_PROVIDER,
+        "feature_flags": {
+            "KNOWLEDGE_ENABLED": settings.KNOWLEDGE_ENABLED,
+            "RAG_ENABLED": settings.RAG_ENABLED,
+            "UPLOAD_ENABLED": settings.UPLOAD_ENABLED,
+            "PROCESSING_ENABLED": settings.PROCESSING_ENABLED,
+            "RETRIEVAL_ENABLED": settings.RETRIEVAL_ENABLED,
+            "VALIDATION_ENABLED": settings.VALIDATION_ENABLED,
+            "SEARCH_ENABLED": settings.SEARCH_ENABLED,
+        }
+    }
     
     return {
         "status": overall_status,
@@ -172,8 +196,10 @@ async def health_check():
             "error": error_msg
         },
         "storage": storage_health,
+        "knowledge": knowledge_health,
         "response_time_ms": response_time_ms
     }
+
 
 # Include API routers
 app.include_router(api_router, prefix=settings.API_V1_STR)

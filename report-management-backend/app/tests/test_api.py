@@ -32,7 +32,7 @@ async def test_api_404_error():
 async def test_api_validation_error():
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # Invalid UUID format should trigger validation error
-        response = await ac.get(f"{settings.API_V1_STR}/reports/invalid-uuid")
+        response = await ac.get(f"{settings.API_V1_STR}/reports/invalid-uuid/versions")
         
     assert response.status_code == 422
     data = response.json()
@@ -40,3 +40,4 @@ async def test_api_validation_error():
     assert data["message"] == "Validation error"
     assert "errors" in data
     assert len(data["errors"]) > 0
+

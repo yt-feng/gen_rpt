@@ -52,6 +52,30 @@ class Settings(BaseSettings):
     # Internal webhook token — must match INTERNAL_TOKEN secret set in GitHub Actions
     INTERNAL_TOKEN: Optional[str] = None
 
+    # --- Knowledge Intelligence (RAG) Feature Flags ---
+    KNOWLEDGE_ENABLED: bool = False
+    RAG_ENABLED: bool = False
+    UPLOAD_ENABLED: bool = False
+    PROCESSING_ENABLED: bool = False
+    RETRIEVAL_ENABLED: bool = False
+    VALIDATION_ENABLED: bool = False
+    SEARCH_ENABLED: bool = False
+
+    # --- Knowledge Providers & Logging ---
+    KNOWLEDGE_LOG_LEVEL: str = "INFO"
+    KNOWLEDGE_STORAGE_PROVIDER: str = "r2"
+    KNOWLEDGE_VECTOR_PROVIDER: str = "pgvector"
+
+    # --- Knowledge Pipeline Settings (Placeholders) ---
+    KNOWLEDGE_SETTINGS: dict = {}
+    KNOWLEDGE_PROCESSING_SETTINGS: dict = {}
+    KNOWLEDGE_EMBEDDING_SETTINGS: dict = {}
+    KNOWLEDGE_RETRIEVAL_SETTINGS: dict = {}
+    KNOWLEDGE_VALIDATION_SETTINGS: dict = {}
+    KNOWLEDGE_CHUNKING_SETTINGS: dict = {}
+    KNOWLEDGE_MONITORING_SETTINGS: dict = {}
+
+
     
     @model_validator(mode='after')
     def validate_database_url(self) -> 'Settings':
