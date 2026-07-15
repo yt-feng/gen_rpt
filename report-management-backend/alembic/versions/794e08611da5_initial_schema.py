@@ -4,6 +4,7 @@ Mako template for Alembic revision scripts.
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from sqlalchemy import Text
 
 # revision identifiers, used by Alembic.
 revision = '794e08611da5'
