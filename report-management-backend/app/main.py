@@ -169,6 +169,9 @@ async def health_check():
     if settings.KNOWLEDGE_ENABLED:
         knowledge_status = "healthy"
 
+    from app.services.knowledge_storage import knowledge_storage_service
+    knowledge_storage_health = await knowledge_storage_service.check_connectivity()
+
     knowledge_health = {
         "status": knowledge_status,
         "module_loaded": True,
@@ -177,6 +180,7 @@ async def health_check():
         "processing_status": "idle",
         "storage_provider": settings.KNOWLEDGE_STORAGE_PROVIDER,
         "vector_provider": settings.KNOWLEDGE_VECTOR_PROVIDER,
+        "knowledge_storage": knowledge_storage_health,
         "feature_flags": {
             "KNOWLEDGE_ENABLED": settings.KNOWLEDGE_ENABLED,
             "RAG_ENABLED": settings.RAG_ENABLED,
