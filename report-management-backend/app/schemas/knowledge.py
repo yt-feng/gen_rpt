@@ -291,7 +291,7 @@ class RetrievalResultResponse(BaseModel):
     ranking: int
     confidence: float
     source_id: Optional[UUID]
-    metadata: Optional[Dict[str, Any]]
+    result_metadata: Optional[Dict[str, Any]]
 
     class Config:
         from_attributes = True
@@ -328,14 +328,14 @@ class KnowledgeRelationshipCreate(BaseModel):
     source_document_id: UUID
     target_document_id: UUID
     relationship_type: str
-    metadata: Optional[Dict[str, Any]] = None
+    relationship_metadata: Optional[Dict[str, Any]] = None
 
 class KnowledgeRelationshipResponse(BaseModel):
     id: UUID
     source_document_id: UUID
     target_document_id: UUID
     relationship_type: str
-    metadata: Optional[Dict[str, Any]]
+    relationship_metadata: Optional[Dict[str, Any]]
     created_at: datetime
 
     class Config:
