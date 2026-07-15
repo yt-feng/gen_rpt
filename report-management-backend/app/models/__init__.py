@@ -7,6 +7,7 @@ from app.models.editing import AIEditRequest, AIEditResult, BlockEdit, ChangeHis
 from app.models.workflow import WorkflowInstance, WorkflowEvent, GenerationJob, PublishJob
 from app.models.system import Notification, ActivityLog, AuditLog
 from app.models.iteration import IterationHistory
+from app.models.editor import NodeLock, NodeEditHistory
 from app.models.ai import AIPromptTemplate, AIProposal
 from app.models.pdf_release import PdfRelease
 
