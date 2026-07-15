@@ -397,3 +397,28 @@ class AnalyticsResponse(BaseModel):
     recorded_date: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+# ==========================================
+# 13. Skeleton Stub Schemas (API compatibility)
+# ==========================================
+class SearchRequest(BaseModel):
+    query: str
+    collection_id: Optional[UUID] = None
+    limit: int = 10
+
+class SearchResponse(BaseModel):
+    results: List[Any] = []
+
+class RetrievalResponse(BaseModel):
+    context: str
+    sources: List[Any] = []
+
+class AdminStatusResponse(BaseModel):
+    enabled: bool
+    workers: Dict[str, Any] = {}
+
+class KnowledgeHealthResponse(BaseModel):
+    status: str
+    module_loaded: bool
+
