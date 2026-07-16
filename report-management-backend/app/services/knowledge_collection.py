@@ -50,7 +50,6 @@ class KnowledgeCollectionService:
         )
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj)
 
         await self.log_activity(
             db,
@@ -59,7 +58,7 @@ class KnowledgeCollectionService:
             activity_type="collection_change",
             details={"action": "created", "name": db_obj.name}
         )
-        return db_obj
+        return await self.get_collection(db, db_obj.id)
 
     async def update_collection(
         self, db: AsyncSession, collection_id: uuid.UUID, obj_in: CollectionUpdate, user_id: uuid.UUID
@@ -107,7 +106,6 @@ class KnowledgeCollectionService:
         db_obj.updated_by = user_id
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj)
 
         await self.log_activity(
             db,
@@ -116,7 +114,7 @@ class KnowledgeCollectionService:
             activity_type="collection_change",
             details={"action": "updated", "fields": list(update_data.keys())}
         )
-        return db_obj
+        return await self.get_collection(db, db_obj.id)
 
     async def archive_collection(self, db: AsyncSession, collection_id: uuid.UUID, user_id: uuid.UUID) -> KnowledgeCollection:
         db_obj = await self.get_collection(db, collection_id)
@@ -129,7 +127,6 @@ class KnowledgeCollectionService:
         db_obj.updated_by = user_id
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj)
 
         await self.log_activity(
             db,
@@ -138,7 +135,7 @@ class KnowledgeCollectionService:
             activity_type="collection_change",
             details={"action": "archived"}
         )
-        return db_obj
+        return await self.get_collection(db, db_obj.id)
 
     async def restore_collection(self, db: AsyncSession, collection_id: uuid.UUID, user_id: uuid.UUID) -> KnowledgeCollection:
         db_obj = await self.get_collection(db, collection_id)
@@ -151,7 +148,6 @@ class KnowledgeCollectionService:
         db_obj.updated_by = user_id
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj)
 
         await self.log_activity(
             db,
@@ -160,7 +156,7 @@ class KnowledgeCollectionService:
             activity_type="collection_change",
             details={"action": "restored"}
         )
-        return db_obj
+        return await self.get_collection(db, db_obj.id)
 
     async def delete_collection(self, db: AsyncSession, collection_id: uuid.UUID, user_id: uuid.UUID) -> KnowledgeCollection:
         db_obj = await self.get_collection(db, collection_id)
@@ -173,7 +169,6 @@ class KnowledgeCollectionService:
         db_obj.updated_by = user_id
         db.add(db_obj)
         await db.commit()
-        await db.refresh(db_obj)
 
         await self.log_activity(
             db,
@@ -182,6 +177,8 @@ class KnowledgeCollectionService:
             activity_type="collection_change",
             details={"action": "soft_deleted"}
         )
+        # Note: deleted_at is set, so get_collection returns None (since it filters deleted_at.is_(None)).
+        # We can just return the object directly for delete.
         return db_obj
 
     async def get_collection(self, db: AsyncSession, collection_id: uuid.UUID) -> Optional[KnowledgeCollection]:
