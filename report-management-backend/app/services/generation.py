@@ -619,7 +619,7 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
         topic = job.topic or "Unknown Topic"
         doc_id = str(doc.id) if doc else str(job.document_id)
 
-    # Two candidate R2 paths to check:
+    # Two candidate R2 paths to check (as fallbacks):
     # 1. The path used by upload_report.py  (reports/{slug}/current/report.md)
     # 2. The legacy reports_web path         (reports_web/{slug}/report.md)
     r2_paths = [
@@ -631,6 +631,46 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
     found_path = None
 
     for attempt in range(max_attempts):
+        # Early exit if job has already reached a terminal state via webhook
+        async with async_session_maker() as session:
+            job = await session.get(GenerationJob, job_id)
+            if job and job.status in (JobStatusType.completed, JobStatusType.failed, JobStatusType.cancelled):
+                print(f"[poll_r2] Job {job_id} already in terminal state '{job.status.value}', exiting poller.")
+                return
+
+        # Attempt to dynamically resolve the prefix path (handles date-prefixed folders)
+        try:
+            from anyio import to_thread
+            def _find_dynamic_candidate():
+                # Check reports/
+                res = storage_provider.s3_client.list_objects_v2(
+                    Bucket=storage_provider.bucket, Prefix='reports/', Delimiter='/'
+                )
+                for prefix_obj in res.get('CommonPrefixes', []):
+                    folder = prefix_obj['Prefix']
+                    if slug in folder:
+                        return folder + "current/report.md"
+                
+                # Check reports_web/
+                res2 = storage_provider.s3_client.list_objects_v2(
+                    Bucket=storage_provider.bucket, Prefix='reports_web/', Delimiter='/'
+                )
+                for prefix_obj in res2.get('CommonPrefixes', []):
+                    folder = prefix_obj['Prefix']
+                    if slug in folder:
+                        return folder + "report.md"
+                return None
+
+            dynamic_candidate = await to_thread.run_sync(_find_dynamic_candidate)
+            if dynamic_candidate:
+                exists = await storage_provider.exists(dynamic_candidate)
+                if exists:
+                    found_path = dynamic_candidate
+                    break
+        except Exception as e:
+            print(f"[poll_r2] Error checking dynamically resolved path for {slug}: {e}")
+
+        # Fallback to static path checks
         for candidate in r2_paths:
             try:
                 exists = await storage_provider.exists(candidate)
@@ -638,7 +678,8 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
                     found_path = candidate
                     break
             except Exception as e:
-                print(f"[poll_r2] Error checking {candidate}: {e}")
+                print(f"[poll_r2] Error checking static candidate {candidate}: {e}")
+        
         if found_path:
             print(f"[poll_r2] Report found at {found_path} for job {job_id}")
             break
@@ -648,7 +689,7 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
         print(f"[poll_r2] Timed out waiting for report in R2 for job {job_id}")
         async with async_session_maker() as session:
             job = await session.get(GenerationJob, job_id)
-            if job:
+            if job and job.status == JobStatusType.running:
                 job.status = JobStatusType.failed
                 job.errors = "Timed out: report.md not found in R2 after 45 min."
                 await session.commit()
