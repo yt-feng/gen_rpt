@@ -169,6 +169,22 @@ async def health_check():
     if settings.KNOWLEDGE_ENABLED:
         knowledge_status = "healthy"
 
+    collections_count = 0
+    documents_count = 0
+    queue_jobs_count = 0
+    if db_status == "healthy" and settings.KNOWLEDGE_ENABLED:
+        try:
+            async with engine.connect() as conn:
+                from app.models.knowledge import KnowledgeCollection, KnowledgeDocument, KnowledgeProcessingQueue
+                col_res = await conn.execute(select(func.count(KnowledgeCollection.id)).filter(KnowledgeCollection.deleted_at.is_(None)))
+                collections_count = col_res.scalar() or 0
+                doc_res = await conn.execute(select(func.count(KnowledgeDocument.id)).filter(KnowledgeDocument.deleted_at.is_(None)))
+                documents_count = doc_res.scalar() or 0
+                q_res = await conn.execute(select(func.count(KnowledgeProcessingQueue.id)))
+                queue_jobs_count = q_res.scalar() or 0
+        except Exception as e:
+            logger.error(f"Failed to fetch health check database stats: {e}")
+
     from app.services.knowledge_storage import knowledge_storage_service
     knowledge_storage_health = await knowledge_storage_service.check_connectivity()
 
@@ -181,6 +197,11 @@ async def health_check():
         "storage_provider": settings.KNOWLEDGE_STORAGE_PROVIDER,
         "vector_provider": settings.KNOWLEDGE_VECTOR_PROVIDER,
         "knowledge_storage": knowledge_storage_health,
+        "statistics": {
+            "active_collections_count": collections_count,
+            "active_documents_count": documents_count,
+            "queue_jobs_count": queue_jobs_count
+        },
         "feature_flags": {
             "KNOWLEDGE_ENABLED": settings.KNOWLEDGE_ENABLED,
             "RAG_ENABLED": settings.RAG_ENABLED,
