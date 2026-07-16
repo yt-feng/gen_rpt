@@ -944,6 +944,7 @@ async def regenerate_report_image(
     encoded_prompt = quote(payload.prompt, safe="")
     pollinations_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width=1536&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux"
     
+    is_fallback = False
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.get(pollinations_url)
@@ -951,6 +952,7 @@ async def regenerate_report_image(
             content_bytes = resp.content
     except Exception as e:
         print(f"[regenerate-image] Failed to download generated image from Pollinations: {e}")
+        is_fallback = True
         # Fallback to placehold.co if Pollinations fails
         try:
             display_text = payload.prompt[:30].replace(' ', '+')
@@ -983,16 +985,19 @@ async def regenerate_report_image(
             img["url"] = new_url
             break
 
-    # Dispatch to GitHub Actions in the background so it runs the workflow
-    try:
-        from app.services.generation import GitHubActionsWorker
-        worker = GitHubActionsWorker()
-        asyncio.create_task(worker.dispatch_image_regeneration(slug, safe_key, payload.prompt, r2_prefix))
-    except Exception as gha_err:
-        print(f"[regenerate-image] Warning: Failed to dispatch GitHub Action task: {gha_err}")
+    # Dispatch to GitHub Actions in the background so it runs the workflow ONLY on fallback
+    if is_fallback:
+        try:
+            from app.services.generation import GitHubActionsWorker
+            worker = GitHubActionsWorker()
+            asyncio.create_task(worker.dispatch_image_regeneration(slug, safe_key, payload.prompt, r2_prefix))
+            print(f"[regenerate-image] Fallback triggered: GitHub Action workflow dispatched for document {document_id}")
+        except Exception as gha_err:
+            print(f"[regenerate-image] Warning: Failed to dispatch GitHub Action task: {gha_err}")
+    else:
+        print(f"[regenerate-image] Successfully generated and replaced {safe_key} synchronously for document {document_id}")
 
-    print(f"[regenerate-image] Successfully generated, replaced {safe_key} and triggered GitHub Action for document {document_id}")
     return success_response(
         data={"key": safe_key, "url": new_url},
-        message="Image regenerated and GitHub Action workflow triggered successfully",
+        message="Image regenerated successfully" if not is_fallback else "Image placeholder generated; background regeneration workflow triggered",
     )
