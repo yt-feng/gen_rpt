@@ -33,6 +33,17 @@ async def db_session():
         await conn.run_sync(Base.metadata.create_all)
         
     async with TestingSessionLocal() as session:
+        from app.models.identity import User
+        # Seed the mock user to satisfy foreign key relationships
+        mock_user = User(
+            id=uuid.UUID("00000000-0000-0000-0000-000000000000"),
+            full_name="Placeholder Admin",
+            email="placeholder@admin.com",
+            status="active"
+        )
+        session.add(mock_user)
+        await session.commit()
+
         # Override FastAPI dependency get_db with TestingSessionLocal
         from app.database.session import get_db
         async def override_get_db():
