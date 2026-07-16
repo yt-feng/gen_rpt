@@ -5,8 +5,10 @@ from datetime import datetime, timezone
 from unittest.mock import AsyncMock, patch
 from fastapi.testclient import TestClient
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+import pytest_asyncio
 
+from app.models.base import Base
 from app.main import app
 from app.core.config import settings
 from app.models.knowledge import (
@@ -19,6 +21,28 @@ from app.models.knowledge import (
 from app.services.knowledge_storage import knowledge_storage_service
 
 client = TestClient(app)
+
+# Use SQLite memory for repository tests
+TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
+engine = create_async_engine(TEST_DATABASE_URL, echo=False)
+TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession, expire_on_commit=False)
+
+@pytest_asyncio.fixture(scope="function")
+async def db_session():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+        
+    async with TestingSessionLocal() as session:
+        # Override FastAPI dependency get_db with TestingSessionLocal
+        from app.database.session import get_db
+        async def override_get_db():
+            yield session
+        app.dependency_overrides[get_db] = override_get_db
+        yield session
+        
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+    app.dependency_overrides.clear()
 
 # Helper headers matching mock auth credentials
 HEADERS = {"Authorization": "Bearer placeholder@admin.com"}
