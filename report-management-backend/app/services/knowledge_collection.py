@@ -177,9 +177,18 @@ class KnowledgeCollectionService:
             activity_type="collection_change",
             details={"action": "soft_deleted"}
         )
-        # Note: deleted_at is set, so get_collection returns None (since it filters deleted_at.is_(None)).
-        # We can just return the object directly for delete.
-        return db_obj
+        return await self.get_collection_with_deleted(db, collection_id)
+
+    async def get_collection_with_deleted(self, db: AsyncSession, collection_id: uuid.UUID) -> Optional[KnowledgeCollection]:
+        from sqlalchemy.orm import selectinload
+        result = await db.execute(
+            select(KnowledgeCollection).options(
+                selectinload(KnowledgeCollection.tags)
+            ).filter(
+                KnowledgeCollection.id == collection_id
+            )
+        )
+        return result.scalars().first()
 
     async def get_collection(self, db: AsyncSession, collection_id: uuid.UUID) -> Optional[KnowledgeCollection]:
         from sqlalchemy.orm import selectinload
