@@ -185,8 +185,11 @@ class KnowledgeCollectionService:
         return db_obj
 
     async def get_collection(self, db: AsyncSession, collection_id: uuid.UUID) -> Optional[KnowledgeCollection]:
+        from sqlalchemy.orm import selectinload
         result = await db.execute(
-            select(KnowledgeCollection).filter(
+            select(KnowledgeCollection).options(
+                selectinload(KnowledgeCollection.tags)
+            ).filter(
                 KnowledgeCollection.id == collection_id,
                 KnowledgeCollection.deleted_at.is_(None)
             )
@@ -194,8 +197,11 @@ class KnowledgeCollectionService:
         return result.scalars().first()
 
     async def list_collections(self, db: AsyncSession, owner_id: uuid.UUID) -> List[KnowledgeCollection]:
+        from sqlalchemy.orm import selectinload
         result = await db.execute(
-            select(KnowledgeCollection).filter(
+            select(KnowledgeCollection).options(
+                selectinload(KnowledgeCollection.tags)
+            ).filter(
                 KnowledgeCollection.owner_id == owner_id,
                 KnowledgeCollection.deleted_at.is_(None)
             )

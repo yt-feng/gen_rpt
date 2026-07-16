@@ -190,7 +190,7 @@ async def test_document_upload_and_validation(db_session: AsyncSession):
             headers=HEADERS
         )
         assert empty_res.status_code == 400
-        assert "empty" in empty_res.json()["detail"].lower()
+        assert "empty" in empty_res.json()["message"].lower()
 
         # 3. Validation Failure: Unsupported MIME type / extension
         bad_res = client.post(
@@ -199,7 +199,7 @@ async def test_document_upload_and_validation(db_session: AsyncSession):
             headers=HEADERS
         )
         assert bad_res.status_code == 400
-        assert "unsupported" in bad_res.json()["detail"].lower()
+        assert "unsupported" in bad_res.json()["message"].lower()
 
 @pytest.mark.asyncio
 async def test_duplicate_detection_strategies(db_session: AsyncSession):

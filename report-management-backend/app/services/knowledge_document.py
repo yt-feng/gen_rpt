@@ -314,17 +314,15 @@ class KnowledgeDocumentService:
 
         for filename, data, content_type in files:
             try:
-                # We use a nested transaction (savepoint) for each file
-                async with db.begin_nested():
-                    res = await self.upload_document(
-                        db=db,
-                        collection_id=collection_id,
-                        filename=filename,
-                        file_data=data,
-                        content_type=content_type,
-                        user_id=user_id,
-                        duplicate_strategy=duplicate_strategy
-                    )
+                res = await self.upload_document(
+                    db=db,
+                    collection_id=collection_id,
+                    filename=filename,
+                    file_data=data,
+                    content_type=content_type,
+                    user_id=user_id,
+                    duplicate_strategy=duplicate_strategy
+                )
                 results.append({"filename": filename, "result": res})
                 if res.get("status") == "success":
                     success_count += 1
@@ -452,8 +450,12 @@ class KnowledgeDocumentService:
         return doc
 
     async def list_documents_by_collection(self, db: AsyncSession, collection_id: uuid.UUID) -> List[KnowledgeDocument]:
+        from sqlalchemy.orm import selectinload
         result = await db.execute(
-            select(KnowledgeDocument).filter(
+            select(KnowledgeDocument).options(
+                selectinload(KnowledgeDocument.tags),
+                selectinload(KnowledgeDocument.sources)
+            ).filter(
                 KnowledgeDocument.collection_id == collection_id,
                 KnowledgeDocument.deleted_at.is_(None)
             )
@@ -461,8 +463,12 @@ class KnowledgeDocumentService:
         return list(result.scalars().all())
 
     async def get_document(self, db: AsyncSession, document_id: uuid.UUID) -> Optional[KnowledgeDocument]:
+        from sqlalchemy.orm import selectinload
         result = await db.execute(
-            select(KnowledgeDocument).filter(
+            select(KnowledgeDocument).options(
+                selectinload(KnowledgeDocument.tags),
+                selectinload(KnowledgeDocument.sources)
+            ).filter(
                 KnowledgeDocument.id == document_id,
                 KnowledgeDocument.deleted_at.is_(None)
             )
