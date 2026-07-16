@@ -19,6 +19,7 @@ from app.models.knowledge import (
     KnowledgeActivityHistory
 )
 from app.services.knowledge_storage import knowledge_storage_service
+from app.services.knowledge_document import knowledge_document_service
 
 client = TestClient(app)
 
@@ -26,6 +27,8 @@ client = TestClient(app)
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestingSessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession, expire_on_commit=False)
+
+USER_ID = uuid.UUID("e3d5b001-c800-4b82-965a-8b173bf200aa")
 
 @pytest_asyncio.fixture(scope="function")
 async def db_session():
@@ -36,7 +39,7 @@ async def db_session():
         from app.models.identity import User
         # Seed the mock user to satisfy foreign key relationships
         mock_user = User(
-            id=uuid.UUID("00000000-0000-0000-0000-000000000000"),
+            id=USER_ID,
             full_name="Placeholder Admin",
             email="placeholder@admin.com",
             status="active"
@@ -49,6 +52,18 @@ async def db_session():
         async def override_get_db():
             yield session
         app.dependency_overrides[get_db] = override_get_db
+
+        # Override get_current_user_placeholder to return our custom mock user
+        from app.api.deps import get_current_user_placeholder
+        def override_get_current_user_placeholder():
+            return {
+                "id": str(USER_ID),
+                "email": "placeholder@admin.com",
+                "full_name": "Placeholder Admin",
+                "role": "admin"
+            }
+        app.dependency_overrides[get_current_user_placeholder] = override_get_current_user_placeholder
+        
         yield session
         
     async with engine.begin() as conn:
@@ -71,7 +86,7 @@ async def test_collection_crud_endpoints(db_session: AsyncSession):
         "name": "Test Collection Ingestion",
         "slug": "test-collection-ingestion",
         "description": "Ingestion test workspace",
-        "owner_id": "00000000-0000-0000-0000-000000000000",
+        "owner_id": str(USER_ID),
         "visibility": "private"
     }
     response = client.post("/api/v1/knowledge/collections", json=payload, headers=HEADERS)
@@ -129,7 +144,7 @@ async def test_document_upload_and_validation(db_session: AsyncSession):
     coll = KnowledgeCollection(
         name="Doc Ingestion Workspace",
         slug="doc-ingestion-workspace",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     db_session.add(coll)
     await db_session.commit()
@@ -192,7 +207,7 @@ async def test_duplicate_detection_strategies(db_session: AsyncSession):
     coll = KnowledgeCollection(
         name="Duplicate Workspace",
         slug="duplicate-workspace",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     db_session.add(coll)
     await db_session.commit()
@@ -242,7 +257,7 @@ async def test_bulk_upload_endpoint(db_session: AsyncSession):
     coll = KnowledgeCollection(
         name="Bulk Workspace",
         slug="bulk-workspace",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     db_session.add(coll)
     await db_session.commit()
@@ -252,12 +267,6 @@ async def test_bulk_upload_endpoint(db_session: AsyncSession):
          patch.object(knowledge_storage_service.provider, "exists", AsyncMock(return_value=True)):
         
         # Ingest bulk docs (one valid, one empty)
-        files = [
-            ("file1.md", io.BytesIO(b"Valid MD content"), "text/markdown"),
-            ("file2.pdf", io.BytesIO(b""), "application/pdf") # invalid
-        ]
-        
-        # We simulate multiple files format in FastAPI TestClient
         response = client.post(
             f"/api/v1/knowledge/documents/bulk-upload?collection_id={coll.id}",
             files=[
@@ -277,12 +286,12 @@ async def test_document_move_archive_restore(db_session: AsyncSession):
     coll1 = KnowledgeCollection(
         name="Collection 1",
         slug="collection-1",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     coll2 = KnowledgeCollection(
         name="Collection 2",
         slug="collection-2",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     db_session.add_all([coll1, coll2])
     await db_session.commit()
@@ -338,7 +347,7 @@ async def test_processing_queue_endpoints(db_session: AsyncSession):
     coll = KnowledgeCollection(
         name="Queue Workspace",
         slug="queue-workspace",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     db_session.add(coll)
     await db_session.commit()
@@ -385,7 +394,7 @@ async def test_upload_rollback_on_db_fail(db_session: AsyncSession):
     coll = KnowledgeCollection(
         name="Rollback Workspace",
         slug="rollback-workspace",
-        owner_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+        owner_id=USER_ID
     )
     db_session.add(coll)
     await db_session.commit()
@@ -399,7 +408,7 @@ async def test_upload_rollback_on_db_fail(db_session: AsyncSession):
          patch.object(knowledge_storage_service.provider, "exists", mock_exists), \
          patch.object(knowledge_storage_service.provider, "delete", mock_delete):
         
-        # Simulate database committing error by mocking the session add or commit
+        # Simulate database committing error by mocking session commit
         with patch.object(db_session, "commit", side_effect=Exception("Database simulation crash")):
             with pytest.raises(Exception):
                 await knowledge_document_service.upload_document(
@@ -408,7 +417,7 @@ async def test_upload_rollback_on_db_fail(db_session: AsyncSession):
                     filename="report.pdf",
                     file_data=b"dummy contents",
                     content_type="application/pdf",
-                    user_id=uuid.UUID("00000000-0000-0000-0000-000000000000")
+                    user_id=USER_ID
                 )
             
             # Ensure delete was called on storage provider to clean up R2
