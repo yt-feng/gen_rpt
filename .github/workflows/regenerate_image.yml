@@ -15,6 +15,10 @@ on:
         description: "AI generation briefing / prompt"
         required: true
         type: string
+      r2_prefix:
+        description: "R2 prefix (optional)"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -54,4 +58,5 @@ jobs:
           python -u tools/regenerate_image.py \
             --slug "${{ inputs.slug }}" \
             --image-key "${{ inputs.image_key }}" \
-            --prompt "${{ inputs.prompt }}"
+            --prompt "${{ inputs.prompt }}" \
+            --r2-prefix "${{ inputs.r2_prefix }}"

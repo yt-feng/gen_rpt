@@ -10,6 +10,7 @@ def main():
     parser.add_argument("--slug", required=True, help="Report slug")
     parser.add_argument("--image-key", required=True, help="Target image key, e.g. image-1.png")
     parser.add_argument("--prompt", required=True, help="Image description prompt")
+    parser.add_argument("--r2-prefix", required=False, help="R2 prefix to upload to")
     args = parser.parse_args()
 
     r2_account_id = os.getenv("R2_ACCOUNT_ID")
@@ -46,7 +47,14 @@ def main():
         region_name="auto"
     )
 
-    r2_key = f"reports/{args.slug}/current/assets/{args.image_key}"
+    if args.r2_prefix:
+        r2_prefix = args.r2_prefix
+        if not r2_prefix.endswith("/"):
+            r2_prefix += "/"
+    else:
+        r2_prefix = f"reports/{args.slug}/"
+        
+    r2_key = f"{r2_prefix}current/assets/{args.image_key}"
     print(f"Uploading to R2 key: {r2_key}")
 
     try:

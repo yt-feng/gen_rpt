@@ -987,7 +987,7 @@ async def regenerate_report_image(
     try:
         from app.services.generation import GitHubActionsWorker
         worker = GitHubActionsWorker()
-        asyncio.create_task(worker.dispatch_image_regeneration(slug, safe_key, payload.prompt))
+        asyncio.create_task(worker.dispatch_image_regeneration(slug, safe_key, payload.prompt, r2_prefix))
     except Exception as gha_err:
         print(f"[regenerate-image] Warning: Failed to dispatch GitHub Action task: {gha_err}")
 

@@ -135,7 +135,7 @@ class GitHubActionsWorker(WorkerInterface):
             print(f"[v2] Exception dispatching slug={slug}: {e}")
             return False
 
-    async def dispatch_image_regeneration(self, slug: str, image_key: str, prompt: str) -> bool:
+    async def dispatch_image_regeneration(self, slug: str, image_key: str, prompt: str, r2_prefix: str = "") -> bool:
         """Dispatch a job to regenerate_image.yml to regenerate a specific report image."""
         if not settings.GITHUB_TOKEN:
             print("GITHUB_TOKEN not set. Cannot dispatch image regeneration to GitHub Actions.")
@@ -152,7 +152,8 @@ class GitHubActionsWorker(WorkerInterface):
             "inputs": {
                 "slug": slug,
                 "image_key": image_key,
-                "prompt": prompt
+                "prompt": prompt,
+                "r2_prefix": r2_prefix
             }
         }
 
