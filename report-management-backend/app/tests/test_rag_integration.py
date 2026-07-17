@@ -500,3 +500,60 @@ async def test_partial_regeneration_api(db_session: AsyncSession):
                 assert attributions[0].section_id == "exec-summary-p1"
                 assert attributions[0].snapshot_id is not None
 
+
+@pytest.mark.anyio
+async def test_internal_context_retrieval_api(db_session: AsyncSession):
+    # Set internal token settings
+    settings.INTERNAL_TOKEN = "test-internal-token-123"
+
+    # Seed some context in cache directly
+    from app.models.rag_integration import GenerationContextCache
+    cache_item = GenerationContextCache(
+        cache_key="context:slug:test-slug-endpoint",
+        context_package={
+            "validated_chunks": [
+                {"chunk_id": "c1", "confidence": 0.95, "text": "Sample text."}
+            ],
+            "validated_sources": [],
+            "document_references": []
+        },
+        expires_at=datetime.now(timezone.utc) + timedelta(hours=1)
+    )
+    db_session.add(cache_item)
+    await db_session.commit()
+
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        # 1. Missing header -> 403
+        resp = await ac.get("/api/internal/context/test-slug-endpoint")
+        assert resp.status_code == 403
+
+        # 2. Invalid token -> 403
+        resp = await ac.get(
+            "/api/internal/context/test-slug-endpoint",
+            headers={"Authorization": "Bearer wrong-token"}
+        )
+        assert resp.status_code == 403
+
+        # 3. Valid token (Authorization: Bearer) -> 200
+        resp = await ac.get(
+            "/api/internal/context/test-slug-endpoint",
+            headers={"Authorization": "Bearer test-internal-token-123"}
+        )
+        assert resp.status_code == 200
+        data = resp.json()["data"]
+        assert len(data["validated_chunks"]) == 1
+        assert data["validated_chunks"][0]["text"] == "Sample text."
+
+        # 4. Valid token (x-internal-token) -> 200
+        resp = await ac.get(
+            "/api/internal/context/test-slug-endpoint",
+            headers={"x-internal-token": "test-internal-token-123"}
+        )
+        assert resp.status_code == 200
+
+        # 5. Non-existent slug -> 404
+        resp = await ac.get(
+            "/api/internal/context/non-existent-slug",
+            headers={"Authorization": "Bearer test-internal-token-123"}
+        )
+        assert resp.status_code == 404
