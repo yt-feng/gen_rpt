@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     DEEPSEEK_API_KEY: Optional[str] = None
     GROQ_API_KEY: Optional[str] = None
+    HF_API_TOKEN: Optional[str] = None  # Hugging Face Inference API token (free)
     
     # Auth
     JWT_SECRET: str = "change-me"
@@ -89,7 +90,8 @@ class Settings(BaseSettings):
     # --- Knowledge Pipeline Settings ---
     KNOWLEDGE_CHUNK_SIZE: int = 1000
     KNOWLEDGE_CHUNK_OVERLAP: int = 200
-    KNOWLEDGE_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    KNOWLEDGE_EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"  # HF model; set to text-embedding-3-small for OpenAI
+    KNOWLEDGE_EMBEDDING_DIMENSION: int = 384  # 384 for bge-small; 1536 for OpenAI text-embedding-3-small
     KNOWLEDGE_RETRY_COUNT: int = 3
     KNOWLEDGE_PROCESSING_TIMEOUT: int = 300  # seconds
     KNOWLEDGE_PARALLEL_WORKERS: int = 2

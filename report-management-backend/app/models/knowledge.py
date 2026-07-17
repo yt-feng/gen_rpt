@@ -164,7 +164,7 @@ class KnowledgeChunk(Base, UUIDMixin):
     hash: Mapped[str | None] = mapped_column(String, nullable=True)
     processing_version: Mapped[str | None] = mapped_column(String, nullable=True)
     chunk_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
-    embedding: Mapped[list[float] | None] = mapped_column(Vector(1536), nullable=True)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(384), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
     # Relationships
