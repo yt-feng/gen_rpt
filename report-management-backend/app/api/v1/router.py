@@ -18,7 +18,8 @@ from app.api.v1.endpoints import (
     knowledge,
     validation,
     aigateway,
-    review_integration
+    review_integration,
+    knowledge_intelligence
 )
 
 
@@ -41,6 +42,7 @@ api_router.include_router(dashboard.router, prefix="/dashboard", tags=["Dashboar
 api_router.include_router(statistics.router, prefix="/statistics", tags=["Statistics"])
 api_router.include_router(generation.router, prefix="/generation", tags=["Generation"])
 api_router.include_router(knowledge.router, prefix="/knowledge", tags=["Knowledge Intelligence"])
+api_router.include_router(knowledge_intelligence.router, prefix="/knowledge/intelligence", tags=["Knowledge Intelligence"])
 api_router.include_router(validation.router, prefix="/validation", tags=["Knowledge Validation"])
 api_router.include_router(aigateway.router, prefix="/aigateway", tags=["AI Gateway"])
 api_router.include_router(review_integration.router, prefix="/reviews", tags=["Review Integration"])
