@@ -158,6 +158,9 @@ class ValidationService:
             }
         }
         
+        # Safe stringify all UUIDs for SQLite/JSONB compatibility
+        full_report_json = stringify_uuids(full_report_json)
+        
         r2_path = f"knowledge/validation_reports/{report_id}.json"
         try:
             await storage_provider.upload(
@@ -173,16 +176,16 @@ class ValidationService:
         report = ValidationReport(
             id=report_id,
             session_id=session_id,
-            knowledge_snapshot=session.snapshot_metadata or {},
+            knowledge_snapshot=stringify_uuids(session.snapshot_metadata or {}),
             retrieved_sources={"sources": [str(d) for d in document_ids]},
             validation_summary=summary,
-            authority_scores={str(k): v for k, v in auth_scores.items()},
-            freshness_scores={str(k): v for k, v in fresh_scores.items()},
-            confidence_scores=conf_results,
-            conflicts={"conflicts": conflicts_list},
-            duplicate_analysis=dup_analysis,
-            evidence_completeness=completeness_details,
-            unsupported_evidence={"unsupported": unsupported_flags},
+            authority_scores=full_report_json["authority_scores"],
+            freshness_scores=full_report_json["freshness_scores"],
+            confidence_scores=full_report_json["confidence_scores"],
+            conflicts={"conflicts": full_report_json["conflicts"]},
+            duplicate_analysis=full_report_json["duplicate_analysis"],
+            evidence_completeness=full_report_json["evidence_completeness"],
+            unsupported_evidence={"unsupported": full_report_json["unsupported_evidence"]},
             recommendations=full_report_json["recommendations"],
             r2_path=r2_path
         )
@@ -208,14 +211,15 @@ class ValidationService:
             db=db,
             validator_version="1.0.0",
             execution_time_ms=duration_ms,
-            knowledge_snapshot=session.snapshot_metadata,
-            retrieved_chunks={"chunks": chunks_list},
-            validation_rules=policy.rules,
+            knowledge_snapshot=stringify_uuids(session.snapshot_metadata),
+            retrieved_chunks={"chunks": stringify_uuids(chunks_list)},
+            validation_rules=stringify_uuids(policy.rules),
             results=full_report_json,
-            warnings={"source_errors": source_errors},
+            warnings={"source_errors": stringify_uuids(source_errors)},
             errors={},
             user_id=user_id
         )
+
 
         # 7. Construct Validated Context Package
         validated_chunks_schemas = []

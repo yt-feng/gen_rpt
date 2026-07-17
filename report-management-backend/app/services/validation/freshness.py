@@ -2,9 +2,11 @@ import uuid
 import math
 from datetime import datetime, timezone
 from typing import Dict, Any, List
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.knowledge import KnowledgeDocument
 from app.models.validation import ValidationPolicy
+
 
 class FreshnessService:
     async def calculate_freshness(
