@@ -50,6 +50,8 @@ async def db_session():
     async with TestingSessionLocal() as session:
         from app.database.session import get_db
         from app.api.deps import get_current_user_placeholder
+        from app.services.knowledge_cache import knowledge_cache_service
+        knowledge_cache_service.clear()
         
         async def override_get_db():
             yield session
@@ -65,6 +67,7 @@ async def db_session():
         app.dependency_overrides[get_db] = override_get_db
         app.dependency_overrides[get_current_user_placeholder] = override_get_current_user
         yield session
+
         
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
