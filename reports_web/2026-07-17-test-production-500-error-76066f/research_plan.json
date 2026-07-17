@@ -1,0 +1,509 @@
+{
+  "objective": "To investigate the root causes, frequency, and business impact of HTTP 500 errors in production environments, and to provide actionable recommendations for reducing their occurrence and mitigating their effects.",
+  "audience": "Senior engineering leaders, CTOs, VP of Engineering, and Site Reliability Engineers at mid-to-large tech companies.",
+  "decision_question": "Should our organization invest in a dedicated error budget and automated rollback system to reduce 500 errors, or is the current incident response approach sufficient?",
+  "issue_tree": {
+    "root": "Test Production 500 Error",
+    "branches": [
+      {
+        "name": "Causes",
+        "children": [
+          "Code defects",
+          "Infrastructure failures",
+          "Configuration changes",
+          "Third-party dependencies"
+        ]
+      },
+      {
+        "name": "Frequency & Severity",
+        "children": [
+          "Error rate trends",
+          "Impact on user experience",
+          "Revenue loss per error"
+        ]
+      },
+      {
+        "name": "Detection & Response",
+        "children": [
+          "Monitoring coverage",
+          "Alerting latency",
+          "Mean time to resolution"
+        ]
+      },
+      {
+        "name": "Prevention & Mitigation",
+        "children": [
+          "Testing practices",
+          "Deployment strategies",
+          "Error budgets"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "The majority of 500 errors are caused by code defects introduced in the last 24 hours of deployment.",
+      "decision_relevance": "If true, investing in canary deployments and automated rollbacks would be justified.",
+      "needed_evidence": [
+        "Correlation between deployment time and error spikes; percentage of errors traced to recent code changes."
+      ],
+      "search_queries": [
+        "deployment frequency vs error rate correlation",
+        "percentage of production errors caused by recent code changes"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Companies with error budgets (e.g., SLO-based) have 50% fewer 500 errors than those without.",
+      "decision_relevance": "Supports adoption of error budgets as a management tool.",
+      "needed_evidence": [
+        "Comparative error rates between companies with and without error budgets; case studies."
+      ],
+      "search_queries": [
+        "error budget impact on error rate",
+        "SLO implementation reduces 500 errors"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Third-party API failures account for less than 10% of all 500 errors in production.",
+      "decision_relevance": "If true, internal code quality should be the primary focus.",
+      "needed_evidence": [
+        "Incident post-mortems attributing root cause to third-party vs internal."
+      ],
+      "search_queries": [
+        "percentage of 500 errors caused by third-party APIs",
+        "third-party dependency failure rate"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Automated rollback systems reduce mean time to resolution (MTTR) for 500 errors by at least 60%.",
+      "decision_relevance": "Justifies investment in automation.",
+      "needed_evidence": [
+        "MTTR comparison between teams with and without automated rollbacks."
+      ],
+      "search_queries": [
+        "automated rollback MTTR reduction",
+        "impact of automated rollback on incident resolution time"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The cost of a single 500 error (in lost revenue and engineering time) exceeds $10,000 for e-commerce companies.",
+      "decision_relevance": "Helps build a business case for prevention investment.",
+      "needed_evidence": [
+        "Revenue loss per error; engineering hours spent on incident response."
+      ],
+      "search_queries": [
+        "cost of 500 error e-commerce",
+        "revenue loss per HTTP 500 error"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Companies that perform chaos engineering have 40% fewer 500 errors in production.",
+      "decision_relevance": "Supports adoption of chaos engineering practices.",
+      "needed_evidence": [
+        "Error rate comparison between chaos engineering adopters and non-adopters."
+      ],
+      "search_queries": [
+        "chaos engineering reduces production errors",
+        "impact of chaos engineering on error rate"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The majority of 500 errors are transient and resolve without human intervention within 5 minutes.",
+      "decision_relevance": "If true, focus should be on auto-remediation rather than root cause analysis.",
+      "needed_evidence": [
+        "Distribution of error duration; percentage of self-resolving errors."
+      ],
+      "search_queries": [
+        "transient 500 error percentage",
+        "self-resolving HTTP 500 errors"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Test Production 500 Error, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total number of 500 errors per year = (Total web requests per year) * (Average error rate)",
+        "variables": [
+          "Total web requests per year (global)",
+          "Average error rate (e.g., 0.1%)"
+        ],
+        "preferred_sources": [
+          "Cisco Annual Internet Report",
+          "HTTP Archive",
+          "Akamai State of the Internet"
+        ],
+        "search_queries": [
+          "total web requests per year",
+          "average HTTP 500 error rate"
+        ],
+        "known_limitations": [
+          "Error rate varies widely by industry; global average may not be representative."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Total 500 errors = Sum over companies (Company's daily requests * error rate * 365)",
+        "variables": [
+          "Number of companies by size",
+          "Average daily requests per company",
+          "Average error rate per company size"
+        ],
+        "preferred_sources": [
+          "Gartner IT spending reports",
+          "Statista number of websites",
+          "Company annual reports (e.g., AWS, Google)"
+        ],
+        "search_queries": [
+          "average daily web requests per company",
+          "error rate by company size"
+        ],
+        "known_limitations": [
+          "Requires segmentation; data on small companies is scarce."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Number of companies with monitoring * adoption rate of error tracking tools * average errors per tool",
+        "variables": [
+          "Number of companies with web presence",
+          "Adoption rate of APM/error tracking tools",
+          "Average errors detected per tool"
+        ],
+        "preferred_sources": [
+          "Gartner Magic Quadrant for APM",
+          "Datadog customer data",
+          "New Relic annual report"
+        ],
+        "search_queries": [
+          "APM adoption rate",
+          "average number of errors detected by APM"
+        ],
+        "known_limitations": [
+          "Assumes all errors are detected; underreporting is common."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Total cost of 500 errors = (Number of errors) * (Average cost per error)",
+        "variables": [
+          "Number of errors (from top-down or bottom-up)",
+          "Average cost per error (from surveys or case studies)"
+        ],
+        "preferred_sources": [
+          "Ponemon Institute cost of downtime",
+          "IBM cost of data breach",
+          "Industry reports"
+        ],
+        "search_queries": [
+          "cost of HTTP 500 error",
+          "cost of downtime per minute"
+        ],
+        "known_limitations": [
+          "Cost per error is highly variable; difficult to generalize."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Total errors = Sum over error tracking vendors (vendor's total errors reported)",
+        "variables": [
+          "Vendor market share",
+          "Vendor's reported error volume"
+        ],
+        "preferred_sources": [
+          "Sentry transparency reports",
+          "Rollbar usage data",
+          "Datadog dashboards"
+        ],
+        "search_queries": [
+          "Sentry error volume",
+          "Rollbar number of errors processed"
+        ],
+        "known_limitations": [
+          "Vendors may not publicly disclose error volumes; data may be incomplete."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Test Production 500 Error milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "total HTTP requests per year",
+    "average HTTP 500 error rate",
+    "number of websites by company size",
+    "cost of 500 error e-commerce",
+    "average incident response time",
+    "APM adoption rate",
+    "error monitoring tool market share",
+    "funding for error monitoring startups",
+    "uptime SLA requirements",
+    "error monitoring market share",
+    "case study reducing 500 errors",
+    "major 500 error incidents timeline",
+    "deployment frequency vs error rate correlation",
+    "percentage of production errors caused by recent code changes",
+    "error budget impact on error rate",
+    "automated rollback MTTR reduction",
+    "SLO implementation reduces 500 errors",
+    "percentage of 500 errors caused by third-party APIs"
+  ],
+  "source_strategy": {
+    "primary": [
+      "Company annual reports (e.g., Datadog, New Relic, Sentry)",
+      "Industry reports (Gartner, Forrester)",
+      "Government data (e.g., Bureau of Labor Statistics for engineering salaries)"
+    ],
+    "secondary": [
+      "Academic papers on software reliability",
+      "Tech blogs (Netflix Tech, Google SRE)",
+      "Incident post-mortems (GitHub, AWS)"
+    ],
+    "validation": [
+      "Cross-reference error rates from multiple sources",
+      "Interview SREs for qualitative insights"
+    ]
+  },
+  "outline": [
+    "1. 500 Errors Are Costing Your Company Millions: The Hidden Tax of Unreliable Software",
+    "2. The Root Cause Is Not What You Think: Code Defects Dominate, Not Infrastructure",
+    "3. Error Budgets Work: Companies Using SLOs See 50% Fewer 500 Errors",
+    "4. Automation Is the Only Scalable Solution: Automated Rollbacks Cut MTTR by 60%",
+    "5. The Business Case for Investment: Every 500 Error Costs $10,000+ in Lost Revenue and Engineering Time",
+    "6. Actionable Recommendations: Implement Error Budgets, Canary Deployments, and Automated Rollbacks"
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "Global 500 Error Rate by Industry (2023)",
+      "description": "Bar chart showing average error rates for e-commerce, SaaS, finance, etc. Answers: Which industries are most affected?",
+      "data_needs": [
+        "Error rate data by industry from APM vendors or surveys"
+      ]
+    },
+    {
+      "title": "Cost of a 500 Error: Breakdown by Component",
+      "description": "Waterfall chart showing revenue loss, engineering time, and reputational damage. Answers: What is the total cost per error?",
+      "data_needs": [
+        "Revenue loss per error",
+        "Engineering hours per incident",
+        "Customer churn data"
+      ]
+    },
+    {
+      "title": "Impact of Error Budgets on Error Rate: Before vs After",
+      "description": "Line chart showing error rate trend before and after error budget implementation. Answers: Do error budgets reduce errors?",
+      "data_needs": [
+        "Error rate data from companies before and after adopting error budgets"
+      ]
+    },
+    {
+      "title": "MTTR Reduction with Automated Rollbacks",
+      "description": "Box plot comparing MTTR for teams with and without automated rollbacks. Answers: How much time does automation save?",
+      "data_needs": [
+        "MTTR data from incident management tools"
+      ]
+    },
+    {
+      "title": "Root Cause Distribution of 500 Errors",
+      "description": "Pie chart showing percentage caused by code defects, infrastructure, configuration, third-party. Answers: Where should we focus?",
+      "data_needs": [
+        "Incident post-mortem data from multiple companies"
+      ]
+    }
+  ],
+  "risks": [
+    "Data availability: Error rates and costs are often proprietary; may need to rely on estimates.",
+    "Selection bias: Companies that publicly share data may have better practices, skewing results.",
+    "Generalizability: Findings from large tech companies may not apply to SMBs.",
+    "Counter-evidence: Some studies may show that infrastructure failures are more common than code defects.",
+    "Timeliness: Error rates change rapidly; data older than 2 years may be outdated."
+  ]
+}
