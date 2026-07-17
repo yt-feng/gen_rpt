@@ -30,6 +30,12 @@ from app.models.knowledge import (
     KnowledgeSynchronizationLog,
     KnowledgeProcessingAuditLog
 )
+from app.models.validation import (
+    ValidationPolicy,
+    ValidationReport,
+    ValidationHistory,
+    ValidationAuditLog
+)
 
 __all__ = [
     "Base",
@@ -58,5 +64,9 @@ __all__ = [
     "KnowledgeAnalytics",
     "KnowledgeVersionHistory",
     "KnowledgeSynchronizationLog",
-    "KnowledgeProcessingAuditLog"
+    "KnowledgeProcessingAuditLog",
+    "ValidationPolicy",
+    "ValidationReport",
+    "ValidationHistory",
+    "ValidationAuditLog"
 ]
