@@ -215,16 +215,28 @@ async def upload_document(
     """
     Upload a single document (PDF/MD/DOCX/TXT/HTML) into a collection.
     """
-    file_bytes = await file.read()
-    result = await knowledge_document_service.upload_document(
-        db=db,
-        collection_id=collection_id,
-        filename=file.filename,
-        file_data=file_bytes,
-        content_type=file.content_type or "application/octet-stream",
-        user_id=UUID(user["id"]),
-        duplicate_strategy=duplicate_strategy
-    )
+    if file.size and file.size > 10 * 1024 * 1024:
+        result = await knowledge_document_service.upload_document(
+            db=db,
+            collection_id=collection_id,
+            filename=file.filename,
+            file_stream=file.file,
+            file_size=file.size,
+            content_type=file.content_type or "application/octet-stream",
+            user_id=UUID(user["id"]),
+            duplicate_strategy=duplicate_strategy
+        )
+    else:
+        file_bytes = await file.read()
+        result = await knowledge_document_service.upload_document(
+            db=db,
+            collection_id=collection_id,
+            filename=file.filename,
+            file_data=file_bytes,
+            content_type=file.content_type or "application/octet-stream",
+            user_id=UUID(user["id"]),
+            duplicate_strategy=duplicate_strategy
+        )
     return success_response(data=result, message="Document upload processed.")
 
 
@@ -246,16 +258,28 @@ async def replace_document_version(
             detail="Document not found."
         )
 
-    file_bytes = await file.read()
-    result = await knowledge_document_service.upload_document(
-        db=db,
-        collection_id=doc.collection_id,
-        filename=file.filename,
-        file_data=file_bytes,
-        content_type=file.content_type or "application/octet-stream",
-        user_id=UUID(user["id"]),
-        duplicate_strategy="new_version"
-    )
+    if file.size and file.size > 10 * 1024 * 1024:
+        result = await knowledge_document_service.upload_document(
+            db=db,
+            collection_id=doc.collection_id,
+            filename=file.filename,
+            file_stream=file.file,
+            file_size=file.size,
+            content_type=file.content_type or "application/octet-stream",
+            user_id=UUID(user["id"]),
+            duplicate_strategy="new_version"
+        )
+    else:
+        file_bytes = await file.read()
+        result = await knowledge_document_service.upload_document(
+            db=db,
+            collection_id=doc.collection_id,
+            filename=file.filename,
+            file_data=file_bytes,
+            content_type=file.content_type or "application/octet-stream",
+            user_id=UUID(user["id"]),
+            duplicate_strategy="new_version"
+        )
     return success_response(data=result, message="Document version replaced.")
 
 

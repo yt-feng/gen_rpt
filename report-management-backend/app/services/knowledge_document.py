@@ -54,9 +54,11 @@ class KnowledgeDocumentService:
         db: AsyncSession,
         collection_id: uuid.UUID,
         filename: str,
-        file_data: bytes,
         content_type: str,
         user_id: uuid.UUID,
+        file_data: Optional[bytes] = None,
+        file_stream: Optional[Any] = None,
+        file_size: int = 0,
         duplicate_strategy: str = "skip"  # skip, new_version
     ) -> Dict[str, Any]:
         """
@@ -77,7 +79,8 @@ class KnowledgeDocumentService:
             )
 
         # Validate file properties
-        file_size = len(file_data)
+        if file_data is not None:
+            file_size = len(file_data)
         is_valid, err_msg = self.validate_file(filename, content_type, file_size)
         if not is_valid:
             # Audit failed validation
@@ -95,7 +98,15 @@ class KnowledgeDocumentService:
             )
 
         # Compute Checksum
-        checksum = knowledge_storage_service.calculate_checksum(file_data)
+        if file_stream is not None:
+            import hashlib
+            hasher = hashlib.sha256()
+            while chunk := file_stream.read(8192):
+                hasher.update(chunk)
+            checksum = hasher.hexdigest()
+            file_stream.seek(0)
+        else:
+            checksum = knowledge_storage_service.calculate_checksum(file_data)
 
         # Task 4: Duplicate Detection
         existing_doc_res = await db.execute(
@@ -133,9 +144,14 @@ class KnowledgeDocumentService:
                 )
 
                 # Attempt upload to R2
-                upload_ok = await knowledge_storage_service.provider.upload(
-                    file_data, storage_path, content_type
-                )
+                if file_stream is not None:
+                    upload_ok = await knowledge_storage_service.provider.upload_streaming(
+                        file_stream, storage_path, content_type
+                    )
+                else:
+                    upload_ok = await knowledge_storage_service.provider.upload(
+                        file_data, storage_path, content_type
+                    )
                 if not upload_ok:
                     raise HTTPException(
                         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -216,9 +232,15 @@ class KnowledgeDocumentService:
             collection_id, doc_id, filename, version=1
         )
 
-        upload_ok = await knowledge_storage_service.provider.upload(
-            file_data, storage_path, content_type
-        )
+        # Attempt upload to R2
+        if file_stream is not None:
+            upload_ok = await knowledge_storage_service.provider.upload_streaming(
+                file_stream, storage_path, content_type
+            )
+        else:
+            upload_ok = await knowledge_storage_service.provider.upload(
+                file_data, storage_path, content_type
+            )
         if not upload_ok:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

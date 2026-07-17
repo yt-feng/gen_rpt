@@ -484,6 +484,7 @@ class AIGatewayService:
         """
         Proxy completions request to DeepSeek, managing budget, logging, and retry strategies.
         """
+        from pydantic import ValidationError
         api_key = settings.DEEPSEEK_API_KEY
         if not api_key or api_key == "REPLACE_WITH_REAL_VALUE":
             raise ValueError("DEEPSEEK_API_KEY is not configured. Set it in environment variables.")
@@ -521,7 +522,6 @@ class AIGatewayService:
                     try:
                         data = json.loads(raw_body)
                         from app.schemas.ai_gateway import DeepSeekResponse
-                        from pydantic import ValidationError
                         DeepSeekResponse(**data)
                     except ValidationError as ve:
                         logger.error(
