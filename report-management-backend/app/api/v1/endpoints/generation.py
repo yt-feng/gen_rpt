@@ -82,7 +82,8 @@ async def create_job(
             )
             logger.info(f"RAG context pre-warmed for slug={slug_val}, cache_key=context:slug:{slug_val}")
         except Exception as e:
-            logger.error(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
+            logger.exception(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
+            await db.rollback()
 
 
     job = await generation_service.create_job(
