@@ -12,7 +12,7 @@ class KnowledgeStatisticsService:
         self, db: AsyncSession, collection_id: uuid.UUID
     ) -> CollectionStatisticsResponse:
         cache_key = f"stats:collection:{collection_id}"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached is not None:
             return cached
             
@@ -76,12 +76,12 @@ class KnowledgeStatisticsService:
             validation_summary=validation_summary
         )
         
-        knowledge_cache_service.set(cache_key, stats)
+        await knowledge_cache_service.set(cache_key, stats)
         return stats
 
     async def get_global_statistics(self, db: AsyncSession) -> Dict[str, Any]:
         cache_key = "stats:global"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached is not None:
             return cached
             
@@ -106,7 +106,7 @@ class KnowledgeStatisticsService:
             "chunk_count": chunk_count,
             "queue_backlog": queue_backlog
         }
-        knowledge_cache_service.set(cache_key, stats, ttl=60)
+        await knowledge_cache_service.set(cache_key, stats, ttl=60)
         return stats
 
 knowledge_statistics_service = KnowledgeStatisticsService()

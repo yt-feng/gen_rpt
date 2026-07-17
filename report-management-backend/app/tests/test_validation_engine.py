@@ -51,7 +51,7 @@ async def db_session():
         from app.database.session import get_db
         from app.api.deps import get_current_user_placeholder
         from app.services.knowledge_cache import knowledge_cache_service
-        knowledge_cache_service.clear()
+        await knowledge_cache_service.clear()
         
         async def override_get_db():
             yield session

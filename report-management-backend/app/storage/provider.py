@@ -70,6 +70,10 @@ class CloudflareR2Provider(StorageProvider):
     async def upload(self, file_data: Union[bytes, BinaryIO], path: str, content_type: str = "application/octet-stream") -> bool:
         return await to_thread.run_sync(self._upload_sync, file_data, path, content_type)
 
+    async def upload_streaming(self, file_object: BinaryIO, path: str, content_type: str = "application/octet-stream") -> bool:
+        return await to_thread.run_sync(self._upload_sync, file_object, path, content_type)
+
+
     def _download_sync(self, path: str) -> Optional[bytes]:
         if not self.is_configured:
             return None

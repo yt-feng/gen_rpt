@@ -11,7 +11,7 @@ class PolicyService:
         """Retrieves the currently active policy. If none exists, creates the default one."""
         from app.services.knowledge_cache import knowledge_cache_service
         cache_key = "validation:policy:active"
-        cached_policy = knowledge_cache_service.get(cache_key)
+        cached_policy = await knowledge_cache_service.get(cache_key)
         if cached_policy:
             return cached_policy
             
@@ -22,7 +22,7 @@ class PolicyService:
         if not policy:
             policy = await self.create_default_policy(db)
             
-        knowledge_cache_service.set(cache_key, policy, ttl=600)
+        await knowledge_cache_service.set(cache_key, policy, ttl=600)
         return policy
 
 
@@ -76,7 +76,7 @@ class PolicyService:
             await db.execute(
                 update(ValidationPolicy).where(ValidationPolicy.is_active == True).values(is_active=False)
             )
-            knowledge_cache_service.delete("validation:policy:active")
+            await knowledge_cache_service.delete("validation:policy:active")
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)
@@ -95,7 +95,7 @@ class PolicyService:
                 update(ValidationPolicy).where(ValidationPolicy.is_active == True).values(is_active=False)
             )
             
-        knowledge_cache_service.delete("validation:policy:active")
+        await knowledge_cache_service.delete("validation:policy:active")
         for key, value in update_data.items():
             setattr(db_obj, key, value)
             
