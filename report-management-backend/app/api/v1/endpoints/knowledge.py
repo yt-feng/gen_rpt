@@ -35,11 +35,18 @@ from app.schemas.knowledge import (
     TagCreate,
     TagResponse,
     PermissionCreate,
-    PermissionResponse
+    PermissionResponse,
+    LifecycleReindexRequest,
+    LifecycleRollbackRequest,
+    LifecycleHealthResponse,
+    LifecycleArchiveRequest,
+    LifecycleOptimizationResponse,
+    LifecycleAnalyticsResponse
 )
 from app.services.knowledge import verify_knowledge_enabled
 from app.services.knowledge_collection import knowledge_collection_service
 from app.services.knowledge_document import knowledge_document_service
+from app.services.knowledge_lifecycle import knowledge_lifecycle_service
 from app.models.knowledge import KnowledgeProcessingQueue, KnowledgeActivityHistory
 
 router = APIRouter()
@@ -850,3 +857,137 @@ async def get_knowledge_health(
         snapshot_status="healthy" if settings.KNOWLEDGE_ENABLED else "idle"
     )
     return success_response(data=health_data, message="Knowledge health checked.")
+
+
+# ==========================================
+# Phase R12 Lifecycle Management Endpoints
+# ==========================================
+
+@router.post("/lifecycle/documents/{document_id}/reindex", response_model=APIResponse[ProcessingJobResponse])
+async def reindex_document(
+    document_id: UUID,
+    payload: LifecycleReindexRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Queue a document for re-indexing (re-processing, re-chunking, re-embedding).
+    """
+    result = await knowledge_lifecycle_service.reindex_document(
+        db=db,
+        document_id=document_id,
+        priority=payload.priority,
+        user_id=UUID(user["id"])
+    )
+    return success_response(data=result, message="Reindexing job created successfully.")
+
+
+@router.post("/lifecycle/documents/{document_id}/rollback", response_model=APIResponse[dict])
+async def rollback_document(
+    document_id: UUID,
+    payload: LifecycleRollbackRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Roll back a document to a previous version.
+    """
+    result = await knowledge_lifecycle_service.rollback_document(
+        db=db,
+        document_id=document_id,
+        target_version=payload.target_version,
+        user_id=UUID(user["id"]),
+        reason=payload.reason
+    )
+    return success_response(data=result, message="Document rollback completed. Reprocessing queued.")
+
+
+@router.post("/lifecycle/collections/{collection_id}/archive", response_model=APIResponse[CollectionResponse])
+async def archive_collection_lifecycle(
+    collection_id: UUID,
+    payload: LifecycleArchiveRequest,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Archive a collection and optionally all its documents.
+    """
+    if payload.archive_documents:
+        result = await knowledge_lifecycle_service.archive_collection_lifecycle(
+            db=db,
+            collection_id=collection_id,
+            user_id=UUID(user["id"])
+        )
+    else:
+        result = await knowledge_collection_service.archive_collection(
+            db=db,
+            collection_id=collection_id,
+            user_id=UUID(user["id"])
+        )
+    return success_response(data=result, message="Collection archived successfully.")
+
+
+@router.post("/lifecycle/sources/{source_id}/refresh", response_model=APIResponse[SourceResponse])
+async def refresh_source(
+    source_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Refresh source scores and trust metrics.
+    """
+    result = await knowledge_lifecycle_service.refresh_source(
+        db=db,
+        source_id=source_id,
+        user_id=UUID(user["id"])
+    )
+    return success_response(data=result, message="Source metrics refreshed.")
+
+
+@router.get("/lifecycle/health", response_model=APIResponse[LifecycleHealthResponse])
+async def monitor_lifecycle_health(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Scan repository health for stuck processing, missing embeddings, or unprocessed docs.
+    """
+    result = await knowledge_lifecycle_service.monitor_health(db=db)
+    return success_response(data=result, message="Health checks completed.")
+
+
+@router.post("/lifecycle/optimize", response_model=APIResponse[LifecycleOptimizationResponse])
+async def optimize_lifecycle_storage(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Clean up orphan chunks, unused embeddings, and outdated queue job audits.
+    """
+    result = await knowledge_lifecycle_service.optimize_storage(db=db)
+    return success_response(data=result, message="Storage optimization complete.")
+
+
+@router.post("/lifecycle/analytics/run", response_model=APIResponse[LifecycleAnalyticsResponse])
+async def run_lifecycle_analytics(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder),
+    _=Depends(verify_knowledge_enabled)
+):
+    """
+    Run lifecycle analytics and log execution.
+    """
+    result = await knowledge_lifecycle_service.run_lifecycle_analytics(db=db)
+    response_data = LifecycleAnalyticsResponse(
+        status="success",
+        analytics_id=result.id,
+        recorded_date=result.recorded_date
+    )
+    return success_response(data=response_data, message="Analytics run successfully.")
+

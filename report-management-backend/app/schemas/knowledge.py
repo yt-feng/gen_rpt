@@ -520,3 +520,36 @@ class DiscoveryResponse(BaseModel):
     frequently_referenced: List[DocumentResponse] = []
     largest_collections: List[CollectionResponse] = []
 
+
+# ==========================================
+# 15. Phase R12 Lifecycle Schemas
+# ==========================================
+class LifecycleReindexRequest(BaseModel):
+    priority: int = 0
+
+class LifecycleRollbackRequest(BaseModel):
+    target_version: int
+    reason: Optional[str] = None
+
+class LifecycleHealthResponse(BaseModel):
+    status: str
+    stuck_jobs_count: int
+    missing_embeddings_count: int
+    unprocessed_documents_count: int
+    details: Dict[str, Any]
+
+class LifecycleArchiveRequest(BaseModel):
+    archive_documents: bool = True
+
+class LifecycleOptimizationResponse(BaseModel):
+    status: str
+    cleaned_chunks_count: int
+    cleaned_embeddings_count: int
+    details: Dict[str, Any]
+
+class LifecycleAnalyticsResponse(BaseModel):
+    status: str
+    analytics_id: UUID
+    recorded_date: datetime
+
+
