@@ -71,11 +71,25 @@ async def create_job(
         from app.services.rag_integration import generation_context_service
         from app.logging.logger import logger
         try:
+            # Auto-resolve collection_ids: use provided ones or fall back to user's own collections
+            effective_collection_ids = req.collection_ids
+            if not effective_collection_ids:
+                from app.models.knowledge import KnowledgeCollection
+                from sqlalchemy import select as sa_select
+                col_stmt = sa_select(KnowledgeCollection.id).where(
+                    KnowledgeCollection.owner_id == UUID(user["id"]),
+                    KnowledgeCollection.status == "active"
+                )
+                col_result = await db.execute(col_stmt)
+                effective_collection_ids = col_result.scalars().all() or None
+                if effective_collection_ids:
+                    logger.info(f"RAG: Auto-resolved {len(effective_collection_ids)} collection(s) for user {user['id']}")
+
             # Prepare context (retrieval + validation + snapshotting + caching)
             await generation_context_service.prepare_context(
                 db=db,
                 query=prompt,
-                collection_ids=req.collection_ids,
+                collection_ids=effective_collection_ids,
                 user_id=UUID(user["id"]),
                 user_org_id=None,
                 slug=slug_val

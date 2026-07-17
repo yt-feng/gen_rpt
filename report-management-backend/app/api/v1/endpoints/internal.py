@@ -258,7 +258,10 @@ async def get_internal_context(
     from app.services.rag_integration import context_cache_service
     pkg = await context_cache_service.get_cached_context(db, f"context:slug:{slug}")
     if not pkg:
-        raise HTTPException(status_code=404, detail=f"Context package not found or not pre-warmed for slug: {slug}")
+        return success_response(
+            data={"validated_chunks": [], "validated_sources": [], "document_references": []},
+            message="No context found, fallback empty context provided"
+        )
     return success_response(data=pkg, message="Fetched cached context package")
 
 

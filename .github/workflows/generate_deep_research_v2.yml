@@ -74,6 +74,8 @@ jobs:
         id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
         run: |
           set -euo pipefail
           TOPIC="$TOPIC_INPUT"
