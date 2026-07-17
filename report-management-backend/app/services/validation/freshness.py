@@ -42,10 +42,21 @@ class FreshnessService:
                 
             base_date = pub_date or doc.created_at
 
-            
+            # Ensure base_date is a datetime object
+            if isinstance(base_date, (int, float)):
+                base_date = datetime.fromtimestamp(base_date, tz=timezone.utc)
+            elif isinstance(base_date, str):
+                try:
+                    base_date = datetime.fromisoformat(base_date)
+                except ValueError:
+                    base_date = datetime.now(timezone.utc)
+            elif not isinstance(base_date, datetime):
+                base_date = datetime.now(timezone.utc)
+                
             # Make timezone aware if it is naive
             if base_date.tzinfo is None:
                 base_date = base_date.replace(tzinfo=timezone.utc)
+
                 
             age_days = (now - base_date).days
             if age_days < 0:
