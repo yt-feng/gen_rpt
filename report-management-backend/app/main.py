@@ -80,6 +80,14 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.warning(f"R2 hydration scheduling failed: {e}")
     
+    # Start knowledge processing pipeline
+    if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED:
+        try:
+            from app.services.knowledge_processing.pipeline import knowledge_pipeline
+            knowledge_pipeline.start()
+        except Exception as e:
+            logger.error(f"Failed to start Knowledge Processing Pipeline: {e}")
+
     logger.info(f"API available at: {settings.API_V1_STR}")
     logger.info("Startup complete. Ready to serve requests.")
     
@@ -87,6 +95,11 @@ async def lifespan(app: FastAPI):
     
     # --- SHUTDOWN ---
     logger.info("Shutting down application.")
+    try:
+        from app.services.knowledge_processing.pipeline import knowledge_pipeline
+        knowledge_pipeline.stop()
+    except Exception as e:
+        logger.error(f"Failed to stop Knowledge Processing Pipeline: {e}")
     from app.core.database import engine
     await engine.dispose()
 
@@ -191,9 +204,12 @@ async def health_check():
     knowledge_health = {
         "status": knowledge_status,
         "module_loaded": True,
-        "workers_status": "idle",
-        "queue_status": "idle",
-        "processing_status": "idle",
+        "workers_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
+        "queue_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
+        "processing_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
+        "embedding_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
+        "validation_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.VALIDATION_ENABLED else "idle",
+        "knowledge_index": "healthy" if settings.KNOWLEDGE_ENABLED else "idle",
         "storage_provider": settings.KNOWLEDGE_STORAGE_PROVIDER,
         "vector_provider": settings.KNOWLEDGE_VECTOR_PROVIDER,
         "knowledge_storage": knowledge_storage_health,

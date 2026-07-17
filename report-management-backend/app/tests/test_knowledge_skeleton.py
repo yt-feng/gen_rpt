@@ -63,23 +63,4 @@ async def test_knowledge_endpoints_disabled_by_default(monkeypatch):
         response = await ac.post(f"{settings.API_V1_STR}/knowledge/documents/upload?collection_id=00000000-0000-0000-0000-000000000000")
         assert response.status_code == 503
 
-@pytest.mark.asyncio
-async def test_knowledge_endpoints_unimplemented_when_enabled(monkeypatch):
-    # Enable the flag temporarily to check the 501 stub responses
-    monkeypatch.setattr(settings, "KNOWLEDGE_ENABLED", True)
-    
-    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
-        # Retrieval Query
-        response = await ac.post(
-            f"{settings.API_V1_STR}/knowledge/retrieval/query",
-            json={"topic": "test"}
-        )
-        assert response.status_code == 501
-        assert "Reserved for future implementation" in response.json()["message"]
-
-        # Search
-        response = await ac.post(
-            f"{settings.API_V1_STR}/knowledge/search",
-            json={"query": "test query", "limit": 5}
-        )
-        assert response.status_code == 501
+# (All stubs are now fully implemented in Phase R6 and R7)

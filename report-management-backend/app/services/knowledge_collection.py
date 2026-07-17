@@ -268,4 +268,75 @@ class KnowledgeCollectionService:
         await db.commit()
         return log_entry
 
+    async def clone_collection(
+        self, db: AsyncSession, collection_id: uuid.UUID, target_name: str, target_slug: str, user_id: uuid.UUID
+    ) -> KnowledgeCollection:
+        # Check source collection exists
+        src = await self.get_collection(db, collection_id)
+        if not src:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Source collection not found.")
+            
+        # Check target slug/name uniqueness
+        existing_res = await db.execute(
+            select(KnowledgeCollection).filter(
+                (KnowledgeCollection.name == target_name) | (KnowledgeCollection.slug == target_slug)
+            ).filter(KnowledgeCollection.deleted_at.is_(None))
+        )
+        if existing_res.scalars().first():
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Collection name or slug already exists.")
+            
+        # Create cloned collection
+        clone = KnowledgeCollection(
+            name=target_name,
+            slug=target_slug,
+            description=f"Cloned from {src.name}. " + (src.description or ""),
+            status="active",
+            owner_id=user_id,
+            organization_id=src.organization_id,
+            visibility=src.visibility,
+            created_by=user_id
+        )
+        db.add(clone)
+        await db.commit()
+        await db.refresh(clone)
+        
+        # Clone active documents in the collection
+        doc_res = await db.execute(
+            select(KnowledgeDocument).filter(
+                KnowledgeDocument.collection_id == collection_id,
+                KnowledgeDocument.deleted_at.is_(None)
+            )
+        )
+        docs = doc_res.scalars().all()
+        
+        for doc in docs:
+            cloned_doc = KnowledgeDocument(
+                collection_id=clone.id,
+                file_name=doc.file_name,
+                original_file_name=doc.original_file_name,
+                mime_type=doc.mime_type,
+                extension=doc.extension,
+                checksum=doc.checksum,
+                storage_path=doc.storage_path,
+                version=doc.version,
+                size=doc.size,
+                language=doc.language,
+                page_count=doc.page_count,
+                processing_status=doc.processing_status,
+                upload_status=doc.upload_status,
+                validation_status=doc.validation_status,
+                created_by=user_id
+            )
+            db.add(cloned_doc)
+            
+        await db.commit()
+        await self.log_activity(
+            db,
+            collection_id=clone.id,
+            user_id=user_id,
+            activity_type="collection_change",
+            details={"action": "cloned", "source_collection_id": str(collection_id)}
+        )
+        return await self.get_collection(db, clone.id)
+
 knowledge_collection_service = KnowledgeCollectionService()

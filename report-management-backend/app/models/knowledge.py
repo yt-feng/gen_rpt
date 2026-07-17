@@ -208,6 +208,9 @@ class RetrievalSession(Base, UUIDMixin):
     completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     duration_ms: Mapped[int | None] = mapped_column(Integer, nullable=True)
     status: Mapped[str] = mapped_column(String, default="pending") # pending, completed, failed
+    request_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    snapshot_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    session_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
 
     __table_args__ = (
         Index("ix_retrieval_sessions_collection_id", "collection_id"),

@@ -259,6 +259,18 @@ class RetrievalRequest(BaseModel):
     topic: str
     target_count: int = 10
     collection_ids: Optional[List[UUID]] = None
+    document_type: Optional[str] = None
+    tags: Optional[List[str]] = None
+    categories: Optional[List[str]] = None
+    language: Optional[str] = None
+    source: Optional[str] = None
+    publisher: Optional[str] = None
+    author: Optional[str] = None
+    processing_status: Optional[str] = None
+    validation_status: Optional[str] = None
+    weights: Optional[Dict[str, float]] = None
+    freshness_policy: Optional[str] = None
+    token_budget: Optional[int] = 4000
 
 class RetrievalSessionResponse(BaseModel):
     id: UUID
@@ -406,12 +418,46 @@ class SearchRequest(BaseModel):
     query: str
     collection_id: Optional[UUID] = None
     limit: int = 10
+    tags: Optional[List[str]] = None
+    categories: Optional[List[str]] = None
+    languages: Optional[List[str]] = None
+    author: Optional[str] = None
+    publisher: Optional[str] = None
+    document_type: Optional[str] = None
+    processing_status: Optional[str] = None
+    validation_status: Optional[str] = None
+    organization_id: Optional[UUID] = None
 
 class SearchResponse(BaseModel):
-    results: List[Any] = []
+    results: List[DocumentResponse] = []
+
+class ContextChunk(BaseModel):
+    chunk_id: UUID
+    document_id: UUID
+    file_name: str
+    text_content: str
+    similarity_score: float
+    rank: int
+    confidence: float
+    metadata: Optional[Dict[str, Any]] = None
+
+class KnowledgeSnapshotSchema(BaseModel):
+    knowledge_version: str
+    collections: List[UUID]
+    documents: List[UUID]
+    chunks: List[UUID]
+    embedding_version: str
+    validation_version: str
+    relationship_version: str
+    metadata_version: str
 
 class RetrievalResponse(BaseModel):
+    session_id: UUID
     context: str
+    chunks: List[ContextChunk]
+    snapshot: KnowledgeSnapshotSchema
+    latency_ms: int
+    cache_hit: bool
     sources: List[Any] = []
 
 class AdminStatusResponse(BaseModel):
@@ -421,4 +467,56 @@ class AdminStatusResponse(BaseModel):
 class KnowledgeHealthResponse(BaseModel):
     status: str
     module_loaded: bool
+    workers_status: str = "idle"
+    queue_status: str = "idle"
+    processing_status: str = "idle"
+    embedding_status: str = "idle"
+    validation_status: str = "idle"
+    knowledge_index: str = "idle"
+    retrieval_status: str = "idle"
+    vector_status: str = "idle"
+    cache_status: str = "idle"
+    ranking_status: str = "idle"
+    context_builder_status: str = "idle"
+    analytics_status: str = "idle"
+    snapshot_status: str = "idle"
+
+# ==========================================
+# 14. Phase R6 Repository Schemas
+# ==========================================
+class CollectionCloneRequest(BaseModel):
+    target_name: str
+    target_slug: str
+
+class CollectionStatisticsResponse(BaseModel):
+    collection_id: UUID
+    document_count: int
+    chunk_count: int
+    total_size_bytes: int
+    language_distribution: Dict[str, int]
+    tag_distribution: Dict[str, int]
+    category_distribution: Dict[str, int]
+    validation_summary: Dict[str, int]
+
+class CategoryTreeResponse(BaseModel):
+    id: UUID
+    name: str
+    slug: str
+    parent_id: Optional[UUID]
+    display_order: int
+    status: str
+    description: Optional[str]
+    children: List["CategoryTreeResponse"] = []
+
+class SimilarityResponse(BaseModel):
+    document_id: UUID
+    file_name: str
+    similarity_score: float
+    reason: str
+
+class DiscoveryResponse(BaseModel):
+    recent_documents: List[DocumentResponse] = []
+    popular_documents: List[DocumentResponse] = []
+    frequently_referenced: List[DocumentResponse] = []
+    largest_collections: List[CollectionResponse] = []
 

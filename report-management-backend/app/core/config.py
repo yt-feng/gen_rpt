@@ -78,7 +78,16 @@ class Settings(BaseSettings):
     KNOWLEDGE_STORAGE_CHECKSUM_ALGO: str = "sha256"
     KNOWLEDGE_STORAGE_COMPRESSION: bool = False
 
-    # --- Knowledge Pipeline Settings (Placeholders) ---
+    # --- Knowledge Pipeline Settings ---
+    KNOWLEDGE_CHUNK_SIZE: int = 1000
+    KNOWLEDGE_CHUNK_OVERLAP: int = 200
+    KNOWLEDGE_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    KNOWLEDGE_RETRY_COUNT: int = 3
+    KNOWLEDGE_PROCESSING_TIMEOUT: int = 300  # seconds
+    KNOWLEDGE_PARALLEL_WORKERS: int = 2
+    KNOWLEDGE_LANGUAGE_DETECTION_CONFIDENCE: float = 0.8
+    KNOWLEDGE_VALIDATION_STRICT: bool = False
+    KNOWLEDGE_MAX_FILE_SIZE_MB: int = 50
     KNOWLEDGE_SETTINGS: dict = {}
     KNOWLEDGE_PROCESSING_SETTINGS: dict = {}
     KNOWLEDGE_EMBEDDING_SETTINGS: dict = {}
