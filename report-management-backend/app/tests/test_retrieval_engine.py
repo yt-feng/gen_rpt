@@ -110,6 +110,7 @@ async def test_retrieval_end_to_end(db_session, monkeypatch):
         id=uuid.uuid4(),
         document_id=doc.id,
         chunk_number=1,
+        embedding=vector,
         chunk_metadata={
             "content": "earnings growth",
             "embedding": vector
