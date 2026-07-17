@@ -497,8 +497,7 @@ class KnowledgeDocumentService:
                 selectinload(KnowledgeDocument.tags),
                 selectinload(KnowledgeDocument.sources)
             ).filter(
-                KnowledgeDocument.id == document_id,
-                KnowledgeDocument.deleted_at.is_(None)
+                KnowledgeDocument.id == document_id
             )
         )
         return result.scalars().first()
