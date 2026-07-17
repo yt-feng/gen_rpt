@@ -161,7 +161,7 @@ class ValidationService:
         # Safe stringify all UUIDs for SQLite/JSONB compatibility
         full_report_json = stringify_uuids(full_report_json)
         
-        r2_path = f"knowledge/validation_reports/{report_id}.json"
+        r2_path = f"knowledge/validation/{report_id}.json"
         try:
             await storage_provider.upload(
                 json.dumps(full_report_json).encode("utf-8"),

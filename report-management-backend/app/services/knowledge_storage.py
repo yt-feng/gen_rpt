@@ -13,49 +13,53 @@ class KnowledgeStorageService:
 
     def generate_document_path(self, collection_id: UUID, document_id: UUID, filename: str, version: int = 1) -> str:
         """
-        Task 2 & 3: logical storage hierarchy for document versions:
-        e.g., knowledge/collections/{collection_id}/documents/{document_id}/v{version}/{filename}
+        logical storage hierarchy for document versions:
+        knowledge/organization/collection/original/
         """
-        prefix = settings.KNOWLEDGE_STORAGE_PREFIX
-        return f"{prefix}collections/{collection_id}/documents/{document_id}/v{version}/{filename}"
+        return f"knowledge/organization/collection/original/{collection_id}/{document_id}_v{version}_{filename}"
 
     def generate_archive_path(self, collection_id: UUID, document_id: UUID, filename: str, version: int = 1) -> str:
         """
-        Task 15: logical hierarchy for soft deleted archive documents
+        logical hierarchy for soft deleted archive documents
         """
-        prefix = settings.KNOWLEDGE_ARCHIVE_PREFIX
         timestamp = int(time.time())
-        return f"{prefix}collections/{collection_id}/documents/{document_id}/v{version}_{timestamp}/{filename}"
+        return f"knowledge/archive/{collection_id}/{document_id}_v{version}_{timestamp}_{filename}"
 
     def generate_export_path(self, collection_id: UUID, format_ext: str, export_id: UUID) -> str:
         """
-        Task 13: logical hierarchy for knowledge exports
+        logical hierarchy for knowledge exports
         """
-        prefix = settings.KNOWLEDGE_EXPORT_PREFIX
-        return f"{prefix}collections/{collection_id}/exports/{export_id}.{format_ext}"
+        return f"knowledge/processed/exports/{collection_id}_{export_id}.{format_ext}"
 
     def generate_log_path(self, log_type: str, timestamp: datetime) -> str:
         """
-        Task 16 & 17: logical hierarchy for ingestion and processing logs
+        logical hierarchy for ingestion and processing logs
         """
-        prefix = settings.KNOWLEDGE_LOG_PREFIX
         date_str = timestamp.strftime("%Y-%m-%d")
         epoch = int(timestamp.timestamp())
-        return f"{prefix}{log_type}/{date_str}/{epoch}.log"
+        return f"knowledge/logs/{log_type}/{date_str}_{epoch}.log"
 
     def generate_processing_path(self, document_id: UUID, stage: str, output_id: UUID) -> str:
         """
-        Task 4, 5, 6, 7, 8, 9, 10: intermediate/processed pipeline storage
+        intermediate/processed pipeline storage mapped to exact prefixes:
+        processed, text, chunks, embeddings, validation
         """
-        prefix = settings.KNOWLEDGE_PROCESSING_PREFIX
-        return f"{prefix}documents/{document_id}/stages/{stage}/{output_id}.json"
+        if stage == "extraction":
+            return f"knowledge/text/{document_id}_{output_id}.json"
+        elif stage == "chunking":
+            return f"knowledge/chunks/{document_id}_{output_id}.json"
+        elif stage == "embeddings":
+            return f"knowledge/embeddings/{document_id}_{output_id}.json"
+        elif stage == "validation":
+            return f"knowledge/validation/{document_id}_{output_id}.json"
+        else:
+            return f"knowledge/processed/{document_id}_{stage}_{output_id}.json"
 
     def generate_retrieval_path(self, session_id: UUID) -> str:
         """
-        Task 11 & 12: logical hierarchy for retrieval and validation snapshots
+        logical hierarchy for retrieval and validation snapshots
         """
-        prefix = settings.KNOWLEDGE_STORAGE_PREFIX
-        return f"{prefix}retrieval/sessions/{session_id}/snapshot.json"
+        return f"knowledge/retrieval/{session_id}/snapshot.json"
 
     def calculate_checksum(self, file_data: Union[bytes, BinaryIO]) -> str:
         """
