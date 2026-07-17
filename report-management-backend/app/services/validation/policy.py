@@ -9,13 +9,22 @@ from app.core.config import settings
 class PolicyService:
     async def get_active_policy(self, db: AsyncSession) -> ValidationPolicy:
         """Retrieves the currently active policy. If none exists, creates the default one."""
+        from app.services.knowledge_cache import knowledge_cache_service
+        cache_key = "validation:policy:active"
+        cached_policy = knowledge_cache_service.get(cache_key)
+        if cached_policy:
+            return cached_policy
+            
         query = select(ValidationPolicy).where(ValidationPolicy.is_active == True)
         result = await db.execute(query)
         policy = result.scalar_one_or_none()
         
         if not policy:
             policy = await self.create_default_policy(db)
+            
+        knowledge_cache_service.set(cache_key, policy, ttl=600)
         return policy
+
 
     async def create_default_policy(self, db: AsyncSession) -> ValidationPolicy:
         # Load from config settings or hardcoded defaults
@@ -57,6 +66,7 @@ class PolicyService:
         return result.scalar_one_or_none()
 
     async def create_policy(self, db: AsyncSession, obj_in: ValidationPolicyCreate) -> ValidationPolicy:
+        from app.services.knowledge_cache import knowledge_cache_service
         db_obj = ValidationPolicy(
             id=uuid.uuid4(),
             **obj_in.model_dump()
@@ -66,12 +76,14 @@ class PolicyService:
             await db.execute(
                 update(ValidationPolicy).where(ValidationPolicy.is_active == True).values(is_active=False)
             )
+            knowledge_cache_service.delete("validation:policy:active")
         db.add(db_obj)
         await db.commit()
         await db.refresh(db_obj)
         return db_obj
 
     async def update_policy(self, db: AsyncSession, policy_id: uuid.UUID, obj_in: ValidationPolicyUpdate) -> Optional[ValidationPolicy]:
+        from app.services.knowledge_cache import knowledge_cache_service
         db_obj = await self.get_policy(db, policy_id)
         if not db_obj:
             return None
@@ -83,6 +95,7 @@ class PolicyService:
                 update(ValidationPolicy).where(ValidationPolicy.is_active == True).values(is_active=False)
             )
             
+        knowledge_cache_service.delete("validation:policy:active")
         for key, value in update_data.items():
             setattr(db_obj, key, value)
             
@@ -90,5 +103,6 @@ class PolicyService:
         await db.commit()
         await db.refresh(db_obj)
         return db_obj
+
 
 policy_service = PolicyService()

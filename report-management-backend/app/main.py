@@ -229,6 +229,18 @@ async def health_check():
         }
     }
     
+    validation_health = {
+        "status": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "validation_engine": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "authority_service": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "conflict_service": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "duplicate_service": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "confidence_service": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "policy_engine": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "history": "healthy" if settings.VALIDATION_ENABLED else "idle",
+        "audit": "healthy" if settings.VALIDATION_ENABLED else "idle",
+    }
+    
     return {
         "status": overall_status,
         "environment": settings.APP_ENV,
@@ -238,8 +250,10 @@ async def health_check():
         },
         "storage": storage_health,
         "knowledge": knowledge_health,
+        "validation": validation_health,
         "response_time_ms": response_time_ms
     }
+
 
 
 # Include API routers
