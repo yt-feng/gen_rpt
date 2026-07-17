@@ -251,6 +251,16 @@ async def health_check():
         "evidence_attribution_service": "healthy" if settings.RAG_ENABLED else "idle",
         "analytics": "healthy" if settings.RAG_ENABLED else "idle",
     }
+
+    review_integration_health = {
+        "status": "healthy" if settings.RAG_ENABLED else "idle",
+        "evidence_viewer": "healthy" if settings.RAG_ENABLED else "idle",
+        "knowledge_browser": "healthy" if settings.RAG_ENABLED else "idle",
+        "traceability_service": "healthy" if settings.RAG_ENABLED else "idle",
+        "validation_dashboard": "healthy" if settings.RAG_ENABLED else "idle",
+        "review_snapshot_service": "healthy" if settings.RAG_ENABLED else "idle",
+        "evidence_analytics": "healthy" if settings.RAG_ENABLED else "idle",
+    }
     
     return {
         "status": overall_status,
@@ -263,8 +273,10 @@ async def health_check():
         "knowledge": knowledge_health,
         "validation": validation_health,
         "rag_integration": rag_integration_health,
+        "review_integration": review_integration_health,
         "response_time_ms": response_time_ms
     }
+
 
 
 
