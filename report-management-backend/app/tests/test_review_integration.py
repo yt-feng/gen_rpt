@@ -54,21 +54,28 @@ async def db_session():
         await conn.run_sync(Base.metadata.create_all)
     
     async with TestingSessionLocal() as session:
+        from app.database.session import get_db
+        from app.api.deps import get_current_user_placeholder
+        
+        async def override_get_db():
+            yield session
+            
+        async def override_get_current_user():
+            return {
+                "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+                "email": "test-admin@gatex.com",
+                "full_name": "Test Admin",
+                "role": "admin"
+            }
+            
+        app.dependency_overrides[get_db] = override_get_db
+        app.dependency_overrides[get_current_user_placeholder] = override_get_current_user
         yield session
         
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
-
-@pytest.fixture(autouse=True)
-def override_db(db_session):
-    async def override_get_db():
-        yield db_session
-    app.dependency_overrides[app.routes[0].dependencies[0].dependency] = override_get_db
-    # Find get_db dependency and override it
-    from app.api.deps import get_db
-    app.dependency_overrides[get_db] = override_get_db
-    yield
     app.dependency_overrides.clear()
+
 
 @pytest.mark.anyio
 async def test_review_integration_services(db_session: AsyncSession):
@@ -118,7 +125,8 @@ async def test_review_integration_services(db_session: AsyncSession):
     await db_session.commit()
 
     # 2. Create Generation Document, Version, Section, Block
-    doc = Document(id=uuid.uuid4(), title="Fusion Energy Outlook", owner_id=user_id, status="draft")
+    doc = Document(id=uuid.uuid4(), title="Fusion Energy Outlook", slug="fusion-energy-outlook", owner_id=user_id, status="draft")
+
     db_session.add(doc)
     await db_session.commit()
 
@@ -261,7 +269,8 @@ async def test_review_integration_api(db_session: AsyncSession):
     db_session.add(col)
     await db_session.commit()
 
-    doc = Document(id=uuid.uuid4(), title="AI Review Test", owner_id=user_id, status="draft")
+    doc = Document(id=uuid.uuid4(), title="AI Review Test", slug="ai-review-test", owner_id=user_id, status="draft")
+
     db_session.add(doc)
     await db_session.commit()
 
