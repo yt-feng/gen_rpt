@@ -226,8 +226,8 @@ async def test_rag_integration_api_endpoints(db_session: AsyncSession):
     chunk = KnowledgeChunk(
         id=uuid.uuid4(),
         document_id=doc.id,
-        chunk_order=1,
-        char_count=450,
+        chunk_number=1,
+        character_count=450,
         token_count=100,
         chunk_metadata={
             "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
