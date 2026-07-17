@@ -248,7 +248,7 @@ async def test_ingest_draft_report_fails(db_session: AsyncSession):
         )
     
     assert response.status_code == 400
-    assert "Only approved" in response.json()["detail"]
+    assert "Only approved" in response.json()["message"]
 
 @pytest.mark.asyncio
 async def test_sharing_endpoint(db_session: AsyncSession):
