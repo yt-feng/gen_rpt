@@ -30,8 +30,10 @@ async def _call_hf_api(texts: List[str]) -> List[List[float]]:
     Call the Hugging Face Inference API for feature-extraction.
     Handles 503 model-loading retries automatically.
     Batches up to 64 texts per request.
+    Uses urllib.request in a threadpool to bypass httpx async DNS issues in Docker.
     """
-    import httpx
+    import urllib.request
+    import json
 
     token = _require_hf_token()
     headers = {
@@ -42,47 +44,50 @@ async def _call_hf_api(texts: List[str]) -> List[List[float]]:
     retries = getattr(settings, "KNOWLEDGE_RETRY_COUNT", 3)
     all_vectors: List[List[float]] = []
 
-    async with httpx.AsyncClient(timeout=90.0) as client:
-        for i in range(0, len(texts), batch_size):
-            batch = texts[i:i + batch_size]
-            delay = 2.0
-
-            for attempt in range(retries):
-                try:
-                    resp = await client.post(
-                        HF_INFERENCE_URL,
-                        headers=headers,
-                        json={"inputs": batch, "options": {"wait_for_model": True}},
-                    )
-                    resp.raise_for_status()
-                    batch_vectors = resp.json()
-                    # HF returns list[list[float]] for batch inputs
-                    if batch_vectors and isinstance(batch_vectors[0], list):
-                        all_vectors.extend(batch_vectors)
-                    else:
-                        # Pooled single vector returned
-                        all_vectors.append(batch_vectors)
-                    break
-                except httpx.HTTPStatusError as e:
-                    status = e.response.status_code
-                    if status == 503 and attempt < retries - 1:
-                        # Model is loading — use X-Wait-For-Model hint or fall back to delay
-                        wait = float(e.response.headers.get("X-Wait-For-Model", delay * 5))
-                        logger.warning(f"HF model loading (503), waiting {wait}s before retry", attempt=attempt + 1)
-                        await asyncio.sleep(wait)
-                    elif attempt == retries - 1:
-                        logger.error("HF Inference API failed after max retries", status=status, error=str(e))
-                        raise
-                    else:
-                        logger.warning(f"HF request error {status}, retrying in {delay}s...", attempt=attempt + 1)
-                        await asyncio.sleep(delay)
-                        delay *= 2
-                except Exception as e:
-                    if attempt == retries - 1:
-                        logger.error("HF request raised unexpected error", error=str(e))
-                        raise
-                    await asyncio.sleep(delay)
+    def _fetch_batch(batch_texts: List[str]) -> List[List[float]]:
+        data = json.dumps({"inputs": batch_texts, "options": {"wait_for_model": True}}).encode('utf-8')
+        req = urllib.request.Request(
+            HF_INFERENCE_URL,
+            data=data,
+            headers=headers,
+            method="POST"
+        )
+        delay = 2.0
+        for attempt in range(retries):
+            try:
+                with urllib.request.urlopen(req, timeout=90.0) as response:
+                    resp_data = response.read().decode('utf-8')
+                    batch_vectors = json.loads(resp_data)
+                    if batch_vectors and isinstance(batch_vectors, list) and isinstance(batch_vectors[0], list):
+                        return batch_vectors
+                    elif isinstance(batch_vectors, list) and len(batch_vectors) > 0 and isinstance(batch_vectors[0], float):
+                        return [batch_vectors]
+                    return []
+            except urllib.error.HTTPError as e:
+                status = e.code
+                if status == 503 and attempt < retries - 1:
+                    wait = float(e.headers.get("X-Wait-For-Model", delay * 5))
+                    logger.warning(f"HF model loading (503), waiting {wait}s before retry", attempt=attempt + 1)
+                    time.sleep(wait)
+                elif attempt == retries - 1:
+                    logger.error("HF Inference API failed after max retries", status=status, error=str(e))
+                    raise
+                else:
+                    logger.warning(f"HF request error {status}, retrying in {delay}s...", attempt=attempt + 1)
+                    time.sleep(delay)
                     delay *= 2
+            except Exception as e:
+                if attempt == retries - 1:
+                    logger.error("HF request raised unexpected error", error=str(e))
+                    raise Exception(f"HF API Error: {str(e)}")
+                time.sleep(delay)
+                delay *= 2
+        return []
+
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        batch_vectors = await asyncio.to_thread(_fetch_batch, batch)
+        all_vectors.extend(batch_vectors)
 
     return all_vectors
 
