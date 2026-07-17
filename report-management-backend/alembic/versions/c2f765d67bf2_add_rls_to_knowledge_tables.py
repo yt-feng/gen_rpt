@@ -39,10 +39,8 @@ def upgrade() -> None:
         """)
         
         # Grant BYPASSRLS to the postgres service role if it exists
-        try:
-            op.execute("ALTER ROLE postgres BYPASSRLS;")
-        except Exception:
-            pass
+        # Removed because Supabase restricts this and it aborts the transaction
+        pass
 
 
 def downgrade() -> None:
