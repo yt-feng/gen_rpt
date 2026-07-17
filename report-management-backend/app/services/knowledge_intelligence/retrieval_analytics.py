@@ -2,7 +2,7 @@ import uuid
 from typing import Dict, Any
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, cast, Integer
 from app.models.rag_integration import GenerationAnalytics
 from app.models.knowledge import RetrievalSession, RetrievalResult, KnowledgeCollection, KnowledgeDocument, KnowledgeChunk
 
@@ -12,7 +12,7 @@ class RetrievalAnalyticsService:
         stats_res = await db.execute(
             select(
                 func.avg(GenerationAnalytics.retrieval_time_ms),
-                func.sum(GenerationAnalytics.cache_hit),
+                func.sum(cast(GenerationAnalytics.cache_hit, Integer)),
                 func.count(GenerationAnalytics.id)
             )
         )
