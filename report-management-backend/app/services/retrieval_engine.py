@@ -34,7 +34,7 @@ class RetrievalEngineService:
         
         # 1. Cache Lookup
         cache_key = f"retrieval:{query}:{str(collection_ids)}:{str(filters)}:{token_budget}"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached:
             elapsed = int((time.time() - start_time) * 1000)
             cached["latency_ms"] = elapsed
@@ -53,16 +53,14 @@ class RetrievalEngineService:
         # Filter request collection IDs by allowed
         target_ids = []
         if collection_ids:
-            for cid in collection_ids:
-                if cid in allowed_ids:
-                    # Enforce RBAC viewer access level
-                    if await knowledge_permission_service.check_permission(db, cid, user_id, "viewer"):
-                        target_ids.append(cid)
+            candidates = [cid for cid in collection_ids if cid in allowed_ids]
+            permitted = await knowledge_permission_service.batch_check_permissions(db, candidates, user_id, "viewer")
+            target_ids = [cid for cid in candidates if cid in permitted]
         else:
             # Fallback to all allowed collections
-            for cid in allowed_ids:
-                if await knowledge_permission_service.check_permission(db, cid, user_id, "viewer"):
-                    target_ids.append(cid)
+            candidates = list(allowed_ids)
+            permitted = await knowledge_permission_service.batch_check_permissions(db, candidates, user_id, "viewer")
+            target_ids = [cid for cid in candidates if cid in permitted]
                     
         if not target_ids:
             return {
@@ -271,7 +269,7 @@ class RetrievalEngineService:
         }
         
         # Save to cache with standard TTL of 300 seconds
-        knowledge_cache_service.set(cache_key, result_payload, ttl=300)
+        await knowledge_cache_service.set(cache_key, result_payload, ttl=300)
         
         return result_payload
 

@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional
+from typing import List, Optional, Set
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 from fastapi import HTTPException, status
@@ -63,6 +63,76 @@ class KnowledgePermissionService:
         has_perm = user_value >= req_value
         await knowledge_cache_service.set(cache_key, has_perm)
         return has_perm
+
+    async def batch_check_permissions(
+        self, db: AsyncSession, collection_ids: List[uuid.UUID], user_id: uuid.UUID, required_level: str
+    ) -> Set[uuid.UUID]:
+        if not collection_ids:
+            return set()
+
+        allowed = set()
+        missing_ids = []
+        for cid in collection_ids:
+            cache_key = f"permission:{cid}:{user_id}:{required_level}"
+            cached = await knowledge_cache_service.get(cache_key)
+            if cached is True:
+                allowed.add(cid)
+            elif cached is False:
+                pass
+            else:
+                missing_ids.append(cid)
+
+        if not missing_ids:
+            return allowed
+
+        col_res = await db.execute(
+            select(KnowledgeCollection).filter(
+                KnowledgeCollection.id.in_(missing_ids),
+                KnowledgeCollection.deleted_at.is_(None)
+            )
+        )
+        collections = col_res.scalars().all()
+        col_map = {c.id: c for c in collections}
+
+        perm_res = await db.execute(
+            select(CollectionPermission).filter(
+                CollectionPermission.collection_id.in_(missing_ids),
+                CollectionPermission.user_id == user_id
+            )
+        )
+        permissions = perm_res.scalars().all()
+        perm_map = {p.collection_id: p for p in permissions}
+
+        req_value = PERMISSION_LEVELS.get(required_level.lower(), 0)
+
+        for cid in missing_ids:
+            cache_key = f"permission:{cid}:{user_id}:{required_level}"
+            col = col_map.get(cid)
+            if not col:
+                await knowledge_cache_service.set(cache_key, False)
+                continue
+
+            if col.owner_id == user_id:
+                await knowledge_cache_service.set(cache_key, True)
+                allowed.add(cid)
+                continue
+
+            perm = perm_map.get(cid)
+            if not perm:
+                if required_level == "viewer" and col.visibility in ("shared", "public"):
+                    await knowledge_cache_service.set(cache_key, True)
+                    allowed.add(cid)
+                else:
+                    await knowledge_cache_service.set(cache_key, False)
+                continue
+
+            user_value = PERMISSION_LEVELS.get(perm.permission_level.lower(), 0)
+            has_perm = user_value >= req_value
+            await knowledge_cache_service.set(cache_key, has_perm)
+            if has_perm:
+                allowed.add(cid)
+
+        return allowed
 
     async def assign_permission(
         self, db: AsyncSession, collection_id: uuid.UUID, user_id: uuid.UUID, permission_level: str, assigner_id: uuid.UUID

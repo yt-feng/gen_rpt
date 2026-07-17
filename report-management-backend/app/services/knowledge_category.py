@@ -31,7 +31,7 @@ class KnowledgeCategoryService:
         db.add(category)
         await db.commit()
         await db.refresh(category)
-        knowledge_cache_service.invalidate_categories()
+        await knowledge_cache_service.invalidate_categories()
         return category
 
     async def get_category(self, db: AsyncSession, category_id: uuid.UUID) -> Optional[KnowledgeCategory]:
@@ -52,7 +52,7 @@ class KnowledgeCategoryService:
         db.add(category)
         await db.commit()
         await db.refresh(category)
-        knowledge_cache_service.invalidate_categories()
+        await knowledge_cache_service.invalidate_categories()
         return category
 
     async def delete_category(self, db: AsyncSession, category_id: uuid.UUID) -> bool:
@@ -68,12 +68,12 @@ class KnowledgeCategoryService:
         )
         await db.delete(category)
         await db.commit()
-        knowledge_cache_service.invalidate_categories()
+        await knowledge_cache_service.invalidate_categories()
         return True
 
     async def get_category_tree(self, db: AsyncSession) -> List[CategoryTreeResponse]:
         cache_key = "categories:tree"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached is not None:
             return cached
             
@@ -108,7 +108,7 @@ class KnowledgeCategoryService:
             else:
                 roots.append(node)
                 
-        knowledge_cache_service.set(cache_key, roots)
+        await knowledge_cache_service.set(cache_key, roots)
         return roots
 
 knowledge_category_service = KnowledgeCategoryService()

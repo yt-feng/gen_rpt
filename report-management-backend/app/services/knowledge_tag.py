@@ -25,7 +25,7 @@ class KnowledgeTagService:
         db.add(tag)
         await db.commit()
         await db.refresh(tag)
-        knowledge_cache_service.invalidate_tags()
+        await knowledge_cache_service.invalidate_tags()
         return tag
 
     async def get_tag(self, db: AsyncSession, tag_id: uuid.UUID) -> Optional[KnowledgeTag]:
@@ -33,13 +33,13 @@ class KnowledgeTagService:
 
     async def list_tags(self, db: AsyncSession) -> List[KnowledgeTag]:
         cache_key = "tags:list"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached is not None:
             return cached
             
         res = await db.execute(select(KnowledgeTag).order_by(KnowledgeTag.name.asc()))
         tags = list(res.scalars().all())
-        knowledge_cache_service.set(cache_key, tags)
+        await knowledge_cache_service.set(cache_key, tags)
         return tags
 
     async def delete_tag(self, db: AsyncSession, tag_id: uuid.UUID) -> bool:
@@ -48,7 +48,7 @@ class KnowledgeTagService:
             return False
         await db.delete(tag)
         await db.commit()
-        knowledge_cache_service.invalidate_tags()
+        await knowledge_cache_service.invalidate_tags()
         return True
 
     async def assign_tag_to_document(self, db: AsyncSession, document_id: uuid.UUID, tag_id: uuid.UUID) -> bool:
@@ -66,7 +66,7 @@ class KnowledgeTagService:
             insert(knowledge_document_tags).values(document_id=document_id, tag_id=tag_id)
         )
         await db.commit()
-        knowledge_cache_service.invalidate_tags()
+        await knowledge_cache_service.invalidate_tags()
         return True
 
     async def unassign_tag_from_document(self, db: AsyncSession, document_id: uuid.UUID, tag_id: uuid.UUID) -> bool:
@@ -77,7 +77,7 @@ class KnowledgeTagService:
             )
         )
         await db.commit()
-        knowledge_cache_service.invalidate_tags()
+        await knowledge_cache_service.invalidate_tags()
         return True
 
     async def merge_tags(self, db: AsyncSession, source_tag_id: uuid.UUID, target_tag_id: uuid.UUID) -> bool:
@@ -111,12 +111,12 @@ class KnowledgeTagService:
         await db.execute(delete(KnowledgeTag).where(KnowledgeTag.id == source_tag_id))
         await db.commit()
         
-        knowledge_cache_service.invalidate_tags()
+        await knowledge_cache_service.invalidate_tags()
         return True
 
     async def get_tag_statistics(self, db: AsyncSession) -> Dict[str, int]:
         cache_key = "tags:statistics"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached is not None:
             return cached
             
@@ -127,7 +127,7 @@ class KnowledgeTagService:
             .group_by(KnowledgeTag.name)
         )
         stats = {row[0]: row[1] for row in res.all()}
-        knowledge_cache_service.set(cache_key, stats)
+        await knowledge_cache_service.set(cache_key, stats)
         return stats
 
 knowledge_tag_service = KnowledgeTagService()
