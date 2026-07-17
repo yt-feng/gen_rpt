@@ -302,6 +302,19 @@ async def test_validation_engine_session_orchestration(db_session, monkeypatch):
     hist_res = await db_session.execute(hist_stmt)
     assert hist_res.scalar_one_or_none() is not None
     
+    # Debug SQLite database columns and types via raw SQL
+    try:
+        from sqlalchemy import text
+        raw_res = await db_session.execute(text("SELECT * FROM knowledge_collections"))
+        print("RAW COLLECTIONS ROWS:", raw_res.all())
+        
+        chunks_res = await db_session.execute(select(KnowledgeChunk))
+        for c in chunks_res.scalars().all():
+            print("CHUNK ID:", c.id, type(c.id))
+            print("CHUNK DOC ID:", c.document_id, type(c.document_id))
+    except Exception as e:
+        print("DEBUG FAILED:", e)
+    
     audit_stmt = select(ValidationAuditLog)
     audit_res = await db_session.execute(audit_stmt)
     assert len(audit_res.scalars().all()) > 0
@@ -311,7 +324,19 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     monkeypatch.setattr(settings, "VALIDATION_ENABLED", True)
     
     # Set up DB data similar to previous test
-    user_id = uuid.UUID("00000000-0000-0000-0000-000000000000") # default placeholder user id in lifespans
+    user_id = uuid.UUID("55555555-5555-5555-5555-555555555555")
+    
+    # Seed the mock user to satisfy foreign key relationships and dynamic SQLite conversion
+    from app.models.identity import User
+    user = User(
+        id=user_id,
+        full_name="Yash Yelave",
+        email="yash@gatex.com",
+        status="active"
+    )
+    db_session.add(user)
+    await db_session.commit()
+    
     col = KnowledgeCollection(id=uuid.uuid4(), name="Col", slug="col", owner_id=user_id, status="active")
     db_session.add(col)
     await db_session.commit()
@@ -330,6 +355,15 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
         validation_status="validated"
     )
     db_session.add(doc)
+    await db_session.commit()
+    
+    source = KnowledgeSource(
+        id=uuid.uuid4(),
+        document_id=doc.id,
+        source_type="government",
+        publisher="Gov Publisher"
+    )
+    db_session.add(source)
     await db_session.commit()
     
     chunk = KnowledgeChunk(id=uuid.uuid4(), document_id=doc.id, chunk_number=1, chunk_metadata={"content": "Validated API content."})
@@ -351,51 +385,20 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
         chunk_id=chunk.id,
         similarity_score=0.9,
         ranking=1,
-        confidence=1.0
+        confidence=1.0,
+        source_id=source.id
     )
     db_session.add(result)
     await db_session.commit()
-    
-    # Debug SQLite database columns and types
-    try:
-        from app.models.knowledge import KnowledgeChunk, KnowledgeDocument, KnowledgeCollection
-        chunks_res = await db_session.execute(select(KnowledgeChunk))
-        for c in chunks_res.scalars().all():
-            print("CHUNK ID:", c.id, type(c.id))
-            print("CHUNK DOC ID:", c.document_id, type(c.document_id))
-            
-        docs_res = await db_session.execute(select(KnowledgeDocument))
-        for d in docs_res.scalars().all():
-            print("DOC ID:", d.id, type(d.id))
-            print("DOC COLL ID:", d.collection_id, type(d.collection_id))
-            
-        col_res = await db_session.execute(select(KnowledgeCollection))
-        for co in col_res.scalars().all():
-            print("COLLECTION ID:", co.id, type(co.id))
-            print("COLLECTION OWNER ID:", co.owner_id, type(co.owner_id))
 
-        # Attempt to run chunks_stmt manually
-        from sqlalchemy.orm import selectinload
-        chunks_stmt = select(KnowledgeChunk).where(
-            KnowledgeChunk.id.in_([chunk.id])
-        ).options(
-            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.sources),
-            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.tags),
-            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.collection)
-        )
-        print("RUNNING CHUNKS_STMT...")
-        res = await db_session.execute(chunks_stmt)
-        print("CHUNKS_STMT RETRIEVED CHUNKS:", len(res.scalars().all()))
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise e
-        
+    
     # API testing client
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        # Mock auth header or just hit route assuming mock auth handles it
-        headers = {"Authorization": "Bearer mock-token"}
+        # Mock auth header matching seeded user
+        headers = {"Authorization": "Bearer yash@gatex.com"}
+
+
 
 
         
