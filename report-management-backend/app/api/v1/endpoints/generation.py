@@ -69,15 +69,21 @@ async def create_job(
     from app.core.config import settings
     if settings.RAG_ENABLED:
         from app.services.rag_integration import generation_context_service
-        # Prepare context (retrieval + validation + snapshotting + caching)
-        await generation_context_service.prepare_context(
-            db=db,
-            query=prompt,
-            collection_ids=req.collection_ids,
-            user_id=UUID(user["id"]),
-            user_org_id=None,
-            slug=slug_val
-        )
+        from app.logging.logger import logger
+        try:
+            # Prepare context (retrieval + validation + snapshotting + caching)
+            await generation_context_service.prepare_context(
+                db=db,
+                query=prompt,
+                collection_ids=req.collection_ids,
+                user_id=UUID(user["id"]),
+                user_org_id=None,
+                slug=slug_val
+            )
+            logger.info(f"RAG context pre-warmed for slug={slug_val}, cache_key=context:slug:{slug_val}")
+        except Exception as e:
+            logger.error(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
+
 
     job = await generation_service.create_job(
         db=db,

@@ -234,3 +234,31 @@ async def handle_image_regenerated(
         
     return success_response(data={"slug": slug}, message="Image regeneration event processed")
 
+
+def verify_internal_bearer_token(authorization: Optional[str] = Header(None), x_internal_token: Optional[str] = Header(None)):
+    expected = getattr(settings, "INTERNAL_TOKEN", None) or "trusted-worker-secret"
+    if authorization:
+        parts = authorization.split()
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            if parts[1] == expected:
+                return
+    if x_internal_token == expected:
+        return
+    raise HTTPException(status_code=403, detail="Invalid internal token")
+
+
+@router.get("/context/{slug}", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_bearer_token)], include_in_schema=False)
+async def get_internal_context(
+    slug: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Retrieve cached RAG context package for internal workers.
+    """
+    from app.services.rag_integration import context_cache_service
+    pkg = await context_cache_service.get_cached_context(db, f"context:slug:{slug}")
+    if not pkg:
+        raise HTTPException(status_code=404, detail=f"Context package not found or not pre-warmed for slug: {slug}")
+    return success_response(data=pkg, message="Fetched cached context package")
+
+
