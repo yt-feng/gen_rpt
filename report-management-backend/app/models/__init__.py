@@ -36,6 +36,12 @@ from app.models.validation import (
     ValidationHistory,
     ValidationAuditLog
 )
+from app.models.rag_integration import (
+    KnowledgeSnapshot,
+    EvidenceAttribution,
+    GenerationAnalytics,
+    GenerationContextCache
+)
 
 __all__ = [
     "Base",
@@ -68,5 +74,10 @@ __all__ = [
     "ValidationPolicy",
     "ValidationReport",
     "ValidationHistory",
-    "ValidationAuditLog"
+    "ValidationAuditLog",
+    "KnowledgeSnapshot",
+    "EvidenceAttribution",
+    "GenerationAnalytics",
+    "GenerationContextCache"
 ]
+
