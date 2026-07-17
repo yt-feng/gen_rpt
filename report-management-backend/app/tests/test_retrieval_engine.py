@@ -5,9 +5,6 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy import select, literal
 import pytest_asyncio
 
-from pgvector.sqlalchemy import Vector
-Vector.Comparator.cosine_distance = lambda self, other: literal(0.0)
-
 from app.models.base import Base
 from app.models.knowledge import (
     KnowledgeCollection,
