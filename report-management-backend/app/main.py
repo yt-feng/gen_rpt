@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     logger.info(f"Starting {settings.APP_NAME} [{settings.APP_ENV}]")
     logger.info(f"DATABASE_URL configured: {'YES' if settings.DATABASE_URL else 'NO'}")
     
-    # Validate DB connection
+    # Validate DB connection and run migrations
     try:
         import time
         from sqlalchemy import text
@@ -37,6 +37,20 @@ async def lifespan(app: FastAPI):
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("Database connection: OK")
+
+        # Run Alembic migrations programmatically
+        try:
+            import alembic.config
+            import alembic.command
+            logger.info("Running database migrations...")
+            alembic_cfg = alembic.config.Config("alembic.ini")
+            
+            # Run the synchronous alembic command in a thread so it doesn't block asyncio
+            from anyio import to_thread
+            await to_thread.run_sync(alembic.command.upgrade, alembic_cfg, "head")
+            logger.info("Database migrations applied successfully.")
+        except Exception as e:
+            logger.error(f"Failed to run database migrations: {e}")
 
         # Seed all mock users if not present
         from sqlalchemy.orm import sessionmaker
