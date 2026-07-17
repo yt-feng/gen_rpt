@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     # Gateway APIs
     OPENAI_API_KEY: Optional[str] = None
     DEEPSEEK_API_KEY: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
     
     # Auth
     JWT_SECRET: str = "change-me"

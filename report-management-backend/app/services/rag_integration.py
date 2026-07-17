@@ -484,7 +484,10 @@ class AIGatewayService:
         """
         Proxy completions request to DeepSeek, managing budget, logging, and retry strategies.
         """
-        api_key = settings.SUPABASE_SERVICE_ROLE_KEY or os.getenv("DEEPSEEK_API_KEY") or "mock-key"
+        api_key = settings.DEEPSEEK_API_KEY
+        if not api_key or api_key == "REPLACE_WITH_REAL_VALUE":
+            raise ValueError("DEEPSEEK_API_KEY is not configured. Set it in environment variables.")
+            
         # Standard DeepSeek endpoint
         url = "https://api.deepseek.com/chat/completions"
         headers = {
@@ -513,7 +516,20 @@ class AIGatewayService:
                 try:
                     resp = await client.post(url, headers=headers, json=payload)
                     resp.raise_for_status()
-                    data = resp.json()
+                    
+                    raw_body = resp.text
+                    try:
+                        data = json.loads(raw_body)
+                        from app.schemas.ai_gateway import DeepSeekResponse
+                        from pydantic import ValidationError
+                        DeepSeekResponse(**data)
+                    except ValidationError as ve:
+                        logger.error(
+                            "AI Gateway: LLM response did not match expected schema",
+                            error=str(ve),
+                            raw_response=raw_body
+                        )
+                        raise ValueError(f"Invalid DeepSeek response schema: {ve}") from ve
                     
                     elapsed_ms = int((time.time() - start_time) * 1000)
                     logger.info(f"AI Gateway: successful LLM response in {elapsed_ms}ms")
