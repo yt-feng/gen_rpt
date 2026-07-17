@@ -543,7 +543,7 @@ async def cancel_all_bulk_jobs(
 @router.get("/preview-context", response_model=APIResponse[dict])
 async def preview_knowledge_context(
     query: str,
-    collection_ids: Optional[List[UUID]] = Query(None),
+    collection_ids: Optional[List[str]] = Query(None),
     db: AsyncSession = Depends(get_db),
     user: dict = Depends(get_current_user_placeholder)
 ):
@@ -551,12 +551,14 @@ async def preview_knowledge_context(
     Preview the validated context package for a query.
     """
     from app.services.rag_integration import generation_context_service
+    uuid_ids = [UUID(cid) for cid in collection_ids] if collection_ids else None
     pkg = await generation_context_service.prepare_context(
         db=db,
         query=query,
-        collection_ids=collection_ids,
+        collection_ids=uuid_ids,
         user_id=UUID(user["id"])
     )
+
     return success_response(data=pkg, message="Previewed knowledge context package")
 
 

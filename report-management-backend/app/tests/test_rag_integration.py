@@ -240,6 +240,8 @@ async def test_rag_integration_api_endpoints(db_session: AsyncSession):
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         # 1. Preview Context Package
         resp = await ac.get(f"/api/v1/generation/preview-context?query=fusion&collection_ids={col.id}")
+        if resp.status_code != 200:
+            print("FASTAPI ERROR DETAILS:", resp.json())
         assert resp.status_code == 200
         data = resp.json()["data"]
         assert len(data["validated_chunks"]) > 0

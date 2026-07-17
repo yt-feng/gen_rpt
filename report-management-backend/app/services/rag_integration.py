@@ -391,10 +391,7 @@ class GenerationContextService:
         # Safe serialize
         pkg_data = stringify_uuids(pkg_data)
         
-        # 5. Cache package
-        await self.cache_service.set_cached_context(db, cache_key, pkg_data, ttl_seconds=3600)
-        
-        # 6. Create Knowledge Snapshot
+        # 5. Create Knowledge Snapshot
         snapshot = await self.snapshot_service.create_snapshot(
             db=db,
             knowledge_version="1.0.0",
@@ -405,6 +402,10 @@ class GenerationContextService:
             configuration=config
         )
         pkg_data["knowledge_snapshot_id"] = str(snapshot.id)
+        
+        # 6. Cache package
+        await self.cache_service.set_cached_context(db, cache_key, pkg_data, ttl_seconds=3600)
+
         
         # 7. Log Generation Analytics
         await self.analytics_service.log_analytics(
