@@ -37,6 +37,59 @@ def main() -> None:
     slug = args.slug.strip() or slugify(args.topic)
     output_dir = Path(args.out_root) / f"{date_prefix}-{slug}"
 
+    # --- PHASE 5: RAG CONTEXT BRIDGE ---
+    backend_url = os.getenv("BACKEND_URL")
+    internal_token = os.getenv("INTERNAL_TOKEN")
+    if backend_url and internal_token:
+        import requests
+        url = f"{backend_url.rstrip('/')}/api/internal/context/{slug}"
+        headers = {"Authorization": f"Bearer {internal_token}"}
+        try:
+            print(f"[RAG Bridge] Fetching context for slug '{slug}' from backend...")
+            resp = requests.get(url, headers=headers, timeout=15)
+            if resp.status_code == 200:
+                data = resp.json().get("data", {})
+                chunks = data.get("validated_chunks", [])
+                if chunks:
+                    context_str = "\n\n".join([f"[Source Chunk {c.get('chunk_id', '')}] (Confidence: {c.get('confidence', 0):.2f})\n{c.get('text', '')}" for c in chunks])
+                    original_chat = client.chat
+                    
+                    def patched_chat(messages: list, **kwargs) -> str:
+                        modified_messages = []
+                        for msg in messages:
+                            if msg.get("role") == "user":
+                                content = msg.get("content", "")
+                                if language == "zh":
+                                    new_content = (
+                                        f"你是一个拥有丰富行业经验的资深顾问。请基于以下提供的已验证企业知识来回答用户的请求。\n\n"
+                                        f"--- 已验证企业知识 ---\n"
+                                        f"{context_str}\n\n"
+                                        f"--- 用户请求 ---\n"
+                                        f"{content}\n\n"
+                                        f"请确保所有关键判断都可以从提供的知识库片段中找到直接证据，并在输出中提供引用。"
+                                    )
+                                else:
+                                    new_content = (
+                                        f"You are an elite research consultant. Answer based on validated enterprise knowledge below.\n\n"
+                                        f"--- VALIDATED ENTERPRISE KNOWLEDGE ---\n"
+                                        f"{context_str}\n\n"
+                                        f"--- USER PROMPT ---\n"
+                                        f"{content}\n\n"
+                                        f"Ensure every material claim is supported by direct evidence from the sources above."
+                                    )
+                                modified_messages.append({"role": msg["role"], "content": new_content})
+                            else:
+                                modified_messages.append(msg)
+                        return original_chat(modified_messages, **kwargs)
+                    
+                    client.chat = patched_chat
+                    print(f"[RAG Bridge] Successfully active. Loaded {len(chunks)} chunks.")
+            else:
+                print(f"[RAG Bridge] Context package not found or returned status {resp.status_code}. Proceeding with default flow.")
+        except Exception as e:
+            print(f"[RAG Bridge] Failed to retrieve context package: {e}. Proceeding with default flow.")
+
+
     result = pipeline.build_report(topic=args.topic, output_dir=output_dir)
     print(f"HTML web report generated at: {result['html_path']}")
     print(f"Markdown generated at: {result['markdown_path']}")
