@@ -49,14 +49,27 @@ async def db_session():
         
     async with TestingSessionLocal() as session:
         from app.database.session import get_db
+        from app.api.deps import get_current_user_placeholder
+        
         async def override_get_db():
             yield session
+            
+        async def override_get_current_user():
+            return {
+                "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+                "email": "test-admin@gatex.com",
+                "full_name": "Test Admin",
+                "role": "admin"
+            }
+            
         app.dependency_overrides[get_db] = override_get_db
+        app.dependency_overrides[get_current_user_placeholder] = override_get_current_user
         yield session
         
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
     app.dependency_overrides.clear()
+
 
 @pytest.mark.asyncio
 async def test_validation_policy_crud(db_session):
@@ -392,11 +405,28 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     await db_session.commit()
 
     
+    # Debug SQLite database contents via raw SQL
+    try:
+        from sqlalchemy import text
+        r_col = await db_session.execute(text("SELECT * FROM knowledge_collections"))
+        print("RAW COLLECTIONS:", r_col.all())
+        r_doc = await db_session.execute(text("SELECT * FROM knowledge_documents"))
+        print("RAW DOCUMENTS:", r_doc.all())
+        r_src = await db_session.execute(text("SELECT * FROM knowledge_sources"))
+        print("RAW SOURCES:", r_src.all())
+        r_chunk = await db_session.execute(text("SELECT * FROM knowledge_chunks"))
+        print("RAW CHUNKS:", r_chunk.all())
+        r_res = await db_session.execute(text("SELECT * FROM retrieval_results"))
+        print("RAW RESULTS:", r_res.all())
+    except Exception as e:
+        print("RAW DB DEBUG FAILED:", e)
+
     # API testing client
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         # Mock auth header matching seeded user
         headers = {"Authorization": "Bearer yash@gatex.com"}
+
 
 
 
