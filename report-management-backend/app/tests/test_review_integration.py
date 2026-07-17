@@ -145,20 +145,28 @@ async def test_review_integration_services(db_session: AsyncSession):
     doc.current_version_id = version.id
     await db_session.commit()
 
-    section = DocumentSection(id=uuid.uuid4(), version_id=version.id, title="Economics", order_index=1)
+    section = DocumentSection(
+        id=uuid.uuid4(),
+        version_id=version.id,
+        stable_id="econ-sec",
+        section_order=1,
+        title="Economics"
+    )
     db_session.add(section)
     await db_session.commit()
 
+    from app.models.enums import BlockContentType
     block = DocumentBlock(
         id=uuid.uuid4(),
         section_id=section.id,
-        block_type="text",
+        block_type=BlockContentType.paragraph,
         markdown="According to the Fusion Roadmap [Nuclear Fusion Economics Roadmap.pdf], pilot plant cost is estimated at 5 billion USD.",
-        order_index=1,
+        block_order=1,
         stable_id="econ-block-1"
     )
     db_session.add(block)
     await db_session.commit()
+
 
     # 3. Create GenerationJob & Snapshots
     job = GenerationJob(
