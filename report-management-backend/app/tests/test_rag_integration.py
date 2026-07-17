@@ -312,3 +312,195 @@ async def test_rag_integration_api_endpoints(db_session: AsyncSession):
             }, headers={"x-internal-token": "trusted-worker-secret"})
             assert resp.status_code == 200
             assert resp.json()["choices"][0]["message"]["content"] == "Gateway response"
+
+
+@pytest.mark.anyio
+async def test_selective_context_builder(db_session: AsyncSession):
+    from app.services.rag_integration import selective_context_builder
+    settings.RAG_ENABLED = True
+    settings.VALIDATION_ENABLED = True
+
+    # Seed Collection and Policy
+    user_id = uuid.UUID("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+    col = KnowledgeCollection(id=uuid.uuid4(), name="Internal Knowledge Base", slug="ikb", owner_id=user_id, status="active")
+    db_session.add(col)
+    await db_session.commit()
+    await policy_service.create_default_policy(db_session)
+
+    # Seed Document, Source, Chunk
+    doc = KnowledgeDocument(
+        id=uuid.uuid4(),
+        collection_id=col.id,
+        file_name="fusion_economics.pdf",
+        original_file_name="Nuclear Fusion Economics Roadmap.pdf",
+        mime_type="application/pdf",
+        extension="pdf",
+        checksum="dummychecksum123",
+        storage_path="/path/to/fusion_economics.pdf",
+        size=1024,
+        language="en",
+        processing_status="completed",
+        validation_status="validated",
+        created_at=datetime.now(timezone.utc) - timedelta(days=10)
+    )
+    db_session.add(doc)
+    await db_session.commit()
+
+    chunk = KnowledgeChunk(
+        id=uuid.uuid4(),
+        document_id=doc.id,
+        chunk_number=1,
+        character_count=450,
+        token_count=100,
+        chunk_metadata={
+            "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
+            "embedding": [0.1] * 1536
+        }
+    )
+    db_session.add(chunk)
+    await db_session.commit()
+
+    pkg = await selective_context_builder.build_context(
+        db=db_session,
+        query="nuclear fusion pilot plant cost",
+        collection_ids=[col.id],
+        user_id=user_id,
+        slug="partial-test-slug-1"
+    )
+
+    assert pkg is not None
+    assert len(pkg["validated_chunks"]) > 0
+    assert "5 billion USD" in pkg["validated_chunks"][0]["text"]
+
+
+@pytest.mark.anyio
+async def test_partial_regeneration_api(db_session: AsyncSession):
+    from app.api.v1.endpoints.reports import MOCK_REPORTS
+    from app.models.document import Document
+    from app.models.workflow import GenerationJob
+    from app.models.enums import JobStatusType
+    
+    settings.RAG_ENABLED = True
+    settings.VALIDATION_ENABLED = True
+
+    # 1. Seed Collection and active Validation Policy
+    user_id = uuid.UUID("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+    col = KnowledgeCollection(id=uuid.uuid4(), name="Internal Knowledge Base", slug="ikb", owner_id=user_id, status="active")
+    db_session.add(col)
+    await db_session.commit()
+    await policy_service.create_default_policy(db_session)
+
+    # Seed Document, Source, Chunk
+    doc = KnowledgeDocument(
+        id=uuid.uuid4(),
+        collection_id=col.id,
+        file_name="fusion_economics.pdf",
+        original_file_name="Nuclear Fusion Economics Roadmap.pdf",
+        mime_type="application/pdf",
+        extension="pdf",
+        checksum="dummychecksum123",
+        storage_path="/path/to/fusion_economics.pdf",
+        size=1024,
+        language="en",
+        processing_status="completed",
+        validation_status="validated",
+        created_at=datetime.now(timezone.utc) - timedelta(days=10)
+    )
+    db_session.add(doc)
+    
+    # Also seed a report document mapping
+    report_doc = Document(
+        id=uuid.uuid4(),
+        title="Nuclear Fusion report",
+        slug="nuclear-fusion-report",
+        language="en",
+        status="draft",
+        created_by=user_id
+    )
+    db_session.add(report_doc)
+    await db_session.commit()
+
+    chunk = KnowledgeChunk(
+        id=uuid.uuid4(),
+        document_id=doc.id,
+        chunk_number=1,
+        character_count=450,
+        token_count=100,
+        chunk_metadata={
+            "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
+            "embedding": [0.1] * 1536
+        }
+    )
+    db_session.add(chunk)
+    
+    # Add a GenerationJob for the report so we can link it
+    job = GenerationJob(
+        id=uuid.uuid4(),
+        document_id=report_doc.id,
+        topic="Nuclear Fusion report",
+        status=JobStatusType.completed,
+        started=datetime.now(timezone.utc)
+    )
+    db_session.add(job)
+    await db_session.commit()
+
+    # Seed MOCK_REPORTS
+    mock_id = str(report_doc.id)
+    MOCK_REPORTS[mock_id] = {
+        "id": mock_id,
+        "title": "Nuclear Fusion report",
+        "slug": "nuclear-fusion-report",
+        "reportContent": {
+            "sections": [
+                {
+                    "heading": "Executive Summary",
+                    "body": "Commercial nuclear fusion pilot plant costs are unknown."
+                }
+            ]
+        }
+    }
+
+    # API key mock or set DEEPSEEK_API_KEY to trigger real/mock gateway call
+    with patch("httpx.AsyncClient.post") as mock_post:
+        # Mock LLM API response from DeepSeek
+        mock_llm_response = {
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD."
+                    }
+                }
+            ],
+            "usage": {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}
+        }
+        mock_post.return_value = AsyncMock(
+            status_code=200,
+            json=lambda: mock_llm_response,
+            raise_for_status=lambda: None
+        )
+
+        with patch.dict("os.environ", {"DEEPSEEK_API_KEY": "test-key"}):
+            async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+                resp = await ac.post("/api/v1/reports/edit", json={
+                    "documentId": mock_id,
+                    "action": "regenerate",
+                    "paragraphId": "exec-summary-p1",
+                    "text": "Commercial nuclear fusion pilot plant costs are unknown."
+                })
+                
+                assert resp.status_code == 200
+                data = resp.json()["data"]
+                assert "5 billion USD" in data["edited_text"]
+                
+                # Check that MOCK_REPORTS has been updated
+                assert "5 billion USD" in MOCK_REPORTS[mock_id]["reportContent"]["sections"][0]["body"]
+
+                # Check that EvidenceAttribution was logged in the DB
+                stmt_attr = select(EvidenceAttribution).where(EvidenceAttribution.generation_job_id == job.id)
+                res_attr = await db_session.execute(stmt_attr)
+                attributions = res_attr.scalars().all()
+                assert len(attributions) > 0
+                assert attributions[0].section_id == "exec-summary-p1"
+                assert attributions[0].snapshot_id is not None
+

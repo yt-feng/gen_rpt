@@ -281,6 +281,51 @@ class PromptBuilderService:
             )
         return compiled
 
+    def build_partial_prompt(
+        self,
+        action: str,
+        original_text: str,
+        context_package: dict,
+        configuration: Optional[dict] = None
+    ) -> str:
+        chunks = context_package.get("validated_chunks", [])
+        context_str = "\n\n".join([f"[Source Chunk {c['chunk_id']}] (Confidence: {c['confidence']:.2f})\n{c['text']}" for c in chunks])
+        
+        config = configuration or {}
+        language = config.get("language", "en")
+        
+        action_desc = "Rewrite the following text."
+        if action == "expand":
+            action_desc = "Expand on the following text, providing more detail and context."
+        elif action == "rewrite":
+            action_desc = "Rewrite the following text to make it more concise and professional."
+        elif action == "regenerate":
+            action_desc = "Completely regenerate the following text, providing a fresh perspective."
+            
+        if language == "zh":
+            compiled = (
+                f"你是一个拥有丰富行业经验的资深顾问。请基于以下提供的已验证企业知识对文本进行修改。\n\n"
+                f"--- 已验证企业知识 ---\n"
+                f"{context_str}\n\n"
+                f"--- 操作要求 ---\n"
+                f"{action_desc}\n\n"
+                f"--- 原始文本 ---\n"
+                f"{original_text}\n\n"
+                f"请确保所有引用的事实在已验证企业知识中存在，并且仅返回修改后的文本本身，不需要多余的解释。"
+            )
+        else:
+            compiled = (
+                f"You are an elite research consultant. Modify the text based strictly on the validated enterprise knowledge provided below.\n\n"
+                f"--- VALIDATED ENTERPRISE KNOWLEDGE ---\n"
+                f"{context_str}\n\n"
+                f"--- ACTION ---\n"
+                f"{action_desc}\n\n"
+                f"--- ORIGINAL TEXT ---\n"
+                f"{original_text}\n\n"
+                f"Ensure every material claim is supported by direct evidence from the sources above. Return only the edited text without any conversational filler or quotes."
+            )
+        return compiled
+
 
 class GenerationContextService:
     def __init__(self):
@@ -516,6 +561,38 @@ class AIGatewayService:
         raise Exception(f"AI Gateway: DeepSeek completions proxy failed after all retries. Last error: {last_err}")
 
 
+class SelectiveContextBuilder:
+    def __init__(self, context_service: GenerationContextService):
+        self.context_service = context_service
+
+    async def build_context(
+        self,
+        db: AsyncSession,
+        query: str,
+        collection_ids: Optional[List[uuid.UUID]] = None,
+        user_id: Optional[uuid.UUID] = None,
+        user_org_id: Optional[uuid.UUID] = None,
+        config: Optional[dict] = None,
+        generation_job_id: Optional[uuid.UUID] = None,
+        slug: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Builds a focused context package for partial regeneration.
+        Simply proxies to generation_context_service.prepare_context which handles
+        retrieval, validation, snapshotting, caching, and analytics logging.
+        """
+        return await self.context_service.prepare_context(
+            db=db,
+            query=query,
+            collection_ids=collection_ids,
+            user_id=user_id,
+            user_org_id=user_org_id,
+            config=config,
+            generation_job_id=generation_job_id,
+            slug=slug
+        )
+
+
 # Singletons
 context_cache_service = ContextCacheService()
 knowledge_snapshot_service = KnowledgeSnapshotService()
@@ -524,3 +601,4 @@ generation_analytics_service = GenerationAnalyticsService()
 prompt_builder_service = PromptBuilderService()
 generation_context_service = GenerationContextService()
 ai_gateway_service = AIGatewayService()
+selective_context_builder = SelectiveContextBuilder(generation_context_service)

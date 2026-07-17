@@ -517,6 +517,7 @@ class AIEditRequest(BaseModel):
 @router.post("/edit", response_model=APIResponse[dict])
 async def ai_edit_block(
     req: AIEditRequest,
+    db: AsyncSession = Depends(get_db),
     user: dict = Depends(get_current_user_placeholder)
 ):
     """
@@ -525,7 +526,19 @@ async def ai_edit_block(
     """
     import httpx
     import os
+    import time
+    import uuid
+    from sqlalchemy import select
     from app.core.config import settings
+    from app.models.document import Document
+    from app.models.workflow import GenerationJob
+    from app.models.rag_integration import GenerationAnalytics
+    from app.services.rag_integration import (
+        selective_context_builder,
+        prompt_builder_service,
+        evidence_attribution_service,
+        ai_gateway_service
+    )
 
     doc_id = req.documentId
     if doc_id not in MOCK_REPORTS:
@@ -534,56 +547,165 @@ async def ai_edit_block(
     report = MOCK_REPORTS[doc_id]
     original_text = req.text.strip()
     
-    # Simple prompt depending on action
-    prompt_instruction = "Rewrite the following text."
-    if req.action == "expand":
-        prompt_instruction = "Expand on the following text, providing more detail and context."
-    elif req.action == "rewrite":
-        prompt_instruction = "Rewrite the following text to make it more concise and professional."
-    elif req.action == "regenerate":
-        prompt_instruction = "Completely regenerate the following text, providing a fresh perspective."
-
-    # Call AI (DeepSeek or Groq if available)
+    # Check API key
     api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
+    
+    new_text = None
+    llm_time_ms = 0
+    pkg_data = None
+    original_job_id = None
+    collection_ids = None
+
+    if settings.RAG_ENABLED:
+        # 1. Fetch document and original job if available to discover collections used
+        doc_obj = None
+        try:
+            doc_uuid = uuid.UUID(doc_id)
+            doc_obj = await db.get(Document, doc_uuid)
+        except ValueError:
+            pass
+            
+        if not doc_obj:
+            stmt = select(Document).where(Document.slug == doc_id)
+            res = await db.execute(stmt)
+            doc_obj = res.scalar_one_or_none()
+            
+        if doc_obj:
+            job_stmt = select(GenerationJob).where(GenerationJob.document_id == doc_obj.id).order_by(GenerationJob.started.desc())
+            job_res = await db.execute(job_stmt)
+            job = job_res.scalars().first()
+            if job:
+                original_job_id = job.id
+                analytics_stmt = select(GenerationAnalytics).where(GenerationAnalytics.generation_job_id == job.id)
+                analytics_res = await db.execute(analytics_stmt)
+                analytics = analytics_res.scalars().first()
+                if analytics and analytics.collections_used:
+                    collection_ids = [uuid.UUID(c) for c in analytics.collections_used]
+
+        # 2. Build partial context package
+        partial_slug = f"{(doc_obj.slug if doc_obj else doc_id)}:partial:{uuid.uuid4().hex[:6]}"
+        
+        pkg_data = await selective_context_builder.build_context(
+            db=db,
+            query=original_text,
+            collection_ids=collection_ids,
+            user_id=uuid.UUID(user["id"]) if user.get("id") else None,
+            slug=partial_slug
+        )
+        
+        # 3. Build prompt using build_partial_prompt
+        user_prompt = prompt_builder_service.build_partial_prompt(
+            action=req.action,
+            original_text=original_text,
+            context_package=pkg_data
+        )
+        system_prompt = "You are a professional report editor. Return only the edited text without any conversational filler or quotes."
+    else:
+        # Simple prompt depending on action
+        prompt_instruction = "Rewrite the following text."
+        if req.action == "expand":
+            prompt_instruction = "Expand on the following text, providing more detail and context."
+        elif req.action == "rewrite":
+            prompt_instruction = "Rewrite the following text to make it more concise and professional."
+        elif req.action == "regenerate":
+            prompt_instruction = "Completely regenerate the following text, providing a fresh perspective."
+        
+        user_prompt = f"{prompt_instruction}\n\n{original_text}"
+        system_prompt = "You are a professional report editor. Return only the edited text without any conversational filler or quotes."
 
     if not api_key:
+        # Mock fallback text
         if req.action == "expand":
             new_text = f"{original_text} Furthermore, additional strategic indicators confirm that these dynamics are critical to achieving sustained long-term performance objectives."
         elif req.action == "rewrite":
             new_text = f"Regarding the primary subject matter: {original_text}"
         else:
             new_text = f"Based on updated analytical parameters: {original_text}"
+        
+        llm_time_ms = 100
     else:
         try:
-            is_groq = "gsk_" in api_key
-            
-            if is_groq:
-                url = "https://api.groq.com/openai/v1/chat/completions"
-                model = "llama-3.3-70b-versatile"
-            else:
-                url = "https://api.deepseek.com/chat/completions"
-                model = "deepseek-chat"
-            
-            headers = {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": "You are a professional report editor. Return only the edited text without any conversational filler or quotes."},
-                    {"role": "user", "content": f"{prompt_instruction}\n\n{original_text}"}
+            if settings.RAG_ENABLED:
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
                 ]
-            }
-            async with httpx.AsyncClient() as client:
-                resp = await client.post(url, headers=headers, json=payload, timeout=20.0)
-                if resp.status_code == 200:
-                    data = resp.json()
-                    new_text = data["choices"][0]["message"]["content"].strip()
+                
+                llm_start = time.time()
+                gateway_res = await ai_gateway_service.chat_completion(
+                    db=db,
+                    messages=messages,
+                    model="deepseek-chat",
+                    slug=partial_slug
+                )
+                llm_time_ms = int((time.time() - llm_start) * 1000)
+                new_text = gateway_res["choices"][0]["message"]["content"].strip()
+            else:
+                is_groq = "gsk_" in api_key
+                
+                if is_groq:
+                    url = "https://api.groq.com/openai/v1/chat/completions"
+                    model = "llama-3.3-70b-versatile"
                 else:
-                    return error_response(message=f"AI API failed with status {resp.status_code}: {resp.text}")
+                    url = "https://api.deepseek.com/chat/completions"
+                    model = "deepseek-chat"
+                
+                headers = {
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_prompt}
+                    ]
+                }
+                async with httpx.AsyncClient() as client:
+                    resp = await client.post(url, headers=headers, json=payload, timeout=20.0)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        new_text = data["choices"][0]["message"]["content"].strip()
+                    else:
+                        return error_response(message=f"AI API failed with status {resp.status_code}: {resp.text}")
         except Exception as e:
-            return error_response(message=f"AI API request failed: {str(e)}")
+            return error_response(message=f"AI AI request failed: {str(e)}")
+
+    # 4. If RAG was enabled and we successfully edited the text, post-process analytics & attributions
+    if settings.RAG_ENABLED and pkg_data:
+        try:
+            # Update generation_time_ms in GenerationAnalytics
+            from datetime import datetime, timezone, timedelta
+            stmt_analytics = select(GenerationAnalytics).where(
+                GenerationAnalytics.generation_job_id == original_job_id,
+                GenerationAnalytics.created_at >= datetime.now(timezone.utc) - timedelta(seconds=10)
+            ).order_by(GenerationAnalytics.created_at.desc())
+            res_analytics = await db.execute(stmt_analytics)
+            analytics_obj = res_analytics.scalars().first()
+            if analytics_obj:
+                analytics_obj.generation_time_ms = llm_time_ms
+                await db.commit()
+
+            # Create attributions
+            section_attributions = [{
+                "section_id": req.paragraphId,
+                "supporting_chunks": [c["chunk_id"] for c in pkg_data["validated_chunks"]],
+                "supporting_documents": list(set([c["document_id"] for c in pkg_data["validated_chunks"]])),
+                "supporting_sources": list(set([s["source_id"] for s in pkg_data["validated_sources"]])),
+                "supporting_collections": collection_ids or [],
+                "confidence": pkg_data.get("confidence_scores", {}).get("overall", 1.0)
+            }]
+            
+            await evidence_attribution_service.create_attributions(
+                db=db,
+                generation_job_id=original_job_id,
+                section_attributions=section_attributions,
+                snapshot_id=uuid.UUID(pkg_data["knowledge_snapshot_id"]),
+                validation_report_id=uuid.UUID(pkg_data["validation_report_reference"])
+            )
+        except Exception as attr_err:
+            # Don't fail the request if attribution logging fails
+            print(f"[ai_edit_block] Warning: Failed to log RAG attribution details: {attr_err}")
 
     # Find the paragraph in the report content and replace it
     updated = False
@@ -600,7 +722,7 @@ async def ai_edit_block(
 
     return success_response(
         data={"edited_text": new_text}, 
-        message=f"AI {req.action} applied successfully"
+        message="Block successfully rewritten by AI"
     )
 
 @router.post("/{document_id}/claim", response_model=APIResponse[dict])
