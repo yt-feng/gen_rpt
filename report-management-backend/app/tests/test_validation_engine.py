@@ -364,8 +364,10 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
         
         # 1. Trigger Validation
         resp = await client.post(f"/api/v1/validation/validate?session_id={session.id}", headers=headers)
+        print("API RESPONSE:", resp.text)
         assert resp.status_code == 200
         data = resp.json()["data"]
+
         assert data["validation_report_reference"] is not None
         
         # 2. Get Report
