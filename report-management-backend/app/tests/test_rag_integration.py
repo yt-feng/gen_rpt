@@ -175,7 +175,8 @@ async def test_ai_gateway_completions_proxy(db_session: AsyncSession):
         }
     }
 
-    with patch("httpx.AsyncClient.post") as mock_post:
+    with patch("httpx.AsyncClient.post") as mock_post, \
+         patch.object(settings, "DEEPSEEK_API_KEY", "test-key"):
         mock_post.return_value = AsyncMock(
             status_code=200,
             json=lambda: mock_llm_response,
