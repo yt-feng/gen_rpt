@@ -21,7 +21,7 @@ class KnowledgePermissionService:
         self, db: AsyncSession, collection_id: uuid.UUID, user_id: uuid.UUID, required_level: str
     ) -> bool:
         cache_key = f"permission:{collection_id}:{user_id}:{required_level}"
-        cached = knowledge_cache_service.get(cache_key)
+        cached = await knowledge_cache_service.get(cache_key)
         if cached is not None:
             return cached
 
@@ -38,7 +38,7 @@ class KnowledgePermissionService:
 
         # If user is collection owner, they have full access
         if col.owner_id == user_id:
-            knowledge_cache_service.set(cache_key, True)
+            await knowledge_cache_service.set(cache_key, True)
             return True
 
         # Check explicit permission
@@ -52,16 +52,16 @@ class KnowledgePermissionService:
         if not perm:
             # Check if visibility allows public/shared access if required_level is viewer
             if required_level == "viewer" and col.visibility in ("shared", "public"):
-                knowledge_cache_service.set(cache_key, True)
+                await knowledge_cache_service.set(cache_key, True)
                 return True
-            knowledge_cache_service.set(cache_key, False)
+            await knowledge_cache_service.set(cache_key, False)
             return False
 
         user_value = PERMISSION_LEVELS.get(perm.permission_level.lower(), 0)
         req_value = PERMISSION_LEVELS.get(required_level.lower(), 0)
         
         has_perm = user_value >= req_value
-        knowledge_cache_service.set(cache_key, has_perm)
+        await knowledge_cache_service.set(cache_key, has_perm)
         return has_perm
 
     async def assign_permission(
@@ -97,7 +97,7 @@ class KnowledgePermissionService:
         await db.refresh(perm)
         
         # Invalidate permission caches
-        knowledge_cache_service.invalidate_collection(collection_id)
+        await knowledge_cache_service.invalidate_collection(collection_id)
         return perm
 
     async def remove_permission(
@@ -116,7 +116,7 @@ class KnowledgePermissionService:
             )
         )
         await db.commit()
-        knowledge_cache_service.invalidate_collection(collection_id)
+        await knowledge_cache_service.invalidate_collection(collection_id)
         return True
 
     async def list_permissions(

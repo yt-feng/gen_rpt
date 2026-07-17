@@ -93,6 +93,13 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             logger.error(f"Failed to start Knowledge Processing Pipeline: {e}")
 
+    # Initialize Redis Cache
+    try:
+        from app.services.knowledge_cache import knowledge_cache_service
+        await knowledge_cache_service.init_redis()
+    except Exception as e:
+        logger.warning(f"Failed to initialize Redis cache: {e}")
+
     logger.info(f"API available at: {settings.API_V1_STR}")
     logger.info("Startup complete. Ready to serve requests.")
     
@@ -105,6 +112,12 @@ async def lifespan(app: FastAPI):
         knowledge_pipeline.stop()
     except Exception as e:
         logger.error(f"Failed to stop Knowledge Processing Pipeline: {e}")
+    try:
+        from app.services.knowledge_cache import knowledge_cache_service
+        await knowledge_cache_service.close_redis()
+    except Exception as e:
+        logger.error(f"Failed to close Redis cache: {e}")
+
     from app.core.database import engine
     await engine.dispose()
 
