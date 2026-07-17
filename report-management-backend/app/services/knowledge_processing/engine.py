@@ -86,6 +86,9 @@ class KnowledgeProcessingEngine:
             
             await self._record_audit_log(db, job_id, "text_extraction", stage_start, extract_output_id, len(file_bytes))
             logs_list.append(f"Text Extraction completed in {time.time() - stage_start:.2f}s. Character count: {len(extracted_text)}")
+            
+            from app.core.metrics import knowledge_processing_duration_seconds
+            knowledge_processing_duration_seconds.labels(stage="extraction").observe(time.time() - stage_start)
 
             # 4. Stage 2: Metadata & Language
             logs_list.append("Running Metadata & Language Detection Stage...")
@@ -172,6 +175,9 @@ class KnowledgeProcessingEngine:
             
             await self._record_audit_log(db, job_id, "chunking", stage_start, chunks_output_id, len(chunks_data))
             logs_list.append(f"Document chunking completed. Generated {len(db_chunks)} chunks.")
+            
+            from app.core.metrics import knowledge_processing_duration_seconds
+            knowledge_processing_duration_seconds.labels(stage="chunking").observe(time.time() - stage_start)
 
             # 7. Stage 5: Entity & Relationship Extraction
             logs_list.append("Running Entity & Relationship Extraction Stage...")
@@ -277,6 +283,9 @@ class KnowledgeProcessingEngine:
             
             await self._record_audit_log(db, job_id, "embedding", stage_start, embeds_output_id, len(embed_data))
             logs_list.append("Embedding generation completed successfully.")
+            
+            from app.core.metrics import knowledge_processing_duration_seconds
+            knowledge_processing_duration_seconds.labels(stage="embedding").observe(time.time() - stage_start)
 
             # 9. Stage 7: Validation Stage
             logs_list.append("Running Quality & Integrity Validation...")
@@ -308,6 +317,10 @@ class KnowledgeProcessingEngine:
             
             await self._record_audit_log(db, job_id, "validation", stage_start, val_output_id, len(val_data))
             logs_list.append("Quality Validation stage completed.")
+            
+            from app.core.metrics import knowledge_processing_duration_seconds, knowledge_validation_confidence
+            knowledge_processing_duration_seconds.labels(stage="validation").observe(time.time() - stage_start)
+            knowledge_validation_confidence.set(val_report["confidence"])
 
             # 10. Complete processing job
             job.status = "completed"

@@ -39,6 +39,8 @@ class RetrievalEngineService:
             elapsed = int((time.time() - start_time) * 1000)
             cached["latency_ms"] = elapsed
             cached["cache_hit"] = True
+            from app.core.metrics import knowledge_retrieval_latency_ms
+            knowledge_retrieval_latency_ms.observe(float(elapsed))
             return cached
             
         # 2. Collection Scope & Authorization checks
@@ -63,6 +65,9 @@ class RetrievalEngineService:
             target_ids = [cid for cid in candidates if cid in permitted]
                     
         if not target_ids:
+            latency = int((time.time() - start_time) * 1000)
+            from app.core.metrics import knowledge_retrieval_latency_ms
+            knowledge_retrieval_latency_ms.observe(float(latency))
             return {
                 "session_id": uuid.uuid4(),
                 "context": "",
@@ -77,7 +82,7 @@ class RetrievalEngineService:
                     "relationship_version": "1.0.0",
                     "metadata_version": "1.0.0"
                 },
-                "latency_ms": int((time.time() - start_time) * 1000),
+                "latency_ms": latency,
                 "cache_hit": False,
                 "sources": []
             }
@@ -270,6 +275,9 @@ class RetrievalEngineService:
         
         # Save to cache with standard TTL of 300 seconds
         await knowledge_cache_service.set(cache_key, result_payload, ttl=300)
+        
+        from app.core.metrics import knowledge_retrieval_latency_ms
+        knowledge_retrieval_latency_ms.observe((time.time() - start_time) * 1000)
         
         return result_payload
 
