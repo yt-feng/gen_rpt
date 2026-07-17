@@ -356,13 +356,38 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     db_session.add(result)
     await db_session.commit()
     
-    # Debug direct service call
+    # Debug SQLite database columns and types
     try:
-        package = await validation_service.validate_session(db_session, session.id, user_id)
-        print("DIRECT SERVICE CALL SUCCESS:", package)
+        from app.models.knowledge import KnowledgeChunk, KnowledgeDocument, KnowledgeCollection
+        chunks_res = await db_session.execute(select(KnowledgeChunk))
+        for c in chunks_res.scalars().all():
+            print("CHUNK ID:", c.id, type(c.id))
+            print("CHUNK DOC ID:", c.document_id, type(c.document_id))
+            
+        docs_res = await db_session.execute(select(KnowledgeDocument))
+        for d in docs_res.scalars().all():
+            print("DOC ID:", d.id, type(d.id))
+            print("DOC COLL ID:", d.collection_id, type(d.collection_id))
+            
+        col_res = await db_session.execute(select(KnowledgeCollection))
+        for co in col_res.scalars().all():
+            print("COLLECTION ID:", co.id, type(co.id))
+            print("COLLECTION OWNER ID:", co.owner_id, type(co.owner_id))
+
+        # Attempt to run chunks_stmt manually
+        from sqlalchemy.orm import selectinload
+        chunks_stmt = select(KnowledgeChunk).where(
+            KnowledgeChunk.id.in_([chunk.id])
+        ).options(
+            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.sources),
+            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.tags),
+            selectinload(KnowledgeChunk.document).selectinload(KnowledgeDocument.collection)
+        )
+        print("RUNNING CHUNKS_STMT...")
+        res = await db_session.execute(chunks_stmt)
+        print("CHUNKS_STMT RETRIEVED CHUNKS:", len(res.scalars().all()))
     except Exception as e:
         import traceback
-        print("DIRECT SERVICE CALL FAILED WITH TRACEBACK:")
         traceback.print_exc()
         raise e
         
@@ -371,6 +396,7 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         # Mock auth header or just hit route assuming mock auth handles it
         headers = {"Authorization": "Bearer mock-token"}
+
 
         
         # 1. Trigger Validation
