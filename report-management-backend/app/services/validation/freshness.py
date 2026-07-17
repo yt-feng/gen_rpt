@@ -21,15 +21,25 @@ class FreshnessService:
         now = datetime.now(timezone.utc)
         freshness_scores = {}
         
+        from app.models.knowledge import KnowledgeSource
+        doc_ids = [d.id for d in documents]
+        stmt = select(KnowledgeSource).where(KnowledgeSource.document_id.in_(doc_ids))
+        res = await db.execute(stmt)
+        sources = res.scalars().all()
+        
+        doc_sources = {src.document_id: src for src in sources}
+        
         for doc in documents:
             doc_id = doc.id
             
             # Determine base timestamp: publication_date > created_at
             pub_date = None
-            if doc.sources:
-                pub_date = doc.sources[0].publication_date
+            primary_source = doc_sources.get(doc_id)
+            if primary_source:
+                pub_date = primary_source.publication_date
                 
             base_date = pub_date or doc.created_at
+
             
             # Make timezone aware if it is naive
             if base_date.tzinfo is None:

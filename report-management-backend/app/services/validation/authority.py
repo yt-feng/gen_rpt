@@ -29,19 +29,26 @@ class AuthorityService:
             "unknown": rules.get("unknown_authority_score", 0.3),
         }
         
+        from app.models.knowledge import KnowledgeSource
+        doc_ids = [d.id for d in documents]
+        stmt = select(KnowledgeSource).where(KnowledgeSource.document_id.in_(doc_ids))
+        res = await db.execute(stmt)
+        sources = res.scalars().all()
+        
+        doc_sources = {src.document_id: src for src in sources}
+        
         for doc in documents:
             doc_id = doc.id
             score = type_scores["unknown"]
             
-            if doc.sources:
-                primary_source = doc.sources[0]
+            primary_source = doc_sources.get(doc_id)
+            if primary_source:
                 source_type = primary_source.source_type
                 
                 # Check mapping
                 if source_type in type_scores:
                     score = type_scores[source_type]
                 else:
-                    # Try fuzzy match or fallback to primary_source.authority_score if defined
                     score = getattr(primary_source, "authority_score", 0.5)
             else:
                 # If document status / tags indicate internal approved
@@ -52,6 +59,7 @@ class AuthorityService:
                     score = type_scores["manual_upload"]
                     
             authority_scores[doc_id] = float(score)
+
             
         return authority_scores
 
