@@ -178,6 +178,7 @@ async def test_ai_gateway_completions_proxy(db_session: AsyncSession):
         mock_post.return_value = AsyncMock(
             status_code=200,
             json=lambda: mock_llm_response,
+            text=json.dumps(mock_llm_response),
             raise_for_status=lambda: None
         )
 
@@ -302,6 +303,7 @@ async def test_rag_integration_api_endpoints(db_session: AsyncSession):
             mock_post.return_value = AsyncMock(
                 status_code=200,
                 json=lambda: mock_llm_response,
+                text=json.dumps(mock_llm_response),
                 raise_for_status=lambda: None
             )
             
@@ -557,3 +559,59 @@ async def test_internal_context_retrieval_api(db_session: AsyncSession):
             headers={"Authorization": "Bearer test-internal-token-123"}
         )
         assert resp.status_code == 404
+
+
+
+@pytest.mark.anyio
+async def test_streaming_and_bytes_upload(db_session: AsyncSession):
+    from app.services.knowledge_document import knowledge_document_service
+    from app.services.knowledge_storage import knowledge_storage_service
+    import io
+
+    # Seed collection
+    user_id = uuid.UUID("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
+    col = KnowledgeCollection(id=uuid.uuid4(), name="Streaming KB", slug="skb", owner_id=user_id, status="active")
+    db_session.add(col)
+    await db_session.commit()
+
+    # Mock R2 upload methods
+    with patch.object(knowledge_storage_service.provider, "upload", new_callable=AsyncMock) as mock_upload, \
+         patch.object(knowledge_storage_service.provider, "upload_streaming", new_callable=AsyncMock) as mock_upload_streaming, \
+         patch.object(knowledge_storage_service.provider, "exists", new_callable=AsyncMock) as mock_exists:
+        
+        mock_upload.return_value = True
+        mock_upload_streaming.return_value = True
+        mock_exists.return_value = True
+
+        # Test Case 1: Bytes upload (<10MB fallback)
+        res_bytes = await knowledge_document_service.upload_document(
+            db=db_session,
+            collection_id=col.id,
+            filename="bytes_test.txt",
+            content_type="text/plain",
+            user_id=user_id,
+            file_data=b"hello from bytes world"
+        )
+        assert res_bytes["status"] == "success"
+        mock_upload.assert_called_once()
+        mock_upload_streaming.assert_not_called()
+
+        # Reset mocks
+        mock_upload.reset_mock()
+        mock_upload_streaming.reset_mock()
+
+        # Test Case 2: Streaming upload (>10MB path)
+        stream_data = io.BytesIO(b"hello from streaming world")
+        res_stream = await knowledge_document_service.upload_document(
+            db=db_session,
+            collection_id=col.id,
+            filename="stream_test.txt",
+            content_type="text/plain",
+            user_id=user_id,
+            file_stream=stream_data,
+            file_size=26
+        )
+        assert res_stream["status"] == "success"
+        mock_upload_streaming.assert_called_once()
+        mock_upload.assert_not_called()
+
