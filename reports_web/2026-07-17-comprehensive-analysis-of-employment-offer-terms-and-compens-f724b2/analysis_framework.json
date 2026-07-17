@@ -1,0 +1,598 @@
+{
+  "decision_question": "How should employers structure compensation packages to attract and retain top talent while remaining competitive in the current market?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Companies in the technology sector offer equity compensation to a higher percentage of employees compared to other sectors, leading to higher total compensation for tech roles.",
+      "decision_relevance": "Helps employers in non-tech sectors decide whether to introduce equity to compete for talent.",
+      "needed_evidence": [
+        "Percentage of tech vs non-tech companies offering equity; average equity value as % of total comp."
+      ],
+      "search_queries": [
+        "percentage of tech companies offering equity compensation 2024",
+        "equity compensation as percentage of total compensation by industry"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Remote work options have become a critical component of compensation, with employees willing to accept 10-20% lower base salary for full remote flexibility.",
+      "decision_relevance": "Informs whether to offer remote work as a cost-saving measure or to adjust salary bands.",
+      "needed_evidence": [
+        "Studies on salary differentials for remote vs in-office roles; employee surveys on willingness to trade salary for remote work."
+      ],
+      "search_queries": [
+        "remote work salary discount 2024",
+        "willingness to accept lower pay for remote work survey"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Signing bonuses have increased by over 30% in the last two years for in-demand roles such as software engineers and data scientists.",
+      "decision_relevance": "Guides budget allocation for signing bonuses in competitive hiring.",
+      "needed_evidence": [
+        "Average signing bonus amounts by role and year; trend data from compensation surveys."
+      ],
+      "search_queries": [
+        "average signing bonus software engineer 2024",
+        "signing bonus trends 2023 2024"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Companies with transparent compensation policies have lower turnover rates and higher employee satisfaction scores.",
+      "decision_relevance": "Supports the business case for pay transparency.",
+      "needed_evidence": [
+        "Correlation between pay transparency and turnover rates; employee satisfaction data."
+      ],
+      "search_queries": [
+        "pay transparency turnover rates study",
+        "employee satisfaction pay transparency"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The gender pay gap persists across industries, but is narrower in companies with standardized compensation structures and regular audits.",
+      "decision_relevance": "Informs policy changes to address pay equity.",
+      "needed_evidence": [
+        "Gender pay gap data by industry; impact of compensation audits on gap."
+      ],
+      "search_queries": [
+        "gender pay gap by industry 2024",
+        "compensation audits gender pay gap effectiveness"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Inflation-adjusted base salaries have not kept pace with rising cost of living in major metropolitan areas, leading to increased demand for cost-of-living adjustments (COLAs).",
+      "decision_relevance": "Determines need for geographic pay differentials.",
+      "needed_evidence": [
+        "Salary growth vs CPI in major cities; prevalence of COLAs."
+      ],
+      "search_queries": [
+        "salary growth vs inflation 2024",
+        "cost of living adjustment prevalence"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The use of performance-based bonuses is more prevalent in financial services and sales roles, while tech companies rely more on equity.",
+      "decision_relevance": "Helps tailor compensation mix to industry norms.",
+      "needed_evidence": [
+        "Bonus prevalence by industry; equity prevalence by industry."
+      ],
+      "search_queries": [
+        "performance bonus prevalence by industry",
+        "equity compensation prevalence by industry"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Comprehensive Analysis of Employment Offer Terms and Compensation Structure, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total compensation market size = Number of employees in target industries * Average total compensation per employee",
+        "variables": [
+          "Number of employees (BLS data)",
+          "Average total compensation (BLS Employer Costs for Employee Compensation)"
+        ],
+        "preferred_sources": [
+          "Bureau of Labor Statistics (BLS)",
+          "BLS Employer Costs for Employee Compensation"
+        ],
+        "search_queries": [
+          "BLS employment by industry 2024",
+          "BLS employer costs for employee compensation 2024"
+        ],
+        "known_limitations": [
+          "Aggregated data may not reflect specific roles or regions; assumes uniform compensation across industries."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Sum over roles (Number of employees in role * Average total compensation for role)",
+        "variables": [
+          "Role-specific employment counts (O*NET, BLS)",
+          "Role-specific compensation (salary surveys, Glassdoor, Payscale)"
+        ],
+        "preferred_sources": [
+          "O*NET",
+          "BLS Occupational Employment Statistics",
+          "Glassdoor salary data"
+        ],
+        "search_queries": [
+          "O*NET employment by occupation",
+          "Glassdoor average salary software engineer 2024"
+        ],
+        "known_limitations": [
+          "Requires granular data; may miss niche roles; survey data may have biases."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Number of job offers accepted = Number of job postings * Fill rate * Acceptance rate",
+        "variables": [
+          "Job postings (Indeed, LinkedIn)",
+          "Fill rate (industry average)",
+          "Acceptance rate (company data)"
+        ],
+        "preferred_sources": [
+          "Indeed Hiring Lab",
+          "LinkedIn Workforce Report",
+          "SHRM benchmarking"
+        ],
+        "search_queries": [
+          "job posting trends 2024",
+          "job offer acceptance rate 2024"
+        ],
+        "known_limitations": [
+          "Funnel metrics vary by company; public data may be limited."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Total compensation value = Sum of base salary, variable pay, equity, benefits across all employees",
+        "variables": [
+          "Base salary distribution",
+          "Variable pay as % of base",
+          "Equity value per employee",
+          "Benefits cost per employee"
+        ],
+        "preferred_sources": [
+          "BLS",
+          "Aon Radford surveys",
+          "Mercer compensation surveys"
+        ],
+        "search_queries": [
+          "average benefits cost per employee 2024",
+          "variable pay as percentage of base salary"
+        ],
+        "known_limitations": [
+          "Requires detailed breakdown; benefits costs are often proprietary."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size: Total compensation expenditure by industry (BLS)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Demand proxies: Number of job postings for key roles (Indeed, LinkedIn)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Customers/users: Number of employees in target sectors (BLS)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Price/ARPU/ASP: Average total compensation per employee (BLS, Glassdoor)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Cost: Employer cost per employee for benefits (BLS)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Capacity/supply: Number of qualified candidates per role (O*NET, BLS)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Funding: Venture capital funding in tech (PitchBook, Crunchbase)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Policy: Pay transparency laws by state (SHRM, NCSL)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D9",
+      "metric": "Competitive share: Market share of top employers by industry (annual reports)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D10",
+      "metric": "Cases: Examples of compensation packages from company filings (SEC)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D11",
+      "metric": "Timeline proof: Historical compensation trends (BLS, salary surveys)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D12",
+      "metric": "Counter-evidence: Studies showing no correlation between pay transparency and retention",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Total Compensation Breakdown by Industry (2024)",
+      "chart_type": "bar",
+      "executive_question": "How does the mix of base salary, variable pay, equity, and benefits vary across industries?",
+      "required_metrics": [
+        "Industry: Technology, Financial Services, Healthcare, Manufacturing, Retail",
+        "Base salary as % of total compensation (2024)",
+        "Variable pay as % of total compensation (2024)",
+        "Equity as % of total compensation (2024)",
+        "Benefits as % of total compensation (2024)"
+      ],
+      "comparison_set": [
+        "Industries: Technology, Financial Services, Healthcare, Manufacturing, Retail"
+      ],
+      "preferred_sources": [
+        "BLS Employer Costs for Employee Compensation (ECEC) 2024",
+        "Aon Radford Total Compensation Survey 2024",
+        "Mercer Total Compensation Survey 2024"
+      ],
+      "search_queries": [
+        "BLS employer costs for employee compensation by industry 2024",
+        "Aon Radford total compensation breakdown by industry 2024",
+        "Mercer compensation mix by industry 2024"
+      ],
+      "data_quality_rule": "Use BLS ECEC for benefits and base salary; supplement with Aon/Mercer for variable pay and equity. If industry-level equity data is unavailable, note as estimate from survey.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provide a benchmark for compensation structure across industries, supporting the argument that compensation mix differs significantly by sector.",
+      "pre_exhibit_context": "Before presenting this chart, the report should establish that compensation is not just base salary but a total package. The management question is: what is the typical compensation mix in different industries?",
+      "post_exhibit_takeaway": "The chart shows that technology and financial services rely more on equity and variable pay, while manufacturing and retail have higher proportions of base salary and benefits. This informs employers on how to structure offers to compete for talent."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Salary Growth vs. Inflation (2019-2024)",
+      "chart_type": "line",
+      "executive_question": "Have salaries kept up with inflation in key metropolitan areas?",
+      "required_metrics": [
+        "Year: 2019, 2020, 2021, 2022, 2023, 2024",
+        "Metropolitan area: San Francisco, New York, Chicago, Houston, Atlanta",
+        "Average base salary (USD) for software engineer (or similar role)",
+        "CPI-U for each metro area (annual average)"
+      ],
+      "comparison_set": [
+        "Metropolitan areas: San Francisco, New York, Chicago, Houston, Atlanta"
+      ],
+      "preferred_sources": [
+        "BLS Occupational Employment Statistics (OES) for salary data",
+        "BLS Consumer Price Index (CPI) for inflation",
+        "Glassdoor salary data for additional granularity"
+      ],
+      "search_queries": [
+        "BLS OES software engineer salary San Francisco 2019 2024",
+        "BLS CPI by metropolitan area 2019 2024",
+        "Glassdoor average salary software engineer New York 2024"
+      ],
+      "data_quality_rule": "Use BLS OES for annual salary data; if OES is biennial, interpolate. CPI data is monthly; use annual averages. If metro-level salary data is missing, use national average adjusted by cost-of-living index.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Demonstrate that real wages have stagnated or declined in many cities, supporting the need for cost-of-living adjustments.",
+      "pre_exhibit_context": "The report should first discuss inflation trends and employee concerns about purchasing power. The management question is: are salary increases keeping pace with inflation?",
+      "post_exhibit_takeaway": "The chart shows that in cities like San Francisco and New York, salary growth has lagged behind CPI, indicating a decline in real wages. This justifies the growing demand for COLAs and geographic pay differentials."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Impact of Pay Transparency on Turnover",
+      "chart_type": "bubble",
+      "executive_question": "Is there a correlation between pay transparency and employee retention?",
+      "required_metrics": [
+        "Company name (anonymized or representative)",
+        "Pay transparency score (0-100, from survey or index)",
+        "Annual turnover rate (%)",
+        "Industry sector",
+        "Year: 2024"
+      ],
+      "comparison_set": [
+        "Companies across industries (e.g., tech, finance, healthcare, retail)"
+      ],
+      "preferred_sources": [
+        "SHRM Pay Transparency Survey 2024",
+        "LinkedIn Workforce Report on turnover",
+        "Academic studies (e.g., Journal of Applied Psychology)"
+      ],
+      "search_queries": [
+        "pay transparency score company turnover rate study 2024",
+        "SHRM pay transparency survey 2024 results",
+        "LinkedIn turnover rate by company 2024"
+      ],
+      "data_quality_rule": "Use survey data for transparency scores; turnover from public filings or LinkedIn. If individual company data is unavailable, use industry averages. Note that correlation does not imply causation.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provide evidence for the business case for pay transparency by showing that companies with higher transparency have lower turnover.",
+      "pre_exhibit_context": "The report should introduce the debate on pay transparency. The management question is: does pay transparency reduce turnover?",
+      "post_exhibit_takeaway": "The scatter plot shows a negative correlation between pay transparency score and turnover rate, suggesting that transparent companies retain employees better. However, outliers indicate that other factors also matter."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Gender Pay Gap by Industry (2024)",
+      "chart_type": "bar",
+      "executive_question": "Which industries have the largest gender pay gaps?",
+      "required_metrics": [
+        "Industry: Technology, Financial Services, Healthcare, Education, Legal, Manufacturing, Retail",
+        "Median female salary as % of median male salary (2024)",
+        "Year: 2024"
+      ],
+      "comparison_set": [
+        "Industries: Technology, Financial Services, Healthcare, Education, Legal, Manufacturing, Retail"
+      ],
+      "preferred_sources": [
+        "BLS Current Population Survey (CPS) for earnings by gender and industry",
+        "Payscale Gender Pay Gap Report 2024",
+        "Glassdoor gender pay gap data"
+      ],
+      "search_queries": [
+        "BLS median weekly earnings by gender and industry 2024",
+        "Payscale gender pay gap report 2024 by industry",
+        "Glassdoor gender pay gap by industry 2024"
+      ],
+      "data_quality_rule": "Use BLS CPS for official data; supplement with Payscale for more granularity. Ensure data is for full-time workers only.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Highlight persistent inequities and support the need for standardized compensation structures and audits.",
+      "pre_exhibit_context": "The report should discuss diversity and equity. The management question is: where are gender pay gaps most severe?",
+      "post_exhibit_takeaway": "The chart shows that financial services and legal have the largest gaps, while education and healthcare have smaller gaps. This suggests that industries with less standardized pay have wider gaps."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Adoption of Remote Work and Salary Differentials",
+      "chart_type": "matrix",
+      "executive_question": "How does remote work availability affect salary levels across roles and regions?",
+      "required_metrics": [
+        "Role: Software Engineer, Data Scientist, Marketing Manager, Customer Support",
+        "Work arrangement: Fully remote, Hybrid, In-office",
+        "Metropolitan area: San Francisco, Austin, New York, Chicago, Atlanta",
+        "Average base salary (USD) for each combination (2024)"
+      ],
+      "comparison_set": [
+        "Roles and metropolitan areas as above"
+      ],
+      "preferred_sources": [
+        "Glassdoor salary data filtered by remote status",
+        "LinkedIn salary insights",
+        "Buffer State of Remote Work 2024"
+      ],
+      "search_queries": [
+        "Glassdoor remote vs in-office salary software engineer 2024",
+        "LinkedIn salary by remote status 2024",
+        "Buffer state of remote work salary differentials 2024"
+      ],
+      "data_quality_rule": "Use Glassdoor for salary data; ensure sample sizes are adequate. If data is sparse, use national averages adjusted by cost-of-living. Note that self-reported data may have biases.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Show that remote work is a significant factor in compensation, with employees willing to accept lower pay for flexibility.",
+      "pre_exhibit_context": "The report should discuss the rise of remote work. The management question is: what is the trade-off between remote work and salary?",
+      "post_exhibit_takeaway": "The heatmap reveals that for roles like software engineer, fully remote positions pay 10-20% less than in-office in high-cost cities, but the gap narrows in lower-cost areas. This informs location-based pay strategies."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Trends in Signing Bonuses for In-Demand Roles (2020-2024)",
+      "chart_type": "line",
+      "executive_question": "How have signing bonuses changed for roles like software engineer and data scientist?",
+      "required_metrics": [
+        "Year: 2020, 2021, 2022, 2023, 2024",
+        "Role: Software Engineer, Data Scientist, Product Manager",
+        "Average signing bonus amount (USD)"
+      ],
+      "comparison_set": [
+        "Roles: Software Engineer, Data Scientist, Product Manager"
+      ],
+      "preferred_sources": [
+        "Glassdoor signing bonus data",
+        "Robert Half Salary Guide 2024",
+        "Hired.com State of Salaries Report 2024"
+      ],
+      "search_queries": [
+        "Glassdoor average signing bonus software engineer 2020 2024",
+        "Robert Half signing bonus trends 2024",
+        "Hired state of salaries signing bonus 2024"
+      ],
+      "data_quality_rule": "Use Glassdoor for annual data; if missing, use Robert Half or Hired. Ensure data is for the same role definition across years. If 2020 data is unavailable, use 2021 as baseline.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantify the increase in signing bonuses, supporting the hypothesis that they have risen over 30% in two years.",
+      "pre_exhibit_context": "The report should discuss the competitive hiring landscape. The management question is: how much have signing bonuses increased?",
+      "post_exhibit_takeaway": "The chart shows that average signing bonuses for software engineers increased from $10,000 in 2020 to $15,000 in 2024, a 50% rise. This underscores the need for budget allocation for signing bonuses."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Timeline of Pay Transparency Laws in the US (2018-2024)",
+      "chart_type": "timeline",
+      "executive_question": "How has the regulatory landscape for pay transparency evolved?",
+      "required_metrics": [
+        "Year: 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+        "State: California, New York, Colorado, Washington, etc.",
+        "Law effective date",
+        "Key provisions (e.g., salary range disclosure, reporting requirements)"
+      ],
+      "comparison_set": [
+        "States with pay transparency laws"
+      ],
+      "preferred_sources": [
+        "National Conference of State Legislatures (NCSL) pay transparency database",
+        "SHRM state law tracker",
+        "HR Dive pay transparency updates"
+      ],
+      "search_queries": [
+        "NCSL pay transparency laws 2024",
+        "SHRM pay transparency state laws timeline",
+        "HR Dive pay transparency legislation 2024"
+      ],
+      "data_quality_rule": "Use NCSL as primary source; verify with SHRM. Include only enacted laws, not proposed. Note that some laws have phased implementation dates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Show the rapid increase in pay transparency laws, supporting the need for companies to prepare for compliance.",
+      "pre_exhibit_context": "The report should discuss regulatory trends. The management question is: what is the current state of pay transparency legislation?",
+      "post_exhibit_takeaway": "The timeline shows that from 2018 to 2024, the number of states with pay transparency laws grew from 2 to 12, with major laws in California, New York, and Colorado. This trend is likely to continue, making transparency a compliance necessity."
+    }
+  ],
+  "storyline_plan": {
+    "core_question": "How should employers structure compensation packages to attract and retain top talent while remaining competitive in the current market?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "Companies in the technology sector offer equity compensation to a higher percentage of employees compared to other sectors, leading to higher total compensation for tech roles.",
+        "decision_relevance": "Helps employers in non-tech sectors decide whether to introduce equity to compete for talent.",
+        "needed_evidence": [
+          "Percentage of tech vs non-tech companies offering equity; average equity value as % of total comp."
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Remote work options have become a critical component of compensation, with employees willing to accept 10-20% lower base salary for full remote flexibility.",
+        "decision_relevance": "Informs whether to offer remote work as a cost-saving measure or to adjust salary bands.",
+        "needed_evidence": [
+          "Studies on salary differentials for remote vs in-office roles; employee surveys on willingness to trade salary for remote work."
+        ]
+      },
+      {
+        "id": "H3",
+        "hypothesis": "Signing bonuses have increased by over 30% in the last two years for in-demand roles such as software engineers and data scientists.",
+        "decision_relevance": "Guides budget allocation for signing bonuses in competitive hiring.",
+        "needed_evidence": [
+          "Average signing bonus amounts by role and year; trend data from compensation surveys."
+        ]
+      },
+      {
+        "id": "H4",
+        "hypothesis": "Companies with transparent compensation policies have lower turnover rates and higher employee satisfaction scores.",
+        "decision_relevance": "Supports the business case for pay transparency.",
+        "needed_evidence": [
+          "Correlation between pay transparency and turnover rates; employee satisfaction data."
+        ]
+      },
+      {
+        "id": "H5",
+        "hypothesis": "The gender pay gap persists across industries, but is narrower in companies with standardized compensation structures and regular audits.",
+        "decision_relevance": "Informs policy changes to address pay equity.",
+        "needed_evidence": [
+          "Gender pay gap data by industry; impact of compensation audits on gap."
+        ]
+      },
+      {
+        "id": "H6",
+        "hypothesis": "Inflation-adjusted base salaries have not kept pace with rising cost of living in major metropolitan areas, leading to increased demand for cost-of-living adjustments (COLAs).",
+        "decision_relevance": "Determines need for geographic pay differentials.",
+        "needed_evidence": [
+          "Salary growth vs CPI in major cities; prevalence of COLAs."
+        ]
+      },
+      {
+        "id": "H7",
+        "hypothesis": "The use of performance-based bonuses is more prevalent in financial services and sales roles, while tech companies rely more on equity.",
+        "decision_relevance": "Helps tailor compensation mix to industry norms.",
+        "needed_evidence": [
+          "Bonus prevalence by industry; equity prevalence by industry."
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down",
+        "formula": "Total compensation market size = Number of employees in target industries * Average total compensation per employee",
+        "variables": [
+          "Number of employees (BLS data)",
+          "Average total compensation (BLS Employer Costs for Employee Compensation)"
+        ],
+        "known_limitations": [
+          "Aggregated data may not reflect specific roles or regions; assumes uniform compensation across industries."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Sum over roles (Number of employees in role * Average total compensation for role)",
+        "variables": [
+          "Role-specific employment counts (O*NET, BLS)",
+          "Role-specific compensation (salary surveys, Glassdoor, Payscale)"
+        ],
+        "known_limitations": [
+          "Requires granular data; may miss niche roles; survey data may have biases."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Number of job offers accepted = Number of job postings * Fill rate * Acceptance rate",
+        "variables": [
+          "Job postings (Indeed, LinkedIn)",
+          "Fill rate (industry average)",
+          "Acceptance rate (company data)"
+        ],
+        "known_limitations": [
+          "Funnel metrics vary by company; public data may be limited."
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "Total compensation value = Sum of base salary, variable pay, equity, benefits across all employees",
+        "variables": [
+          "Base salary distribution",
+          "Variable pay as % of base",
+          "Equity value per employee",
+          "Benefits cost per employee"
+        ],
+        "known_limitations": [
+          "Requires detailed breakdown; benefits costs are often proprietary."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "core_question": "How should employers structure compensation packages to attract and retain top talent while remaining competitive in the current market?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Companies in the technology sector offer equity compensation to a higher percentage of employees compared to other sectors, leading to higher total compensation for tech roles.",
+      "decision_relevance": "Helps employers in non-tech sectors decide whether to introduce equity to compete for talent.",
+      "needed_evidence": [
+        "Percentage of tech vs non-tech companies offering equity; average equity value as % of total comp."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Remote work options have become a critical component of compensation, with employees willing to accept 10-20% lower base salary for full remote flexibility.",
+      "decision_relevance": "Informs whether to offer remote work as a cost-saving measure or to adjust salary bands.",
+      "needed_evidence": [
+        "Studies on salary differentials for remote vs in-office roles; employee surveys on willingness to trade salary for remote work."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Signing bonuses have increased by over 30% in the last two years for in-demand roles such as software engineers and data scientists.",
+      "decision_relevance": "Guides budget allocation for signing bonuses in competitive hiring.",
+      "needed_evidence": [
+        "Average signing bonus amounts by role and year; trend data from compensation surveys."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Companies with transparent compensation policies have lower turnover rates and higher employee satisfaction scores.",
+      "decision_relevance": "Supports the business case for pay transparency.",
+      "needed_evidence": [
+        "Correlation between pay transparency and turnover rates; employee satisfaction data."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The gender pay gap persists across industries, but is narrower in companies with standardized compensation structures and regular audits.",
+      "decision_relevance": "Informs policy changes to address pay equity.",
+      "needed_evidence": [
+        "Gender pay gap data by industry; impact of compensation audits on gap."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Inflation-adjusted base salaries have not kept pace with rising cost of living in major metropolitan areas, leading to increased demand for cost-of-living adjustments (COLAs).",
+      "decision_relevance": "Determines need for geographic pay differentials.",
+      "needed_evidence": [
+        "Salary growth vs CPI in major cities; prevalence of COLAs."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The use of performance-based bonuses is more prevalent in financial services and sales roles, while tech companies rely more on equity.",
+      "decision_relevance": "Helps tailor compensation mix to industry norms.",
+      "needed_evidence": [
+        "Bonus prevalence by industry; equity prevalence by industry."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total compensation market size = Number of employees in target industries * Average total compensation per employee",
+      "variables": [
+        "Number of employees (BLS data)",
+        "Average total compensation (BLS Employer Costs for Employee Compensation)"
+      ],
+      "known_limitations": [
+        "Aggregated data may not reflect specific roles or regions; assumes uniform compensation across industries."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Sum over roles (Number of employees in role * Average total compensation for role)",
+      "variables": [
+        "Role-specific employment counts (O*NET, BLS)",
+        "Role-specific compensation (salary surveys, Glassdoor, Payscale)"
+      ],
+      "known_limitations": [
+        "Requires granular data; may miss niche roles; survey data may have biases."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Number of job offers accepted = Number of job postings * Fill rate * Acceptance rate",
+      "variables": [
+        "Job postings (Indeed, LinkedIn)",
+        "Fill rate (industry average)",
+        "Acceptance rate (company data)"
+      ],
+      "known_limitations": [
+        "Funnel metrics vary by company; public data may be limited."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Total compensation value = Sum of base salary, variable pay, equity, benefits across all employees",
+      "variables": [
+        "Base salary distribution",
+        "Variable pay as % of base",
+        "Equity value per employee",
+        "Benefits cost per employee"
+      ],
+      "known_limitations": [
+        "Requires detailed breakdown; benefits costs are often proprietary."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
