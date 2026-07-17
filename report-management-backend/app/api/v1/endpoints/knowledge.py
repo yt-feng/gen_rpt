@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Query, status, HTTPException, Request
+from fastapi import APIRouter, Depends, UploadFile, File, Query, Form, status, HTTPException, Request
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 from sqlalchemy import select
@@ -205,8 +205,8 @@ async def get_collection_stats(
 @limiter.limit("10/minute")
 async def upload_document(
     request: Request,
-    collection_id: UUID = Query(..., description="ID of the collection to add document to"),
-    duplicate_strategy: str = Query("skip", description="Strategy when duplicate checksum is found: skip or new_version"),
+    collection_id: UUID = Form(..., description="ID of the collection to add document to"),
+    duplicate_strategy: str = Form("skip", description="Strategy when duplicate checksum is found: skip or new_version"),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
     user: dict = Depends(get_current_user_placeholder),

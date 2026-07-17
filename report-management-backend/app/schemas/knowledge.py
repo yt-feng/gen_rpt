@@ -81,7 +81,7 @@ class CollectionCreate(BaseModel):
     slug: str = Field(..., max_length=255)
     description: Optional[str] = None
     status: str = "active"
-    owner_id: UUID
+    owner_id: Optional[UUID] = None
     organization_id: Optional[UUID] = None
     visibility: str = "private"
 
