@@ -42,6 +42,10 @@ from app.models.rag_integration import (
     GenerationAnalytics,
     GenerationContextCache
 )
+from app.models.review_integration import (
+    ReviewSnapshot,
+    ReviewAnalytics
+)
 
 __all__ = [
     "Base",
@@ -78,6 +82,9 @@ __all__ = [
     "KnowledgeSnapshot",
     "EvidenceAttribution",
     "GenerationAnalytics",
-    "GenerationContextCache"
+    "GenerationContextCache",
+    "ReviewSnapshot",
+    "ReviewAnalytics"
 ]
+
 
