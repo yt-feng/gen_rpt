@@ -337,14 +337,14 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     monkeypatch.setattr(settings, "VALIDATION_ENABLED", True)
     
     # Set up DB data similar to previous test
-    user_id = uuid.UUID("55555555-5555-5555-5555-555555555555")
+    user_id = uuid.UUID("a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d")
     
-    # Seed the mock user to satisfy foreign key relationships and dynamic SQLite conversion
+    # Seed the mock user to satisfy foreign key relationships
     from app.models.identity import User
     user = User(
         id=user_id,
-        full_name="Yash Yelave",
-        email="yash@gatex.com",
+        full_name="Test Admin",
+        email="test-admin@gatex.com",
         status="active"
     )
     db_session.add(user)
@@ -403,29 +403,13 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     )
     db_session.add(result)
     await db_session.commit()
-
     
-    # Debug SQLite database contents via raw SQL
-    try:
-        from sqlalchemy import text
-        r_col = await db_session.execute(text("SELECT * FROM knowledge_collections"))
-        print("RAW COLLECTIONS:", r_col.all())
-        r_doc = await db_session.execute(text("SELECT * FROM knowledge_documents"))
-        print("RAW DOCUMENTS:", r_doc.all())
-        r_src = await db_session.execute(text("SELECT * FROM knowledge_sources"))
-        print("RAW SOURCES:", r_src.all())
-        r_chunk = await db_session.execute(text("SELECT * FROM knowledge_chunks"))
-        print("RAW CHUNKS:", r_chunk.all())
-        r_res = await db_session.execute(text("SELECT * FROM retrieval_results"))
-        print("RAW RESULTS:", r_res.all())
-    except Exception as e:
-        print("RAW DB DEBUG FAILED:", e)
-
     # API testing client
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
-        # Mock auth header matching seeded user
-        headers = {"Authorization": "Bearer yash@gatex.com"}
+        # Mock auth header (overridden in db_session fixture)
+        headers = {"Authorization": "Bearer test-token"}
+
 
 
 
