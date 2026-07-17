@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from pydantic import BaseModel
@@ -6,6 +6,7 @@ from typing import List, Optional
 
 from app.api.deps import get_db, get_current_user_placeholder, PageParams
 from app.core.responses import APIResponse, success_response, error_response
+from app.core.rate_limit import limiter
 from app.services.generation import generation_service
 from app.services.document import document_service
 from app.schemas.document import DocumentCreate
@@ -31,7 +32,9 @@ class CreateJobRequest(BaseModel):
 
 @router.post("/jobs", response_model=APIResponse[dict])
 @router.post("/", response_model=APIResponse[dict])
+@limiter.limit("20/minute")
 async def create_job(
+    request: Request,
     req: CreateJobRequest,
     db: AsyncSession = Depends(get_db),
     user: dict = Depends(get_current_user_placeholder)

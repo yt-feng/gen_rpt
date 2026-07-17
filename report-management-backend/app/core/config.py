@@ -25,6 +25,13 @@ class Settings(BaseSettings):
     R2_SECRET_ACCESS_KEY: Optional[str] = None
     R2_BUCKET: Optional[str] = None
     
+    # Redis Cache
+    REDIS_URL: Optional[str] = None
+    
+    # Gateway APIs
+    OPENAI_API_KEY: Optional[str] = None
+    DEEPSEEK_API_KEY: Optional[str] = None
+    
     # Auth
     JWT_SECRET: str = "change-me"
     JWT_ALGORITHM: str = "HS256"
@@ -106,6 +113,12 @@ class Settings(BaseSettings):
                 "On Render: add DATABASE_URL in the Environment Variables section. "
                 "Format: postgresql+asyncpg://user:password@host:5432/dbname"
             )
+        return self
+
+    @model_validator(mode='after')
+    def validate_jwt_secret(self) -> 'Settings':
+        if self.APP_ENV == "production" and self.JWT_SECRET == "change-me":
+            raise ValueError("JWT_SECRET must be set in production")
         return self
 
     model_config = SettingsConfigDict(

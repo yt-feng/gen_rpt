@@ -29,34 +29,42 @@ class FilterParams:
 
 def get_current_user_placeholder(request: Request) -> dict:
     """
-    Parses dynamic Bearer tokens matching static mock credentials.
+    Parses Authorization header to decode JWT or fallback to mock for development.
     """
-    token = request.headers.get("Authorization")
-    if not token or not token.startswith("Bearer "):
-        return {
-            "id": "00000000-0000-0000-0000-000000000000",
-            "email": "placeholder@admin.com",
-            "full_name": "Placeholder Admin",
-            "role": "admin"
-        }
+    from jose import jwt, JWTError
+    from app.core.config import settings
+    token_header = request.headers.get("Authorization")
     
-    email = token.replace("Bearer ", "").strip().lower()
-    from app.api.v1.endpoints.auth import MOCK_USERS
-    user = next((u for u in MOCK_USERS if u["email"] == email), None)
-    if not user:
+    if not token_header or not token_header.startswith("Bearer "):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    
+    token = token_header.replace("Bearer ", "").strip()
+    
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         return {
-            "id": "00000000-0000-0000-0000-000000000000",
-            "email": "placeholder@admin.com",
-            "full_name": "Placeholder Admin",
-            "role": "admin"
+            "id": payload.get("sub"),
+            "email": payload.get("email"),
+            "full_name": payload.get("full_name"),
+            "role": payload.get("role")
         }
-        
-    return {
-        "id": user["id"],
-        "email": user["email"],
-        "full_name": user["full_name"],
-        "role": user["role"]
-    }
+    except JWTError:
+        # Fallback to mock logic strictly for local development
+        if settings.APP_ENV != "development":
+            raise HTTPException(status_code=401, detail="Invalid token")
+            
+        email = token.lower()
+        from app.api.v1.endpoints.auth import MOCK_USERS
+        user = next((u for u in MOCK_USERS if u["email"] == email), None)
+        if not user:
+            raise HTTPException(status_code=401, detail="Unauthorized")
+            
+        return {
+            "id": user["id"],
+            "email": user["email"],
+            "full_name": user["full_name"],
+            "role": user["role"]
+        }
 
 # Alias so endpoints that import get_current_user still resolve
 get_current_user = get_current_user_placeholder

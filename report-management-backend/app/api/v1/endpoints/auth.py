@@ -1,7 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Header
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime, timedelta
+from jose import jwt
+from app.core.config import settings
 from app.core.responses import APIResponse, success_response, error_response
+from app.core.rate_limit import limiter
 
 router = APIRouter()
 
@@ -62,7 +66,8 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/login", response_model=APIResponse[dict])
-async def login(req: LoginRequest):
+@limiter.limit("5/minute")
+async def login(request: Request, req: LoginRequest):
     identity = (req.email or req.username or "").strip().lower()
     if not identity:
         raise HTTPException(status_code=400, detail="Missing username or email")
@@ -75,7 +80,16 @@ async def login(req: LoginRequest):
     if not user or user["password"] != password:
         raise HTTPException(status_code=401, detail="Invalid username/email or password")
         
-    token = f"Bearer {user['email']}"
+    expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode = {
+        "sub": user["id"],
+        "email": user["email"],
+        "full_name": user["full_name"],
+        "role": user["role"],
+        "exp": expire
+    }
+    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
+    token = f"Bearer {encoded_jwt}"
     return success_response(
         data={
             "token": token,

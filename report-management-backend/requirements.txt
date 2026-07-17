@@ -19,3 +19,4 @@ python-dotenv>=1.0.0
 playwright>=1.44.0
 beautifulsoup4>=4.12.3
 markdown>=3.6.0
+slowapi>=0.1.9

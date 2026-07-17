@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File, Query, status, HTTPException
+from fastapi import APIRouter, Depends, UploadFile, File, Query, status, HTTPException, Request
 from typing import List, Optional, Dict, Any
 from uuid import UUID
 from sqlalchemy import select
@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.api.deps import get_current_user_placeholder, get_db
 from app.core.responses import APIResponse, success_response
 from app.core.config import settings
+from app.core.rate_limit import limiter
 from app.schemas.knowledge import (
     CollectionCreate,
     CollectionUpdate,
@@ -201,7 +202,9 @@ async def get_collection_stats(
 # ==========================================
 
 @router.post("/documents/upload", response_model=APIResponse[dict], status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/minute")
 async def upload_document(
+    request: Request,
     collection_id: UUID = Query(..., description="ID of the collection to add document to"),
     duplicate_strategy: str = Query("skip", description="Strategy when duplicate checksum is found: skip or new_version"),
     file: UploadFile = File(...),
