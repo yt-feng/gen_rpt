@@ -10,7 +10,7 @@ from app.core.config import settings
 logger = structlog.get_logger("report_management")
 
 HF_MODEL = "BAAI/bge-small-en-v1.5"
-HF_INFERENCE_URL = f"https://api-inference.huggingface.co/pipeline/feature-extraction/{HF_MODEL}"
+HF_INFERENCE_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}"
 
 
 def _require_hf_token() -> str:
