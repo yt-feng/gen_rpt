@@ -137,7 +137,21 @@ class ReviewService:
             
         await db.commit()
         await db.refresh(review)
+
+        # Trigger review snapshot creation
+        try:
+            from app.services.review_integration import review_snapshot_service
+            await review_snapshot_service.create_review_snapshot(
+                db=db,
+                version_id=doc.current_version_id,
+                reviewer_id=reviewer_id,
+                human_review_id=review.id
+            )
+        except Exception as e:
+            print(f"[complete_review] Failed to create review snapshot: {e}")
+
         return review
+
 
     @staticmethod
     async def handle_ai_request_from_comment(db: AsyncSession, comment_id: uuid.UUID) -> DocumentVersion:
