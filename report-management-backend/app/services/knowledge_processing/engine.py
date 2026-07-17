@@ -227,6 +227,7 @@ class KnowledgeProcessingEngine:
                         "content": target_chunk.chunk_metadata["content"],
                         "embedding": emb["vector"]
                     }
+                    target_chunk.embedding = emb["vector"]
                     db.add(target_chunk)
                     
                 # Create EmbeddingMetadata

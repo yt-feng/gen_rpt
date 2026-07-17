@@ -9,11 +9,12 @@ from sqlalchemy.orm import selectinload
 from app.models.knowledge import KnowledgeCollection, KnowledgeDocument, KnowledgeChunk
 from app.services.knowledge_permission import knowledge_permission_service
 from app.services.knowledge_cache import knowledge_cache_service
-from app.services.retrieval_similarity import calculate_cosine_similarity, calculate_keyword_score
+from app.services.retrieval_similarity import calculate_keyword_score
 from app.services.retrieval_ranking import rank_retrieved_chunks
 from app.services.retrieval_context import build_retrieval_context
 from app.services.retrieval_analytics import retrieval_analytics_service
-from app.services.knowledge_processing.workers.embedding import generate_mock_embedding
+from app.services.knowledge_processing.workers.embedding import generate_query_embedding
+from app.core.config import settings
 
 class RetrievalEngineService:
     async def retrieve_knowledge(
@@ -151,30 +152,48 @@ class RetrievalEngineService:
             
         doc_ids = [d.id for d in filtered_docs]
         
-        # 4. Fetch Chunks
-        chunk_stmt = select(KnowledgeChunk).filter(
-            KnowledgeChunk.document_id.in_(doc_ids)
-        )
+        # 4. Fetch Chunks and Calculate similarity using pgvector Order By Cosine Distance
+        try:
+            query_vector = await generate_query_embedding(query, model=settings.KNOWLEDGE_EMBEDDING_MODEL)
+        except Exception as e:
+            if settings.APP_ENV == "development":
+                import hashlib, random
+                h = hashlib.sha256(query.encode("utf-8")).hexdigest()
+                rng = random.Random(int(h, 16))
+                query_vector = [rng.uniform(-1, 1) for _ in range(1536)]
+                norm = sum(x * x for x in query_vector) ** 0.5
+                if norm > 0:
+                    query_vector = [x / norm for x in query_vector]
+            else:
+                raise e
+
+        distance_expr = KnowledgeChunk.embedding.cosine_distance(query_vector)
+        similarity_expr = 1.0 - distance_expr
+
+        chunk_stmt = select(
+            KnowledgeChunk,
+            similarity_expr.label("sim")
+        ).filter(
+            KnowledgeChunk.document_id.in_(doc_ids),
+            KnowledgeChunk.embedding.isnot(None)
+        ).order_by(
+            distance_expr
+        ).limit(target_count * 3)
+
         chunk_res = await db.execute(chunk_stmt)
-        chunks = chunk_res.scalars().all()
+        chunk_rows = chunk_res.all()
         
         # 5. Hybrid Search & Vector Calculations
-        query_vector = generate_mock_embedding(query, dimension=1536)
-        
         chunk_candidates = []
-        for ch in chunks:
-            # Retrieve vector embedding from chunk_metadata dict
+        for ch, sim in chunk_rows:
             meta = ch.chunk_metadata or {}
-            vector = meta.get("embedding")
-            
-            # Semantic Similarity
-            similarity = calculate_cosine_similarity(query_vector, vector) if vector else 0.0
             
             # Keyword Overlay
             keyword = calculate_keyword_score(query, meta.get("content", ""))
             
             # Hybrid weighted base score
-            hybrid_score = 0.7 * similarity + 0.3 * keyword
+            norm_sim = float((sim + 1.0) / 2.0)
+            hybrid_score = 0.7 * norm_sim + 0.3 * keyword
             
             # Resolve parent document references
             parent_doc = next((d for d in filtered_docs if d.id == ch.document_id), None)

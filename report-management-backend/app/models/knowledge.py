@@ -15,6 +15,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
+from pgvector.sqlalchemy import Vector
 from app.models.base import Base, UUIDMixin, TimestampMixin, SoftDeleteMixin, JSONVariant
 
 # Many-to-Many association table: Collections <-> Tags
@@ -163,6 +164,7 @@ class KnowledgeChunk(Base, UUIDMixin):
     hash: Mapped[str | None] = mapped_column(String, nullable=True)
     processing_version: Mapped[str | None] = mapped_column(String, nullable=True)
     chunk_metadata: Mapped[dict | None] = mapped_column(JSONVariant, nullable=True)
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(1536), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=func.now())
 
     # Relationships
