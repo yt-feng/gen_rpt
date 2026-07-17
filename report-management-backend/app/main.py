@@ -38,31 +38,32 @@ async def lifespan(app: FastAPI):
             await conn.execute(text("SELECT 1"))
         logger.info("Database connection: OK")
 
-        # Seed placeholder user if not present
+        # Seed all mock users if not present
         from sqlalchemy.orm import sessionmaker
         from sqlalchemy.ext.asyncio import AsyncSession
         from sqlalchemy import select
         from uuid import UUID
         from app.models.identity import User
+        from app.api.v1.endpoints.auth import MOCK_USERS
         
         async_session = sessionmaker(
             engine, class_=AsyncSession, expire_on_commit=False
         )
         async with async_session() as session:
-            placeholder_id = UUID("00000000-0000-0000-0000-000000000000")
-            result = await session.execute(select(User).where(User.id == placeholder_id))
-            user = result.scalar_one_or_none()
-            if not user:
-                logger.info("Seeding default placeholder user...")
-                db_user = User(
-                    id=placeholder_id,
-                    full_name="Placeholder Admin",
-                    email="placeholder@admin.com",
-                    status="active"
-                )
-                session.add(db_user)
-                await session.commit()
-                logger.info("Default placeholder user seeded successfully.")
+            for mock_user in MOCK_USERS:
+                u_id = UUID(mock_user["id"])
+                result = await session.execute(select(User).where(User.id == u_id))
+                user = result.scalar_one_or_none()
+                if not user:
+                    db_user = User(
+                        id=u_id,
+                        full_name=mock_user["full_name"],
+                        email=mock_user["email"],
+                        status="active"
+                    )
+                    session.add(db_user)
+            await session.commit()
+            logger.info("All mock users seeded successfully.")
     except Exception as e:
         logger.error(f"Database connection or seeding FAILED at startup: {e}")
     
