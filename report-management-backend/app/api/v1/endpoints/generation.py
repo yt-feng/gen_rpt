@@ -94,6 +94,9 @@ async def create_job(
         created_by=UUID(user["id"])
     )
 
+    from app.core.metrics import rag_generation_requests_total
+    rag_generation_requests_total.labels(rag_enabled="true" if settings.RAG_ENABLED else "false").inc()
+
     return success_response(data={"job_id": str(job.id), "status": job.status.value}, message="Job created and dispatched")
 
 @router.get("/jobs", response_model=APIResponse[list])
