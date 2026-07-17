@@ -16,8 +16,10 @@ from app.core.rate_limit import limiter
 from app.core.config import settings
 from app.logging.logger import logger
 from app.api.v1.router import api_router, internal_router
-from app.middleware.request_logging import RequestLoggingMiddleware
 from app.core.exceptions import register_exception_handlers
+from prometheus_fastapi_instrumentator import Instrumentator
+from app.core import metrics
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -131,6 +133,9 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+Instrumentator().instrument(app).expose(app, endpoint="/metrics")
+
+
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
@@ -169,12 +174,13 @@ from app.core.database import engine
 @app.get("/health", tags=["Health"])
 async def health_check():
     """
-    Health check endpoint to validate application and database.
+    Health check endpoint to validate application, database, cache, and embeddings.
     """
     start_time = time.time()
     db_status = "unhealthy"
     error_msg = None
     
+    # 1. Database connection check
     try:
         if not settings.DATABASE_URL:
             raise ValueError("DATABASE_URL is missing")
@@ -188,28 +194,82 @@ async def health_check():
         
     from app.storage.provider import storage_provider
     storage_health = await storage_provider.health_check()
-        
-    response_time_ms = round((time.time() - start_time) * 1000, 2)
-    
-    # not_configured is a warning, not a full degradation — DB must be healthy
     storage_status = storage_health.get("status")
-    overall_status = "healthy"
-    if db_status != "healthy":
-        overall_status = "degraded"
-    elif storage_status not in ("healthy", "not_configured"):
-        overall_status = "degraded"
 
-    # --- Knowledge Module Health Check ---
-    knowledge_status = "idle"
+    # 2. Embedding health check
+    embedding_status = "idle"
     if settings.KNOWLEDGE_ENABLED:
-        knowledge_status = "healthy"
+        if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY != "REPLACE_WITH_REAL_VALUE":
+            try:
+                from openai import AsyncOpenAI
+                import anyio
+                client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+                async def check_emb():
+                    await client.embeddings.create(
+                        input=["test"],
+                        model=settings.KNOWLEDGE_EMBEDDING_MODEL
+                    )
+                with anyio.fail_after(3.0):
+                    await check_emb()
+                embedding_status = "healthy"
+            except Exception as e:
+                logger.error(f"Health check embedding connection failed: {e}")
+                embedding_status = "degraded"
+        else:
+            embedding_status = "not_configured"
 
+    # 3. Vector extension health check
+    vector_status = "idle"
+    if settings.KNOWLEDGE_ENABLED:
+        try:
+            if engine.dialect.name == "postgresql":
+                async with engine.connect() as conn:
+                    res = await conn.execute(text("SELECT EXISTS(SELECT 1 FROM pg_extension WHERE extname='vector')"))
+                    vector_exists = res.scalar()
+                vector_status = "healthy" if vector_exists else "not_configured"
+            else:
+                vector_status = "healthy"  # SQLite mockup
+        except Exception as e:
+            logger.error(f"Health check vector extension check failed: {e}")
+            vector_status = "degraded"
+
+    # 4. AI Gateway health check
+    ai_gateway_status = "idle"
+    if settings.RAG_ENABLED:
+        if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_KEY != "REPLACE_WITH_REAL_VALUE":
+            ai_gateway_status = "healthy"
+        else:
+            ai_gateway_status = "not_configured"
+
+    # 5. Processing pipeline status
+    try:
+        from app.services.knowledge_processing.pipeline import knowledge_pipeline
+        pipeline_status = "healthy" if knowledge_pipeline.active else "idle"
+    except Exception as e:
+        pipeline_status = "idle"
+
+    # 6. Redis health check
+    redis_status = "not_configured"
+    if settings.REDIS_URL and settings.REDIS_URL != "REPLACE_WITH_REAL_VALUE":
+        try:
+            from app.services.knowledge_cache import knowledge_cache_service
+            if knowledge_cache_service.redis:
+                await knowledge_cache_service.redis.ping()
+                redis_status = "healthy"
+            else:
+                redis_status = "degraded"
+        except Exception as e:
+            logger.error(f"Health check Redis connection failed: {e}")
+            redis_status = "degraded"
+
+    # 7. Stats query
     collections_count = 0
     documents_count = 0
     queue_jobs_count = 0
     if db_status == "healthy" and settings.KNOWLEDGE_ENABLED:
         try:
             async with engine.connect() as conn:
+                from sqlalchemy import select, func
                 from app.models.knowledge import KnowledgeCollection, KnowledgeDocument, KnowledgeProcessingQueue
                 col_res = await conn.execute(select(func.count(KnowledgeCollection.id)).filter(KnowledgeCollection.deleted_at.is_(None)))
                 collections_count = col_res.scalar() or 0
@@ -220,18 +280,31 @@ async def health_check():
         except Exception as e:
             logger.error(f"Failed to fetch health check database stats: {e}")
 
+    # Determine overall status
+    overall_status = "healthy"
+    if db_status != "healthy":
+        overall_status = "degraded"
+    elif storage_status not in ("healthy", "not_configured"):
+        overall_status = "degraded"
+    elif embedding_status == "degraded":
+        overall_status = "degraded"
+    elif vector_status == "degraded":
+        overall_status = "degraded"
+    elif redis_status == "degraded":
+        overall_status = "degraded"
+
     from app.services.knowledge_storage import knowledge_storage_service
     knowledge_storage_health = await knowledge_storage_service.check_connectivity()
 
     knowledge_health = {
-        "status": knowledge_status,
+        "status": "healthy" if settings.KNOWLEDGE_ENABLED else "idle",
         "module_loaded": True,
-        "workers_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
-        "queue_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
-        "processing_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
-        "embedding_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.PROCESSING_ENABLED else "idle",
+        "workers_status": pipeline_status,
+        "queue_status": pipeline_status,
+        "processing_status": pipeline_status,
+        "embedding_status": embedding_status,
         "validation_status": "healthy" if settings.KNOWLEDGE_ENABLED and settings.VALIDATION_ENABLED else "idle",
-        "knowledge_index": "healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        "knowledge_index": vector_status,
         "storage_provider": settings.KNOWLEDGE_STORAGE_PROVIDER,
         "vector_provider": settings.KNOWLEDGE_VECTOR_PROVIDER,
         "knowledge_storage": knowledge_storage_health,
@@ -267,7 +340,7 @@ async def health_check():
         "status": "healthy" if settings.RAG_ENABLED else "idle",
         "generation_context_service": "healthy" if settings.RAG_ENABLED else "idle",
         "prompt_builder": "healthy" if settings.RAG_ENABLED else "idle",
-        "ai_gateway": "healthy" if settings.RAG_ENABLED else "idle",
+        "ai_gateway": ai_gateway_status,
         "knowledge_snapshot_service": "healthy" if settings.RAG_ENABLED else "idle",
         "context_cache": "healthy" if settings.RAG_ENABLED else "idle",
         "evidence_attribution_service": "healthy" if settings.RAG_ENABLED else "idle",
@@ -283,6 +356,8 @@ async def health_check():
         "review_snapshot_service": "healthy" if settings.RAG_ENABLED else "idle",
         "evidence_analytics": "healthy" if settings.RAG_ENABLED else "idle",
     }
+
+    response_time_ms = round((time.time() - start_time) * 1000, 2)
     
     return {
         "status": overall_status,
@@ -292,6 +367,9 @@ async def health_check():
             "error": error_msg
         },
         "storage": storage_health,
+        "redis": {
+            "status": redis_status
+        },
         "knowledge": knowledge_health,
         "validation": validation_health,
         "rag_integration": rag_integration_health,

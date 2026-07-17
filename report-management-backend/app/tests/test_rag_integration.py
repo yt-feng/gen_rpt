@@ -483,7 +483,7 @@ async def test_partial_regeneration_api(db_session: AsyncSession):
         }
         mock_chat.return_value = mock_llm_response
 
-        with patch.dict("os.environ", {"DEEPSEEK_API_KEY": "test-key"}):
+        with patch.object(settings, "DEEPSEEK_API_KEY", "test-key"):
             async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
                 resp = await ac.post("/api/v1/reports/edit", json={
                     "documentId": mock_id,
