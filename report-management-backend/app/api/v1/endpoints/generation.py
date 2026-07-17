@@ -191,9 +191,10 @@ async def get_generation_session(
     """
     from app.models.validation import ValidationReport
     from sqlalchemy import select
-    stmt = select(ValidationReport).where(ValidationReport.session_id == session_id)
+    stmt = select(ValidationReport).where(ValidationReport.session_id == session_id).order_by(ValidationReport.created_at.desc()).limit(1)
     res = await db.execute(stmt)
     report = res.scalar_one_or_none()
+
     if not report:
         raise HTTPException(status_code=404, detail="Validation report/session not found")
         
