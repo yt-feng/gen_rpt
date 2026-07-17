@@ -36,6 +36,7 @@ from app.schemas.knowledge import (
     TagResponse,
     PermissionCreate,
     PermissionResponse,
+    SourceResponse,
     LifecycleReindexRequest,
     LifecycleRollbackRequest,
     LifecycleHealthResponse,

@@ -181,7 +181,7 @@ class KnowledgeLifecycleService:
             details={"action": "archived_collection_and_documents", "documents_count": len(docs)}
         )
 
-        return collection
+        return await knowledge_collection_service.get_collection_with_deleted(db, collection.id)
 
     async def refresh_source(
         self, db: AsyncSession, source_id: uuid.UUID, user_id: uuid.UUID
