@@ -16,6 +16,7 @@ from app.core.rate_limit import limiter
 from app.core.config import settings
 from app.logging.logger import logger
 from app.api.v1.router import api_router, internal_router
+from app.middleware.request_logging import RequestLoggingMiddleware
 from app.core.exceptions import register_exception_handlers
 from prometheus_fastapi_instrumentator import Instrumentator
 from app.core import metrics
