@@ -40,13 +40,15 @@ class CloudflareR2Provider(StorageProvider):
             settings.R2_BUCKET
         )
         if self.is_configured:
+            from botocore.config import Config
             endpoint = f"https://{settings.R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
             self.s3_client = boto3.client(
                 "s3",
                 endpoint_url=endpoint,
                 aws_access_key_id=settings.R2_ACCESS_KEY_ID,
                 aws_secret_access_key=settings.R2_SECRET_ACCESS_KEY,
-                region_name="auto"
+                region_name="auto",
+                config=Config(signature_version="s3v4")
             )
         else:
             self.s3_client = None
