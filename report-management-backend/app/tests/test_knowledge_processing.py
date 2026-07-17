@@ -148,13 +148,13 @@ async def test_end_to_end_processing_pipeline(db_session, monkeypatch):
         from datetime import datetime, timezone
         res = []
         for c in chunks:
-            vector = [0.1] * 1536
+            vector = [0.1] * 384
             res.append({
                 "chunk_id": c["id"],
                 "chunk_number": c["chunk_number"],
                 "embedding_model": "text-embedding-3-small",
                 "embedding_version": "1.0.0",
-                "dimension": 1536,
+                "dimension": 384,
                 "status": "completed",
                 "generated_time": datetime.now(timezone.utc),
                 "provider": "openai",
@@ -212,7 +212,7 @@ async def test_end_to_end_processing_pipeline(db_session, monkeypatch):
         assert chunk.token_count > 0
         assert chunk.chunk_metadata["content"] is not None
         assert "embedding" in chunk.chunk_metadata
-        assert len(chunk.chunk_metadata["embedding"]) == 1536
+        assert len(chunk.chunk_metadata["embedding"]) == 384
         
     # Embeddings recorded
     emb_res = await db_session.execute(select(EmbeddingMetadata))

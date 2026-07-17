@@ -17,12 +17,14 @@ class EmbeddingManagementService:
         total_chunks = total_chunks_res.scalar() or 0
         unembedded = max(0, total_chunks - total_emb)
 
+        from app.core.config import settings
+        dim = getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384)
         models = [
             {
-                "model_name": "text-embedding-ada-002",
+                "model_name": "BAAI/bge-small-en-v1.5",
                 "version": "1.0",
-                "dimension": 1536,
-                "provider": "openai",
+                "dimension": 384,
+                "provider": "huggingface",
                 "is_active": True
             },
             {
@@ -68,7 +70,7 @@ class EmbeddingManagementService:
                 chunk_id=chunk_id,
                 embedding_model=target_model,
                 embedding_version="1.0_migrated",
-                dimension=1536,
+                dimension=getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384),
                 status="completed"
             )
             db.add(emb)

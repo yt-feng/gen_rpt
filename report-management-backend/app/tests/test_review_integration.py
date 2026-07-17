@@ -118,7 +118,7 @@ async def test_review_integration_services(db_session: AsyncSession):
         token_count=100,
         chunk_metadata={
             "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
-            "embedding": [0.1] * 1536
+            "embedding": [0.1] * 384
         }
     )
     db_session.add(kchunk)

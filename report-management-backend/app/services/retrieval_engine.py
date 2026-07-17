@@ -163,7 +163,8 @@ class RetrievalEngineService:
                 import hashlib, random
                 h = hashlib.sha256(query.encode("utf-8")).hexdigest()
                 rng = random.Random(int(h, 16))
-                query_vector = [rng.uniform(-1, 1) for _ in range(1536)]
+                dim = getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384)
+                query_vector = [rng.uniform(-1, 1) for _ in range(dim)]
                 norm = sum(x * x for x in query_vector) ** 0.5
                 if norm > 0:
                     query_vector = [x / norm for x in query_vector]

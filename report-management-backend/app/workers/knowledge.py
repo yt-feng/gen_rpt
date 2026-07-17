@@ -45,7 +45,9 @@ class StubDocumentProcessor(DocumentProcessor):
 
 class StubEmbeddingProcessor(EmbeddingProcessor):
     async def generate_embedding(self, text: str) -> list[float]:
-        return [0.0] * 1536
+        from app.core.config import settings
+        dim = getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384)
+        return [0.0] * dim
 
 class StubChunkProcessor(ChunkProcessor):
     def chunk_text(self, text: str, options: Dict[str, Any]) -> list[Dict[str, Any]]:

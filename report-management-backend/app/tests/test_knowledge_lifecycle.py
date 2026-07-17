@@ -327,7 +327,7 @@ async def test_storage_optimization_service(db_session: AsyncSession):
         chunk_id=chunk.id,
         embedding_model="text-embedding-ada-002",
         embedding_version="v1",
-        dimension=1536,
+        dimension=384,
         status="completed"
     )
     db_session.add(embed)
