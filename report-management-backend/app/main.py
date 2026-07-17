@@ -197,24 +197,42 @@ async def health_check():
     storage_health = await storage_provider.health_check()
     storage_status = storage_health.get("status")
 
-    # 2. Embedding health check
+    # 2. Embedding health check (HF first, then OpenAI)
     embedding_status = "idle"
     if settings.KNOWLEDGE_ENABLED:
-        if settings.OPENAI_API_KEY and settings.OPENAI_API_KEY != "REPLACE_WITH_REAL_VALUE":
+        use_hf = bool(settings.HF_API_TOKEN and settings.HF_API_TOKEN.strip())
+        use_openai = bool(settings.OPENAI_API_KEY and settings.OPENAI_API_KEY not in ("", "REPLACE_WITH_REAL_VALUE"))
+        if use_hf:
+            try:
+                import httpx
+                import anyio
+                hf_model = settings.KNOWLEDGE_EMBEDDING_MODEL if "/" in settings.KNOWLEDGE_EMBEDDING_MODEL else "BAAI/bge-small-en-v1.5"
+                async def check_hf_emb():
+                    async with httpx.AsyncClient(timeout=5.0) as c:
+                        r = await c.post(
+                            f"https://api-inference.huggingface.co/pipeline/feature-extraction/{hf_model}",
+                            headers={"Authorization": f"Bearer {settings.HF_API_TOKEN}"},
+                            json={"inputs": ["health check"], "options": {"wait_for_model": False}}
+                        )
+                        r.raise_for_status()
+                with anyio.fail_after(8.0):
+                    await check_hf_emb()
+                embedding_status = "healthy"
+            except Exception as e:
+                logger.error(f"Health check HF embedding connection failed: {e}")
+                embedding_status = "degraded"
+        elif use_openai:
             try:
                 from openai import AsyncOpenAI
                 import anyio
                 client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
                 async def check_emb():
-                    await client.embeddings.create(
-                        input=["test"],
-                        model=settings.KNOWLEDGE_EMBEDDING_MODEL
-                    )
+                    await client.embeddings.create(input=["test"], model="text-embedding-3-small")
                 with anyio.fail_after(3.0):
                     await check_emb()
                 embedding_status = "healthy"
             except Exception as e:
-                logger.error(f"Health check embedding connection failed: {e}")
+                logger.error(f"Health check OpenAI embedding connection failed: {e}")
                 embedding_status = "degraded"
         else:
             embedding_status = "not_configured"
