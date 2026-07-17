@@ -5,6 +5,13 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy import select
 import pytest_asyncio
 
+from sqlalchemy.ext.compiler import compiles
+from pgvector.sqlalchemy import cosine_distance
+
+@compiles(cosine_distance, 'sqlite')
+def compile_cosine_distance_sqlite(element, compiler, **kw):
+    return "0.0"
+
 from app.models.base import Base
 from app.models.knowledge import (
     KnowledgeCollection,

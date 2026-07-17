@@ -185,16 +185,36 @@ class KnowledgeProcessingEngine:
                 (KnowledgeRelationship.target_document_id == doc.id)
             ))
             
-            # Add new relationships if linked to valid document targets (for testing we can self-reference or mock target references)
+            # Add new relationships if linked to valid document targets
+            resolved_count = 0
+            skipped_count = 0
             for rel in relationships:
-                db_rel = KnowledgeRelationship(
-                    source_document_id=doc.id,
-                    target_document_id=doc.id,  # Local fallback to self
-                    relationship_type=rel["type"],
-                    relationship_metadata={"source_name": rel["source"], "target_name": rel["target"], "sentence": rel["sentence"]}
-                )
-                db.add(db_rel)
+                target_name = rel["target"]
+                
+                # Query for matching document in the same collection
+                stmt = select(KnowledgeDocument).where(
+                    KnowledgeDocument.collection_id == doc.collection_id,
+                    KnowledgeDocument.file_name.ilike(f"%{target_name}%"),
+                    KnowledgeDocument.id != doc.id,
+                    KnowledgeDocument.deleted_at.is_(None)
+                ).limit(1)
+                
+                res = await db.execute(stmt)
+                matched_doc = res.scalars().first()
+                
+                if matched_doc:
+                    db_rel = KnowledgeRelationship(
+                        source_document_id=doc.id,
+                        target_document_id=matched_doc.id,
+                        relationship_type=rel["type"],
+                        relationship_metadata={"source_name": rel["source"], "target_name": rel["target"], "sentence": rel["sentence"]}
+                    )
+                    db.add(db_rel)
+                    resolved_count += 1
+                else:
+                    skipped_count += 1
             await db.commit()
+            logs_list.append(f"Entity relationship extraction: resolved {resolved_count} cross-document relationships, skipped {skipped_count} self-references/unmatched targets.")
             
             # Write entity package to R2
             entity_output_id = uuid.uuid4()

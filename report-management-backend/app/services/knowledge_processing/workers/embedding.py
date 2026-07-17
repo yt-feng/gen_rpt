@@ -88,3 +88,20 @@ async def generate_query_embedding(
         model=model
     )
     return response.data[0].embedding
+
+
+def generate_mock_embedding(text: str) -> List[float]:
+    """
+    Generates a deterministic mock embedding vector of dimension 1536 for testing.
+    """
+    import hashlib
+    res = []
+    for i in range(1536):
+        h = hashlib.md5(f"{text}:{i}".encode("utf-8")).hexdigest()
+        val = int(h[:8], 16) / 4294967295.0
+        res.append(val)
+    import math
+    norm = math.sqrt(sum(x * x for x in res))
+    if norm > 0.0:
+        res = [x / norm for x in res]
+    return res
