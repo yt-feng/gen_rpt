@@ -26,6 +26,8 @@ class CreateJobRequest(BaseModel):
     prompt: Optional[str] = None
     industry: Optional[str] = None
     report_type: str = "technical"
+    collection_ids: Optional[List[UUID]] = None
+
 
 @router.post("/jobs", response_model=APIResponse[dict])
 @router.post("/", response_model=APIResponse[dict])
@@ -56,6 +58,24 @@ async def create_job(
 
     prompt = req.prompt or req.topic
 
+    # Get document slug for context cache key mapping
+    from app.models.document import Document
+    doc_obj = await db.get(Document, doc_id)
+    slug_val = doc_obj.slug if doc_obj else f"doc-{str(doc_id)[:8]}"
+
+    from app.core.config import settings
+    if settings.RAG_ENABLED:
+        from app.services.rag_integration import generation_context_service
+        # Prepare context (retrieval + validation + snapshotting + caching)
+        await generation_context_service.prepare_context(
+            db=db,
+            query=prompt,
+            collection_ids=req.collection_ids,
+            user_id=UUID(user["id"]),
+            user_org_id=None,
+            slug=slug_val
+        )
+
     job = await generation_service.create_job(
         db=db,
         document_id=doc_id,
@@ -64,6 +84,7 @@ async def create_job(
         report_type=req.report_type,
         created_by=UUID(user["id"])
     )
+
     return success_response(data={"job_id": str(job.id), "status": job.status.value}, message="Job created and dispatched")
 
 @router.get("/jobs", response_model=APIResponse[list])
@@ -513,3 +534,156 @@ async def cancel_all_bulk_jobs(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to cancel workflows: {e}")
+
+
+# ===========================================================================
+# RAG INTEGRATION ENDPOINTS (PHASE R9)
+# ===========================================================================
+
+@router.get("/preview-context", response_model=APIResponse[dict])
+async def preview_knowledge_context(
+    query: str,
+    collection_ids: Optional[List[UUID]] = Query(None),
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Preview the validated context package for a query.
+    """
+    from app.services.rag_integration import generation_context_service
+    pkg = await generation_context_service.prepare_context(
+        db=db,
+        query=query,
+        collection_ids=collection_ids,
+        user_id=UUID(user["id"])
+    )
+    return success_response(data=pkg, message="Previewed knowledge context package")
+
+
+@router.get("/snapshots/{snapshot_id}", response_model=APIResponse[dict])
+async def get_knowledge_snapshot(
+    snapshot_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Retrieve knowledge snapshot metadata.
+    """
+    from app.services.rag_integration import knowledge_snapshot_service
+    snapshot = await knowledge_snapshot_service.get_snapshot(db, snapshot_id)
+    if not snapshot:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    
+    data = {
+        "id": str(snapshot.id),
+        "knowledge_version": snapshot.knowledge_version,
+        "collections_used": snapshot.collections_used,
+        "documents_used": snapshot.documents_used,
+        "chunks_used": snapshot.chunks_used,
+        "embedding_version": snapshot.embedding_version,
+        "validation_version": snapshot.validation_version,
+        "retrieval_session_id": str(snapshot.retrieval_session_id) if snapshot.retrieval_session_id else None,
+        "configuration": snapshot.configuration,
+        "r2_path": snapshot.r2_path,
+        "created_at": snapshot.created_at.isoformat()
+    }
+    return success_response(data=data, message="Fetched knowledge snapshot")
+
+
+@router.get("/sessions/{session_id}", response_model=APIResponse[dict])
+async def get_generation_session(
+    session_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Retrieve retrieval/validation session details using the ValidationReport.
+    """
+    from app.models.validation import ValidationReport
+    from sqlalchemy import select
+    stmt = select(ValidationReport).where(ValidationReport.session_id == session_id)
+    res = await db.execute(stmt)
+    report = res.scalar_one_or_none()
+    if not report:
+        raise HTTPException(status_code=404, detail="Validation report/session not found")
+        
+    data = {
+        "id": str(report.id),
+        "session_id": str(report.session_id) if report.session_id else None,
+        "validation_summary": report.validation_summary,
+        "confidence_scores": report.confidence_scores,
+        "authority_scores": report.authority_scores,
+        "freshness_scores": report.freshness_scores,
+        "conflicts": report.conflicts,
+        "duplicate_analysis": report.duplicate_analysis,
+        "evidence_completeness": report.evidence_completeness,
+        "unsupported_evidence": report.unsupported_evidence,
+        "recommendations": report.recommendations,
+        "created_at": report.created_at.isoformat()
+    }
+    return success_response(data=data, message="Fetched generation retrieval validation session")
+
+
+@router.get("/jobs/{job_id}/attribution", response_model=APIResponse[list])
+async def get_evidence_attribution(
+    job_id: UUID,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Retrieve evidence attribution entries for a specific generation job.
+    """
+    from app.services.rag_integration import evidence_attribution_service
+    attributions = await evidence_attribution_service.get_attributions_for_job(db, job_id)
+    
+    data = []
+    for attr in attributions:
+        data.append({
+            "id": str(attr.id),
+            "generation_job_id": str(attr.generation_job_id) if attr.generation_job_id else None,
+            "section_id": attr.section_id,
+            "supporting_chunks": attr.supporting_chunks,
+            "supporting_documents": attr.supporting_documents,
+            "supporting_sources": attr.supporting_sources,
+            "supporting_collections": attr.supporting_collections,
+            "confidence": attr.confidence,
+            "validation_report_id": str(attr.validation_report_id) if attr.validation_report_id else None,
+            "snapshot_id": str(attr.snapshot_id) if attr.snapshot_id else None,
+            "created_at": attr.created_at.isoformat()
+        })
+    return success_response(data=data, message="Fetched evidence attributions")
+
+
+@router.get("/analytics", response_model=APIResponse[dict])
+async def get_generation_analytics(
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Fetch global report generation context and LLM analytics metrics.
+    """
+    from app.services.rag_integration import generation_analytics_service
+    summary = await generation_analytics_service.get_analytics_summary(db)
+    return success_response(data=summary, message="Fetched generation analytics")
+
+
+@router.get("/{slug}/context", response_model=APIResponse[dict])
+async def get_slug_context(
+    slug: str,
+    db: AsyncSession = Depends(get_db),
+    user: dict = Depends(get_current_user_placeholder)
+):
+    """
+    Get cached RAG Context Package for a report generation slug.
+    Used by workers to retrieve pre-validated facts.
+    """
+    from app.services.rag_integration import context_cache_service
+    pkg = await context_cache_service.get_cached_context(db, f"context:slug:{slug}")
+    if not pkg:
+        # Return fallback or empty structure if RAG is disabled
+        return success_response(
+            data={"validated_chunks": [], "validated_sources": [], "document_references": []},
+            message="No context found, fallback empty context provided"
+        )
+    return success_response(data=pkg, message="Fetched cached context package")
+

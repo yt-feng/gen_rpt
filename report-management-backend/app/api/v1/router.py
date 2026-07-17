@@ -16,8 +16,10 @@ from app.api.v1.endpoints import (
     ai_assistant,
     generation,
     knowledge,
-    validation
+    validation,
+    aigateway
 )
+
 
 api_router = APIRouter()
 
@@ -39,6 +41,8 @@ api_router.include_router(statistics.router, prefix="/statistics", tags=["Statis
 api_router.include_router(generation.router, prefix="/generation", tags=["Generation"])
 api_router.include_router(knowledge.router, prefix="/knowledge", tags=["Knowledge Intelligence"])
 api_router.include_router(validation.router, prefix="/validation", tags=["Knowledge Validation"])
+api_router.include_router(aigateway.router, prefix="/aigateway", tags=["AI Gateway"])
+
 
 
 # Internal worker API routes

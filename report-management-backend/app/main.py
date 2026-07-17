@@ -240,6 +240,17 @@ async def health_check():
         "history": "healthy" if settings.VALIDATION_ENABLED else "idle",
         "audit": "healthy" if settings.VALIDATION_ENABLED else "idle",
     }
+
+    rag_integration_health = {
+        "status": "healthy" if settings.RAG_ENABLED else "idle",
+        "generation_context_service": "healthy" if settings.RAG_ENABLED else "idle",
+        "prompt_builder": "healthy" if settings.RAG_ENABLED else "idle",
+        "ai_gateway": "healthy" if settings.RAG_ENABLED else "idle",
+        "knowledge_snapshot_service": "healthy" if settings.RAG_ENABLED else "idle",
+        "context_cache": "healthy" if settings.RAG_ENABLED else "idle",
+        "evidence_attribution_service": "healthy" if settings.RAG_ENABLED else "idle",
+        "analytics": "healthy" if settings.RAG_ENABLED else "idle",
+    }
     
     return {
         "status": overall_status,
@@ -251,8 +262,10 @@ async def health_check():
         "storage": storage_health,
         "knowledge": knowledge_health,
         "validation": validation_health,
+        "rag_integration": rag_integration_health,
         "response_time_ms": response_time_ms
     }
+
 
 
 

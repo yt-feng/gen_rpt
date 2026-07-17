@@ -294,14 +294,19 @@ class GenerationContextService:
         user_id: Optional[uuid.UUID] = None,
         user_org_id: Optional[uuid.UUID] = None,
         config: Optional[dict] = None,
-        generation_job_id: Optional[uuid.UUID] = None
+        generation_job_id: Optional[uuid.UUID] = None,
+        slug: Optional[str] = None
     ) -> Dict[str, Any]:
         ret_start = time.time()
         
         # 1. Cache Key signature
-        col_str = ",".join(sorted([str(c) for c in (collection_ids or [])]))
-        sig_input = f"{query}:{col_str}:{settings.APP_ENV}"
-        cache_key = hashlib.sha256(sig_input.encode('utf-8')).hexdigest()
+        if slug:
+            cache_key = f"context:slug:{slug}"
+        else:
+            col_str = ",".join(sorted([str(c) for c in (collection_ids or [])]))
+            sig_input = f"{query}:{col_str}:{settings.APP_ENV}"
+            cache_key = hashlib.sha256(sig_input.encode('utf-8')).hexdigest()
+
         
         # 2. Check Context Cache
         cached_pkg = await self.cache_service.get_cached_context(db, cache_key)
