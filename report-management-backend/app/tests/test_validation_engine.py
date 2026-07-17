@@ -314,21 +314,8 @@ async def test_validation_engine_session_orchestration(db_session, monkeypatch):
     hist_stmt = select(ValidationHistory).where(ValidationHistory.session_id == session.id)
     hist_res = await db_session.execute(hist_stmt)
     assert hist_res.scalar_one_or_none() is not None
-    
-    # Debug SQLite database columns and types via raw SQL
-    try:
-        from sqlalchemy import text
-        raw_res = await db_session.execute(text("SELECT * FROM knowledge_collections"))
-        print("RAW COLLECTIONS ROWS:", raw_res.all())
-        
-        chunks_res = await db_session.execute(select(KnowledgeChunk))
-        for c in chunks_res.scalars().all():
-            print("CHUNK ID:", c.id, type(c.id))
-            print("CHUNK DOC ID:", c.document_id, type(c.document_id))
-    except Exception as e:
-        print("DEBUG FAILED:", e)
-    
     audit_stmt = select(ValidationAuditLog)
+
     audit_res = await db_session.execute(audit_stmt)
     assert len(audit_res.scalars().all()) > 0
 
@@ -353,6 +340,10 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     col = KnowledgeCollection(id=uuid.uuid4(), name="Col", slug="col", owner_id=user_id, status="active")
     db_session.add(col)
     await db_session.commit()
+    
+    # Seed default validation policy
+    await policy_service.create_default_policy(db_session)
+
     
     doc = KnowledgeDocument(
         id=uuid.uuid4(),
