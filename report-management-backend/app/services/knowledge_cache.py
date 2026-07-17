@@ -33,10 +33,13 @@ class KnowledgeCacheService:
             logger.info("Closed Redis cache connection pool.")
 
     async def get(self, key: str) -> Optional[Any]:
+        cache_type = key.split(":")[0] if ":" in key else "unknown"
         if self.use_redis and self.redis:
             try:
                 val = await self.redis.get(key)
                 if val is not None:
+                    from app.core.metrics import knowledge_cache_hits_total
+                    knowledge_cache_hits_total.labels(cache_type=cache_type).inc()
                     return json.loads(val)
                 return None
             except Exception as e:
@@ -48,6 +51,9 @@ class KnowledgeCacheService:
         if time.time() > entry["expires_at"]:
             del self._cache[key]
             return None
+            
+        from app.core.metrics import knowledge_cache_hits_total
+        knowledge_cache_hits_total.labels(cache_type=cache_type).inc()
         return entry["value"]
 
     async def set(self, key: str, value: Any, ttl: int = 300) -> None:
