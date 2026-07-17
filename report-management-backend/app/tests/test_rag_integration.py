@@ -126,6 +126,7 @@ async def test_rag_context_preparation_and_cache(db_session: AsyncSession):
         chunk_number=1,
         character_count=450,
         token_count=100,
+        embedding=[0.1] * 1536,
         chunk_metadata={
             "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
             "embedding": [0.1] * 1536
@@ -230,6 +231,7 @@ async def test_rag_integration_api_endpoints(db_session: AsyncSession):
         chunk_number=1,
         character_count=450,
         token_count=100,
+        embedding=[0.1] * 1536,
         chunk_metadata={
             "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
             "embedding": [0.1] * 1536
@@ -354,6 +356,7 @@ async def test_selective_context_builder(db_session: AsyncSession):
         chunk_number=1,
         character_count=450,
         token_count=100,
+        embedding=[0.1] * 1536,
         chunk_metadata={
             "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
             "embedding": [0.1] * 1536
@@ -428,6 +431,7 @@ async def test_partial_regeneration_api(db_session: AsyncSession):
         chunk_number=1,
         character_count=450,
         token_count=100,
+        embedding=[0.1] * 1536,
         chunk_metadata={
             "content": "Commercial nuclear fusion pilot plant costs are estimated at 5 billion USD. General economics target a levelized cost of electricity below 50 USD per MWh by 2035.",
             "embedding": [0.1] * 1536
