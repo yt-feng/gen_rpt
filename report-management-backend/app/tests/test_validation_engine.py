@@ -356,11 +356,22 @@ async def test_validation_api_endpoints(db_session, monkeypatch):
     db_session.add(result)
     await db_session.commit()
     
+    # Debug direct service call
+    try:
+        package = await validation_service.validate_session(db_session, session.id, user_id)
+        print("DIRECT SERVICE CALL SUCCESS:", package)
+    except Exception as e:
+        import traceback
+        print("DIRECT SERVICE CALL FAILED WITH TRACEBACK:")
+        traceback.print_exc()
+        raise e
+        
     # API testing client
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
         # Mock auth header or just hit route assuming mock auth handles it
         headers = {"Authorization": "Bearer mock-token"}
+
         
         # 1. Trigger Validation
         resp = await client.post(f"/api/v1/validation/validate?session_id={session.id}", headers=headers)
