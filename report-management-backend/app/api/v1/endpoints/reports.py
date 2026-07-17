@@ -385,8 +385,10 @@ async def revise_section(
             
     if not target_section:
         raise HTTPException(status_code=404, detail="Section not found in report")
-
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
+    from app.core.config import settings
+    api_key = settings.DEEPSEEK_API_KEY or settings.GROQ_API_KEY
+    if api_key == "REPLACE_WITH_REAL_VALUE":
+        api_key = None
     
     if not api_key:
         new_text = f"Revised content in accordance with reviewer guidance: {original_text}"
@@ -548,7 +550,9 @@ async def ai_edit_block(
     original_text = req.text.strip()
     
     # Check API key
-    api_key = os.getenv("DEEPSEEK_API_KEY") or os.getenv("GROQ_API_KEY")
+    api_key = settings.DEEPSEEK_API_KEY or settings.GROQ_API_KEY
+    if api_key == "REPLACE_WITH_REAL_VALUE":
+        api_key = None
     
     new_text = None
     llm_time_ms = 0
