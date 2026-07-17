@@ -24,4 +24,4 @@ pgvector>=0.3.0
 openai>=1.0.0
 redis[asyncio]>=5.0.0
 pypdf>=4.0.0
-
+prometheus-fastapi-instrumentator>=6.0.0
