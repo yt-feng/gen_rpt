@@ -110,6 +110,24 @@ async def test_end_to_end_processing_pipeline(db_session, monkeypatch):
         created_by=user_id
     )
     db_session.add(doc)
+    
+    # Target document for cross-document relationship resolution
+    target_doc = KnowledgeDocument(
+        id=uuid.uuid4(),
+        collection_id=collection.id,
+        file_name="Google_info.txt",
+        original_file_name="Google_info.txt",
+        mime_type="text/plain",
+        extension="txt",
+        checksum="otherchecksum",
+        storage_path="path/Google_info.txt",
+        size=100,
+        processing_status="completed",
+        upload_status="uploaded",
+        validation_status="validated",
+        created_by=user_id
+    )
+    db_session.add(target_doc)
     await db_session.commit()
     
     # 3. Mock R2 storage download to return sample document text
@@ -124,9 +142,33 @@ async def test_end_to_end_processing_pipeline(db_session, monkeypatch):
         
     async def mock_upload(data, path, content_type=None):
         return True
+
+    async def mock_generate_chunk_embeddings(chunks, model=None):
+        import time, hashlib
+        from datetime import datetime, timezone
+        res = []
+        for c in chunks:
+            vector = [0.1] * 1536
+            res.append({
+                "chunk_id": c["id"],
+                "chunk_number": c["chunk_number"],
+                "embedding_model": "text-embedding-3-small",
+                "embedding_version": "1.0.0",
+                "dimension": 1536,
+                "status": "completed",
+                "generated_time": datetime.now(timezone.utc),
+                "provider": "openai",
+                "latency": 0.01,
+                "vector": vector,
+                "checksum": hashlib.sha256(str(vector).encode("utf-8")).hexdigest()
+            })
+        return res
         
     monkeypatch.setattr(knowledge_storage_service.provider, "download", mock_download)
     monkeypatch.setattr(knowledge_storage_service.provider, "upload", mock_upload)
+    
+    import app.services.knowledge_processing.engine as engine_module
+    monkeypatch.setattr(engine_module, "generate_chunk_embeddings", mock_generate_chunk_embeddings)
     
     # 4. Create Queue Job
     job_id = uuid.uuid4()
