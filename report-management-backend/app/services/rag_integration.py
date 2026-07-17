@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 
 
 from typing import List, Dict, Any, Optional
-from sqlalchemy import select, delete, func
+from sqlalchemy import select, delete, func, Integer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
