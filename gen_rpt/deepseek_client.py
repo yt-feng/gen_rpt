@@ -33,9 +33,39 @@ class DeepSeekClient:
         model: Optional[str] = None,
         json_mode: bool = False,
     ) -> str:
+        backend_url = os.getenv("BACKEND_URL")
+        if backend_url:
+            url = f"{backend_url.rstrip('/')}/api/v1/aigateway/chat/completions"
+            token = os.getenv("INTERNAL_TOKEN") or "trusted-worker-secret"
+            headers = {
+                "x-internal-token": token,
+                "Content-Type": "application/json"
+            }
+            slug = os.getenv("SLUG_INPUT") or os.getenv("SLUG")
+            payload = {
+                "model": model or self.model,
+                "messages": messages,
+                "temperature": temperature,
+                "slug": slug
+            }
+            if json_mode:
+                payload["response_format"] = {"type": "json_object"}
+            max_tokens = _int_env("DEEPSEEK_MAX_TOKENS", 0)
+            if max_tokens > 0:
+                payload["max_tokens"] = max_tokens
+                
+            response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            if json_mode and response.status_code in {400, 422}:
+                payload.pop("response_format", None)
+                response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            response.raise_for_status()
+            data = response.json()
+            return data["choices"][0]["message"]["content"]
+
         url = f"{self.base_url}/chat/completions"
         headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
         payload = {"model": model or self.model, "messages": messages, "temperature": temperature}
+
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
         max_tokens = _int_env("DEEPSEEK_MAX_TOKENS", 0)

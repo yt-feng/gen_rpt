@@ -176,8 +176,49 @@ def fetch_page_text(url: str, max_chars: int = 7000) -> str:
 
 
 def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8) -> List[SourceDocument]:
+    backend_url = os.getenv("BACKEND_URL")
+    slug = os.getenv("SLUG_INPUT") or os.getenv("SLUG")
+    if backend_url and slug:
+        token = os.getenv("INTERNAL_TOKEN") or "trusted-worker-secret"
+        url = f"{backend_url.rstrip('/')}/api/v1/generation/{slug}/context"
+        headers = {"x-internal-token": token}
+        _log(f"RAG: fetching pre-validated context from backend at {url}")
+        try:
+            resp = requests.get(url, headers=headers, timeout=30)
+            if resp.status_code == 200:
+                payload = resp.json().get("data", {})
+                chunks = payload.get("validated_chunks", [])
+                _log(f"RAG: successfully retrieved {len(chunks)} pre-validated chunks from backend")
+                out_docs = []
+                for ch in chunks:
+                    chunk_id = ch.get("chunk_id", "")
+                    doc_id = ch.get("document_id", "")
+                    text = ch.get("text", "")
+                    meta = ch.get("metadata", {})
+                    file_name = meta.get("file_name") or ch.get("file_name") or "Internal Document"
+                    
+                    out_docs.append(
+                        SourceDocument(
+                            title=f"{file_name} (Fragment {chunk_id[:8]})",
+                            url=f"internal://documents/{doc_id}#chunk={chunk_id}",
+                            query=queries[0] if queries else "Enterprise Query",
+                            snippet=text[:300],
+                            content=text,
+                            source_type="internal",
+                            content_type="text/plain",
+                            domain="internal.enterprise",
+                        )
+                    )
+                if out_docs:
+                    return out_docs
+            else:
+                _log(f"RAG: backend context retrieval returned HTTP {resp.status_code}, falling back to web search")
+        except Exception as e:
+            _log(f"RAG: failed to fetch context from backend ({e}), falling back to web search")
+
     docs: List[SourceDocument] = []
     seen = set()
+
 
     query_list = [str(query or "").strip() for query in queries if str(query or "").strip()]
     gdelt_query_limit = int(os.getenv("GEN_RPT_GDELT_QUERIES", "2"))
