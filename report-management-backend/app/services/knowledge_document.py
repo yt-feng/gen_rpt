@@ -210,6 +210,9 @@ class KnowledgeDocumentService:
                         details={"filename": filename, "version": new_version_num, "status": "version_created"}
                     )
 
+                    from app.core.metrics import knowledge_uploads_total
+                    knowledge_uploads_total.labels(collection_id=str(collection_id), file_type=content_type).inc()
+
                     return {
                         "status": "success",
                         "message": "Document version created successfully.",
@@ -304,6 +307,9 @@ class KnowledgeDocumentService:
                 activity_type="upload",
                 details={"filename": filename, "version": 1, "status": "created"}
             )
+
+            from app.core.metrics import knowledge_uploads_total
+            knowledge_uploads_total.labels(collection_id=str(collection_id), file_type=content_type).inc()
 
             return {
                 "status": "success",
