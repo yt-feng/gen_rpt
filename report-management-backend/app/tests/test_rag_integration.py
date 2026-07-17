@@ -461,7 +461,7 @@ async def test_partial_regeneration_api(db_session: AsyncSession):
     }
 
     # API key mock or set DEEPSEEK_API_KEY to trigger real/mock gateway call
-    with patch("httpx.AsyncClient.post") as mock_post:
+    with patch("app.services.rag_integration.ai_gateway_service.chat_completion", new_callable=AsyncMock) as mock_chat:
         # Mock LLM API response from DeepSeek
         mock_llm_response = {
             "choices": [
@@ -474,11 +474,7 @@ async def test_partial_regeneration_api(db_session: AsyncSession):
             ],
             "usage": {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}
         }
-        mock_post.return_value = AsyncMock(
-            status_code=200,
-            json=lambda: mock_llm_response,
-            raise_for_status=lambda: None
-        )
+        mock_chat.return_value = mock_llm_response
 
         with patch.dict("os.environ", {"DEEPSEEK_API_KEY": "test-key"}):
             async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
@@ -488,7 +484,7 @@ async def test_partial_regeneration_api(db_session: AsyncSession):
                     "paragraphId": "exec-summary-p1",
                     "text": "Commercial nuclear fusion pilot plant costs are unknown."
                 })
-                
+                print("API RESPONSE JSON IS:", resp.json())
                 assert resp.status_code == 200
                 data = resp.json()["data"]
                 assert "5 billion USD" in data["edited_text"]
