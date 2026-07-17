@@ -1,0 +1,142 @@
+{
+  "core_question": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Supply, capacity or delivery capability will not bottleneck near-term growth.",
+      "decision_relevance": "Determines whether the growth case needs a supply-side haircut.",
+      "needed_evidence": [
+        "capacity",
+        "projects",
+        "supply chain",
+        "delivery timeline"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Unit economics or the cost curve is close enough to commercial range.",
+      "decision_relevance": "Determines whether the opportunity is a budget item, pilot or watchlist topic.",
+      "needed_evidence": [
+        "cost",
+        "price",
+        "gross margin",
+        "CAPEX",
+        "OPEX"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Leading players have defensible advantage rather than a temporary window.",
+      "decision_relevance": "Determines whether to back a company, partner or capability.",
+      "needed_evidence": [
+        "market share",
+        "patents",
+        "customer references",
+        "funding",
+        "channels"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Policy, regulatory or standards timing supports commercialization.",
+      "decision_relevance": "Determines entry timing and risk buffers.",
+      "needed_evidence": [
+        "policy date",
+        "regulatory license",
+        "standard",
+        "subsidy or procurement"
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

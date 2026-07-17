@@ -1,0 +1,252 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: top-down market ceiling and addressable demand pool",
+    "chart_type": "bar",
+    "executive_question": "What is the largest credible demand pool before adoption, pricing and eligibility filters?",
+    "required_metrics": [
+      "total market size",
+      "category spend or demand volume",
+      "segment share",
+      "forecast year"
+    ],
+    "comparison_set": [
+      "regions",
+      "segments",
+      "years"
+    ],
+    "preferred_sources": [
+      "government dataset",
+      "industry association",
+      "annual report",
+      "international organization",
+      "market report"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials total addressable market data",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials market size by segment forecast",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials demand volume official data",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials market data"
+    ],
+    "data_quality_rule": "Use source-stated market or demand values and keep forecast years and assumptions visible.",
+    "sizing_role": "top_down_market_ceiling",
+    "hypothesis_ids": [],
+    "narrative_role": "Frame the largest credible ceiling before the report narrows to adoption and economics.",
+    "pre_exhibit_context": "Introduce the management question: how big the prize could be before practical filters are applied.",
+    "post_exhibit_takeaway": "Explain which demand pool remains credible and which filters still need proof."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: bottom-up buyer count, usage and pricing inputs",
+    "chart_type": "matrix",
+    "executive_question": "Which customer, unit-volume and price inputs can turn market narrative into a revenue bridge?",
+    "required_metrics": [
+      "customer count",
+      "unit demand",
+      "usage frequency",
+      "price",
+      "ARPU",
+      "ASP"
+    ],
+    "comparison_set": [
+      "customer segments",
+      "use cases",
+      "regions"
+    ],
+    "preferred_sources": [
+      "company filings",
+      "industry association",
+      "regulator dataset",
+      "survey",
+      "case study"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials customer count price ARPU data",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials adoption rate users units sold",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials average selling price demand by customer segment",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials policy"
+    ],
+    "data_quality_rule": "Do not combine buyer count, usage and price unless all units are explicit and comparable.",
+    "sizing_role": "bottom_up_revenue_bridge",
+    "hypothesis_ids": [],
+    "narrative_role": "Translate market narrative into unit economics that can be checked source by source.",
+    "pre_exhibit_context": "Set up the need to move from market size language to customers, usage and price.",
+    "post_exhibit_takeaway": "State which inputs are strong enough for a revenue bridge and which remain diligence items."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: investment and funding by year or company",
+    "chart_type": "bar",
+    "executive_question": "Where is capital actually flowing, and is the funding base deep enough for scale-up?",
+    "required_metrics": [
+      "funding amount",
+      "investment year",
+      "company or program name"
+    ],
+    "comparison_set": [
+      "companies",
+      "programs",
+      "years"
+    ],
+    "preferred_sources": [
+      "industry association report",
+      "company announcement",
+      "government program page",
+      "PDF report"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials funding investment data report pdf",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials venture funding by company",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials government funding program amount",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials company annual report"
+    ],
+    "data_quality_rule": "Use named public amounts with dates and source URLs; do not convert them into priority scores.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Show whether capital formation is broadening or still concentrated in a few visible commitments.",
+    "pre_exhibit_context": "Introduce why funding depth matters for scale-up credibility.",
+    "post_exhibit_takeaway": "Interpret whether the capital base supports acceleration or remains fragile."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: market size, demand or addressable use cases",
+    "chart_type": "bar",
+    "executive_question": "How large is the commercial prize, and which demand pools are credible enough to size?",
+    "required_metrics": [
+      "market size",
+      "demand volume",
+      "revenue or value pool",
+      "forecast year"
+    ],
+    "comparison_set": [
+      "segments",
+      "regions",
+      "years"
+    ],
+    "preferred_sources": [
+      "government dataset",
+      "industry association",
+      "annual report",
+      "market report"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials market size forecast data",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials demand outlook by segment",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials addressable market report pdf",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials industry association"
+    ],
+    "data_quality_rule": "Keep forecast assumptions visible; exclude unsourced TAM claims.",
+    "sizing_role": "demand_pool_cross_check",
+    "hypothesis_ids": [],
+    "narrative_role": "Cross-check the commercial prize against demand pools that public sources actually quantify.",
+    "pre_exhibit_context": "Explain why the report uses source-backed demand pools instead of broad opportunity language.",
+    "post_exhibit_takeaway": "Clarify which segments deserve deeper validation and which remain too speculative."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: capacity, projects and commercialization milestones",
+    "chart_type": "timeline",
+    "executive_question": "Which projects have moved beyond claims into dated milestones?",
+    "required_metrics": [
+      "project name",
+      "milestone date",
+      "capacity or output metric",
+      "status"
+    ],
+    "comparison_set": [
+      "projects",
+      "technologies",
+      "regions"
+    ],
+    "preferred_sources": [
+      "official project page",
+      "regulatory filing",
+      "company release",
+      "government award page"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials project timeline capacity milestone",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials commercialization milestone official",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials pilot plant demonstration date",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials research report"
+    ],
+    "data_quality_rule": "Use dated public milestones; label claims that are company targets rather than achieved results.",
+    "sizing_role": "supply_side_constraint",
+    "hypothesis_ids": [],
+    "narrative_role": "Move the reader from capital and demand signals to dated proof of execution.",
+    "pre_exhibit_context": "Set up the question of whether public claims have become observable milestones.",
+    "post_exhibit_takeaway": "State what the milestone pattern implies for timing, commitment and monitoring."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: cost and economics benchmark",
+    "chart_type": "bar",
+    "executive_question": "What cost benchmark must the new option beat before it changes resource allocation?",
+    "required_metrics": [
+      "cost",
+      "LCOE",
+      "capex",
+      "opex",
+      "price benchmark"
+    ],
+    "comparison_set": [
+      "technologies",
+      "incumbent alternatives",
+      "years"
+    ],
+    "preferred_sources": [
+      "IEA",
+      "Lazard",
+      "NREL",
+      "government reports",
+      "company filings"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials cost benchmark LCOE data",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials capex cost estimate report",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials economics comparison incumbent alternatives",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials market size data"
+    ],
+    "data_quality_rule": "Compare like units only and keep speculative costs out of the chart.",
+    "sizing_role": "unit_economics_gate",
+    "hypothesis_ids": [],
+    "narrative_role": "Put economics beside adoption potential so the reader sees the hurdle rate for resource allocation.",
+    "pre_exhibit_context": "Introduce the cost benchmark the new option must beat.",
+    "post_exhibit_takeaway": "Explain whether the economic hurdle is narrowing or still blocks near-term adoption."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials: regulatory and adoption gate map",
+    "chart_type": "matrix",
+    "executive_question": "Which nontechnical gates could delay adoption even if the technology works?",
+    "required_metrics": [
+      "regulatory status",
+      "license date",
+      "approval stage",
+      "adoption barrier"
+    ],
+    "comparison_set": [
+      "countries",
+      "regulators",
+      "use cases"
+    ],
+    "preferred_sources": [
+      "regulator",
+      "government policy page",
+      "international organization",
+      "standards body"
+    ],
+    "search_queries": [
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials regulation licensing framework",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials regulator approval rules",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials adoption barriers policy report",
+      "Yash Yelave Offer Letter Deep Dive: Compensation Structure, Benefits, and Budget Alignment with Project Financials demand forecast by segment"
+    ],
+    "data_quality_rule": "Treat missing regulation as an explicit evidence gap; do not score it subjectively.",
+    "sizing_role": "adoption_gate",
+    "hypothesis_ids": [],
+    "narrative_role": "Show where nontechnical gates can slow adoption even when product or technology progress looks strong.",
+    "pre_exhibit_context": "Set up regulation and adoption gates as timing constraints, not side issues.",
+    "post_exhibit_takeaway": "Translate the gate map into a management monitoring priority."
+  }
+]
