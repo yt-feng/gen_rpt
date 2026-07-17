@@ -203,9 +203,10 @@ async def test_review_integration_services(db_session: AsyncSession):
     report = ValidationReport(
         id=uuid.uuid4(),
         session_id=uuid.uuid4(),
-        overall_confidence=0.95,
-        summary={"status": "healthy"}
+        confidence_scores={"overall_confidence": 0.95},
+        validation_summary="healthy"
     )
+
     db_session.add(report)
     await db_session.commit()
 

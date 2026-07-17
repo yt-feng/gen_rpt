@@ -92,7 +92,8 @@ class EvidenceVerificationService:
                     })
 
         evidence_completeness = (covered_blocks / len(blocks)) if blocks else 1.0
-        evidence_quality = report.overall_confidence if report else 1.0
+        evidence_quality = report.confidence_scores.get("overall_confidence", 1.0) if (report and report.confidence_scores) else 1.0
+
 
         return {
             "version_id": str(version_id),
