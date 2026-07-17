@@ -135,8 +135,10 @@ async def test_review_integration_services(db_session: AsyncSession):
         document_id=doc.id,
         version_number=1,
         status="generated",
+        change_type="AI_GENERATION",
         created_by=user_id
     )
+
     db_session.add(version)
     await db_session.commit()
 
@@ -274,7 +276,8 @@ async def test_review_integration_api(db_session: AsyncSession):
     db_session.add(doc)
     await db_session.commit()
 
-    version = DocumentVersion(id=uuid.uuid4(), document_id=doc.id, version_number=1, status="generated")
+    version = DocumentVersion(id=uuid.uuid4(), document_id=doc.id, version_number=1, status="generated", change_type="AI_GENERATION")
+
     db_session.add(version)
     await db_session.commit()
 
