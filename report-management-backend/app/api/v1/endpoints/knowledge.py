@@ -855,7 +855,15 @@ async def get_knowledge_health(
         ranking_status="healthy" if settings.KNOWLEDGE_ENABLED and settings.RAG_ENABLED else "idle",
         context_builder_status="healthy" if settings.KNOWLEDGE_ENABLED and settings.RAG_ENABLED else "idle",
         analytics_status="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
-        snapshot_status="healthy" if settings.KNOWLEDGE_ENABLED else "idle"
+        snapshot_status="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        knowledge_intelligence_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        analytics_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        recommendation_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        knowledge_quality_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        governance_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        audit_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        connector_framework="healthy" if settings.KNOWLEDGE_ENABLED else "idle",
+        continuous_improvement_engine="healthy" if settings.KNOWLEDGE_ENABLED else "idle"
     )
     return success_response(data=health_data, message="Knowledge health checked.")
 

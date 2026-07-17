@@ -480,6 +480,14 @@ class KnowledgeHealthResponse(BaseModel):
     context_builder_status: str = "idle"
     analytics_status: str = "idle"
     snapshot_status: str = "idle"
+    knowledge_intelligence_engine: str = "idle"
+    analytics_engine: str = "idle"
+    recommendation_engine: str = "idle"
+    knowledge_quality_engine: str = "idle"
+    governance_engine: str = "idle"
+    audit_engine: str = "idle"
+    connector_framework: str = "idle"
+    continuous_improvement_engine: str = "idle"
 
 # ==========================================
 # 14. Phase R6 Repository Schemas
