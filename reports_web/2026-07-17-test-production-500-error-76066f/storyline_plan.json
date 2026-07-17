@@ -1,0 +1,133 @@
+{
+  "core_question": "Should our organization invest in a dedicated error budget and automated rollback system to reduce 500 errors, or is the current incident response approach sufficient?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, funding, media",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "com | English | United States COMMUNITY DIGEST: July 16, 2026 – Hazleton Standard Speaker Heating coils to vaporize dangerous chemical that persists beneath former West Hazleton factory Nucor seeks tax help for $110 million galvanizing plant Hazleton City Council votes to regulate electronic bicycles Neighbor admits to popping boy’s football Little library p",
+    "GDELT DOC 2.0 article result | seen 20260716T081500Z | standardspeaker.com | English | United States",
+    "Nucor seeks tax help for $110 million galvanizing plant",
+    "COMMUNITY DIGEST: July 16, 2026 – Hazleton Standard Speaker",
+    "Design, Traditional Mass Design “The Earth Laughs in Flowers.” Page 71 of 2017 Flower Show Handbook.",
+    "” Page 71 of 2017 Flower Show Handbook."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "The majority of 500 errors are caused by code defects introduced in the last 24 hours of deployment.",
+      "decision_relevance": "If true, investing in canary deployments and automated rollbacks would be justified.",
+      "needed_evidence": [
+        "Correlation between deployment time and error spikes; percentage of errors traced to recent code changes."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Companies with error budgets (e.g., SLO-based) have 50% fewer 500 errors than those without.",
+      "decision_relevance": "Supports adoption of error budgets as a management tool.",
+      "needed_evidence": [
+        "Comparative error rates between companies with and without error budgets; case studies."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Third-party API failures account for less than 10% of all 500 errors in production.",
+      "decision_relevance": "If true, internal code quality should be the primary focus.",
+      "needed_evidence": [
+        "Incident post-mortems attributing root cause to third-party vs internal."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Automated rollback systems reduce mean time to resolution (MTTR) for 500 errors by at least 60%.",
+      "decision_relevance": "Justifies investment in automation.",
+      "needed_evidence": [
+        "MTTR comparison between teams with and without automated rollbacks."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The cost of a single 500 error (in lost revenue and engineering time) exceeds $10,000 for e-commerce companies.",
+      "decision_relevance": "Helps build a business case for prevention investment.",
+      "needed_evidence": [
+        "Revenue loss per error; engineering hours spent on incident response."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Companies that perform chaos engineering have 40% fewer 500 errors in production.",
+      "decision_relevance": "Supports adoption of chaos engineering practices.",
+      "needed_evidence": [
+        "Error rate comparison between chaos engineering adopters and non-adopters."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The majority of 500 errors are transient and resolve without human intervention within 5 minutes.",
+      "decision_relevance": "If true, focus should be on auto-remediation rather than root cause analysis.",
+      "needed_evidence": [
+        "Distribution of error duration; percentage of self-resolving errors."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total number of 500 errors per year = (Total web requests per year) * (Average error rate)",
+      "variables": [
+        "Total web requests per year (global)",
+        "Average error rate (e.g., 0.1%)"
+      ],
+      "known_limitations": [
+        "Error rate varies widely by industry; global average may not be representative."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Total 500 errors = Sum over companies (Company's daily requests * error rate * 365)",
+      "variables": [
+        "Number of companies by size",
+        "Average daily requests per company",
+        "Average error rate per company size"
+      ],
+      "known_limitations": [
+        "Requires segmentation; data on small companies is scarce."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Number of companies with monitoring * adoption rate of error tracking tools * average errors per tool",
+      "variables": [
+        "Number of companies with web presence",
+        "Adoption rate of APM/error tracking tools",
+        "Average errors detected per tool"
+      ],
+      "known_limitations": [
+        "Assumes all errors are detected; underreporting is common."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Total cost of 500 errors = (Number of errors) * (Average cost per error)",
+      "variables": [
+        "Number of errors (from top-down or bottom-up)",
+        "Average cost per error (from surveys or case studies)"
+      ],
+      "known_limitations": [
+        "Cost per error is highly variable; difficult to generalize."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Total errors = Sum over error tracking vendors (vendor's total errors reported)",
+      "variables": [
+        "Vendor market share",
+        "Vendor's reported error volume"
+      ],
+      "known_limitations": [
+        "Vendors may not publicly disclose error volumes; data may be incomplete."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
