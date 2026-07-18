@@ -1,0 +1,105 @@
+{
+  "core_question": "Should the company proceed with, pivot, or halt Project SkyNet based on its financial viability under current market and regulatory conditions?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Consumer willingness to pay for drone delivery is less than $5 per delivery, making unit economics negative at current cost structures.",
+      "decision_relevance": "If true, revenue per delivery cannot cover costs, undermining viability.",
+      "needed_evidence": [
+        "Survey data on willingness to pay, actual pricing from existing drone delivery services (e.g., Zipline, Wing)."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "FAA UAM certification for urban drone operations will not be granted before 2027, delaying revenue generation.",
+      "decision_relevance": "If true, project timeline extends, increasing capital needs and risk.",
+      "needed_evidence": [
+        "FAA regulatory roadmap, public statements from FAA officials, recent certification timelines for similar UAM projects."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The total addressable market for urban drone delivery in the top 10 US cities is less than 500 million deliveries per year by 2030.",
+      "decision_relevance": "If true, market size may not support large-scale investment.",
+      "needed_evidence": [
+        "Market sizing reports, population density data, e-commerce delivery volumes in urban areas."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Drone delivery unit cost (including drone, infrastructure, and labor) exceeds $10 per delivery, making it uncompetitive with ground delivery.",
+      "decision_relevance": "If true, cost advantage over ground delivery is absent.",
+      "needed_evidence": [
+        "Cost breakdowns from drone delivery companies, industry reports on drone costs, comparison with ground delivery costs."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Consumer acceptance of drone delivery is below 30% due to privacy and noise concerns, limiting adoption.",
+      "decision_relevance": "If true, adoption rates will be low, reducing revenue.",
+      "needed_evidence": [
+        "Consumer surveys on drone delivery acceptance, studies on privacy/noise concerns."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Regulatory constraints limit drone operations to specific corridors and times, reducing addressable delivery volume by 50%.",
+      "decision_relevance": "If true, revenue potential is halved.",
+      "needed_evidence": [
+        "FAA operational restrictions, examples from current drone delivery programs (e.g., Walmart, Amazon)."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Competitors (e.g., Amazon, Wing, Zipline) have already secured key partnerships and regulatory approvals, creating a first-mover disadvantage.",
+      "decision_relevance": "If true, market entry is more difficult and costly.",
+      "needed_evidence": [
+        "Partnership announcements, regulatory approvals granted to competitors, market share data."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "TAM = Total urban parcel deliveries in US * % suitable for drone delivery",
+      "variables": [
+        "Total urban parcel deliveries (e.g., from Pitney Bowes Parcel Shipping Index)",
+        "Suitable % (based on weight, distance, regulatory feasibility)"
+      ],
+      "known_limitations": [
+        "Overestimates if suitability % is too optimistic; does not account for competition or adoption constraints."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "SAM = Number of potential delivery points in target cities * average deliveries per point per year * drone share",
+      "variables": [
+        "Number of households/businesses in target cities",
+        "Average annual deliveries per household (e.g., from e-commerce data)",
+        "Drone delivery adoption rate (from surveys)"
+      ],
+      "known_limitations": [
+        "Requires granular city-level data; adoption rate assumptions are uncertain."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Realistic volume = TAM * awareness * trial * repeat * regulatory feasibility",
+      "variables": [
+        "Awareness (marketing reach)",
+        "Trial rate (willingness to try)",
+        "Repeat rate (satisfaction)",
+        "Regulatory feasibility (operations allowed)"
+      ],
+      "known_limitations": [
+        "Funnel rates are speculative; requires primary research for accuracy."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

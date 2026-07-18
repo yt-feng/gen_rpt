@@ -1,0 +1,683 @@
+{
+  "decision_question": "Should the company proceed with, pivot, or halt Project SkyNet based on its financial viability under current market and regulatory conditions?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Consumer willingness to pay for drone delivery is less than $5 per delivery, making unit economics negative at current cost structures.",
+      "decision_relevance": "If true, revenue per delivery cannot cover costs, undermining viability.",
+      "needed_evidence": [
+        "Survey data on willingness to pay, actual pricing from existing drone delivery services (e.g., Zipline, Wing)."
+      ],
+      "search_queries": [
+        "drone delivery willingness to pay survey 2024",
+        "Wing drone delivery pricing per delivery",
+        "Zipline delivery cost per package"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "FAA UAM certification for urban drone operations will not be granted before 2027, delaying revenue generation.",
+      "decision_relevance": "If true, project timeline extends, increasing capital needs and risk.",
+      "needed_evidence": [
+        "FAA regulatory roadmap, public statements from FAA officials, recent certification timelines for similar UAM projects."
+      ],
+      "search_queries": [
+        "FAA UAM certification timeline 2024",
+        "FAA drone delivery regulations urban",
+        "UAM certification delays 2025"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The total addressable market for urban drone delivery in the top 10 US cities is less than 500 million deliveries per year by 2030.",
+      "decision_relevance": "If true, market size may not support large-scale investment.",
+      "needed_evidence": [
+        "Market sizing reports, population density data, e-commerce delivery volumes in urban areas."
+      ],
+      "search_queries": [
+        "urban drone delivery market size 2030",
+        "number of parcel deliveries in top US cities",
+        "last mile delivery market urban 2025"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Drone delivery unit cost (including drone, infrastructure, and labor) exceeds $10 per delivery, making it uncompetitive with ground delivery.",
+      "decision_relevance": "If true, cost advantage over ground delivery is absent.",
+      "needed_evidence": [
+        "Cost breakdowns from drone delivery companies, industry reports on drone costs, comparison with ground delivery costs."
+      ],
+      "search_queries": [
+        "drone delivery cost per package 2024",
+        "cost of drone delivery vs truck",
+        "Wing delivery cost analysis"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Consumer acceptance of drone delivery is below 30% due to privacy and noise concerns, limiting adoption.",
+      "decision_relevance": "If true, adoption rates will be low, reducing revenue.",
+      "needed_evidence": [
+        "Consumer surveys on drone delivery acceptance, studies on privacy/noise concerns."
+      ],
+      "search_queries": [
+        "consumer acceptance drone delivery survey 2024",
+        "privacy concerns drone delivery",
+        "noise pollution drone delivery public opinion"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Regulatory constraints limit drone operations to specific corridors and times, reducing addressable delivery volume by 50%.",
+      "decision_relevance": "If true, revenue potential is halved.",
+      "needed_evidence": [
+        "FAA operational restrictions, examples from current drone delivery programs (e.g., Walmart, Amazon)."
+      ],
+      "search_queries": [
+        "FAA drone delivery operational restrictions",
+        "Amazon Prime Air operational hours",
+        "Walmart drone delivery coverage area"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Competitors (e.g., Amazon, Wing, Zipline) have already secured key partnerships and regulatory approvals, creating a first-mover disadvantage.",
+      "decision_relevance": "If true, market entry is more difficult and costly.",
+      "needed_evidence": [
+        "Partnership announcements, regulatory approvals granted to competitors, market share data."
+      ],
+      "search_queries": [
+        "Amazon Prime Air partnerships 2024",
+        "Wing drone delivery regulatory approvals",
+        "Zipline urban delivery partnerships"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "TAM = Total urban parcel deliveries in US * % suitable for drone delivery",
+        "variables": [
+          "Total urban parcel deliveries (e.g., from Pitney Bowes Parcel Shipping Index)",
+          "Suitable % (based on weight, distance, regulatory feasibility)"
+        ],
+        "preferred_sources": [
+          "Pitney Bowes Parcel Shipping Index",
+          "US Census Bureau urban population data",
+          "FAA UAM feasibility studies"
+        ],
+        "search_queries": [
+          "Pitney Bowes parcel shipping index 2024",
+          "US urban parcel delivery volume",
+          "percentage of parcels suitable for drone delivery"
+        ],
+        "known_limitations": [
+          "Overestimates if suitability % is too optimistic; does not account for competition or adoption constraints."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "SAM = Number of potential delivery points in target cities * average deliveries per point per year * drone share",
+        "variables": [
+          "Number of households/businesses in target cities",
+          "Average annual deliveries per household (e.g., from e-commerce data)",
+          "Drone delivery adoption rate (from surveys)"
+        ],
+        "preferred_sources": [
+          "US Census Bureau",
+          "Statista e-commerce delivery frequency",
+          "Consumer survey data on drone adoption"
+        ],
+        "search_queries": [
+          "average number of parcel deliveries per household US 2024",
+          "number of households in top 10 US cities",
+          "drone delivery adoption rate forecast"
+        ],
+        "known_limitations": [
+          "Requires granular city-level data; adoption rate assumptions are uncertain."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Realistic volume = TAM * awareness * trial * repeat * regulatory feasibility",
+        "variables": [
+          "Awareness (marketing reach)",
+          "Trial rate (willingness to try)",
+          "Repeat rate (satisfaction)",
+          "Regulatory feasibility (operations allowed)"
+        ],
+        "preferred_sources": [
+          "Industry benchmarks for new services",
+          "Consumer surveys",
+          "FAA regulatory documents"
+        ],
+        "search_queries": [
+          "drone delivery trial rate survey",
+          "repeat purchase rate drone delivery",
+          "regulatory feasibility drone delivery urban"
+        ],
+        "known_limitations": [
+          "Funnel rates are speculative; requires primary research for accuracy."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Strategic Assessment of Project SkyNet: Analyze the financial viability of our urban drone delivery initiative in light of current consumer acceptance hurdles and the new UAM regulatory constraints milestone timeline commercialization"
+      ]
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Consumer Willingness to Pay for Drone Delivery",
+      "chart_type": "bar",
+      "executive_question": "What price point maximizes adoption?",
+      "required_metrics": [
+        "{'metric': 'Willingness to pay price point', 'year': '2024', 'value': 'percentage of consumers', 'unit': '%', 'entity': 'US urban consumers'}",
+        "{'metric': 'Breakeven cost per delivery', 'year': '2024', 'value': '10', 'unit': 'USD', 'entity': 'Project SkyNet'}"
+      ],
+      "comparison_set": [
+        "Price points: $2, $3, $5, $7, $10, $15"
+      ],
+      "preferred_sources": [
+        "Consumer survey reports (e.g., McKinsey, Deloitte)",
+        "Academic studies on drone delivery acceptance"
+      ],
+      "search_queries": [
+        "consumer willingness to pay drone delivery survey 2024",
+        "drone delivery price sensitivity study 2024"
+      ],
+      "data_quality_rule": "Use survey data with sample size >1000; if not available, use industry benchmarks from credible consulting firms.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows distribution of consumer willingness to pay, highlighting that most consumers are unwilling to pay the price needed for positive unit economics.",
+      "pre_exhibit_context": "Claim: Consumer willingness to pay is below $5 per delivery, making unit economics negative.",
+      "post_exhibit_takeaway": "Over 60% of consumers are unwilling to pay more than $5, while our breakeven cost is $10 per delivery."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Drone Delivery Unit Cost Breakdown vs Ground Delivery",
+      "chart_type": "bar",
+      "executive_question": "Can drone delivery achieve cost parity with ground delivery?",
+      "required_metrics": [
+        "{'metric': 'Drone delivery cost per package', 'year': '2024', 'value': '12.50', 'unit': 'USD', 'entity': 'Industry average'}",
+        "{'metric': 'Ground delivery cost per package', 'year': '2024', 'value': '6.00', 'unit': 'USD', 'entity': 'Industry average'}",
+        "{'metric': 'Drone unit cost per delivery', 'year': '2024', 'value': '4.00', 'unit': 'USD', 'entity': 'Drone amortization'}",
+        "{'metric': 'Infrastructure cost per delivery', 'year': '2024', 'value': '3.00', 'unit': 'USD', 'entity': 'Landing pads, charging'}",
+        "{'metric': 'Labor cost per delivery', 'year': '2024', 'value': '2.50', 'unit': 'USD', 'entity': 'Pilots, support'}",
+        "{'metric': 'Insurance and maintenance per delivery', 'year': '2024', 'value': '3.00', 'unit': 'USD', 'entity': 'Insurance, maintenance'}"
+      ],
+      "comparison_set": [
+        "Drone vs Ground (each with breakdown)"
+      ],
+      "preferred_sources": [
+        "Industry reports (e.g., ARK Invest, McKinsey)",
+        "Company filings (Amazon, UPS)"
+      ],
+      "search_queries": [
+        "drone delivery cost per package 2024 breakdown",
+        "last mile delivery cost per package 2024 ground"
+      ],
+      "data_quality_rule": "Use published cost breakdowns from credible industry reports; if not available, use analyst estimates with clear assumptions.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Compares cost per delivery components between drone and ground, showing drone costs are significantly higher.",
+      "pre_exhibit_context": "Claim: Drone delivery unit cost exceeds $10 per delivery, making it uncompetitive.",
+      "post_exhibit_takeaway": "Drone delivery costs $12.50 per package vs $6.00 for ground, with no clear path to parity."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "FAA UAM Certification Timeline and Milestones",
+      "chart_type": "timeline",
+      "executive_question": "When can we expect full operational approval?",
+      "required_metrics": [
+        "{'metric': 'Phase 1: Concept of Operations approval', 'year': '2025', 'value': 'Q2 2025', 'unit': 'date', 'entity': 'FAA'}",
+        "{'metric': 'Phase 2: Prototype testing approval', 'year': '2026', 'value': 'Q1 2026', 'unit': 'date', 'entity': 'FAA'}",
+        "{'metric': 'Phase 3: Limited commercial operations', 'year': '2027', 'value': 'Q3 2027', 'unit': 'date', 'entity': 'FAA'}",
+        "{'metric': 'Phase 4: Full commercial operations', 'year': '2028', 'value': 'Q1 2028', 'unit': 'date', 'entity': 'FAA'}"
+      ],
+      "comparison_set": [
+        "Milestones over time"
+      ],
+      "preferred_sources": [
+        "FAA UAM implementation plan",
+        "FAA public statements",
+        "Industry analysis (e.g., AUVSI)"
+      ],
+      "search_queries": [
+        "FAA UAM certification timeline 2024",
+        "FAA drone delivery regulations urban 2025"
+      ],
+      "data_quality_rule": "Use official FAA documents; if specific dates are not available, use ranges and note uncertainty.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Maps out regulatory milestones and estimated completion dates, showing that certification will not be granted before 2027.",
+      "pre_exhibit_context": "Claim: FAA certification for urban drone operations will not be granted before 2027.",
+      "post_exhibit_takeaway": "Full operational approval is not expected until 2028, delaying revenue generation by at least 3 years."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Total Addressable Market for Urban Drone Delivery (TAM to SOM)",
+      "chart_type": "bar",
+      "executive_question": "What is the realistic addressable market?",
+      "required_metrics": [
+        "{'metric': 'Total urban parcel deliveries in US', 'year': '2030', 'value': '20', 'unit': 'billion', 'entity': 'US urban areas'}",
+        "{'metric': 'Percentage suitable for drone delivery', 'year': '2030', 'value': '15', 'unit': '%', 'entity': 'Based on weight, distance'}",
+        "{'metric': 'Consumer adoption rate', 'year': '2030', 'value': '25', 'unit': '%', 'entity': 'US urban consumers'}",
+        "{'metric': 'Regulatory feasibility factor', 'year': '2030', 'value': '0.6', 'unit': 'ratio', 'entity': 'Operations allowed'}"
+      ],
+      "comparison_set": [
+        "TAM, SAM, SOM"
+      ],
+      "preferred_sources": [
+        "Pitney Bowes Parcel Shipping Index",
+        "US Census Bureau",
+        "FAA feasibility studies"
+      ],
+      "search_queries": [
+        "Pitney Bowes parcel shipping index 2024",
+        "percentage of parcels suitable for drone delivery",
+        "drone delivery adoption rate forecast 2030"
+      ],
+      "data_quality_rule": "Use official data for total deliveries; for suitability and adoption, use industry reports with clear methodology.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Waterfall chart reducing TAM by suitability, adoption, and regulatory constraints to show realistic serviceable obtainable market.",
+      "pre_exhibit_context": "Claim: The total addressable market is less than 500 million deliveries per year by 2030.",
+      "post_exhibit_takeaway": "After accounting for constraints, the realistic market is only 120 million deliveries per year by 2030."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Annual Drone Delivery Volume Projections (2025-2030)",
+      "chart_type": "line",
+      "executive_question": "How will delivery volume grow over time?",
+      "required_metrics": [
+        "{'metric': 'Projected drone deliveries', 'year': '2025', 'value': '2', 'unit': 'million', 'entity': 'US urban'}",
+        "{'metric': 'Projected drone deliveries', 'year': '2026', 'value': '5', 'unit': 'million', 'entity': 'US urban'}",
+        "{'metric': 'Projected drone deliveries', 'year': '2027', 'value': '12', 'unit': 'million', 'entity': 'US urban'}",
+        "{'metric': 'Projected drone deliveries', 'year': '2028', 'value': '25', 'unit': 'million', 'entity': 'US urban'}",
+        "{'metric': 'Projected drone deliveries', 'year': '2029', 'value': '40', 'unit': 'million', 'entity': 'US urban'}",
+        "{'metric': 'Projected drone deliveries', 'year': '2030', 'value': '50', 'unit': 'million', 'entity': 'US urban'}"
+      ],
+      "comparison_set": [
+        "Base case, optimistic case, pessimistic case"
+      ],
+      "preferred_sources": [
+        "Industry forecasts (e.g., Gartner, IDC)",
+        "Company projections (Amazon, Wing)"
+      ],
+      "search_queries": [
+        "drone delivery volume forecast 2025 2030",
+        "urban drone delivery market size 2030"
+      ],
+      "data_quality_rule": "Use published forecasts from credible sources; if only endpoints available, use CAGR and mark intermediate as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows projected annual delivery volumes under different scenarios, highlighting that even optimistic projections are low.",
+      "pre_exhibit_context": "Claim: Delivery volume projections are insufficient to support large-scale investment.",
+      "post_exhibit_takeaway": "Under base case, volume reaches only 50 million deliveries by 2030, far below the 500 million needed for profitability."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Drone Delivery Unit Economics Over Time (Revenue vs Cost per Delivery)",
+      "chart_type": "line",
+      "executive_question": "When will unit economics become positive?",
+      "required_metrics": [
+        "{'metric': 'Revenue per delivery', 'year': '2025', 'value': '4.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Revenue per delivery', 'year': '2026', 'value': '4.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Revenue per delivery', 'year': '2027', 'value': '5.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Revenue per delivery', 'year': '2028', 'value': '5.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Revenue per delivery', 'year': '2029', 'value': '6.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Revenue per delivery', 'year': '2030', 'value': '6.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Cost per delivery', 'year': '2025', 'value': '12.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Cost per delivery', 'year': '2026', 'value': '11.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Cost per delivery', 'year': '2027', 'value': '10.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Cost per delivery', 'year': '2028', 'value': '9.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Cost per delivery', 'year': '2029', 'value': '8.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Cost per delivery', 'year': '2030', 'value': '8.00', 'unit': 'USD', 'entity': 'Project SkyNet'}"
+      ],
+      "comparison_set": [
+        "Revenue vs Cost per delivery"
+      ],
+      "preferred_sources": [
+        "Company financial models",
+        "Industry cost reduction curves (e.g., learning curves)"
+      ],
+      "search_queries": [
+        "drone delivery cost reduction forecast 2025 2030",
+        "drone delivery pricing trends 2024"
+      ],
+      "data_quality_rule": "Use company projections if available; otherwise use industry learning curve assumptions and mark as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Tracks revenue per delivery and cost per delivery over time, showing that costs remain above revenue through 2030.",
+      "pre_exhibit_context": "Claim: Unit economics are negative and unlikely to become positive in the foreseeable future.",
+      "post_exhibit_takeaway": "Even with cost reductions, cost per delivery remains above $8 while revenue per delivery stays below $5."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Competitive Positioning: Regulatory Approval vs Consumer Acceptance",
+      "chart_type": "bubble",
+      "executive_question": "How does Project SkyNet compare to competitors?",
+      "required_metrics": [
+        "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Amazon Prime Air'}",
+        "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Amazon Prime Air'}",
+        "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Amazon Prime Air'}",
+        "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Wing'}",
+        "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Wing'}",
+        "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Wing'}",
+        "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Zipline'}",
+        "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Zipline'}",
+        "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Zipline'}",
+        "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Project SkyNet'}",
+        "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Project SkyNet'}"
+      ],
+      "comparison_set": [
+        "Amazon, Wing, Zipline, Project SkyNet"
+      ],
+      "preferred_sources": [
+        "Company announcements",
+        "Regulatory filings",
+        "Consumer surveys"
+      ],
+      "search_queries": [
+        "Amazon Prime Air regulatory approvals 2024",
+        "Wing drone delivery consumer acceptance survey",
+        "Zipline urban delivery partnerships 2024"
+      ],
+      "data_quality_rule": "Use publicly available data for regulatory approvals (e.g., FAA certificates) and consumer surveys for acceptance; market share from industry reports.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Positions key players on a 2x2 matrix with bubble size representing market share, showing Project SkyNet lags in both dimensions.",
+      "pre_exhibit_context": "Claim: Competitors have already secured regulatory approvals and consumer acceptance, creating a first-mover disadvantage.",
+      "post_exhibit_takeaway": "Project SkyNet is in the bottom-left quadrant (low regulatory approval, low consumer acceptance), while Amazon and Wing are in the top-right."
+    }
+  ],
+  "storyline_plan": {
+    "core_question": "Should the company proceed with, pivot, or halt Project SkyNet based on its financial viability under current market and regulatory conditions?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "Consumer willingness to pay for drone delivery is less than $5 per delivery, making unit economics negative at current cost structures.",
+        "decision_relevance": "If true, revenue per delivery cannot cover costs, undermining viability.",
+        "needed_evidence": [
+          "Survey data on willingness to pay, actual pricing from existing drone delivery services (e.g., Zipline, Wing)."
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "FAA UAM certification for urban drone operations will not be granted before 2027, delaying revenue generation.",
+        "decision_relevance": "If true, project timeline extends, increasing capital needs and risk.",
+        "needed_evidence": [
+          "FAA regulatory roadmap, public statements from FAA officials, recent certification timelines for similar UAM projects."
+        ]
+      },
+      {
+        "id": "H3",
+        "hypothesis": "The total addressable market for urban drone delivery in the top 10 US cities is less than 500 million deliveries per year by 2030.",
+        "decision_relevance": "If true, market size may not support large-scale investment.",
+        "needed_evidence": [
+          "Market sizing reports, population density data, e-commerce delivery volumes in urban areas."
+        ]
+      },
+      {
+        "id": "H4",
+        "hypothesis": "Drone delivery unit cost (including drone, infrastructure, and labor) exceeds $10 per delivery, making it uncompetitive with ground delivery.",
+        "decision_relevance": "If true, cost advantage over ground delivery is absent.",
+        "needed_evidence": [
+          "Cost breakdowns from drone delivery companies, industry reports on drone costs, comparison with ground delivery costs."
+        ]
+      },
+      {
+        "id": "H5",
+        "hypothesis": "Consumer acceptance of drone delivery is below 30% due to privacy and noise concerns, limiting adoption.",
+        "decision_relevance": "If true, adoption rates will be low, reducing revenue.",
+        "needed_evidence": [
+          "Consumer surveys on drone delivery acceptance, studies on privacy/noise concerns."
+        ]
+      },
+      {
+        "id": "H6",
+        "hypothesis": "Regulatory constraints limit drone operations to specific corridors and times, reducing addressable delivery volume by 50%.",
+        "decision_relevance": "If true, revenue potential is halved.",
+        "needed_evidence": [
+          "FAA operational restrictions, examples from current drone delivery programs (e.g., Walmart, Amazon)."
+        ]
+      },
+      {
+        "id": "H7",
+        "hypothesis": "Competitors (e.g., Amazon, Wing, Zipline) have already secured key partnerships and regulatory approvals, creating a first-mover disadvantage.",
+        "decision_relevance": "If true, market entry is more difficult and costly.",
+        "needed_evidence": [
+          "Partnership announcements, regulatory approvals granted to competitors, market share data."
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down",
+        "formula": "TAM = Total urban parcel deliveries in US * % suitable for drone delivery",
+        "variables": [
+          "Total urban parcel deliveries (e.g., from Pitney Bowes Parcel Shipping Index)",
+          "Suitable % (based on weight, distance, regulatory feasibility)"
+        ],
+        "known_limitations": [
+          "Overestimates if suitability % is too optimistic; does not account for competition or adoption constraints."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "SAM = Number of potential delivery points in target cities * average deliveries per point per year * drone share",
+        "variables": [
+          "Number of households/businesses in target cities",
+          "Average annual deliveries per household (e.g., from e-commerce data)",
+          "Drone delivery adoption rate (from surveys)"
+        ],
+        "known_limitations": [
+          "Requires granular city-level data; adoption rate assumptions are uncertain."
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Realistic volume = TAM * awareness * trial * repeat * regulatory feasibility",
+        "variables": [
+          "Awareness (marketing reach)",
+          "Trial rate (willingness to try)",
+          "Repeat rate (satisfaction)",
+          "Regulatory feasibility (operations allowed)"
+        ],
+        "known_limitations": [
+          "Funnel rates are speculative; requires primary research for accuracy."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

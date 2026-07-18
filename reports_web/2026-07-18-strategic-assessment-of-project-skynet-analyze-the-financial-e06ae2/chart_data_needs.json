@@ -1,0 +1,228 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Consumer Willingness to Pay for Drone Delivery",
+    "chart_type": "bar",
+    "executive_question": "What price point maximizes adoption?",
+    "required_metrics": [
+      "{'metric': 'Willingness to pay price point', 'year': '2024', 'value': 'percentage of consumers', 'unit': '%', 'entity': 'US urban consumers'}",
+      "{'metric': 'Breakeven cost per delivery', 'year': '2024', 'value': '10', 'unit': 'USD', 'entity': 'Project SkyNet'}"
+    ],
+    "comparison_set": [
+      "Price points: $2, $3, $5, $7, $10, $15"
+    ],
+    "preferred_sources": [
+      "Consumer survey reports (e.g., McKinsey, Deloitte)",
+      "Academic studies on drone delivery acceptance"
+    ],
+    "search_queries": [
+      "consumer willingness to pay drone delivery survey 2024",
+      "drone delivery price sensitivity study 2024"
+    ],
+    "data_quality_rule": "Use survey data with sample size >1000; if not available, use industry benchmarks from credible consulting firms.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows distribution of consumer willingness to pay, highlighting that most consumers are unwilling to pay the price needed for positive unit economics.",
+    "pre_exhibit_context": "Claim: Consumer willingness to pay is below $5 per delivery, making unit economics negative.",
+    "post_exhibit_takeaway": "Over 60% of consumers are unwilling to pay more than $5, while our breakeven cost is $10 per delivery."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Drone Delivery Unit Cost Breakdown vs Ground Delivery",
+    "chart_type": "bar",
+    "executive_question": "Can drone delivery achieve cost parity with ground delivery?",
+    "required_metrics": [
+      "{'metric': 'Drone delivery cost per package', 'year': '2024', 'value': '12.50', 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'metric': 'Ground delivery cost per package', 'year': '2024', 'value': '6.00', 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'metric': 'Drone unit cost per delivery', 'year': '2024', 'value': '4.00', 'unit': 'USD', 'entity': 'Drone amortization'}",
+      "{'metric': 'Infrastructure cost per delivery', 'year': '2024', 'value': '3.00', 'unit': 'USD', 'entity': 'Landing pads, charging'}",
+      "{'metric': 'Labor cost per delivery', 'year': '2024', 'value': '2.50', 'unit': 'USD', 'entity': 'Pilots, support'}",
+      "{'metric': 'Insurance and maintenance per delivery', 'year': '2024', 'value': '3.00', 'unit': 'USD', 'entity': 'Insurance, maintenance'}"
+    ],
+    "comparison_set": [
+      "Drone vs Ground (each with breakdown)"
+    ],
+    "preferred_sources": [
+      "Industry reports (e.g., ARK Invest, McKinsey)",
+      "Company filings (Amazon, UPS)"
+    ],
+    "search_queries": [
+      "drone delivery cost per package 2024 breakdown",
+      "last mile delivery cost per package 2024 ground"
+    ],
+    "data_quality_rule": "Use published cost breakdowns from credible industry reports; if not available, use analyst estimates with clear assumptions.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Compares cost per delivery components between drone and ground, showing drone costs are significantly higher.",
+    "pre_exhibit_context": "Claim: Drone delivery unit cost exceeds $10 per delivery, making it uncompetitive.",
+    "post_exhibit_takeaway": "Drone delivery costs $12.50 per package vs $6.00 for ground, with no clear path to parity."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "FAA UAM Certification Timeline and Milestones",
+    "chart_type": "timeline",
+    "executive_question": "When can we expect full operational approval?",
+    "required_metrics": [
+      "{'metric': 'Phase 1: Concept of Operations approval', 'year': '2025', 'value': 'Q2 2025', 'unit': 'date', 'entity': 'FAA'}",
+      "{'metric': 'Phase 2: Prototype testing approval', 'year': '2026', 'value': 'Q1 2026', 'unit': 'date', 'entity': 'FAA'}",
+      "{'metric': 'Phase 3: Limited commercial operations', 'year': '2027', 'value': 'Q3 2027', 'unit': 'date', 'entity': 'FAA'}",
+      "{'metric': 'Phase 4: Full commercial operations', 'year': '2028', 'value': 'Q1 2028', 'unit': 'date', 'entity': 'FAA'}"
+    ],
+    "comparison_set": [
+      "Milestones over time"
+    ],
+    "preferred_sources": [
+      "FAA UAM implementation plan",
+      "FAA public statements",
+      "Industry analysis (e.g., AUVSI)"
+    ],
+    "search_queries": [
+      "FAA UAM certification timeline 2024",
+      "FAA drone delivery regulations urban 2025"
+    ],
+    "data_quality_rule": "Use official FAA documents; if specific dates are not available, use ranges and note uncertainty.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Maps out regulatory milestones and estimated completion dates, showing that certification will not be granted before 2027.",
+    "pre_exhibit_context": "Claim: FAA certification for urban drone operations will not be granted before 2027.",
+    "post_exhibit_takeaway": "Full operational approval is not expected until 2028, delaying revenue generation by at least 3 years."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Total Addressable Market for Urban Drone Delivery (TAM to SOM)",
+    "chart_type": "bar",
+    "executive_question": "What is the realistic addressable market?",
+    "required_metrics": [
+      "{'metric': 'Total urban parcel deliveries in US', 'year': '2030', 'value': '20', 'unit': 'billion', 'entity': 'US urban areas'}",
+      "{'metric': 'Percentage suitable for drone delivery', 'year': '2030', 'value': '15', 'unit': '%', 'entity': 'Based on weight, distance'}",
+      "{'metric': 'Consumer adoption rate', 'year': '2030', 'value': '25', 'unit': '%', 'entity': 'US urban consumers'}",
+      "{'metric': 'Regulatory feasibility factor', 'year': '2030', 'value': '0.6', 'unit': 'ratio', 'entity': 'Operations allowed'}"
+    ],
+    "comparison_set": [
+      "TAM, SAM, SOM"
+    ],
+    "preferred_sources": [
+      "Pitney Bowes Parcel Shipping Index",
+      "US Census Bureau",
+      "FAA feasibility studies"
+    ],
+    "search_queries": [
+      "Pitney Bowes parcel shipping index 2024",
+      "percentage of parcels suitable for drone delivery",
+      "drone delivery adoption rate forecast 2030"
+    ],
+    "data_quality_rule": "Use official data for total deliveries; for suitability and adoption, use industry reports with clear methodology.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Waterfall chart reducing TAM by suitability, adoption, and regulatory constraints to show realistic serviceable obtainable market.",
+    "pre_exhibit_context": "Claim: The total addressable market is less than 500 million deliveries per year by 2030.",
+    "post_exhibit_takeaway": "After accounting for constraints, the realistic market is only 120 million deliveries per year by 2030."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Annual Drone Delivery Volume Projections (2025-2030)",
+    "chart_type": "line",
+    "executive_question": "How will delivery volume grow over time?",
+    "required_metrics": [
+      "{'metric': 'Projected drone deliveries', 'year': '2025', 'value': '2', 'unit': 'million', 'entity': 'US urban'}",
+      "{'metric': 'Projected drone deliveries', 'year': '2026', 'value': '5', 'unit': 'million', 'entity': 'US urban'}",
+      "{'metric': 'Projected drone deliveries', 'year': '2027', 'value': '12', 'unit': 'million', 'entity': 'US urban'}",
+      "{'metric': 'Projected drone deliveries', 'year': '2028', 'value': '25', 'unit': 'million', 'entity': 'US urban'}",
+      "{'metric': 'Projected drone deliveries', 'year': '2029', 'value': '40', 'unit': 'million', 'entity': 'US urban'}",
+      "{'metric': 'Projected drone deliveries', 'year': '2030', 'value': '50', 'unit': 'million', 'entity': 'US urban'}"
+    ],
+    "comparison_set": [
+      "Base case, optimistic case, pessimistic case"
+    ],
+    "preferred_sources": [
+      "Industry forecasts (e.g., Gartner, IDC)",
+      "Company projections (Amazon, Wing)"
+    ],
+    "search_queries": [
+      "drone delivery volume forecast 2025 2030",
+      "urban drone delivery market size 2030"
+    ],
+    "data_quality_rule": "Use published forecasts from credible sources; if only endpoints available, use CAGR and mark intermediate as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows projected annual delivery volumes under different scenarios, highlighting that even optimistic projections are low.",
+    "pre_exhibit_context": "Claim: Delivery volume projections are insufficient to support large-scale investment.",
+    "post_exhibit_takeaway": "Under base case, volume reaches only 50 million deliveries by 2030, far below the 500 million needed for profitability."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Drone Delivery Unit Economics Over Time (Revenue vs Cost per Delivery)",
+    "chart_type": "line",
+    "executive_question": "When will unit economics become positive?",
+    "required_metrics": [
+      "{'metric': 'Revenue per delivery', 'year': '2025', 'value': '4.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Revenue per delivery', 'year': '2026', 'value': '4.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Revenue per delivery', 'year': '2027', 'value': '5.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Revenue per delivery', 'year': '2028', 'value': '5.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Revenue per delivery', 'year': '2029', 'value': '6.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Revenue per delivery', 'year': '2030', 'value': '6.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Cost per delivery', 'year': '2025', 'value': '12.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Cost per delivery', 'year': '2026', 'value': '11.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Cost per delivery', 'year': '2027', 'value': '10.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Cost per delivery', 'year': '2028', 'value': '9.00', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Cost per delivery', 'year': '2029', 'value': '8.50', 'unit': 'USD', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Cost per delivery', 'year': '2030', 'value': '8.00', 'unit': 'USD', 'entity': 'Project SkyNet'}"
+    ],
+    "comparison_set": [
+      "Revenue vs Cost per delivery"
+    ],
+    "preferred_sources": [
+      "Company financial models",
+      "Industry cost reduction curves (e.g., learning curves)"
+    ],
+    "search_queries": [
+      "drone delivery cost reduction forecast 2025 2030",
+      "drone delivery pricing trends 2024"
+    ],
+    "data_quality_rule": "Use company projections if available; otherwise use industry learning curve assumptions and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Tracks revenue per delivery and cost per delivery over time, showing that costs remain above revenue through 2030.",
+    "pre_exhibit_context": "Claim: Unit economics are negative and unlikely to become positive in the foreseeable future.",
+    "post_exhibit_takeaway": "Even with cost reductions, cost per delivery remains above $8 while revenue per delivery stays below $5."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Competitive Positioning: Regulatory Approval vs Consumer Acceptance",
+    "chart_type": "bubble",
+    "executive_question": "How does Project SkyNet compare to competitors?",
+    "required_metrics": [
+      "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Amazon Prime Air'}",
+      "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Amazon Prime Air'}",
+      "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Amazon Prime Air'}",
+      "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Wing'}",
+      "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Wing'}",
+      "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Wing'}",
+      "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Zipline'}",
+      "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Zipline'}",
+      "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Zipline'}",
+      "{'metric': 'Regulatory approval level', 'year': '2024', 'value': 'score 1-10', 'unit': 'index', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Consumer acceptance rate', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Project SkyNet'}",
+      "{'metric': 'Market share', 'year': '2024', 'value': 'percentage', 'unit': '%', 'entity': 'Project SkyNet'}"
+    ],
+    "comparison_set": [
+      "Amazon, Wing, Zipline, Project SkyNet"
+    ],
+    "preferred_sources": [
+      "Company announcements",
+      "Regulatory filings",
+      "Consumer surveys"
+    ],
+    "search_queries": [
+      "Amazon Prime Air regulatory approvals 2024",
+      "Wing drone delivery consumer acceptance survey",
+      "Zipline urban delivery partnerships 2024"
+    ],
+    "data_quality_rule": "Use publicly available data for regulatory approvals (e.g., FAA certificates) and consumer surveys for acceptance; market share from industry reports.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Positions key players on a 2x2 matrix with bubble size representing market share, showing Project SkyNet lags in both dimensions.",
+    "pre_exhibit_context": "Claim: Competitors have already secured regulatory approvals and consumer acceptance, creating a first-mover disadvantage.",
+    "post_exhibit_takeaway": "Project SkyNet is in the bottom-left quadrant (low regulatory approval, low consumer acceptance), while Amazon and Wing are in the top-right."
+  }
+]
