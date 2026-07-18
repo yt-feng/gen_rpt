@@ -111,7 +111,6 @@ class Settings(BaseSettings):
     # should support the report, not consume the entire prompt budget.
     RAG_CONTEXT_TOKEN_BUDGET: int = 6000
     RAG_CONTEXT_CACHE_TTL_SECONDS: int = 14400
-    RAG_MAX_CHUNKS: int = 12
     RAG_MIN_RELEVANCE_SCORE: float = 0.35
 
 

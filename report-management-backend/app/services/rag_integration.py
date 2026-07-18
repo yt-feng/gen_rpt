@@ -383,7 +383,7 @@ class GenerationContextService:
             ret_payload = await retrieval_engine_service.retrieve_knowledge(
                 db=db,
                 query=query,
-                target_count=20,
+                target_count=40,
                 collection_ids=collection_ids,
                 user_id=user_id,
                 user_org_id=user_org_id,
@@ -451,7 +451,6 @@ class GenerationContextService:
             validated_chunk_dicts,
             document_names=document_names,
             token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET,
-            max_chunks=settings.RAG_MAX_CHUNKS,
         )
         selected_ids = {str(c["chunk_id"]) for c in compiled_context["selected_chunks"]}
         validated_chunk_dicts = [

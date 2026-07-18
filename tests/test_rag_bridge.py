@@ -12,7 +12,12 @@ from gen_rpt.web_fetch import (
     merge_sources,
     sources_from_validated_context,
 )
-from gen_rpt.web_publication_contract import rag_report_quality_issues
+from gen_rpt.web_evidence import merge_evidence_exhibits
+from gen_rpt.web_publication_contract import (
+    rag_exhibit_is_grounded,
+    rag_report_quality_issues,
+    rag_visible_numbers_supported,
+)
 
 
 def _context_payload():
@@ -169,6 +174,63 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertEqual(issues, [])
+
+    def test_grounded_model_exhibit_is_preserved_and_unsupported_exhibit_is_rejected(self):
+        context = "The validated investment is $45.5 million and consumer acceptance is 68%."
+        grounded = {
+            "type": "bar",
+            "title": "Validated investment and acceptance evidence",
+            "values": [45.5, 68],
+            "data_basis": [
+                {
+                    "id": "chunk-1",
+                    "fact": "The validated investment is $45.5 million and consumer acceptance is 68%.",
+                }
+            ],
+        }
+        unsupported = {"type": "bar", "title": "Invented case", "values": [99]}
+        chunks = {"chunk-1": context}
+
+        self.assertTrue(rag_exhibit_is_grounded(grounded, context_text=context, source_chunks=chunks))
+        self.assertFalse(rag_exhibit_is_grounded(unsupported, context_text=context, source_chunks=chunks))
+        self.assertFalse(rag_visible_numbers_supported(unsupported, context))
+
+        report = {"exhibits": [grounded]}
+        merged = merge_evidence_exhibits(
+            report,
+            [{"type": "timeline", "title": "Documented launch sequence"}],
+            preserve_existing=True,
+        )
+        self.assertEqual(len(merged["exhibits"]), 2)
+        self.assertEqual(merged["exhibits"][0]["title"], grounded["title"])
+
+    def test_final_quality_gate_checks_action_and_exhibit_numbers(self):
+        paragraph = "Documented evidence supports the decision without adding unsupported operating assumptions. " * 6
+        report = {
+            "title": "Validated Evidence Requires a Conditional Launch Decision",
+            "key_takeaways": ["Evidence is validated.", "The decision is conditional.", "Gates remain documented."],
+            "sections": [
+                {
+                    "title": f"Validated evidence supports decision area {index}",
+                    "lead": "The decision follows the uploaded evidence.",
+                    "paragraphs": [paragraph, paragraph, paragraph],
+                    "evidence": ['[Chunk: chunk-1] "The validated investment is $45.5 million." — Verified.'],
+                }
+                for index in range(1, 5)
+            ],
+            "action_steps": [{"horizon": "Within 90 days", "action": "Reassess the launch"}],
+            "exhibits": [{"type": "bar", "title": "Unsupported forecast", "values": [99]}],
+        }
+
+        issues = rag_report_quality_issues(
+            report,
+            topic="SkyNet launch decision",
+            context_text="The validated investment is $45.5 million.",
+            source_count=1,
+            source_chunks={"chunk-1": "The validated investment is $45.5 million."},
+        )
+
+        self.assertTrue(any("90" in issue and "99" in issue for issue in issues))
 
 if __name__ == "__main__":
     unittest.main()

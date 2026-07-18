@@ -29,13 +29,17 @@ def test_validated_context_deduplicates_and_respects_chunk_limit():
     assert result["context_string"].count("same enterprise evidence") == 1
 
 
-def test_validated_context_truncates_large_evidence_to_budget():
+def test_validated_context_keeps_only_whole_chunks_within_budget():
     result = build_validated_context(
-        [_chunk("large", "word " * 1000)],
+        [
+            _chunk("large", "word " * 1000),
+            _chunk("small", "complete supporting evidence"),
+        ],
         token_budget=50,
-        max_chunks=1,
+        max_chunks=0,
     )
 
-    assert len(result["selected_chunks"]) == 1
+    assert [chunk["chunk_id"] for chunk in result["selected_chunks"]] == ["small"]
     assert result["estimated_tokens"] <= 50
-    assert len(result["context_string"]) < 1000
+    assert "complete supporting evidence" in result["context_string"]
+    assert "word word" not in result["context_string"]

@@ -246,19 +246,73 @@ def _evidence_matches_chunk(evidence: str, source_chunks: dict[str, str]) -> boo
     return False
 
 
+def rag_exhibit_is_grounded(
+    exhibit: Any,
+    *,
+    context_text: str,
+    source_chunks: dict[str, str],
+) -> bool:
+    """Keep a model exhibit only when its numbers and stated basis are auditable."""
+    if not isinstance(exhibit, dict):
+        return False
+    if _number_tokens(_exhibit_reader_text(exhibit)) - _number_tokens(context_text):
+        return False
+    for basis in exhibit.get("data_basis", []) or []:
+        if not isinstance(basis, dict):
+            continue
+        chunk_id = str(basis.get("chunk_id") or basis.get("id") or "").strip()
+        fact = str(basis.get("fact") or basis.get("text") or "").strip()
+        chunk_text = source_chunks.get(chunk_id)
+        if chunk_text and len(_normalized_words(fact)) >= 20 and _normalized_words(fact) in _normalized_words(chunk_text):
+            return True
+    return False
+
+
+def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
+    visible_text = _exhibit_reader_text(value) if isinstance(value, dict) and "type" in value else _visible_value_text(value)
+    return not (_number_tokens(visible_text) - _number_tokens(context_text))
+
+
 def _normalized_words(value: Any) -> str:
     return " ".join(re.findall(r"\w+", str(value or "").lower()))
 
 
 def _rag_reader_text(report: dict) -> str:
-    parts = [str(report.get(key) or "") for key in ("title", "dek")]
+    parts = [str(report.get(key) or "") for key in ("title", "dek", "methodology", "disclaimer")]
     parts.extend(str(item) for key in ("intro", "key_takeaways") for item in report.get(key, []) or [])
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
         parts.extend(str(section.get(key) or "") for key in ("title", "heading", "lead", "body", "so_what"))
         parts.extend(str(item) for key in ("paragraphs", "evidence") for item in section.get(key, []) or [])
+    for action in report.get("action_steps", []) or []:
+        parts.append(_visible_value_text(action))
+    for exhibit in report.get("exhibits", []) or []:
+        parts.append(_exhibit_reader_text(exhibit))
     return "\n".join(parts)
+
+
+def _exhibit_reader_text(exhibit: Any) -> str:
+    if not isinstance(exhibit, dict):
+        return ""
+    parts = [
+        str(exhibit.get(key) or "")
+        for key in ("title", "subtitle", "caption", "source_note", "footnote", "evidence_quality")
+    ]
+    for key in (
+        "metrics", "items", "events", "steps", "categories", "labels", "x_labels",
+        "rows", "columns", "values", "series", "points", "point_labels", "estimated_points",
+    ):
+        parts.append(_visible_value_text(exhibit.get(key)))
+    return "\n".join(parts)
+
+
+def _visible_value_text(value: Any) -> str:
+    if isinstance(value, dict):
+        return " ".join(_visible_value_text(item) for item in value.values())
+    if isinstance(value, (list, tuple)):
+        return " ".join(_visible_value_text(item) for item in value)
+    return str(value or "")
 
 
 def _number_tokens(text: Any) -> set[str]:
@@ -269,7 +323,7 @@ def _number_tokens(text: Any) -> set[str]:
         if not match:
             continue
         try:
-            values.add(str(Decimal(match.group(0).replace(",", "")).normalize()))
+            values.add(format(Decimal(match.group(0).replace(",", "")).normalize(), "f"))
         except InvalidOperation:
             continue
     return values

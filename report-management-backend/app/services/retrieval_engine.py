@@ -276,7 +276,7 @@ class RetrievalEngineService:
             
         # 6. Decay Ranking & Confidence
         ranked = rank_retrieved_chunks(chunk_candidates, weights=weights, freshness_policy=freshness_policy)
-        ranked = ranked[: min(target_count, settings.RAG_MAX_CHUNKS)]
+        ranked = ranked[:target_count]
         
         # 7. Context Budget Compile
         context_pkg = build_retrieval_context(ranked, token_budget=token_budget)

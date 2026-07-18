@@ -60,7 +60,7 @@ def build_validated_context(
     validated_chunks: List[Dict[str, Any]],
     document_names: Optional[Dict[str, str]] = None,
     token_budget: int = 6000,
-    max_chunks: int = 12,
+    max_chunks: int = 0,
 ) -> Dict[str, Any]:
     """Compile only validated evidence into a compact, token-bounded prompt block."""
     document_names = document_names or {}
@@ -70,7 +70,7 @@ def build_validated_context(
     used_tokens = 0
 
     for chunk in validated_chunks:
-        if len(selected) >= max_chunks:
+        if max_chunks > 0 and len(selected) >= max_chunks:
             break
 
         text = (chunk.get("text") or "").strip()
@@ -93,11 +93,8 @@ def build_validated_context(
 
         text_tokens = estimate_tokens(text)
         if text_tokens > remaining:
-            # Use the remaining budget instead of dropping an otherwise useful chunk.
-            text = text[: max(0, remaining * 4)].rsplit(" ", 1)[0].rstrip()
-            text_tokens = estimate_tokens(text)
-        if not text:
-            break
+            # Whole chunks only: a partial quotation is not auditable evidence.
+            continue
 
         parts.append(f"{header}{text}")
         selected.append(chunk)

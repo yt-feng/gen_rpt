@@ -17,7 +17,9 @@ from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merg
 from .web_publication_contract import (
     client_visible_internal_hits,
     publication_contract_prompt,
+    rag_exhibit_is_grounded,
     rag_report_quality_issues,
+    rag_visible_numbers_supported,
 )
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
@@ -109,6 +111,11 @@ class WebReportPipeline:
         sources = merge_sources(self.rag_sources, public_sources)
         if self.rag_required and not any(source.source_type == "internal" for source in sources):
             raise RuntimeError("Validated RAG sources were lost before evidence generation")
+        rag_source_chunks = {
+            str(source.metadata.get("chunk_id")): source.content
+            for source in self.rag_sources
+            if source.metadata.get("chunk_id")
+        }
         source_dicts = [source.__dict__ for source in sources]
         domains = sorted({source.domain for source in sources if source.domain})
         self._log(
@@ -155,11 +162,7 @@ class WebReportPipeline:
                     topic=display_topic,
                     context_text=self.rag_context,
                     source_count=len(self.rag_sources),
-                    source_chunks={
-                        str(source.metadata.get("chunk_id")): source.content
-                        for source in self.rag_sources
-                        if source.metadata.get("chunk_id")
-                    },
+                    source_chunks=rag_source_chunks,
                 )
                 if quality_issues:
                     self._log("PHASE synthesis retry | " + " | ".join(quality_issues[:8]))
@@ -178,11 +181,7 @@ class WebReportPipeline:
                         topic=display_topic,
                         context_text=self.rag_context,
                         source_count=len(self.rag_sources),
-                        source_chunks={
-                            str(source.metadata.get("chunk_id")): source.content
-                            for source in self.rag_sources
-                            if source.metadata.get("chunk_id")
-                        },
+                        source_chunks=rag_source_chunks,
                     )
                 if quality_issues:
                     raise RuntimeError("RAG report quality gate failed: " + " | ".join(quality_issues))
@@ -200,7 +199,26 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE evidence_exhibits started | expected <10s")
         evidence_exhibits = build_evidence_exhibits(display_topic, evidence_ledger, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=self.language)
-        report = merge_evidence_exhibits(report, evidence_exhibits)
+        if self.rag_context:
+            report["exhibits"] = [
+                exhibit
+                for exhibit in report.get("exhibits", []) or []
+                if rag_exhibit_is_grounded(
+                    exhibit,
+                    context_text=self.rag_context,
+                    source_chunks=rag_source_chunks,
+                )
+            ]
+            evidence_exhibits = [
+                exhibit
+                for exhibit in evidence_exhibits
+                if rag_visible_numbers_supported(exhibit, self.rag_context)
+            ]
+        report = merge_evidence_exhibits(
+            report,
+            evidence_exhibits,
+            preserve_existing=bool(self.rag_context),
+        )
         self._log(
             "PHASE evidence_exhibits completed "
             f"| elapsed={self._elapsed(phase_start)} | exhibits={len(evidence_exhibits)} "
@@ -211,6 +229,18 @@ class WebReportPipeline:
         self._log("PHASE normalize_and_validate_schema started | expected <10s")
         self._post_process(report, display_topic, sources, fact_pack)
         report = normalize_web_report(report, topic=display_topic, language=self.language)
+        if self.rag_context:
+            final_quality_issues = rag_report_quality_issues(
+                report,
+                topic=display_topic,
+                context_text=self.rag_context,
+                source_count=len(self.rag_sources),
+                source_chunks=rag_source_chunks,
+            )
+            if final_quality_issues:
+                message = "Final RAG report quality gate failed: " + " | ".join(final_quality_issues)
+                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+                raise RuntimeError(message)
         visible_hits = client_visible_internal_hits(self._client_visible_text(report))
         if visible_hits:
             self._log("PHASE publication_contract warning | visible_internal_language=" + ",".join(visible_hits[:6]))
@@ -727,6 +757,8 @@ CRITICAL RULES (violation = failure):
 7. action_steps: 3-5 items based on what the document states, not invented recommendations.
 8. references: only use real URLs present in the supplementary public sources above.
 9. Every section evidence list must include at least one item formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
+10. Every exhibit must use only document values and include data_basis with at least one object formatted as `{{"id": "<exact chunk id>", "fact": "<exact supporting excerpt>"}}`. Unsupported exhibits will be removed.
+11. Numbers in action_steps, success metrics, timelines, labels, and exhibits must also appear in the private context. Use non-numeric decision gates when the document gives no value.
 
 QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
 {correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}

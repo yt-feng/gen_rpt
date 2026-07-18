@@ -194,10 +194,16 @@ def build_evidence_exhibits(
     return exhibits[:6]
 
 
-def merge_evidence_exhibits(report: Dict[str, Any], evidence_exhibits: List[Dict[str, Any]]) -> Dict[str, Any]:
+def merge_evidence_exhibits(
+    report: Dict[str, Any],
+    evidence_exhibits: List[Dict[str, Any]],
+    *,
+    preserve_existing: bool = False,
+) -> Dict[str, Any]:
     if not evidence_exhibits:
         return report
-    report["exhibits"] = evidence_exhibits
+    existing = report.get("exhibits", []) or [] if preserve_existing else []
+    report["exhibits"] = _dedupe_exhibits([*existing, *evidence_exhibits])[:6]
     return report
 
 
