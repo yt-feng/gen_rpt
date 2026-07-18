@@ -1,0 +1,20 @@
+{
+  "status": "active",
+  "required": true,
+  "context_characters": 3824,
+  "validated_chunk_count": 5,
+  "document_count": 3,
+  "chunk_ids": [
+    "8dc8158d-24e0-4d7a-a793-0a28578d71c8",
+    "a0b1d49e-38b1-44ee-ada8-d097304c6f33",
+    "dfe35bb5-0eda-4a50-8180-aacb83f79cbd",
+    "963c7017-73ff-4296-9a69-5d9525ee883d",
+    "de542563-57aa-42b0-8408-cfc9c7100068"
+  ],
+  "document_ids": [
+    "07abce74-41f2-4377-9bba-88625f0cd7ad",
+    "10ae100b-fe23-42ea-a35a-1fbcad4aff7e",
+    "85de3c55-cfc0-469c-8c67-7b86801fa501"
+  ],
+  "internal_evidence_points": 19
+}
