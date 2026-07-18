@@ -220,26 +220,20 @@ class RetrievalEngineService:
             chunk_rows = [(chunk, None) for chunk in chunk_res.scalars().all()]
         
         # 5. Hybrid Search & Vector Calculations
-        chunk_candidates = []
-        for ch, sim in chunk_rows:
+        document_map = {document.id: document for document in filtered_docs}
+
+        def build_candidate(ch, sim=None, use_semantic=True):
             meta = ch.chunk_metadata or {}
-            
-            # Keyword Overlay
             keyword = calculate_keyword_score(query, meta.get("content", ""))
-            
-            # Hybrid semantic/keyword score, or keyword-only score when the
-            # external embedding provider is temporarily unavailable.
-            if semantic_search_available:
+            if use_semantic:
                 norm_sim = float((sim + 1.0) / 2.0)
                 hybrid_score = 0.7 * norm_sim + 0.3 * keyword
             else:
                 hybrid_score = keyword
-            
-            # Resolve parent document references
-            parent_doc = next((d for d in filtered_docs if d.id == ch.document_id), None)
-            
+
+            parent_doc = document_map.get(ch.document_id)
             primary_source = parent_doc.sources[0] if parent_doc and parent_doc.sources else None
-            candidate = {
+            return {
                 "chunk_id": ch.id,
                 "document_id": ch.document_id,
                 "file_name": parent_doc.file_name if parent_doc else "Unknown",
@@ -251,13 +245,34 @@ class RetrievalEngineService:
                 "source_id": primary_source.id if primary_source else None,
                 "metadata": meta
             }
-            chunk_candidates.append(candidate)
+
+        chunk_candidates = [
+            build_candidate(ch, sim, semantic_search_available)
+            for ch, sim in chunk_rows
+        ]
 
         min_relevance = float(settings.RAG_MIN_RELEVANCE_SCORE) if semantic_search_available else 0.0
         chunk_candidates = [
             candidate for candidate in chunk_candidates
             if candidate["similarity_score"] > min_relevance
         ]
+
+        # A healthy embedding call can still yield no usable matches because of
+        # model drift or an over-selective vector score. Use lexical ranking in
+        # that case instead of incorrectly reporting an empty knowledge base.
+        if semantic_search_available and not chunk_candidates:
+            lexical_stmt = select(KnowledgeChunk).filter(
+                KnowledgeChunk.document_id.in_(doc_ids)
+            ).limit(max(target_count * 10, 100))
+            lexical_res = await db.execute(lexical_stmt)
+            chunk_candidates = [
+                build_candidate(chunk, use_semantic=False)
+                for chunk in lexical_res.scalars().all()
+            ]
+            chunk_candidates = [
+                candidate for candidate in chunk_candidates
+                if candidate["similarity_score"] > 0.0
+            ]
             
         # 6. Decay Ranking & Confidence
         ranked = rank_retrieved_chunks(chunk_candidates, weights=weights, freshness_policy=freshness_policy)

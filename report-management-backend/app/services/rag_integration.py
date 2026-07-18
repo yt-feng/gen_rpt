@@ -394,17 +394,9 @@ class GenerationContextService:
         ret_time = int((time.time() - ret_start) * 1000)
 
         # No eligible/relevant evidence is a valid result, not a validation
-        # exception. Preserve a short-lived, observable empty package.
+        # exception. Do not create snapshots or caches for a request that the
+        # fail-closed generation gate will reject.
         if not ret_payload.get("chunks"):
-            snapshot = await self.snapshot_service.create_snapshot(
-                db=db,
-                knowledge_version="1.0.0",
-                collections_used=[uuid.UUID(c) for c in ret_payload["snapshot"].get("collections", [])],
-                documents_used=[],
-                chunks_used=[],
-                retrieval_session_id=None,
-                configuration=config,
-            )
             empty_pkg = stringify_uuids({
                 "validated_chunks": [],
                 "validated_sources": [],
@@ -412,7 +404,7 @@ class GenerationContextService:
                 "authority_scores": {},
                 "evidence_ranking": [],
                 "knowledge_snapshot": ret_payload.get("snapshot", {}),
-                "knowledge_snapshot_id": str(snapshot.id),
+                "knowledge_snapshot_id": None,
                 "validation_report_reference": None,
                 "collection_metadata": {},
                 "document_references": [],
@@ -424,9 +416,6 @@ class GenerationContextService:
                 },
                 "validated_context_string": "",
             })
-            await self.cache_service.set_cached_context(
-                db, cache_key, empty_pkg, ttl_seconds=settings.RAG_CONTEXT_CACHE_TTL_SECONDS
-            )
             return empty_pkg
         
         val_start = time.time()

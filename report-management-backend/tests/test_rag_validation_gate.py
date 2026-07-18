@@ -7,6 +7,7 @@ import pytest
 from app.services.validation.source import SourceValidationService
 from app.services.validation.conflict import ConflictService
 from app.services.retrieval_similarity import calculate_keyword_score
+from app.core.exceptions import _cors_headers
 
 
 def _query_result(*documents):
@@ -100,3 +101,14 @@ def test_keyword_score_retains_relevant_long_evidence_chunks():
 
     assert calculate_keyword_score(query, relevant) > 0.5
     assert calculate_keyword_score(query, relevant) > calculate_keyword_score(query, unrelated)
+
+
+def test_error_responses_preserve_configured_frontend_cors():
+    request = SimpleNamespace(
+        headers={"origin": "https://gen-rpt-review-frontend.pages.dev"}
+    )
+
+    headers = _cors_headers(request)
+
+    assert headers["Access-Control-Allow-Origin"] == request.headers["origin"]
+    assert headers["Access-Control-Allow-Credentials"] == "true"
