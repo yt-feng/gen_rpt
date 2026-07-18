@@ -13,12 +13,14 @@ from gen_rpt.web_fetch import (
     sources_from_validated_context,
 )
 from gen_rpt.web_evidence import merge_evidence_exhibits
+from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
     ground_rag_section_evidence,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
     rag_visible_numbers_supported,
 )
+from gen_rpt.web_report_pipeline import WebReportPipeline
 from gen_rpt.web_report_renderer import normalize_web_report
 
 
@@ -264,6 +266,54 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(report["sections"], [])
         self.assertEqual(report["exhibits"], [])
         self.assertEqual(report["action_steps"], [])
+
+    def test_rag_post_processing_does_not_add_fact_pack_claims(self):
+        report = {
+            "sections": [
+                {
+                    "title": "Validated evidence supports a conditional launch",
+                    "paragraphs": ["Grounded paragraph one.", "Grounded paragraph two.", "Grounded paragraph three."],
+                    "evidence": ['[Chunk: chunk-1] "The investment is $45.5 million." — Verified.'],
+                }
+            ]
+        }
+        fact_pack = ResearchFactPack(
+            topic="SkyNet",
+            objective="Assess launch",
+            decision_question="Launch?",
+            source_count=1,
+            authoritative_source_count=0,
+            source_domains=["internal.enterprise"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=["An unvalidated post-processing claim contains 45."],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        pipeline = WebReportPipeline(Mock())
+        pipeline.rag_context = "The investment is $45.5 million."
+
+        pipeline._post_process(report, "SkyNet", [], fact_pack)
+
+        self.assertEqual(
+            report["sections"][0]["paragraphs"],
+            ["Grounded paragraph one.", "Grounded paragraph two.", "Grounded paragraph three."],
+        )
+        self.assertNotIn("contains 45", str(report))
+
+    def test_action_normalization_uses_a_non_numeric_default_horizon(self):
+        report = normalize_web_report(
+            {
+                "title": "Grounded report",
+                "key_takeaways": ["A", "B", "C"],
+                "sections": [],
+                "action_steps": [{"action": f"Action {index}"} for index in range(1, 5)],
+            },
+            topic="Grounded report",
+            allow_synthetic_fallbacks=False,
+        )
+
+        self.assertEqual(report["action_steps"][3]["horizon"], "Decision gate")
 
 if __name__ == "__main__":
     unittest.main()

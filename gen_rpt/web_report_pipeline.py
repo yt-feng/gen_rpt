@@ -816,7 +816,11 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
             refs.append({"title": source.title or source.domain or source.url, "url": source.url, "note": source.snippet})
             seen_ref_urls.add(source.url)
         report["references"] = refs
-        self._strengthen_thin_sections(report, topic, fact_pack)
+        # A grounded draft has already passed the RAG quality gate. Do not add
+        # generic fact-pack prose afterward; that can introduce claims that
+        # were not present in the validated private context.
+        if not self.rag_context:
+            self._strengthen_thin_sections(report, topic, fact_pack)
         report.setdefault(
             "disclaimer",
             "Prepared for strategy discussion; validate source data before investment, transaction or operating decisions."

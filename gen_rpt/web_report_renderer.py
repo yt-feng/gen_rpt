@@ -1469,14 +1469,14 @@ def _normalize_actions(value: Any) -> List[Dict[str, str]]:
         if isinstance(item, dict):
             actions.append(
                 {
-                    "horizon": _compact(_text(item.get("horizon") or item.get("timing") or f"Step {idx}"), 70),
+                    "horizon": _compact(_text(item.get("horizon") or item.get("timing") or "Decision gate"), 70),
                     "action": _compact(_text(item.get("action") or item.get("title") or item.get("name") or ""), 180),
                     "success_metric": _compact(_text(item.get("success_metric") or item.get("metric") or item.get("decision_gate") or ""), 180),
                     "description": _compact(_text(item.get("description") or ""), 180),
                 }
             )
         else:
-            actions.append({"horizon": f"Step {idx}", "action": _compact(_text(item), 180), "success_metric": "", "description": ""})
+            actions.append({"horizon": "Decision gate", "action": _compact(_text(item), 180), "success_metric": "", "description": ""})
     return [x for x in actions if x.get("action")]
 
 
