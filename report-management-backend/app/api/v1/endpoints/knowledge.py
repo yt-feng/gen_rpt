@@ -267,7 +267,8 @@ async def replace_document_version(
             file_size=file.size,
             content_type=file.content_type or "application/octet-stream",
             user_id=UUID(user["id"]),
-            duplicate_strategy="new_version"
+            duplicate_strategy="new_version",
+            target_document_id=document_id,
         )
     else:
         file_bytes = await file.read()
@@ -278,7 +279,8 @@ async def replace_document_version(
             file_data=file_bytes,
             content_type=file.content_type or "application/octet-stream",
             user_id=UUID(user["id"]),
-            duplicate_strategy="new_version"
+            duplicate_strategy="new_version",
+            target_document_id=document_id,
         )
     return success_response(data=result, message="Document version replaced.")
 
@@ -1026,4 +1028,3 @@ async def run_lifecycle_analytics(
         recorded_date=result.recorded_date
     )
     return success_response(data=response_data, message="Analytics run successfully.")
-

@@ -70,6 +70,8 @@ jobs:
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
         run: |
           if [ -z "$DEEPSEEK_API_KEY" ]; then
             echo "::error::Missing DEEPSEEK_API_KEY secret" >&2
@@ -77,6 +79,10 @@ jobs:
           fi
           if [ -z "$GROQ_API_KEY" ]; then
             echo "::error::Missing GROQ_API_KEY secret" >&2
+            exit 1
+          fi
+          if [ -z "$BACKEND_URL" ] || [ -z "$INTERNAL_TOKEN" ]; then
+            echo "::error::Missing BACKEND_URL or INTERNAL_TOKEN required for RAG context" >&2
             exit 1
           fi
 
@@ -87,6 +93,8 @@ jobs:
         id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
         run: |
           TOPIC="$TOPIC_INPUT"
           SLUG="$SLUG_INPUT"

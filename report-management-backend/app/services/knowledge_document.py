@@ -59,7 +59,8 @@ class KnowledgeDocumentService:
         file_data: Optional[bytes] = None,
         file_stream: Optional[Any] = None,
         file_size: int = 0,
-        duplicate_strategy: str = "skip"  # skip, new_version
+        duplicate_strategy: str = "skip",  # skip, new_version
+        target_document_id: Optional[uuid.UUID] = None,
     ) -> Dict[str, Any]:
         """
         Task 2, 4, 5, 6, 7, 13, 15: Upload Single Document Flow with transaction rollback and R2 cleanup.
@@ -108,14 +109,17 @@ class KnowledgeDocumentService:
         else:
             checksum = knowledge_storage_service.calculate_checksum(file_data)
 
-        # Task 4: Duplicate Detection
-        existing_doc_res = await db.execute(
-            select(KnowledgeDocument).filter(
-                KnowledgeDocument.collection_id == collection_id,
-                KnowledgeDocument.checksum == checksum,
-                KnowledgeDocument.deleted_at.is_(None)
-            )
-        )
+        # Replacement targets the requested document even when the new content
+        # has a different checksum. Ordinary uploads remain checksum-deduplicated.
+        existing_filter = [
+            KnowledgeDocument.collection_id == collection_id,
+            KnowledgeDocument.deleted_at.is_(None),
+        ]
+        if target_document_id:
+            existing_filter.append(KnowledgeDocument.id == target_document_id)
+        else:
+            existing_filter.append(KnowledgeDocument.checksum == checksum)
+        existing_doc_res = await db.execute(select(KnowledgeDocument).filter(*existing_filter))
         existing_doc = existing_doc_res.scalars().first()
 
         if existing_doc:
@@ -173,10 +177,13 @@ class KnowledgeDocumentService:
                     parent_version = existing_doc.version
                     existing_doc.version = new_version_num
                     existing_doc.storage_path = storage_path
+                    existing_doc.file_name = filename
+                    existing_doc.extension = ext
+                    existing_doc.checksum = checksum
                     existing_doc.size = file_size
                     existing_doc.mime_type = content_type
                     existing_doc.upload_status = "uploaded"
-                    existing_doc.validation_status = "validated"
+                    existing_doc.validation_status = "pending"
                     existing_doc.processing_status = "pending"
 
                     version_history = KnowledgeVersionHistory(
@@ -272,7 +279,7 @@ class KnowledgeDocumentService:
                 version=1,
                 size=file_size,
                 upload_status="uploaded",
-                validation_status="validated",
+                validation_status="pending",
                 processing_status="pending",
                 created_by=user_id
             )

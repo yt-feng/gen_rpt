@@ -11,6 +11,7 @@ from app.services.generation import generation_service
 from app.services.document import document_service
 from app.schemas.document import DocumentCreate
 from app.models.enums import JobStatusType
+from app.core.config import settings
 import re
 
 router = APIRouter()
@@ -66,7 +67,7 @@ async def create_job(
     doc_obj = await db.get(Document, doc_id)
     slug_val = doc_obj.slug if doc_obj else f"doc-{str(doc_id)[:8]}"
 
-    from app.core.config import settings
+    rag_state = {"requested": bool(settings.RAG_ENABLED), "status": "disabled", "chunk_count": 0}
     if settings.RAG_ENABLED:
         from app.services.rag_integration import generation_context_service
         from app.logging.logger import logger
@@ -86,7 +87,7 @@ async def create_job(
                     logger.info(f"RAG: Auto-resolved {len(effective_collection_ids)} collection(s) for user {user['id']}")
 
             # Prepare context (retrieval + validation + snapshotting + caching)
-            await generation_context_service.prepare_context(
+            context_package = await generation_context_service.prepare_context(
                 db=db,
                 query=prompt,
                 collection_ids=effective_collection_ids,
@@ -94,8 +95,16 @@ async def create_job(
                 user_org_id=None,
                 slug=slug_val
             )
+            rag_state = {
+                "requested": True,
+                "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
+                "chunk_count": len(context_package.get("validated_chunks", [])),
+                "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
+                "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
+            }
             logger.info(f"RAG context pre-warmed for slug={slug_val}, cache_key=context:slug:{slug_val}")
         except Exception as e:
+            rag_state = {"requested": True, "status": "prewarm_failed", "chunk_count": 0}
             logger.exception(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
             await db.rollback()
 
@@ -108,6 +117,8 @@ async def create_job(
         report_type=req.report_type,
         created_by=UUID(user["id"])
     )
+    job.audit_metadata = {**(job.audit_metadata or {}), "rag": rag_state}
+    await db.commit()
 
     from app.core.metrics import rag_generation_requests_total
     rag_generation_requests_total.labels(rag_enabled="true" if settings.RAG_ENABLED else "false").inc()
@@ -386,6 +397,7 @@ class BulkJobItem(BaseModel):
 class BulkCreateRequest(BaseModel):
     jobs: List[BulkJobItem]
     limit: Optional[int] = None
+    collection_ids: Optional[List[UUID]] = None
 
 @router.post("/bulk", response_model=APIResponse[dict])
 async def create_bulk_jobs(
@@ -456,6 +468,16 @@ async def create_bulk_jobs(
     dispatched_count = 0
     queued_count = 0
 
+    effective_collection_ids = req.collection_ids
+    if settings.RAG_ENABLED and not effective_collection_ids:
+        from app.models.knowledge import KnowledgeCollection
+        col_stmt = select(KnowledgeCollection.id).where(
+            KnowledgeCollection.owner_id == UUID(user["id"]),
+            KnowledgeCollection.status == "active",
+        )
+        col_result = await db.execute(col_stmt)
+        effective_collection_ids = list(col_result.scalars().all()) or None
+
     for item in req.jobs:
         try:
             topic = item.topic.strip()
@@ -477,6 +499,29 @@ async def create_bulk_jobs(
                 user_id=UUID(user["id"])
             )
 
+            rag_state = {"requested": bool(settings.RAG_ENABLED), "status": "disabled", "chunk_count": 0}
+            if settings.RAG_ENABLED:
+                from app.services.rag_integration import generation_context_service
+                try:
+                    context_package = await generation_context_service.prepare_context(
+                        db=db,
+                        query=topic,
+                        collection_ids=effective_collection_ids,
+                        user_id=UUID(user["id"]),
+                        user_org_id=None,
+                        slug=unique_slug,
+                    )
+                    rag_state = {
+                        "requested": True,
+                        "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
+                        "chunk_count": len(context_package.get("validated_chunks", [])),
+                        "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
+                        "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
+                    }
+                except Exception:
+                    await db.rollback()
+                    rag_state = {"requested": True, "status": "prewarm_failed", "chunk_count": 0}
+
             # Determine whether to dispatch immediately or keep in queue
             should_dispatch = slots_available > 0
             
@@ -489,6 +534,8 @@ async def create_bulk_jobs(
                 created_by=UUID(user["id"]),
                 dispatch=should_dispatch
             )
+            job.audit_metadata = {**(job.audit_metadata or {}), "rag": rag_state}
+            await db.commit()
 
             status_val = job.status.value
             if should_dispatch:
@@ -507,6 +554,7 @@ async def create_bulk_jobs(
                 "topic": topic,
                 "industry": industry,
                 "status": status_val,
+                "rag": rag_state,
             })
 
         except Exception as e:

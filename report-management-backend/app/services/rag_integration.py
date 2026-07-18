@@ -17,6 +17,7 @@ from app.models.rag_integration import KnowledgeSnapshot, EvidenceAttribution, G
 from app.models.workflow import GenerationJob
 from app.models.validation import ValidationReport
 from app.services.retrieval_engine import retrieval_engine_service
+from app.services.retrieval_context import build_validated_context
 from app.services.validation import validation_service
 from app.storage.provider import storage_provider
 from app.core.config import settings
@@ -27,9 +28,6 @@ from app.utils.serialization import stringify_uuids
 
 class ContextCacheService:
     async def get_cached_context(self, db: AsyncSession, cache_key: str) -> Optional[dict]:
-        # Clear expired keys first
-        await self.clear_expired(db)
-        
         stmt = select(GenerationContextCache).where(
             GenerationContextCache.cache_key == cache_key,
             GenerationContextCache.expires_at > datetime.now(timezone.utc)
@@ -344,7 +342,10 @@ class GenerationContextService:
             cache_key = f"context:slug:{slug}"
         else:
             col_str = ",".join(sorted([str(c) for c in (collection_ids or [])]))
-            sig_input = f"{query}:{col_str}:{settings.APP_ENV}"
+            sig_input = (
+                f"{query}:{col_str}:{user_id or 'anonymous'}:"
+                f"{user_org_id or 'no-org'}:{settings.APP_ENV}"
+            )
             cache_key = hashlib.sha256(sig_input.encode('utf-8')).hexdigest()
 
         
@@ -377,9 +378,45 @@ class GenerationContextService:
             collection_ids=collection_ids,
             user_id=user_id,
             user_org_id=user_org_id,
-            token_budget=16000
+            token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET
         )
         ret_time = int((time.time() - ret_start) * 1000)
+
+        # No eligible/relevant evidence is a valid result, not a validation
+        # exception. Preserve a short-lived, observable empty package.
+        if not ret_payload.get("chunks"):
+            snapshot = await self.snapshot_service.create_snapshot(
+                db=db,
+                knowledge_version="1.0.0",
+                collections_used=[uuid.UUID(c) for c in ret_payload["snapshot"].get("collections", [])],
+                documents_used=[],
+                chunks_used=[],
+                retrieval_session_id=None,
+                configuration=config,
+            )
+            empty_pkg = stringify_uuids({
+                "validated_chunks": [],
+                "validated_sources": [],
+                "confidence_scores": {"overall_confidence": 0.0},
+                "authority_scores": {},
+                "evidence_ranking": [],
+                "knowledge_snapshot": ret_payload.get("snapshot", {}),
+                "knowledge_snapshot_id": str(snapshot.id),
+                "validation_report_reference": None,
+                "collection_metadata": {},
+                "document_references": [],
+                "context_metadata": {
+                    "retrieved_chunk_count": 0,
+                    "validated_chunk_count": 0,
+                    "estimated_tokens": 0,
+                    "rag_status": "no_evidence",
+                },
+                "validated_context_string": "",
+            })
+            await self.cache_service.set_cached_context(
+                db, cache_key, empty_pkg, ttl_seconds=settings.RAG_CONTEXT_CACHE_TTL_SECONDS
+            )
+            return empty_pkg
         
         val_start = time.time()
         # 4. Validate Results (orchestrator from Phase R8)
@@ -387,22 +424,40 @@ class GenerationContextService:
         val_pkg = await validation_service.validate_session(db, session_id, user_id)
         val_time = int((time.time() - val_start) * 1000)
         
-        # Build unified context package dict matching ValidatedContextPackage schema
+        rank_index = {str(chunk_id): position for position, chunk_id in enumerate(val_pkg.evidence_ranking)}
+        validated_chunk_dicts = [
+            {
+                "chunk_id": c.chunk_id,
+                "document_id": c.document_id,
+                "text": c.text,
+                "confidence": c.confidence,
+                "authority": c.authority,
+                "is_duplicate": c.is_duplicate,
+                "conflicts_with": c.conflicts_with,
+                "validation_status": c.validation_status,
+                "metadata": c.metadata,
+            }
+            for c in val_pkg.validated_chunks
+        ]
+        validated_chunk_dicts.sort(key=lambda c: rank_index.get(str(c["chunk_id"]), 10**9))
+        document_names = {
+            str(ref["document_id"]): ref.get("file_name", "Unknown")
+            for ref in val_pkg.document_references
+        }
+        compiled_context = build_validated_context(
+            validated_chunk_dicts,
+            document_names=document_names,
+            token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET,
+            max_chunks=settings.RAG_MAX_CHUNKS,
+        )
+        selected_ids = {str(c["chunk_id"]) for c in compiled_context["selected_chunks"]}
+        validated_chunk_dicts = [
+            c for c in validated_chunk_dicts if str(c["chunk_id"]) in selected_ids
+        ]
+
+        # Build unified context package from the post-validation, token-bounded evidence only.
         pkg_data = {
-            "validated_chunks": [
-                {
-                    "chunk_id": c.chunk_id,
-                    "document_id": c.document_id,
-                    "text": c.text,
-                    "confidence": c.confidence,
-                    "authority": c.authority,
-                    "is_duplicate": c.is_duplicate,
-                    "conflicts_with": c.conflicts_with,
-                    "validation_status": c.validation_status,
-                    "metadata": c.metadata
-                }
-                for c in val_pkg.validated_chunks
-            ],
+            "validated_chunks": validated_chunk_dicts,
             "validated_sources": [
                 {
                     "source_id": s.source_id,
@@ -422,8 +477,13 @@ class GenerationContextService:
             "validation_report_reference": val_pkg.validation_report_reference,
             "collection_metadata": val_pkg.collection_metadata,
             "document_references": val_pkg.document_references,
-            "context_metadata": val_pkg.context_metadata,
-            "validated_context_string": ret_payload.get("context", "")
+            "context_metadata": {
+                **val_pkg.context_metadata,
+                "estimated_tokens": compiled_context["estimated_tokens"],
+                "token_budget": compiled_context["token_budget"],
+                "rag_status": "ready" if validated_chunk_dicts else "no_valid_evidence",
+            },
+            "validated_context_string": compiled_context["context_string"],
         }
         
         # Safe serialize
@@ -434,15 +494,17 @@ class GenerationContextService:
             db=db,
             knowledge_version="1.0.0",
             collections_used=collection_ids or [uuid.UUID(c) for c in ret_payload["snapshot"].get("collections", [])],
-            documents_used=[uuid.UUID(d) for d in ret_payload["snapshot"].get("documents", [])],
-            chunks_used=[uuid.UUID(ch) for ch in ret_payload["snapshot"].get("chunks", [])],
+            documents_used=sorted({uuid.UUID(str(c["document_id"])) for c in validated_chunk_dicts}, key=str),
+            chunks_used=[uuid.UUID(str(c["chunk_id"])) for c in validated_chunk_dicts],
             retrieval_session_id=session_id,
             configuration=config
         )
         pkg_data["knowledge_snapshot_id"] = str(snapshot.id)
         
         # 6. Cache package
-        await self.cache_service.set_cached_context(db, cache_key, pkg_data, ttl_seconds=3600)
+        await self.cache_service.set_cached_context(
+            db, cache_key, pkg_data, ttl_seconds=settings.RAG_CONTEXT_CACHE_TTL_SECONDS
+        )
 
         
         # 7. Log Generation Analytics

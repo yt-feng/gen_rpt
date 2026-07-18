@@ -902,6 +902,31 @@ class GenerationService:
 
         for job, doc in pending_jobs:
             try:
+                # Refresh job-bound RAG context immediately before dispatch so a
+                # long queue wait cannot turn a grounded job into a silent fallback.
+                from app.core.config import settings
+                if settings.RAG_ENABLED and job.created_by:
+                    from app.services.rag_integration import generation_context_service
+                    rag_meta = (job.audit_metadata or {}).get("rag", {})
+                    collection_ids = [
+                        uuid.UUID(value) for value in rag_meta.get("collection_ids", [])
+                    ] or None
+                    context_package = await generation_context_service.prepare_context(
+                        db=db,
+                        query=job.prompt or job.topic or "",
+                        collection_ids=collection_ids,
+                        user_id=job.created_by,
+                        slug=doc.slug,
+                    )
+                    job.audit_metadata = {
+                        **(job.audit_metadata or {}),
+                        "rag": {
+                            **rag_meta,
+                            "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
+                            "chunk_count": len(context_package.get("validated_chunks", [])),
+                            "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
+                        },
+                    }
                 # Set status to running immediately so they don't get double dispatched
                 job.status = JobStatusType.running
                 await db.commit()

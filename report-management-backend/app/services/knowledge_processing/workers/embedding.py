@@ -89,6 +89,20 @@ async def _call_hf_api(texts: List[str]) -> List[List[float]]:
         batch_vectors = await asyncio.to_thread(_fetch_batch, batch)
         all_vectors.extend(batch_vectors)
 
+    expected_dimension = int(settings.KNOWLEDGE_EMBEDDING_DIMENSION)
+    if len(all_vectors) != len(texts):
+        raise ValueError(
+            f"Embedding response count mismatch: expected {len(texts)}, got {len(all_vectors)}"
+        )
+    for index, vector in enumerate(all_vectors):
+        if len(vector) != expected_dimension:
+            raise ValueError(
+                f"Embedding dimension mismatch at index {index}: "
+                f"expected {expected_dimension}, got {len(vector)}"
+            )
+        if not all(isinstance(value, (int, float)) and math.isfinite(value) for value in vector):
+            raise ValueError(f"Embedding contains a non-finite/non-numeric value at index {index}")
+
     return all_vectors
 
 
@@ -109,7 +123,7 @@ async def generate_chunk_embeddings(
 
     elapsed = time.time() - start_time
     latency = elapsed / len(chunks) if chunks else 0.0
-    dimension = len(all_vectors[0]) if all_vectors else getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384)
+    dimension = int(settings.KNOWLEDGE_EMBEDDING_DIMENSION)
 
     processed_embeddings = []
     for idx, chunk in enumerate(chunks):
@@ -162,4 +176,3 @@ def generate_mock_embedding(text: str, dimension: int = None) -> List[float]:
     if norm > 0.0:
         res = [x / norm for x in res]
     return res
-

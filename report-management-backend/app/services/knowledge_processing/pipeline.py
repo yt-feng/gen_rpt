@@ -46,12 +46,17 @@ class KnowledgeProcessingPipeline:
                             KnowledgeProcessingQueue.priority.desc(),
                             KnowledgeProcessingQueue.created_at.asc()
                         )
+                        .with_for_update(skip_locked=True)
                         .limit(1)
                     )
                     job = result.scalars().first()
                     
                     if job:
                         job_id = job.id
+                        # Claim while the row lock is held. Other Render replicas
+                        # can no longer select the same pending/retry job.
+                        job.status = "running"
+                        await db.commit()
                         logger.info(f"Pipeline picked up job: {job_id} for document: {job.document_id}")
                         
                         # Process the job

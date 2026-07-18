@@ -1,4 +1,5 @@
-from typing import List, Dict, Any
+import hashlib
+from typing import List, Dict, Any, Optional
 
 def estimate_tokens(text: str) -> int:
     """
@@ -52,4 +53,60 @@ def build_retrieval_context(
         "selected_chunks": selected_chunks,
         "estimated_tokens": total_tokens,
         "token_budget": token_budget
+    }
+
+
+def build_validated_context(
+    validated_chunks: List[Dict[str, Any]],
+    document_names: Optional[Dict[str, str]] = None,
+    token_budget: int = 6000,
+    max_chunks: int = 12,
+) -> Dict[str, Any]:
+    """Compile only validated evidence into a compact, token-bounded prompt block."""
+    document_names = document_names or {}
+    selected: List[Dict[str, Any]] = []
+    parts: List[str] = []
+    seen_hashes = set()
+    used_tokens = 0
+
+    for chunk in validated_chunks:
+        if len(selected) >= max_chunks:
+            break
+
+        text = (chunk.get("text") or "").strip()
+        if not text:
+            continue
+        content_hash = hashlib.sha256(" ".join(text.split()).encode("utf-8")).hexdigest()
+        if content_hash in seen_hashes:
+            continue
+
+        document_id = str(chunk.get("document_id", ""))
+        source_name = document_names.get(document_id, "Unknown")
+        header = (
+            f"[Evidence {len(selected) + 1} | {source_name} | "
+            f"chunk={chunk.get('chunk_id')} | confidence={float(chunk.get('confidence', 0.0)):.2f}]\n"
+        )
+        header_tokens = estimate_tokens(header)
+        remaining = token_budget - used_tokens - header_tokens
+        if remaining <= 0:
+            break
+
+        text_tokens = estimate_tokens(text)
+        if text_tokens > remaining:
+            # Use the remaining budget instead of dropping an otherwise useful chunk.
+            text = text[: max(0, remaining * 4)].rsplit(" ", 1)[0].rstrip()
+            text_tokens = estimate_tokens(text)
+        if not text:
+            break
+
+        parts.append(f"{header}{text}")
+        selected.append(chunk)
+        seen_hashes.add(content_hash)
+        used_tokens += header_tokens + text_tokens
+
+    return {
+        "context_string": "\n\n".join(parts),
+        "selected_chunks": selected,
+        "estimated_tokens": used_tokens,
+        "token_budget": token_budget,
     }

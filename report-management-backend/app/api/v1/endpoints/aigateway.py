@@ -25,7 +25,7 @@ class ChatCompletionRequest(BaseModel):
 async def chat_completions(
     req: ChatCompletionRequest,
     db: AsyncSession = Depends(get_db),
-    x_internal_token: Optional[str] = Header(None)
+    x_internal_token: str = Header(...)
 ):
     """
     OpenAI-compatible chat completion endpoint.
@@ -33,7 +33,7 @@ async def chat_completions(
     """
     from app.core.config import settings
     expected = getattr(settings, "INTERNAL_TOKEN", None) or "trusted-worker-secret"
-    if x_internal_token and x_internal_token != expected:
+    if x_internal_token != expected:
         raise HTTPException(status_code=403, detail="Invalid internal token")
 
     try:

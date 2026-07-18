@@ -1,5 +1,8 @@
 import time
 import uuid
+import copy
+import hashlib
+import json
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timezone
 from sqlalchemy import select
@@ -32,18 +35,8 @@ class RetrievalEngineService:
     ) -> Dict[str, Any]:
         start_time = time.time()
         
-        # 1. Cache Lookup
-        cache_key = f"retrieval:{query}:{str(collection_ids)}:{str(filters)}:{token_budget}"
-        cached = await knowledge_cache_service.get(cache_key)
-        if cached:
-            elapsed = int((time.time() - start_time) * 1000)
-            cached["latency_ms"] = elapsed
-            cached["cache_hit"] = True
-            from app.core.metrics import knowledge_retrieval_latency_ms
-            knowledge_retrieval_latency_ms.observe(float(elapsed))
-            return cached
-            
-        # 2. Collection Scope & Authorization checks
+        # 1. Collection scope and authorization always run before cache access,
+        # so permission revocation takes effect immediately.
         col_stmt = select(KnowledgeCollection).filter(KnowledgeCollection.deleted_at.is_(None))
         if user_org_id:
             col_stmt = col_stmt.filter(KnowledgeCollection.organization_id == user_org_id)
@@ -86,12 +79,43 @@ class RetrievalEngineService:
                 "cache_hit": False,
                 "sources": []
             }
+
+        # 2. Tenant-scoped cache lookup after resolving current permissions.
+        cache_signature = {
+            "query": query,
+            "collection_ids": sorted(str(cid) for cid in target_ids),
+            "user_id": str(user_id) if user_id else None,
+            "user_org_id": str(user_org_id) if user_org_id else None,
+            "filters": filters or {},
+            "weights": weights or {},
+            "freshness_policy": freshness_policy,
+            "target_count": target_count,
+            "token_budget": token_budget,
+        }
+        cache_digest = hashlib.sha256(
+            json.dumps(cache_signature, sort_keys=True, default=str).encode("utf-8")
+        ).hexdigest()
+        cache_key = f"retrieval:{cache_digest}"
+        cached = await knowledge_cache_service.get(cache_key)
+        if cached:
+            cached = copy.deepcopy(cached)
+            elapsed = int((time.time() - start_time) * 1000)
+            cached["latency_ms"] = elapsed
+            cached["cache_hit"] = True
+            from app.core.metrics import knowledge_retrieval_latency_ms
+            knowledge_retrieval_latency_ms.observe(float(elapsed))
+            return cached
             
         # 3. Retrieve eligible Documents (Isolated by Collections list)
         doc_stmt = select(KnowledgeDocument).filter(
             KnowledgeDocument.deleted_at.is_(None),
-            KnowledgeDocument.collection_id.in_(target_ids)
-        ).options(selectinload(KnowledgeDocument.tags))
+            KnowledgeDocument.collection_id.in_(target_ids),
+            KnowledgeDocument.processing_status == "completed",
+            KnowledgeDocument.validation_status == "validated",
+        ).options(
+            selectinload(KnowledgeDocument.tags),
+            selectinload(KnowledgeDocument.sources),
+        )
         
         doc_res = await db.execute(doc_stmt)
         all_docs = doc_res.scalars().all()
@@ -202,6 +226,7 @@ class RetrievalEngineService:
             # Resolve parent document references
             parent_doc = next((d for d in filtered_docs if d.id == ch.document_id), None)
             
+            primary_source = parent_doc.sources[0] if parent_doc and parent_doc.sources else None
             candidate = {
                 "chunk_id": ch.id,
                 "document_id": ch.document_id,
@@ -211,13 +236,20 @@ class RetrievalEngineService:
                 "created_at": parent_doc.created_at if parent_doc else datetime.now(timezone.utc),
                 "validation_status": parent_doc.validation_status if parent_doc else "pending",
                 "doc_size": parent_doc.size if parent_doc else 500,
-                "source_id": parent_doc.id if parent_doc else None,
+                "source_id": primary_source.id if primary_source else None,
                 "metadata": meta
             }
             chunk_candidates.append(candidate)
+
+        min_relevance = float(settings.RAG_MIN_RELEVANCE_SCORE)
+        chunk_candidates = [
+            candidate for candidate in chunk_candidates
+            if candidate["similarity_score"] >= min_relevance
+        ]
             
         # 6. Decay Ranking & Confidence
         ranked = rank_retrieved_chunks(chunk_candidates, weights=weights, freshness_policy=freshness_policy)
+        ranked = ranked[: min(target_count, settings.RAG_MAX_CHUNKS)]
         
         # 7. Context Budget Compile
         context_pkg = build_retrieval_context(ranked, token_budget=token_budget)
@@ -226,7 +258,7 @@ class RetrievalEngineService:
         snapshot = {
             "knowledge_version": "1.0.0",
             "collections": [str(cid) for cid in target_ids],
-            "documents": [str(d.id) for d in filtered_docs],
+            "documents": sorted({str(c["document_id"]) for c in context_pkg["selected_chunks"]}),
             "chunks": [str(c["chunk_id"]) for c in context_pkg["selected_chunks"]],
             "embedding_version": "1.0.0",
             "validation_version": "1.0.0",
@@ -271,7 +303,11 @@ class RetrievalEngineService:
             "snapshot": snapshot,
             "latency_ms": latency,
             "cache_hit": False,
-            "sources": [{"document_id": str(d.id), "file_name": d.file_name} for d in filtered_docs[:target_count]]
+            "sources": [
+                {"document_id": str(d.id), "file_name": d.file_name}
+                for d in filtered_docs
+                if d.id in {c["document_id"] for c in context_pkg["selected_chunks"]}
+            ]
         }
         
         # Save to cache with standard TTL of 300 seconds

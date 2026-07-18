@@ -214,21 +214,33 @@ class ValidationService:
         )
 
 
-        # 7. Construct Validated Context Package
+        # 7. Construct the enforcement package. Validation is a generation gate,
+        # not only an audit label: rejected evidence must not reach the prompt.
+        unsupported_chunk_ids = {flag["chunk_id"] for flag in unsupported_flags}
+        valid_source_ids = {
+            doc_id
+            for doc_id in document_ids
+            if source_val_map.get(doc_id, {}).get("is_valid", True)
+        }
         validated_chunks_schemas = []
+        rejected_counts = {"source": 0, "duplicate": 0, "conflict": 0, "unsupported": 0}
         for c in chunks_list:
             cid = c["chunk_id"]
             doc_id = c["document_id"]
-            
-            # Map chunk validation status based on duplicates, conflicts, etc.
-            status = "validated"
+
+            if doc_id not in valid_source_ids:
+                rejected_counts["source"] += 1
+                continue
             if dup_flags.get(cid, False):
-                status = "duplicate"
-            elif cid in conflict_map:
-                status = "conflict"
-            elif any(f["chunk_id"] == cid for f in unsupported_flags):
-                status = "flagged"
-                
+                rejected_counts["duplicate"] += 1
+                continue
+            if cid in conflict_map:
+                rejected_counts["conflict"] += 1
+                continue
+            if cid in unsupported_chunk_ids:
+                rejected_counts["unsupported"] += 1
+                continue
+
             validated_chunks_schemas.append(
                 ValidatedChunkSchema(
                     chunk_id=cid,
@@ -238,17 +250,16 @@ class ValidationService:
                     authority=auth_scores.get(doc_id, 1.0),
                     is_duplicate=dup_flags.get(cid, False),
                     conflicts_with=conflict_map.get(cid, []),
-                    validation_status=status,
+                    validation_status="validated",
                     metadata=c["metadata"]
                 )
             )
             
+        contributing_document_ids = {chunk.document_id for chunk in validated_chunks_schemas}
         validated_sources_schemas = []
         for doc_id, doc in doc_map.items():
-            status = "validated"
-            if not source_val_map.get(doc_id, {}).get("is_valid", True):
-                status = "failed"
-                
+            if doc_id not in valid_source_ids or doc_id not in contributing_document_ids:
+                continue
             validated_sources_schemas.append(
                 ValidatedSourceSchema(
                     source_id=doc_id,
@@ -257,7 +268,7 @@ class ValidationService:
                     source_type=source_val_map.get(doc_id, {}).get("source_type", "unknown"),
                     authority_score=auth_scores.get(doc_id, 1.0),
                     freshness_score=fresh_scores.get(doc_id, 1.0),
-                    validation_status=status
+                    validation_status="validated"
                 )
             )
 
@@ -280,7 +291,10 @@ class ValidationService:
             "overall_confidence": conf_results["overall_confidence"],
             "completeness_score": completeness_details["completeness_score"],
             "duplicate_ratio": dup_analysis["duplicate_ratio"],
-            "conflict_count": len(conflicts_list)
+            "conflict_count": len(conflicts_list),
+            "retrieved_chunk_count": len(chunks_list),
+            "validated_chunk_count": len(validated_chunks_schemas),
+            "rejected_chunk_counts": rejected_counts,
         }
 
         return ValidatedContextPackage(
@@ -292,7 +306,11 @@ class ValidationService:
             knowledge_snapshot=session.snapshot_metadata or {},
             validation_report_reference=report_id,
             collection_metadata=collection_metadata,
-            document_references=[{"document_id": str(k), "file_name": v.file_name} for k, v in doc_map.items()],
+            document_references=[
+                {"document_id": str(k), "file_name": v.file_name}
+                for k, v in doc_map.items()
+                if k in contributing_document_ids
+            ],
             context_metadata=context_metadata
         )
 
