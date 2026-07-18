@@ -18,6 +18,11 @@ on:
         required: false
         default: deepseek-chat
         type: string
+      rag_required:
+        description: Fail instead of publishing when validated private evidence is unavailable
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -45,6 +50,7 @@ jobs:
       TOPIC_INPUT: ${{ inputs.topic || '' }}
       SLUG_INPUT: ${{ inputs.slug || '' }}
       MODEL_INPUT: ${{ inputs.model || '' }}
+      RAG_REQUIRED: ${{ inputs.rag_required || false }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -197,3 +203,25 @@ jobs:
           REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"
           REPORT_ID="$(basename "$REPORT_DIR")"
           gh workflow run generate_review_v2.yml -f report_id="$REPORT_ID"
+
+      - name: Report generation failure to backend
+        if: failure()
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            exit 0
+          fi
+
+          curl --fail-with-body -X POST "$BACKEND_URL/api/internal/events/report-failed" \
+               -H "Content-Type: application/json" \
+               -H "x-internal-token: $INTERNAL_TOKEN" \
+               -d '{
+                 "document_id": "${{ inputs.slug }}",
+                 "idempotency_key": "github-actions-failed-${{ github.run_id }}-${{ github.run_attempt }}",
+                 "metadata": {
+                   "error": "Report generation or grounded-quality validation failed",
+                   "run_id": "${{ github.run_id }}"
+                 }
+               }'

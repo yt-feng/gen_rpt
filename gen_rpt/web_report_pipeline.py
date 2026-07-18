@@ -13,8 +13,12 @@ from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
 from .research_quality import ResearchFactPack, build_research_fact_pack
 from .web_evidence import build_evidence_exhibits, build_evidence_ledger, build_storyline_plan, merge_evidence_exhibits
-from .web_fetch import SourceDocument, collect_sources
-from .web_publication_contract import client_visible_internal_hits, publication_contract_prompt
+from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
+from .web_publication_contract import (
+    client_visible_internal_hits,
+    publication_contract_prompt,
+    rag_report_quality_issues,
+)
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
 
@@ -31,10 +35,23 @@ class WebReportPipeline:
         self.language = "zh" if str(language or "").lower().startswith("zh") else "en"
         # Set by build_report when private document context is available
         self.rag_context: str | None = None
+        self.rag_sources: List[SourceDocument] = []
+        self.rag_required = False
 
-    def build_report(self, topic: str, output_dir: Path, rag_context: str | None = None) -> Dict[str, Any]:
+    def build_report(
+        self,
+        topic: str,
+        output_dir: Path,
+        rag_context: str | None = None,
+        rag_sources: List[SourceDocument] | None = None,
+        rag_required: bool = False,
+    ) -> Dict[str, Any]:
         run_start = time.monotonic()
         self.rag_context = rag_context  # Store for use in _plan_research and _synthesize_web_report
+        self.rag_sources = list(rag_sources or [])
+        self.rag_required = bool(rag_required)
+        if self.rag_required and (not self.rag_context or not self.rag_sources):
+            raise RuntimeError("RAG report generation requires both validated context text and structured sources")
         ensure_dir(output_dir)
         assets_dir = output_dir / "assets"
         ensure_dir(assets_dir)
@@ -88,7 +105,10 @@ class WebReportPipeline:
         )
         if search_queries:
             self._log("PHASE source_collection query_plan | " + " || ".join(query[:120] for query in search_queries[:10]))
-        sources = collect_sources(search_queries, per_query=per_query, max_sources=max_sources)
+        public_sources = [] if self.rag_context else collect_sources(search_queries, per_query=per_query, max_sources=max_sources)
+        sources = merge_sources(self.rag_sources, public_sources)
+        if self.rag_required and not any(source.source_type == "internal" for source in sources):
+            raise RuntimeError("Validated RAG sources were lost before evidence generation")
         source_dicts = [source.__dict__ for source in sources]
         domains = sorted({source.domain for source in sources if source.domain})
         self._log(
@@ -129,8 +149,47 @@ class WebReportPipeline:
         self._log("PHASE synthesis started | expected 60-180s")
         try:
             report = self._synthesize_web_report(display_topic, plan, chart_data_needs, sources, fact_pack, evidence_ledger, storyline_plan)
+            if self.rag_context:
+                quality_issues = rag_report_quality_issues(
+                    report,
+                    topic=display_topic,
+                    context_text=self.rag_context,
+                    source_count=len(self.rag_sources),
+                    source_chunks={
+                        str(source.metadata.get("chunk_id")): source.content
+                        for source in self.rag_sources
+                        if source.metadata.get("chunk_id")
+                    },
+                )
+                if quality_issues:
+                    self._log("PHASE synthesis retry | " + " | ".join(quality_issues[:8]))
+                    report = self._synthesize_web_report(
+                        display_topic,
+                        plan,
+                        chart_data_needs,
+                        sources,
+                        fact_pack,
+                        evidence_ledger,
+                        storyline_plan,
+                        quality_corrections=quality_issues,
+                    )
+                    quality_issues = rag_report_quality_issues(
+                        report,
+                        topic=display_topic,
+                        context_text=self.rag_context,
+                        source_count=len(self.rag_sources),
+                        source_chunks={
+                            str(source.metadata.get("chunk_id")): source.content
+                            for source in self.rag_sources
+                            if source.metadata.get("chunk_id")
+                        },
+                    )
+                if quality_issues:
+                    raise RuntimeError("RAG report quality gate failed: " + " | ".join(quality_issues))
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
+            if self.rag_required:
+                raise
             report = self._fallback_report(display_topic, plan, sources, fact_pack, str(exc))
             self._log(f"PHASE synthesis fallback used | reason={str(exc)[:240]!r}")
         self._log(
@@ -195,6 +254,13 @@ class WebReportPipeline:
         (output_dir / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
+        rag_manifest = build_rag_manifest(
+            self.rag_context,
+            self.rag_sources,
+            evidence_ledger,
+            required=self.rag_required,
+        )
+        (output_dir / "rag_manifest.json").write_text(json.dumps(rag_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         self._log(
             "PHASE render_and_write completed "
             f"| elapsed={self._elapsed(phase_start)} | html={html_path} | markdown={markdown_path}"
@@ -210,6 +276,7 @@ class WebReportPipeline:
             "evidence_ledger": evidence_ledger,
             "storyline_plan": storyline_plan,
             "sources": source_dicts,
+            "rag_manifest": rag_manifest,
             "report": report,
             "assets": assets,
             "output_dir": str(output_dir),
@@ -516,9 +583,15 @@ Requirements:
         fact_pack: ResearchFactPack,
         evidence_ledger: List[Dict[str, Any]],
         storyline_plan: Dict[str, Any],
+        quality_corrections: List[str] | None = None,
     ) -> Dict[str, Any]:
         source_blocks = []
-        for idx, source in enumerate(sources[:14], start=1):
+        synthesis_sources = (
+            [source for source in sources if source.source_type != "internal"]
+            if self.rag_context
+            else sources
+        )
+        for idx, source in enumerate(synthesis_sources[:14], start=1):
             source_blocks.append(
                 f"[Source {idx}]\n"
                 f"Title: {source.title}\n"
@@ -530,6 +603,7 @@ Requirements:
             )
         source_text = "\n\n".join(source_blocks) or ("No reliable source text was fetched." if self.language == "en" else "未抓取到可靠资料正文。")
         evidence_text = json.dumps(evidence_ledger[:24], ensure_ascii=False, indent=2)
+        correction_text = "\n".join(f"- {issue}" for issue in quality_corrections or [])
         contract_text = publication_contract_prompt(self.language)
         system = "You are an elite strategy research author. Return one valid JSON object only. No markdown."
         if self.language == "zh":
@@ -647,11 +721,15 @@ CRITICAL RULES (violation = failure):
 1. ONLY use facts, numbers, names, dates, and figures that appear VERBATIM in the PRIVATE DOCUMENT CONTEXT above.
 2. If a value is NOT in the document, write exactly: "Not stated in the provided document."
 3. Do NOT invent salaries, compensation figures, years of experience, job titles, team sizes, budget amounts, or any other quantitative values.
-4. You MAY use public sources to provide industry benchmarks or external comparison, BUT you MUST clearly label them as "External benchmark:" and never present them as document facts.
+4. Public sources may provide clearly labeled non-numeric regulatory context only. Every numeric claim must appear in the private context.
 5. key_takeaways: exactly 3, each grounded in document facts.
-6. sections: 4-6 items. Each section MUST cite specific text from the document. If a section cannot be supported by document text, omit it.
+6. sections: 4-6 substantial items. Each needs a conclusion-first title (never "Section 1"), a decisive lead, 3-6 analytical paragraphs, an evidence list tied to document facts, and a management implication in so_what.
 7. action_steps: 3-5 items based on what the document states, not invented recommendations.
 8. references: only use real URLs present in the supplementary public sources above.
+9. Every section evidence list must include at least one item formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
+
+QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
+{correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.12)
 
@@ -666,7 +744,13 @@ CRITICAL RULES (violation = failure):
         report.setdefault("category", "Deep research" if self.language == "en" else "深度研究")
         report["source_count"] = fact_pack.source_count
         if not report.get("evidence_quality"):
-            if fact_pack.validation_issues:
+            if self.rag_context:
+                internal_count = sum(1 for source in sources if source.source_type == "internal")
+                report["evidence_quality"] = (
+                    f"The report retained {internal_count} validated private-document fragments "
+                    f"and {max(0, fact_pack.source_count - internal_count)} supplementary public sources."
+                )
+            elif fact_pack.validation_issues:
                 report["evidence_quality"] = " ".join(fact_pack.validation_issues[:3])
             else:
                 report["evidence_quality"] = (

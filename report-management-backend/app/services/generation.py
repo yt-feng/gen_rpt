@@ -46,7 +46,8 @@ class GitHubActionsWorker(WorkerInterface):
             "ref": "main",
             "inputs": {
                 "topic": job.topic,
-                "slug": slug
+                "slug": slug,
+                "rag_required": "true",
             }
         }
         
@@ -119,6 +120,7 @@ class GitHubActionsWorker(WorkerInterface):
                 "topic": topic,
                 "slug": slug,
                 "model": model,
+                "rag_required": "true",
             }
         }
 
@@ -506,8 +508,8 @@ def _build_mock_report_entry(
 
         formatted_ai_review = {
             "scores": {
-                "overall_score": raw_scores.get("overall_score", 85),
-                "grade": raw_scores.get("grade", "Silver"),
+                "overall_score": raw_scores.get("overall_score") or 0,
+                "grade": raw_scores.get("grade") or "Pending",
                 "components": components
             },
             "recommendations": {
@@ -526,11 +528,11 @@ def _build_mock_report_entry(
         }
     
     if formatted_ai_review and "scores" in formatted_ai_review:
-        ai_score = formatted_ai_review["scores"].get("overall_score") or 85
-        ai_grade = formatted_ai_review["scores"].get("grade") or "Silver"
+        ai_score = formatted_ai_review["scores"].get("overall_score") or 0
+        ai_grade = formatted_ai_review["scores"].get("grade") or "Pending"
     else:
-        ai_score = review_info.get("overall_score") or 85
-        ai_grade = review_info.get("grade") or "Silver"
+        ai_score = review_info.get("overall_score") or 0
+        ai_grade = review_info.get("grade") or "Pending"
 
     images = []
     try:

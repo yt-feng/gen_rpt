@@ -99,6 +99,45 @@ async def _mark_job_completed_by_slug(db: AsyncSession, slug: str):
     return {"status": "completed", "slug": slug, "job_id": str(job.id) if job else None}
 
 
+async def _mark_job_failed_by_slug(db: AsyncSession, slug: str, error: str):
+    """Release a failed generation job immediately instead of waiting for the R2 poller."""
+    from app.models.workflow import GenerationJob
+    from app.models.document import Document
+    from app.models.enums import JobStatusType
+    from sqlalchemy import select
+    from datetime import datetime, timezone
+    import uuid as _uuid
+
+    doc_result = await db.execute(select(Document).where(Document.slug == slug))
+    doc = doc_result.scalar_one_or_none()
+    if not doc:
+        try:
+            doc = await db.get(Document, _uuid.UUID(slug))
+        except ValueError:
+            pass
+    if not doc:
+        return {"status": "document_not_found", "slug": slug, "job_id": None}
+
+    job_result = await db.execute(
+        select(GenerationJob)
+        .where(GenerationJob.document_id == doc.id)
+        .order_by(GenerationJob.started.desc())
+        .limit(1)
+    )
+    job = job_result.scalar_one_or_none()
+    if job and job.status in (JobStatusType.running, JobStatusType.pending):
+        from app.services.generation import generation_service
+
+        job.status = JobStatusType.failed
+        job.errors = error[:2000]
+        job.completed = datetime.now(timezone.utc)
+        await db.commit()
+        await generation_service.process_bulk_queue(db)
+        logger.info(f"[webhook] Job {job.id} marked failed for slug={slug}")
+
+    return {"status": "failed", "slug": slug, "job_id": str(job.id) if job else None}
+
+
 @router.post("/events/report-generated", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_token)])
 async def handle_report_generated(
     payload: WorkflowEventPayload,
@@ -113,6 +152,19 @@ async def handle_report_generated(
 
     result = await _mark_job_completed_by_slug(db, slug)
     return success_response(data=result, message="Report generation event processed")
+
+
+@router.post("/events/report-failed", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_token)])
+async def handle_report_failed(
+    payload: WorkflowEventPayload,
+    db: AsyncSession = Depends(get_db)
+):
+    """Webhook invoked when generation or grounded-quality validation fails."""
+    slug = payload.document_id
+    error = str((payload.metadata or {}).get("error") or "Report generation workflow failed")
+    logger.warning(f"[webhook] report-failed received for document_id/slug: {slug}")
+    result = await _mark_job_failed_by_slug(db, slug, error)
+    return success_response(data=result, message="Report failure event processed")
 
 
 @router.post("/events/review-generated", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_token)])

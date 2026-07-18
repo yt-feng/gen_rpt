@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from decimal import Decimal, InvalidOperation
 from typing import Any, List, Tuple
 
 
@@ -168,3 +169,107 @@ def is_internal_workbench_exhibit(exhibit: Any) -> bool:
         ]
     )
     return any(re.search(pattern, visible, re.I) for pattern in WORKBENCH_EXHIBIT_PATTERNS)
+
+
+def rag_report_quality_issues(
+    report: Any,
+    *,
+    topic: str,
+    context_text: str,
+    source_count: int,
+    source_chunks: dict[str, str] | None = None,
+) -> List[str]:
+    """Reject structurally valid but empty or ungrounded RAG drafts."""
+    if not isinstance(report, dict):
+        return ["The model did not return a report object."]
+    issues: List[str] = []
+    if source_count < 1:
+        issues.append("No validated private-document sources were retained.")
+
+    title = str(report.get("title") or "").strip()
+    title_key = re.sub(r"\W+", " ", title.lower()).strip()
+    topic_key = re.sub(r"\W+", " ", str(topic or "").lower()).strip()
+    if not title or (topic_key and (title_key.startswith(topic_key[:60]) or topic_key.startswith(title_key[:60]))):
+        issues.append("The title restates the request instead of stating the decision conclusion.")
+
+    takeaways = [str(item).strip() for item in report.get("key_takeaways", []) or [] if str(item).strip()]
+    if len(takeaways) != 3:
+        issues.append("Exactly three substantive key takeaways are required.")
+
+    sections = report.get("sections", []) or []
+    if not isinstance(sections, list) or not 4 <= len(sections) <= 6:
+        issues.append("The report requires four to six substantive sections.")
+        sections = sections if isinstance(sections, list) else []
+    for index, section in enumerate(sections, start=1):
+        if not isinstance(section, dict):
+            issues.append(f"Section {index} is not a structured section object.")
+            continue
+        section_title = str(section.get("title") or section.get("heading") or "").strip()
+        if len(section_title) < 18 or re.fullmatch(r"(?:section|chapter|part)\s*\d*", section_title, re.I):
+            issues.append(f"Section {index} needs a conclusion-first, topic-specific title.")
+        paragraphs = [str(item).strip() for item in section.get("paragraphs", []) or [] if str(item).strip()]
+        if not paragraphs and str(section.get("body") or "").strip():
+            paragraphs = [str(section.get("body")).strip()]
+        lead = str(section.get("lead") or "").strip()
+        if len(paragraphs) < 3 or len(lead) + sum(map(len, paragraphs)) < 450:
+            issues.append(f"Section {index} is too thin; use at least three evidence-led analytical paragraphs.")
+        evidence = [str(item).strip() for item in section.get("evidence", []) or [] if str(item).strip()]
+        if not evidence:
+            issues.append(f"Section {index} has no traceable document evidence.")
+        elif source_chunks:
+            if not any(_evidence_matches_chunk(item, source_chunks) for item in evidence):
+                issues.append(
+                    f"Section {index} evidence must cite a retrieved chunk and quote its supporting text exactly."
+                )
+
+    report_numbers = _number_tokens(_rag_reader_text(report))
+    unsupported_numbers = sorted(report_numbers - _number_tokens(context_text))
+    if unsupported_numbers:
+        issues.append(
+            "Numeric claims not found in the validated private context: "
+            + ", ".join(unsupported_numbers[:8])
+        )
+    return issues
+
+
+def _evidence_matches_chunk(evidence: str, source_chunks: dict[str, str]) -> bool:
+    chunk_match = re.search(r"\[Chunk:\s*([^\]|]+)(?:\s*\|[^\]]*)?\]", evidence, re.I)
+    if not chunk_match:
+        return False
+    chunk_text = source_chunks.get(chunk_match.group(1).strip())
+    if not chunk_text:
+        return False
+    normalized_chunk = _normalized_words(chunk_text)
+    for quote in re.findall(r'["“]([^"”]{20,})["”]', evidence):
+        if _normalized_words(quote) in normalized_chunk:
+            return True
+    return False
+
+
+def _normalized_words(value: Any) -> str:
+    return " ".join(re.findall(r"\w+", str(value or "").lower()))
+
+
+def _rag_reader_text(report: dict) -> str:
+    parts = [str(report.get(key) or "") for key in ("title", "dek")]
+    parts.extend(str(item) for key in ("intro", "key_takeaways") for item in report.get(key, []) or [])
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        parts.extend(str(section.get(key) or "") for key in ("title", "heading", "lead", "body", "so_what"))
+        parts.extend(str(item) for key in ("paragraphs", "evidence") for item in section.get(key, []) or [])
+    return "\n".join(parts)
+
+
+def _number_tokens(text: Any) -> set[str]:
+    values = set()
+    claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
+    for token in re.findall(r"(?<![\w])-?\s*[$€£]?\s*\d[\d,]*(?:\.\d+)?\s*%?", claim_text):
+        match = re.search(r"-?\d[\d,]*(?:\.\d+)?", token)
+        if not match:
+            continue
+        try:
+            values.add(str(Decimal(match.group(0).replace(",", "")).normalize()))
+        except InvalidOperation:
+            continue
+    return values

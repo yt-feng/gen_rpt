@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 import re
 import time
-from dataclasses import dataclass
-from typing import List
+from dataclasses import dataclass, field
+from typing import Any, Dict, List
 from urllib.parse import parse_qs, quote, unquote, urlparse
 
 import fitz
@@ -37,6 +37,8 @@ class SourceDocument:
     source_type: str = "html"
     content_type: str = ""
     domain: str = ""
+    confidence: float | None = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -175,46 +177,111 @@ def fetch_page_text(url: str, max_chars: int = 7000) -> str:
     return fetch_page(url, max_chars=max_chars).content
 
 
-def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8) -> List[SourceDocument]:
-    backend_url = os.getenv("BACKEND_URL")
-    slug = os.getenv("SLUG_INPUT") or os.getenv("SLUG")
-    if backend_url and slug:
-        token = os.getenv("INTERNAL_TOKEN") or "trusted-worker-secret"
-        url = f"{backend_url.rstrip('/')}/api/v1/generation/{slug}/context"
-        headers = {"x-internal-token": token}
-        _log(f"RAG: fetching pre-validated context from backend at {url}")
+def sources_from_validated_context(payload: Dict[str, Any], query: str) -> List[SourceDocument]:
+    """Convert the backend's validated chunks into traceable report sources."""
+    document_names = {
+        str(reference.get("document_id") or ""): str(reference.get("file_name") or "").strip()
+        for reference in payload.get("document_references", []) or []
+        if isinstance(reference, dict)
+    }
+    sources: List[SourceDocument] = []
+    seen_chunk_ids = set()
+    for chunk in payload.get("validated_chunks", []) or []:
+        if not isinstance(chunk, dict):
+            continue
+        chunk_id = str(chunk.get("chunk_id") or "").strip()
+        document_id = str(chunk.get("document_id") or "").strip()
+        text = str(chunk.get("text") or "").strip()
+        if not chunk_id or not document_id or not text or chunk_id in seen_chunk_ids:
+            continue
+        seen_chunk_ids.add(chunk_id)
+        chunk_metadata = chunk.get("metadata") if isinstance(chunk.get("metadata"), dict) else {}
+        file_name = (
+            document_names.get(document_id)
+            or str(chunk_metadata.get("file_name") or "").strip()
+            or str(chunk.get("file_name") or chunk.get("document_title") or "").strip()
+            or "Internal Document"
+        )
+        confidence_value = chunk.get("confidence")
         try:
-            resp = requests.get(url, headers=headers, timeout=30)
-            if resp.status_code == 200:
-                payload = resp.json().get("data", {})
-                chunks = payload.get("validated_chunks", [])
-                _log(f"RAG: successfully retrieved {len(chunks)} pre-validated chunks from backend")
-                out_docs = []
-                for ch in chunks:
-                    chunk_id = ch.get("chunk_id", "")
-                    doc_id = ch.get("document_id", "")
-                    text = ch.get("text", "")
-                    meta = ch.get("metadata", {})
-                    file_name = meta.get("file_name") or ch.get("file_name") or "Internal Document"
-                    
-                    out_docs.append(
-                        SourceDocument(
-                            title=f"{file_name} (Fragment {chunk_id[:8]})",
-                            url=f"internal://documents/{doc_id}#chunk={chunk_id}",
-                            query=queries[0] if queries else "Enterprise Query",
-                            snippet=text[:300],
-                            content=text,
-                            source_type="internal",
-                            content_type="text/plain",
-                            domain="internal.enterprise",
-                        )
-                    )
-                if out_docs:
-                    return out_docs
-            else:
-                _log(f"RAG: backend context retrieval returned HTTP {resp.status_code}, falling back to web search")
-        except Exception as e:
-            _log(f"RAG: failed to fetch context from backend ({e}), falling back to web search")
+            confidence = float(confidence_value) if confidence_value is not None else None
+        except (TypeError, ValueError):
+            confidence = None
+        sources.append(
+            SourceDocument(
+                title=f"{file_name} (Fragment {chunk_id[:8]})",
+                url=f"internal://documents/{document_id}#chunk={chunk_id}",
+                query=query or "Enterprise Query",
+                snippet=text[:300],
+                content=text,
+                source_type="internal",
+                content_type="text/plain",
+                domain="internal.enterprise",
+                confidence=confidence,
+                metadata={
+                    **chunk_metadata,
+                    "chunk_id": chunk_id,
+                    "document_id": document_id,
+                    "file_name": file_name,
+                    "authority": chunk.get("authority"),
+                    "validation_status": chunk.get("validation_status"),
+                    "conflicts_with": chunk.get("conflicts_with") or [],
+                },
+            )
+        )
+    return sources
+
+
+def merge_sources(
+    internal_sources: List[SourceDocument], public_sources: List[SourceDocument]
+) -> List[SourceDocument]:
+    merged: List[SourceDocument] = []
+    seen = set()
+    for source in [*internal_sources, *public_sources]:
+        key = source.url or f"{source.title}\n{source.content[:240]}"
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(source)
+    return merged
+
+
+def build_rag_manifest(
+    context_text: str | None,
+    rag_sources: List[SourceDocument],
+    evidence_ledger: List[Dict[str, Any]],
+    *,
+    required: bool,
+) -> Dict[str, Any]:
+    chunk_ids = [
+        str(source.metadata.get("chunk_id") or "")
+        for source in rag_sources
+        if source.metadata.get("chunk_id")
+    ]
+    document_ids = sorted(
+        {
+            str(source.metadata.get("document_id") or "")
+            for source in rag_sources
+            if source.metadata.get("document_id")
+        }
+    )
+    internal_urls = {source.url for source in rag_sources}
+    evidence_points = sum(
+        1 for item in evidence_ledger if str(item.get("source_url") or "") in internal_urls
+    )
+    return {
+        "status": "active" if rag_sources else "off",
+        "required": bool(required),
+        "context_characters": len(context_text or ""),
+        "validated_chunk_count": len(chunk_ids),
+        "document_count": len(document_ids),
+        "chunk_ids": chunk_ids,
+        "document_ids": document_ids,
+        "internal_evidence_points": evidence_points,
+    }
+
+
+def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8) -> List[SourceDocument]:
 
     docs: List[SourceDocument] = []
     seen = set()

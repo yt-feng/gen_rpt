@@ -3,12 +3,13 @@ from __future__ import annotations
 import argparse
 import os
 import re
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from .deepseek_client import DeepSeekClient
-from .web_report_pipeline import WebReportPipeline
+from .web_fetch import SourceDocument, sources_from_validated_context
 
 
 def slugify(text: str) -> str:
@@ -28,50 +29,75 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def _fetch_rag_context(slug: str, backend_url: str, internal_token: str) -> Optional[str]:
+class RAGBridgeError(RuntimeError):
+    pass
+
+
+@dataclass
+class RAGContextPackage:
+    context_text: str
+    sources: List[SourceDocument]
+    document_count: int
+    metadata: Dict[str, Any]
+
+
+def _fetch_rag_context(slug: str, backend_url: str, internal_token: str, topic: str = "") -> Optional[RAGContextPackage]:
     """
     Fetches private document context from the backend RAG bridge.
-    Returns the pre-formatted context_text string if documents exist, else None.
+    Returns context text and the same validated chunks as structured sources.
     """
     import requests
     url = f"{backend_url.rstrip('/')}/api/internal/context/{slug}"
     headers = {"Authorization": f"Bearer {internal_token}"}
+    print(f"[RAG Bridge] Fetching context for slug '{slug}' from backend...")
     try:
-        print(f"[RAG Bridge] Fetching context for slug '{slug}' from backend...")
         resp = requests.get(url, headers=headers, timeout=15)
-        if resp.status_code == 200:
-            data = resp.json().get("data", {})
-            has_rag = data.get("has_rag_context", False)
-            context_text = data.get("context_text", "")
-            doc_count = data.get("document_count", 0)
-            chunks = data.get("validated_chunks", [])
+        resp.raise_for_status()
+        response_payload = resp.json()
+    except Exception as exc:
+        raise RAGBridgeError(f"Failed to retrieve validated context for slug '{slug}': {exc}") from exc
 
-            if has_rag and context_text:
-                print(f"[RAG Bridge] Active. Found {len(chunks)} chunks from {doc_count} document(s). Switching to RAG-grounded mode.")
-                return context_text
-            elif chunks and not context_text:
-                # Fallback: build context_text manually from chunks (older backend versions)
-                context_parts = []
-                for c in chunks:
-                    chunk_id = c.get("chunk_id", "")
-                    conf = c.get("confidence", 0)
-                    text = c.get("text", "")
-                    context_parts.append(f"[Chunk {chunk_id}] (Confidence: {conf:.2f})\n{text}")
-                fallback_text = "\n\n".join(context_parts)
-                print(f"[RAG Bridge] Active (legacy). Loaded {len(chunks)} chunks. Switching to RAG-grounded mode.")
-                return fallback_text
-            else:
-                print(f"[RAG Bridge] No private document context found for slug '{slug}'. Using standard research mode.")
-                return None
-        else:
-            print(f"[RAG Bridge] Backend returned status {resp.status_code}. Using standard research mode.")
-            return None
-    except Exception as e:
-        print(f"[RAG Bridge] Failed to retrieve context: {e}. Using standard research mode.")
+    data = response_payload.get("data", {}) if isinstance(response_payload, dict) else {}
+    if not isinstance(data, dict):
+        raise RAGBridgeError(f"Backend returned an invalid context package for slug '{slug}'")
+    chunks = data.get("validated_chunks", []) or []
+    if not chunks:
+        print(f"[RAG Bridge] No private document context found for slug '{slug}'.")
         return None
+
+    sources = sources_from_validated_context(data, topic)
+    context_text = "\n\n".join(
+        f"[Chunk: {source.metadata['chunk_id']} | Document: {source.metadata['file_name']}]\n{source.content}"
+        for source in sources
+    )
+    if not context_text or not sources:
+        raise RAGBridgeError(
+            f"Context package for slug '{slug}' contained chunks but no usable text-backed sources"
+        )
+    document_count = int(data.get("document_count") or len({source.metadata.get("document_id") for source in sources}))
+    print(
+        f"[RAG Bridge] Active. Preserved {len(sources)} validated chunks "
+        f"from {document_count} document(s)."
+    )
+    return RAGContextPackage(
+        context_text=context_text,
+        sources=sources,
+        document_count=document_count,
+        metadata={
+            "validation_report_reference": data.get("validation_report_reference"),
+            "context_metadata": data.get("context_metadata") or {},
+            "knowledge_snapshot": data.get("knowledge_snapshot") or {},
+        },
+    )
+
+
+def _env_flag(name: str) -> bool:
+    return str(os.getenv(name) or "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def main() -> None:
+    from .web_report_pipeline import WebReportPipeline
+
     args = parse_args()
     language = "zh" if str(args.language).lower().startswith("zh") else "en"
     client = DeepSeekClient(model=args.model)
@@ -84,13 +110,29 @@ def main() -> None:
     # --- PHASE 0: RAG CONTEXT BRIDGE (runs BEFORE the pipeline) ---
     # Fetch private document context early so planning, evidence, and synthesis
     # are all grounded in the real document facts — not invented public benchmarks.
-    rag_context: Optional[str] = None
+    rag_package: Optional[RAGContextPackage] = None
+    rag_required = _env_flag("RAG_REQUIRED")
     backend_url = os.getenv("BACKEND_URL")
     internal_token = os.getenv("INTERNAL_TOKEN")
+    if rag_required and (not backend_url or not internal_token):
+        raise RAGBridgeError("RAG_REQUIRED is enabled but BACKEND_URL or INTERNAL_TOKEN is missing")
     if backend_url and internal_token:
-        rag_context = _fetch_rag_context(slug, backend_url, internal_token)
+        try:
+            rag_package = _fetch_rag_context(slug, backend_url, internal_token, args.topic)
+        except RAGBridgeError:
+            if rag_required:
+                raise
+            print("[RAG Bridge] Retrieval failed for an optional RAG run; continuing in public-research mode.")
+    if rag_required and rag_package is None:
+        raise RAGBridgeError(f"RAG_REQUIRED is enabled but no validated context exists for slug '{slug}'")
 
-    result = pipeline.build_report(topic=args.topic, output_dir=output_dir, rag_context=rag_context)
+    result = pipeline.build_report(
+        topic=args.topic,
+        output_dir=output_dir,
+        rag_context=rag_package.context_text if rag_package else None,
+        rag_sources=rag_package.sources if rag_package else None,
+        rag_required=rag_required,
+    )
     print(f"HTML web report generated at: {result['html_path']}")
     print(f"Markdown generated at: {result['markdown_path']}")
     print(f"Payload generated at: {output_dir / 'web_report_payload.json'}")
@@ -107,7 +149,9 @@ def main() -> None:
             f.write("## HTML-first deep research report generated\n")
             f.write(f"- Topic: {args.topic}\n")
             f.write(f"- Language: {language}\n")
-            f.write(f"- RAG mode: {'ACTIVE (document-grounded)' if rag_context else 'OFF (public research only)'}\n")
+            f.write(f"- RAG mode: {'ACTIVE (document-grounded)' if rag_package else 'OFF (public research only)'}\n")
+            if rag_package:
+                f.write(f"- RAG evidence: {len(rag_package.sources)} validated chunks from {rag_package.document_count} documents\n")
             f.write(f"- HTML: `{result['html_path']}`\n")
             f.write(f"- Markdown: `{result['markdown_path']}`\n")
             f.write(f"- Payload: `{output_dir / 'web_report_payload.json'}`\n")
