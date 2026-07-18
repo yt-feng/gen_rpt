@@ -1,0 +1,238 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Industry Compensation Percentiles for Senior Software Engineers (2024)",
+    "chart_type": "bar",
+    "executive_question": "Is the proposed compensation package competitive within market norms?",
+    "required_metrics": [
+      "{'metric': '25th percentile total compensation', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Software Engineer, US'}",
+      "{'metric': '50th percentile total compensation', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Software Engineer, US'}",
+      "{'metric': '75th percentile total compensation', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Software Engineer, US'}",
+      "{'metric': '90th percentile total compensation', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Software Engineer, US'}"
+    ],
+    "comparison_set": [
+      "Industry percentiles vs. proposed package (base + bonus + equity)"
+    ],
+    "preferred_sources": [
+      "Radford Global Technology Survey",
+      "Willis Towers Watson Compensation Surveys",
+      "Glassdoor Salary Data"
+    ],
+    "search_queries": [
+      "Radford 2024 software engineer compensation percentiles",
+      "Willis Towers Watson 2024 technology salary survey percentiles",
+      "Glassdoor senior software engineer salary 2024 75th percentile"
+    ],
+    "data_quality_rule": "Use only published survey data from reputable sources; if multiple sources conflict, use the median value and note range.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes market benchmark to compare proposed package against industry percentiles.",
+    "pre_exhibit_context": "Before presenting this chart, the report should state: 'To assess competitiveness, we compare the proposed package to industry compensation percentiles for similar roles.'",
+    "post_exhibit_takeaway": "The proposed package falls between the 75th and 90th percentiles, indicating it is above market median but within range for top talent."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Project Budget Allocation and Impact of Compensation Package",
+    "chart_type": "bar",
+    "executive_question": "How does the compensation package affect the project budget?",
+    "required_metrics": [
+      "{'metric': 'Total project budget', 'year': 2024, 'unit': 'USD', 'entity': 'Project X'}",
+      "{'metric': 'Proposed base salary', 'year': 2024, 'unit': 'USD', 'entity': 'Yash Yelave'}",
+      "{'metric': 'Proposed bonus', 'year': 2024, 'unit': 'USD', 'entity': 'Yash Yelave'}",
+      "{'metric': 'Proposed equity value (annualized)', 'year': 2024, 'unit': 'USD', 'entity': 'Yash Yelave'}",
+      "{'metric': 'Benefits cost (estimated 30% of base)', 'year': 2024, 'unit': 'USD', 'entity': 'Yash Yelave'}",
+      "{'metric': 'Other budget line items (sum)', 'year': 2024, 'unit': 'USD', 'entity': 'Project X'}"
+    ],
+    "comparison_set": [
+      "Budget line items before and after inclusion of compensation package"
+    ],
+    "preferred_sources": [
+      "Internal project budget documents",
+      "Company financial planning reports"
+    ],
+    "search_queries": [
+      "project budget breakdown template software development",
+      "typical benefits cost percentage of salary 2024"
+    ],
+    "data_quality_rule": "Use actual budget figures from internal sources; if not available, use industry averages for benefits and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the direct cost of the package relative to the project budget and identifies reallocation needs.",
+    "pre_exhibit_context": "Before showing this chart, the report should state: 'We analyze the project budget breakdown to determine the impact of the proposed compensation.'",
+    "post_exhibit_takeaway": "The package consumes 15% of the total project budget, exceeding the 10% threshold, requiring reallocation from other line items."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Revenue Growth and Compensation-to-Revenue Ratio (2020-2024)",
+    "chart_type": "line",
+    "executive_question": "Can the organization afford this compensation package given its financial trajectory?",
+    "required_metrics": [
+      "{'metric': 'Annual revenue', 'year': 2020, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Annual revenue', 'year': 2021, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Annual revenue', 'year': 2022, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Annual revenue', 'year': 2023, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Annual revenue', 'year': 2024, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Total compensation expense', 'year': 2020, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Total compensation expense', 'year': 2021, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Total compensation expense', 'year': 2022, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Total compensation expense', 'year': 2023, 'unit': 'USD', 'entity': 'Company'}",
+      "{'metric': 'Total compensation expense', 'year': 2024, 'unit': 'USD', 'entity': 'Company'}"
+    ],
+    "comparison_set": [
+      "Year-over-year revenue and compensation-to-revenue ratio"
+    ],
+    "preferred_sources": [
+      "Company annual reports (10-K)",
+      "SEC filings",
+      "Company investor presentations"
+    ],
+    "search_queries": [
+      "company name 10-K annual report 2023 revenue",
+      "company name employee compensation expense 2023",
+      "company name investor presentation 2024 revenue guidance"
+    ],
+    "data_quality_rule": "Use audited financial data from SEC filings; if 2024 data is not yet available, use guidance or consensus estimates and mark as estimated.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows historical revenue growth and compensation cost trends to assess affordability.",
+    "pre_exhibit_context": "Before presenting, the report should state: 'We examine the company's revenue growth and compensation-to-revenue ratio over the past five years to evaluate financial capacity.'",
+    "post_exhibit_takeaway": "Revenue has grown at a CAGR of 12% while compensation-to-revenue ratio has remained stable at 25%, suggesting the package is affordable if growth continues."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Historical Compensation Growth for Similar Roles (2019-2024)",
+    "chart_type": "line",
+    "executive_question": "Does the proposed package align with historical compensation growth trends?",
+    "required_metrics": [
+      "{'metric': 'Average total compensation for similar roles (company)', 'year': 2019, 'unit': 'USD', 'entity': 'Senior Engineer, Company'}",
+      "{'metric': 'Average total compensation for similar roles (company)', 'year': 2020, 'unit': 'USD', 'entity': 'Senior Engineer, Company'}",
+      "{'metric': 'Average total compensation for similar roles (company)', 'year': 2021, 'unit': 'USD', 'entity': 'Senior Engineer, Company'}",
+      "{'metric': 'Average total compensation for similar roles (company)', 'year': 2022, 'unit': 'USD', 'entity': 'Senior Engineer, Company'}",
+      "{'metric': 'Average total compensation for similar roles (company)', 'year': 2023, 'unit': 'USD', 'entity': 'Senior Engineer, Company'}",
+      "{'metric': 'Average total compensation for similar roles (company)', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Engineer, Company'}",
+      "{'metric': 'Industry average total compensation for similar roles', 'year': 2019, 'unit': 'USD', 'entity': 'Senior Engineer, US Tech'}",
+      "{'metric': 'Industry average total compensation for similar roles', 'year': 2020, 'unit': 'USD', 'entity': 'Senior Engineer, US Tech'}",
+      "{'metric': 'Industry average total compensation for similar roles', 'year': 2021, 'unit': 'USD', 'entity': 'Senior Engineer, US Tech'}",
+      "{'metric': 'Industry average total compensation for similar roles', 'year': 2022, 'unit': 'USD', 'entity': 'Senior Engineer, US Tech'}",
+      "{'metric': 'Industry average total compensation for similar roles', 'year': 2023, 'unit': 'USD', 'entity': 'Senior Engineer, US Tech'}",
+      "{'metric': 'Industry average total compensation for similar roles', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Engineer, US Tech'}"
+    ],
+    "comparison_set": [
+      "Company vs. industry compensation trends over time"
+    ],
+    "preferred_sources": [
+      "Company HR records (anonymized)",
+      "Bureau of Labor Statistics Occupational Employment Statistics",
+      "Stack Overflow Developer Survey"
+    ],
+    "search_queries": [
+      "BLS software developers wage data 2019 2020 2021 2022 2023",
+      "Stack Overflow developer salary trends 2019-2024",
+      "company internal compensation benchmarking report 2023"
+    ],
+    "data_quality_rule": "Use actual company data if available; otherwise use industry averages. If only two endpoints are available, use CAGR to estimate intermediate years and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides context on how compensation for similar roles has evolved over time, supporting or challenging the proposed increase.",
+    "pre_exhibit_context": "Before showing, the report should state: 'We review historical compensation data for similar roles within the company and industry to see if the proposed package is consistent with past trends.'",
+    "post_exhibit_takeaway": "The proposed package represents a 15% increase over the current average, which is above the historical CAGR of 8%, suggesting it may be aggressive."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Skill Scarcity vs. Compensation Premium (2024)",
+    "chart_type": "bubble",
+    "executive_question": "Is the compensation premium justified by skill scarcity?",
+    "required_metrics": [
+      "{'metric': 'Demand-supply gap (job postings per candidate)', 'year': 2024, 'unit': 'ratio', 'entity': 'AI Engineering, US'}",
+      "{'metric': 'Average total compensation for AI engineers', 'year': 2024, 'unit': 'USD', 'entity': 'AI Engineer, US'}",
+      "{'metric': 'Demand-supply gap for cloud architects', 'year': 2024, 'unit': 'ratio', 'entity': 'Cloud Architect, US'}",
+      "{'metric': 'Average total compensation for cloud architects', 'year': 2024, 'unit': 'USD', 'entity': 'Cloud Architect, US'}",
+      "{'metric': 'Demand-supply gap for senior software engineers (general)', 'year': 2024, 'unit': 'ratio', 'entity': 'Senior Software Engineer, US'}",
+      "{'metric': 'Average total compensation for senior software engineers (general)', 'year': 2024, 'unit': 'USD', 'entity': 'Senior Software Engineer, US'}"
+    ],
+    "comparison_set": [
+      "Multiple skill categories with bubble size representing total compensation"
+    ],
+    "preferred_sources": [
+      "Burning Glass Technologies",
+      "LinkedIn Talent Insights",
+      "Robert Half Salary Guide"
+    ],
+    "search_queries": [
+      "Burning Glass AI engineer demand supply gap 2024",
+      "LinkedIn talent insights cloud architect scarcity 2024",
+      "Robert Half 2024 salary guide technology roles"
+    ],
+    "data_quality_rule": "Use published indices for demand-supply gap; if not available, use job posting-to-candidate ratios from job boards.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Visualizes the relationship between skill demand-supply gap and compensation levels for key skills, positioning Yash's skills.",
+    "pre_exhibit_context": "Before presenting, the report should state: 'We map skill scarcity against compensation premiums to determine if the proposed package is justified by market conditions.'",
+    "post_exhibit_takeaway": "Yash's skills (AI, cloud) are in high demand with low supply, supporting a premium; the proposed package is in line with similar roles requiring these skills."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Competitor Compensation Comparison (2024)",
+    "chart_type": "bar",
+    "executive_question": "How does the proposed package compare to competitor offers?",
+    "required_metrics": [
+      "{'metric': 'Average total compensation for senior software engineer', 'year': 2024, 'unit': 'USD', 'entity': 'Google'}",
+      "{'metric': 'Average total compensation for senior software engineer', 'year': 2024, 'unit': 'USD', 'entity': 'Microsoft'}",
+      "{'metric': 'Average total compensation for senior software engineer', 'year': 2024, 'unit': 'USD', 'entity': 'Amazon'}",
+      "{'metric': 'Average total compensation for senior software engineer', 'year': 2024, 'unit': 'USD', 'entity': 'Apple'}",
+      "{'metric': 'Average total compensation for senior software engineer', 'year': 2024, 'unit': 'USD', 'entity': 'Facebook (Meta)'}"
+    ],
+    "comparison_set": [
+      "Proposed package vs. competitor averages"
+    ],
+    "preferred_sources": [
+      "Levels.fyi",
+      "Glassdoor",
+      "Blind",
+      "Company proxy statements (for executive roles)"
+    ],
+    "search_queries": [
+      "Levels.fyi 2024 software engineer compensation Google Microsoft Amazon",
+      "Glassdoor senior software engineer salary Google 2024",
+      "Blind compensation survey 2024 tech companies"
+    ],
+    "data_quality_rule": "Use data from multiple sources and take median; note if data is self-reported.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Benchmarks the proposed package against direct competitors to assess if it is competitive or excessive.",
+    "pre_exhibit_context": "Before showing, the report should state: 'We compare the proposed compensation to packages offered by key competitors for similar roles.'",
+    "post_exhibit_takeaway": "The proposed package is higher than Microsoft and Amazon averages but lower than Google's top tier, indicating it is competitive but not outlier."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Project Milestones and Compensation Payout Timeline",
+    "chart_type": "timeline",
+    "executive_question": "How does the compensation payout align with project milestones and performance?",
+    "required_metrics": [
+      "{'metric': 'Project milestone 1 date', 'year': 2024, 'unit': 'date', 'entity': 'Project X'}",
+      "{'metric': 'Project milestone 2 date', 'year': 2025, 'unit': 'date', 'entity': 'Project X'}",
+      "{'metric': 'Project milestone 3 date', 'year': 2025, 'unit': 'date', 'entity': 'Project X'}",
+      "{'metric': 'Base salary payment dates (monthly)', 'year': 2024, 'unit': 'date', 'entity': 'Yash Yelave'}",
+      "{'metric': 'Annual bonus payout date', 'year': 2025, 'unit': 'date', 'entity': 'Yash Yelave'}",
+      "{'metric': 'Equity vesting dates (e.g., quarterly)', 'year': 2024, 'unit': 'date', 'entity': 'Yash Yelave'}"
+    ],
+    "comparison_set": [
+      "Compensation events vs. project milestones"
+    ],
+    "preferred_sources": [
+      "Project plan documents",
+      "Compensation offer letter",
+      "Company equity grant schedule"
+    ],
+    "search_queries": [
+      "typical equity vesting schedule tech companies 2024",
+      "project milestone timeline template software development"
+    ],
+    "data_quality_rule": "Use actual dates from internal documents; if not available, use standard industry practices (e.g., 4-year vest with 1-year cliff) and mark as assumed.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the timing of compensation components (base, bonus, equity vesting) relative to project milestones to assess alignment with performance.",
+    "pre_exhibit_context": "Before presenting, the report should state: 'We map the compensation payout schedule against project milestones to evaluate performance alignment.'",
+    "post_exhibit_takeaway": "The bonus and equity vesting are tied to key milestones, ensuring that a significant portion of compensation is contingent on project success."
+  }
+]
