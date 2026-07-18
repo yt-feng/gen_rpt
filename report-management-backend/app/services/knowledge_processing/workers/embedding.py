@@ -25,7 +25,11 @@ def _require_hf_token() -> str:
     return token.strip()
 
 
-async def _call_hf_api(texts: List[str]) -> List[List[float]]:
+async def _call_hf_api(
+    texts: List[str],
+    request_timeout: float = 90.0,
+    retry_count: int | None = None,
+) -> List[List[float]]:
     """
     Call the Hugging Face Inference API for feature-extraction.
     Handles 503 model-loading retries automatically.
@@ -41,7 +45,7 @@ async def _call_hf_api(texts: List[str]) -> List[List[float]]:
         "Content-Type": "application/json",
     }
     batch_size = 64
-    retries = getattr(settings, "KNOWLEDGE_RETRY_COUNT", 3)
+    retries = retry_count if retry_count is not None else getattr(settings, "KNOWLEDGE_RETRY_COUNT", 3)
     all_vectors: List[List[float]] = []
 
     def _fetch_batch(batch_texts: List[str]) -> List[List[float]]:
@@ -55,7 +59,7 @@ async def _call_hf_api(texts: List[str]) -> List[List[float]]:
         delay = 2.0
         for attempt in range(retries):
             try:
-                with urllib.request.urlopen(req, timeout=90.0) as response:
+                with urllib.request.urlopen(req, timeout=request_timeout) as response:
                     resp_data = response.read().decode('utf-8')
                     batch_vectors = json.loads(resp_data)
                     if batch_vectors and isinstance(batch_vectors, list) and isinstance(batch_vectors[0], list):
@@ -155,7 +159,10 @@ async def generate_query_embedding(
     Requires HF_API_TOKEN environment variable.
     """
     logger.info(f"Generating query embedding via HF Inference API ({HF_MODEL})")
-    vectors = await _call_hf_api([query])
+    # Interactive generation must reach its lexical fallback before the
+    # frontend/Render request deadline. Long retries remain enabled for
+    # background document ingestion only.
+    vectors = await _call_hf_api([query], request_timeout=8.0, retry_count=1)
     return vectors[0]
 
 

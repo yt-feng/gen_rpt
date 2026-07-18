@@ -1,3 +1,4 @@
+import os
 import socket
 old_getaddrinfo = socket.getaddrinfo
 def new_getaddrinfo(*args, **kwargs):
@@ -402,6 +403,7 @@ async def health_check():
     return {
         "status": overall_status,
         "environment": settings.APP_ENV,
+        "revision": os.getenv("RENDER_GIT_COMMIT", "unknown")[:7],
         "database": {
             "status": db_status,
             "error": error_msg

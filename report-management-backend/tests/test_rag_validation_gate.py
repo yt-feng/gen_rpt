@@ -8,6 +8,7 @@ from app.services.validation.source import SourceValidationService
 from app.services.validation.conflict import ConflictService
 from app.services.retrieval_similarity import calculate_keyword_score
 from app.core.exceptions import _cors_headers
+from app.services.knowledge_processing.workers import embedding as embedding_worker
 
 
 def _query_result(*documents):
@@ -112,3 +113,17 @@ def test_error_responses_preserve_configured_frontend_cors():
 
     assert headers["Access-Control-Allow-Origin"] == request.headers["origin"]
     assert headers["Access-Control-Allow-Credentials"] == "true"
+
+
+@pytest.mark.asyncio
+async def test_query_embedding_uses_short_single_attempt(monkeypatch):
+    captured = {}
+
+    async def fake_call(texts, request_timeout=90.0, retry_count=None):
+        captured.update(timeout=request_timeout, retries=retry_count)
+        return [[0.1, 0.2]]
+
+    monkeypatch.setattr(embedding_worker, "_call_hf_api", fake_call)
+
+    assert await embedding_worker.generate_query_embedding("SkyNet") == [0.1, 0.2]
+    assert captured == {"timeout": 8.0, "retries": 1}
