@@ -30,7 +30,7 @@ services:
       - key: SUPABASE_SERVICE_ROLE_KEY
         sync: false
       - key: CORS_ORIGINS
-        value: "https://your-frontend-domain.pages.dev"
+        value: "http://localhost:5173,https://gen-rpt-review-frontend.pages.dev"
       # AI APIs — set values in Render dashboard
       - key: DEEPSEEK_API_KEY
         sync: false
