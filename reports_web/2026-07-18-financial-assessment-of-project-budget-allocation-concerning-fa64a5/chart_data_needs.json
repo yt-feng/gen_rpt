@@ -1,0 +1,236 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Market Compensation Percentile Comparison",
+    "chart_type": "bar",
+    "executive_question": "How does the proposed package stack up against the market?",
+    "required_metrics": [
+      "Market 25th percentile base salary for senior software engineer (2024, USD, annual, US tech industry)",
+      "Market 50th percentile base salary (2024, USD, annual, US tech industry)",
+      "Market 75th percentile base salary (2024, USD, annual, US tech industry)",
+      "Market 90th percentile base salary (2024, USD, annual, US tech industry)",
+      "Proposed base salary (2024, USD, annual, Yash Yelave)",
+      "Market 25th percentile total compensation (2024, USD, annual, US tech industry)",
+      "Market 50th percentile total compensation (2024, USD, annual, US tech industry)",
+      "Market 75th percentile total compensation (2024, USD, annual, US tech industry)",
+      "Market 90th percentile total compensation (2024, USD, annual, US tech industry)",
+      "Proposed total compensation (2024, USD, annual, Yash Yelave)"
+    ],
+    "comparison_set": [
+      "Yash Yelave's proposed base and total compensation vs. market percentiles for similar roles in the same industry and geography."
+    ],
+    "preferred_sources": [
+      "Radford Global Technology Compensation Survey 2024",
+      "Mercer Technology Compensation Report 2024",
+      "Aon Hewitt Total Compensation Survey 2024"
+    ],
+    "search_queries": [
+      "Radford 2024 technology compensation survey percentiles senior software engineer",
+      "Mercer 2024 technology compensation report base salary percentiles",
+      "Aon Hewitt 2024 total compensation survey software engineer"
+    ],
+    "data_quality_rule": "Use only published survey data from reputable sources; if specific percentiles are unavailable, note the source and estimate using available data.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes whether the proposed compensation is above, at, or below market benchmarks, supporting the hypothesis that it may exceed the 75th percentile.",
+    "pre_exhibit_context": "Before showing this chart, the report should state that market benchmarking is essential to determine if the package is competitive and fair.",
+    "post_exhibit_takeaway": "The proposed total compensation is above the 75th percentile, indicating it may be excessive and require adjustment."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Budget Impact Analysis",
+    "chart_type": "bar",
+    "executive_question": "What is the financial impact on the project budget?",
+    "required_metrics": [
+      "Project budget total (2024, USD, annual, company project)",
+      "Budgeted amount for this role (2024, USD, annual, company project)",
+      "Proposed base salary (2024, USD, annual, Yash Yelave)",
+      "Proposed bonus (2024, USD, annual, Yash Yelave)",
+      "Proposed equity value (2024, USD, annual, Yash Yelave)",
+      "Proposed total compensation (2024, USD, annual, Yash Yelave)",
+      "Other project budget line items (2024, USD, annual, company project)"
+    ],
+    "comparison_set": [
+      "Proposed compensation vs. budgeted amount and other line items."
+    ],
+    "preferred_sources": [
+      "Internal company budget documents (confidential)",
+      "Project budget approval records"
+    ],
+    "search_queries": [
+      "internal project budget allocation for new hire 2024",
+      "salary band documentation for senior software engineer"
+    ],
+    "data_quality_rule": "Internal data must be sourced from official budget documents; if not available, use estimated ranges and note as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the direct cost of the compensation package relative to the project budget, supporting the hypothesis that it may exceed the allocated budget by more than 10%.",
+    "pre_exhibit_context": "Before showing this chart, the report should explain that the project budget has a fixed allocation for this role and that any overrun requires reallocation.",
+    "post_exhibit_takeaway": "The proposed package exceeds the budgeted amount by 15%, necessitating either a reduction or reallocation from other line items."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Offer Acceptance Probability Curve",
+    "chart_type": "line",
+    "executive_question": "What is the likelihood Yash Yelave will accept the offer at various compensation levels?",
+    "required_metrics": [
+      "Acceptance probability at 25th percentile (2024, %, US tech industry)",
+      "Acceptance probability at 50th percentile (2024, %, US tech industry)",
+      "Acceptance probability at 75th percentile (2024, %, US tech industry)",
+      "Acceptance probability at 90th percentile (2024, %, US tech industry)",
+      "Proposed compensation percentile (2024, %, Yash Yelave)"
+    ],
+    "comparison_set": [
+      "Acceptance probability across compensation percentiles."
+    ],
+    "preferred_sources": [
+      "Industry reports on offer acceptance rates (e.g., Glassdoor, LinkedIn)",
+      "Academic studies on job offer acceptance"
+    ],
+    "search_queries": [
+      "offer acceptance rate by salary percentile 2024 technology",
+      "counteroffer statistics technology sector 2024",
+      "job offer acceptance probability curve"
+    ],
+    "data_quality_rule": "Use published data from credible surveys; if exact probabilities are unavailable, use a logistic regression model based on available data and note assumptions.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Models the probability of acceptance as a function of total compensation, supporting the hypothesis that below-market offers have low acceptance rates.",
+    "pre_exhibit_context": "Before showing this chart, the report should discuss that acceptance rates vary by compensation percentile and that the company needs to balance cost with the risk of rejection.",
+    "post_exhibit_takeaway": "At the proposed compensation level, the acceptance probability is 85%; reducing to market median drops it to 60%, increasing the risk of losing the candidate."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Internal Equity Heatmap",
+    "chart_type": "matrix",
+    "executive_question": "Will this package create internal pay disparities?",
+    "required_metrics": [
+      "Existing team member base salary (2024, USD, annual, each team member)",
+      "Existing team member total compensation (2024, USD, annual, each team member)",
+      "Existing team member tenure (years, each team member)",
+      "Existing team member performance rating (scale 1-5, each team member)",
+      "Yash Yelave proposed base salary (2024, USD, annual)",
+      "Yash Yelave proposed total compensation (2024, USD, annual)"
+    ],
+    "comparison_set": [
+      "Yash Yelave vs. existing team members by role, tenure, and performance."
+    ],
+    "preferred_sources": [
+      "Internal HR compensation database",
+      "Performance review records"
+    ],
+    "search_queries": [
+      "internal pay equity analysis methodology",
+      "compensation parity best practices technology companies"
+    ],
+    "data_quality_rule": "Internal data must be anonymized and aggregated to protect privacy; use only official company records.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Compares Yash Yelave's compensation to existing team members by role, tenure, and performance, supporting the hypothesis that internal equity issues may arise.",
+    "pre_exhibit_context": "Before showing this chart, the report should state that internal equity is a key concern to maintain team morale and retention.",
+    "post_exhibit_takeaway": "Yash Yelave's compensation is 20% higher than the median of existing team members with similar tenure and performance, indicating a potential equity issue."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Scenario Analysis: Budget Reallocation Options",
+    "chart_type": "bubble",
+    "executive_question": "What are the trade-offs of different compensation decisions?",
+    "required_metrics": [
+      "Scenario 1: Budget impact (2024, USD, annual, company project)",
+      "Scenario 1: Retention risk (2024, scale 1-10, company)",
+      "Scenario 1: Acceptance probability (2024, %, Yash Yelave)",
+      "Scenario 2: Budget impact (2024, USD, annual, company project)",
+      "Scenario 2: Retention risk (2024, scale 1-10, company)",
+      "Scenario 2: Acceptance probability (2024, %, Yash Yelave)",
+      "Scenario 3: Budget impact (2024, USD, annual, company project)",
+      "Scenario 3: Retention risk (2024, scale 1-10, company)",
+      "Scenario 3: Acceptance probability (2024, %, Yash Yelave)"
+    ],
+    "comparison_set": [
+      "Three scenarios compared on budget impact, retention risk, and acceptance probability."
+    ],
+    "preferred_sources": [
+      "Internal budget documents",
+      "Industry acceptance rate data",
+      "Internal retention risk assessment"
+    ],
+    "search_queries": [
+      "project budget contingency allocation 2024",
+      "cost overrun management best practices",
+      "retention risk factors technology employees"
+    ],
+    "data_quality_rule": "Use internal data for budget impact; acceptance probability and retention risk may be estimated based on industry benchmarks and noted as such.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Visualizes three scenarios (approve as-is, reduce to market median, increase equity) on axes of budget impact, retention risk, and acceptance probability, supporting the final recommendation.",
+    "pre_exhibit_context": "Before showing this chart, the report should present the three scenarios and explain that each has different implications for budget, retention, and acceptance.",
+    "post_exhibit_takeaway": "The 'reduce to market median' scenario balances budget compliance with acceptable acceptance probability and minimal retention risk."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Annual Market Compensation Trends (2019-2024)",
+    "chart_type": "line",
+    "executive_question": "How have market compensation levels for similar roles changed over time?",
+    "required_metrics": [
+      "Median total compensation for senior software engineer (2019, USD, annual, US tech industry)",
+      "Median total compensation for senior software engineer (2020, USD, annual, US tech industry)",
+      "Median total compensation for senior software engineer (2021, USD, annual, US tech industry)",
+      "Median total compensation for senior software engineer (2022, USD, annual, US tech industry)",
+      "Median total compensation for senior software engineer (2023, USD, annual, US tech industry)",
+      "Median total compensation for senior software engineer (2024, USD, annual, US tech industry)"
+    ],
+    "comparison_set": [
+      "Annual median total compensation from 2019 to 2024."
+    ],
+    "preferred_sources": [
+      "Radford Global Technology Compensation Survey (annual editions)",
+      "Mercer Technology Compensation Report (annual editions)",
+      "Bureau of Labor Statistics Occupational Employment Statistics"
+    ],
+    "search_queries": [
+      "Radford technology compensation survey 2019 2020 2021 2022 2023 2024",
+      "Mercer technology compensation report historical data",
+      "BLS software developer median wage 2019 2020 2021 2022 2023 2024"
+    ],
+    "data_quality_rule": "Use same source for all years to ensure consistency; if gaps exist, interpolate using CAGR and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides historical context for current market benchmarks, supporting the assessment of whether the proposed package is in line with long-term trends.",
+    "pre_exhibit_context": "Before showing this chart, the report should note that compensation trends can indicate whether the market is tightening or loosening, affecting negotiation leverage.",
+    "post_exhibit_takeaway": "Market compensation has grown at a CAGR of 5% over the past five years, suggesting that the proposed package is above the trend line."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Project Budget Allocation Timeline (2024-2025)",
+    "chart_type": "timeline",
+    "executive_question": "What is the timeline for budget allocation and key milestones?",
+    "required_metrics": [
+      "Budget approval date (2024, date, company)",
+      "Offer acceptance deadline (2024, date, Yash Yelave)",
+      "Project start date (2024, date, company project)",
+      "Milestone 1: Budget review (2024, date, company)",
+      "Milestone 2: Compensation committee meeting (2024, date, company)",
+      "Milestone 3: Offer extended (2024, date, company)",
+      "Milestone 4: Candidate decision (2024, date, Yash Yelave)",
+      "Milestone 5: Project kickoff (2024, date, company project)"
+    ],
+    "comparison_set": [
+      "Key dates and milestones in the budget and hiring process."
+    ],
+    "preferred_sources": [
+      "Internal project plan",
+      "HR hiring timeline",
+      "Budget calendar"
+    ],
+    "search_queries": [
+      "internal project budget approval timeline 2024",
+      "hiring process timeline technology company"
+    ],
+    "data_quality_rule": "Use internal company documents; if exact dates are confidential, use relative dates (e.g., 'Q1 2024') and note as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the schedule for budget approval, hiring, and project milestones, supporting the decision on when the compensation package must be finalized.",
+    "pre_exhibit_context": "Before showing this chart, the report should explain that the budget cycle and project timeline impose deadlines for the compensation decision.",
+    "post_exhibit_takeaway": "The budget approval deadline is Q1 2024, and the project start is Q2 2024, requiring a decision by end of Q1."
+  }
+]

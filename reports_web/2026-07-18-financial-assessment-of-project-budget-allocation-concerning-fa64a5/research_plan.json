@@ -1,0 +1,455 @@
+{
+  "objective": "To assess the financial viability and strategic fit of Yash Yelave's new employment compensation package within the context of the company's project budget allocation, ensuring alignment with market benchmarks and internal financial constraints.",
+  "audience": "Senior management, finance committee, and HR leadership responsible for budget approval and compensation strategy.",
+  "decision_question": "Should the proposed compensation package for Yash Yelave be approved, and what adjustments (if any) are needed to align with market norms and budget constraints?",
+  "issue_tree": {
+    "root": "Financial Assessment of Compensation Package",
+    "branches": [
+      {
+        "node": "Market Benchmarking",
+        "children": [
+          "Salary percentile vs. industry peers",
+          "Bonus and equity structures",
+          "Total compensation comparison"
+        ]
+      },
+      {
+        "node": "Budget Impact",
+        "children": [
+          "Direct cost to project budget",
+          "Opportunity cost of reallocation",
+          "Impact on other project resources"
+        ]
+      },
+      {
+        "node": "Internal Equity",
+        "children": [
+          "Comparison with existing team members",
+          "Potential morale and retention risks",
+          "Alignment with company compensation philosophy"
+        ]
+      },
+      {
+        "node": "Strategic Value",
+        "children": [
+          "Expected contribution to project success",
+          "Critical skills and experience",
+          "Retention risk if not approved"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Yash Yelave's proposed total compensation is above the 75th percentile for similar roles in the industry.",
+      "decision_relevance": "If true, the package may be excessive and require downward adjustment to align with market norms.",
+      "needed_evidence": [
+        "Market compensation data from reputable surveys (e.g., Radford, Mercer) for comparable roles (e.g., senior software engineer, project manager) in the same industry and geography."
+      ],
+      "search_queries": [
+        "2024 software engineer salary survey 75th percentile",
+        "Mercer technology compensation report 2024",
+        "Radford global technology compensation survey"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The compensation package exceeds the allocated budget for this role by more than 10%.",
+      "decision_relevance": "If true, the package may require budget reallocation or reduction to avoid overspending.",
+      "needed_evidence": [
+        "Internal budget documents showing the approved salary band for the role and the proposed package breakdown."
+      ],
+      "search_queries": [
+        "internal budget allocation for new hire",
+        "salary band documentation"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Offering a package below market median will lead to a high probability of Yash Yelave declining the offer.",
+      "decision_relevance": "If true, the company may need to offer at least market median to secure the candidate.",
+      "needed_evidence": [
+        "Industry data on offer acceptance rates by compensation percentile, and Yash Yelave's current compensation if known."
+      ],
+      "search_queries": [
+        "offer acceptance rate by salary percentile",
+        "counteroffer statistics technology sector"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The proposed equity component is below the 50th percentile for similar roles in startups of comparable stage.",
+      "decision_relevance": "If true, the equity may need to be increased to be competitive, especially if the base salary is below market.",
+      "needed_evidence": [
+        "Equity benchmark data for private companies at similar funding stage (e.g., Series B) and role."
+      ],
+      "search_queries": [
+        "startup equity benchmark by stage 2024",
+        "private company option grant guidelines"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Approving this package will create internal equity issues with existing team members in similar roles.",
+      "decision_relevance": "If true, the package may need to be adjusted or accompanied by adjustments for existing staff to maintain morale.",
+      "needed_evidence": [
+        "Current compensation data for existing team members in comparable roles, and any documented pay equity policies."
+      ],
+      "search_queries": [
+        "internal pay equity analysis methodology",
+        "compensation parity best practices"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The project budget can absorb the proposed compensation without reducing other critical resources.",
+      "decision_relevance": "If true, no budget reallocation is needed; if false, trade-offs must be evaluated.",
+      "needed_evidence": [
+        "Detailed project budget breakdown showing contingency funds and flexibility."
+      ],
+      "search_queries": [
+        "project budget contingency allocation",
+        "cost overrun management"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Yash Yelave's unique skills justify a premium of up to 20% above market median.",
+      "decision_relevance": "If true, the package may be justified despite being above market.",
+      "needed_evidence": [
+        "Evidence of Yash Yelave's exceptional performance, rare certifications, or critical project dependencies."
+      ],
+      "search_queries": [
+        "premium skill compensation justification",
+        "rare technical skills salary premium"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "Total addressable market (TAM) for similar roles = Number of companies in industry × Average number of such roles per company × Average total compensation per role",
+        "variables": [
+          "Number of companies (from industry reports), average roles per company (from HR benchmarks), average compensation (from salary surveys)"
+        ],
+        "preferred_sources": [
+          "Bureau of Labor Statistics, industry associations (e.g., NASSCOM, CompTIA), Glassdoor"
+        ],
+        "search_queries": [
+          "number of software companies in US 2024",
+          "average number of senior engineers per tech company"
+        ],
+        "known_limitations": [
+          "Assumes uniform distribution; may overestimate if many companies do not have such roles."
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "Market size = Sum over all known competitors of (Number of employees in role × Average compensation)",
+        "variables": [
+          "Employee counts from LinkedIn or company filings, compensation from surveys or disclosed data"
+        ],
+        "preferred_sources": [
+          "LinkedIn Talent Insights, company annual reports (10-K), Glassdoor"
+        ],
+        "search_queries": [
+          "LinkedIn employee count by company",
+          "10-K employee compensation disclosure"
+        ],
+        "known_limitations": []
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "Number of qualified candidates = Total graduates in relevant field × % pursuing tech × % with required experience × % willing to relocate",
+        "variables": [
+          "Graduate numbers from education statistics, career surveys, relocation willingness from job seeker surveys"
+        ],
+        "preferred_sources": [
+          "National Center for Education Statistics, Stack Overflow Developer Survey, LinkedIn"
+        ],
+        "search_queries": [
+          "computer science graduates per year US",
+          "Stack Overflow developer survey relocation"
+        ],
+        "known_limitations": []
+      },
+      {
+        "method": "Value pool",
+        "formula": "Total compensation value = Sum of (Base salary + Bonus + Equity + Benefits) for all incumbents in the market",
+        "variables": [
+          "Compensation components from surveys, number of incumbents from employment data"
+        ],
+        "preferred_sources": [
+          "Radford, Mercer, Aon Hewitt compensation surveys"
+        ],
+        "search_queries": [
+          "Radford technology compensation survey 2024",
+          "Aon Hewitt total compensation report"
+        ],
+        "known_limitations": []
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available talent pool = Number of active job seekers with required skills + Number of passive candidates open to offers",
+        "variables": [
+          "Job seeker counts from job boards, passive candidate estimates from LinkedIn"
+        ],
+        "preferred_sources": [
+          "LinkedIn Talent Insights, Indeed Hiring Lab, Bureau of Labor Statistics"
+        ],
+        "search_queries": [
+          "LinkedIn talent pool size for software engineers",
+          "Indeed job seeker data"
+        ],
+        "known_limitations": []
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Financial Assessment of Project Budget Allocation Concerning Yash Yelave's New Employment Compensation Package milestone timeline commercialization"
+      ]
+    }
+  ],
+  "search_queries": [
+    "2024 software engineer salary survey 75th percentile",
+    "Mercer technology compensation report 2024",
+    "Radford global technology compensation survey",
+    "startup equity benchmark by stage 2024",
+    "private company option grant guidelines",
+    "offer acceptance rate by salary percentile",
+    "counteroffer statistics technology sector",
+    "internal pay equity analysis methodology",
+    "compensation parity best practices",
+    "project budget contingency allocation",
+    "cost overrun management",
+    "premium skill compensation justification",
+    "rare technical skills salary premium",
+    "Bureau of Labor Statistics software developer wages",
+    "LinkedIn talent pool size for software engineers",
+    "Stack Overflow developer survey relocation",
+    "internal budget allocation for new hire",
+    "salary band documentation"
+  ],
+  "source_strategy": "Prioritize government sources (BLS, SEC filings), industry associations (NASSCOM, CompTIA), compensation surveys (Radford, Mercer, Aon Hewitt), company filings (10-K, annual reports), authoritative media (Wall Street Journal, Bloomberg), academic research (NBER, SSRN), and consulting reports (McKinsey, Deloitte). Use LinkedIn Talent Insights and Glassdoor for real-time data. Cross-validate with multiple sources.",
+  "outline": [
+    "I. The proposed compensation package exceeds market benchmarks for similar roles, requiring adjustment.",
+    "II. The package strains the project budget, necessitating reallocation or reduction.",
+    "III. Internal equity concerns may arise, potentially impacting team morale and retention.",
+    "IV. Despite premium skills, the package should be aligned with market median to ensure fairness and budget compliance."
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "Market Compensation Percentile Comparison",
+      "description": "Bar chart comparing Yash Yelave's proposed base, bonus, equity, and total compensation to market 25th, 50th, 75th, and 90th percentiles.",
+      "executive_question": "How does the proposed package stack up against the market?"
+    },
+    {
+      "title": "Budget Impact Analysis",
+      "description": "Waterfall chart showing the proposed compensation as a percentage of the project budget, highlighting the impact on other line items.",
+      "executive_question": "What is the financial impact on the project budget?"
+    },
+    {
+      "title": "Internal Equity Heatmap",
+      "description": "Heatmap comparing Yash Yelave's compensation to existing team members by role, tenure, and performance rating.",
+      "executive_question": "Will this package create internal pay disparities?"
+    },
+    {
+      "title": "Offer Acceptance Probability Curve",
+      "description": "Line chart showing the probability of acceptance at different compensation levels, based on industry data.",
+      "executive_question": "What is the likelihood Yash Yelave will accept the offer at various compensation levels?"
+    },
+    {
+      "title": "Scenario Analysis: Budget Reallocation Options",
+      "description": "Table showing three scenarios (approve as-is, reduce to market median, increase equity) with impact on budget, retention risk, and acceptance probability.",
+      "executive_question": "What are the trade-offs of different compensation decisions?"
+    }
+  ],
+  "risks": [
+    "Data availability: Compensation surveys may not cover the specific role or geography.",
+    "Internal data sensitivity: Budget and existing compensation data may be confidential.",
+    "Market volatility: Compensation benchmarks may change rapidly due to economic conditions.",
+    "Candidate reaction: Yash Yelave may have competing offers that affect negotiation.",
+    "Implementation: Adjusting the package may require multiple approvals and delay hiring."
+  ]
+}
