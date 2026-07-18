@@ -1,0 +1,361 @@
+{
+  "objective": "Determine whether to proceed with the urban drone delivery launch under Project SkyNet, considering investment viability, consumer adoption, UAM corridor compliance, and fleet readiness of Heavy-Lifter v2 vs Swift-Class.",
+  "audience": "Executive Board, OmniLogistics Corp",
+  "decision_question": "Should OmniLogistics launch Project SkyNet urban drone delivery in Q4 2026 given the current fleet compliance issues, consumer concerns, and regulatory constraints?",
+  "issue_tree": {
+    "Investment Case": {
+      "Capital Allocation": "Is the $45.5M budget sufficient and appropriately allocated?",
+      "Financial Projections": "Are the projected cost savings and break-even point realistic given current constraints?"
+    },
+    "Consumer Adoption": {
+      "Acceptance Levels": "How to address top concerns (noise, privacy, safety) to maintain 68% acceptance?",
+      "Willingness to Pay": "Can the $2.50 premium be sustained with 30-min delivery guarantee?"
+    },
+    "UAM Corridor Compliance": {
+      "Altitude & Weight Limits": "How to ensure all drones comply with 150-300 ft altitude and ≤25 lbs weight?",
+      "Restricted Zones": "What operational adjustments are needed to avoid schools, events, government buildings?"
+    },
+    "Fleet Readiness": {
+      "Heavy-Lifter v2": "Can it be modified or restricted to non-urban corridors?",
+      "Swift-Class": "Is the 18-lb drone sufficient for urban delivery volume and payload needs?"
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The Heavy-Lifter v2's 2.5 lbs overweight status makes it non-compliant for urban corridors, requiring exclusive use of Swift-Class drones in cities.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Consumer noise concerns can be mitigated by deploying Whisper-Prop technology, maintaining acceptance above 60%.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The $45.5M investment is sufficient if fleet mix is adjusted to prioritize Swift-Class, avoiding costly retrofits.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: Regulatory compliance with altitude and restricted zones is achievable with software geofencing and pilot training.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The 18-month break-even is at risk if Swift-Class cannot handle 150,000 daily packages due to payload limitations.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Heavy-Lifter v2 payload capacity vs Swift-Class payload capacity (from engineering specs)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Whisper-Prop technology deployment timeline and cost",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Current dispatch software modification status for weight limits",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Projected daily package volume per drone type",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Historical incident data for drone operations in restricted zones",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness capacity project pipeline"
+      ]
+    }
+  ],
+  "search_queries": [
+    "FAA UAM Phase 1 guidelines commercial drone delivery 2026",
+    "EASA UAM corridor regulations urban drone operations",
+    "Drone delivery consumer acceptance survey 2026 noise privacy concerns",
+    "Whisper-Prop drone propeller noise reduction technology specifications",
+    "OmniLogistics competitor drone delivery fleet mix case studies",
+    "Urban drone delivery break-even analysis daily package volume benchmarks",
+    "Drone payload capacity vs delivery cost per package industry data",
+    "Geofencing technology for drone no-fly zones schools government buildings",
+    "Drone delivery insurance costs for urban operations 2026",
+    "Swift-Class drone specifications payload range endurance",
+    "Heavy-Lifter v2 drone modifications weight reduction feasibility",
+    "Drone data retention compliance 90 days telemetry storage solutions",
+    "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness total market size segment share",
+    "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness demand by segment official data",
+    "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness customer count price ARPU",
+    "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness adoption rate units price",
+    "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness pilot customer conversion",
+    "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness orders customers adoption"
+  ],
+  "source_strategy": "Primary sources: internal documents (memos, surveys, financial reports). Secondary sources: FAA/EASA official publications, industry reports on drone delivery, academic studies on consumer adoption, vendor specifications for drone technologies.",
+  "outline": [
+    "1. Investment Case Analysis: Budget allocation, cost savings projections, break-even sensitivity",
+    "2. Consumer Adoption Strategy: Addressing noise, privacy, safety concerns; willingness to pay",
+    "3. UAM Corridor Compliance Plan: Altitude/weight limits, restricted zones, data retention",
+    "4. Fleet Readiness Assessment: Heavy-Lifter v2 vs Swift-Class compliance and capacity",
+    "5. Risk Mitigation and Contingency: Regulatory risks, operational risks, financial risks",
+    "6. Recommendation and Next Steps: Launch decision, fleet mix, timeline adjustments"
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Budget breakdown pie chart ($45.5M allocation)",
+    "Exhibit 2: Consumer concern bar chart (noise 42%, privacy 35%, safety 18%)",
+    "Exhibit 3: Fleet compliance matrix (Heavy-Lifter v2 vs Swift-Class vs UAM limits)",
+    "Exhibit 4: Break-even analysis graph (cumulative cost vs savings over 24 months)",
+    "Exhibit 5: Restricted zones map with geofencing overlay"
+  ],
+  "risks": [
+    "Regulatory non-compliance if Heavy-Lifter v2 used in urban corridors",
+    "Consumer backlash if noise/privacy concerns not adequately addressed",
+    "Cost overruns if Swift-Class fleet insufficient for volume targets",
+    "Delayed launch due to software modification or regulatory approvals",
+    "Competitive pressure from other drone delivery services"
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness total market size segment share",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness customer count price ARPU",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness pilot customer conversion",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness ROI cost savings case study",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness capacity utilization unit price",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Investment Case, Consumer Adoption, UAM Corridor Compliance, and Heavy-Lifter v2 vs Swift-Class Fleet Readiness project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  }
+}
