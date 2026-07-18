@@ -221,16 +221,22 @@ async def health_check():
             try:
                 import httpx
                 import anyio
+                # Use the same router URL as the embedding worker (embedding.py)
+                # IMPORTANT: api-inference.huggingface.co returns 404 for free tokens;
+                # router.huggingface.co/hf-inference/models/ is the correct endpoint.
                 hf_model = settings.KNOWLEDGE_EMBEDDING_MODEL if "/" in settings.KNOWLEDGE_EMBEDDING_MODEL else "BAAI/bge-small-en-v1.5"
+                hf_health_url = f"https://router.huggingface.co/hf-inference/models/{hf_model}"
                 async def check_hf_emb():
-                    async with httpx.AsyncClient(timeout=5.0) as c:
+                    async with httpx.AsyncClient(timeout=10.0) as c:
                         r = await c.post(
-                            f"https://api-inference.huggingface.co/pipeline/feature-extraction/{hf_model}",
+                            hf_health_url,
                             headers={"Authorization": f"Bearer {settings.HF_API_TOKEN}"},
                             json={"inputs": ["health check"], "options": {"wait_for_model": False}}
                         )
-                        r.raise_for_status()
-                with anyio.fail_after(8.0):
+                        # 503 = model loading (not a real failure, token is valid)
+                        if r.status_code not in (200, 503):
+                            r.raise_for_status()
+                with anyio.fail_after(12.0):
                     await check_hf_emb()
                 embedding_status = "healthy"
             except Exception as e:
