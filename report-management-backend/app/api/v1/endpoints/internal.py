@@ -254,14 +254,61 @@ async def get_internal_context(
 ):
     """
     Retrieve cached RAG context package for internal workers.
+    Returns:
+      - validated_chunks: raw chunk objects
+      - context_text: pre-formatted string ready for prompt injection
+      - has_rag_context: True if private document context is available
+      - document_count: number of distinct documents in context
     """
     from app.services.rag_integration import context_cache_service
     pkg = await context_cache_service.get_cached_context(db, f"context:slug:{slug}")
     if not pkg:
         return success_response(
-            data={"validated_chunks": [], "validated_sources": [], "document_references": []},
+            data={
+                "validated_chunks": [],
+                "validated_sources": [],
+                "document_references": [],
+                "context_text": "",
+                "has_rag_context": False,
+                "document_count": 0
+            },
             message="No context found, fallback empty context provided"
         )
-    return success_response(data=pkg, message="Fetched cached context package")
 
+    # Build a clean, pre-formatted context_text for direct prompt injection
+    chunks = pkg.get("validated_chunks", [])
+    doc_references = pkg.get("document_references", [])
+
+    # Group chunks by document for cleaner formatting
+    doc_map: dict = {}
+    for chunk in chunks:
+        doc_id = str(chunk.get("document_id") or chunk.get("chunk_id", "unknown"))
+        doc_title = chunk.get("document_title") or chunk.get("source") or "Document"
+        if doc_id not in doc_map:
+            doc_map[doc_id] = {"title": doc_title, "chunks": []}
+        doc_map[doc_id]["chunks"].append(chunk.get("text", ""))
+
+    context_parts = []
+    for doc_id, doc_data in doc_map.items():
+        title = doc_data["title"]
+        body = "\n\n".join(doc_data["chunks"])
+        context_parts.append(f"=== DOCUMENT: {title} ===\n{body}")
+
+    context_text = "\n\n".join(context_parts)
+
+    # Count distinct source documents
+    seen_docs = set()
+    for chunk in chunks:
+        doc_id = chunk.get("document_id") or chunk.get("chunk_id", "")
+        if doc_id:
+            seen_docs.add(str(doc_id))
+    document_count = len(seen_docs) or len(doc_references)
+
+    enriched_pkg = {
+        **pkg,
+        "context_text": context_text,
+        "has_rag_context": bool(chunks),
+        "document_count": document_count,
+    }
+    return success_response(data=enriched_pkg, message="Fetched cached context package")
 

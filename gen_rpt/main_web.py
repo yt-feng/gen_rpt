@@ -5,6 +5,7 @@ import os
 import re
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from .deepseek_client import DeepSeekClient
 from .web_report_pipeline import WebReportPipeline
@@ -27,6 +28,49 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def _fetch_rag_context(slug: str, backend_url: str, internal_token: str) -> Optional[str]:
+    """
+    Fetches private document context from the backend RAG bridge.
+    Returns the pre-formatted context_text string if documents exist, else None.
+    """
+    import requests
+    url = f"{backend_url.rstrip('/')}/api/internal/context/{slug}"
+    headers = {"Authorization": f"Bearer {internal_token}"}
+    try:
+        print(f"[RAG Bridge] Fetching context for slug '{slug}' from backend...")
+        resp = requests.get(url, headers=headers, timeout=15)
+        if resp.status_code == 200:
+            data = resp.json().get("data", {})
+            has_rag = data.get("has_rag_context", False)
+            context_text = data.get("context_text", "")
+            doc_count = data.get("document_count", 0)
+            chunks = data.get("validated_chunks", [])
+
+            if has_rag and context_text:
+                print(f"[RAG Bridge] Active. Found {len(chunks)} chunks from {doc_count} document(s). Switching to RAG-grounded mode.")
+                return context_text
+            elif chunks and not context_text:
+                # Fallback: build context_text manually from chunks (older backend versions)
+                context_parts = []
+                for c in chunks:
+                    chunk_id = c.get("chunk_id", "")
+                    conf = c.get("confidence", 0)
+                    text = c.get("text", "")
+                    context_parts.append(f"[Chunk {chunk_id}] (Confidence: {conf:.2f})\n{text}")
+                fallback_text = "\n\n".join(context_parts)
+                print(f"[RAG Bridge] Active (legacy). Loaded {len(chunks)} chunks. Switching to RAG-grounded mode.")
+                return fallback_text
+            else:
+                print(f"[RAG Bridge] No private document context found for slug '{slug}'. Using standard research mode.")
+                return None
+        else:
+            print(f"[RAG Bridge] Backend returned status {resp.status_code}. Using standard research mode.")
+            return None
+    except Exception as e:
+        print(f"[RAG Bridge] Failed to retrieve context: {e}. Using standard research mode.")
+        return None
+
+
 def main() -> None:
     args = parse_args()
     language = "zh" if str(args.language).lower().startswith("zh") else "en"
@@ -37,60 +81,16 @@ def main() -> None:
     slug = args.slug.strip() or slugify(args.topic)
     output_dir = Path(args.out_root) / f"{date_prefix}-{slug}"
 
-    # --- PHASE 5: RAG CONTEXT BRIDGE ---
+    # --- PHASE 0: RAG CONTEXT BRIDGE (runs BEFORE the pipeline) ---
+    # Fetch private document context early so planning, evidence, and synthesis
+    # are all grounded in the real document facts — not invented public benchmarks.
+    rag_context: Optional[str] = None
     backend_url = os.getenv("BACKEND_URL")
     internal_token = os.getenv("INTERNAL_TOKEN")
     if backend_url and internal_token:
-        import requests
-        url = f"{backend_url.rstrip('/')}/api/internal/context/{slug}"
-        headers = {"Authorization": f"Bearer {internal_token}"}
-        try:
-            print(f"[RAG Bridge] Fetching context for slug '{slug}' from backend...")
-            resp = requests.get(url, headers=headers, timeout=15)
-            if resp.status_code == 200:
-                data = resp.json().get("data", {})
-                chunks = data.get("validated_chunks", [])
-                if chunks:
-                    context_str = "\n\n".join([f"[Source Chunk {c.get('chunk_id', '')}] (Confidence: {c.get('confidence', 0):.2f})\n{c.get('text', '')}" for c in chunks])
-                    original_chat = client.chat
-                    
-                    def patched_chat(messages: list, **kwargs) -> str:
-                        modified_messages = []
-                        for msg in messages:
-                            if msg.get("role") == "user":
-                                content = msg.get("content", "")
-                                if language == "zh":
-                                    new_content = (
-                                        f"你是一个拥有丰富行业经验的资深顾问。请基于以下提供的已验证企业知识来回答用户的请求。\n\n"
-                                        f"--- 已验证企业知识 ---\n"
-                                        f"{context_str}\n\n"
-                                        f"--- 用户请求 ---\n"
-                                        f"{content}\n\n"
-                                        f"请确保所有关键判断都可以从提供的知识库片段中找到直接证据，并在输出中提供引用。"
-                                    )
-                                else:
-                                    new_content = (
-                                        f"You are an elite research consultant. Answer based on validated enterprise knowledge below.\n\n"
-                                        f"--- VALIDATED ENTERPRISE KNOWLEDGE ---\n"
-                                        f"{context_str}\n\n"
-                                        f"--- USER PROMPT ---\n"
-                                        f"{content}\n\n"
-                                        f"Ensure every material claim is supported by direct evidence from the sources above."
-                                    )
-                                modified_messages.append({"role": msg["role"], "content": new_content})
-                            else:
-                                modified_messages.append(msg)
-                        return original_chat(modified_messages, **kwargs)
-                    
-                    client.chat = patched_chat
-                    print(f"[RAG Bridge] Successfully active. Loaded {len(chunks)} chunks.")
-            else:
-                print(f"[RAG Bridge] Context package not found or returned status {resp.status_code}. Proceeding with default flow.")
-        except Exception as e:
-            print(f"[RAG Bridge] Failed to retrieve context package: {e}. Proceeding with default flow.")
+        rag_context = _fetch_rag_context(slug, backend_url, internal_token)
 
-
-    result = pipeline.build_report(topic=args.topic, output_dir=output_dir)
+    result = pipeline.build_report(topic=args.topic, output_dir=output_dir, rag_context=rag_context)
     print(f"HTML web report generated at: {result['html_path']}")
     print(f"Markdown generated at: {result['markdown_path']}")
     print(f"Payload generated at: {output_dir / 'web_report_payload.json'}")
@@ -107,6 +107,7 @@ def main() -> None:
             f.write("## HTML-first deep research report generated\n")
             f.write(f"- Topic: {args.topic}\n")
             f.write(f"- Language: {language}\n")
+            f.write(f"- RAG mode: {'ACTIVE (document-grounded)' if rag_context else 'OFF (public research only)'}\n")
             f.write(f"- HTML: `{result['html_path']}`\n")
             f.write(f"- Markdown: `{result['markdown_path']}`\n")
             f.write(f"- Payload: `{output_dir / 'web_report_payload.json'}`\n")

@@ -29,14 +29,18 @@ class WebReportPipeline:
     def __init__(self, client: DeepSeekClient, language: str = "en") -> None:
         self.client = client
         self.language = "zh" if str(language or "").lower().startswith("zh") else "en"
+        # Set by build_report when private document context is available
+        self.rag_context: str | None = None
 
-    def build_report(self, topic: str, output_dir: Path) -> Dict[str, Any]:
+    def build_report(self, topic: str, output_dir: Path, rag_context: str | None = None) -> Dict[str, Any]:
         run_start = time.monotonic()
+        self.rag_context = rag_context  # Store for use in _plan_research and _synthesize_web_report
         ensure_dir(output_dir)
         assets_dir = output_dir / "assets"
         ensure_dir(assets_dir)
         display_topic = str(topic or "").strip()
-        self._log(f"START web report pipeline | topic={display_topic!r} | output_dir={output_dir}")
+        rag_mode_label = "RAG-GROUNDED" if rag_context else "PUBLIC-RESEARCH"
+        self._log(f"START web report pipeline | topic={display_topic!r} | mode={rag_mode_label} | output_dir={output_dir}")
         self._log("ETA planning=15-90s, chart_data_needs=10-60s, source_collection=60-300s, evidence=5-15s, synthesis=60-180s, visuals=60-360s")
 
         phase_start = time.monotonic()
@@ -258,6 +262,24 @@ Requirements:
 - 4-6 conclusion-first outline headings.
 - 3-5 exhibit ideas. No decorative visuals; every exhibit must answer an executive question.
 - State what needs numbers, cases, timeline evidence or counter-evidence.
+"""
+        # RAG OVERRIDE: If private document context exists, replace with a document-grounded plan
+        if self.rag_context:
+            system = "You are a precise document analyst. Plan a report that is strictly grounded in the provided documents. Return strict JSON only."
+            user = f"""Create a document-grounded research plan. Return JSON only.
+
+Topic: {topic}
+
+PRIVATE DOCUMENT CONTEXT (primary source of truth — use only these facts, do not invent):
+{self.rag_context}
+
+Required fields: objective, audience, decision_question, issue_tree, hypotheses, validation_data_needs, search_queries, source_strategy, outline, exhibit_ideas, risks.
+
+Rules:
+- Build hypotheses around the ACTUAL document facts listed above.
+- search_queries: 8-12 queries to find EXTERNAL CONTEXT only (industry benchmarks, regulations, market data) that supplements the document. Do NOT search for facts already in the document.
+- outline: 4-6 section headings reflecting the real document content.
+- CRITICAL: Do not invent salary figures, compensation amounts, job titles, years of experience or any other values not explicitly in the document.
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.1)
 
@@ -598,6 +620,38 @@ Writing rules:
 - Do not expose internal prompt language. Do not write "this section argues", "this report finds", "Hypothesis H1 is supported", or "this analysis is based on a structured research plan"; state the insight directly.
 - methodology should only describe public sources and independent-validation boundaries; do not explain the research framework, number of hypotheses, evidence ledger or sizing methods.
 - Do not fabricate market size, share, ROI or cost data. If missing, keep it as an evidence gap and validation task.
+"""
+        # RAG STRICT MODE: When private documents are present, override system and user prompts
+        # to enforce fact-only generation and prevent hallucination of invented numbers.
+        if self.rag_context:
+            system = (
+                "You are a precise document analyst. Your ONLY job is to extract, organize, and "
+                "contextualize the EXACT facts from the provided private documents. "
+                "You MUST NOT invent, extrapolate, or assume any figures not explicitly present. "
+                "Return one valid JSON object only. No markdown."
+            )
+            user = f"""Generate a factual document analysis report and return JSON.
+
+Topic: {topic}
+
+PRIVATE DOCUMENT CONTEXT (this is your PRIMARY and HIGHEST-PRIORITY source of truth):
+{self.rag_context}
+
+Supplementary public sources for external context ONLY (do NOT use these to replace or override document facts):
+{source_text[:3000]}
+
+Required fields:
+title, dek, category, authors, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
+
+CRITICAL RULES (violation = failure):
+1. ONLY use facts, numbers, names, dates, and figures that appear VERBATIM in the PRIVATE DOCUMENT CONTEXT above.
+2. If a value is NOT in the document, write exactly: "Not stated in the provided document."
+3. Do NOT invent salaries, compensation figures, years of experience, job titles, team sizes, budget amounts, or any other quantitative values.
+4. You MAY use public sources to provide industry benchmarks or external comparison, BUT you MUST clearly label them as "External benchmark:" and never present them as document facts.
+5. key_takeaways: exactly 3, each grounded in document facts.
+6. sections: 4-6 items. Each section MUST cite specific text from the document. If a section cannot be supported by document text, omit it.
+7. action_steps: 3-5 items based on what the document states, not invented recommendations.
+8. references: only use real URLs present in the supplementary public sources above.
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.12)
 
