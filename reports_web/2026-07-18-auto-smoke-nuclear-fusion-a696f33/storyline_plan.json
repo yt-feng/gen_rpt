@@ -1,0 +1,128 @@
+{
+  "core_question": "Should we invest in or develop a strategic position in nuclear fusion technology now, or wait for further de-risking?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, adoption, technology",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "To date, Milestone awardees have collectively raised over $350 million of new private funding since their selection into the program was announced in May 2023, compared to the $46 million of federal funding initially committed for negotiated milestones.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "Highlights of the FY 2027 Request The FES FY 2027 Request of $755.3 million is a decrease of $50.406 million below FY 2026 Enacted, with reduced funding for core research to offset increases for high priority research activities and facility operations.",
+    "All 8 awardees are presently working toward presenting pre-conceptual designs and technology roadmaps of their FPP concepts within the first 18 months of the Milestone program—roughly late 2025 (18 months into the Milestone Program).",
+    "Both… Read more Nuclear Security Legacy View all Press Releases Fact Sheets FACT SHEET: The Department of Energy is Ensuring Affordable Energy Access in Ohio While Powering the Future of AI FACT SHEET: The Energy Department is Unleashing Beautiful, Clean Coal FACT SHEET: The Energy Department is Lowering Electricity Costs in Georgia and Alabama View all Fact"
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Nuclear fusion will not achieve grid-connected electricity before 2035.",
+      "decision_relevance": "If true, near-term investment in fusion is premature; focus on fission and renewables.",
+      "needed_evidence": [
+        "Published timelines from major projects (ITER, SPARC, DEMO) and independent assessments."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "First-of-a-kind fusion plants will have LCOE > $100/MWh, making them uncompetitive without subsidies.",
+      "decision_relevance": "Determines if fusion can compete with renewables and gas in the 2030s.",
+      "needed_evidence": [
+        "LCOE estimates from credible sources (IEA, Lazard, fusion companies)."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Private fusion companies have raised over $5 billion cumulatively, but less than 20% is from non-dilutive sources.",
+      "decision_relevance": "Indicates reliance on venture capital; risk of funding gaps.",
+      "needed_evidence": [
+        "Aggregate funding data from Fusion Industry Association, Crunchbase."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "No fusion reactor has achieved a net energy gain (Q>1) for more than 5 seconds.",
+      "decision_relevance": "If true, sustained operation remains a major hurdle.",
+      "needed_evidence": [
+        "Records from NIF, JET, and other experiments."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Government funding for fusion (e.g., US, EU, Japan, China) exceeds $2 billion annually, but is concentrated in ITER.",
+      "decision_relevance": "Shows public sector commitment and potential for policy risk.",
+      "needed_evidence": [
+        "Budget documents from DOE, Euratom, etc."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The number of fusion startups has plateaued since 2020, indicating consolidation or disillusionment.",
+      "decision_relevance": "Market maturity signal; affects competitive dynamics.",
+      "needed_evidence": [
+        "Count of active fusion companies over time."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Fusion will first be commercialized for marine propulsion or industrial heat, not electricity.",
+      "decision_relevance": "Changes addressable market and investment thesis.",
+      "needed_evidence": [
+        "Company announcements, pilot projects."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Total addressable market = Global electricity generation (kWh) × fusion share (%) × price ($/kWh)",
+      "variables": [
+        "Global electricity generation (IEA)",
+        "Fusion market share (scenario-based: 1-10% by 2050)",
+        "Wholesale electricity price ($0.05-0.15/kWh)"
+      ],
+      "known_limitations": [
+        "Highly sensitive to assumed market share; ignores regional differences."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market size = Number of fusion plants × Capacity per plant (GW) × Capacity factor × Revenue per MWh",
+      "variables": [
+        "Number of plants (from company announcements, e.g., 10 by 2040)",
+        "Plant capacity (0.5-2 GW)",
+        "Capacity factor (90% assumed)",
+        "Revenue per MWh (PPA price)"
+      ],
+      "known_limitations": [
+        "Speculative plant counts; limited public data on PPA prices."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Adoption = (Awareness × Interest × Trial × Adoption) of utilities",
+      "variables": [
+        "Number of utilities globally",
+        "Percentage aware of fusion",
+        "Percentage considering fusion",
+        "Percentage with pilot projects",
+        "Percentage ordering commercial plants"
+      ],
+      "known_limitations": [
+        "Subjective conversion rates; limited survey data."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Value = Revenue from electricity sales + Carbon credits + Grid services + Technology licensing",
+      "variables": [
+        "Electricity revenue (from top-down)",
+        "Carbon price ($50-200/tCO2)",
+        "Grid services value (ancillary markets)",
+        "Licensing fees (royalty rates)"
+      ],
+      "known_limitations": [
+        "Carbon price uncertainty; grid services market nascent."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

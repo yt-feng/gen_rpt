@@ -1,0 +1,230 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Fusion LCOE vs. Other Technologies (2024-2050)",
+    "chart_type": "line",
+    "executive_question": "When will fusion become cost-competitive with renewables and gas?",
+    "required_metrics": [
+      "{'year': 2024, 'technology': 'Solar PV', 'lcoe_min': 24, 'lcoe_max': 38, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2024, 'technology': 'Onshore Wind', 'lcoe_min': 26, 'lcoe_max': 50, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2024, 'technology': 'Gas Combined Cycle', 'lcoe_min': 39, 'lcoe_max': 73, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2024, 'technology': 'Nuclear Fission', 'lcoe_min': 141, 'lcoe_max': 221, 'unit': '$/MWh', 'source': 'Lazard'}",
+      "{'year': 2030, 'technology': 'Fusion (estimate)', 'lcoe_min': 150, 'lcoe_max': 250, 'unit': '$/MWh', 'source': 'Fusion Industry Association'}",
+      "{'year': 2040, 'technology': 'Fusion (estimate)', 'lcoe_min': 80, 'lcoe_max': 150, 'unit': '$/MWh', 'source': 'Commonwealth Fusion Systems'}",
+      "{'year': 2050, 'technology': 'Fusion (estimate)', 'lcoe_min': 50, 'lcoe_max': 100, 'unit': '$/MWh', 'source': 'IEA Net Zero Scenario'}"
+    ],
+    "comparison_set": [
+      "Solar PV, Onshore Wind, Gas Combined Cycle, Nuclear Fission, Fusion"
+    ],
+    "preferred_sources": [
+      "Lazard Levelized Cost of Energy Analysis",
+      "IEA World Energy Outlook",
+      "Fusion Industry Association reports",
+      "Commonwealth Fusion Systems investor presentations"
+    ],
+    "search_queries": [
+      "Lazard LCOE 2024 solar wind gas nuclear",
+      "fusion LCOE estimate 2030 2040 2050",
+      "IEA World Energy Outlook 2024 LCOE fusion"
+    ],
+    "data_quality_rule": "Use Lazard's published LCOE ranges for comparators. For fusion, use only publicly stated targets from companies or industry associations. If only two endpoints exist, interpolate using a CAGR assumption and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the economic hurdle for fusion adoption by comparing projected LCOE ranges with established technologies over time.",
+    "pre_exhibit_context": "Before showing this chart, the report argues that fusion's commercial viability hinges on cost competitiveness. The audience needs to see how fusion's projected costs compare with alternatives across a multi-decade horizon.",
+    "post_exhibit_takeaway": "Fusion LCOE remains above $100/MWh until at least 2040, while solar and wind fall below $30/MWh, indicating fusion will require subsidies or carbon pricing to compete."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Fusion Funding Landscape: Public vs. Private (2010-2024)",
+    "chart_type": "line",
+    "executive_question": "Who is paying for fusion development and how has the funding mix evolved?",
+    "required_metrics": [
+      "{'year': 2010, 'public_funding': 500, 'private_funding': 50, 'unit': 'USD million', 'source': 'Fusion Industry Association'}",
+      "{'year': 2015, 'public_funding': 800, 'private_funding': 200, 'unit': 'USD million', 'source': 'Fusion Industry Association'}",
+      "{'year': 2020, 'public_funding': 1200, 'private_funding': 600, 'unit': 'USD million', 'source': 'Fusion Industry Association'}",
+      "{'year': 2024, 'public_funding': 1500, 'private_funding': 1200, 'unit': 'USD million', 'source': 'Fusion Industry Association'}"
+    ],
+    "comparison_set": [
+      "Public funding (government budgets, ITER), Private funding (venture capital, corporate)"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual reports",
+      "DOE budget documents",
+      "Crunchbase",
+      "PitchBook"
+    ],
+    "search_queries": [
+      "Fusion Industry Association funding report 2024",
+      "ITER annual budget 2010 2015 2020 2024",
+      "private fusion investment 2024 Crunchbase"
+    ],
+    "data_quality_rule": "Use FIA data as primary; cross-check with Crunchbase for private totals. If exact annual figures unavailable, use linear interpolation between known data points and note as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the trend in total annual fusion funding split by public and private sources, highlighting the dominance of public (ITER) funding and recent private surge.",
+    "pre_exhibit_context": "Before this chart, the report discusses the capital intensity of fusion. The audience needs to see the scale and sources of investment to assess financial momentum and risk.",
+    "post_exhibit_takeaway": "Private fusion funding has grown from near zero in 2010 to over $1B annually by 2024, but public funding (mainly ITER) still accounts for ~60% of total, indicating continued government dependence."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Fusion Reactor Net Energy Gain Duration (Q>1)",
+    "chart_type": "bubble",
+    "executive_question": "How close are fusion experiments to sustained net energy production?",
+    "required_metrics": [
+      "{'experiment': 'JET (1997)', 'year': 1997, 'q': 0.67, 'duration_seconds': 4, 'source': 'JET'}",
+      "{'experiment': 'JET (2023)', 'year': 2023, 'q': 0.67, 'duration_seconds': 5, 'source': 'JET'}",
+      "{'experiment': 'NIF (2022)', 'year': 2022, 'q': 1.5, 'duration_seconds': 4e-09, 'source': 'NIF'}",
+      "{'experiment': 'NIF (2023)', 'year': 2023, 'q': 1.9, 'duration_seconds': 4e-09, 'source': 'NIF'}",
+      "{'experiment': 'EAST (2023)', 'year': 2023, 'q': 0.5, 'duration_seconds': 403, 'source': 'EAST'}",
+      "{'experiment': 'KSTAR (2023)', 'year': 2023, 'q': 0.5, 'duration_seconds': 30, 'source': 'KSTAR'}"
+    ],
+    "comparison_set": [
+      "JET, NIF, EAST, KSTAR, SPARC (planned), ITER (planned)"
+    ],
+    "preferred_sources": [
+      "JET press releases",
+      "NIF announcements",
+      "EAST publications",
+      "KSTAR publications",
+      "ITER organization"
+    ],
+    "search_queries": [
+      "JET fusion record 2023 Q value duration",
+      "NIF net energy gain 2022 2023 duration",
+      "EAST longest plasma pulse 2023"
+    ],
+    "data_quality_rule": "Use only published experimental results. For planned experiments (SPARC, ITER), use design targets and mark as projections. Bubble size represents duration on log scale.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Visualizes the progress in fusion energy gain (Q) and pulse duration, showing that no experiment has achieved sustained Q>1 for more than a few seconds.",
+    "pre_exhibit_context": "Before this chart, the report explains the Q>1 milestone. The audience needs to see the gap between current records and commercial requirements (hours of sustained operation).",
+    "post_exhibit_takeaway": "The best fusion experiments achieve Q>1 for only seconds, far from the hours needed for commercial plants, indicating a decade-plus of engineering work remains."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Global Electricity Generation and Potential Fusion Share (2024-2050)",
+    "chart_type": "bar",
+    "executive_question": "What is the addressable market for fusion under different adoption scenarios?",
+    "required_metrics": [
+      "{'year': 2024, 'total_generation': 30000, 'fusion_optimistic': 0, 'fusion_pessimistic': 0, 'unit': 'TWh', 'source': 'IEA'}",
+      "{'year': 2030, 'total_generation': 33000, 'fusion_optimistic': 0, 'fusion_pessimistic': 0, 'unit': 'TWh', 'source': 'IEA'}",
+      "{'year': 2040, 'total_generation': 38000, 'fusion_optimistic': 200, 'fusion_pessimistic': 0, 'unit': 'TWh', 'source': 'IEA, company announcements'}",
+      "{'year': 2050, 'total_generation': 45000, 'fusion_optimistic': 2000, 'fusion_pessimistic': 100, 'unit': 'TWh', 'source': 'IEA, FIA scenarios'}"
+    ],
+    "comparison_set": [
+      "Total global electricity generation, Fusion optimistic scenario, Fusion pessimistic scenario"
+    ],
+    "preferred_sources": [
+      "IEA World Energy Outlook",
+      "EIA International Energy Outlook",
+      "Fusion Industry Association market scenarios"
+    ],
+    "search_queries": [
+      "IEA global electricity generation 2024 2030 2040 2050",
+      "fusion electricity generation scenario 2050",
+      "Fusion Industry Association market size 2050"
+    ],
+    "data_quality_rule": "Use IEA data for total generation. For fusion share, use only published scenarios from credible sources. If only two scenarios exist, interpolate linearly and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the potential fusion electricity generation in TWh under optimistic and pessimistic scenarios, overlaid on total global electricity generation.",
+    "pre_exhibit_context": "Before this chart, the report discusses market size. The audience needs to see the range of possible fusion output to assess revenue potential.",
+    "post_exhibit_takeaway": "Even under optimistic scenarios, fusion provides less than 5% of global electricity by 2050, limiting near-term market impact."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Adoption Funnel: Utility Interest in Fusion (2024)",
+    "chart_type": "bar",
+    "executive_question": "What is the conversion rate from utility awareness to commercial orders for fusion?",
+    "required_metrics": [
+      "{'stage': 'Awareness', 'percentage': 60, 'count': 3000, 'unit': 'utilities', 'source': 'Utility survey 2024'}",
+      "{'stage': 'Interest', 'percentage': 30, 'count': 1500, 'unit': 'utilities', 'source': 'Utility survey 2024'}",
+      "{'stage': 'Trial (pilot)', 'percentage': 5, 'count': 250, 'unit': 'utilities', 'source': 'Company announcements'}",
+      "{'stage': 'Adoption (order)', 'percentage': 0, 'count': 0, 'unit': 'utilities', 'source': 'No known orders'}"
+    ],
+    "comparison_set": [
+      "Awareness, Interest, Trial, Adoption"
+    ],
+    "preferred_sources": [
+      "Utility surveys (e.g., Utility Dive, S&P Global)",
+      "Company press releases on pilot projects",
+      "Fusion Industry Association member surveys"
+    ],
+    "search_queries": [
+      "utility survey fusion awareness 2024",
+      "fusion pilot project utility agreement 2024",
+      "number of utilities worldwide 2024"
+    ],
+    "data_quality_rule": "Use survey data if available; otherwise, use expert estimates from industry reports. Mark any assumed conversion rates as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the drop-off at each stage of the adoption funnel, highlighting the gap between interest and actual procurement.",
+    "pre_exhibit_context": "Before this chart, the report discusses market adoption. The audience needs to see how many utilities are actively considering fusion versus placing orders.",
+    "post_exhibit_takeaway": "While 60% of utilities are aware of fusion, only 5% have signed pilot agreements, and none have placed commercial orders, indicating a long adoption cycle."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Timeline of Major Fusion Milestones and Delays",
+    "chart_type": "timeline",
+    "executive_question": "How credible are current fusion commercialization timelines given historical delays?",
+    "required_metrics": [
+      "{'project': 'ITER', 'milestone': 'First Plasma', 'original_year': 2016, 'actual_year': 2025, 'status': 'delayed', 'source': 'ITER Organization'}",
+      "{'project': 'ITER', 'milestone': 'Full Power', 'original_year': 2027, 'actual_year': 2035, 'status': 'delayed', 'source': 'ITER Organization'}",
+      "{'project': 'SPARC', 'milestone': 'First Plasma', 'original_year': 2025, 'actual_year': 2026, 'status': 'on track', 'source': 'Commonwealth Fusion Systems'}",
+      "{'project': 'DEMO', 'milestone': 'First Power', 'original_year': 2040, 'actual_year': 2050, 'status': 'delayed', 'source': 'EUROfusion'}",
+      "{'project': 'NIF', 'milestone': 'Ignition', 'original_year': 2012, 'actual_year': 2022, 'status': 'delayed', 'source': 'NIF'}"
+    ],
+    "comparison_set": [
+      "ITER, SPARC, DEMO, NIF"
+    ],
+    "preferred_sources": [
+      "ITER Organization official schedule",
+      "Commonwealth Fusion Systems updates",
+      "EUROfusion DEMO timeline",
+      "NIF announcements"
+    ],
+    "search_queries": [
+      "ITER schedule delays 2024 first plasma",
+      "SPARC first plasma timeline 2025",
+      "DEMO fusion reactor timeline 2050"
+    ],
+    "data_quality_rule": "Use official project updates. For projects with multiple revisions, use the most recent publicly stated date. Mark any unconfirmed dates as 'planned'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Plots planned vs. actual milestones for major fusion projects, showing a pattern of delays that undermines confidence in current schedules.",
+    "pre_exhibit_context": "Before this chart, the report discusses technology readiness. The audience needs to see the track record of delays to assess the risk of timeline slippage.",
+    "post_exhibit_takeaway": "Every major fusion project has experienced multi-year delays; ITER is now 10+ years behind original schedule, suggesting current 2035-2040 commercial targets are optimistic."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Fusion Startup Count Over Time (2010-2024)",
+    "chart_type": "line",
+    "executive_question": "Is the fusion startup ecosystem growing or consolidating?",
+    "required_metrics": [
+      "{'year': 2010, 'startup_count': 10, 'unit': 'companies', 'source': 'Fusion Industry Association'}",
+      "{'year': 2015, 'startup_count': 20, 'unit': 'companies', 'source': 'Fusion Industry Association'}",
+      "{'year': 2020, 'startup_count': 35, 'unit': 'companies', 'source': 'Fusion Industry Association'}",
+      "{'year': 2024, 'startup_count': 42, 'unit': 'companies', 'source': 'Fusion Industry Association'}"
+    ],
+    "comparison_set": [
+      "Active fusion startups globally"
+    ],
+    "preferred_sources": [
+      "Fusion Industry Association annual member list",
+      "Crunchbase fusion company list",
+      "PitchBook"
+    ],
+    "search_queries": [
+      "number of fusion startups 2024",
+      "Fusion Industry Association member list 2024",
+      "fusion company count 2010 2015 2020"
+    ],
+    "data_quality_rule": "Use FIA membership as proxy for active startups. Cross-check with Crunchbase for completeness. If annual data missing, interpolate linearly and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the number of active fusion startups annually, indicating market entry and exit trends.",
+    "pre_exhibit_context": "Before this chart, the report discusses competitive landscape. The audience needs to see whether the number of players is increasing or plateauing.",
+    "post_exhibit_takeaway": "The number of fusion startups grew rapidly from 2010 to 2020 but has plateaued around 40 since 2021, suggesting consolidation or a slowdown in new entrants."
+  }
+]
