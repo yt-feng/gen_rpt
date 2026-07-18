@@ -104,21 +104,10 @@ async def login(request: Request, req: LoginRequest):
     )
 
 @router.get("/me", response_model=APIResponse[dict])
-async def get_me(authorization: Optional[str] = Header(None)):
-    if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-        
-    email = authorization.replace("Bearer ", "").strip()
-    user = next((u for u in MOCK_USERS if u["email"] == email), None)
-    if not user:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-        
+async def get_me(request: Request):
+    from app.api.deps import get_current_user_placeholder
+    user = get_current_user_placeholder(request)
     return success_response(
-        data={
-            "id": user["id"],
-            "email": user["email"],
-            "full_name": user["full_name"],
-            "role": user["role"]
-        },
-        message="Fetched active user profile"
+        data={"user": user},
+        message="Current user retrieved"
     )
