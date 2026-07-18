@@ -1,0 +1,105 @@
+{
+  "core_question": "Should we proceed with Project SkyNet, pivot, or abandon the initiative based on financial viability under current consumer and regulatory conditions?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Consumer willingness to pay for drone delivery is less than $5 per package, making unit economics negative at current cost levels.",
+      "decision_relevance": "If true, revenue cannot cover costs without significant subsidies or volume.",
+      "needed_evidence": [
+        "Survey data on WTP, actual pricing from existing drone delivery trials (e.g., Zipline, Wing)."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "FAA UAM certification for urban drone operations will take at least 3 years beyond current projections, delaying revenue generation.",
+      "decision_relevance": "If true, project timeline extends, increasing capital requirements and risk.",
+      "needed_evidence": [
+        "FAA rulemaking timelines, recent certification delays for similar UAM vehicles."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "The total addressable market for urban drone delivery in our target city is less than 100,000 packages per day by 2027.",
+      "decision_relevance": "If true, scale insufficient to achieve unit cost reductions.",
+      "needed_evidence": [
+        "Population density, e-commerce penetration, competitor capacity."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Drone delivery unit cost (including drone, infrastructure, labor) exceeds $10 per package, making it uncompetitive with ground delivery.",
+      "decision_relevance": "If true, cannot compete on price without premium service.",
+      "needed_evidence": [
+        "Drone cost per delivery from operators, ground delivery cost benchmarks."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Consumer acceptance hurdles (noise, privacy, safety) reduce potential adoption by at least 50% compared to optimistic projections.",
+      "decision_relevance": "If true, market size halves, undermining financial case.",
+      "needed_evidence": [
+        "Public opinion polls, adoption rates in existing drone delivery programs."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Regulatory constraints (e.g., no-fly zones, altitude limits) restrict serviceable area to less than 30% of the target city.",
+      "decision_relevance": "If true, addressable market shrinks dramatically.",
+      "needed_evidence": [
+        "City-specific drone regulations, no-fly zone maps."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Competitors (e.g., Amazon Prime Air, Wing) will achieve lower costs and higher adoption, capturing majority market share before we scale.",
+      "decision_relevance": "If true, late entrant disadvantage makes viability unlikely.",
+      "needed_evidence": [
+        "Competitor funding, deployment scale, cost data."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "TAM = Total urban packages per day * % suitable for drone delivery",
+      "variables": [
+        "Total urban packages per day (from city logistics data)",
+        "% suitable (based on weight, distance, regulatory constraints)"
+      ],
+      "known_limitations": [
+        "Overestimates if suitability assumptions are too broad."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "SAM = Number of potential drone delivery customers * Average orders per customer per day * % willing to use drone",
+      "variables": [
+        "Number of potential customers (population density, income)",
+        "Average orders per customer (e-commerce frequency)",
+        "% willing (from surveys)"
+      ],
+      "known_limitations": [
+        "Requires accurate survey data; may miss B2B segment."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Realistic volume = TAM * Awareness * Trial * Adoption * Retention",
+      "variables": [
+        "Awareness (marketing reach)",
+        "Trial (first-time use rate)",
+        "Adoption (repeat use)",
+        "Retention (churn)"
+      ],
+      "known_limitations": [
+        "Funnel parameters are speculative without primary research."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
