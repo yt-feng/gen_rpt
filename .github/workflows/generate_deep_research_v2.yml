@@ -102,12 +102,23 @@ jobs:
           mkdir -p reports_web
           GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
           
+          set +e
           python -u -m gen_rpt.main_web \
             --topic "$TOPIC" \
             --slug "$SLUG" \
             --language en \
             --model "$MODEL" \
             --out-root reports_web > "$GEN_LOG" 2>&1
+          GEN_STATUS="$?"
+          set -e
+
+          echo "::group::Full generator log"
+          cat "$GEN_LOG"
+          echo "::endgroup::"
+          if [ "$GEN_STATUS" -ne 0 ]; then
+            echo "Generator failed with exit code $GEN_STATUS" >&2
+            exit "$GEN_STATUS"
+          fi
 
           REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
           if [ -z "$REPORT_DIR" ]; then

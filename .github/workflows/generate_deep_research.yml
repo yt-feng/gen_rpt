@@ -1,15 +1,6 @@
 name: Generate HTML Thought Leadership Report
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'gen_rpt/**'
-      - 'tests/**'
-      - 'tools/**'
-      - '.github/workflows/generate_deep_research.yml'
-      - 'requirements.txt'
   workflow_dispatch:
     inputs:
       topic:
@@ -38,7 +29,6 @@ concurrency:
 
 jobs:
   generate-report:
-    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && !contains(github.event.head_commit.message, 'Add generated HTML thought leadership report')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     env:
