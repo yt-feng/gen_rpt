@@ -180,9 +180,10 @@ class RetrievalEngineService:
         doc_ids = [d.id for d in filtered_docs]
         
         # 4. Fetch Chunks and Calculate similarity using pgvector Order By Cosine Distance
+        semantic_search_available = True
         try:
             query_vector = await generate_query_embedding(query, model=settings.KNOWLEDGE_EMBEDDING_MODEL)
-        except Exception as e:
+        except Exception:
             if settings.APP_ENV == "development":
                 import hashlib, random
                 h = hashlib.sha256(query.encode("utf-8")).hexdigest()
@@ -193,23 +194,30 @@ class RetrievalEngineService:
                 if norm > 0:
                     query_vector = [x / norm for x in query_vector]
             else:
-                raise e
+                # A transient embedding-provider outage must not make already
+                # indexed enterprise knowledge unavailable. Fall back to
+                # deterministic lexical ranking, then apply the same validation.
+                semantic_search_available = False
+                query_vector = None
 
-        distance_expr = KnowledgeChunk.embedding.cosine_distance(query_vector)
-        similarity_expr = 1.0 - distance_expr
-
-        chunk_stmt = select(
-            KnowledgeChunk,
-            similarity_expr.label("sim")
-        ).filter(
-            KnowledgeChunk.document_id.in_(doc_ids),
-            KnowledgeChunk.embedding.isnot(None)
-        ).order_by(
-            distance_expr
-        ).limit(target_count * 3)
-
-        chunk_res = await db.execute(chunk_stmt)
-        chunk_rows = chunk_res.all()
+        if semantic_search_available:
+            distance_expr = KnowledgeChunk.embedding.cosine_distance(query_vector)
+            similarity_expr = 1.0 - distance_expr
+            chunk_stmt = select(
+                KnowledgeChunk,
+                similarity_expr.label("sim")
+            ).filter(
+                KnowledgeChunk.document_id.in_(doc_ids),
+                KnowledgeChunk.embedding.isnot(None)
+            ).order_by(distance_expr).limit(target_count * 3)
+            chunk_res = await db.execute(chunk_stmt)
+            chunk_rows = chunk_res.all()
+        else:
+            chunk_stmt = select(KnowledgeChunk).filter(
+                KnowledgeChunk.document_id.in_(doc_ids)
+            ).limit(max(target_count * 10, 100))
+            chunk_res = await db.execute(chunk_stmt)
+            chunk_rows = [(chunk, None) for chunk in chunk_res.scalars().all()]
         
         # 5. Hybrid Search & Vector Calculations
         chunk_candidates = []
@@ -219,9 +227,13 @@ class RetrievalEngineService:
             # Keyword Overlay
             keyword = calculate_keyword_score(query, meta.get("content", ""))
             
-            # Hybrid weighted base score
-            norm_sim = float((sim + 1.0) / 2.0)
-            hybrid_score = 0.7 * norm_sim + 0.3 * keyword
+            # Hybrid semantic/keyword score, or keyword-only score when the
+            # external embedding provider is temporarily unavailable.
+            if semantic_search_available:
+                norm_sim = float((sim + 1.0) / 2.0)
+                hybrid_score = 0.7 * norm_sim + 0.3 * keyword
+            else:
+                hybrid_score = keyword
             
             # Resolve parent document references
             parent_doc = next((d for d in filtered_docs if d.id == ch.document_id), None)
@@ -241,10 +253,10 @@ class RetrievalEngineService:
             }
             chunk_candidates.append(candidate)
 
-        min_relevance = float(settings.RAG_MIN_RELEVANCE_SCORE)
+        min_relevance = float(settings.RAG_MIN_RELEVANCE_SCORE) if semantic_search_available else 0.0
         chunk_candidates = [
             candidate for candidate in chunk_candidates
-            if candidate["similarity_score"] >= min_relevance
+            if candidate["similarity_score"] > min_relevance
         ]
             
         # 6. Decay Ranking & Confidence

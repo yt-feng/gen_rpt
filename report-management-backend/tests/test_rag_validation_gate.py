@@ -6,6 +6,7 @@ import pytest
 
 from app.services.validation.source import SourceValidationService
 from app.services.validation.conflict import ConflictService
+from app.services.retrieval_similarity import calculate_keyword_score
 
 
 def _query_result(*documents):
@@ -87,3 +88,15 @@ async def test_unrelated_key_headings_do_not_create_false_numeric_conflicts():
 
     assert conflict_map == {}
     assert conflicts == []
+
+
+def test_keyword_score_retains_relevant_long_evidence_chunks():
+    query = "Project SkyNet financial investment urban drone delivery"
+    relevant = (
+        "OmniLogistics is allocating 45.5 million dollars in capital expenditure "
+        "for Project SkyNet, its autonomous urban drone delivery initiative."
+    )
+    unrelated = "Quarterly hiring policy for the human resources department."
+
+    assert calculate_keyword_score(query, relevant) > 0.5
+    assert calculate_keyword_score(query, relevant) > calculate_keyword_score(query, unrelated)

@@ -26,6 +26,14 @@ from app.logging.logger import logger
 from app.utils.serialization import stringify_uuids
 
 
+class RAGContextPreparationError(RuntimeError):
+    """A safe, stage-labelled context preparation failure."""
+
+    def __init__(self, stage: str):
+        self.stage = stage
+        super().__init__(f"RAG context preparation failed during {stage}")
+
+
 class ContextCacheService:
     async def get_cached_context(self, db: AsyncSession, cache_key: str) -> Optional[dict]:
         stmt = select(GenerationContextCache).where(
@@ -371,15 +379,18 @@ class GenerationContextService:
             return cached_pkg
 
         # 3. Retrieve Knowledge
-        ret_payload = await retrieval_engine_service.retrieve_knowledge(
-            db=db,
-            query=query,
-            target_count=20,
-            collection_ids=collection_ids,
-            user_id=user_id,
-            user_org_id=user_org_id,
-            token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET
-        )
+        try:
+            ret_payload = await retrieval_engine_service.retrieve_knowledge(
+                db=db,
+                query=query,
+                target_count=20,
+                collection_ids=collection_ids,
+                user_id=user_id,
+                user_org_id=user_org_id,
+                token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET
+            )
+        except Exception as exc:
+            raise RAGContextPreparationError("retrieval") from exc
         ret_time = int((time.time() - ret_start) * 1000)
 
         # No eligible/relevant evidence is a valid result, not a validation
@@ -421,7 +432,10 @@ class GenerationContextService:
         val_start = time.time()
         # 4. Validate Results (orchestrator from Phase R8)
         session_id = ret_payload["session_id"]
-        val_pkg = await validation_service.validate_session(db, session_id, user_id)
+        try:
+            val_pkg = await validation_service.validate_session(db, session_id, user_id)
+        except Exception as exc:
+            raise RAGContextPreparationError("validation") from exc
         val_time = int((time.time() - val_start) * 1000)
         
         rank_index = {str(chunk_id): position for position, chunk_id in enumerate(val_pkg.evidence_ranking)}

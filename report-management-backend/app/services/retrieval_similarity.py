@@ -1,4 +1,5 @@
 import math
+import re
 from typing import List, Dict, Any
 
 def calculate_cosine_similarity(vec1: List[float], vec2: List[float]) -> float:
@@ -21,10 +22,13 @@ def calculate_keyword_score(query: str, text: str) -> float:
     """
     if not query or not text:
         return 0.0
-    q_tokens = set(query.lower().split())
-    t_tokens = set(text.lower().split())
+    q_tokens = set(re.findall(r"[a-z0-9]+", query.lower()))
+    t_tokens = set(re.findall(r"[a-z0-9]+", text.lower()))
     if not q_tokens or not t_tokens:
         return 0.0
     intersection = q_tokens.intersection(t_tokens)
-    union = q_tokens.union(t_tokens)
-    return float(len(intersection) / len(union))
+    # Query coverage works better than plain Jaccard for long evidence chunks:
+    # relevant chunks naturally contain many words that are not in a short query.
+    query_coverage = len(intersection) / len(q_tokens)
+    text_precision = len(intersection) / len(t_tokens)
+    return float((0.8 * query_coverage) + (0.2 * text_precision))

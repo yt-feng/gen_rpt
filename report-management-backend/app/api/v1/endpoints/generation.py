@@ -69,7 +69,7 @@ async def create_job(
 
     rag_state = {"requested": bool(settings.RAG_ENABLED), "status": "disabled", "chunk_count": 0}
     if settings.RAG_ENABLED:
-        from app.services.rag_integration import generation_context_service
+        from app.services.rag_integration import generation_context_service, RAGContextPreparationError
         from app.logging.logger import logger
         try:
             # Auto-resolve collection_ids: use provided ones or fall back to user's own collections
@@ -114,9 +114,10 @@ async def create_job(
             await db.rollback()
             if isinstance(e, HTTPException):
                 raise
+            stage = e.stage if isinstance(e, RAGContextPreparationError) else "unknown"
             raise HTTPException(
                 status_code=503,
-                detail="RAG context preparation failed. No report was dispatched.",
+                detail=f"RAG context preparation failed during {stage}. No report was dispatched.",
             ) from e
 
 
