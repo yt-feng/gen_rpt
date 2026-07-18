@@ -116,6 +116,14 @@ jobs:
           cat "$GEN_LOG"
           echo "::endgroup::"
           if [ "$GEN_STATUS" -ne 0 ]; then
+            ERROR_LINE="$(tail -n 1 "$GEN_LOG" | tr -d '\r')"
+            echo "::error title=Generator failure::$ERROR_LINE"
+            {
+              echo "### Generator failure"
+              echo '```text'
+              tail -n 40 "$GEN_LOG"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
             echo "Generator failed with exit code $GEN_STATUS" >&2
             exit "$GEN_STATUS"
           fi

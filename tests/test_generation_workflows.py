@@ -18,6 +18,7 @@ class GenerationWorkflowTests(unittest.TestCase):
 
         self.assertIn('GEN_STATUS="$?"', workflow)
         self.assertIn('cat "$GEN_LOG"', workflow)
+        self.assertIn("::error title=Generator failure::", workflow)
         self.assertLess(workflow.index('cat "$GEN_LOG"'), workflow.index('exit "$GEN_STATUS"'))
 
 

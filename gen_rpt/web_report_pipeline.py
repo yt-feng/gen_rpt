@@ -16,6 +16,7 @@ from .web_evidence import build_evidence_exhibits, build_evidence_ledger, build_
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
     client_visible_internal_hits,
+    ground_rag_section_evidence,
     publication_contract_prompt,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
@@ -157,6 +158,7 @@ class WebReportPipeline:
         try:
             report = self._synthesize_web_report(display_topic, plan, chart_data_needs, sources, fact_pack, evidence_ledger, storyline_plan)
             if self.rag_context:
+                report = ground_rag_section_evidence(report, rag_source_chunks)
                 quality_issues = rag_report_quality_issues(
                     report,
                     topic=display_topic,
@@ -176,6 +178,7 @@ class WebReportPipeline:
                         storyline_plan,
                         quality_corrections=quality_issues,
                     )
+                    report = ground_rag_section_evidence(report, rag_source_chunks)
                     quality_issues = rag_report_quality_issues(
                         report,
                         topic=display_topic,
@@ -228,7 +231,12 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE normalize_and_validate_schema started | expected <10s")
         self._post_process(report, display_topic, sources, fact_pack)
-        report = normalize_web_report(report, topic=display_topic, language=self.language)
+        report = normalize_web_report(
+            report,
+            topic=display_topic,
+            language=self.language,
+            allow_synthetic_fallbacks=not bool(self.rag_context),
+        )
         if self.rag_context:
             final_quality_issues = rag_report_quality_issues(
                 report,

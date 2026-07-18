@@ -14,10 +14,12 @@ from gen_rpt.web_fetch import (
 )
 from gen_rpt.web_evidence import merge_evidence_exhibits
 from gen_rpt.web_publication_contract import (
+    ground_rag_section_evidence,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
     rag_visible_numbers_supported,
 )
+from gen_rpt.web_report_renderer import normalize_web_report
 
 
 def _context_payload():
@@ -231,6 +233,37 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertTrue(any("90" in issue and "99" in issue for issue in issues))
+
+    def test_section_citation_is_repaired_from_best_matching_chunk(self):
+        report = {
+            "sections": [
+                {
+                    "title": "Consumer acceptance supports a conditional launch",
+                    "lead": "Acceptance is the strongest demand signal.",
+                    "paragraphs": ["Consumer survey evidence should govern the launch decision."],
+                    "evidence": ["The survey supports demand."],
+                }
+            ]
+        }
+        chunks = {
+            "financial": "The validated investment is $45.5 million.",
+            "consumer": "The consumer acceptance survey recorded a 68% positive response for drone delivery.",
+        }
+
+        ground_rag_section_evidence(report, chunks)
+
+        self.assertTrue(any(item.startswith("[Chunk: consumer]") for item in report["sections"][0]["evidence"]))
+
+    def test_rag_normalization_does_not_inject_synthetic_fallbacks(self):
+        report = normalize_web_report(
+            {"title": "Grounded report", "key_takeaways": ["A", "B", "C"], "sections": []},
+            topic="Grounded report",
+            allow_synthetic_fallbacks=False,
+        )
+
+        self.assertEqual(report["sections"], [])
+        self.assertEqual(report["exhibits"], [])
+        self.assertEqual(report["action_steps"], [])
 
 if __name__ == "__main__":
     unittest.main()

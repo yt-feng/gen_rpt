@@ -268,6 +268,46 @@ def rag_exhibit_is_grounded(
     return False
 
 
+def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> Any:
+    """Attach an exact best-matching chunk excerpt when the model citation format drifts."""
+    if not isinstance(report, dict) or not source_chunks:
+        return report
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        evidence = [str(item).strip() for item in section.get("evidence", []) or [] if str(item).strip()]
+        if any(_evidence_matches_chunk(item, source_chunks) for item in evidence):
+            continue
+        section_text = " ".join(
+            [str(section.get(key) or "") for key in ("title", "lead", "body", "so_what")]
+            + [str(item) for item in section.get("paragraphs", []) or []]
+        )
+        section_terms = _grounding_terms(section_text)
+        ranked_chunks = sorted(
+            source_chunks.items(),
+            key=lambda item: len(section_terms & _grounding_terms(item[1])),
+            reverse=True,
+        )
+        if not ranked_chunks or not (section_terms & _grounding_terms(ranked_chunks[0][1])):
+            continue
+        chunk_id, chunk_text = ranked_chunks[0]
+        sentences = [item.strip() for item in re.split(r"(?<=[.!?])\s+|\n+", chunk_text) if len(item.strip()) >= 20]
+        quote = max(
+            sentences or [chunk_text.strip()],
+            key=lambda item: len(section_terms & _grounding_terms(item)),
+        )[:360].rsplit(" ", 1)[0].strip()
+        quote = quote.replace('"', "'").replace("“", "'").replace("”", "'")
+        if quote:
+            evidence.append(f'[Chunk: {chunk_id}] "{quote}" — Supporting document evidence.')
+            section["evidence"] = evidence
+    return report
+
+
+def _grounding_terms(value: Any) -> set[str]:
+    stopwords = {"about", "after", "before", "could", "document", "evidence", "from", "into", "should", "that", "their", "there", "these", "this", "through", "validated", "with", "would"}
+    return {word for word in re.findall(r"[a-z0-9]+", str(value or "").lower()) if len(word) >= 4 and word not in stopwords}
+
+
 def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
     visible_text = _exhibit_reader_text(value) if isinstance(value, dict) and "type" in value else _visible_value_text(value)
     return not (_number_tokens(visible_text) - _number_tokens(context_text))

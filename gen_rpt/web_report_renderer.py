@@ -756,7 +756,13 @@ def render_web_report_markdown(
     return output_file
 
 
-def normalize_web_report(report: Dict[str, Any], *, topic: str, language: str = "en") -> Dict[str, Any]:
+def normalize_web_report(
+    report: Dict[str, Any],
+    *,
+    topic: str,
+    language: str = "en",
+    allow_synthetic_fallbacks: bool = True,
+) -> Dict[str, Any]:
     data = dict(report or {})
     title = _text(data.get("title") or data.get("report_title") or topic)
     dek = _text(
@@ -787,11 +793,11 @@ def normalize_web_report(report: Dict[str, Any], *, topic: str, language: str = 
     methodology = _text(data.get("methodology") or data.get("methodology_note") or "")
     source_count = int(_number(data.get("source_count"), 0))
 
-    if len(sections) < 4:
+    if allow_synthetic_fallbacks and len(sections) < 4:
         sections.extend(_fallback_sections(topic, takeaways, language)[len(sections):])
-    if not exhibits:
+    if allow_synthetic_fallbacks and not exhibits:
         exhibits = _fallback_exhibits(topic, language)
-    if not action_steps:
+    if allow_synthetic_fallbacks and not action_steps:
         action_steps = _fallback_actions(language)
 
     return {
