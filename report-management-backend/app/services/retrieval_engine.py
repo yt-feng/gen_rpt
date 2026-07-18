@@ -185,7 +185,7 @@ class RetrievalEngineService:
             query_vector = await generate_query_embedding(query, model=settings.KNOWLEDGE_EMBEDDING_MODEL)
         except Exception:
             if settings.APP_ENV == "development":
-                import hashlib, random
+                import random
                 h = hashlib.sha256(query.encode("utf-8")).hexdigest()
                 rng = random.Random(int(h, 16))
                 dim = getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384)

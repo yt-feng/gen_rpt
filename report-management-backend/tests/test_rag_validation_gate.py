@@ -1,4 +1,5 @@
 import uuid
+import ast
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
@@ -113,6 +114,24 @@ def test_error_responses_preserve_configured_frontend_cors():
 
     assert headers["Access-Control-Allow-Origin"] == request.headers["origin"]
     assert headers["Access-Control-Allow-Credentials"] == "true"
+
+
+def test_retrieval_engine_does_not_shadow_module_hashlib():
+    source_path = "app/services/retrieval_engine.py"
+    tree = ast.parse(open(source_path, encoding="utf-8").read())
+    retrieval_function = next(
+        node for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "retrieve_knowledge"
+    )
+    local_imports = {
+        alias.asname or alias.name
+        for node in ast.walk(retrieval_function)
+        if isinstance(node, ast.Import)
+        for alias in node.names
+    }
+
+    assert "hashlib" not in local_imports
 
 
 @pytest.mark.asyncio
