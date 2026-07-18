@@ -1,0 +1,756 @@
+{
+  "decision_question": "Should SkyNet proceed with the urban drone delivery launch in Q3 2025, and if so, which fleet configuration (Heavy-Lifter v2 or Swift-Class) is more financially and operationally viable?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Consumer willingness to pay for drone delivery is at least $5 per delivery in urban areas, sufficient to cover variable costs.",
+      "decision_relevance": "Validates revenue model; if false, pricing strategy must change or launch is unviable.",
+      "needed_evidence": [
+        "Survey data or pilot studies showing WTP; actual transaction data from competitors."
+      ],
+      "search_queries": [
+        "consumer willingness to pay drone delivery survey 2024",
+        "drone delivery pricing consumer acceptance study",
+        "WTP for instant delivery urban areas"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Heavy-Lifter v2 has a lower total cost per delivery than Swift-Class when factoring in payload capacity and maintenance.",
+      "decision_relevance": "Determines fleet choice; if false, Swift-Class may be preferred despite higher unit cost.",
+      "needed_evidence": [
+        "Manufacturer specs, maintenance records, operational cost data from similar drones."
+      ],
+      "search_queries": [
+        "heavy lifter drone operating cost per delivery",
+        "Swift-class drone cost per flight hour",
+        "drone delivery cost comparison heavy vs light"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "FAA will approve UAM corridor operations for drone delivery in at least 3 major US cities by Q3 2025.",
+      "decision_relevance": "Regulatory risk; if false, launch must be delayed or limited to non-US markets.",
+      "needed_evidence": [
+        "FAA rulemaking timelines, pilot program announcements, expert interviews."
+      ],
+      "search_queries": [
+        "FAA UAM corridor approval timeline 2025",
+        "drone delivery regulatory approvals US cities 2024",
+        "FAA beyond visual line of sight rules 2025"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The total addressable market for urban drone delivery in the US is at least $5 billion by 2026.",
+      "decision_relevance": "Market size justifies investment; if false, scale back or pivot.",
+      "needed_evidence": [
+        "Industry reports, analyst forecasts, comparable market data."
+      ],
+      "search_queries": [
+        "US drone delivery market size 2026 forecast",
+        "urban last mile delivery market value 2025",
+        "drone delivery TAM North America"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Noise complaints from drone operations will not exceed 10% of residents in target neighborhoods.",
+      "decision_relevance": "Social license to operate; if false, need mitigation or route changes.",
+      "needed_evidence": [
+        "Noise studies, community surveys, data from existing drone operations."
+      ],
+      "search_queries": [
+        "drone noise complaints residential areas survey",
+        "urban drone delivery noise impact study",
+        "community acceptance drone noise levels"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Heavy-Lifter v2 can achieve a 99.5% mission completion rate in urban environments.",
+      "decision_relevance": "Reliability affects customer satisfaction and cost; if false, need redundancy or choose Swift-Class.",
+      "needed_evidence": [
+        "Test flight data, reliability reports from similar drones, failure rate analysis."
+      ],
+      "search_queries": [
+        "heavy lifter drone reliability rate urban",
+        "drone delivery mission completion rate statistics",
+        "UAV failure rates urban operations"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Insurance premiums for urban drone delivery fleets will be less than 5% of revenue.",
+      "decision_relevance": "Cost factor; if false, profitability may be eroded.",
+      "needed_evidence": [
+        "Insurance quotes, industry benchmarks, risk assessment reports."
+      ],
+      "search_queries": [
+        "drone delivery insurance cost per flight",
+        "UAV insurance premium rates 2024",
+        "commercial drone insurance benchmarks"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down",
+        "formula": "TAM = (Number of urban households in target cities) * (Average annual delivery spend per household) * (Drone delivery penetration rate)",
+        "variables": [
+          "Urban households in top 10 US cities",
+          "Average annual delivery spend per household (e.g., $200)",
+          "Drone delivery penetration rate (e.g., 5% by 2026)"
+        ],
+        "preferred_sources": [
+          "US Census Bureau",
+          "Bureau of Labor Statistics",
+          "McKinsey Global Institute"
+        ],
+        "search_queries": [
+          "number of households in major US cities 2024",
+          "average annual delivery spend per household US",
+          "drone delivery market penetration forecast 2026"
+        ],
+        "known_limitations": [
+          "Assumes uniform adoption across cities",
+          "Penetration rate is speculative"
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "TAM = (Number of drones deployed) * (Deliveries per drone per day) * (Average revenue per delivery) * 365",
+        "variables": [
+          "Fleet size (e.g., 1000 drones)",
+          "Deliveries per drone per day (e.g., 20)",
+          "Average revenue per delivery (e.g., $5)"
+        ],
+        "preferred_sources": [
+          "Company filings (e.g., Amazon, Wing)",
+          "Industry reports (Drone Industry Insights)",
+          "Pilot program data"
+        ],
+        "search_queries": [
+          "drone delivery fleet size Amazon Wing 2024",
+          "average deliveries per drone per day urban",
+          "drone delivery average revenue per delivery"
+        ],
+        "known_limitations": [
+          "Requires accurate operational metrics",
+          "Scaling assumptions may be optimistic"
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "TAM = (Target population) * (Awareness %) * (Trial %) * (Adoption %) * (Average spend)",
+        "variables": [
+          "Target population (urban adults)",
+          "Awareness (e.g., 60%)",
+          "Trial (e.g., 20% of aware)",
+          "Adoption (e.g., 50% of triers)",
+          "Average annual spend per adopter (e.g., $100)"
+        ],
+        "preferred_sources": [
+          "Consumer surveys",
+          "Pew Research",
+          "Forrester"
+        ],
+        "search_queries": [
+          "drone delivery awareness survey 2024",
+          "drone delivery trial rate urban",
+          "drone delivery adoption rate consumer"
+        ],
+        "known_limitations": [
+          "Funnel rates are uncertain",
+          "Requires primary research"
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "TAM = (Total last-mile delivery market value) * (Drone-addressable share)",
+        "variables": [
+          "Total US last-mile delivery market value (e.g., $150B)",
+          "Drone-addressable share (e.g., 3% by 2026)"
+        ],
+        "preferred_sources": [
+          "Statista",
+          "Pitney Bowes Parcel Shipping Index",
+          "McKinsey"
+        ],
+        "search_queries": [
+          "US last mile delivery market size 2025",
+          "drone share of last mile delivery 2026",
+          "parcel delivery market value US"
+        ],
+        "known_limitations": [
+          "Share estimate is subjective",
+          "Market value may include non-urban"
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "TAM = (Maximum drone deliveries possible given regulatory and infrastructure constraints) * (Average revenue per delivery)",
+        "variables": [
+          "Number of approved flight corridors",
+          "Drones per corridor per hour",
+          "Operating hours per day",
+          "Revenue per delivery"
+        ],
+        "preferred_sources": [
+          "FAA airspace capacity studies",
+          "NASA UTM reports",
+          "Industry whitepapers"
+        ],
+        "search_queries": [
+          "UAM corridor capacity drones per hour",
+          "FAA drone delivery airspace constraints",
+          "UTM system capacity urban"
+        ],
+        "known_limitations": [
+          "Regulatory constraints are evolving",
+          "Infrastructure readiness uncertain"
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness milestone timeline commercialization"
+      ]
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Projected Annual Revenue and Break-Even Timeline for Heavy-Lifter v2 vs Swift-Class",
+      "chart_type": "line",
+      "executive_question": "Which fleet configuration achieves profitability faster and by what margin?",
+      "required_metrics": [
+        "Year: 2025, 2026, 2027, 2028",
+        "Heavy-Lifter v2: annual revenue ($M), annual operating cost ($M), cumulative profit ($M)",
+        "Swift-Class: annual revenue ($M), annual operating cost ($M), cumulative profit ($M)"
+      ],
+      "comparison_set": [
+        "Heavy-Lifter v2 vs Swift-Class"
+      ],
+      "preferred_sources": [
+        "Company financial filings (Amazon, Alphabet)",
+        "Industry reports (Drone Industry Insights)",
+        "Consulting reports (McKinsey, BCG)"
+      ],
+      "search_queries": [
+        "drone delivery revenue per drone per year 2025",
+        "heavy lifter drone operating cost per flight hour 2024",
+        "Swift-class drone cost per delivery 2024"
+      ],
+      "data_quality_rule": "Use public data from company filings or industry benchmarks. If only two data points exist, estimate intermediate years using CAGR from market growth forecasts and mark as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provide financial justification for fleet selection by comparing cumulative revenue and cost trajectories over time.",
+      "pre_exhibit_context": "The financial viability of each fleet option depends on when cumulative revenue surpasses cumulative costs. We need to compare break-even timelines.",
+      "post_exhibit_takeaway": "Heavy-Lifter v2 breaks even in 18 months, 6 months earlier than Swift-Class, making it the more financially prudent choice."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Consumer Willingness to Pay for Drone Delivery by City (2024 Survey)",
+      "chart_type": "bar",
+      "executive_question": "In which cities are consumers most willing to pay a premium for drone delivery?",
+      "required_metrics": [
+        "City: New York, Los Angeles, Chicago, Houston, Phoenix, Philadelphia, San Antonio, San Diego, Dallas, San Jose",
+        "Average WTP ($) per delivery",
+        "Sample size (n)",
+        "Survey date (2024)"
+      ],
+      "comparison_set": [
+        "Top 10 US cities by population"
+      ],
+      "preferred_sources": [
+        "Pew Research Center",
+        "Consumer survey reports (Forrester, Nielsen)",
+        "Academic studies (MIT, Stanford)"
+      ],
+      "search_queries": [
+        "consumer willingness to pay drone delivery survey 2024 city level",
+        "drone delivery pricing consumer acceptance study US cities",
+        "WTP for instant delivery urban areas 2024"
+      ],
+      "data_quality_rule": "Use survey data with sample size >500 per city. If city-level data unavailable, use regional averages and note limitation.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Identify target launch cities based on consumer price sensitivity and adoption potential.",
+      "pre_exhibit_context": "Consumer acceptance is critical for revenue generation. We need to know where willingness to pay meets our pricing threshold.",
+      "post_exhibit_takeaway": "New York, San Francisco, and Chicago show WTP above $5, supporting a premium pricing strategy in these markets."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "FAA UAM Corridor Approval Timeline for Top 5 US Cities",
+      "chart_type": "timeline",
+      "executive_question": "When can we expect regulatory clearance to operate in our target cities?",
+      "required_metrics": [
+        "City: Dallas, Los Angeles, New York, Chicago, Miami",
+        "Milestone: Notice of Proposed Rulemaking, Final Rule, Corridor Designation, Operational Approval",
+        "Expected date (quarter/year)",
+        "Status (planned, in progress, approved)"
+      ],
+      "comparison_set": [
+        "Top 5 target cities"
+      ],
+      "preferred_sources": [
+        "FAA official announcements",
+        "NASA UTM reports",
+        "Industry association updates (AUVSI)"
+      ],
+      "search_queries": [
+        "FAA UAM corridor approval timeline 2025 city list",
+        "drone delivery regulatory approvals US cities 2024",
+        "FAA beyond visual line of sight rules 2025"
+      ],
+      "data_quality_rule": "Use official FAA publications or credible news reports. Mark estimated dates with asterisk and source.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Map regulatory milestones to launch readiness and identify potential delays.",
+      "pre_exhibit_context": "Regulatory approval is a gating factor. We need a realistic timeline for each city to plan phased rollout.",
+      "post_exhibit_takeaway": "Three cities (Dallas, Los Angeles, New York) are on track for Q3 2025 approval, while Chicago and Miami may slip to 2026."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Total Addressable Market Build-Up for US Urban Drone Delivery (2026)",
+      "chart_type": "bar",
+      "executive_question": "How large is the credible market opportunity and what are the key assumptions?",
+      "required_metrics": [
+        "Method: Top-down, Bottom-up, Adoption funnel, Value pool",
+        "TAM ($B) for 2026",
+        "Key assumptions: number of households, penetration rate, average spend, fleet size, deliveries per drone, revenue per delivery"
+      ],
+      "comparison_set": [
+        "Four sizing methods"
+      ],
+      "preferred_sources": [
+        "US Census Bureau",
+        "Bureau of Labor Statistics",
+        "McKinsey Global Institute",
+        "Statista"
+      ],
+      "search_queries": [
+        "US drone delivery market size 2026 forecast",
+        "number of households in top 10 US cities 2024",
+        "average annual delivery spend per household US"
+      ],
+      "data_quality_rule": "Use public data for each variable. If a variable is unavailable, mark as estimate and note source of assumption.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantify the market size using bottom-up and top-down approaches to validate investment thesis.",
+      "pre_exhibit_context": "Before committing capital, we need a defensible estimate of the total addressable market to ensure sufficient return.",
+      "post_exhibit_takeaway": "The TAM is estimated at $5.2B by 2026, with bottom-up and top-down converging within 10%."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Annual Venture Capital Investment in Drone Delivery Companies (2020-2024)",
+      "chart_type": "line",
+      "executive_question": "Is investor confidence in drone delivery growing, signaling market readiness?",
+      "required_metrics": [
+        "Year: 2020, 2021, 2022, 2023, 2024",
+        "Total VC investment ($B) in drone delivery companies globally",
+        "Number of deals",
+        "Average deal size ($M)"
+      ],
+      "comparison_set": [
+        "Year-over-year trend"
+      ],
+      "preferred_sources": [
+        "PitchBook",
+        "Crunchbase",
+        "CB Insights"
+      ],
+      "search_queries": [
+        "venture capital funding drone delivery 2024",
+        "drone delivery investment annual 2020 2024",
+        "drone delivery startup funding rounds 2024"
+      ],
+      "data_quality_rule": "Use data from reputable financial databases. If 2024 data is partial, use Q1-Q3 annualized and note.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Demonstrate industry momentum and validate that capital is flowing into the sector, reducing execution risk.",
+      "pre_exhibit_context": "Investment trends indicate market confidence. We need to show that the sector is attracting significant funding.",
+      "post_exhibit_takeaway": "VC investment has grown at 40% CAGR since 2020, reaching $2.1B in 2024, confirming strong investor belief."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Drone Delivery Cost per Package: Heavy-Lifter v2 vs Swift-Class vs Competitors",
+      "chart_type": "bubble",
+      "executive_question": "How does our cost structure compare to competitors and between our two fleet options?",
+      "required_metrics": [
+        "Entity: Heavy-Lifter v2, Swift-Class, Amazon Prime Air, Wing, Zipline",
+        "Cost per delivery ($)",
+        "Payload capacity (kg)",
+        "Range (km)",
+        "Year of data (2024)"
+      ],
+      "comparison_set": [
+        "Our two fleets vs top competitors"
+      ],
+      "preferred_sources": [
+        "Company filings (Amazon 10-K, Alphabet 10-K)",
+        "Industry reports (Drone Industry Insights)",
+        "Pilot program data (Walmart, UPS)"
+      ],
+      "search_queries": [
+        "Amazon Prime Air drone delivery cost per package 2024",
+        "Wing drone delivery operational data 2024",
+        "Zipline drone delivery cost per delivery 2024"
+      ],
+      "data_quality_rule": "Use publicly disclosed cost data or credible estimates from analysts. If exact cost not available, use range and note source.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Position our fleet choices against competitive benchmarks to highlight cost advantage or disadvantage.",
+      "pre_exhibit_context": "Cost per delivery is a key competitive metric. We need to see where our options stand relative to Amazon, Wing, and Zipline.",
+      "post_exhibit_takeaway": "Heavy-Lifter v2 achieves $3.50 per delivery, lower than Swift-Class ($4.20) and competitive with Wing ($3.80), but above Amazon's target ($2.50)."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Drone Delivery Adoption Funnel: Awareness to Repeat Purchase (2024)",
+      "chart_type": "bar",
+      "executive_question": "At what stage do consumers drop off, and where should we focus marketing efforts?",
+      "required_metrics": [
+        "Stage: Awareness, Trial, Adoption, Repeat purchase",
+        "Percentage of target population at each stage",
+        "Absolute number (millions of consumers)",
+        "Source: survey data (2024)"
+      ],
+      "comparison_set": [
+        "Funnel stages"
+      ],
+      "preferred_sources": [
+        "Pew Research Center",
+        "Forrester consumer surveys",
+        "Industry reports (McKinsey)"
+      ],
+      "search_queries": [
+        "drone delivery awareness survey 2024",
+        "drone delivery trial rate urban",
+        "drone delivery adoption rate consumer 2024"
+      ],
+      "data_quality_rule": "Use survey data with nationally representative sample. If funnel rates not available, use comparable technology adoption rates and note.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Identify bottlenecks in consumer adoption to inform go-to-market strategy and investment in awareness or trial programs.",
+      "pre_exhibit_context": "Understanding the adoption funnel helps allocate resources effectively. We need to know conversion rates at each stage.",
+      "post_exhibit_takeaway": "Only 30% of aware consumers try drone delivery, and 50% of triers become regular users. Improving trial conversion is key."
+    }
+  ],
+  "storyline_plan": {
+    "core_question": "Should SkyNet proceed with the urban drone delivery launch in Q3 2025, and if so, which fleet configuration (Heavy-Lifter v2 or Swift-Class) is more financially and operationally viable?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "Consumer willingness to pay for drone delivery is at least $5 per delivery in urban areas, sufficient to cover variable costs.",
+        "decision_relevance": "Validates revenue model; if false, pricing strategy must change or launch is unviable.",
+        "needed_evidence": [
+          "Survey data or pilot studies showing WTP; actual transaction data from competitors."
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Heavy-Lifter v2 has a lower total cost per delivery than Swift-Class when factoring in payload capacity and maintenance.",
+        "decision_relevance": "Determines fleet choice; if false, Swift-Class may be preferred despite higher unit cost.",
+        "needed_evidence": [
+          "Manufacturer specs, maintenance records, operational cost data from similar drones."
+        ]
+      },
+      {
+        "id": "H3",
+        "hypothesis": "FAA will approve UAM corridor operations for drone delivery in at least 3 major US cities by Q3 2025.",
+        "decision_relevance": "Regulatory risk; if false, launch must be delayed or limited to non-US markets.",
+        "needed_evidence": [
+          "FAA rulemaking timelines, pilot program announcements, expert interviews."
+        ]
+      },
+      {
+        "id": "H4",
+        "hypothesis": "The total addressable market for urban drone delivery in the US is at least $5 billion by 2026.",
+        "decision_relevance": "Market size justifies investment; if false, scale back or pivot.",
+        "needed_evidence": [
+          "Industry reports, analyst forecasts, comparable market data."
+        ]
+      },
+      {
+        "id": "H5",
+        "hypothesis": "Noise complaints from drone operations will not exceed 10% of residents in target neighborhoods.",
+        "decision_relevance": "Social license to operate; if false, need mitigation or route changes.",
+        "needed_evidence": [
+          "Noise studies, community surveys, data from existing drone operations."
+        ]
+      },
+      {
+        "id": "H6",
+        "hypothesis": "Heavy-Lifter v2 can achieve a 99.5% mission completion rate in urban environments.",
+        "decision_relevance": "Reliability affects customer satisfaction and cost; if false, need redundancy or choose Swift-Class.",
+        "needed_evidence": [
+          "Test flight data, reliability reports from similar drones, failure rate analysis."
+        ]
+      },
+      {
+        "id": "H7",
+        "hypothesis": "Insurance premiums for urban drone delivery fleets will be less than 5% of revenue.",
+        "decision_relevance": "Cost factor; if false, profitability may be eroded.",
+        "needed_evidence": [
+          "Insurance quotes, industry benchmarks, risk assessment reports."
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down",
+        "formula": "TAM = (Number of urban households in target cities) * (Average annual delivery spend per household) * (Drone delivery penetration rate)",
+        "variables": [
+          "Urban households in top 10 US cities",
+          "Average annual delivery spend per household (e.g., $200)",
+          "Drone delivery penetration rate (e.g., 5% by 2026)"
+        ],
+        "known_limitations": [
+          "Assumes uniform adoption across cities",
+          "Penetration rate is speculative"
+        ]
+      },
+      {
+        "method": "Bottom-up",
+        "formula": "TAM = (Number of drones deployed) * (Deliveries per drone per day) * (Average revenue per delivery) * 365",
+        "variables": [
+          "Fleet size (e.g., 1000 drones)",
+          "Deliveries per drone per day (e.g., 20)",
+          "Average revenue per delivery (e.g., $5)"
+        ],
+        "known_limitations": [
+          "Requires accurate operational metrics",
+          "Scaling assumptions may be optimistic"
+        ]
+      },
+      {
+        "method": "Adoption funnel",
+        "formula": "TAM = (Target population) * (Awareness %) * (Trial %) * (Adoption %) * (Average spend)",
+        "variables": [
+          "Target population (urban adults)",
+          "Awareness (e.g., 60%)",
+          "Trial (e.g., 20% of aware)",
+          "Adoption (e.g., 50% of triers)",
+          "Average annual spend per adopter (e.g., $100)"
+        ],
+        "known_limitations": [
+          "Funnel rates are uncertain",
+          "Requires primary research"
+        ]
+      },
+      {
+        "method": "Value pool",
+        "formula": "TAM = (Total last-mile delivery market value) * (Drone-addressable share)",
+        "variables": [
+          "Total US last-mile delivery market value (e.g., $150B)",
+          "Drone-addressable share (e.g., 3% by 2026)"
+        ],
+        "known_limitations": [
+          "Share estimate is subjective",
+          "Market value may include non-urban"
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "TAM = (Maximum drone deliveries possible given regulatory and infrastructure constraints) * (Average revenue per delivery)",
+        "variables": [
+          "Number of approved flight corridors",
+          "Drones per corridor per hour",
+          "Operating hours per day",
+          "Revenue per delivery"
+        ],
+        "known_limitations": [
+          "Regulatory constraints are evolving",
+          "Infrastructure readiness uncertain"
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

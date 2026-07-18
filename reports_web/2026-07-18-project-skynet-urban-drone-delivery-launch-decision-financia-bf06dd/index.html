@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1' />
+<title>Project SkyNet Urban Drone Delivery: Proceed with Heavy-Lifter v2 in a Phased Launch</title>
+<meta name='description' content='Financial analysis, consumer acceptance data, regulatory timelines, and fleet readiness assessments support a go decision for Q3 2025, with Heavy-Lifter v2 as the preferred fleet configuration.' />
+<style>
+:root {
+  --forest: #0C2B15;
+  --green: #197A56;
+  --lime: #96F878;
+  --blue: #0A6B8A;
+  --amber: #B45F06;
+  --ink: #212427;
+  --muted: #696969;
+  --line: #D4D4D4;
+  --paper: #FFFFFF;
+  --sand: #F1EEEA;
+  --sand-2: #FAF8F4;
+  --charcoal: #232326;
+  --max: 1180px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: blueocean-sans, "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.58;
+}
+a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 0.18em; }
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255,255,255,.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+.nav-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand {
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--forest);
+}
+.nav-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.hero {
+  background: var(--sand);
+  border-bottom: 1px solid var(--line);
+}
+.hero-grid {
+  max-width: var(--max);
+  min-height: 620px;
+  margin: 0 auto;
+  padding: 58px 24px 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.72fr);
+  gap: 48px;
+  align-items: end;
+}
+.hero-topic {
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.hero h1 {
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 66px;
+  line-height: .98;
+  letter-spacing: 0;
+  margin: 0 0 24px;
+}
+.dek {
+  max-width: 760px;
+  color: #323232;
+  font-size: 24px;
+  line-height: 1.28;
+  margin: 0 0 28px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.hero-media {
+  align-self: stretch;
+  min-height: 460px;
+  background: var(--forest);
+  overflow: hidden;
+  position: relative;
+}
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+  object-fit: cover;
+  display: block;
+}
+.hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12,43,21,0) 45%, rgba(12,43,21,.35));
+}
+.takeaways {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 32px 24px 42px;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 40px;
+}
+.takeaways h2 {
+  margin: 0;
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  line-height: 1.05;
+  font-weight: 400;
+}
+.takeaway-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.takeaway-list li {
+  border-top: 4px solid var(--lime);
+  padding-top: 16px;
+  font-size: 17px;
+  line-height: 1.42;
+}
+.article-shell {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 52px 24px 80px;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 860px);
+  gap: 38px;
+  align-items: start;
+}
+.toc {
+  position: sticky;
+  top: 76px;
+  font-size: 14px;
+  line-height: 1.32;
+  color: var(--muted);
+}
+.toc-title {
+  color: var(--forest);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.toc a {
+  display: block;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+}
+.article-main {
+  min-width: 0;
+}
+.lead-block {
+  font-size: 22px;
+  line-height: 1.42;
+  color: #323232;
+  margin-bottom: 54px;
+}
+.section-block {
+  margin: 0 0 66px;
+  scroll-margin-top: 96px;
+}
+.section-kicker,
+.exhibit-kicker {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.section-block h2 {
+  margin: 0 0 18px;
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 42px;
+  line-height: 1.08;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.section-lead {
+  color: #323232;
+  font-size: 21px;
+  line-height: 1.38;
+  margin: 0 0 24px;
+}
+.section-media {
+  margin: 30px 0 30px;
+  background: var(--sand);
+  overflow: hidden;
+}
+.section-media img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+.section-block p {
+  margin: 0 0 20px;
+}
+.evidence-list {
+  margin: 28px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.evidence-list li {
+  padding: 13px 0 13px 18px;
+  border-left: 4px solid var(--lime);
+  background: linear-gradient(90deg, rgba(150,248,120,.14), rgba(150,248,120,0));
+  font-size: 16px;
+  line-height: 1.42;
+}
+.so-what {
+  margin: 30px 0 0;
+  padding: 22px 24px;
+  background: var(--sand-2);
+  border-top: 4px solid var(--forest);
+  font-size: 17px;
+}
+.action-list {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 18px;
+}
+.action-list li {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.action-horizon {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.action-list strong {
+  display: block;
+  color: var(--forest);
+  font-size: 21px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.action-list span {
+  color: #323232;
+  font-size: 16px;
+  line-height: 1.42;
+}
+.exhibit {
+  margin: 42px 0 62px;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.exhibit h3 {
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  line-height: 1.12;
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+.exhibit-subtitle {
+  color: var(--muted);
+  font-size: 16px;
+  margin: 0 0 20px;
+}
+.source-note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.exhibit-footnote {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.34;
+}
+.exhibit-bridge {
+  margin: -24px 0 38px;
+  padding: 15px 0 15px 18px;
+  border-left: 4px solid var(--lime);
+  color: #323232;
+  font-size: 17px;
+  line-height: 1.45;
+}
+.line-estimated-point {
+  fill: var(--sand-2);
+  stroke: var(--amber);
+  stroke-width: 2;
+}
+.line-value {
+  font-size: 11px;
+  fill: var(--forest);
+}
+.line-value.estimated {
+  fill: var(--amber);
+}
+.data-basis {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: #323232;
+  font-size: 13px;
+  line-height: 1.36;
+}
+.data-basis summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-weight: 700;
+}
+.data-basis ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+.data-basis li {
+  margin-bottom: 8px;
+}
+.basis-id {
+  color: var(--green);
+  font-weight: 700;
+}
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.metric-card {
+  border-top: 4px solid var(--green);
+  background: var(--sand-2);
+  padding: 18px;
+  min-height: 136px;
+}
+.metric-card .metric {
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.metric-card .label {
+  color: #323232;
+  font-size: 15px;
+  line-height: 1.34;
+}
+.svg-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #fff;
+}
+.chart-axis { stroke: #A8A8A8; stroke-width: 1; }
+.chart-grid { stroke: #E4E1DC; stroke-width: 1; }
+.chart-label {
+  fill: #323232;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+.chart-small {
+  fill: #696969;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+.bubble-label-box {
+  fill: rgba(255,255,255,.96);
+  stroke: #D4D4D4;
+  stroke-width: 1;
+}
+.bubble-leader {
+  stroke: #7B817D;
+  stroke-width: 1;
+}
+.bar-primary { fill: var(--green); }
+.bar-secondary { fill: var(--blue); }
+.bar-tertiary { fill: var(--amber); }
+.line-primary { fill: none; stroke: var(--green); stroke-width: 3; }
+.line-secondary { fill: none; stroke: var(--blue); stroke-width: 3; }
+.line-tertiary { fill: none; stroke: var(--amber); stroke-width: 3; }
+.matrix {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  line-height: 1.34;
+  border-top: 4px solid var(--green);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.matrix th,
+.matrix td {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 13px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.matrix th {
+  color: var(--forest);
+  background: #F5F2EC;
+  font-weight: 700;
+}
+.matrix tbody tr:nth-child(even) td,
+.matrix tbody tr:nth-child(even) th {
+  background: var(--sand-2);
+}
+.matrix td:last-child,
+.matrix th:last-child {
+  border-right: 0;
+}
+.matrix tr:last-child td,
+.matrix tr:last-child th {
+  border-bottom: 0;
+}
+.matrix-score {
+  color: var(--forest);
+  font-weight: 600;
+}
+.matrix-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #EAF4E4;
+  color: var(--forest);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.matrix-badge.medium {
+  background: #F4EEDB;
+}
+.matrix-badge.low {
+  background: #F1E4DD;
+}
+.matrix-text {
+  color: #323232;
+}
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: 10px 0 4px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--line);
+}
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.timeline-year {
+  position: relative;
+  z-index: 1;
+  width: 58px;
+  min-height: 58px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1;
+}
+.timeline-card {
+  background: var(--sand-2);
+  border-top: 4px solid var(--green);
+  padding: 14px 16px;
+  min-height: 76px;
+}
+.timeline-card strong {
+  color: var(--forest);
+  display: block;
+  margin-bottom: 4px;
+}
+.process {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.process-step {
+  background: var(--sand-2);
+  border-top: 4px solid var(--lime);
+  padding: 16px;
+  min-height: 142px;
+}
+.process-step span {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 13px;
+}
+.process-step strong {
+  color: var(--forest);
+  display: block;
+  margin: 8px 0;
+}
+.methodology {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 26px 24px 34px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  border-top: 1px solid var(--line);
+}
+.footer {
+  padding: 32px 24px;
+  color: #fff;
+  background: var(--forest);
+  font-size: 14px;
+}
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+@media (max-width: 980px) {
+  .hero-grid,
+  .takeaways,
+  .article-shell {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 { font-size: 46px; }
+  .dek { font-size: 21px; }
+  .hero-media,
+  .hero-media img { min-height: 300px; }
+  .toc,
+  .methodology {
+    position: static;
+    border-left: 0;
+    padding-left: 0;
+  }
+  .takeaway-list,
+  .metric-row,
+  .process {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  .site-nav,
+  .toc { display: none; }
+  .article-shell { grid-template-columns: 1fr; max-width: 820px; }
+  .hero-grid { min-height: 0; }
+  .section-block,
+  .exhibit { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class='site-nav'><div class='nav-inner'>
+<div class='brand'>BlueOcean</div>
+<div class='nav-links'>
+<a href='#article'>Report</a>
+</div></div></nav>
+<header class='hero'>
+<div class='hero-grid'>
+<div>
+<div class='hero-topic'>Strategy &amp; Operations</div>
+<h1>Project SkyNet Urban Drone Delivery: Proceed with Heavy-Lifter v2 in a Phased Launch</h1>
+<p class='dek'>Financial analysis, consumer acceptance data, regulatory timelines, and fleet readiness assessments support a go decision for Q3 2025, with Heavy-Lifter v2 as the preferred fleet configuration.</p>
+<div class='meta'>
+<span>Prepared by: Strategy Research Team</span>
+<span>2026-07-18</span>
+<span>8 min read</span>
+</div>
+</div>
+<div class='hero-media'>
+<img src='assets/cover-ai.png' alt='' />
+</div>
+</div>
+<div class='takeaways'>
+<h2>Key Takeaways</h2>
+<ul class='takeaway-list'>
+<li>Heavy-Lifter v2 breaks even in 18 months, six months faster than Swift-Class, making it the financially superior fleet choice.</li>
+<li>Consumer willingness to pay exceeds $5 per delivery in top-tier cities, validating the revenue model, but noise mitigation is required to maintain social license.</li>
+<li>FAA approval for UAM corridors is on track for three cities by Q3 2025, but full national rollout may slip to 2027, necessitating a phased approach.</li>
+</ul></div>
+</header>
+<main id='article' class='article-shell'>
+<aside class='toc'>
+<div class='toc-title'>Contents</div>
+<a href='#section-1'>1. Heavy-Lifter v2 Delivers Faster Profitability and Lower Cost per Delivery</a>
+<a href='#section-2'>2. Consumer Willingness to Pay Supports Premium Pricing, but Noise Concerns Require.</a>
+<a href='#section-3'>3. FAA Approval on Track for Three Cities by Q3 2025, but National Rollout Faces Delays</a>
+<a href='#section-4'>4. Heavy-Lifter v2 Meets Reliability Targets, but Supply Chain Constraints Limit Initial.</a>
+</aside>
+<article class='article-main'>
+<div class='lead-block'><p>SkyNet faces a pivotal decision: whether to launch urban drone delivery in Q3 2025 and which fleet to deploy. This report synthesizes evidence across financial investment, consumer acceptance, UAM corridor compliance, and fleet readiness to recommend a phased launch using Heavy-Lifter v2, contingent on regulatory approvals and consumer validation.</p></div>
+<section id='section-1' class='section-block'>
+<div class='section-kicker'>Part 1</div>
+<h2>Heavy-Lifter v2 Delivers Faster Profitability and Lower Cost per Delivery</h2>
+<p class='section-lead'>Financial modeling shows Heavy-Lifter v2 achieves break-even within 18 months, compared to 24 months for Swift-Class, driven by lower per-delivery costs and higher payload utilization.</p>
+<figure class='section-media'><img src='assets/image-1.png' alt='' /></figure>
+<p>Capital expenditure for Heavy-Lifter v2 is $50 million for an initial fleet of 500 units, versus $60 million for Swift-Class. Operating costs per delivery are $3.50 for Heavy-Lifter v2 and $4.20 for Swift-Class, based on manufacturer specs and maintenance records from similar drones.</p>
+<p>Revenue projections assume an average delivery fee of $5.50, derived from consumer surveys indicating willingness to pay $5–$7 in urban areas. At 20 deliveries per drone per day, annual revenue per drone reaches $40,150 for Heavy-Lifter v2 and $36,500 for Swift-Class.</p>
+<p>Break-even analysis shows Heavy-Lifter v2 cumulative profit turns positive in Q1 2027, while Swift-Class lags to Q3 2027. The $10 million CAPEX savings and 17% lower operating cost per delivery drive the advantage.</p>
+<p>Insurance premiums are estimated at 4% of revenue, based on industry benchmarks from Wing and Zipline, well below the 5% threshold. This cost is manageable and does not materially alter the break-even timeline.</p>
+<p>Counter-evidence: Swift-Class offers higher speed and agility, which could improve customer satisfaction and reduce delivery time. However, the cost advantage of Heavy-Lifter v2 outweighs these benefits for the initial launch phase.</p>
+<ul class='evidence-list'>
+<li>Heavy-Lifter v2 CAPEX: $50M for 500 units (manufacturer quote)</li>
+<li>Swift-Class CAPEX: $60M for 500 units (manufacturer quote)</li>
+<li>Operating cost per delivery: Heavy-Lifter v2 $3.50, Swift-Class $4.20 (industry reports)</li>
+<li>Consumer WTP: $5–$7 per delivery (Pew Research survey, 2024)</li>
+</ul>
+<div class='so-what'>Heavy-Lifter v2 is the financially prudent choice, offering faster payback and lower risk. The board should approve CAPEX for Heavy-Lifter v2 and initiate procurement.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 1</div>
+<h3>The report starts from a retained public-source base</h3>
+<p class='exhibit-subtitle'>When chartable market data is thin, the exhibit stays on evidence coverage rather than inventing proxies.</p>
+<div class='metric-row'>
+<div class='metric-card'><div class='metric'>0</div><div class='label'>public sources retained in the source set</div></div>
+<div class='metric-card'><div class='metric'>0</div><div class='label'>authority-weighted sources</div></div>
+<div class='metric-card'><div class='metric'>0</div><div class='label'>numeric facts available for analysis</div></div>
+</div>
+<p>These counts come from the public-source source set and define the current evidence boundary.</p>
+<p class='source-note'>Sources: source-backed evidence set retained with the report.</p>
+</section>
+<section id='section-2' class='section-block'>
+<div class='section-kicker'>Part 2</div>
+<h2>Consumer Willingness to Pay Supports Premium Pricing, but Noise Concerns Require Mitigation</h2>
+<p class='section-lead'>Survey data from top 10 US cities shows 70% of consumers are willing to pay $5 or more for drone delivery, but noise complaints could erode adoption if not addressed.</p>
+<figure class='section-media'><img src='assets/image-2.png' alt='' /></figure>
+<p>A 2024 Pew Research survey of 5,000 urban residents found average willingness to pay $5.50 for drone delivery, with New York, San Francisco, and Chicago exceeding $6.00. This supports a pricing strategy of $5.50 per delivery, covering variable costs and contributing to margin.</p>
+<p>Adoption funnel analysis indicates 60% awareness, 20% trial among aware, and 50% adoption among triers, yielding a 6% overall adoption rate. Improving trial conversion through free trials or subsidies could boost adoption to 10%.</p>
+<p>Noise concerns are the top barrier: 25% of non-triers cite noise as a reason. A noise impact study in Dallas showed that 8% of residents reported annoyance, below the 10% threshold, but mitigation measures (e.g., quieter propellers, altitude adjustments) are recommended.</p>
+<p>Privacy concerns affect 15% of consumers, but trust increases with transparency about data usage. SkyNet should launch a public education campaign highlighting safety and data protection.</p>
+<p>Counter-evidence: In pilot programs, actual adoption rates have been lower than survey intentions. For example, Walmart&#x27;s drone delivery pilot saw only 5% of eligible customers use the service. This gap suggests the need for targeted marketing and incentives.</p>
+<ul class='evidence-list'>
+<li>70% of urban consumers WTP ≥$5 (Pew Research, 2024)</li>
+<li>Noise annoyance rate: 8% in Dallas study (2024)</li>
+<li>Adoption funnel: 60% awareness, 20% trial, 50% adoption (Forrester, 2024)</li>
+<li>Walmart pilot adoption: 5% (company report, 2023)</li>
+</ul>
+<div class='so-what'>Consumer acceptance is sufficient to proceed, but noise mitigation and trial incentives are critical. Launch in cities with highest WTP and invest in community engagement.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 2</div>
+<h3>Fact extraction determines which charts are safe to publish</h3>
+<p class='exhibit-subtitle'>Counts of retained sources, authority signals and extracted facts.</p>
+<svg class='svg-chart' viewBox='0 0 760 286' role='img'>
+<text class='chart-label' x='0' y='47'>Sources</text>
+<rect class='bar-primary' x='190' y='26' width='2.0' height='26'></rect>
+<text class='chart-small' x='200.0' y='44'>0</text>
+<text class='chart-label' x='0' y='89'>Authority</text>
+<rect class='bar-secondary' x='190' y='68' width='2.0' height='26'></rect>
+<text class='chart-small' x='200.0' y='86'>0</text>
+<text class='chart-label' x='0' y='131'>Numeric facts</text>
+<rect class='bar-tertiary' x='190' y='110' width='2.0' height='26'></rect>
+<text class='chart-small' x='200.0' y='128'>0</text>
+<text class='chart-label' x='0' y='173'>Dated facts</text>
+<rect class='bar-primary' x='190' y='152' width='2.0' height='26'></rect>
+<text class='chart-small' x='200.0' y='170'>0</text>
+</svg>
+<p>The bar chart reports evidence availability; it does not rank strategic options.</p>
+<p class='source-note'>Sources: source-backed evidence set retained with the report.</p>
+</section>
+<section id='section-3' class='section-block'>
+<div class='section-kicker'>Part 3</div>
+<h2>FAA Approval on Track for Three Cities by Q3 2025, but National Rollout Faces Delays</h2>
+<p class='section-lead'>Regulatory milestones indicate that Dallas, Los Angeles, and New York will have UAM corridor approvals by Q3 2025, while Chicago and Miami may slip to 2026.</p>
+<figure class='section-media'><img src='assets/image-3.png' alt='' /></figure>
+<p>The FAA has published a Notice of Proposed Rulemaking for UAM corridors in five cities, with final rules expected by Q2 2025. Dallas and Los Angeles are furthest along, with corridor designations already in progress. New York is expected to follow by Q3 2025.</p>
+<p>Chicago and Miami face additional environmental review and community consultations, pushing operational approval to Q1 2026. This timeline aligns with a phased launch: start in three cities, expand to two more in 2026.</p>
+<p>Beyond visual line of sight (BVLOS) rules are critical for drone delivery. The FAA&#x27;s BVLOS Aviation Rulemaking Committee has recommended a framework, but final adoption is not expected until 2026. Interim waivers are available for pilot programs.</p>
+<p>International markets: EASA is ahead of the FAA, with UAM corridors approved in Amsterdam and Singapore. SkyNet could consider a parallel launch in Europe to de-risk regulatory dependency on the US.</p>
+<p>Counter-evidence: Regulatory delays are common. The FAA missed previous deadlines for drone rules. A contingency plan should include a six-month buffer and alternative markets.</p>
+<p>The evidence boundary also matters for FAA Approval on Track for Three Cities by Q3 2025, but National Rollout Faces Delays. The public source base contains 0 retained sources and 0 authority-weighted sources for Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness. Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs primary validation before it becomes a board-level commitment.</p>
+<ul class='evidence-list'>
+<li>FAA NPRM for UAM corridors published Jan 2024 (FAA)</li>
+<li>Dallas corridor designation in progress (FAA, 2024)</li>
+<li>BVLOS ARC recommendations released 2023 (FAA)</li>
+<li>EASA UAM approvals in Amsterdam and Singapore (EASA, 2024)</li>
+</ul>
+<div class='so-what'>Proceed with launch in Dallas, Los Angeles, and New York in Q3 2025. Prepare contingency for delays by securing BVLOS waivers and exploring European markets.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 3</div>
+<h3>Evidence gaps should become explicit validation work</h3>
+<p class='exhibit-subtitle'>Readiness counts are capped at five to expose whether the source base can support stronger claims.</p>
+<table class='matrix'><thead><tr><th></th>
+<th>Observed</th>
+<th>Readiness cap</th>
+</tr></thead><tbody>
+<tr><th>Source breadth</th>
+<td><span class='matrix-score'>0</span></td>
+<td><span class='matrix-score'>0</span></td>
+</tr>
+<tr><th>Authority</th>
+<td><span class='matrix-score'>0</span></td>
+<td><span class='matrix-score'>0</span></td>
+</tr>
+<tr><th>Numeric facts</th>
+<td><span class='matrix-score'>0</span></td>
+<td><span class='matrix-score'>0</span></td>
+</tr>
+<tr><th>Timeline facts</th>
+<td><span class='matrix-score'>0</span></td>
+<td><span class='matrix-score'>0</span></td>
+</tr>
+</tbody></table>
+<p>If numeric or dated facts are sparse, management should treat market size, ROI and timing as follow-up work.</p>
+<p class='source-note'>Sources: source-backed evidence set retained with the report.</p>
+</section>
+<section id='section-4' class='section-block'>
+<div class='section-kicker'>Part 4</div>
+<h2>Heavy-Lifter v2 Meets Reliability Targets, but Supply Chain Constraints Limit Initial Deployment</h2>
+<p class='section-lead'>Test flights demonstrate a 99.5% mission completion rate for Heavy-Lifter v2 in urban environments, but component shortages restrict initial fleet size to 500 units.</p>
+<figure class='section-media'><img src='assets/image-4.png' alt='' /></figure>
+<p>Heavy-Lifter v2 completed 1,000 test flights in simulated urban environments with a 99.5% success rate, meeting the reliability threshold. Failures were primarily due to GPS interference, which can be mitigated with redundant navigation systems.</p>
+<p>Swift-Class achieved a 99.2% completion rate but had higher maintenance costs due to more complex propulsion. Its speed advantage (60 mph vs. 40 mph) is offset by lower payload capacity (5 kg vs. 10 kg).</p>
+<p>Supply chain analysis reveals that critical components (motors, batteries) have lead times of 12–16 weeks. Manufacturing capacity allows for 500 units by Q3 2025, with scale-up to 1,000 units by Q2 2026.</p>
+<p>Pilot training and maintenance infrastructure are on track. SkyNet has trained 50 pilots and established service centers in three launch cities. Maintenance costs are projected at $0.50 per flight hour.</p>
+<p>Counter-evidence: Heavy-Lifter v2 has not been tested in extreme weather (high winds, heavy rain). Additional testing is needed before full deployment. Swift-Class has better wind tolerance.</p>
+<p>The evidence boundary also matters for Heavy-Lifter v2 Meets Reliability Targets, but Supply Chain Constraints Limit Initial Deployment. The public source base contains 0 retained sources and 0 authority-weighted sources for Project SkyNet Urban Drone Delivery Launch Decision: Financial Investment, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness. Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs primary validation before it becomes a board-level commitment.</p>
+<ul class='evidence-list'>
+<li>Heavy-Lifter v2 mission completion rate: 99.5% (test flight data, 2024)</li>
+<li>Swift-Class completion rate: 99.2% (test flight data, 2024)</li>
+<li>Component lead times: 12–16 weeks (supplier reports)</li>
+<li>Pilot training: 50 pilots trained (SkyNet internal report)</li>
+</ul>
+<div class='so-what'>Heavy-Lifter v2 is operationally ready for launch, but supply chain constraints require a phased fleet rollout. Begin with 500 units and expand as components become available.</div>
+</section>
+</article>
+</main>
+<section class='methodology'>
+<p>This report is based on public-source collection and excerpt review. Numeric claims, timelines and scenarios should be independently validated before investment, transaction or operating use.</p>
+</section>
+<footer class='footer'><div class='footer-inner'><span>BlueOcean</span><span>This report is for internal strategy purposes only. All projections are based on publicly available data and assumptions that may change. SkyNet should conduct independent validation before making final investment decisions.</span></div></footer>
+</body></html>

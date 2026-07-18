@@ -1,0 +1,136 @@
+{
+  "core_question": "Should SkyNet proceed with the urban drone delivery launch in Q3 2025, and if so, which fleet configuration (Heavy-Lifter v2 or Swift-Class) is more financially and operationally viable?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: source quality, timing, commercial proof",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Consumer willingness to pay for drone delivery is at least $5 per delivery in urban areas, sufficient to cover variable costs.",
+      "decision_relevance": "Validates revenue model; if false, pricing strategy must change or launch is unviable.",
+      "needed_evidence": [
+        "Survey data or pilot studies showing WTP; actual transaction data from competitors."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Heavy-Lifter v2 has a lower total cost per delivery than Swift-Class when factoring in payload capacity and maintenance.",
+      "decision_relevance": "Determines fleet choice; if false, Swift-Class may be preferred despite higher unit cost.",
+      "needed_evidence": [
+        "Manufacturer specs, maintenance records, operational cost data from similar drones."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "FAA will approve UAM corridor operations for drone delivery in at least 3 major US cities by Q3 2025.",
+      "decision_relevance": "Regulatory risk; if false, launch must be delayed or limited to non-US markets.",
+      "needed_evidence": [
+        "FAA rulemaking timelines, pilot program announcements, expert interviews."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The total addressable market for urban drone delivery in the US is at least $5 billion by 2026.",
+      "decision_relevance": "Market size justifies investment; if false, scale back or pivot.",
+      "needed_evidence": [
+        "Industry reports, analyst forecasts, comparable market data."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Noise complaints from drone operations will not exceed 10% of residents in target neighborhoods.",
+      "decision_relevance": "Social license to operate; if false, need mitigation or route changes.",
+      "needed_evidence": [
+        "Noise studies, community surveys, data from existing drone operations."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Heavy-Lifter v2 can achieve a 99.5% mission completion rate in urban environments.",
+      "decision_relevance": "Reliability affects customer satisfaction and cost; if false, need redundancy or choose Swift-Class.",
+      "needed_evidence": [
+        "Test flight data, reliability reports from similar drones, failure rate analysis."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "Insurance premiums for urban drone delivery fleets will be less than 5% of revenue.",
+      "decision_relevance": "Cost factor; if false, profitability may be eroded.",
+      "needed_evidence": [
+        "Insurance quotes, industry benchmarks, risk assessment reports."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "TAM = (Number of urban households in target cities) * (Average annual delivery spend per household) * (Drone delivery penetration rate)",
+      "variables": [
+        "Urban households in top 10 US cities",
+        "Average annual delivery spend per household (e.g., $200)",
+        "Drone delivery penetration rate (e.g., 5% by 2026)"
+      ],
+      "known_limitations": [
+        "Assumes uniform adoption across cities",
+        "Penetration rate is speculative"
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "TAM = (Number of drones deployed) * (Deliveries per drone per day) * (Average revenue per delivery) * 365",
+      "variables": [
+        "Fleet size (e.g., 1000 drones)",
+        "Deliveries per drone per day (e.g., 20)",
+        "Average revenue per delivery (e.g., $5)"
+      ],
+      "known_limitations": [
+        "Requires accurate operational metrics",
+        "Scaling assumptions may be optimistic"
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "TAM = (Target population) * (Awareness %) * (Trial %) * (Adoption %) * (Average spend)",
+      "variables": [
+        "Target population (urban adults)",
+        "Awareness (e.g., 60%)",
+        "Trial (e.g., 20% of aware)",
+        "Adoption (e.g., 50% of triers)",
+        "Average annual spend per adopter (e.g., $100)"
+      ],
+      "known_limitations": [
+        "Funnel rates are uncertain",
+        "Requires primary research"
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "TAM = (Total last-mile delivery market value) * (Drone-addressable share)",
+      "variables": [
+        "Total US last-mile delivery market value (e.g., $150B)",
+        "Drone-addressable share (e.g., 3% by 2026)"
+      ],
+      "known_limitations": [
+        "Share estimate is subjective",
+        "Market value may include non-urban"
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "TAM = (Maximum drone deliveries possible given regulatory and infrastructure constraints) * (Average revenue per delivery)",
+      "variables": [
+        "Number of approved flight corridors",
+        "Drones per corridor per hour",
+        "Operating hours per day",
+        "Revenue per delivery"
+      ],
+      "known_limitations": [
+        "Regulatory constraints are evolving",
+        "Infrastructure readiness uncertain"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
