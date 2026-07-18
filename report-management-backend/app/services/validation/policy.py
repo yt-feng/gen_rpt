@@ -40,7 +40,7 @@ class PolicyService:
             conflict_threshold=settings.KNOWLEDGE_VALIDATION_SETTINGS.get("conflict_threshold", 0.5),
             knowledge_quality_threshold=settings.KNOWLEDGE_VALIDATION_SETTINGS.get("knowledge_quality_threshold", 0.5),
             rules={
-                "allowed_source_types": ["government", "research", "internal", "industry_standards", "enterprise_knowledge"],
+                "allowed_source_types": ["government", "research", "internal", "industry_standards", "enterprise_knowledge", "manual_upload"],
                 "freshness_decay_days": 365,
                 "government_authority_score": 1.0,
                 "research_authority_score": 0.8,

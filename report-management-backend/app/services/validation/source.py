@@ -60,8 +60,10 @@ class SourceValidationService:
                 reasons.append("Document validation status is failed")
                 
             # 4. Source type & publisher verification
-            source_type = "unknown"
-            publisher = None
+            # Documents uploaded through the enterprise knowledge UI are valid
+            # first-party inputs even if they predate explicit source metadata.
+            source_type = "manual_upload"
+            publisher = "Enterprise Upload"
             if doc.sources:
                 primary_source = doc.sources[0]
                 source_type = primary_source.source_type
@@ -72,9 +74,9 @@ class SourceValidationService:
                     is_valid = False
                     reasons.append(f"Source type '{source_type}' is not allowed by policy")
             else:
-                if allowed_types and "unknown" not in allowed_types:
+                if allowed_types and source_type not in allowed_types:
                     is_valid = False
-                    reasons.append("No source metadata found and 'unknown' is not allowed")
+                    reasons.append(f"Source type '{source_type}' is not allowed by policy")
 
             validation_results[doc_id] = {
                 "document_id": doc_id,

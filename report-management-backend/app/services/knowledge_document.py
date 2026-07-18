@@ -11,7 +11,8 @@ from app.models.knowledge import (
     KnowledgeVersionHistory,
     KnowledgeProcessingQueue,
     KnowledgeCollection,
-    KnowledgeActivityHistory
+    KnowledgeActivityHistory,
+    KnowledgeSource,
 )
 from app.services.knowledge_storage import knowledge_storage_service
 from app.repositories.knowledge import document_repo
@@ -298,9 +299,19 @@ class KnowledgeDocumentService:
                 status="pending"
             )
 
+            source = KnowledgeSource(
+                id=uuid.uuid4(),
+                document_id=doc_id,
+                publisher="Enterprise Upload",
+                source_type="manual_upload",
+                authority_score=0.6,
+                trust_score=1.0,
+            )
+
             db.add(db_doc)
             db.add(version_history)
             db.add(queue_job)
+            db.add(source)
             await db.commit()
             await db.refresh(db_doc)
 

@@ -918,12 +918,15 @@ class GenerationService:
                         user_id=job.created_by,
                         slug=doc.slug,
                     )
+                    validated_chunks = context_package.get("validated_chunks", [])
+                    if not validated_chunks:
+                        raise ValueError("No validated RAG evidence found; queued report was not dispatched")
                     job.audit_metadata = {
                         **(job.audit_metadata or {}),
                         "rag": {
                             **rag_meta,
                             "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
-                            "chunk_count": len(context_package.get("validated_chunks", [])),
+                            "chunk_count": len(validated_chunks),
                             "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
                         },
                     }
@@ -949,6 +952,10 @@ class GenerationService:
                 await asyncio.sleep(2.0)
 
             except Exception as e:
+                await db.rollback()
+                job.status = JobStatusType.failed
+                job.errors = str(e)
+                await db.commit()
                 print(f"[process_bulk_queue] Error dispatching job {job.id}: {e}")
 
 

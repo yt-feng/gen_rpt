@@ -95,18 +95,29 @@ async def create_job(
                 user_org_id=None,
                 slug=slug_val
             )
+            validated_chunks = context_package.get("validated_chunks", [])
+            if not validated_chunks:
+                raise HTTPException(
+                    status_code=422,
+                    detail="RAG generation requires validated evidence, but no matching evidence was found. Upload and process relevant documents, then try again.",
+                )
             rag_state = {
                 "requested": True,
                 "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
-                "chunk_count": len(context_package.get("validated_chunks", [])),
+                "chunk_count": len(validated_chunks),
                 "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
                 "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
             }
             logger.info(f"RAG context pre-warmed for slug={slug_val}, cache_key=context:slug:{slug_val}")
         except Exception as e:
-            rag_state = {"requested": True, "status": "prewarm_failed", "chunk_count": 0}
             logger.exception(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
             await db.rollback()
+            if isinstance(e, HTTPException):
+                raise
+            raise HTTPException(
+                status_code=503,
+                detail="RAG context preparation failed. No report was dispatched.",
+            ) from e
 
 
     job = await generation_service.create_job(
@@ -511,16 +522,27 @@ async def create_bulk_jobs(
                         user_org_id=None,
                         slug=unique_slug,
                     )
+                    validated_chunks = context_package.get("validated_chunks", [])
+                    if not validated_chunks:
+                        errors.append({
+                            "topic": topic,
+                            "error": "No validated RAG evidence found; report was not dispatched.",
+                        })
+                        continue
                     rag_state = {
                         "requested": True,
                         "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
-                        "chunk_count": len(context_package.get("validated_chunks", [])),
+                        "chunk_count": len(validated_chunks),
                         "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
                         "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
                     }
-                except Exception:
+                except Exception as exc:
                     await db.rollback()
-                    rag_state = {"requested": True, "status": "prewarm_failed", "chunk_count": 0}
+                    errors.append({
+                        "topic": topic,
+                        "error": f"RAG context preparation failed; report was not dispatched: {exc}",
+                    })
+                    continue
 
             # Determine whether to dispatch immediately or keep in queue
             should_dispatch = slots_available > 0

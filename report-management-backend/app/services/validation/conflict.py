@@ -30,6 +30,9 @@ class ConflictService:
         numeric_value_pattern = re.compile(r'\b\d+(?:\.\d+)?\s*(?:billion|million|percent|%|USD|EUR)\b', re.IGNORECASE)
         country_pattern = re.compile(r'\b(?:Saudi Arabia|UAE|Qatar|Germany|US|USA|United States|UK|China|India|France|Egypt)\b', re.IGNORECASE)
 
+        heading_stop_words = {
+            "a", "an", "and", "for", "in", "key", "of", "on", "the", "to", "update",
+        }
         extracted_data = []
         for c in chunks:
             text = c.get("text_content") or ""
@@ -60,12 +63,21 @@ class ConflictService:
                     continue
                 
                 # Check for Heading/Context similarity (fuzzy context overlap)
-                heading_words1 = set((c1["heading"] or "").lower().split())
-                heading_words2 = set((c2["heading"] or "").lower().split())
-                context_overlap = len(heading_words1.intersection(heading_words2))
-                
+                heading_words1 = {
+                    word for word in re.findall(r"[a-z0-9]+", (c1["heading"] or "").lower())
+                    if word not in heading_stop_words
+                }
+                heading_words2 = {
+                    word for word in re.findall(r"[a-z0-9]+", (c2["heading"] or "").lower())
+                    if word not in heading_stop_words
+                }
+                shared_heading_words = heading_words1.intersection(heading_words2)
+                same_context = (
+                    heading_words1 == heading_words2 and bool(heading_words1)
+                ) or len(shared_heading_words) >= 2
+
                 # If they share context, check for value conflicts
-                if context_overlap >= 1 or not c1["heading"] or not c2["heading"]:
+                if same_context:
                     conflict_reasons = []
                     
                     # 1. Year Conflict (same context, different years)
