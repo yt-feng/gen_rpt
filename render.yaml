@@ -16,7 +16,7 @@ services:
       - key: LOG_LEVEL
         value: INFO
       - key: JWT_SECRET
-        sync: false     # set in Render dashboard
+        value: "db90aed966f6c6a6aa46e09332ca11350a3ee2ee85e7e5efbab53a92a43fa3be"
       - key: R2_ACCOUNT_ID
         sync: false
       - key: R2_ACCESS_KEY_ID
