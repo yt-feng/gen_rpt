@@ -1,0 +1,240 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Annual Last-Mile Delivery Cost per Package (Industry Average vs OmniLogistics Projection)",
+    "chart_type": "line",
+    "executive_question": "How does OmniLogistics' projected cost reduction compare to industry benchmarks over time?",
+    "required_metrics": [
+      "{'year': 2022, 'metric': 'Industry average last-mile delivery cost per package', 'value': 10.5, 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'year': 2023, 'metric': 'Industry average last-mile delivery cost per package', 'value': 10.2, 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'year': 2024, 'metric': 'Industry average last-mile delivery cost per package', 'value': 9.8, 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'year': 2025, 'metric': 'Industry average last-mile delivery cost per package', 'value': 9.5, 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'year': 2026, 'metric': 'Industry average last-mile delivery cost per package', 'value': 9.2, 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'year': 2027, 'metric': 'Industry average last-mile delivery cost per package', 'value': 8.9, 'unit': 'USD', 'entity': 'Industry average'}",
+      "{'year': 2026, 'metric': 'OmniLogistics projected cost per package (post-launch)', 'value': 7.5, 'unit': 'USD', 'entity': 'OmniLogistics'}",
+      "{'year': 2027, 'metric': 'OmniLogistics projected cost per package (post-launch)', 'value': 6.0, 'unit': 'USD', 'entity': 'OmniLogistics'}"
+    ],
+    "comparison_set": [
+      "Industry average vs OmniLogistics projection"
+    ],
+    "preferred_sources": [
+      "McKinsey Global Institute",
+      "Statista",
+      "Pitney Bowes Parcel Shipping Index"
+    ],
+    "search_queries": [
+      "last-mile delivery cost per package industry average 2022 2023 2024 2025 2026 2027",
+      "drone delivery cost per package benchmark 2026",
+      "Pitney Bowes parcel shipping index last mile cost"
+    ],
+    "data_quality_rule": "Industry average values may be estimated from multiple sources; if only two endpoints are available, use CAGR to interpolate intermediate years and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Validates the financial viability claim by showing OmniLogistics' cost trajectory against external benchmarks.",
+    "pre_exhibit_context": "The financial section argues that the $45.5M investment will reduce last-mile costs by 35% by Q4 2027. The board needs to see if this projection is realistic relative to industry trends.",
+    "post_exhibit_takeaway": "OmniLogistics' projected cost per package declines faster than the industry average, supporting the break-even timeline if volume targets are met."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Consumer Acceptance of Drone Delivery Over Time (2019-2026)",
+    "chart_type": "line",
+    "executive_question": "Has consumer acceptance of drone delivery been trending upward, and how does OmniLogistics' 68% compare?",
+    "required_metrics": [
+      "{'year': 2019, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 42, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2020, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 48, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2021, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 53, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2022, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 58, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2023, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 62, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2024, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 65, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2025, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 67, 'unit': '%', 'entity': 'US adults'}",
+      "{'year': 2026, 'metric': 'Consumer acceptance rate for drone delivery', 'value': 68, 'unit': '%', 'entity': 'OmniLogistics survey'}"
+    ],
+    "comparison_set": [
+      "Historical trend (2019-2025) vs OmniLogistics 2026 survey"
+    ],
+    "preferred_sources": [
+      "Pew Research Center",
+      "Deloitte",
+      "Gartner"
+    ],
+    "search_queries": [
+      "consumer acceptance drone delivery survey 2019 2020 2021 2022 2023 2024 2025",
+      "Pew Research drone delivery acceptance rate",
+      "Deloitte drone delivery consumer survey 2025"
+    ],
+    "data_quality_rule": "If only 2-3 data points are found, use linear interpolation for missing years and note as estimates. Prefer nationally representative surveys.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Supports the consumer acceptance hypothesis by showing a positive trend and benchmarking OmniLogistics' survey result.",
+    "pre_exhibit_context": "The consumer section presents 68% acceptance. The board needs to know if this is consistent with broader trends or an outlier.",
+    "post_exhibit_takeaway": "Consumer acceptance has steadily increased, and OmniLogistics' 68% is above the 2026 projected average, indicating a favorable market environment."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Drone Delivery Market Size by City (Top 5 Markets, 2026)",
+    "chart_type": "bar",
+    "executive_question": "Which cities offer the largest delivery volume potential for Project SkyNet?",
+    "required_metrics": [
+      "{'city': 'New York', 'metric': 'Daily drone-deliverable package volume', 'value': 45000, 'unit': 'packages/day', 'entity': 'Market'}",
+      "{'city': 'Los Angeles', 'metric': 'Daily drone-deliverable package volume', 'value': 38000, 'unit': 'packages/day', 'entity': 'Market'}",
+      "{'city': 'Chicago', 'metric': 'Daily drone-deliverable package volume', 'value': 30000, 'unit': 'packages/day', 'entity': 'Market'}",
+      "{'city': 'Houston', 'metric': 'Daily drone-deliverable package volume', 'value': 25000, 'unit': 'packages/day', 'entity': 'Market'}",
+      "{'city': 'Phoenix', 'metric': 'Daily drone-deliverable package volume', 'value': 22000, 'unit': 'packages/day', 'entity': 'Market'}"
+    ],
+    "comparison_set": [
+      "City-level market size"
+    ],
+    "preferred_sources": [
+      "US Census Bureau",
+      "Statista",
+      "McKinsey Urban Mobility Report"
+    ],
+    "search_queries": [
+      "drone delivery market size New York Los Angeles Chicago Houston Phoenix 2026",
+      "urban drone delivery package volume potential top US cities",
+      "last-mile delivery volume by city 2026"
+    ],
+    "data_quality_rule": "Market size estimates should be derived from total parcel volume and drone-eligible share. If exact figures unavailable, use proxy (e.g., population density, e-commerce penetration).",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the addressable market in each target city to validate the 150,000 packages/day break-even volume.",
+    "pre_exhibit_context": "The financial section assumes 150,000 packages/day across top 5 markets. The board needs to see if each city can support that volume.",
+    "post_exhibit_takeaway": "The top 5 cities collectively have a market size exceeding 150,000 packages/day, but density varies, suggesting a phased rollout starting with the largest market."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "FAA UAM Corridor Compliance: Weight Limit Enforcement History (2020-2026)",
+    "chart_type": "bar",
+    "executive_question": "How strictly has the FAA enforced the 25 lbs weight limit for UAM corridors?",
+    "required_metrics": [
+      "{'year': 2020, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 2, 'unit': 'actions', 'entity': 'FAA'}",
+      "{'year': 2021, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 3, 'unit': 'actions', 'entity': 'FAA'}",
+      "{'year': 2022, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 5, 'unit': 'actions', 'entity': 'FAA'}",
+      "{'year': 2023, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 7, 'unit': 'actions', 'entity': 'FAA'}",
+      "{'year': 2024, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 8, 'unit': 'actions', 'entity': 'FAA'}",
+      "{'year': 2025, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 10, 'unit': 'actions', 'entity': 'FAA'}",
+      "{'year': 2026, 'metric': 'Number of FAA enforcement actions for UAM weight violations', 'value': 12, 'unit': 'actions', 'entity': 'FAA (projected)'}"
+    ],
+    "comparison_set": [
+      "Year-over-year enforcement actions"
+    ],
+    "preferred_sources": [
+      "FAA Enforcement Database",
+      "FAA UAM Reports",
+      "Government Accountability Office"
+    ],
+    "search_queries": [
+      "FAA UAM corridor weight limit enforcement actions 2020 2021 2022 2023 2024 2025",
+      "FAA drone weight violation penalties",
+      "GAO report UAM compliance enforcement"
+    ],
+    "data_quality_rule": "If exact enforcement numbers are unavailable, use proxy (e.g., number of waivers denied, fines issued). Mark any projected values as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Assesses regulatory risk by showing enforcement actions related to weight violations.",
+    "pre_exhibit_context": "The compliance section flags that Heavy-Lifter v2 exceeds the weight limit. The board needs to know the likelihood of penalties or delays.",
+    "post_exhibit_takeaway": "Enforcement has been moderate, but fines have increased recently, making weight compliance critical before launch."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Drone Delivery Fleet Capacity vs Demand (2026-2028)",
+    "chart_type": "line",
+    "executive_question": "Will the Swift-Class fleet be sufficient to meet projected delivery volumes?",
+    "required_metrics": [
+      "{'year': 2026, 'metric': 'Swift-Class drone fleet capacity (packages/day)', 'value': 80000, 'unit': 'packages/day', 'entity': 'OmniLogistics'}",
+      "{'year': 2027, 'metric': 'Swift-Class drone fleet capacity (packages/day)', 'value': 120000, 'unit': 'packages/day', 'entity': 'OmniLogistics'}",
+      "{'year': 2028, 'metric': 'Swift-Class drone fleet capacity (packages/day)', 'value': 160000, 'unit': 'packages/day', 'entity': 'OmniLogistics'}",
+      "{'year': 2026, 'metric': 'Projected demand (packages/day)', 'value': 100000, 'unit': 'packages/day', 'entity': 'OmniLogistics forecast'}",
+      "{'year': 2027, 'metric': 'Projected demand (packages/day)', 'value': 150000, 'unit': 'packages/day', 'entity': 'OmniLogistics forecast'}",
+      "{'year': 2028, 'metric': 'Projected demand (packages/day)', 'value': 200000, 'unit': 'packages/day', 'entity': 'OmniLogistics forecast'}"
+    ],
+    "comparison_set": [
+      "Fleet capacity vs demand"
+    ],
+    "preferred_sources": [
+      "OmniLogistics internal fleet plan",
+      "Supplier lead time data",
+      "Industry drone production capacity reports"
+    ],
+    "search_queries": [
+      "Swift-Class drone production capacity 2026 2027 2028",
+      "drone delivery fleet size requirements packages per day",
+      "commercial drone delivery fleet scaling benchmarks"
+    ],
+    "data_quality_rule": "Capacity figures should be based on confirmed supplier orders and utilization assumptions. Demand projections should be sourced from internal forecasts. Mark any unconfirmed orders as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Evaluates fleet readiness by comparing capacity (Swift-Class units) with demand scenarios.",
+    "pre_exhibit_context": "The fleet section proposes using Swift-Class drones. The board needs to see if the fleet can scale to meet break-even volume.",
+    "post_exhibit_takeaway": "Current Swift-Class orders cover only 60% of 2027 demand, requiring additional procurement or higher utilization."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Drone Delivery Investment vs Break-Even Timeline (OmniLogistics vs Competitors)",
+    "chart_type": "bubble",
+    "executive_question": "How does OmniLogistics' investment and break-even timeline compare to competitors?",
+    "required_metrics": [
+      "{'entity': 'OmniLogistics', 'metric': 'Total investment', 'value': 45.5, 'unit': 'USD million', 'year': 2026}",
+      "{'entity': 'OmniLogistics', 'metric': 'Break-even timeline', 'value': 18, 'unit': 'months', 'year': 2026}",
+      "{'entity': 'Competitor A', 'metric': 'Total investment', 'value': 60, 'unit': 'USD million', 'year': 2025}",
+      "{'entity': 'Competitor A', 'metric': 'Break-even timeline', 'value': 24, 'unit': 'months', 'year': 2025}",
+      "{'entity': 'Competitor B', 'metric': 'Total investment', 'value': 30, 'unit': 'USD million', 'year': 2026}",
+      "{'entity': 'Competitor B', 'metric': 'Break-even timeline', 'value': 30, 'unit': 'months', 'year': 2026}",
+      "{'entity': 'Competitor C', 'metric': 'Total investment', 'value': 50, 'unit': 'USD million', 'year': 2024}",
+      "{'entity': 'Competitor C', 'metric': 'Break-even timeline', 'value': 20, 'unit': 'months', 'year': 2024}"
+    ],
+    "comparison_set": [
+      "OmniLogistics vs Competitors A, B, C"
+    ],
+    "preferred_sources": [
+      "Company annual reports",
+      "Crunchbase",
+      "PitchBook"
+    ],
+    "search_queries": [
+      "drone delivery startup investment funding 2024 2025 2026",
+      "drone delivery break-even timeline months",
+      "competitor drone delivery investment and profitability"
+    ],
+    "data_quality_rule": "Competitor data should be sourced from public filings or credible news. If exact break-even not disclosed, use estimated range and mark as estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Positions OmniLogistics' financial commitment relative to industry peers to justify the $45.5M investment.",
+    "pre_exhibit_context": "The financial section presents the investment and break-even. The board needs to see if this is in line with industry norms.",
+    "post_exhibit_takeaway": "OmniLogistics' investment is mid-range, but its break-even timeline is more aggressive than most competitors, indicating higher risk but potential first-mover advantage."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Project SkyNet Launch Timeline and Key Milestones (Q1 2026 - Q4 2027)",
+    "chart_type": "timeline",
+    "executive_question": "What are the critical milestones and decision gates for the Q3 2026 launch?",
+    "required_metrics": [
+      "{'milestone': 'Fleet recalibration decision', 'date': '2026-01-15', 'description': 'Finalize Swift-Class procurement', 'entity': 'OmniLogistics'}",
+      "{'milestone': 'UAM corridor compliance audit', 'date': '2026-03-01', 'description': 'Complete FAA compliance review', 'entity': 'FAA'}",
+      "{'milestone': 'Consumer mitigation rollout', 'date': '2026-04-01', 'description': 'Deploy Whisper-Prop and camera shuttering', 'entity': 'OmniLogistics'}",
+      "{'milestone': 'Dispatch software update', 'date': '2026-05-01', 'description': 'Integrate payload limit logic', 'entity': 'OmniLogistics'}",
+      "{'milestone': 'Pilot launch in first city', 'date': '2026-07-01', 'description': 'Soft launch in Phoenix', 'entity': 'OmniLogistics'}",
+      "{'milestone': 'Full launch Q3 2026', 'date': '2026-09-01', 'description': 'Commercial launch in top 5 markets', 'entity': 'OmniLogistics'}",
+      "{'milestone': 'Break-even volume target', 'date': '2027-03-01', 'description': '150,000 packages/day', 'entity': 'OmniLogistics'}",
+      "{'milestone': 'Cost reduction target', 'date': '2027-10-01', 'description': '35% reduction vs current', 'entity': 'OmniLogistics'}"
+    ],
+    "comparison_set": [
+      "Milestones over time"
+    ],
+    "preferred_sources": [
+      "OmniLogistics internal project plan",
+      "FAA regulatory calendar"
+    ],
+    "search_queries": [
+      "drone delivery launch timeline milestones 2026",
+      "FAA UAM corridor certification timeline",
+      "OmniLogistics Project SkyNet schedule"
+    ],
+    "data_quality_rule": "Dates should be based on internal project plans. External milestones (e.g., FAA audit) should be verified with public regulatory timelines.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a visual roadmap of the launch plan, highlighting dependencies and go/no-go points.",
+    "pre_exhibit_context": "The recommendation section proposes a phased rollout. The board needs to see the sequence and timing of key activities.",
+    "post_exhibit_takeaway": "The timeline shows that fleet recalibration and regulatory approvals are on the critical path; any delay in these will push the launch beyond Q3 2026."
+  }
+]
