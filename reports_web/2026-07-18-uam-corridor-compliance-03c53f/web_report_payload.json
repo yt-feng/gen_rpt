@@ -1,0 +1,214 @@
+{
+  "title": "UAM Corridor Compliance Analysis for Project SkyNet",
+  "dek": "Analysis of regulatory, financial, and consumer acceptance factors affecting OmniLogistics' autonomous drone delivery initiative.",
+  "category": "Regulatory Compliance & Business Strategy",
+  "published_date": "2026-07-18",
+  "authors": [
+    "Legal & Compliance Department",
+    "CFO, Finance Department"
+  ],
+  "read_time_minutes": 0,
+  "intro": [
+    "This report synthesizes three internal documents from OmniLogistics Corp regarding the Urban Air Mobility (UAM) corridor compliance for Project SkyNet. The documents cover regulatory updates from FAA and EASA, Q3 financial investment details, and a consumer acceptance survey. Key findings include altitude and weight restrictions, a $45.5M capital expenditure, and 68% consumer comfort with drone delivery."
+  ],
+  "key_takeaways": [
+    "The Heavy-Lifter v2 drone exceeds the 25 lbs weight limit by 2.5 lbs, requiring fleet recalibration to Swift-Class drones (18 lbs) for urban centers.",
+    "OmniLogistics is allocating $45.5M in capital expenditure for Project SkyNet, with $4.5M specifically for regulatory compliance and licensing.",
+    "68% of urban residents are comfortable with drone delivery, but noise (42%) and privacy (35%) are top concerns; Whisper-Prop technology and camera shuttering are recommended."
+  ],
+  "sections": [
+    {
+      "id": "section-1",
+      "title": "Section 1",
+      "lead": "",
+      "paragraphs": [
+        "Section 1",
+        "The evidence boundary also matters for Section 1. The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs primary validation before it becomes a board-level commitment.",
+        "The practical management test is whether this claim changes a real decision on UAM Corridor Compliance: The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Leadership can translate that signal into explicit gates for capital allocation, partner selection, customer validation, operating readiness and the timing of the next commitment."
+      ],
+      "evidence": [
+        "The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance."
+      ],
+      "so_what": ""
+    },
+    {
+      "id": "section-2",
+      "title": "Section 2",
+      "lead": "",
+      "paragraphs": [
+        "Section 2",
+        "The evidence boundary also matters for Section 2. The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs primary validation before it becomes a board-level commitment.",
+        "The practical management test is whether this claim changes a real decision on UAM Corridor Compliance: The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Leadership can translate that signal into explicit gates for capital allocation, partner selection, customer validation, operating readiness and the timing of the next commitment."
+      ],
+      "evidence": [
+        "The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance."
+      ],
+      "so_what": ""
+    },
+    {
+      "id": "section-3",
+      "title": "Section 3",
+      "lead": "",
+      "paragraphs": [
+        "Section 3",
+        "The evidence boundary also matters for Section 3. The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs primary validation before it becomes a board-level commitment.",
+        "The practical management test is whether this claim changes a real decision on UAM Corridor Compliance: The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Leadership can translate that signal into explicit gates for capital allocation, partner selection, customer validation, operating readiness and the timing of the next commitment."
+      ],
+      "evidence": [
+        "The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance."
+      ],
+      "so_what": ""
+    },
+    {
+      "id": "section-4",
+      "title": "Section 4",
+      "lead": "",
+      "paragraphs": [
+        "Section 4",
+        "The evidence boundary also matters for Section 4. The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs primary validation before it becomes a board-level commitment.",
+        "The practical management test is whether this claim changes a real decision on UAM Corridor Compliance: The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance. Leadership can translate that signal into explicit gates for capital allocation, partner selection, customer validation, operating readiness and the timing of the next commitment."
+      ],
+      "evidence": [
+        "The public source base contains 0 retained sources and 0 authority-weighted sources for UAM Corridor Compliance."
+      ],
+      "so_what": ""
+    }
+  ],
+  "exhibits": [
+    {
+      "type": "metric_row",
+      "title": "The report starts from a retained public-source base",
+      "subtitle": "When chartable market data is thin, the exhibit stays on evidence coverage rather than inventing proxies.",
+      "metrics": [
+        {
+          "value": "0",
+          "label": "public sources retained in the source set"
+        },
+        {
+          "value": "0",
+          "label": "authority-weighted sources"
+        },
+        {
+          "value": "0",
+          "label": "numeric facts available for analysis"
+        }
+      ],
+      "caption": "These counts come from the public-source source set and define the current evidence boundary.",
+      "source_note": "Sources: source-backed evidence set retained with the report.",
+      "data_basis": [],
+      "evidence_quality": "fact_pack_source_count",
+      "id": "evidence-exhibit-1",
+      "no": "1",
+      "after_section_id": "section-1",
+      "footnote": ""
+    },
+    {
+      "type": "bar",
+      "title": "Fact extraction determines which charts are safe to publish",
+      "subtitle": "Counts of retained sources, authority signals and extracted facts.",
+      "categories": [
+        "Sources",
+        "Authority",
+        "Numeric facts",
+        "Dated facts"
+      ],
+      "series": [
+        {
+          "name": "Count",
+          "values": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "caption": "The bar chart reports evidence availability; it does not rank strategic options.",
+      "source_note": "Sources: source-backed evidence set retained with the report.",
+      "data_basis": [],
+      "evidence_quality": "fact_pack_fact_count",
+      "id": "evidence-exhibit-2",
+      "no": "2",
+      "after_section_id": "section-2",
+      "footnote": ""
+    },
+    {
+      "type": "matrix",
+      "title": "Evidence gaps should become explicit validation work",
+      "subtitle": "Readiness counts are capped at five to expose whether the source base can support stronger claims.",
+      "rows": [
+        "Source breadth",
+        "Authority",
+        "Numeric facts",
+        "Timeline facts"
+      ],
+      "columns": [
+        "Observed",
+        "Readiness cap"
+      ],
+      "values": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "caption": "If numeric or dated facts are sparse, management should treat market size, ROI and timing as follow-up work.",
+      "source_note": "Sources: source-backed evidence set retained with the report.",
+      "data_basis": [],
+      "evidence_quality": "fact_pack_gap_matrix",
+      "id": "evidence-exhibit-3",
+      "no": "3",
+      "after_section_id": "section-3",
+      "footnote": ""
+    }
+  ],
+  "action_steps": [
+    {
+      "horizon": "Step 1",
+      "action": "Recalibrate fleet mix to prioritize Swift-Class drones (18 lbs) for urban centers to comply with the 25 lbs weight limit.",
+      "success_metric": "",
+      "description": ""
+    },
+    {
+      "horizon": "Step 2",
+      "action": "Modify payload capacity limits in dispatch software as notified to Engineering team.",
+      "success_metric": "",
+      "description": ""
+    },
+    {
+      "horizon": "Step 3",
+      "action": "Deploy Whisper-Prop technology to address noise concerns (42% of respondents).",
+      "success_metric": "",
+      "description": ""
+    },
+    {
+      "horizon": "Step 4",
+      "action": "Shutter outward-facing cameras during final descent to reassure privacy concerns (35% of respondents).",
+      "success_metric": "",
+      "description": ""
+    },
+    {
+      "horizon": "Step 5",
+      "action": "Allocate $4.5M from the budget for regulatory compliance and licensing activities.",
+      "success_metric": "",
+      "description": ""
+    }
+  ],
+  "methodology": "This report is a synthesis of three internal documents from OmniLogistics Corp. No external data was used. Facts are extracted verbatim from the provided documents.",
+  "references": [],
+  "source_count": 0,
+  "evidence_quality": "High: All data points are directly quoted from internal documents dated July 2026. Sample size of consumer survey is 5,200 across five global cities.",
+  "disclaimer": "This report is based solely on the private documents provided. No external sources were used. All figures and statements are as per the documents dated July 2026."
+}

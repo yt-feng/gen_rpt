@@ -1,0 +1,376 @@
+{
+  "objective": "Assess OmniLogistics' compliance with UAM Corridor Phase 1 guidelines for Project SkyNet and develop a strategy to mitigate regulatory, financial, and consumer acceptance risks.",
+  "audience": "Executive Board, Legal & Compliance, Engineering, Finance, and Marketing teams at OmniLogistics Corp.",
+  "decision_question": "Should OmniLogistics proceed with the current fleet mix (including Heavy-Lifter v2) for urban UAM corridors, or pivot entirely to Swift-Class drones, and what additional investments are needed to ensure compliance and consumer acceptance?",
+  "issue_tree": {
+    "Regulatory Compliance": {
+      "Altitude Limits": "Ensure drones operate between 150-300 ft except during VTOL.",
+      "Restricted Zones": "Avoid schools, sporting events, government perimeters.",
+      "Weight Limits": "Heavy-Lifter v2 exceeds 25 lbs; Swift-Class (18 lbs) is compliant.",
+      "Data Retention": "Retain telemetry and sensor data for 90 days."
+    },
+    "Financial Viability": {
+      "Budget Allocation": "$45.5M total; $4.5M for compliance, $22M for hardware.",
+      "Cost Reduction Target": "35% reduction in last-mile cost by Q4 2027.",
+      "Break-even": "18 months post-launch at 150k packages/day."
+    },
+    "Consumer Acceptance": {
+      "Noise Concerns": "42% cite noise; Whisper-Prop reduces decibels by 40%.",
+      "Privacy Concerns": "35% worry about cameras; shutter cameras during descent.",
+      "Safety Concerns": "18% fear malfunctions; need robust fail-safes.",
+      "Willingness to Pay": "55% will pay up to $2.50 premium for 30-min delivery."
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The Heavy-Lifter v2's weight non-compliance (27.5 lbs) will require either payload reduction or exclusion from urban corridors, increasing reliance on Swift-Class drones.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: The $4.5M compliance budget is sufficient to cover software modifications (dispatch limits) and data retention infrastructure, but may need reallocation if fines or retrofits arise.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: Deploying Whisper-Prop and camera-shuttering will address top consumer concerns, potentially increasing acceptance above 68% and justifying the $2.50 premium.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: The 150,000 daily package volume target is achievable only if Swift-Class drones handle the majority of urban deliveries, given weight restrictions.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for UAM Corridor Compliance is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance market size data",
+        "UAM Corridor Compliance demand forecast by segment"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance customer adoption price data",
+        "UAM Corridor Compliance orders customer case study"
+      ]
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Detailed specs of Heavy-Lifter v2 and Swift-Class (payload capacity, noise levels, camera specs).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Current dispatch software capabilities and timeline for payload limit modification.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Historical incident data for drone deliveries in dense urban areas.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Consumer survey segmentation by city to tailor noise/privacy solutions.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Competitor compliance strategies and fleet mix for UAM corridors.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "FAA/EASA enforcement history and penalty amounts for weight violations.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAM Corridor Compliance cost CAPEX OPEX"
+      ]
+    }
+  ],
+  "search_queries": [
+    "FAA UAM corridor Phase 1 enforcement penalties weight limit violations",
+    "EASA UAM corridor guidelines 2026 drone weight restrictions",
+    "urban drone delivery noise reduction technology Whisper-Prop decibel levels",
+    "drone camera privacy shutter mechanism regulations",
+    "OmniLogistics competitors urban drone delivery fleet compliance",
+    "Swift-Class drone payload capacity specifications",
+    "Heavy-Lifter v2 drone weight reduction modifications",
+    "drone delivery consumer acceptance survey 2026 noise privacy",
+    "last-mile delivery cost reduction drone case studies 2026",
+    "drone data retention requirements FAA 90 days telemetry",
+    "urban air mobility corridor restricted zones schools sporting events",
+    "drone delivery break-even analysis 150k packages per day",
+    "UAM Corridor Compliance market size data",
+    "UAM Corridor Compliance demand forecast by segment",
+    "UAM Corridor Compliance customer adoption price data",
+    "UAM Corridor Compliance orders customer case study",
+    "UAM Corridor Compliance total market size segment share",
+    "UAM Corridor Compliance demand by segment official data"
+  ],
+  "source_strategy": "Primary sources: FAA and EASA official publications, OmniLogistics internal engineering and compliance reports. Secondary sources: industry analyst reports (e.g., McKinsey, Deloitte) on UAM compliance costs, peer-reviewed studies on drone noise and privacy, and competitor financial disclosures.",
+  "outline": [
+    "1. Regulatory Compliance Assessment: Altitude, Restricted Zones, Weight, Data Retention",
+    "2. Financial Impact Analysis: Budget Reallocation, Cost Reduction Projections, Break-even Sensitivity",
+    "3. Consumer Acceptance Strategy: Noise Mitigation (Whisper-Prop), Privacy Measures (Camera Shuttering), Safety Enhancements",
+    "4. Fleet Mix Optimization: Heavy-Lifter v2 vs. Swift-Class Deployment Plan",
+    "5. Implementation Roadmap: Software Modifications, Training, Timeline",
+    "6. Risk Mitigation and Contingency Planning"
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Compliance checklist matrix (UAM guideline vs. OmniLogistics current status)",
+    "Exhibit 2: Fleet weight comparison chart (Heavy-Lifter v2 vs. Swift-Class vs. limit)",
+    "Exhibit 3: Consumer concern breakdown by city (noise, privacy, safety) with proposed solutions",
+    "Exhibit 4: Financial model showing break-even under different fleet mix scenarios",
+    "Exhibit 5: Timeline for software modifications and regulatory approvals"
+  ],
+  "risks": [
+    "Risk 1: Regulatory non-compliance fines or grounding if Heavy-Lifter v2 is used without modification.",
+    "Risk 2: Consumer backlash if noise or privacy concerns are not adequately addressed, reducing adoption.",
+    "Risk 3: Cost overruns if compliance requires unplanned hardware retrofits or additional software development.",
+    "Risk 4: Failure to achieve 150k daily package volume due to fleet capacity constraints from weight limits.",
+    "Risk 5: Competitors may achieve faster compliance or better consumer acceptance, eroding market share."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for UAM Corridor Compliance, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "UAM Corridor Compliance total market size segment share",
+          "UAM Corridor Compliance demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "UAM Corridor Compliance customer count price ARPU",
+          "UAM Corridor Compliance adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "UAM Corridor Compliance pilot customer conversion",
+          "UAM Corridor Compliance orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "UAM Corridor Compliance ROI cost savings case study",
+          "UAM Corridor Compliance value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "UAM Corridor Compliance capacity utilization unit price",
+          "UAM Corridor Compliance project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  }
+}
