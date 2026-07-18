@@ -19,27 +19,79 @@ This document contains a daily breakdown of the development work strictly regard
 ## July 17, 2026
 
 ### Backend (`gen-rpt-main`)
-- **Knowledge Ingestion & Processing Core**: Developed the asynchronous `process_document_job` pipeline handling text extraction, character normalization, dynamic chunking, and Hugging Face BGE-small embedding generation.
-- **Database Schema Upgrades**: Integrated PostgreSQL `pgvector` extension support for fast vector similarity searches. Created database migrations for collections, documents, chunks, and RAG analytics.
-- **Lifecycle & Governance Services**: Coded lifecycle services managing soft-deletion, version rollbacks, document moves, metadata extraction, and permission checking policies.
-- **Hugging Face Router Adaptation**: Switched deprecated API endpoints to `router.huggingface.co` to fix Docker container connection issues on Render.
-- **R2 Storage Client Fix**: Set S3v4 signature protocol configurations to repair expiring asset paths.
-- **Analytics & Recommendations**: Built modular schemas and logic tracking document usage frequency, quality indicators, retrieval metrics, and cluster sharing.
+- **RAG Context Integration**: Wired RAG search engine into report generation controllers. Set up cache stores to fetch and serialize snapshots.
+- **R2 Storage Client Tuning**: Applied S3v4 signature protocols to AWS boto3 configurations to prevent asset paths from expiring.
+- **Retrieval Analytics**: Integrated audit logs, activity tracking, and security permission validation policies.
 
 ### Frontend (`gen-rpt-frontend`)
-- ** central Axios client**: Defined TypeScript types and endpoints mapping collections, uploaded items, and reindexing queue statistics.
-- **Knowledge Management UI**: Developed the `CollectionsList` and `DocumentsList` interface modules allowing users to create collections, upload markdown/PDF documents, swap versions, and re-trigger queue processing.
-- **Enhanced Sidebar Navigation**: Designed a responsive navigation sidebar featuring dynamic queue status counts and live metrics.
+- No commits or development activity recorded on this day.
 
 ---
 
-## July 11, 2026 - July 16, 2026
+## July 16, 2026
 
 ### Backend (`gen-rpt-main`)
-- No commits or development activity recorded on these days.
+- **Governance & Category API**: Created permission checking routers, collection statistics counters, and document type category filters.
+- **Processing Logs Controller**: Created endpoints to check background job records and log traces.
 
 ### Frontend (`gen-rpt-frontend`)
-- No commits or development activity recorded on these days.
+- **Dynamic Stats Charts**: Integrated collection statistics pie charts and data loading skeletons.
+- **Queue Health Screen**: Implemented dashboard monitors to track active document chunks processing.
+
+---
+
+## July 15, 2026
+
+### Backend (`gen-rpt-main`)
+- **Semantic Retrieval Scoring**: Written similarity query weighting mathematical formulas, score scaling, and deduplication logic.
+- **Phase R8 Validation Engine**: Designed the validation rules engine checks (Phase R8) for resolving conflicts and grading chunk authority scores.
+
+### Frontend (`gen-rpt-frontend`)
+- **Knowledge Analytics**: Created visual statistics dashboard screens and byte-to-megabyte formatting utilities.
+
+---
+
+## July 14, 2026
+
+### Backend (`gen-rpt-main`)
+- **Versioning & Soft-Delete**: Implemented soft-deletion indicators, document moving services, version rollbacks, and file replacement APIs.
+
+### Frontend (`gen-rpt-frontend`)
+- **Documents Dashboard**: Created the `DocumentsList` sub-component supporting drag-and-drop file imports, manual indexing buttons, and status polling hooks.
+
+---
+
+## July 13, 2026
+
+### Backend (`gen-rpt-main`)
+- **Dynamic Chunk Partitions**: Written custom markdown/PDF text chunk split engines with configurable overlaps and title extraction.
+- **Hugging Face Inference Worker**: Integrated BAAI/bge-small embedding requests. Switched HTTP calls to urllib to bypass async Docker host resolution errors.
+- **Router Adaptations**: Moved obsolete endpoint domains to `router.huggingface.co`.
+
+### Frontend (`gen-rpt-frontend`)
+- **Collections Manager**: Designed the `CollectionsList` dashboard page allowing users to view, search, and delete knowledge collections.
+
+---
+
+## July 12, 2026
+
+### Backend (`gen-rpt-main`)
+- **Text Extraction Workers**: Built file processing scripts parsing PDF metadata, raw markdown, HTML text structures, and docx headers.
+- **Content Normalization**: Written text cleanups to strip extra whitespaces, invalid symbols, and bad encodings.
+
+### Frontend (`gen-rpt-frontend`)
+- **Responsive Left Sidebar**: Engineered left-hand navigation sidebar displaying live collection counts and active jobs.
+
+---
+
+## July 11, 2026
+
+### Backend (`gen-rpt-main`)
+- **Knowledge DB Architecture**: Designed relational schemas mapping collections, documents, chunks, and metadata.
+- **Vector Search Setup**: Enabled `pgvector` indexing in PostgreSQL database configurations and initialized migration folders.
+
+### Frontend (`gen-rpt-frontend`)
+- **API Client & Type Scaffolding**: Centralized Axios api routing endpoints. Defined initial TS interfaces mapping collection structures.
 
 ---
 
