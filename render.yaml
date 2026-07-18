@@ -31,3 +31,34 @@ services:
         sync: false
       - key: CORS_ORIGINS
         value: "https://your-frontend-domain.pages.dev"
+      # AI APIs — set values in Render dashboard
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: HF_API_TOKEN
+        sync: false
+      # Internal worker auth
+      - key: INTERNAL_TOKEN
+        sync: false
+      - key: BACKEND_URL
+        value: https://report-backend-api.onrender.com
+      # GitHub integration
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: yt-feng/gen_rpt
+      # RAG / Knowledge feature flags
+      - key: KNOWLEDGE_ENABLED
+        value: "true"
+      - key: RAG_ENABLED
+        value: "true"
+      - key: UPLOAD_ENABLED
+        value: "true"
+      - key: PROCESSING_ENABLED
+        value: "true"
+      - key: RETRIEVAL_ENABLED
+        value: "true"
+      - key: VALIDATION_ENABLED
+        value: "true"
+      - key: SEARCH_ENABLED
+        value: "true"
+
