@@ -2,7 +2,7 @@
 
 **Updated:** July 19, 2026
 **Reference report:** `project-skynet-urban-drone-delivery-launch-decision-assess-f-c551ae`
-**Status:** RAG retrieval, narrative grounding, and the first exhibit-safety package work locally; combined RAG/web evidence handling and full final-output validation remain incomplete.
+**Status:** RAG retrieval, narrative grounding, and the first exhibit-safety package are deployed on `main` at `e21e492`; combined RAG/web evidence handling and full final-output validation remain incomplete.
 
 ## 1. Required evidence policy
 
@@ -49,7 +49,7 @@ The previous claim of “100% coverage and zero hallucinations” applied only t
 
 ## 4. Implementation progress — July 19, 2026
 
-The first implementation package is complete locally and awaiting commit/deployment:
+The first implementation package is deployed on `main` at commit `e21e492`:
 
 - Nested exhibit `data` is now inside the RAG numeric-validation boundary.
 - Unsupported model exhibits are removed immediately after each synthesis response, before they can fail or contaminate the report-level gate.
@@ -168,3 +168,52 @@ RAG is considered properly working only when all of the following are true:
 - Exhibits are relevant, non-duplicative, and semantically comparable.
 - Facts, derived analysis, and unresolved conflicts are visibly distinguishable.
 - One mixed-source end-to-end production run passes review after deployment.
+
+## 10. Concrete combined RAG/web design
+
+Use the existing pipeline and data structures. Do not add another service, database, framework, or model pass.
+
+### Processing flow
+
+1. Retrieve and validate RAG chunks exactly as today.
+2. Ask the existing document-grounded planner for external-gap queries only.
+3. Run a bounded web collection for those queries: start with at most four queries, two results per query, and eight accepted web sources.
+4. Build separate RAG and web evidence ledgers before combining them.
+5. Add an `origin` value (`rag`, `web`, or `derived`) to each evidence record using the existing `source_type`; `internal` means `rag`, and fetched HTTP/PDF sources mean `web`.
+6. Reconcile comparable evidence deterministically before synthesis.
+7. Give synthesis three separate blocks: approved working evidence, supplementary web evidence, and conflicts requiring review.
+8. Exclude unresolved conflicts from conclusions, actions, and exhibits.
+9. Render conflicts in a deterministic human-review section.
+10. Audit the normalized payload and rendered HTML before publishing.
+
+### Comparison and conflict rule
+
+Compare two claims only when all available identifying fields agree: entity, metric, unit, geography, and time period. A partial or uncertain match is not a conflict and must remain separate evidence.
+
+For a valid match:
+
+- Same value: mark the web record `corroborates_rag`; retain one narrative claim with both sources.
+- Different value: mark both records `requires_human_review`; keep the RAG value as the working basis and exclude the web value from generated conclusions and charts.
+- No RAG equivalent: mark the web record `supplementary`; it may fill the documented gap with a visible web-source label.
+- Derived calculation: retain its input evidence IDs and formula; never present it as a directly sourced fact.
+
+Each reconciled record needs only these fields: `id`, `origin`, `fact`, `value`, `unit`, `entity`, `metric`, `geography`, `period`, `source_id`, `status`, and optional `conflicts_with` or `derived_from`.
+
+### Minimal code boundaries
+
+- `web_report_pipeline.py`: enable bounded web collection in RAG mode, build separate ledgers, and pass reconciled blocks to synthesis.
+- `web_evidence.py`: label evidence origin and add deterministic reconciliation/conflict records.
+- `web_fetch.py`: extend the existing manifest with separate RAG/web counts; do not replace collection or source models.
+- `web_publication_contract.py`: reject conclusions, actions, or exhibits that use unresolved conflicts or lack valid provenance.
+- `web_report_renderer.py`: render source-origin labels and the human-review conflict section.
+- `tests/test_rag_bridge.py`: cover agreement, gap filling, conflict isolation, derived values, bounded collection, and public-only regression behavior.
+
+### Release gates
+
+Implement and deploy in three small packages:
+
+1. **Collection and origin:** bounded web search plus separate RAG/web evidence records. No report behavior changes until tests prove RAG remains first.
+2. **Reconciliation and review:** deterministic agreement/conflict classification plus the human-review section.
+3. **Final artifact audit:** reject unsupported or conflict-contaminated payloads and HTML, then run the full validation matrix.
+
+Each package must keep public-only generation unchanged, pass existing tests, add focused regression tests, and be deployable or revertible as one commit.
