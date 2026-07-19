@@ -159,6 +159,7 @@ class WebReportPipeline:
             report = self._synthesize_web_report(display_topic, plan, chart_data_needs, sources, fact_pack, evidence_ledger, storyline_plan)
             if self.rag_context:
                 report = ground_rag_section_evidence(report, rag_source_chunks)
+                self._filter_rag_exhibits(report, rag_source_chunks)
                 quality_issues = rag_report_quality_issues(
                     report,
                     topic=display_topic,
@@ -179,6 +180,7 @@ class WebReportPipeline:
                         quality_corrections=quality_issues,
                     )
                     report = ground_rag_section_evidence(report, rag_source_chunks)
+                    self._filter_rag_exhibits(report, rag_source_chunks)
                     quality_issues = rag_report_quality_issues(
                         report,
                         topic=display_topic,
@@ -203,15 +205,7 @@ class WebReportPipeline:
         self._log("PHASE evidence_exhibits started | expected <10s")
         evidence_exhibits = build_evidence_exhibits(display_topic, evidence_ledger, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=self.language)
         if self.rag_context:
-            report["exhibits"] = [
-                exhibit
-                for exhibit in report.get("exhibits", []) or []
-                if rag_exhibit_is_grounded(
-                    exhibit,
-                    context_text=self.rag_context,
-                    source_chunks=rag_source_chunks,
-                )
-            ]
+            self._filter_rag_exhibits(report, rag_source_chunks)
             evidence_exhibits = [
                 exhibit
                 for exhibit in evidence_exhibits
@@ -280,8 +274,22 @@ class WebReportPipeline:
 
         phase_start = time.monotonic()
         self._log("PHASE render_and_write started | expected <10s")
-        html_path = render_web_report_html(report, assets, output_dir / "index.html", display_topic, self.language)
-        markdown_path = render_web_report_markdown(report, output_dir / "report.md", display_topic, self.language)
+        allow_synthetic_fallbacks = not bool(self.rag_context)
+        html_path = render_web_report_html(
+            report,
+            assets,
+            output_dir / "index.html",
+            display_topic,
+            self.language,
+            allow_synthetic_fallbacks=allow_synthetic_fallbacks,
+        )
+        markdown_path = render_web_report_markdown(
+            report,
+            output_dir / "report.md",
+            display_topic,
+            self.language,
+            allow_synthetic_fallbacks=allow_synthetic_fallbacks,
+        )
 
         (output_dir / "web_report_payload.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -827,6 +835,21 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
             if self.language == "en"
             else "本报告用于战略讨论；用于投资、交易或运营决策前需独立核验来源数据。",
         )
+
+    def _filter_rag_exhibits(
+        self,
+        report: Dict[str, Any],
+        source_chunks: Dict[str, str],
+    ) -> None:
+        report["exhibits"] = [
+            exhibit
+            for exhibit in report.get("exhibits", []) or []
+            if rag_exhibit_is_grounded(
+                exhibit,
+                context_text=self.rag_context or "",
+                source_chunks=source_chunks,
+            )
+        ]
 
     def _normalize_research_plan(self, plan: Dict[str, Any], topic: str) -> Dict[str, Any]:
         normalized = dict(plan or {})

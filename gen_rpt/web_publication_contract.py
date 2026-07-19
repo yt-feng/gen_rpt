@@ -341,7 +341,7 @@ def _exhibit_reader_text(exhibit: Any) -> str:
     ]
     for key in (
         "metrics", "items", "events", "steps", "categories", "labels", "x_labels",
-        "rows", "columns", "values", "series", "points", "point_labels", "estimated_points",
+        "rows", "columns", "values", "series", "points", "point_labels", "estimated_points", "data",
     ):
         parts.append(_visible_value_text(exhibit.get(key)))
     return "\n".join(parts)

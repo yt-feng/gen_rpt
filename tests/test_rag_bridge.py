@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import requests
@@ -21,7 +23,7 @@ from gen_rpt.web_publication_contract import (
     rag_visible_numbers_supported,
 )
 from gen_rpt.web_report_pipeline import WebReportPipeline
-from gen_rpt.web_report_renderer import normalize_web_report
+from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html
 
 
 def _context_payload():
@@ -208,6 +210,40 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(len(merged["exhibits"]), 2)
         self.assertEqual(merged["exhibits"][0]["title"], grounded["title"])
 
+    def test_deterministic_exhibits_do_not_repeat_existing_rag_facts(self):
+        fact = "The validated investment is $45.5 million."
+        report = {
+            "exhibits": [
+                {
+                    "type": "matrix",
+                    "title": "Documented investment",
+                    "data_basis": [{"id": "chunk-1", "fact": fact}],
+                }
+            ]
+        }
+
+        merged = merge_evidence_exhibits(
+            report,
+            [
+                {
+                    "type": "metric_row",
+                    "title": "Repeated investment",
+                    "data_basis": [{"id": "E1", "fact": fact}],
+                },
+                {
+                    "type": "bar",
+                    "title": "Distinct acceptance evidence",
+                    "data_basis": [{"id": "E2", "fact": "Consumer acceptance is 68%."}],
+                },
+            ],
+            preserve_existing=True,
+        )
+
+        self.assertEqual(
+            [item["title"] for item in merged["exhibits"]],
+            ["Documented investment", "Distinct acceptance evidence"],
+        )
+
     def test_final_quality_gate_checks_action_and_exhibit_numbers(self):
         paragraph = "Documented evidence supports the decision without adding unsupported operating assumptions. " * 6
         report = {
@@ -314,6 +350,117 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertEqual(report["action_steps"][3]["horizon"], "Decision gate")
+
+    def test_nested_table_numbers_are_inside_the_rag_quality_boundary(self):
+        exhibit = {
+            "type": "table",
+            "title": "Drone weight comparison",
+            "data": {
+                "columns": ["Drone", "Weight"],
+                "rows": [["Swift-Class", 18], ["Invented model", 99]],
+            },
+        }
+
+        self.assertFalse(rag_visible_numbers_supported(exhibit, "Swift-Class weighs 18 lbs."))
+
+    def test_pipeline_removes_unsupported_nested_table_before_report_gate(self):
+        chunk_id = "chunk-1"
+        fact = "Swift-Class weighs 18 lbs."
+        report = {
+            "exhibits": [
+                {
+                    "type": "table",
+                    "title": "Grounded weight",
+                    "data": {"columns": ["Drone", "Weight"], "rows": [["Swift-Class", 18]]},
+                    "data_basis": [{"id": chunk_id, "fact": fact}],
+                },
+                {
+                    "type": "table",
+                    "title": "Unsupported weight",
+                    "data": {"columns": ["Drone", "Weight"], "rows": [["Invented model", 99]]},
+                    "data_basis": [{"id": chunk_id, "fact": fact}],
+                },
+            ]
+        }
+        pipeline = WebReportPipeline(Mock())
+        pipeline.rag_context = fact
+
+        pipeline._filter_rag_exhibits(report, {chunk_id: fact})
+
+        self.assertEqual([item["title"] for item in report["exhibits"]], ["Grounded weight"])
+
+    def test_nested_table_normalizes_to_matrix_and_preserves_full_chunk_id(self):
+        chunk_id = "dfe35bb5-0eda-4a50-8180-aacb83f79cbd"
+        report = normalize_web_report(
+            {
+                "title": "Grounded report",
+                "key_takeaways": ["A", "B", "C"],
+                "sections": [],
+                "exhibits": [
+                    {
+                        "type": "table",
+                        "title": "Budget breakdown",
+                        "data": {
+                            "columns": ["Category", "Amount ($M)"],
+                            "rows": [["Hardware", 22.0], ["Software", 12.5]],
+                        },
+                        "data_basis": [{"id": chunk_id, "fact": "Hardware: $22.0M"}],
+                    }
+                ],
+            },
+            topic="Grounded report",
+            allow_synthetic_fallbacks=False,
+        )
+
+        exhibit = report["exhibits"][0]
+        self.assertEqual(exhibit["type"], "matrix")
+        self.assertEqual(exhibit["rows"], ["Hardware", "Software"])
+        self.assertEqual(exhibit["columns"], ["Amount ($M)"])
+        self.assertEqual(exhibit["values"], [[22.0], [12.5]])
+        self.assertEqual(exhibit["data_basis"][0]["id"], chunk_id)
+
+    def test_strict_renderer_does_not_inject_placeholder_chart_values(self):
+        report = {
+            "title": "Grounded budget decision",
+            "dek": "The uploaded document supplies the budget values.",
+            "key_takeaways": ["Budget is documented.", "Values are traceable.", "No fallback is allowed."],
+            "sections": [
+                {
+                    "id": "section-1",
+                    "title": "The documented budget defines the decision boundary",
+                    "paragraphs": ["Grounded evidence paragraph."],
+                }
+            ],
+            "exhibits": [
+                {
+                    "type": "table",
+                    "title": "Project SkyNet Budget Breakdown",
+                    "after_section_id": "section-1",
+                    "data": {
+                        "columns": ["Category", "Amount ($M)"],
+                        "rows": [["Hardware", 22.0], ["Software", 12.5]],
+                    },
+                }
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "index.html"
+            render_web_report_html(
+                report,
+                {},
+                output,
+                "Grounded budget decision",
+                allow_synthetic_fallbacks=False,
+            )
+            html = output.read_text(encoding="utf-8")
+
+        self.assertIn("Hardware", html)
+        self.assertIn("22", html)
+        self.assertNotIn(">A</text>", html)
+        self.assertNotIn(">60</text>", html)
+        self.assertNotIn(">45</text>", html)
+        self.assertNotIn(">30</text>", html)
 
 if __name__ == "__main__":
     unittest.main()

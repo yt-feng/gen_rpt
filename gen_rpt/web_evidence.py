@@ -203,8 +203,28 @@ def merge_evidence_exhibits(
     if not evidence_exhibits:
         return report
     existing = report.get("exhibits", []) or [] if preserve_existing else []
+    if preserve_existing and existing:
+        existing_facts = {
+            _normalized_basis_fact(item)
+            for exhibit in existing
+            for item in exhibit.get("data_basis", []) or []
+            if isinstance(item, dict) and _normalized_basis_fact(item)
+        }
+        evidence_exhibits = [
+            exhibit
+            for exhibit in evidence_exhibits
+            if not existing_facts.intersection(
+                _normalized_basis_fact(item)
+                for item in exhibit.get("data_basis", []) or []
+                if isinstance(item, dict) and _normalized_basis_fact(item)
+            )
+        ]
     report["exhibits"] = _dedupe_exhibits([*existing, *evidence_exhibits])[:6]
     return report
+
+
+def _normalized_basis_fact(item: Dict[str, Any]) -> str:
+    return re.sub(r"\W+", "", str(item.get("fact") or item.get("text") or "").lower())
 
 
 def _chart_need_family_order(chart_data_needs: List[Dict[str, Any]]) -> List[str]:

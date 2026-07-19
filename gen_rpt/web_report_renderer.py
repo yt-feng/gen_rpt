@@ -649,8 +649,15 @@ def render_web_report_html(
     output_file: Path,
     topic: str,
     language: str = "en",
+    *,
+    allow_synthetic_fallbacks: bool = True,
 ) -> Path:
-    normalized = normalize_web_report(report, topic=topic, language=language)
+    normalized = normalize_web_report(
+        report,
+        topic=topic,
+        language=language,
+        allow_synthetic_fallbacks=allow_synthetic_fallbacks,
+    )
     labels = _labels(language)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
@@ -735,8 +742,15 @@ def render_web_report_markdown(
     output_file: Path,
     topic: str,
     language: str = "en",
+    *,
+    allow_synthetic_fallbacks: bool = True,
 ) -> Path:
-    normalized = normalize_web_report(report, topic=topic, language=language)
+    normalized = normalize_web_report(
+        report,
+        topic=topic,
+        language=language,
+        allow_synthetic_fallbacks=allow_synthetic_fallbacks,
+    )
     lines = [f"# {normalized['title']}", "", normalized["dek"], ""]
     lines.extend(["## Key Takeaways", ""])
     for item in normalized["key_takeaways"]:
@@ -786,7 +800,10 @@ def normalize_web_report(
     )
     sections = _normalize_sections(data.get("sections") or data.get("chapters"), takeaways)
     takeaways = _ensure_three_takeaways(takeaways, data, sections, topic, language, dek)
-    exhibits = _normalize_exhibits(data.get("exhibits") or data.get("charts") or [])
+    exhibits = _normalize_exhibits(
+        data.get("exhibits") or data.get("charts") or [],
+        allow_synthetic_fallbacks=allow_synthetic_fallbacks,
+    )
     action_steps = _normalize_actions(data.get("action_steps") or data.get("action_plan") or [])
     references = _normalize_references(data.get("references") or data.get("sources") or [])
     authors = _list_text(data.get("authors") or data.get("author_credentials") or [BRAND_NAME])
@@ -1410,7 +1427,11 @@ def _ensure_three_takeaways(
     return _dedupe([x for x in candidates if _text(x)])[:3]
 
 
-def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
+def _normalize_exhibits(
+    value: Any,
+    *,
+    allow_synthetic_fallbacks: bool = True,
+) -> List[Dict[str, Any]]:
     exhibits = []
     for idx, item in enumerate(_as_list(value), start=1):
         if not isinstance(item, dict):
@@ -1418,6 +1439,7 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
         exhibit = dict(item)
         if is_internal_workbench_exhibit(exhibit):
             continue
+        _normalize_nested_table(exhibit)
         exhibit["id"] = _slug(exhibit.get("id") or f"exhibit-{idx}")
         exhibit["no"] = str(exhibit.get("no") or exhibit.get("exhibit_no") or idx)
         exhibit["title"] = _compact(_text(exhibit.get("title") or f"Exhibit {idx}"), 130)
@@ -1433,6 +1455,8 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
                 exhibit[key] = clean_client_value(exhibit[key])
         if not exhibit.get("after_section_id"):
             exhibit["after_section_id"] = f"section-{min(idx, 8)}"
+        if not allow_synthetic_fallbacks and not _exhibit_has_renderable_data(exhibit):
+            continue
         exhibits.append(exhibit)
     for idx, exhibit in enumerate(exhibits, start=1):
         exhibit["no"] = str(idx)
@@ -1442,13 +1466,49 @@ def _normalize_exhibits(value: Any) -> List[Dict[str, Any]]:
     return exhibits
 
 
+def _normalize_nested_table(exhibit: Dict[str, Any]) -> None:
+    if str(exhibit.get("type") or "").lower().replace("-", "_") != "table":
+        return
+    data = exhibit.get("data")
+    if not isinstance(data, dict):
+        return
+    columns = _list_text(data.get("columns"))
+    source_rows = [row for row in _as_list(data.get("rows")) if isinstance(row, (list, tuple)) and row]
+    if len(columns) < 2 or not source_rows:
+        return
+    rows = [_text(row[0]) for row in source_rows if _text(row[0])]
+    values = [clean_client_value(list(row[1 : len(columns)])) for row in source_rows if _text(row[0])]
+    if rows and values:
+        exhibit["type"] = "matrix"
+        exhibit["rows"] = rows
+        exhibit["columns"] = columns[1:]
+        exhibit["values"] = values
+        exhibit.pop("data", None)
+
+
+def _exhibit_has_renderable_data(exhibit: Dict[str, Any]) -> bool:
+    etype = str(exhibit.get("type") or "bar").lower().replace("-", "_")
+    if etype in {"metric_row", "metrics", "big_numbers"}:
+        return bool(exhibit.get("metrics") or exhibit.get("items"))
+    if etype in {"line", "line_chart"}:
+        return bool(_list_text(exhibit.get("categories") or exhibit.get("x_labels") or exhibit.get("labels")) and _series(exhibit))
+    if etype in {"matrix", "heatmap", "opportunity_matrix", "decision_matrix"}:
+        return bool(exhibit.get("rows") and exhibit.get("columns") and exhibit.get("values"))
+    if etype in {"timeline", "milestone_timeline", "process", "roadmap", "flywheel"}:
+        return bool(exhibit.get("events") or exhibit.get("steps") or exhibit.get("items"))
+    if etype in {"bubble", "scatter", "opportunity_map", "quadrant"}:
+        return bool(exhibit.get("points"))
+    categories, values = _chart_values(exhibit)
+    return bool(categories and values)
+
+
 def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
     basis = []
     for idx, item in enumerate(_as_list(value), start=1):
         if isinstance(item, dict):
             basis.append(
                 {
-                    "id": _compact(_text(item.get("id") or f"E{idx}"), 24),
+                    "id": _text(item.get("id") or f"E{idx}")[:160],
                     "value": _compact(_text(item.get("value") or item.get("display_value") or ""), 40),
                     "fact": _compact(_text(item.get("fact") or item.get("text") or item.get("description") or ""), 300),
                     "source_title": _compact(_text(item.get("source_title") or item.get("title") or ""), 120),
