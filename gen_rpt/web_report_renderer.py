@@ -722,6 +722,7 @@ def render_web_report_html(
         last_output_was_exhibit = bool(section_exhibits)
     opening_previous = previous_exhibit if last_output_was_exhibit else None
     _render_exhibit_group(parts, exhibit_by_after.get("", []), labels, opening_previous)
+    _render_conflicts(parts, normalized.get("conflicts", []), language)
     parts.append("</article>")
     parts.append("</main>")
 
@@ -765,6 +766,16 @@ def render_web_report_markdown(
             for item in section["evidence"]:
                 lines.append(f"- {item}")
             lines.append("")
+    if normalized.get("conflicts"):
+        heading = "Conflicts requiring human review" if not str(language).lower().startswith("zh") else "需要人工复核的证据冲突"
+        lines.extend([f"## {heading}", ""])
+        for conflict in normalized["conflicts"]:
+            lines.append(f"### {conflict['id']}")
+            lines.append("")
+            lines.append(f"- RAG working basis: {conflict['rag']['fact']} ({conflict['rag']['source_title']})")
+            lines.append(f"- Supplementary web claim: {conflict['web']['fact']} ({conflict['web']['source_title']})")
+            lines.append(f"- Status: {conflict['status']}")
+            lines.append("")
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     return output_file
@@ -806,6 +817,7 @@ def normalize_web_report(
     )
     action_steps = _normalize_actions(data.get("action_steps") or data.get("action_plan") or [])
     references = _normalize_references(data.get("references") or data.get("sources") or [])
+    conflicts = _normalize_conflicts(data.get("conflicts") or data.get("evidence_conflicts") or [])
     authors = _list_text(data.get("authors") or data.get("author_credentials") or [BRAND_NAME])
     methodology = _text(data.get("methodology") or data.get("methodology_note") or "")
     source_count = int(_number(data.get("source_count"), 0))
@@ -831,6 +843,7 @@ def normalize_web_report(
         "action_steps": action_steps[:6],
         "methodology": methodology or _default_methodology(language),
         "references": references[:24],
+        "conflicts": conflicts[:12],
         "source_count": source_count or len(references),
         "evidence_quality": _text(data.get("evidence_quality") or data.get("evidence_boundary") or ""),
         "disclaimer": _text(data.get("disclaimer") or ""),
@@ -1112,7 +1125,11 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
         fact = _compact(_text(item.get("fact") or item.get("text") or item.get("description") or ""), 220)
         title = _compact(_text(item.get("source_title") or item.get("title") or item.get("domain") or ""), 80)
         url = _text(item.get("url") or "")
+        origin = _text(item.get("origin") or "")
+        origin_label = "private-document" if origin == "rag" else "supplementary web" if origin == "web" else "derived" if origin == "derived" else ""
         left = f"<span class='basis-id'>{_e(basis_id)}</span> " if basis_id else ""
+        if origin_label:
+            left += f"<span class='basis-origin'>{_e(origin_label)}</span> "
         if value:
             left += f"{_e(value)} - "
         body = _e(fact or title or "Retained evidence item")
@@ -1124,6 +1141,30 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
             source = ""
         parts.append(f"<li>{left}{body}{source}</li>")
     parts.append("</ul></details>")
+
+
+def _render_conflicts(parts: List[str], conflicts: Any, language: str) -> None:
+    rows = _normalize_conflicts(conflicts)
+    if not rows:
+        return
+    zh = str(language or "").lower().startswith("zh")
+    heading = "需要人工复核的证据冲突" if zh else "Conflicts requiring human review"
+    intro = (
+        "以下冲突不会自动解决；报告结论继续以私有文档为工作依据，等待人工决定。"
+        if zh
+        else "These conflicts were not resolved automatically. The report keeps private-document evidence as its working basis until a human decides."
+    )
+    parts.append("<section class='report-section conflict-review' id='conflicts-requiring-human-review'>")
+    parts.append(f"<h2>{_e(heading)}</h2><p>{_e(intro)}</p>")
+    for conflict in rows:
+        rag = conflict["rag"]
+        web = conflict["web"]
+        parts.append("<div class='evidence-box'>")
+        parts.append(f"<strong>{_e(conflict['id'])}: {_e(conflict['reason'])}</strong>")
+        parts.append(f"<p><b>{'私有文档工作依据' if zh else 'RAG working basis'}:</b> {_e(rag['fact'])} {_e(rag['source_title'])}</p>")
+        parts.append(f"<p><b>{'补充网页主张' if zh else 'Supplementary web claim'}:</b> {_e(web['fact'])} {_e(web['source_title'])}</p>")
+        parts.append("</div>")
+    parts.append("</section>")
 
 
 def _render_methodology(parts: List[str], report: Dict[str, Any], labels: Dict[str, str]) -> None:
@@ -1169,6 +1210,12 @@ def _action_summary(actions: Any, language: str) -> str:
 
 def _client_source_note(references: Any, source_count: int, *, zh: bool = False) -> str:
     refs = _normalize_references(references)
+    rag_count = sum(1 for ref in refs if ref.get("origin") == "rag")
+    web_count = sum(1 for ref in refs if ref.get("origin") == "web")
+    if rag_count:
+        if zh:
+            return f"本文以 {rag_count} 个私有文档来源为主要证据，并使用 {web_count} 个补充网页来源填补资料缺口。冲突不会自动解决，需在用于投资或运营决策前人工复核。"
+        return f"This article uses {rag_count} private-document evidence source{'s' if rag_count != 1 else ''} as the working basis and {web_count} supplementary web source{'s' if web_count != 1 else ''} for documented gaps. Conflicts are not resolved automatically and require human review before investment or operating use."
     domains = []
     for ref in refs:
         domain = ref.get("domain") or _domain(ref.get("url") or "")
@@ -1514,6 +1561,8 @@ def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
                     "source_title": _compact(_text(item.get("source_title") or item.get("title") or ""), 120),
                     "url": _text(item.get("url") or item.get("source_url") or ""),
                     "domain": _compact(_text(item.get("domain") or ""), 80),
+                    "origin": _text(item.get("origin") or ""),
+                    "status": _text(item.get("status") or ""),
                 }
             )
         else:
@@ -1547,14 +1596,47 @@ def _normalize_references(value: Any) -> List[Dict[str, str]]:
             title = _text(item.get("title") or item.get("name") or item.get("url") or f"Source {idx}")
             url = _text(item.get("url") or "")
             note = _text(item.get("note") or item.get("description") or "")
+            origin = _text(item.get("origin") or "")
         else:
             text = _text(item)
             title = text or f"Source {idx}"
             url = _extract_url(text)
             note = text
+            origin = ""
         if title or url:
-            refs.append({"title": _compact(title, 180), "url": url, "note": _compact(note, 220), "domain": _domain(url)})
+            refs.append({"title": _compact(title, 180), "url": url, "note": _compact(note, 220), "domain": _domain(url), "origin": origin})
     return refs
+
+
+def _normalize_conflicts(value: Any) -> List[Dict[str, Any]]:
+    conflicts = []
+    for idx, item in enumerate(_as_list(value), start=1):
+        if not isinstance(item, dict):
+            continue
+        rag = item.get("rag") if isinstance(item.get("rag"), dict) else {}
+        web = item.get("web") if isinstance(item.get("web"), dict) else {}
+        if not rag.get("fact") or not web.get("fact"):
+            continue
+        conflicts.append(
+            {
+                "id": _compact(_text(item.get("id") or f"C{idx}"), 40),
+                "status": "requires_human_review",
+                "reason": _compact(_text(item.get("reason") or "Comparable sources report different values."), 220),
+                "rag": {
+                    "value": _compact(_text(rag.get("value") or ""), 40),
+                    "fact": _compact(_text(rag.get("fact") or ""), 360),
+                    "source_title": _compact(_text(rag.get("source_title") or "Private document"), 120),
+                    "source_url": _text(rag.get("source_url") or ""),
+                },
+                "web": {
+                    "value": _compact(_text(web.get("value") or ""), 40),
+                    "fact": _compact(_text(web.get("fact") or ""), 360),
+                    "source_title": _compact(_text(web.get("source_title") or "Supplementary web source"), 120),
+                    "source_url": _text(web.get("source_url") or ""),
+                },
+            }
+        )
+    return conflicts
 
 
 def _chart_values(exhibit: Dict[str, Any]) -> Tuple[List[str], List[float]]:

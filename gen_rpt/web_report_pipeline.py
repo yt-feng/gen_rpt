@@ -12,14 +12,22 @@ from .deepseek_client import DeepSeekClient
 from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
 from .research_quality import ResearchFactPack, build_research_fact_pack
-from .web_evidence import build_evidence_exhibits, build_evidence_ledger, build_storyline_plan, merge_evidence_exhibits
+from .web_evidence import (
+    build_evidence_exhibits,
+    build_evidence_ledger,
+    build_storyline_plan,
+    merge_evidence_exhibits,
+    reconcile_rag_web_evidence,
+)
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
     client_visible_internal_hits,
+    combined_evidence_quality_issues,
     ground_rag_section_evidence,
     publication_contract_prompt,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
+    rag_rendered_output_issues,
     rag_visible_numbers_supported,
 )
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
@@ -108,7 +116,7 @@ class WebReportPipeline:
         )
         if search_queries:
             self._log("PHASE source_collection query_plan | " + " || ".join(query[:120] for query in search_queries[:10]))
-        public_sources = [] if self.rag_context else collect_sources(search_queries, per_query=per_query, max_sources=max_sources)
+        public_sources = self._collect_public_sources(search_queries, per_query=per_query, max_sources=max_sources)
         sources = merge_sources(self.rag_sources, public_sources)
         if self.rag_required and not any(source.source_type == "internal" for source in sources):
             raise RuntimeError("Validated RAG sources were lost before evidence generation")
@@ -126,7 +134,9 @@ class WebReportPipeline:
 
         phase_start = time.monotonic()
         self._log("PHASE fact_pack started | expected <10s")
-        fact_pack = build_research_fact_pack(display_topic, plan, sources)
+        rag_fact_pack = build_research_fact_pack(display_topic, plan, self.rag_sources) if self.rag_context else None
+        web_fact_pack = build_research_fact_pack(display_topic, plan, public_sources) if self.rag_context and public_sources else None
+        fact_pack = rag_fact_pack or build_research_fact_pack(display_topic, plan, sources)
         self._log(
             "PHASE fact_pack completed "
             f"| elapsed={self._elapsed(phase_start)} | source_count={fact_pack.source_count} "
@@ -136,34 +146,79 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE evidence_ledger_and_storyline started | expected 5-15s")
         try:
-            evidence_ledger = build_evidence_ledger(display_topic, sources, fact_pack)
+            if self.rag_context:
+                rag_evidence_ledger = build_evidence_ledger(
+                    display_topic,
+                    self.rag_sources,
+                    rag_fact_pack or fact_pack,
+                    limit=24,
+                    id_prefix="RAG-E",
+                )
+                web_evidence_ledger = (
+                    build_evidence_ledger(
+                        display_topic,
+                        public_sources,
+                        web_fact_pack or fact_pack,
+                        limit=24,
+                        id_prefix="WEB-E",
+                    )
+                    if public_sources
+                    else []
+                )
+                reconciliation = reconcile_rag_web_evidence([*rag_evidence_ledger, *web_evidence_ledger])
+                rag_evidence_ledger = reconciliation["rag"]
+                web_evidence_ledger = reconciliation["web"]
+                evidence_ledger = [*rag_evidence_ledger, *web_evidence_ledger]
+                approved_evidence = reconciliation["approved"]
+                evidence_conflicts = reconciliation["conflicts"]
+            else:
+                evidence_ledger = build_evidence_ledger(display_topic, sources, fact_pack)
+                rag_evidence_ledger = []
+                web_evidence_ledger = evidence_ledger
+                approved_evidence = evidence_ledger
+                evidence_conflicts = []
         except Exception as exc:
             (output_dir / "web_evidence_error.txt").write_text(str(exc), encoding="utf-8")
             evidence_ledger = []
+            rag_evidence_ledger = []
+            web_evidence_ledger = []
+            approved_evidence = []
+            evidence_conflicts = []
             self._log(f"PHASE evidence_ledger fallback used | reason={str(exc)[:240]!r}")
-        storyline_plan = build_storyline_plan(display_topic, plan, fact_pack, evidence_ledger, language=self.language)
+        grounding_text = self._combined_grounding_text(approved_evidence)
+        storyline_plan = build_storyline_plan(display_topic, plan, fact_pack, approved_evidence, language=self.language)
         family_counts: Dict[str, int] = {}
-        for item in evidence_ledger:
+        for item in approved_evidence:
             family = str(item.get("metric_family") or "other")
             family_counts[family] = family_counts.get(family, 0) + 1
         family_summary = ", ".join(f"{key}:{value}" for key, value in sorted(family_counts.items(), key=lambda x: (-x[1], x[0]))[:6])
         self._log(
             "PHASE evidence_ledger_and_storyline completed "
-            f"| elapsed={self._elapsed(phase_start)} | evidence_points={len(evidence_ledger)} "
+            f"| elapsed={self._elapsed(phase_start)} | evidence_points={len(approved_evidence)} "
+            f"| conflicts={len(evidence_conflicts)} "
             f"| families={family_summary or 'none'}"
         )
 
         phase_start = time.monotonic()
         self._log("PHASE synthesis started | expected 60-180s")
         try:
-            report = self._synthesize_web_report(display_topic, plan, chart_data_needs, sources, fact_pack, evidence_ledger, storyline_plan)
+            report = self._synthesize_web_report(
+                display_topic,
+                plan,
+                chart_data_needs,
+                sources,
+                fact_pack,
+                approved_evidence,
+                storyline_plan,
+                evidence_conflicts=evidence_conflicts,
+            )
             if self.rag_context:
                 report = ground_rag_section_evidence(report, rag_source_chunks)
-                self._filter_rag_exhibits(report, rag_source_chunks)
+                self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
                 quality_issues = rag_report_quality_issues(
                     report,
                     topic=display_topic,
-                    context_text=self.rag_context,
+                    context_text=grounding_text,
                     source_count=len(self.rag_sources),
                     source_chunks=rag_source_chunks,
                 )
@@ -175,16 +230,17 @@ class WebReportPipeline:
                         chart_data_needs,
                         sources,
                         fact_pack,
-                        evidence_ledger,
+                        approved_evidence,
                         storyline_plan,
                         quality_corrections=quality_issues,
+                        evidence_conflicts=evidence_conflicts,
                     )
                     report = ground_rag_section_evidence(report, rag_source_chunks)
-                    self._filter_rag_exhibits(report, rag_source_chunks)
+                    self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
                     quality_issues = rag_report_quality_issues(
                         report,
                         topic=display_topic,
-                        context_text=self.rag_context,
+                        context_text=grounding_text,
                         source_count=len(self.rag_sources),
                         source_chunks=rag_source_chunks,
                     )
@@ -203,19 +259,29 @@ class WebReportPipeline:
 
         phase_start = time.monotonic()
         self._log("PHASE evidence_exhibits started | expected <10s")
-        evidence_exhibits = build_evidence_exhibits(display_topic, evidence_ledger, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=self.language)
+        report["conflicts"] = evidence_conflicts
+        evidence_exhibits = build_evidence_exhibits(display_topic, approved_evidence, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=self.language)
         if self.rag_context:
-            self._filter_rag_exhibits(report, rag_source_chunks)
+            self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
             evidence_exhibits = [
                 exhibit
                 for exhibit in evidence_exhibits
-                if rag_visible_numbers_supported(exhibit, self.rag_context)
+                if rag_visible_numbers_supported(exhibit, grounding_text)
+                and not combined_evidence_quality_issues(
+                    {"exhibits": [exhibit]},
+                    approved_evidence=approved_evidence,
+                    conflicts=evidence_conflicts,
+                    source_chunks=rag_source_chunks,
+                )
             ]
         report = merge_evidence_exhibits(
             report,
             evidence_exhibits,
             preserve_existing=bool(self.rag_context),
         )
+        if self.rag_context:
+            self._label_exhibit_origins(report, rag_source_chunks, approved_evidence)
+            self._apply_source_aware_exhibit_text(report)
         self._log(
             "PHASE evidence_exhibits completed "
             f"| elapsed={self._elapsed(phase_start)} | exhibits={len(evidence_exhibits)} "
@@ -235,12 +301,22 @@ class WebReportPipeline:
             final_quality_issues = rag_report_quality_issues(
                 report,
                 topic=display_topic,
-                context_text=self.rag_context,
+                context_text=grounding_text,
                 source_count=len(self.rag_sources),
                 source_chunks=rag_source_chunks,
             )
             if final_quality_issues:
                 message = "Final RAG report quality gate failed: " + " | ".join(final_quality_issues)
+                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+                raise RuntimeError(message)
+            evidence_issues = combined_evidence_quality_issues(
+                report,
+                approved_evidence=approved_evidence,
+                conflicts=evidence_conflicts,
+                source_chunks=rag_source_chunks,
+            )
+            if evidence_issues:
+                message = "Combined evidence quality gate failed: " + " | ".join(evidence_issues)
                 (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
                 raise RuntimeError(message)
         visible_hits = client_visible_internal_hits(self._client_visible_text(report))
@@ -290,6 +366,15 @@ class WebReportPipeline:
             self.language,
             allow_synthetic_fallbacks=allow_synthetic_fallbacks,
         )
+        if self.rag_context:
+            rendered_issues = rag_rendered_output_issues(
+                html_path.read_text(encoding="utf-8"),
+                conflict_count=len(evidence_conflicts),
+            )
+            if rendered_issues:
+                message = "Rendered RAG report quality gate failed: " + " | ".join(rendered_issues)
+                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+                raise RuntimeError(message)
 
         (output_dir / "web_report_payload.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -298,6 +383,10 @@ class WebReportPipeline:
         (output_dir / "publication_contract.json").write_text(json.dumps(self._publication_contract_metadata(), ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_fact_pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "evidence_ledger.json").write_text(json.dumps(evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "rag_evidence_ledger.json").write_text(json.dumps(rag_evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "web_evidence_ledger.json").write_text(json.dumps(web_evidence_ledger, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "approved_evidence.json").write_text(json.dumps(approved_evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "evidence_conflicts.json").write_text(json.dumps(evidence_conflicts, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
         rag_manifest = build_rag_manifest(
@@ -305,6 +394,8 @@ class WebReportPipeline:
             self.rag_sources,
             evidence_ledger,
             required=self.rag_required,
+            public_sources=public_sources,
+            conflicts=evidence_conflicts,
         )
         (output_dir / "rag_manifest.json").write_text(json.dumps(rag_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         self._log(
@@ -320,6 +411,10 @@ class WebReportPipeline:
             "publication_contract": self._publication_contract_metadata(),
             "fact_pack": fact_pack.to_dict(),
             "evidence_ledger": evidence_ledger,
+            "rag_evidence_ledger": rag_evidence_ledger,
+            "web_evidence_ledger": web_evidence_ledger,
+            "approved_evidence": approved_evidence,
+            "evidence_conflicts": evidence_conflicts,
             "storyline_plan": storyline_plan,
             "sources": source_dicts,
             "rag_manifest": rag_manifest,
@@ -341,6 +436,28 @@ class WebReportPipeline:
         if minutes:
             return f"{minutes}m{remainder:02d}s"
         return f"{remainder}s"
+
+    def _collect_public_sources(
+        self,
+        search_queries: List[str],
+        *,
+        per_query: int,
+        max_sources: int,
+    ) -> List[SourceDocument]:
+        if not self.rag_context:
+            return collect_sources(search_queries, per_query=per_query, max_sources=max_sources)
+        max_queries = max(1, min(8, int(os.getenv("GEN_RPT_RAG_WEB_MAX_QUERIES", "4"))))
+        rag_per_query = max(1, min(3, int(os.getenv("GEN_RPT_RAG_WEB_PER_QUERY", "2"))))
+        rag_max_sources = max(1, min(12, int(os.getenv("GEN_RPT_RAG_WEB_MAX_SOURCES", "8"))))
+        return collect_sources(search_queries[:max_queries], per_query=rag_per_query, max_sources=rag_max_sources)
+
+    def _combined_grounding_text(self, approved_evidence: List[Dict[str, Any]]) -> str:
+        facts = [
+            str(item.get("fact") or "").strip()
+            for item in approved_evidence
+            if str(item.get("fact") or "").strip()
+        ]
+        return "\n".join([self.rag_context or "", *facts]).strip()
 
     def _plan_research(self, topic: str) -> Dict[str, Any]:
         system = "You are a senior research planner for a BlueOcean-style digital publication. Return strict JSON only."
@@ -612,6 +729,8 @@ Requirements:
 
     def _expanded_search_queries(self, plan: Dict[str, Any], chart_data_needs: List[Dict[str, Any]]) -> List[str]:
         plan_queries = [str(query).strip() for query in plan.get("search_queries", []) or [] if str(query).strip()]
+        if self.rag_context:
+            return self._dedupe_texts(plan_queries)
         chart_queries = self._chart_need_queries(chart_data_needs)
         framework_queries = self._analysis_framework_queries(plan)
         combined: List[str] = []
@@ -630,13 +749,10 @@ Requirements:
         evidence_ledger: List[Dict[str, Any]],
         storyline_plan: Dict[str, Any],
         quality_corrections: List[str] | None = None,
+        evidence_conflicts: List[Dict[str, Any]] | None = None,
     ) -> Dict[str, Any]:
         source_blocks = []
-        synthesis_sources = (
-            [source for source in sources if source.source_type != "internal"]
-            if self.rag_context
-            else sources
-        )
+        synthesis_sources = [] if self.rag_context else sources
         for idx, source in enumerate(synthesis_sources[:14], start=1):
             source_blocks.append(
                 f"[Source {idx}]\n"
@@ -648,7 +764,14 @@ Requirements:
                 f"Excerpt:\n{source.content[:2200]}"
             )
         source_text = "\n\n".join(source_blocks) or ("No reliable source text was fetched." if self.language == "en" else "未抓取到可靠资料正文。")
-        evidence_text = json.dumps(evidence_ledger[:24], ensure_ascii=False, indent=2)
+        if self.rag_context:
+            prompt_evidence = [item for item in evidence_ledger if item.get("origin") == "rag"][:16]
+            prompt_evidence.extend(item for item in evidence_ledger if item.get("origin") == "web")
+            prompt_evidence = prompt_evidence[:24]
+        else:
+            prompt_evidence = evidence_ledger[:24]
+        evidence_text = json.dumps(prompt_evidence, ensure_ascii=False, indent=2)
+        conflict_text = json.dumps((evidence_conflicts or [])[:8], ensure_ascii=False, indent=2)
         correction_text = "\n".join(f"- {issue}" for issue in quality_corrections or [])
         contract_text = publication_contract_prompt(self.language)
         system = "You are an elite strategy research author. Return one valid JSON object only. No markdown."
@@ -745,36 +868,40 @@ Writing rules:
         # to enforce fact-only generation and prevent hallucination of invented numbers.
         if self.rag_context:
             system = (
-                "You are a precise document analyst. Your ONLY job is to extract, organize, and "
-                "contextualize the EXACT facts from the provided private documents. "
-                "You MUST NOT invent, extrapolate, or assume any figures not explicitly present. "
+                "You are a precise RAG-first evidence analyst. Private documents are the primary source of truth. "
+                "Use only approved supplementary web evidence for documented gaps, never to override private evidence. "
+                "You MUST NOT invent, extrapolate, or assume unsupported facts or figures. "
                 "Return one valid JSON object only. No markdown."
             )
-            user = f"""Generate a factual document analysis report and return JSON.
+            user = f"""Generate a factual RAG-first report with bounded supplementary web evidence and return JSON.
 
 Topic: {topic}
 
 PRIVATE DOCUMENT CONTEXT (this is your PRIMARY and HIGHEST-PRIORITY source of truth):
 {self.rag_context}
 
-Supplementary public sources for external context ONLY (do NOT use these to replace or override document facts):
-{source_text[:3000]}
+APPROVED EVIDENCE LEDGER (RAG is primary; web entries are supplementary or corroborating only):
+{evidence_text}
+
+CONFLICT REGISTER (human review only; do not use web-conflicting claims in conclusions, actions, or exhibits):
+{conflict_text}
 
 Required fields:
 title, dek, category, authors, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
 
 CRITICAL RULES (violation = failure):
-1. ONLY use facts, numbers, names, dates, and figures that appear VERBATIM in the PRIVATE DOCUMENT CONTEXT above.
-2. If a value is NOT in the document, write exactly: "Not stated in the provided document."
+1. Use private-document facts first. Use an approved web fact only when it fills a gap or corroborates RAG, and label it as supplementary web evidence.
+2. If a claim appears in neither the private context nor the approved evidence ledger, write exactly: "Not stated in the validated evidence."
 3. Do NOT invent salaries, compensation figures, years of experience, job titles, team sizes, budget amounts, or any other quantitative values.
-4. Public sources may provide clearly labeled non-numeric regulatory context only. Every numeric claim must appear in the private context.
+4. Every numeric claim must appear in the private context or an approved evidence-ledger fact. Never use a value from the conflict register.
 5. key_takeaways: exactly 3, each grounded in document facts.
 6. sections: 4-6 substantial items. Each needs a conclusion-first title (never "Section 1"), a decisive lead, 3-6 analytical paragraphs, an evidence list tied to document facts, and a management implication in so_what.
 7. action_steps: 3-5 items based on what the document states, not invented recommendations.
-8. references: only use real URLs present in the supplementary public sources above.
+8. references: only use real internal identifiers or URLs present in the approved evidence ledger.
 9. Every section evidence list must include at least one item formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
-10. Every exhibit must use only document values and include data_basis with at least one object formatted as `{{"id": "<exact chunk id>", "fact": "<exact supporting excerpt>"}}`. Unsupported exhibits will be removed.
-11. Numbers in action_steps, success metrics, timelines, labels, and exhibits must also appear in the private context. Use non-numeric decision gates when the document gives no value.
+10. Every exhibit must use approved values and include data_basis. For RAG use `{{"id": "<exact chunk id>", "fact": "<exact supporting excerpt>"}}`; for web use the exact approved evidence ID and fact. Unsupported exhibits will be removed.
+11. Numbers in action_steps, success metrics, timelines, labels, and exhibits must appear in the private context or approved evidence. Use non-numeric decision gates when no approved value exists.
+12. Do not generate or resolve the human-review conflict section. The pipeline adds it deterministically after synthesis.
 
 QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
 {correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}
@@ -790,13 +917,14 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
     ) -> None:
         report.setdefault("title", topic)
         report.setdefault("category", "Deep research" if self.language == "en" else "深度研究")
-        report["source_count"] = fact_pack.source_count
+        report["source_count"] = len(sources) if self.rag_context else fact_pack.source_count
         if not report.get("evidence_quality"):
             if self.rag_context:
                 internal_count = sum(1 for source in sources if source.source_type == "internal")
+                public_count = sum(1 for source in sources if source.source_type != "internal")
                 report["evidence_quality"] = (
                     f"The report retained {internal_count} validated private-document fragments "
-                    f"and {max(0, fact_pack.source_count - internal_count)} supplementary public sources."
+                    f"and {public_count} supplementary public sources."
                 )
             elif fact_pack.validation_issues:
                 report["evidence_quality"] = " ".join(fact_pack.validation_issues[:3])
@@ -806,22 +934,37 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
                     if self.language == "en"
                     else f"资料底座包含 {fact_pack.source_count} 个公开来源，其中 {fact_pack.authoritative_source_count} 个具有权威来源特征。"
                 )
-        real_urls = {source.url for source in sources if source.url}
+        source_by_url = {source.url: source for source in sources if source.url}
+        real_urls = set(source_by_url)
         refs = []
         seen_ref_urls = set()
         for item in report.get("references", []) or []:
             if isinstance(item, dict):
                 url = str(item.get("url") or "")
                 if url in real_urls and url not in seen_ref_urls:
-                    refs.append(item)
+                    source = source_by_url[url]
+                    refs.append({**item, "origin": "rag" if source.source_type == "internal" else "web"})
                     seen_ref_urls.add(url)
-        target_ref_count = min(8, len([source for source in sources if source.url]))
-        for source in sources[:14]:
+        if self.rag_context:
+            reference_sources = [source for source in sources if source.source_type == "internal"][:6]
+            reference_sources.extend(source for source in sources if source.source_type != "internal")
+            reference_sources = reference_sources[:12]
+        else:
+            reference_sources = sources[:14]
+        target_ref_count = min(12 if self.rag_context else 8, len([source for source in reference_sources if source.url]))
+        for source in reference_sources:
             if len(refs) >= target_ref_count:
                 break
             if not source.url or source.url in seen_ref_urls:
                 continue
-            refs.append({"title": source.title or source.domain or source.url, "url": source.url, "note": source.snippet})
+            refs.append(
+                {
+                    "title": source.title or source.domain or source.url,
+                    "url": source.url,
+                    "note": source.snippet,
+                    "origin": "rag" if source.source_type == "internal" else "web",
+                }
+            )
             seen_ref_urls.add(source.url)
         report["references"] = refs
         # A grounded draft has already passed the RAG quality gate. Do not add
@@ -840,16 +983,81 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
         self,
         report: Dict[str, Any],
         source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]] | None = None,
+        grounding_text: str | None = None,
     ) -> None:
         report["exhibits"] = [
             exhibit
             for exhibit in report.get("exhibits", []) or []
             if rag_exhibit_is_grounded(
                 exhibit,
-                context_text=self.rag_context or "",
+                context_text=grounding_text or self.rag_context or "",
                 source_chunks=source_chunks,
+                approved_evidence=approved_evidence,
             )
         ]
+
+    @staticmethod
+    def _label_exhibit_origins(
+        report: Dict[str, Any],
+        source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]],
+    ) -> None:
+        origin_by_id = {
+            str(item.get("id") or ""): str(item.get("origin") or "")
+            for item in approved_evidence
+            if item.get("id")
+        }
+        for exhibit in report.get("exhibits", []) or []:
+            if not isinstance(exhibit, dict):
+                continue
+            for basis in exhibit.get("data_basis", []) or []:
+                if not isinstance(basis, dict) or basis.get("origin"):
+                    continue
+                basis_id = str(basis.get("chunk_id") or basis.get("id") or "").strip()
+                if basis_id in source_chunks:
+                    basis["origin"] = "rag"
+                elif origin_by_id.get(basis_id):
+                    basis["origin"] = origin_by_id[basis_id]
+
+    @staticmethod
+    def _apply_source_aware_exhibit_text(report: Dict[str, Any]) -> None:
+        for exhibit in report.get("exhibits", []) or []:
+            if not isinstance(exhibit, dict):
+                continue
+            origins = {
+                str(item.get("origin") or "")
+                for item in exhibit.get("data_basis", []) or []
+                if isinstance(item, dict) and item.get("origin")
+            }
+            if not origins:
+                continue
+            descriptor = "private-document" if origins == {"rag"} else "supplementary web" if origins == {"web"} else "validated"
+            for key in ("title", "subtitle", "caption", "source_note", "footnote"):
+                if exhibit.get(key):
+                    exhibit[key] = WebReportPipeline._replace_public_source_language(exhibit[key], descriptor)
+            for key in ("rows", "columns", "values"):
+                if key in exhibit:
+                    exhibit[key] = WebReportPipeline._replace_public_source_language(exhibit[key], descriptor)
+
+    @staticmethod
+    def _replace_public_source_language(value: Any, descriptor: str) -> Any:
+        if isinstance(value, list):
+            return [WebReportPipeline._replace_public_source_language(item, descriptor) for item in value]
+        if not isinstance(value, str):
+            return value
+        replacements = {
+            r"\bpublic[- ]source(?:s)?\b": f"{descriptor} sources",
+            r"\bpublic evidence\b": f"{descriptor} evidence",
+            r"\bpublic proof\b": f"{descriptor} proof",
+            r"\bpublic data\b": f"{descriptor} data",
+            r"\bpublic record\b": f"{descriptor} record",
+            r"\bpublic signals?\b": f"{descriptor} signals",
+        }
+        text_value = value
+        for pattern, replacement in replacements.items():
+            text_value = re.sub(pattern, replacement, text_value, flags=re.I)
+        return text_value
 
     def _normalize_research_plan(self, plan: Dict[str, Any], topic: str) -> Dict[str, Any]:
         normalized = dict(plan or {})
@@ -858,11 +1066,12 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
         normalized["market_sizing_plan"] = self._normalize_market_sizing_plan(normalized.get("market_sizing_plan"), topic)
         normalized["validation_data_needs"] = self._normalize_validation_data_needs(normalized.get("validation_data_needs"), topic)
 
-        for query in self._analysis_framework_queries(normalized):
-            if query not in normalized["search_queries"]:
-                normalized["search_queries"].append(query)
-            if len(normalized["search_queries"]) >= 18:
-                break
+        if not self.rag_context:
+            for query in self._analysis_framework_queries(normalized):
+                if query not in normalized["search_queries"]:
+                    normalized["search_queries"].append(query)
+                if len(normalized["search_queries"]) >= 18:
+                    break
         return normalized
 
     def _normalize_hypotheses(self, value: Any, topic: str) -> List[Dict[str, Any]]:

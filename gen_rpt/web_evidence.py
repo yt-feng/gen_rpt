@@ -59,6 +59,7 @@ class EvidencePoint:
     source_url: str
     domain: str
     source_type: str
+    origin: str
     authoritative: bool
     score: int
 
@@ -72,6 +73,7 @@ def build_evidence_ledger(
     fact_pack: ResearchFactPack,
     *,
     limit: int = 36,
+    id_prefix: str = "E",
 ) -> List[Dict[str, Any]]:
     """Extract source-backed numeric/date evidence for web exhibits.
 
@@ -94,8 +96,102 @@ def build_evidence_ledger(
 
     ranked = _dedupe_points(sorted(candidates, key=lambda item: item.score, reverse=True), limit=limit)
     for idx, point in enumerate(ranked, start=1):
-        point.id = f"E{idx}"
+        point.id = f"{id_prefix}{idx}"
     return [point.to_dict() for point in ranked]
+
+
+def reconcile_rag_web_evidence(evidence_ledger: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
+    """Keep RAG authoritative while separating corroboration, gaps, and conflicts."""
+    rag = [dict(item, origin="rag", status="primary") for item in evidence_ledger if item.get("origin") == "rag"]
+    web = [dict(item, origin="web", status="supplementary") for item in evidence_ledger if item.get("origin") == "web"]
+    conflicts: List[Dict[str, Any]] = []
+
+    for web_item in web:
+        matches = [rag_item for rag_item in rag if _comparable_claims(rag_item, web_item)]
+        if not matches:
+            continue
+        rag_item = max(matches, key=lambda item: _claim_similarity(item, web_item))
+        if _same_evidence_value(rag_item, web_item):
+            web_item["status"] = "corroborates_rag"
+            web_item["corroborates"] = rag_item.get("id")
+            continue
+        conflict_id = f"C{len(conflicts) + 1}"
+        rag_item["status"] = "requires_human_review"
+        web_item["status"] = "requires_human_review"
+        rag_item.setdefault("conflicts_with", []).append(web_item.get("id"))
+        web_item.setdefault("conflicts_with", []).append(rag_item.get("id"))
+        conflicts.append(
+            {
+                "id": conflict_id,
+                "status": "requires_human_review",
+                "reason": "Comparable RAG and web claims report different values.",
+                "working_basis": "rag",
+                "rag": _conflict_side(rag_item),
+                "web": _conflict_side(web_item),
+            }
+        )
+
+    approved = [*rag, *(item for item in web if item.get("status") != "requires_human_review")]
+    return {"rag": rag, "web": web, "approved": approved, "conflicts": conflicts}
+
+
+def _comparable_claims(left: Dict[str, Any], right: Dict[str, Any]) -> bool:
+    if left.get("value") is None or right.get("value") is None:
+        return False
+    if not left.get("unit") or left.get("unit") != right.get("unit"):
+        return False
+    if left.get("metric_family") in {None, "", "other"} or left.get("metric_family") != right.get("metric_family"):
+        return False
+    if _same_unit_value_count(left) != 1 or _same_unit_value_count(right) != 1:
+        return False
+    left_year, right_year = left.get("year"), right.get("year")
+    if (left_year is None) != (right_year is None) or (left_year is not None and left_year != right_year):
+        return False
+    return _claim_similarity(left, right) >= 0.6
+
+
+def _same_unit_value_count(item: Dict[str, Any]) -> int:
+    unit = str(item.get("unit") or "")
+    return sum(1 for _value, parsed_unit, _display in _parse_values(str(item.get("fact") or "")) if parsed_unit == unit)
+
+
+def _claim_similarity(left: Dict[str, Any], right: Dict[str, Any]) -> float:
+    left_terms = _claim_terms(left.get("fact"))
+    right_terms = _claim_terms(right.get("fact"))
+    if len(left_terms) < 2 or len(right_terms) < 2:
+        return 0.0
+    overlap = left_terms & right_terms
+    return len(overlap) / min(len(left_terms), len(right_terms)) if len(overlap) >= 2 else 0.0
+
+
+def _claim_terms(value: Any) -> set[str]:
+    stopwords = {
+        "about", "after", "before", "from", "into", "million", "billion", "percent",
+        "reports", "reported", "states", "stated", "that", "the", "this", "with",
+    }
+    return {
+        token
+        for token in re.findall(r"[a-z][a-z0-9-]{2,}", str(value or "").lower())
+        if token not in stopwords and not re.fullmatch(r"\d+", token)
+    }
+
+
+def _same_evidence_value(left: Dict[str, Any], right: Dict[str, Any]) -> bool:
+    try:
+        return abs(float(left.get("value")) - float(right.get("value"))) < 1e-9
+    except (TypeError, ValueError):
+        return str(left.get("value")) == str(right.get("value"))
+
+
+def _conflict_side(item: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "id": item.get("id") or "",
+        "value": item.get("display_value") or item.get("value") or "",
+        "fact": item.get("fact") or "",
+        "source_title": item.get("source_title") or "",
+        "source_url": item.get("source_url") or "",
+        "origin": item.get("origin") or "",
+    }
 
 
 def build_storyline_plan(
@@ -1159,6 +1255,7 @@ def _points_from_sentence(sentence: str, source: SourceDocument, source_idx: int
                     source_url=source.url,
                     domain=domain,
                     source_type=source.source_type,
+                    origin="rag" if source.source_type == "internal" else "web",
                     authoritative=authoritative,
                     score=score,
                 )
@@ -1186,6 +1283,7 @@ def _points_from_sentence(sentence: str, source: SourceDocument, source_idx: int
             source_url=source.url,
             domain=domain,
             source_type=source.source_type,
+            origin="rag" if source.source_type == "internal" else "web",
             authoritative=authoritative,
             score=score,
         )
@@ -1615,6 +1713,8 @@ def _basis_item(point: Dict[str, Any]) -> Dict[str, Any]:
         "source_title": point.get("source_title") or "",
         "url": point.get("source_url") or "",
         "domain": point.get("domain") or "",
+        "origin": point.get("origin") or ("rag" if point.get("source_type") == "internal" else "web"),
+        "status": point.get("status") or "",
     }
 
 

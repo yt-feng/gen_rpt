@@ -251,12 +251,18 @@ def rag_exhibit_is_grounded(
     *,
     context_text: str,
     source_chunks: dict[str, str],
+    approved_evidence: List[dict[str, Any]] | None = None,
 ) -> bool:
     """Keep a model exhibit only when its numbers and stated basis are auditable."""
     if not isinstance(exhibit, dict):
         return False
     if _number_tokens(_exhibit_reader_text(exhibit)) - _number_tokens(context_text):
         return False
+    evidence_by_id = {
+        str(item.get("id") or ""): item
+        for item in approved_evidence or []
+        if isinstance(item, dict) and item.get("id")
+    }
     for basis in exhibit.get("data_basis", []) or []:
         if not isinstance(basis, dict):
             continue
@@ -264,6 +270,10 @@ def rag_exhibit_is_grounded(
         fact = str(basis.get("fact") or basis.get("text") or "").strip()
         chunk_text = source_chunks.get(chunk_id)
         if chunk_text and len(_normalized_words(fact)) >= 20 and _normalized_words(fact) in _normalized_words(chunk_text):
+            return True
+        evidence = evidence_by_id.get(chunk_id)
+        evidence_fact = str((evidence or {}).get("fact") or "")
+        if evidence_fact and len(_normalized_words(fact)) >= 20 and _normalized_words(fact) in _normalized_words(evidence_fact):
             return True
     return False
 
@@ -311,6 +321,57 @@ def _grounding_terms(value: Any) -> set[str]:
 def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
     visible_text = _exhibit_reader_text(value) if isinstance(value, dict) and "type" in value else _visible_value_text(value)
     return not (_number_tokens(visible_text) - _number_tokens(context_text))
+
+
+def combined_evidence_quality_issues(
+    report: Any,
+    *,
+    approved_evidence: List[dict[str, Any]],
+    conflicts: List[dict[str, Any]],
+    source_chunks: dict[str, str],
+) -> List[str]:
+    """Reject exhibits that bypass approved evidence or reuse quarantined web claims."""
+    if not isinstance(report, dict):
+        return ["The combined-evidence report is not a structured object."]
+    approved_ids = {str(item.get("id") or "") for item in approved_evidence if item.get("id")}
+    allowed_ids = approved_ids | set(source_chunks)
+    conflict_ids = {
+        str(side.get("id") or "")
+        for conflict in conflicts
+        for side in (conflict.get("web") or {},)
+        if isinstance(side, dict) and side.get("id")
+    }
+    issues: List[str] = []
+    for index, exhibit in enumerate(report.get("exhibits", []) or [], start=1):
+        if not isinstance(exhibit, dict):
+            continue
+        basis_ids = {
+            str(item.get("chunk_id") or item.get("id") or "").strip()
+            for item in exhibit.get("data_basis", []) or []
+            if isinstance(item, dict) and str(item.get("chunk_id") or item.get("id") or "").strip()
+        }
+        if not basis_ids:
+            issues.append(f"Exhibit {index} has no approved evidence identifier.")
+            continue
+        quarantined = basis_ids & conflict_ids
+        unknown = basis_ids - allowed_ids
+        if quarantined:
+            issues.append(f"Exhibit {index} uses quarantined conflict evidence: {', '.join(sorted(quarantined))}.")
+        if unknown:
+            issues.append(f"Exhibit {index} uses unknown evidence identifiers: {', '.join(sorted(unknown))}.")
+    return issues
+
+
+def rag_rendered_output_issues(html_text: str, *, conflict_count: int) -> List[str]:
+    """Catch renderer regressions after the normalized payload has passed grounding."""
+    html_value = str(html_text or "")
+    issues: List[str] = []
+    fallback_markers = (">A</text>", ">60</text>", ">45</text>", ">30</text>")
+    if all(marker in html_value for marker in fallback_markers):
+        issues.append("Rendered HTML contains the legacy synthetic A/B/C = 60/45/30 chart.")
+    if conflict_count and "conflicts-requiring-human-review" not in html_value:
+        issues.append("Rendered HTML omitted the conflicts requiring human review section.")
+    return issues
 
 
 def _normalized_words(value: Any) -> str:

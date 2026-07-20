@@ -2,7 +2,7 @@
 
 **Updated:** July 19, 2026
 **Reference report:** `project-skynet-urban-drone-delivery-launch-decision-assess-f-c551ae`
-**Status:** RAG retrieval, narrative grounding, and the first exhibit-safety package are deployed on `main` at `e21e492`; combined RAG/web evidence handling and full final-output validation remain incomplete.
+**Status:** The first exhibit-safety package is deployed at `e21e492`. The combined RAG/web implementation is complete locally, passes 35 tests, and is awaiting commit, deployment, and a live mixed-source validation run.
 
 ## 1. Required evidence policy
 
@@ -30,18 +30,17 @@ This is enough to confirm that the RAG bridge works for the small SkyNet test se
 
 ### Critical
 
-- Web collection is currently disabled whenever RAG context exists, so complementary web sourcing is not implemented.
-- There is no report-generation conflict detector comparing RAG claims with web claims.
-- Final rendered HTML does not yet have a general post-render grounding audit covering every visible field and source label.
+- The combined implementation is not deployed; Render still needs to move from the older production revision to the new commit.
+- A mixed-source production report has not yet been generated and reviewed end to end.
 
 ### Quality
 
-- Automatically generated exhibit text can call private documents “public sources.”
 - Same-unit charts can combine percentages with unrelated meanings, creating misleading comparisons.
 - Chart labels can be truncated into unreadable fragments.
 - The SkyNet report summarizes evidence but does not state a decisive launch recommendation.
 - Grounded action steps may be empty even when the documents contain explicit actions.
 - Reasonable analysis and source facts are not consistently distinguished; derived statements can look source-verified.
+- Conflict matching is intentionally conservative: it compares structured numeric evidence only when metric family, unit, period, and claim terms align. Unstructured semantic conflicts remain excluded from approved web evidence rather than guessed.
 
 ### Verification limitation
 
@@ -63,6 +62,27 @@ The first implementation package is deployed on `main` at commit `e21e492`:
 
 Existing generated reports are immutable artifacts and are not rewritten by this change. A new generation is required after deployment to validate the corrected production output.
 
+## 4A. Combined RAG/web implementation progress — July 19, 2026
+
+The combined implementation is complete locally:
+
+- RAG-mode web collection is enabled and bounded to four planner gap queries, two results per query, and eight accepted web sources by default.
+- Public-only collection retains its existing limits and behavior.
+- RAG and web evidence are extracted into separate ledgers with unique IDs and explicit `origin` fields.
+- RAG evidence is always retained as the working basis.
+- Matching web values are marked `corroborates_rag`.
+- Unmatched web values are marked `supplementary` and may fill documented gaps.
+- Comparable but different values are marked `requires_human_review`; the web value is removed from approved synthesis and exhibits.
+- The model receives approved evidence and the conflict register in separate prompt blocks. Raw conflicting web excerpts are not passed as ordinary source context.
+- The report receives a deterministic **Conflicts requiring human review** section in HTML and Markdown.
+- Exhibit provenance is labelled `rag`, `web`, or `derived`, and private-document exhibits are no longer described as public evidence.
+- The manifest records separate RAG/web source counts, evidence counts, and conflict counts.
+- The report saves separate RAG ledger, web ledger, approved evidence, and conflict-audit JSON files.
+- Final gates reject unknown exhibit provenance, quarantined conflict evidence, missing review output, and the legacy fallback chart.
+- All 35 repository tests pass.
+
+The conservative comparison rule avoids false conflicts. A web claim is compared with RAG only when both claims have the same metric family, unit, and period plus strong claim-term overlap. If the system cannot establish that match deterministically, it keeps the web claim separate rather than declaring agreement or conflict.
+
 ## 5. What must change
 
 ### Phase 1 — Restore complementary web evidence
@@ -75,6 +95,8 @@ Existing generated reports are immutable artifacts and are not rewritten by this
 
 **Acceptance:** a mixed run contains RAG and web evidence, but the narrative still follows RAG where RAG supplies an answer.
 
+**Local status:** Completed; production validation pending.
+
 ### Phase 2 — Detect and expose conflicts
 
 - Reuse the existing conflict metadata and conflict-detection rules where practical.
@@ -86,6 +108,8 @@ Existing generated reports are immutable artifacts and are not rewritten by this
 
 **Acceptance:** if RAG states a 25 lb limit and a web source states 30 lb for the same rule and period, the report uses 25 lb as its working basis and shows both values in the review section.
 
+**Local status:** Completed for structured numeric evidence; production validation pending.
+
 ### Phase 3 — Fix exhibits and provenance
 
 - [Completed locally] Convert supported nested tables to the existing matrix/table-compatible schema, or reject them before rendering.
@@ -95,6 +119,8 @@ Existing generated reports are immutable artifacts and are not rewritten by this
 - [Completed locally] Prefer grounded model exhibits; add deterministic exhibits only when they contribute different evidence.
 - Generate source-aware labels: private document, supplementary web source, or derived calculation.
 - Reject charts that compare unlike metrics solely because their units match.
+
+**Local status:** Source-aware labels completed. Semantic chart comparability remains a separate quality improvement.
 
 **Acceptance:** every displayed value is traceable, no fallback values appear, labels are readable, and repeated exhibits are removed.
 
@@ -132,9 +158,9 @@ Existing generated reports are immutable artifacts and are not rewritten by this
 
 1. ~~Add regression tests reproducing the SkyNet fallback-chart defect.~~ Completed locally.
 2. ~~Correct exhibit normalization, full-ID preservation, deduplication, and strict final rendering.~~ Completed locally.
-3. Enable bounded complementary web collection during RAG runs.
-4. Add RAG-first evidence priority and source-origin labels.
-5. Add deterministic conflict records and the human-review section.
+3. ~~Enable bounded complementary web collection during RAG runs.~~ Completed locally.
+4. ~~Add RAG-first evidence priority and source-origin labels.~~ Completed locally.
+5. ~~Add deterministic conflict records and the human-review section.~~ Completed locally.
 6. Add decision/action requirements that use facts first and label derived analysis.
 7. Run unit and workflow tests.
 8. Deploy once, then execute the validation matrix below.

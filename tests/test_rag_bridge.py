@@ -14,12 +14,18 @@ from gen_rpt.web_fetch import (
     merge_sources,
     sources_from_validated_context,
 )
-from gen_rpt.web_evidence import merge_evidence_exhibits
+from gen_rpt.web_evidence import (
+    build_evidence_ledger,
+    merge_evidence_exhibits,
+    reconcile_rag_web_evidence,
+)
 from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
+    combined_evidence_quality_issues,
     ground_rag_section_evidence,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
+    rag_rendered_output_issues,
     rag_visible_numbers_supported,
 )
 from gen_rpt.web_report_pipeline import WebReportPipeline
@@ -121,6 +127,184 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(manifest["document_count"], 1)
         self.assertEqual(manifest["internal_evidence_points"], 1)
 
+    def test_manifest_separates_rag_web_and_conflict_counts(self):
+        rag_sources = sources_from_validated_context(_context_payload(), "Fleet launch decision")
+        web_sources = [
+            SourceDocument(
+                title="Regulator",
+                url="https://regulator.example/rule",
+                query="rule",
+                snippet="Rule summary",
+                content="The regulator published a sufficiently detailed corridor rule.",
+            )
+        ]
+
+        manifest = build_rag_manifest(
+            "Private context",
+            rag_sources,
+            [{"origin": "rag"}, {"origin": "web"}],
+            required=True,
+            public_sources=web_sources,
+            conflicts=[{"id": "C1"}],
+        )
+
+        self.assertEqual(manifest["rag_source_count"], 1)
+        self.assertEqual(manifest["web_source_count"], 1)
+        self.assertEqual(manifest["rag_evidence_points"], 1)
+        self.assertEqual(manifest["web_evidence_points"], 1)
+        self.assertEqual(manifest["conflict_count"], 1)
+
+    def test_evidence_ledger_labels_rag_and_web_origin(self):
+        rag_source = SourceDocument(
+            title="Fleet plan",
+            url="internal://documents/doc-1#chunk=chunk-1",
+            query="fleet",
+            snippet="",
+            content="The documented fleet investment is $45.5 million for the launch program.",
+            source_type="internal",
+        )
+        web_source = SourceDocument(
+            title="Regulatory benchmark",
+            url="https://regulator.example/benchmark",
+            query="benchmark",
+            snippet="",
+            content="The public regulatory benchmark reports a 68% acceptance threshold for the corridor.",
+            source_type="html",
+        )
+        fact_pack = ResearchFactPack(
+            topic="Fleet launch",
+            objective="Assess launch",
+            decision_question="Launch?",
+            source_count=2,
+            authoritative_source_count=0,
+            source_domains=["internal.enterprise", "regulator.example"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+
+        ledger = build_evidence_ledger("Fleet launch", [rag_source, web_source], fact_pack)
+
+        self.assertEqual({item["origin"] for item in ledger}, {"rag", "web"})
+
+    def test_reconciliation_keeps_rag_and_moves_conflicting_web_value_to_review(self):
+        ledger = [
+            {
+                "id": "E1",
+                "origin": "rag",
+                "fact": "Corridor consumer acceptance in 2025 is 68% for Project SkyNet.",
+                "value": 68.0,
+                "unit": "%",
+                "year": 2025,
+                "metric_family": "adoption",
+                "source_title": "Consumer study.pdf",
+                "source_url": "internal://documents/doc-1#chunk=chunk-1",
+            },
+            {
+                "id": "E2",
+                "origin": "web",
+                "fact": "Corridor consumer acceptance in 2025 is 72% for Project SkyNet.",
+                "value": 72.0,
+                "unit": "%",
+                "year": 2025,
+                "metric_family": "adoption",
+                "source_title": "External survey",
+                "source_url": "https://survey.example/skynet",
+            },
+        ]
+
+        result = reconcile_rag_web_evidence(ledger)
+
+        self.assertEqual([item["id"] for item in result["approved"]], ["E1"])
+        self.assertEqual(result["rag"][0]["status"], "requires_human_review")
+        self.assertEqual(result["web"][0]["status"], "requires_human_review")
+        self.assertEqual(result["conflicts"][0]["rag"]["value"], 68.0)
+        self.assertEqual(result["conflicts"][0]["web"]["value"], 72.0)
+
+    def test_reconciliation_marks_matching_web_value_as_corroboration(self):
+        ledger = [
+            {
+                "id": "E1",
+                "origin": "rag",
+                "fact": "Project SkyNet investment in 2025 is $45.5 million.",
+                "value": 45.5,
+                "unit": "$M",
+                "year": 2025,
+                "metric_family": "funding",
+            },
+            {
+                "id": "E2",
+                "origin": "web",
+                "fact": "Project SkyNet investment in 2025 is $45.5 million.",
+                "value": 45.5,
+                "unit": "$M",
+                "year": 2025,
+                "metric_family": "funding",
+            },
+        ]
+
+        result = reconcile_rag_web_evidence(ledger)
+
+        self.assertEqual(result["conflicts"], [])
+        self.assertEqual(result["web"][0]["status"], "corroborates_rag")
+        self.assertEqual({item["id"] for item in result["approved"]}, {"E1", "E2"})
+
+    def test_same_unit_unrelated_claims_are_not_misclassified_as_conflicts(self):
+        ledger = [
+            {
+                "id": "E1",
+                "origin": "rag",
+                "fact": "Project SkyNet consumer acceptance in 2025 is 68%.",
+                "value": 68.0,
+                "unit": "%",
+                "year": 2025,
+                "metric_family": "adoption",
+            },
+            {
+                "id": "E2",
+                "origin": "web",
+                "fact": "Regional battery recycling efficiency in 2025 is 72%.",
+                "value": 72.0,
+                "unit": "%",
+                "year": 2025,
+                "metric_family": "adoption",
+            },
+        ]
+
+        result = reconcile_rag_web_evidence(ledger)
+
+        self.assertEqual(result["conflicts"], [])
+        self.assertEqual(result["web"][0]["status"], "supplementary")
+
+    def test_multi_metric_percentage_sentences_are_not_auto_matched(self):
+        ledger = [
+            {
+                "id": "E1",
+                "origin": "rag",
+                "fact": "In 2025, Project SkyNet acceptance is 68% and repeat intent is 51%.",
+                "value": 68.0,
+                "unit": "%",
+                "year": 2025,
+                "metric_family": "adoption",
+            },
+            {
+                "id": "E2",
+                "origin": "web",
+                "fact": "In 2025, Project SkyNet acceptance is 72% and repeat intent is 51%.",
+                "value": 72.0,
+                "unit": "%",
+                "year": 2025,
+                "metric_family": "adoption",
+            },
+        ]
+
+        result = reconcile_rag_web_evidence(ledger)
+
+        self.assertEqual(result["conflicts"], [])
+        self.assertEqual(result["web"][0]["status"], "supplementary")
+
     def test_quality_gate_rejects_generic_empty_and_unsupported_report(self):
         report = {
             "title": "Project SkyNet Urban Drone Delivery Launch Decision",
@@ -209,6 +393,76 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertEqual(len(merged["exhibits"]), 2)
         self.assertEqual(merged["exhibits"][0]["title"], grounded["title"])
+
+    def test_approved_web_evidence_can_ground_a_supplementary_exhibit(self):
+        evidence = {
+            "id": "E2",
+            "origin": "web",
+            "status": "supplementary",
+            "fact": "The regulator reports a 72% corridor compliance benchmark.",
+        }
+        exhibit = {
+            "type": "bar",
+            "title": "Supplementary compliance benchmark",
+            "categories": ["Compliance benchmark"],
+            "values": [72],
+            "data_basis": [{"id": "E2", "fact": evidence["fact"]}],
+        }
+
+        self.assertTrue(
+            rag_exhibit_is_grounded(
+                exhibit,
+                context_text="Private evidence. " + evidence["fact"],
+                source_chunks={},
+                approved_evidence=[evidence],
+            )
+        )
+
+    def test_combined_gate_rejects_quarantined_conflict_evidence(self):
+        issues = combined_evidence_quality_issues(
+            {"exhibits": [{"data_basis": [{"id": "WEB-E2"}]}]},
+            approved_evidence=[{"id": "RAG-E1", "origin": "rag"}],
+            conflicts=[{"web": {"id": "WEB-E2"}}],
+            source_chunks={"chunk-1": "Private fact"},
+        )
+
+        self.assertTrue(any("quarantined" in issue for issue in issues))
+
+    def test_rendered_output_gate_detects_legacy_fallback_and_missing_review(self):
+        issues = rag_rendered_output_issues(
+            "<text>A</text><text>60</text><text>45</text><text>30</text>",
+            conflict_count=1,
+        )
+
+        self.assertEqual(len(issues), 2)
+
+    @patch("gen_rpt.web_report_pipeline.collect_sources")
+    def test_rag_web_collection_is_bounded_without_changing_public_collection(self, mock_collect):
+        mock_collect.return_value = []
+        queries = [f"query {index}" for index in range(10)]
+        pipeline = WebReportPipeline(Mock())
+        pipeline.rag_context = "Private context"
+
+        pipeline._collect_public_sources(queries, per_query=5, max_sources=32)
+
+        mock_collect.assert_called_once_with(queries[:4], per_query=2, max_sources=8)
+        mock_collect.reset_mock()
+        pipeline.rag_context = None
+
+        pipeline._collect_public_sources(queries, per_query=5, max_sources=32)
+
+        mock_collect.assert_called_once_with(queries, per_query=5, max_sources=32)
+
+    def test_rag_search_uses_only_planner_gap_queries(self):
+        pipeline = WebReportPipeline(Mock())
+        pipeline.rag_context = "Private context"
+
+        queries = pipeline._expanded_search_queries(
+            {"search_queries": ["external regulation gap", "external market benchmark"]},
+            [{"search_queries": ["generic chart query"]}],
+        )
+
+        self.assertEqual(queries, ["external regulation gap", "external market benchmark"])
 
     def test_deterministic_exhibits_do_not_repeat_existing_rag_facts(self):
         fact = "The validated investment is $45.5 million."
@@ -337,6 +591,117 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertNotIn("contains 45", str(report))
 
+    def test_rag_references_reserve_space_for_supplementary_web_sources(self):
+        sources = [
+            SourceDocument(
+                title=f"Private fragment {index}",
+                url=f"internal://documents/doc-1#chunk={index}",
+                query="SkyNet",
+                snippet="Private evidence",
+                content="Private evidence",
+                source_type="internal",
+            )
+            for index in range(8)
+        ]
+        sources.append(
+            SourceDocument(
+                title="Supplementary regulator",
+                url="https://regulator.example/skynet",
+                query="SkyNet regulation",
+                snippet="Supplementary evidence",
+                content="Supplementary evidence",
+                source_type="html",
+            )
+        )
+        fact_pack = ResearchFactPack(
+            topic="SkyNet",
+            objective="Assess launch",
+            decision_question="Launch?",
+            source_count=8,
+            authoritative_source_count=0,
+            source_domains=["internal.enterprise"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        pipeline = WebReportPipeline(Mock())
+        pipeline.rag_context = "Private evidence"
+        report = {"sections": [], "references": []}
+
+        pipeline._post_process(report, "SkyNet", sources, fact_pack)
+
+        self.assertIn("rag", {item["origin"] for item in report["references"]})
+        self.assertIn("web", {item["origin"] for item in report["references"]})
+
+    def test_rag_exhibit_labels_do_not_call_private_documents_public_sources(self):
+        report = {
+            "exhibits": [
+                {
+                    "title": "Public evidence defines the decision",
+                    "caption": "Public sources support the comparison.",
+                    "data_basis": [{"id": "chunk-1", "origin": "rag"}],
+                }
+            ]
+        }
+
+        WebReportPipeline._apply_source_aware_exhibit_text(report)
+
+        self.assertIn("private-document evidence", report["exhibits"][0]["title"])
+        self.assertIn("private-document sources", report["exhibits"][0]["caption"])
+        self.assertNotIn("Public", str(report))
+
+    def test_rag_synthesis_receives_approved_web_facts_not_raw_conflicting_excerpts(self):
+        client = Mock()
+        client.chat_json.return_value = {"title": "Conditional launch"}
+        pipeline = WebReportPipeline(client)
+        pipeline.rag_context = "The private acceptance result is 68%."
+        source = SourceDocument(
+            title="External survey",
+            url="https://survey.example/skynet",
+            query="survey",
+            snippet="",
+            content="A conflicting raw source reports 72% acceptance.",
+        )
+        fact_pack = ResearchFactPack(
+            topic="SkyNet",
+            objective="Assess launch",
+            decision_question="Launch?",
+            source_count=1,
+            authoritative_source_count=0,
+            source_domains=["internal.enterprise"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        approved = [
+            {
+                "id": "WEB-E1",
+                "origin": "web",
+                "status": "supplementary",
+                "fact": "The regulator requires documented corridor approval before launch.",
+            }
+        ]
+
+        pipeline._synthesize_web_report(
+            "SkyNet launch",
+            {},
+            [],
+            [source],
+            fact_pack,
+            approved,
+            {},
+            evidence_conflicts=[{"id": "C1", "web": {"fact": source.content}}],
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("documented corridor approval", prompt)
+        self.assertIn("CONFLICT REGISTER", prompt)
+        self.assertEqual(prompt.count("A conflicting raw source reports 72% acceptance."), 1)
+
     def test_action_normalization_uses_a_non_numeric_default_horizon(self):
         report = normalize_web_report(
             {
@@ -461,6 +826,44 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertNotIn(">60</text>", html)
         self.assertNotIn(">45</text>", html)
         self.assertNotIn(">30</text>", html)
+
+    def test_renderer_exposes_conflicts_and_source_origins_for_human_review(self):
+        report = {
+            "title": "Project SkyNet remains conditional",
+            "dek": "RAG remains the working source of truth.",
+            "key_takeaways": ["RAG is primary.", "Web evidence is supplementary.", "Conflicts require review."],
+            "sections": [],
+            "references": [
+                {"title": "Fleet plan.pdf", "url": "internal://documents/doc-1", "origin": "rag"},
+                {"title": "External survey", "url": "https://survey.example/skynet", "origin": "web"},
+            ],
+            "conflicts": [
+                {
+                    "id": "C1",
+                    "status": "requires_human_review",
+                    "reason": "Comparable claims report different values.",
+                    "rag": {"value": "68%", "fact": "Document acceptance is 68%.", "source_title": "Fleet plan.pdf"},
+                    "web": {"value": "72%", "fact": "External acceptance is 72%.", "source_title": "External survey"},
+                }
+            ],
+        }
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            output = Path(temp_dir) / "index.html"
+            render_web_report_html(
+                report,
+                {},
+                output,
+                "Project SkyNet remains conditional",
+                allow_synthetic_fallbacks=False,
+            )
+            html = output.read_text(encoding="utf-8")
+
+        self.assertIn("Conflicts requiring human review", html)
+        self.assertIn("Document acceptance is 68%", html)
+        self.assertIn("External acceptance is 72%", html)
+        self.assertIn("private-document", html)
+        self.assertIn("supplementary web", html)
 
 if __name__ == "__main__":
     unittest.main()

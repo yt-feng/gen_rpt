@@ -252,6 +252,8 @@ def build_rag_manifest(
     evidence_ledger: List[Dict[str, Any]],
     *,
     required: bool,
+    public_sources: List[SourceDocument] | None = None,
+    conflicts: List[Dict[str, Any]] | None = None,
 ) -> Dict[str, Any]:
     chunk_ids = [
         str(source.metadata.get("chunk_id") or "")
@@ -269,6 +271,12 @@ def build_rag_manifest(
     evidence_points = sum(
         1 for item in evidence_ledger if str(item.get("source_url") or "") in internal_urls
     )
+    rag_evidence_points = sum(
+        1
+        for item in evidence_ledger
+        if item.get("origin") == "rag" or str(item.get("source_url") or "") in internal_urls
+    )
+    web_evidence_points = sum(1 for item in evidence_ledger if item.get("origin") == "web")
     return {
         "status": "active" if rag_sources else "off",
         "required": bool(required),
@@ -278,6 +286,11 @@ def build_rag_manifest(
         "chunk_ids": chunk_ids,
         "document_ids": document_ids,
         "internal_evidence_points": evidence_points,
+        "rag_source_count": len(rag_sources),
+        "web_source_count": len(public_sources or []),
+        "rag_evidence_points": rag_evidence_points,
+        "web_evidence_points": web_evidence_points,
+        "conflict_count": len(conflicts or []),
     }
 
 
