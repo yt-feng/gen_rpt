@@ -57,6 +57,12 @@ REPORT_FILES = {
     "web_report_payload.json": ("metadata/web_report_payload.json", "web_report_payload_json"),
     "analysis_framework.json": ("metadata/analysis_framework.json", "analysis_framework_json"),
     "research_fact_pack.json": ("metadata/research_fact_pack.json", "research_fact_pack_json"),
+    "rag_manifest.json": ("metadata/rag_manifest.json", "rag_manifest_json"),
+    "evidence_ledger.json": ("metadata/evidence_ledger.json", "evidence_ledger_json"),
+    "rag_evidence_ledger.json": ("metadata/rag_evidence_ledger.json", "rag_evidence_ledger_json"),
+    "web_evidence_ledger.json": ("metadata/web_evidence_ledger.json", "web_evidence_ledger_json"),
+    "approved_evidence.json": ("metadata/approved_evidence.json", "approved_evidence_json"),
+    "evidence_conflicts.json": ("metadata/evidence_conflicts.json", "evidence_conflicts_json"),
 }
 
 

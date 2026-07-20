@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import ast
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -10,6 +12,7 @@ import requests
 from gen_rpt.main_web import RAGBridgeError, _fetch_rag_context
 from gen_rpt.web_fetch import (
     SourceDocument,
+    _search_brave,
     build_rag_manifest,
     merge_sources,
     sources_from_validated_context,
@@ -137,6 +140,7 @@ class RAGBridgeTests(unittest.TestCase):
                 query="rule",
                 snippet="Rule summary",
                 content="The regulator published a sufficiently detailed corridor rule.",
+                metadata={"search_provider": "brave"},
             )
         ]
 
@@ -147,6 +151,8 @@ class RAGBridgeTests(unittest.TestCase):
             required=True,
             public_sources=web_sources,
             conflicts=[{"id": "C1"}],
+            web_required=True,
+            web_query_count=2,
         )
 
         self.assertEqual(manifest["rag_source_count"], 1)
@@ -154,6 +160,54 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(manifest["rag_evidence_points"], 1)
         self.assertEqual(manifest["web_evidence_points"], 1)
         self.assertEqual(manifest["conflict_count"], 1)
+        self.assertEqual(manifest["web_search_status"], "success")
+        self.assertEqual(manifest["web_search_providers"], ["brave"])
+
+    @patch("gen_rpt.web_fetch.requests.get")
+    def test_authenticated_search_provider_returns_traceable_results(self, mock_get):
+        response = Mock()
+        response.json.return_value = {
+            "web": {
+                "results": [
+                    {
+                        "title": "FAA corridor update",
+                        "url": "https://faa.example/corridor",
+                        "description": "The regulator published an updated corridor requirement.",
+                        "extra_snippets": ["The update applies to urban drone operations."],
+                    }
+                ]
+            }
+        }
+        response.raise_for_status.return_value = None
+        mock_get.return_value = response
+
+        with patch.dict(os.environ, {"BRAVE_SEARCH_API_KEY": "secret"}):
+            results = _search_brave("urban drone corridor", max_results=2)
+
+        self.assertEqual(len(results), 1)
+        self.assertEqual(results[0].provider, "brave")
+        self.assertIn("updated corridor", results[0].snippet)
+        self.assertEqual(mock_get.call_args.kwargs["headers"]["X-Subscription-Token"], "secret")
+
+    def test_r2_upload_contract_includes_combined_evidence_artifacts(self):
+        tree = ast.parse(Path("storage/upload_report.py").read_text(encoding="utf-8"))
+        assignment = next(
+            node for node in tree.body
+            if isinstance(node, ast.Assign)
+            and any(isinstance(target, ast.Name) and target.id == "REPORT_FILES" for target in node.targets)
+        )
+        uploaded_names = {key.value for key in assignment.value.keys if isinstance(key, ast.Constant)}
+
+        self.assertTrue(
+            {
+                "rag_manifest.json",
+                "evidence_ledger.json",
+                "rag_evidence_ledger.json",
+                "web_evidence_ledger.json",
+                "approved_evidence.json",
+                "evidence_conflicts.json",
+            }.issubset(uploaded_names)
+        )
 
     def test_evidence_ledger_labels_rag_and_web_origin(self):
         rag_source = SourceDocument(
@@ -444,7 +498,8 @@ class RAGBridgeTests(unittest.TestCase):
         pipeline = WebReportPipeline(Mock())
         pipeline.rag_context = "Private context"
 
-        pipeline._collect_public_sources(queries, per_query=5, max_sources=32)
+        with patch.dict(os.environ, {"GEN_RPT_RAG_WEB_REQUIRED": "false"}, clear=False):
+            pipeline._collect_public_sources(queries, per_query=5, max_sources=32)
 
         mock_collect.assert_called_once_with(queries[:4], per_query=2, max_sources=8)
         mock_collect.reset_mock()
@@ -453,6 +508,15 @@ class RAGBridgeTests(unittest.TestCase):
         pipeline._collect_public_sources(queries, per_query=5, max_sources=32)
 
         mock_collect.assert_called_once_with(queries, per_query=5, max_sources=32)
+
+    @patch("gen_rpt.web_report_pipeline.collect_sources", return_value=[])
+    def test_required_combined_mode_rejects_silent_pure_rag_fallback(self, _mock_collect):
+        pipeline = WebReportPipeline(Mock())
+        pipeline.rag_context = "Private context"
+
+        with patch.dict(os.environ, {"GEN_RPT_RAG_WEB_REQUIRED": "true"}, clear=False):
+            with self.assertRaisesRegex(RuntimeError, "zero usable sources"):
+                pipeline._collect_public_sources(["external corridor benchmark"], per_query=5, max_sources=32)
 
     def test_rag_search_uses_only_planner_gap_queries(self):
         pipeline = WebReportPipeline(Mock())

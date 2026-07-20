@@ -25,6 +25,7 @@ class SearchResult:
     url: str
     snippet: str
     query: str
+    provider: str = ""
 
 
 @dataclass
@@ -53,18 +54,53 @@ class FetchedPage:
 def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
     results: List[SearchResult] = []
     seen = set()
-    for searcher in (_search_duckduckgo, _search_bing):
+    searchers = [_search_brave] if os.getenv("BRAVE_SEARCH_API_KEY") else []
+    searchers.extend((_search_duckduckgo, _search_bing))
+    for searcher in searchers:
         try:
             for result in searcher(query, max_results=max_results):
                 if not result.url or result.url in seen:
                     continue
+                result.provider = result.provider or searcher.__name__.removeprefix("_search_")
                 seen.add(result.url)
                 results.append(result)
                 if len(results) >= max_results:
                     return results
-        except Exception:
+        except Exception as exc:
+            _log(f"search provider failed | provider={searcher.__name__} | reason={str(exc)[:180]!r}")
             continue
     return results
+
+
+def _search_brave(query: str, max_results: int = 5) -> List[SearchResult]:
+    response = requests.get(
+        "https://api.search.brave.com/res/v1/web/search",
+        params={"q": query, "count": max(1, min(20, max_results)), "safesearch": "moderate", "extra_snippets": "true"},
+        headers={
+            "Accept": "application/json",
+            "X-Subscription-Token": os.environ["BRAVE_SEARCH_API_KEY"],
+        },
+        timeout=float(os.getenv("GEN_RPT_SEARCH_TIMEOUT", "20")),
+    )
+    response.raise_for_status()
+    web = response.json().get("web") or {}
+    results: List[SearchResult] = []
+    for item in web.get("results") or []:
+        url = _normalize_url(str(item.get("url") or ""))
+        if not url:
+            continue
+        snippets = [item.get("description") or "", *(item.get("extra_snippets") or [])]
+        snippet = BeautifulSoup(" ".join(str(value) for value in snippets), "html.parser").get_text(" ", strip=True)
+        results.append(
+            SearchResult(
+                title=str(item.get("title") or url),
+                url=url,
+                snippet=re.sub(r"\s+", " ", snippet).strip(),
+                query=query,
+                provider="brave",
+            )
+        )
+    return results[:max_results]
 
 
 def _search_duckduckgo(query: str, max_results: int = 5) -> List[SearchResult]:
@@ -254,6 +290,8 @@ def build_rag_manifest(
     required: bool,
     public_sources: List[SourceDocument] | None = None,
     conflicts: List[Dict[str, Any]] | None = None,
+    web_required: bool = False,
+    web_query_count: int = 0,
 ) -> Dict[str, Any]:
     chunk_ids = [
         str(source.metadata.get("chunk_id") or "")
@@ -277,6 +315,13 @@ def build_rag_manifest(
         if item.get("origin") == "rag" or str(item.get("source_url") or "") in internal_urls
     )
     web_evidence_points = sum(1 for item in evidence_ledger if item.get("origin") == "web")
+    web_sources = public_sources or []
+    web_providers = sorted(
+        {
+            str(source.metadata.get("search_provider") or "unknown")
+            for source in web_sources
+        }
+    )
     return {
         "status": "active" if rag_sources else "off",
         "required": bool(required),
@@ -287,10 +332,14 @@ def build_rag_manifest(
         "document_ids": document_ids,
         "internal_evidence_points": evidence_points,
         "rag_source_count": len(rag_sources),
-        "web_source_count": len(public_sources or []),
+        "web_source_count": len(web_sources),
         "rag_evidence_points": rag_evidence_points,
         "web_evidence_points": web_evidence_points,
         "conflict_count": len(conflicts or []),
+        "web_search_status": "success" if web_sources else "no_usable_sources" if rag_sources and web_query_count else "not_run",
+        "web_search_required": bool(web_required),
+        "web_search_query_count": int(web_query_count),
+        "web_search_providers": web_providers,
     }
 
 
@@ -351,6 +400,7 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
                     source_type=fetched.source_type,
                     content_type=fetched.content_type,
                     domain=_domain(source_url),
+                    metadata={"search_provider": result.provider or "unknown"},
                 )
             )
             _log(
@@ -433,7 +483,7 @@ def _direct_source_candidates(query: str) -> List[SearchResult]:
         )
     out = []
     for title, url, snippet in candidates:
-        out.append(SearchResult(title=title, url=url, snippet=snippet, query=query))
+        out.append(SearchResult(title=title, url=url, snippet=snippet, query=query, provider="direct"))
     return out
 
 
@@ -477,7 +527,7 @@ def _search_gdelt_articles(query: str, max_results: int = 3) -> List[SearchResul
             ]
             if part
         )
-        out.append(SearchResult(title=title, url=url, snippet=snippet, query=f"GDELT: {gdelt_query}"))
+        out.append(SearchResult(title=title, url=url, snippet=snippet, query=f"GDELT: {gdelt_query}", provider="gdelt"))
     return out[:max_results]
 
 
@@ -515,6 +565,7 @@ def _gdelt_timeline_document(query: str) -> SourceDocument | None:
         source_type="gdelt_timeline",
         content_type="application/json",
         domain="api.gdeltproject.org",
+        metadata={"search_provider": "gdelt"},
     )
 
 

@@ -10,6 +10,7 @@ from app.services.validation.conflict import ConflictService
 from app.services.retrieval_similarity import calculate_keyword_score
 from app.core.exceptions import _cors_headers
 from app.services.knowledge_processing.workers import embedding as embedding_worker
+from app.services.generation import _build_mock_report_entry
 
 
 def _query_result(*documents):
@@ -132,6 +133,34 @@ def test_retrieval_engine_does_not_shadow_module_hashlib():
     }
 
     assert "hashlib" not in local_imports
+
+
+def test_report_payload_preserves_combined_evidence_for_frontend():
+    payload = {
+        "sections": [
+            {
+                "id": "decision",
+                "title": "RAG remains the working basis",
+                "paragraphs": ["The private document states a 25 lbs limit."],
+                "evidence": ['[Chunk: chunk-1] "The payload limit is 25 lbs."'],
+            }
+        ],
+        "references": [{"url": "https://regulator.example/rule", "origin": "web"}],
+        "conflicts": [{"id": "C1", "status": "requires_human_review"}],
+        "evidenceAudit": {
+            "manifest": {"web_source_count": 1, "web_search_status": "success"},
+            "webEvidenceLedger": [{"id": "WEB-E1", "origin": "web"}],
+            "conflicts": [{"id": "C1", "status": "requires_human_review"}],
+        },
+    }
+
+    entry = _build_mock_report_entry("report-id", "SkyNet", "skynet", payload)
+    content = entry["reportContent"]
+
+    assert content["evidenceAudit"]["manifest"]["web_source_count"] == 1
+    assert content["conflicts"][0]["id"] == "C1"
+    assert content["references"][0]["origin"] == "web"
+    assert content["sections"][0]["evidence"]
 
 
 @pytest.mark.asyncio

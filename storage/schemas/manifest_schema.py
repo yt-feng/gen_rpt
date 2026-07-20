@@ -28,6 +28,12 @@ class ManifestFiles:
     web_report_payload_json: str = ""
     analysis_framework_json: str = ""
     research_fact_pack_json: str = ""
+    rag_manifest_json: str = ""
+    evidence_ledger_json: str = ""
+    rag_evidence_ledger_json: str = ""
+    web_evidence_ledger_json: str = ""
+    approved_evidence_json: str = ""
+    evidence_conflicts_json: str = ""
 
     def to_dict(self) -> dict:
         return {k: v for k, v in asdict(self).items() if v}

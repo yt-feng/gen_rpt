@@ -432,7 +432,14 @@ def _build_mock_report_entry(
         # Strip any HTML tags for MOCK_REPORTS text preview
         import re
         body_text = re.sub(r"<[^>]+>", "", str(body))[:2000]
-        sections.append({"heading": heading, "body": body_text})
+        section = {"heading": heading, "body": body_text}
+        if s.get("id"):
+            section["id"] = s["id"]
+        if s.get("evidence"):
+            section["evidence"] = s["evidence"]
+        if s.get("so_what"):
+            section["soWhat"] = s["so_what"]
+        sections.append(section)
 
     if not sections:
         sections = [{
@@ -559,6 +566,9 @@ def _build_mock_report_entry(
     except Exception as e:
         print(f"[mock_report_entry] Image generation failed: {e}")
 
+    evidence_audit = payload.get("evidenceAudit") or {}
+    conflicts = payload.get("conflicts") or evidence_audit.get("conflicts") or []
+
     return {
         "id": doc_str_id,
         "title": title,
@@ -578,6 +588,9 @@ def _build_mock_report_entry(
             "date": now.strftime("%B %d, %Y"),
             "sections": sections,
             "images": images,
+            "references": payload.get("references") or [],
+            "evidenceAudit": evidence_audit,
+            "conflicts": conflicts,
         },
         "r2_prefix": payload.get("r2_prefix"),
         "comments": [],

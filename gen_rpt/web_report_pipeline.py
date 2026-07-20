@@ -117,6 +117,7 @@ class WebReportPipeline:
         )
         if search_queries:
             self._log("PHASE source_collection query_plan | " + " || ".join(query[:120] for query in search_queries[:10]))
+        web_required = self._rag_web_required()
         public_sources = self._collect_public_sources(search_queries, per_query=per_query, max_sources=max_sources)
         sources = merge_sources(self.rag_sources, public_sources)
         if self.rag_required and not any(source.source_type == "internal" for source in sources):
@@ -186,6 +187,8 @@ class WebReportPipeline:
             approved_evidence = []
             evidence_conflicts = []
             self._log(f"PHASE evidence_ledger fallback used | reason={str(exc)[:240]!r}")
+        if web_required and not web_evidence_ledger:
+            raise RuntimeError("Combined web search returned sources but zero structured evidence points")
         grounding_text = self._combined_grounding_text(approved_evidence)
         storyline_plan = build_storyline_plan(display_topic, plan, fact_pack, approved_evidence, language=self.language)
         family_counts: Dict[str, int] = {}
@@ -358,6 +361,30 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE render_and_write started | expected <10s")
         allow_synthetic_fallbacks = not bool(self.rag_context)
+        web_query_count = min(
+            len(search_queries),
+            max(1, min(8, int(os.getenv("GEN_RPT_RAG_WEB_MAX_QUERIES", "4")))),
+        ) if self.rag_context else 0
+        rag_manifest = build_rag_manifest(
+            self.rag_context,
+            self.rag_sources,
+            evidence_ledger,
+            required=self.rag_required,
+            public_sources=public_sources,
+            conflicts=evidence_conflicts,
+            web_required=web_required,
+            web_query_count=web_query_count,
+        )
+        report["evidenceAudit"] = {
+            "manifest": rag_manifest,
+            "reconciliationStatus": "checked" if web_evidence_ledger else "no_structured_web_evidence" if public_sources else "web_search_unavailable",
+            "corroborationCount": sum(1 for item in web_evidence_ledger if item.get("status") == "corroborates_rag"),
+            "evidenceLedger": evidence_ledger,
+            "ragEvidenceLedger": rag_evidence_ledger,
+            "webEvidenceLedger": web_evidence_ledger,
+            "approvedEvidence": approved_evidence,
+            "conflicts": evidence_conflicts,
+        }
         html_path = render_web_report_html(
             report,
             assets,
@@ -396,14 +423,6 @@ class WebReportPipeline:
         (output_dir / "evidence_conflicts.json").write_text(json.dumps(evidence_conflicts, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
-        rag_manifest = build_rag_manifest(
-            self.rag_context,
-            self.rag_sources,
-            evidence_ledger,
-            required=self.rag_required,
-            public_sources=public_sources,
-            conflicts=evidence_conflicts,
-        )
         (output_dir / "rag_manifest.json").write_text(json.dumps(rag_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
         self._log(
             "PHASE render_and_write completed "
@@ -456,7 +475,17 @@ class WebReportPipeline:
         max_queries = max(1, min(8, int(os.getenv("GEN_RPT_RAG_WEB_MAX_QUERIES", "4"))))
         rag_per_query = max(1, min(3, int(os.getenv("GEN_RPT_RAG_WEB_PER_QUERY", "2"))))
         rag_max_sources = max(1, min(12, int(os.getenv("GEN_RPT_RAG_WEB_MAX_SOURCES", "8"))))
-        return collect_sources(search_queries[:max_queries], per_query=rag_per_query, max_sources=rag_max_sources)
+        sources = collect_sources(search_queries[:max_queries], per_query=rag_per_query, max_sources=rag_max_sources)
+        if self._rag_web_required() and not sources:
+            hint = " Configure BRAVE_SEARCH_API_KEY for authenticated search." if not os.getenv("BRAVE_SEARCH_API_KEY") else ""
+            raise RuntimeError(f"Combined web search returned zero usable sources from {len(search_queries[:max_queries])} planned queries.{hint}")
+        return sources
+
+    def _rag_web_required(self) -> bool:
+        return bool(
+            self.rag_context
+            and str(os.getenv("GEN_RPT_RAG_WEB_REQUIRED", "true")).strip().lower() in {"1", "true", "yes", "on"}
+        )
 
     def _combined_grounding_text(self, approved_evidence: List[Dict[str, Any]]) -> str:
         facts = [
