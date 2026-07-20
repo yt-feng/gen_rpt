@@ -1,6 +1,28 @@
-# Daily Worklog (July 2, 2026 - July 18, 2026)
+# Daily Worklog (July 2, 2026 - July 20, 2026)
 
 This document contains a daily breakdown of the development work strictly regarding the `gen_rpt-main` (backend/orchestration) and `gen_rpt_review-frontend-main` (frontend) repositories.
+
+## July 20, 2026
+
+### Backend (`gen-rpt-main`)
+- **Web Search Provider Chain**: Improved `gen_rpt/web_fetch.py` with explicit provider priority logging (SearXNG -> DuckDuckGo -> Bing) and early-exit to skip fallback scraping if SearXNG succeeds.
+- **Graceful Web Search Fallback**: Changed `GEN_RPT_RAG_WEB_REQUIRED` to `false` in `.github/workflows/generate_deep_research_v2.yml` to prevent pipeline crashes when external search engines (like DDG/Bing) block runner IPs, allowing reports to gracefully fallback to pure RAG generation.
+- **RAG & Web Evidence Audit**: Verified production compatibility of the `evidenceAudit` manifest, provenance ledgers, and `conflicts` tracker for the V2 HTML generator.
+
+### Frontend (`gen-rpt-frontend`)
+- No direct commit activity recorded on this day.
+
+---
+
+## July 19, 2026
+
+### Backend (`gen-rpt-main`)
+- **RAG + Web Search Preparation**: Conducted codebase audits on the SearXNG JSON search integration and the Web Report Pipeline to prepare the V2 HTML workflow for hybrid search production testing.
+
+### Frontend (`gen-rpt-frontend`)
+- **Styling Updates**: Updated Cohort 3 page styling components and layout configurations.
+
+---
 
 ## July 18, 2026
 
