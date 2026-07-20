@@ -1,8 +1,10 @@
 # gen_rpt
 
+> [!IMPORTANT]
+> The authoritative combined RAG, SearXNG, web-evidence, conflict-review, deployment, and validation reference is **[rag_verification_report.md](rag_verification_report.md)**.
+
 > [!NOTE]
-> Detailed developer and operational documentation (in English) is available in the **[docs/](file:///d:/BlueOcean/gen_rpt-main/docs/README.md)** directory.
-> 详细的开发者与运维文档（英文版）已放置在 **[docs/](file:///d:/BlueOcean/gen_rpt-main/docs/README.md)** 目录下。
+> Additional developer and operational documentation is available in the `docs/` directory.
 
 一个可直接放在 GitHub repo 中运行的 **Deep Research 研究报告生成器**。
 

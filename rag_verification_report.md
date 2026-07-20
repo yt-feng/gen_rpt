@@ -1,245 +1,432 @@
-# RAG Current State and Next Implementation Plan
+# Combined RAG, Web Search, and Human Review
 
-**Updated:** July 19, 2026
-**Reference report:** `project-skynet-urban-drone-delivery-launch-decision-assess-f-c551ae`
-**Status:** The first exhibit-safety package is deployed at `e21e492`. The combined RAG/web implementation is complete locally, passes 35 tests, and is awaiting commit, deployment, and a live mixed-source validation run.
+**Purpose:** Authoritative implementation, configuration, operations, and validation reference
 
-## 1. Required evidence policy
+**Updated:** July 20, 2026
 
-1. Uploaded RAG documents are the dominant source of truth whenever RAG is active.
-2. Web search is complementary. It may fill documented gaps, add current context, or provide external benchmarks.
-3. Web evidence must never silently replace or override RAG evidence.
-4. Every retained claim must identify its origin as `RAG`, `web`, or `derived`.
-5. A conflict between RAG and web evidence must preserve both claims and their sources.
-6. Conflicting evidence must be moved to a visible **Conflicts requiring human review** section. The system must not resolve it automatically.
-7. Report conclusions must follow RAG evidence unless a human reviewer explicitly accepts an alternative.
+**Code baseline:** `main` at `a0a26e0`
 
-## 2. Verified current behavior
+**Current status:** Implemented on `main`; 39 generator/RAG tests pass. A live production run using the configured SearXNG instance is still required before production verification can be claimed.
 
-The SkyNet report proves the following:
+## 1. System contract
 
-- Five validated chunks were retrieved from all three uploaded documents.
-- The financial, consumer, regulatory, and fleet narrative is substantially grounded in those documents.
-- Body evidence retains full chunk IDs and matching source excerpts.
-- RAG-required generation fails when grounded evidence is unavailable or unsupported narrative numbers are introduced.
-- The post-validation prose mutation that previously caused workflow failures has been removed.
+The system follows these rules whenever RAG is enabled:
 
-This is enough to confirm that the RAG bridge works for the small SkyNet test set. It does not prove correct behavior for large documents or mixed RAG/web evidence.
+1. Uploaded and validated private documents are the primary source of truth.
+2. Web search is supplementary. It fills external-data gaps, adds current context, and can corroborate private evidence.
+3. Web evidence cannot silently replace private evidence.
+4. Private and web evidence remain separately identifiable throughout generation, storage, and frontend delivery.
+5. Comparable conflicting values are quarantined and shown in **Conflicts requiring human review**.
+6. The software does not decide a conflict automatically. Until a human decision is recorded, the RAG value remains the working basis.
+7. Unsupported claims, numbers, citations, and exhibits cause removal, retry, or workflow failure; they are not published to make the workflow pass.
 
-## 3. Known gaps
+## 2. What is implemented now
 
-### Critical
+| Capability | State | Current behavior |
+|---|---|---|
+| Document upload and processing | Implemented | Documents are extracted, chunked, embedded, validated, and stored for retrieval. |
+| Private-document retrieval | Implemented | Hybrid semantic/keyword retrieval returns permission-scoped, validated chunks. |
+| RAG context handoff | Implemented | The backend caches a structured context package and the GitHub runner retrieves it by report slug. |
+| RAG-first report generation | Implemented | DeepSeek receives private context as the primary grounding block. |
+| Supplementary web search | Implemented | DeepSeek plans external-gap queries; SearXNG is the preferred search provider. |
+| Free search-provider path | Implemented | Brave and `BRAVE_SEARCH_API_KEY` are removed. SearXNG requires a URL, not a Brave key. |
+| Search fallbacks | Implemented | DuckDuckGo HTML, Bing HTML, GDELT, and known direct authoritative sources remain available. |
+| Separate evidence ledgers | Implemented | RAG and web evidence receive separate IDs, origins, files, counts, and statuses. |
+| Conflict detection | Implemented with a conservative scope | Structured numeric claims are compared only when metric, unit, period, and claim meaning align sufficiently. |
+| Human-review presentation | Implemented | Conflicts are included in the report payload and rendered report section. |
+| Numeric and exhibit grounding | Implemented | Unsupported narrative numbers and exhibits are pruned or rejected. Synthetic RAG chart fallbacks are disabled. |
+| Frontend evidence handoff | Implemented in backend payload | `references`, `evidenceAudit`, and `conflicts` are preserved in `reportContent`. The frontend must render those fields to expose the full audit UI. |
+| OpenSearch | Not used | PostgreSQL/pgvector already performs private-document indexing. OpenSearch is not a live-web crawler and is not required for this workflow. |
+| Live SearXNG production verification | Pending | Configure `SEARXNG_URL`, run one mixed-source report, and inspect its audit artifacts. |
 
-- The combined implementation is not deployed; Render still needs to move from the older production revision to the new commit.
-- A mixed-source production report has not yet been generated and reviewed end to end.
+## 3. End-to-end workflow
 
-### Quality
+```mermaid
+flowchart TD
+    A[Upload private documents] --> B[Extract, chunk, embed, validate]
+    B --> C[PostgreSQL and pgvector]
+    D[User enters title and sector] --> E[POST generation job]
+    C --> F[Permission-scoped hybrid retrieval]
+    E --> F
+    F --> G{Validated evidence found?}
+    G -- No --> H[422 no evidence or 503 preparation failure]
+    G -- Yes --> I[Cache context by report slug]
+    I --> J[Dispatch V2 GitHub workflow with rag_required=true]
+    J --> K[Runner retrieves structured RAG context]
+    K --> L[DeepSeek plans report and external gaps]
+    L --> M[SearXNG search, then fallbacks]
+    M --> N[Fetch actual pages and PDFs]
+    K --> O[RAG evidence ledger]
+    N --> P[Web evidence ledger]
+    O --> Q[Deterministic reconciliation]
+    P --> Q
+    Q --> R[Approved evidence]
+    Q --> S[Conflicts requiring human review]
+    R --> T[DeepSeek synthesis]
+    S --> T
+    T --> U[Grounding and final-artifact quality gates]
+    U -- Fail --> V[Stop workflow and notify backend]
+    U -- Pass --> W[Write HTML, Markdown, JSON, and audit files]
+    W --> X[Commit report, upload to R2, notify backend]
+    X --> Y[AI review workflow and frontend report]
+```
 
-- Same-unit charts can combine percentages with unrelated meanings, creating misleading comparisons.
-- Chart labels can be truncated into unreadable fragments.
-- The SkyNet report summarizes evidence but does not state a decisive launch recommendation.
-- Grounded action steps may be empty even when the documents contain explicit actions.
-- Reasonable analysis and source facts are not consistently distinguished; derived statements can look source-verified.
-- Conflict matching is intentionally conservative: it compares structured numeric evidence only when metric family, unit, period, and claim terms align. Unstructured semantic conflicts remain excluded from approved web evidence rather than guessed.
+### 3.1 Document ingestion
 
-### Verification limitation
+The knowledge subsystem:
 
-The previous claim of “100% coverage and zero hallucinations” applied only to selected narrative facts. It did not inspect the rendered HTML and therefore missed the unsupported chart values. It must not be used as a production-readiness confirmation.
+- accepts the uploaded document into an authorized knowledge collection;
+- extracts its text;
+- uses a default chunk size of 1,000 characters and overlap of 200 characters;
+- generates 384-dimensional embeddings using `BAAI/bge-small-en-v1.5` by default;
+- stores vectors in PostgreSQL through pgvector;
+- tracks processing and validation state;
+- excludes deleted, incomplete, or unvalidated documents from generation retrieval.
 
-## 4. Implementation progress — July 19, 2026
+Feature flags controlling this path are `KNOWLEDGE_ENABLED`, `UPLOAD_ENABLED`, `PROCESSING_ENABLED`, `RETRIEVAL_ENABLED`, `VALIDATION_ENABLED`, `SEARCH_ENABLED`, and `RAG_ENABLED`.
 
-The first implementation package is deployed on `main` at commit `e21e492`:
+### 3.2 Generation request and context preparation
 
-- Nested exhibit `data` is now inside the RAG numeric-validation boundary.
-- Unsupported model exhibits are removed immediately after each synthesis response, before they can fail or contaminate the report-level gate.
-- Supported nested `table` exhibits are converted to the renderer's existing matrix schema.
-- Strict RAG rendering no longer re-enables synthetic fallbacks during HTML or Markdown generation.
-- New reports preserve complete chunk IDs in exhibit provenance.
-- Deterministic exhibits that repeat facts already covered by grounded model exhibits are removed.
-- The previously generated SkyNet payload now exposes its unsupported derived `27.5` value during validation.
-- A corrected strict render contains the real table values and does not contain the placeholder `A/B/C = 60/45/30` chart.
-- All 20 repository unit tests pass, including new nested-table, provenance, deduplication, synthesis-filter, and rendered-output regressions.
+The frontend currently asks for a report title/topic and sector. The backend creates a document/report slug and receives the request at:
 
-Existing generated reports are immutable artifacts and are not rewritten by this change. A new generation is required after deployment to validate the corrected production output.
+```text
+POST /api/v1/generation/jobs
+```
 
-## 4A. Combined RAG/web implementation progress — July 19, 2026
+When RAG is enabled, the backend resolves requested collection IDs. If none are supplied, it uses active collections owned by the current user. It then:
 
-The combined implementation is complete locally:
+1. checks collection permissions before cache access;
+2. retrieves only completed and validated documents;
+3. creates a query embedding;
+4. runs pgvector cosine search and keyword scoring;
+5. ranks results using 70% normalized semantic similarity and 30% keyword score;
+6. falls back to deterministic lexical ranking if the embedding provider fails or semantic search produces no usable matches;
+7. keeps the top 10 ranked chunks by default;
+8. validates the retrieval session;
+9. compiles whole chunks under the 6,000-token RAG budget;
+10. skips a chunk that does not fit instead of cutting it mid-chunk;
+11. creates a knowledge snapshot and caches the final package by report slug.
 
-- RAG-mode web collection is enabled and bounded to four planner gap queries, two results per query, and eight accepted web sources by default.
-- Public-only collection retains its existing limits and behavior.
-- RAG and web evidence are extracted into separate ledgers with unique IDs and explicit `origin` fields.
-- RAG evidence is always retained as the working basis.
-- Matching web values are marked `corroborates_rag`.
-- Unmatched web values are marked `supplementary` and may fill documented gaps.
-- Comparable but different values are marked `requires_human_review`; the web value is removed from approved synthesis and exhibits.
-- The model receives approved evidence and the conflict register in separate prompt blocks. Raw conflicting web excerpts are not passed as ordinary source context.
-- The report receives a deterministic **Conflicts requiring human review** section in HTML and Markdown.
-- Exhibit provenance is labelled `rag`, `web`, or `derived`, and private-document exhibits are no longer described as public evidence.
-- The manifest records separate RAG/web source counts, evidence counts, and conflict counts.
-- The report saves separate RAG ledger, web ledger, approved evidence, and conflict-audit JSON files.
-- Final gates reject unknown exhibit provenance, quarantined conflict evidence, missing review output, and the legacy fallback chart.
-- All 35 repository tests pass.
+Relevant defaults:
 
-The conservative comparison rule avoids false conflicts. A web claim is compared with RAG only when both claims have the same metric family, unit, and period plus strong claim-term overlap. If the system cannot establish that match deterministically, it keeps the web claim separate rather than declaring agreement or conflict.
+| Setting | Default | Meaning |
+|---|---:|---|
+| `RAG_CONTEXT_TOKEN_BUDGET` | `6000` | Maximum estimated tokens in validated private context. |
+| `RAG_CONTEXT_CACHE_TTL_SECONDS` | `14400` | Slug-context cache lifetime: four hours. |
+| `RAG_MIN_RELEVANCE_SCORE` | `0.35` | Minimum hybrid relevance when semantic search is available. |
+| Retrieval cache TTL | `300` seconds | Cache for an identical permission-scoped retrieval signature. |
+| Retrieval target | `10` chunks | Final ranked retrieval limit used by context preparation. |
 
-## 5. What must change
+Failure behavior:
 
-### Phase 1 — Restore complementary web evidence
+- no relevant validated chunks: HTTP `422`; no workflow is dispatched;
+- retrieval, embedding, validation, database, or context-preparation exception: HTTP `503`; no workflow is dispatched;
+- missing permissions or eligible collections: no validated evidence, so the request does not proceed as a grounded report.
 
-- Keep validated RAG chunks first in the merged source list.
-- Run a bounded web search when RAG is active instead of forcing the public-source list to be empty.
-- Use web queries only for gaps identified from the RAG context and report question.
-- Keep separate RAG and web source counts in the report manifest.
-- Label evidence records with source origin and preserve URLs or full document/chunk identifiers.
+### 3.3 GitHub Actions dispatch
 
-**Acceptance:** a mixed run contains RAG and web evidence, but the narrative still follows RAG where RAG supplies an answer.
+The backend dispatches `.github/workflows/generate_deep_research_v2.yml` on `main` with `topic`, `slug`, model, and `rag_required=true`. The workflow has a 45-minute timeout and does not cancel an already-running report when another run starts.
 
-**Local status:** Completed; production validation pending.
+The runner requires:
 
-### Phase 2 — Detect and expose conflicts
+- `DEEPSEEK_API_KEY` for planning and synthesis;
+- `BACKEND_URL` and `INTERNAL_TOKEN` to retrieve cached private context and post completion/failure events;
+- `SEARXNG_URL` as a repository variable or secret for preferred web search;
+- R2 credentials when report artifact upload is required.
 
-- Reuse the existing conflict metadata and conflict-detection rules where practical.
-- Compare claims only when they concern the same entity, metric, unit, geography, and time period.
-- Record both values, both sources, the comparison reason, and `status: requires_human_review`.
-- Exclude unresolved web-conflicting claims from conclusions, actions, and exhibits.
-- Build a deterministic **Conflicts requiring human review** report section from the conflict records.
-- Do not ask the language model to decide which conflicting value is correct.
+### 3.4 RAG bridge
 
-**Acceptance:** if RAG states a 25 lb limit and a web source states 30 lb for the same rule and period, the report uses 25 lb as its working basis and shows both values in the review section.
+Before planning, the runner requests:
 
-**Local status:** Completed for structured numeric evidence; production validation pending.
+```text
+GET {BACKEND_URL}/api/internal/context/{slug}
+Authorization: Bearer {INTERNAL_TOKEN}
+```
 
-### Phase 3 — Fix exhibits and provenance
+The package contains validated chunks, document references, validation metadata, snapshot metadata, and a preformatted context string. The runner rebuilds structured source records so every private excerpt retains its document ID, full chunk ID, file name, confidence, validation status, and private `internal://` URL.
 
-- [Completed locally] Convert supported nested tables to the existing matrix/table-compatible schema, or reject them before rendering.
-- [Completed locally] Prevent the generic `A/B/C = 60/45/30` rendering fallback in RAG mode.
-- [Completed locally] Preserve full chunk IDs in `data_basis` for new reports.
-- [Completed locally] Validate nested exhibit `data` and filter unsupported model exhibits before the report gate.
-- [Completed locally] Prefer grounded model exhibits; add deterministic exhibits only when they contribute different evidence.
-- Generate source-aware labels: private document, supplementary web source, or derived calculation.
-- Reject charts that compare unlike metrics solely because their units match.
+If `RAG_REQUIRED=true`, missing credentials, an unavailable bridge, an invalid response, empty chunks, or unusable structured sources stops generation. The runner does not silently switch to a public-only report.
 
-**Local status:** Source-aware labels completed. Semantic chart comparability remains a separate quality improvement.
+### 3.5 DeepSeek planning
 
-**Acceptance:** every displayed value is traceable, no fallback values appear, labels are readable, and repeated exhibits are removed.
+DeepSeek performs reasoning and writing; it is not treated as a web source. In RAG mode it receives private context and must build the plan from document facts, generate external-gap queries, avoid searching again for known private facts, and avoid inventing unsupported values.
 
-### Phase 4 — Strengthen the decision output
+Private context is sent to the configured DeepSeek API for planning and synthesis. Search providers receive generated query strings, not the complete private chunk package. Because queries are derived from private context, confidential deployments must review whether generated query terms are acceptable to send to a web-search service.
 
-- Require a conclusion-first title and an explicit launch/investment decision supported by RAG.
-- Produce action steps from explicit document recommendations first.
-- Mark analytical implications as `derived` and keep them separate from quoted facts.
-- State missing evidence instead of implying operational readiness.
+### 3.6 Web discovery and page retrieval
 
-**Acceptance:** the report clearly states the decision, evidence conditions, required actions, and open questions without inventing facts.
+Search order:
 
-### Phase 5 — Validate the final artifact
+1. SearXNG, when `SEARXNG_URL` is configured;
+2. DuckDuckGo HTML search;
+3. Bing HTML search;
+4. topic-specific direct authoritative candidates;
+5. GDELT timelines and article search for the configured number of queries.
 
-- Audit the final normalized payload and rendered HTML, not only the model response.
-- Fail generation if the final HTML contains unsupported numeric claims, unresolved source labels, invalid chunk IDs, empty charts, or hidden fallback values.
-- Save a compact evidence/conflict audit beside the report for review and debugging.
+SearXNG is called through:
 
-**Acceptance:** the final HTML passes the same grounding rules as the narrative payload.
+```text
+GET {SEARXNG_URL}/search?q={query}&format=json&safesearch=1
+```
 
-## 6. What must not change
+`SEARXNG_URL` may be the instance base URL or end in `/search`. The instance must enable JSON output; otherwise it can return HTTP `403`.
 
-- Do not replace or redesign the existing RAG ingestion, chunking, embedding, retrieval, or validation services without a demonstrated defect.
-- Do not allow web evidence to override RAG evidence automatically.
-- Do not automatically resolve conflicts.
-- Do not weaken the strict grounded-number or citation gates to make workflows pass.
-- Do not reintroduce synthetic prose, actions, exhibits, scores, or fallback chart values in RAG mode.
-- Do not change the frontend report inputs; title and sector remain sufficient.
-- Do not change authentication, CORS, Render startup, R2 storage, publishing, or unrelated workflow behavior.
-- Do not change public-only report generation except where shared final-artifact validation exposes an existing defect.
-- Do not add a new framework, service, database migration, or dependency unless the existing code cannot support the requirement.
-- Do not rewrite the full report pipeline. Apply focused changes at source collection, evidence reconciliation, exhibit normalization, and final validation boundaries.
+The pipeline retrieves result URLs, follows redirects, extracts HTML or PDF content, removes scripts and layout noise, limits download size, and records final URL and provider. It never treats DeepSeek prose as web evidence. If a page cannot be extracted, a sufficiently substantive search snippet may be retained as snippet evidence.
 
-## 7. Implementation order
+RAG-mode search is bounded:
 
-1. ~~Add regression tests reproducing the SkyNet fallback-chart defect.~~ Completed locally.
-2. ~~Correct exhibit normalization, full-ID preservation, deduplication, and strict final rendering.~~ Completed locally.
-3. ~~Enable bounded complementary web collection during RAG runs.~~ Completed locally.
-4. ~~Add RAG-first evidence priority and source-origin labels.~~ Completed locally.
-5. ~~Add deterministic conflict records and the human-review section.~~ Completed locally.
-6. Add decision/action requirements that use facts first and label derived analysis.
-7. Run unit and workflow tests.
-8. Deploy once, then execute the validation matrix below.
+| Variable | Workflow value | Bound |
+|---|---:|---|
+| `GEN_RPT_RAG_WEB_MAX_QUERIES` | `4` | At most four planner gap queries. |
+| `GEN_RPT_RAG_WEB_PER_QUERY` | `2` | At most two search results requested per query. |
+| `GEN_RPT_RAG_WEB_MAX_SOURCES` | `8` | At most eight accepted public sources. |
+| `GEN_RPT_RAG_WEB_REQUIRED` | `true` | No silent pure-RAG degradation when web supplementation has no usable structured evidence. |
+| `GEN_RPT_GDELT_QUERIES` | `2` | GDELT enrichment is limited to the first two queries. |
+| `GEN_RPT_FETCH_TIMEOUT` | `18` seconds | V2 page-fetch timeout. |
 
-This order fixes the known hallucination path before adding new mixed-source behavior.
+The larger public-only defaults do not override these tighter RAG bounds.
 
-## 8. End-to-end validation matrix
+### 3.7 Evidence ledgers
+
+Private and web evidence are extracted independently:
+
+- RAG IDs: `RAG-E1`, `RAG-E2`, ...;
+- web IDs: `WEB-E1`, `WEB-E2`, ...;
+- up to 24 structured points are retained for each origin before reconciliation.
+
+An evidence record can include:
+
+| Field | Purpose |
+|---|---|
+| `id` | Evidence identifier used by exhibits and conflicts. |
+| `origin` | `rag`, `web`, or `derived`. |
+| `fact` | Source-backed statement. |
+| `value`, `unit`, `display_value`, `year` | Parsed quantitative data. |
+| `metric_family` | Deterministic category for comparisons. |
+| `source_title`, `source_url`, `domain`, `source_type` | Provenance. |
+| `authoritative`, `score` | Source-ranking metadata. |
+| `status` | `primary`, `supplementary`, `corroborates_rag`, or `requires_human_review`. |
+
+### 3.8 Reconciliation and conflicts
+
+RAG evidence starts as `primary`; web evidence starts as `supplementary`. A web value is compared with RAG only when both are numeric, units match, metric families match and are meaningful, each sentence contains one value in that unit, years align, and meaningful claim-term overlap reaches the threshold.
+
+| Condition | Result |
+|---|---|
+| Same comparable value | Web becomes `corroborates_rag`; both sources remain traceable. |
+| Different comparable value | Both become `requires_human_review`; a conflict is created; the web value is excluded from approved evidence. |
+| No reliable comparison | Web remains `supplementary`; the software does not guess. |
+
+Each conflict stores its ID, reason, working basis, values, facts, source titles, URLs, and origins. `working_basis` remains `rag`.
+
+The detector intentionally covers conservative structured numeric conflicts. It does not claim complete semantic conflict detection for qualitative statements, different geographies, changing definitions, or ambiguous periods.
+
+### 3.9 Synthesis and quality gates
+
+DeepSeek receives separate blocks for primary private context, approved supplementary/corroborating evidence, and the conflict register. Raw conflicting web values are not supplied as approved context.
+
+RAG generation fails closed through these checks:
+
+1. validated private sources must survive source merging;
+2. required web supplementation must produce usable sources and structured web evidence;
+3. unsupported model exhibits are removed before validation;
+4. unsupported reader-visible numeric sentences are pruned;
+5. synthesis gets one corrective retry for RAG quality issues;
+6. sections need substantive analysis and traceable chunk citations;
+7. visible numbers must exist in approved grounding;
+8. exhibits must use approved evidence IDs or valid private chunks;
+9. exhibits cannot use quarantined conflict evidence;
+10. strict RAG normalization cannot inject synthetic actions, values, or charts;
+11. the legacy `A/B/C = 60/45/30` placeholder chart is rejected;
+12. conflicts require a rendered human-review section;
+13. final normalized JSON and rendered HTML are validated.
+
+A remaining required-gate error stops the workflow and triggers the backend failure event.
+
+### 3.10 Output, storage, and frontend handoff
+
+| Artifact | Contents |
+|---|---|
+| `index.html` | Final interactive report. |
+| `report.md` | Final Markdown report. |
+| `web_report_payload.json` | Normalized report, references, evidence audit, and conflicts. |
+| `research_plan.json` | DeepSeek research plan. |
+| `chart_data_needs.json` | Planned chart-data requirements. |
+| `analysis_framework.json` | Internal analysis structure. |
+| `publication_contract.json` | Publication rules and metadata. |
+| `research_fact_pack.json` | Extracted facts and validation summary. |
+| `sources.json` | Private and public source records. |
+| `evidence_ledger.json` | Combined evidence before approval filtering. |
+| `rag_evidence_ledger.json` | Private-document evidence. |
+| `web_evidence_ledger.json` | Web evidence. |
+| `approved_evidence.json` | RAG plus non-conflicting web evidence. |
+| `evidence_conflicts.json` | Quarantined conflicts. |
+| `rag_manifest.json` | Source/evidence counts, chunk/document IDs, queries, providers, conflicts, and search status. |
+
+R2 stores report files under `reports/{report_id}/current/` and audit JSON under `reports/{report_id}/metadata/`. The backend preserves:
+
+```text
+reportContent.references
+reportContent.evidenceAudit
+reportContent.conflicts
+```
+
+`evidenceAudit` contains the manifest, reconciliation status, corroboration count, combined and separate ledgers, approved evidence, and conflicts. A frontend that renders only sections and images will hide this information even when the backend delivered it.
+
+After successful generation, V2 commits `reports_web` output, uploads R2 artifacts when configured, sends `report-generated`, and triggers `generate_review_v2.yml`. On failure it sends `report-failed`.
+
+## 4. Configuration checklist
+
+### 4.1 Render backend
+
+```text
+RAG_ENABLED=true
+KNOWLEDGE_ENABLED=true
+UPLOAD_ENABLED=true
+PROCESSING_ENABLED=true
+RETRIEVAL_ENABLED=true
+VALIDATION_ENABLED=true
+SEARCH_ENABLED=true
+DATABASE_URL=...
+DEEPSEEK_API_KEY=...
+INTERNAL_TOKEN=...
+GITHUB_TOKEN=...
+GITHUB_REPO=yt-feng/gen_rpt
+BACKEND_URL=https://report-backend-api.onrender.com
+CORS_ORIGINS=https://your-frontend.example
+```
+
+### 4.2 GitHub Actions secrets
+
+```text
+DEEPSEEK_API_KEY
+BACKEND_URL
+INTERNAL_TOKEN
+R2_ACCOUNT_ID
+R2_ACCESS_KEY_ID
+R2_SECRET_ACCESS_KEY
+R2_BUCKET
+```
+
+R2 values are workflow-optional, but normal R2/backend report loading requires a successful upload.
+
+### 4.3 GitHub Actions variable or secret
+
+```text
+SEARXNG_URL=https://your-searxng-instance.example
+```
+
+Prefer a repository variable when the URL is not confidential. A secret with the same name is also accepted. Do not configure `BRAVE_SEARCH_API_KEY`; it is no longer read.
+
+### 4.4 SearXNG instance requirements
+
+The instance must be reachable from GitHub-hosted runners over HTTPS, enable JSON output, allow `/search`, have working upstream engines, use suitable rate limits/access controls, and return real result URLs. SearXNG software is open source, but compute, bandwidth, maintenance, and upstream reliability remain deployment responsibilities.
+
+## 5. Human-review behavior
+
+Automation identifies and presents conflicts but does not implement the human decision. A reviewer should inspect both excerpts and URLs, confirm comparability, select the accepted basis or request evidence correction, and regenerate after the evidence or approval state changes. Until then, RAG remains the working basis.
+
+## 6. Failure and troubleshooting reference
+
+| Symptom | Meaning | Action |
+|---|---|---|
+| API `422` | No relevant validated chunks. | Confirm processing, validation, collection status, permissions, and title relevance. |
+| API `503` | Context preparation failed. | Inspect Render retrieval, embedding, validation, database, and cache logs. |
+| RAG bridge unavailable | Worker credentials, URL, slug cache, or backend reachability is wrong. | Verify `BACKEND_URL`, matching `INTERNAL_TOKEN`, cached slug, and endpoint access. |
+| SearXNG `403` | JSON is disabled or policy rejects the request. | Enable JSON and check limiter/proxy rules. |
+| Zero usable web sources | No provider returned fetchable evidence. | Check SearXNG health, engines, outbound network, queries, and fetch logs. |
+| Zero structured web evidence | Pages lacked extractable evidence. | Improve queries/sources; do not weaken the gate merely to publish. |
+| Numeric gate failure | A number is absent from approved grounding. | Correct evidence or remove the claim. |
+| Combined-evidence gate failure | Exhibit uses unknown/quarantined evidence. | Correct `data_basis`; never approve conflict evidence automatically. |
+| Conflict count is zero | No comparable disagreement was found. | First verify web evidence exists; zero is not automatically a failure. |
+| Audit missing in UI | Frontend is not rendering delivered audit fields. | Update the frontend repository, not the evidence pipeline. |
+| Browser CORS error | Backend does not allow the deployed frontend origin. | Correct `CORS_ORIGINS` and redeploy. |
+
+## 7. Validation procedure
+
+After a mixed-source run, verify:
+
+1. `rag_manifest.status` is `active`;
+2. validated chunk and document counts are greater than zero;
+3. `web_search_status` is `success`;
+4. `web_search_providers` includes `searxng` for the preferred path;
+5. RAG and web evidence counts are greater than zero;
+6. separate `RAG-E*` and `WEB-E*` records exist;
+7. approved evidence excludes conflicting web IDs;
+8. manifest conflict count matches `evidence_conflicts.json`;
+9. every visible material number is supported;
+10. every exhibit has valid provenance;
+11. HTML shows human review when conflicts exist;
+12. backend returns references, audit, and conflicts;
+13. R2 contains the manifest-referenced audit artifacts;
+14. AI review starts only after successful generation.
 
 | Scenario | Expected result |
 |---|---|
-| RAG only: current SkyNet documents | All document facts remain grounded; no web claims or fallback values appear. |
-| RAG plus complementary web evidence | Web evidence fills a real gap and is labelled supplementary; RAG remains dominant. |
-| RAG/web agreement | Corroboration is recorded without duplicating the claim or exhibit. |
-| Deliberate RAG/web numeric conflict | Both claims appear only in the human-review section; RAG remains the working basis. |
-| Unsupported model table schema | Exhibit is normalized safely or removed; no generic chart is rendered. |
-| Large multi-section document | Retrieval covers distinct sections rather than relying only on a small global top-K set. |
-| Public-only report | Existing web-report behavior continues to work. |
-| Missing RAG when required | Generation fails clearly before synthesis. |
+| RAG facts with web gaps | RAG drives the decision; web fills missing external context. |
+| RAG/web agreement | Web is marked `corroborates_rag`. |
+| Deliberate same-metric conflict | Both values reach human review; RAG stays the basis. |
+| Unrelated values with the same unit | No false conflict. |
+| Missing RAG evidence | Rejected before dispatch. |
+| Missing web evidence in required combined mode | Workflow fails instead of publishing pure RAG. |
+| Unsupported number or exhibit | Removed or rejected. |
+| Public-only manual run | Available only when RAG is not required. |
 
-## 9. Definition of done
+## 8. Definition of production-verified
 
-RAG is considered properly working only when all of the following are true:
+Do not claim production verification until:
 
-- Required RAG context is present and used.
-- RAG evidence has explicit priority over web evidence.
-- Web search supplements gaps without replacing RAG claims.
-- Conflicts are preserved for human review and never resolved silently.
-- Every visible material claim and number has valid provenance.
-- Full chunk IDs remain resolvable.
-- Final HTML contains no unsupported fallback content.
-- Exhibits are relevant, non-duplicative, and semantically comparable.
-- Facts, derived analysis, and unresolved conflicts are visibly distinguishable.
-- One mixed-source end-to-end production run passes review after deployment.
+- deployed backend code includes `a0a26e0` or later equivalent behavior;
+- `SEARXNG_URL` is healthy with JSON enabled;
+- V2 completes successfully;
+- a report contains both RAG and web evidence;
+- provenance survives R2 and backend/frontend handoff;
+- a deliberate conflict is quarantined and displayed;
+- final HTML has no unsupported numbers or placeholders;
+- frontend reviewers can see audit and conflict data;
+- a human reviewer accepts the output.
 
-## 10. Concrete combined RAG/web design
+## 9. Protected boundaries
 
-Use the existing pipeline and data structures. Do not add another service, database, framework, or model pass.
+Do not:
 
-### Processing flow
+- allow web evidence to override RAG automatically;
+- treat DeepSeek memory or prose as web evidence;
+- retain model claims without a retrievable source;
+- weaken quality gates to make workflows pass;
+- cut private chunks mid-evidence;
+- reintroduce synthetic RAG values or charts;
+- replace pgvector with OpenSearch merely to support SearXNG;
+- add another evidence database without measured need;
+- change authentication, CORS, R2 paths, workflow triggers, or frontend inputs during search-provider maintenance;
+- infer that zero conflicts means failure;
+- claim production readiness from unit tests alone.
 
-1. Retrieve and validate RAG chunks exactly as today.
-2. Ask the existing document-grounded planner for external-gap queries only.
-3. Run a bounded web collection for those queries: start with at most four queries, two results per query, and eight accepted web sources.
-4. Build separate RAG and web evidence ledgers before combining them.
-5. Add an `origin` value (`rag`, `web`, or `derived`) to each evidence record using the existing `source_type`; `internal` means `rag`, and fetched HTTP/PDF sources mean `web`.
-6. Reconcile comparable evidence deterministically before synthesis.
-7. Give synthesis three separate blocks: approved working evidence, supplementary web evidence, and conflicts requiring review.
-8. Exclude unresolved conflicts from conclusions, actions, and exhibits.
-9. Render conflicts in a deterministic human-review section.
-10. Audit the normalized payload and rendered HTML before publishing.
+## 10. Code ownership map
 
-### Comparison and conflict rule
+| Responsibility | Primary file |
+|---|---|
+| Generation API and context pre-warm | `report-management-backend/app/api/v1/endpoints/generation.py` |
+| Retrieval, ranking, lexical fallback | `report-management-backend/app/services/retrieval_engine.py` |
+| Whole-chunk token budget | `report-management-backend/app/services/retrieval_context.py` |
+| Validation, snapshot, slug cache | `report-management-backend/app/services/rag_integration.py` |
+| Internal context endpoint | `report-management-backend/app/api/v1/endpoints/internal.py` |
+| Dispatch and frontend payload handoff | `report-management-backend/app/services/generation.py` |
+| Runner RAG bridge | `gen_rpt/main_web.py` |
+| SearXNG, fallbacks, fetching, manifest | `gen_rpt/web_fetch.py` |
+| Evidence extraction and reconciliation | `gen_rpt/web_evidence.py` |
+| Combined pipeline and artifacts | `gen_rpt/web_report_pipeline.py` |
+| Grounding and final gates | `gen_rpt/web_publication_contract.py` |
+| Human-review renderer | `gen_rpt/web_report_renderer.py` |
+| R2 artifact mapping | `storage/upload_report.py` |
+| V2 orchestration | `.github/workflows/generate_deep_research_v2.yml` |
+| Generator/RAG tests | `tests/test_rag_bridge.py` |
+| Backend handoff tests | `report-management-backend/tests/test_rag_validation_gate.py` |
 
-Compare two claims only when all available identifying fields agree: entity, metric, unit, geography, and time period. A partial or uncertain match is not a conflict and must remain separate evidence.
+## 11. External references
 
-For a valid match:
-
-- Same value: mark the web record `corroborates_rag`; retain one narrative claim with both sources.
-- Different value: mark both records `requires_human_review`; keep the RAG value as the working basis and exclude the web value from generated conclusions and charts.
-- No RAG equivalent: mark the web record `supplementary`; it may fill the documented gap with a visible web-source label.
-- Derived calculation: retain its input evidence IDs and formula; never present it as a directly sourced fact.
-
-Each reconciled record needs only these fields: `id`, `origin`, `fact`, `value`, `unit`, `entity`, `metric`, `geography`, `period`, `source_id`, `status`, and optional `conflicts_with` or `derived_from`.
-
-### Minimal code boundaries
-
-- `web_report_pipeline.py`: enable bounded web collection in RAG mode, build separate ledgers, and pass reconciled blocks to synthesis.
-- `web_evidence.py`: label evidence origin and add deterministic reconciliation/conflict records.
-- `web_fetch.py`: extend the existing manifest with separate RAG/web counts; do not replace collection or source models.
-- `web_publication_contract.py`: reject conclusions, actions, or exhibits that use unresolved conflicts or lack valid provenance.
-- `web_report_renderer.py`: render source-origin labels and the human-review conflict section.
-- `tests/test_rag_bridge.py`: cover agreement, gap filling, conflict isolation, derived values, bounded collection, and public-only regression behavior.
-
-### Release gates
-
-Implement and deploy in three small packages:
-
-1. **Collection and origin:** bounded web search plus separate RAG/web evidence records. No report behavior changes until tests prove RAG remains first.
-2. **Reconciliation and review:** deterministic agreement/conflict classification plus the human-review section.
-3. **Final artifact audit:** reject unsupported or conflict-contaminated payloads and HTML, then run the full validation matrix.
-
-Each package must keep public-only generation unchanged, pass existing tests, add focused regression tests, and be deployable or revertible as one commit.
+- [SearXNG repository](https://github.com/searxng/searxng)
+- [SearXNG Search API](https://docs.searxng.org/dev/search_api.html)
+- [SearXNG installation guide](https://docs.searxng.org/admin/installation.html)
+- [OpenSearch documentation](https://docs.opensearch.org/latest/about/)
+- [pgvector repository](https://github.com/pgvector/pgvector)

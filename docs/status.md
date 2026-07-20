@@ -6,6 +6,8 @@ This document tracks the operational status of the subsystems and configurations
 
 ## Subsystem Readiness Dashboard
 
+This table distinguishes implementation from live production verification. The authoritative combined-system checklist is [`rag_verification_report.md`](../rag_verification_report.md).
+
 | Subsystem / Feature | Status | Verification Mechanism | Notes |
 | :--- | :---: | :--- | :--- |
 | **DeepSeek Report Generation** | ✅ Working | `tests/smoke_test_web_report.py` | Generates HTML, Markdown, PDF, PPTX, and HTML slide outputs. |
@@ -16,6 +18,10 @@ This document tracks the operational status of the subsystems and configurations
 | **Structured Logging** | ✅ Working | local runtime log examination | Emits JSON lines to `r2_upload.log`, `catalog_update.log`, and `manifest_update.log`. |
 | **GitHub Actions Pipeline** | ✅ Working | CI run outputs & secrets gating | Graceful fallback when secrets are missing. |
 | **GitHub Pages Showcase** | ✅ Working | `.github/workflows/publish_reports_pages.yml` | Builds static index and deploys reports to GitHub Pages. |
+| **RAG Retrieval and Validation** | Implemented | `tests/test_rag_bridge.py` and backend RAG tests | Validated, permission-scoped private chunks remain primary. |
+| **SearXNG Supplementary Search** | Implemented; live verification pending | SearXNG regression plus required mixed-source run | Requires `SEARXNG_URL` with JSON enabled; Brave is removed. |
+| **Evidence Reconciliation** | Implemented | Agreement, conflict, and false-conflict regressions | Comparable numeric conflicts are quarantined and RAG remains the basis. |
+| **Frontend Evidence Audit** | Backend handoff implemented | Backend payload regression | Frontend rendering of `evidenceAudit` and `conflicts` requires separate verification. |
 
 ---
 
