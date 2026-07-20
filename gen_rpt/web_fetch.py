@@ -52,23 +52,54 @@ class FetchedPage:
 
 
 def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
+    """Search the web using the configured provider chain.
+
+    Provider order:
+      1. SearXNG  — used when SEARXNG_URL env-var is set (preferred, self-hosted).
+      2. DuckDuckGo HTML — fallback when SearXNG is not configured or returns nothing.
+      3. Bing HTML — final fallback.
+
+    Each provider is tried in sequence. If the current provider yields enough results
+    (>= max_results) the remaining providers are skipped. If a provider raises an
+    exception it is logged and skipped without stopping the chain.
+    """
     results: List[SearchResult] = []
-    seen = set()
-    searchers = [_search_searxng] if os.getenv("SEARXNG_URL") else []
-    searchers.extend((_search_duckduckgo, _search_bing))
+    seen: set = set()
+
+    # Build provider chain: SearXNG first when available, then DDG, then Bing.
+    searxng_url = os.getenv("SEARXNG_URL", "").strip()
+    searchers = ([_search_searxng] if searxng_url else []) + [_search_duckduckgo, _search_bing]
+
+    if searxng_url:
+        _log(f"search provider chain | order=searxng,duckduckgo,bing | searxng_url_set=true")
+    else:
+        _log(f"search provider chain | order=duckduckgo,bing | searxng_url_set=false (configure SEARXNG_URL to use preferred provider)")
+
     for searcher in searchers:
+        provider_name = searcher.__name__.removeprefix("_search_")
+        before = len(results)
         try:
+            _log(f"search provider attempt | provider={provider_name} | query={query[:120]!r}")
             for result in searcher(query, max_results=max_results):
                 if not result.url or result.url in seen:
                     continue
-                result.provider = result.provider or searcher.__name__.removeprefix("_search_")
+                result.provider = result.provider or provider_name
                 seen.add(result.url)
                 results.append(result)
                 if len(results) >= max_results:
+                    _log(f"search provider result | provider={provider_name} | found={len(results) - before} | total={len(results)} | quota_reached=true")
                     return results
         except Exception as exc:
-            _log(f"search provider failed | provider={searcher.__name__} | reason={str(exc)[:180]!r}")
+            _log(f"search provider failed | provider={provider_name} | reason={str(exc)[:180]!r}")
             continue
+        found = len(results) - before
+        _log(f"search provider result | provider={provider_name} | found={found} | total={len(results)}")
+        # If SearXNG already found results, skip the HTML-scraping fallbacks
+        # (DDG/Bing runner IPs are often blocked; wasting time on them degrades latency).
+        if provider_name == "searxng" and results:
+            _log(f"search provider chain | skipping_remaining_fallbacks=true | reason=searxng_succeeded")
+            return results
+
     return results
 
 
