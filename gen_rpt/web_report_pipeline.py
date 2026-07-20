@@ -477,7 +477,7 @@ class WebReportPipeline:
         rag_max_sources = max(1, min(12, int(os.getenv("GEN_RPT_RAG_WEB_MAX_SOURCES", "8"))))
         sources = collect_sources(search_queries[:max_queries], per_query=rag_per_query, max_sources=rag_max_sources)
         if self._rag_web_required() and not sources:
-            hint = " Configure BRAVE_SEARCH_API_KEY for authenticated search." if not os.getenv("BRAVE_SEARCH_API_KEY") else ""
+            hint = " Configure SEARXNG_URL with a SearXNG instance whose JSON format is enabled." if not os.getenv("SEARXNG_URL") else ""
             raise RuntimeError(f"Combined web search returned zero usable sources from {len(search_queries[:max_queries])} planned queries.{hint}")
         return sources
 

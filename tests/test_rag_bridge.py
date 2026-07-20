@@ -12,7 +12,7 @@ import requests
 from gen_rpt.main_web import RAGBridgeError, _fetch_rag_context
 from gen_rpt.web_fetch import (
     SourceDocument,
-    _search_brave,
+    _search_searxng,
     build_rag_manifest,
     merge_sources,
     sources_from_validated_context,
@@ -140,7 +140,7 @@ class RAGBridgeTests(unittest.TestCase):
                 query="rule",
                 snippet="Rule summary",
                 content="The regulator published a sufficiently detailed corridor rule.",
-                metadata={"search_provider": "brave"},
+                metadata={"search_provider": "searxng"},
             )
         ]
 
@@ -161,33 +161,31 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(manifest["web_evidence_points"], 1)
         self.assertEqual(manifest["conflict_count"], 1)
         self.assertEqual(manifest["web_search_status"], "success")
-        self.assertEqual(manifest["web_search_providers"], ["brave"])
+        self.assertEqual(manifest["web_search_providers"], ["searxng"])
 
     @patch("gen_rpt.web_fetch.requests.get")
-    def test_authenticated_search_provider_returns_traceable_results(self, mock_get):
+    def test_searxng_search_provider_returns_traceable_results(self, mock_get):
         response = Mock()
         response.json.return_value = {
-            "web": {
-                "results": [
-                    {
-                        "title": "FAA corridor update",
-                        "url": "https://faa.example/corridor",
-                        "description": "The regulator published an updated corridor requirement.",
-                        "extra_snippets": ["The update applies to urban drone operations."],
-                    }
-                ]
-            }
+            "results": [
+                {
+                    "title": "FAA corridor update",
+                    "url": "https://faa.example/corridor",
+                    "content": "The regulator published an updated corridor requirement.",
+                }
+            ]
         }
         response.raise_for_status.return_value = None
         mock_get.return_value = response
 
-        with patch.dict(os.environ, {"BRAVE_SEARCH_API_KEY": "secret"}):
-            results = _search_brave("urban drone corridor", max_results=2)
+        with patch.dict(os.environ, {"SEARXNG_URL": "https://search.example"}):
+            results = _search_searxng("urban drone corridor", max_results=2)
 
         self.assertEqual(len(results), 1)
-        self.assertEqual(results[0].provider, "brave")
+        self.assertEqual(results[0].provider, "searxng")
         self.assertIn("updated corridor", results[0].snippet)
-        self.assertEqual(mock_get.call_args.kwargs["headers"]["X-Subscription-Token"], "secret")
+        self.assertEqual(mock_get.call_args.args[0], "https://search.example/search")
+        self.assertEqual(mock_get.call_args.kwargs["params"]["format"], "json")
 
     def test_r2_upload_contract_includes_combined_evidence_artifacts(self):
         tree = ast.parse(Path("storage/upload_report.py").read_text(encoding="utf-8"))

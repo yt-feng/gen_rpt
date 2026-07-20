@@ -54,7 +54,7 @@ class FetchedPage:
 def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
     results: List[SearchResult] = []
     seen = set()
-    searchers = [_search_brave] if os.getenv("BRAVE_SEARCH_API_KEY") else []
+    searchers = [_search_searxng] if os.getenv("SEARXNG_URL") else []
     searchers.extend((_search_duckduckgo, _search_bing))
     for searcher in searchers:
         try:
@@ -72,32 +72,30 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
     return results
 
 
-def _search_brave(query: str, max_results: int = 5) -> List[SearchResult]:
+def _search_searxng(query: str, max_results: int = 5) -> List[SearchResult]:
+    endpoint = os.environ["SEARXNG_URL"].rstrip("/")
+    if not endpoint.endswith("/search"):
+        endpoint += "/search"
     response = requests.get(
-        "https://api.search.brave.com/res/v1/web/search",
-        params={"q": query, "count": max(1, min(20, max_results)), "safesearch": "moderate", "extra_snippets": "true"},
-        headers={
-            "Accept": "application/json",
-            "X-Subscription-Token": os.environ["BRAVE_SEARCH_API_KEY"],
-        },
+        endpoint,
+        params={"q": query, "format": "json", "safesearch": 1},
+        headers={"Accept": "application/json", "User-Agent": USER_AGENT},
         timeout=float(os.getenv("GEN_RPT_SEARCH_TIMEOUT", "20")),
     )
     response.raise_for_status()
-    web = response.json().get("web") or {}
     results: List[SearchResult] = []
-    for item in web.get("results") or []:
+    for item in response.json().get("results") or []:
         url = _normalize_url(str(item.get("url") or ""))
         if not url:
             continue
-        snippets = [item.get("description") or "", *(item.get("extra_snippets") or [])]
-        snippet = BeautifulSoup(" ".join(str(value) for value in snippets), "html.parser").get_text(" ", strip=True)
+        snippet = BeautifulSoup(str(item.get("content") or ""), "html.parser").get_text(" ", strip=True)
         results.append(
             SearchResult(
                 title=str(item.get("title") or url),
                 url=url,
                 snippet=re.sub(r"\s+", " ", snippet).strip(),
                 query=query,
-                provider="brave",
+                provider="searxng",
             )
         )
     return results[:max_results]
