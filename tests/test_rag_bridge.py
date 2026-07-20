@@ -23,6 +23,7 @@ from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
     combined_evidence_quality_issues,
     ground_rag_section_evidence,
+    prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
     rag_rendered_output_issues,
@@ -525,6 +526,23 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertTrue(any("90" in issue and "99" in issue for issue in issues))
+
+    def test_unsupported_narrative_number_is_pruned_without_weakening_gate(self):
+        report = {
+            "title": "Validated evidence supports a conditional launch",
+            "intro": ["Acceptance is 68%. An unsupported derived gap is 27.5%."],
+            "action_steps": [
+                {"action": "Use the documented decision gate."},
+                {"action": "Target an unsupported 27.5% improvement."},
+            ],
+        }
+
+        removed = prune_unsupported_numeric_claims(report, "Documented acceptance is 68%.")
+
+        self.assertEqual(removed, ["27.5"])
+        self.assertEqual(report["intro"], ["Acceptance is 68%."])
+        self.assertEqual(report["action_steps"], [{"action": "Use the documented decision gate."}])
+        self.assertNotIn("27.5", str(report))
 
     def test_section_citation_is_repaired_from_best_matching_chunk(self):
         report = {

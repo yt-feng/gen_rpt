@@ -25,6 +25,7 @@ from .web_publication_contract import (
     combined_evidence_quality_issues,
     ground_rag_section_evidence,
     publication_contract_prompt,
+    prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
     rag_rendered_output_issues,
@@ -215,6 +216,9 @@ class WebReportPipeline:
             if self.rag_context:
                 report = ground_rag_section_evidence(report, rag_source_chunks)
                 self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
+                removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
+                if removed_numbers:
+                    self._log("PHASE synthesis removed unsupported numeric claims | " + ", ".join(removed_numbers))
                 quality_issues = rag_report_quality_issues(
                     report,
                     topic=display_topic,
@@ -237,6 +241,9 @@ class WebReportPipeline:
                     )
                     report = ground_rag_section_evidence(report, rag_source_chunks)
                     self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
+                    removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
+                    if removed_numbers:
+                        self._log("PHASE synthesis retry removed unsupported numeric claims | " + ", ".join(removed_numbers))
                     quality_issues = rag_report_quality_issues(
                         report,
                         topic=display_topic,

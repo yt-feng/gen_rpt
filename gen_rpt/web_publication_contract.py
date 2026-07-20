@@ -323,6 +323,53 @@ def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
     return not (_number_tokens(visible_text) - _number_tokens(context_text))
 
 
+def prune_unsupported_numeric_claims(report: Any, context_text: str) -> List[str]:
+    """Drop reader-visible prose claims containing numbers outside approved evidence."""
+    if not isinstance(report, dict):
+        return []
+    allowed = _number_tokens(context_text)
+    removed: set[str] = set()
+
+    def clean_text(value: Any) -> str:
+        text = str(value or "").strip()
+        if not text:
+            return ""
+        kept = []
+        for sentence in re.split(r"(?<=[.!?])\s+|\n+", text):
+            unsupported = _number_tokens(sentence) - allowed
+            if unsupported:
+                removed.update(unsupported)
+            elif sentence.strip():
+                kept.append(sentence.strip())
+        return " ".join(kept)
+
+    def clean_list(value: Any) -> List[str]:
+        items = value if isinstance(value, list) else [value]
+        return [cleaned for item in items if (cleaned := clean_text(item))]
+
+    for key in ("title", "dek", "methodology", "disclaimer"):
+        if key in report:
+            report[key] = clean_text(report.get(key))
+    for key in ("intro", "key_takeaways"):
+        if key in report:
+            report[key] = clean_list(report.get(key))
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        for key in ("title", "heading", "lead", "body", "so_what"):
+            if key in section:
+                section[key] = clean_text(section.get(key))
+        for key in ("paragraphs", "evidence"):
+            if key in section:
+                section[key] = clean_list(section.get(key))
+    report["action_steps"] = [
+        action
+        for action in report.get("action_steps", []) or []
+        if not (_number_tokens(_visible_value_text(action)) - allowed)
+    ]
+    return sorted(removed)
+
+
 def combined_evidence_quality_issues(
     report: Any,
     *,
