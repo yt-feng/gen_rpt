@@ -1,0 +1,275 @@
+{
+  "objective": "Assess the viability of launching Project SkyNet urban drone delivery in Q4 2026 by evaluating financial projections, consumer acceptance, regulatory compliance, fleet readiness, and external market conditions.",
+  "audience": "Executive Board, OmniLogistics Corp",
+  "decision_question": "Should OmniLogistics proceed with the full launch of Project SkyNet in Q4 2026, or should it delay to address compliance and fleet issues?",
+  "issue_tree": {
+    "Financial Viability": {
+      "Capital Expenditure": "$45.5M allocated, 25% increase from Q1 projections",
+      "Cost Reduction": "Projected 35% reduction in last-mile delivery costs by Q4 2027",
+      "Break-even": "18 months post-launch at 150,000 packages/day across top 5 urban markets"
+    },
+    "Consumer Adoption": {
+      "Comfort Level": "68% comfortable with drone delivery",
+      "Top Concerns": "Noise (42%), Privacy (35%), Safety (18%)",
+      "Willingness to Pay": "55% willing to pay up to $2.50 premium for 30-min delivery"
+    },
+    "Regulatory Compliance": {
+      "Altitude Limits": "150-300 ft cruising; below 150 ft only during VTOL",
+      "Restricted Zones": "No flights over schools during hours, major sporting events, government buildings",
+      "Weight Limit": "Max 25 lbs total takeoff weight; Heavy-Lifter v2 exceeds by 2.5 lbs",
+      "Data Retention": "90 days minimum for flight telemetry"
+    },
+    "Fleet Readiness": {
+      "Heavy-Lifter v2": "Non-compliant (27.5 lbs total weight)",
+      "Swift-Class": "Compliant (18 lbs total weight)",
+      "Mitigation": "Recalibrate fleet mix, prioritize Swift-Class, modify dispatch software"
+    },
+    "External Market Validation": {
+      "Noise Mitigation": "Whisper-Prop technology reduces decibels by 40%",
+      "Privacy Mitigation": "Shutter outward-facing cameras during final descent"
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The projected 35% cost reduction and 18-month break-even are achievable given the current capital allocation and market conditions.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Consumer concerns about noise and privacy can be sufficiently mitigated by deploying Whisper-Prop and camera shuttering, maintaining the 68% acceptance rate.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The regulatory weight limit (25 lbs) will force a fleet mix shift to Swift-Class drones, potentially reducing payload capacity and affecting delivery volume targets.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: External market benchmarks (e.g., competitor drone delivery costs, regulatory trends) will validate or challenge the internal financial projections.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The 150,000 packages/day threshold is feasible across top 5 urban markets given consumer willingness to pay and operational constraints.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Industry benchmarks for drone delivery cost per package (external)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Competitor drone delivery launch timelines and market share (external)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Current regulatory trends in urban air mobility (external)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Consumer acceptance data from other cities or countries (external)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Noise pollution standards and acceptable decibel levels (external)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Privacy regulations regarding drone cameras (external)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Swift-Class drone payload capacity and operational specs (internal, not in doc)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Detailed breakdown of top 5 urban markets (internal, not in doc)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "drone delivery cost per package industry benchmark 2026",
+    "competitor urban drone delivery services launch status 2026",
+    "FAA EASA UAM corridor regulations updates 2026",
+    "consumer acceptance drone delivery survey global 2026",
+    "drone noise pollution decibel limits urban areas",
+    "privacy laws drone cameras residential areas 2026",
+    "Swift-Class drone payload capacity specifications",
+    "OmniLogistics top 5 urban markets delivery volume"
+  ],
+  "source_strategy": "Primary sources: internal financial memo, consumer survey, regulatory update. Secondary sources: industry reports, competitor announcements, government regulatory databases, academic studies on drone acceptance.",
+  "outline": [
+    "1. Financial Viability Analysis",
+    "2. Consumer Adoption and Mitigation Strategies",
+    "3. Regulatory Compliance and Fleet Readiness",
+    "4. External Market Validation and Competitive Landscape",
+    "5. Risk Assessment and Contingency Planning",
+    "6. Final Recommendation and Launch Decision"
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Project SkyNet Budget Breakdown (pie chart)",
+    "Exhibit 2: Consumer Concerns and Mitigation Matrix (table)",
+    "Exhibit 3: Regulatory Compliance Checklist (table)",
+    "Exhibit 4: Fleet Mix Comparison: Heavy-Lifter v2 vs. Swift-Class (table)",
+    "Exhibit 5: Break-even Analysis Chart (line graph)"
+  ],
+  "risks": [
+    "Regulatory non-compliance if Heavy-Lifter v2 is used; must shift to Swift-Class, potentially reducing delivery capacity.",
+    "Consumer backlash if noise or privacy concerns are not adequately addressed.",
+    "Failure to achieve 150,000 packages/day volume, delaying break-even beyond 18 months.",
+    "External factors: competitor actions, regulatory changes, economic downturn affecting consumer willingness to pay premium."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation total market size segment share",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation customer count price ARPU",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation pilot customer conversion",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation ROI cost savings case study",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation capacity utilization unit price",
+          "Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  }
+}

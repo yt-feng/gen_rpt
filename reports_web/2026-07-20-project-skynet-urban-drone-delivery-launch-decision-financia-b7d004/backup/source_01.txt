@@ -1,0 +1,23 @@
+Title: doc1_financial_memo.md (Fragment dfe35bb5)
+URL: internal://documents/07abce74-41f2-4377-9bba-88625f0cd7ad#chunk=dfe35bb5-0eda-4a50-8180-aacb83f79cbd
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Adoption, Regulatory Compliance, Fleet Readiness, and External Market Validation
+
+Project SkyNet - Q3 Financial Investment Memo
+Date: July 18, 2026
+To: Executive Board, OmniLogistics Corp
+From: CFO, Finance Department
+Executive Summary
+OmniLogistics is allocating $45.5 million in capital expenditure for "Project SkyNet," our autonomous drone delivery initiative in urban centers. This represents a 25% increase from our initial Q1 projections due to faster-than-expected technological advancements in obstacle avoidance systems.
+Budget Breakdown
+
+Hardware Acquisition (Drones & Hubs): $22.0M
+Software & AI Development: $12.5M
+Regulatory Compliance & Licensing: $4.5M
+Marketing & Public Relations: $3.0M
+Contingency Fund: $3.5M
+
+Financial Outlook
+We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66). The break-even point for this capital investment is estimated at 18 months post-launch, assuming a minimum daily delivery volume of 150,000 packages across our top 5 urban markets.

@@ -1,0 +1,223 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Drone Delivery Cost per Package: Industry Benchmarks vs. Project SkyNet Projections",
+    "chart_type": "line",
+    "executive_question": "How does Project SkyNet's projected cost reduction compare to industry benchmarks over time?",
+    "required_metrics": [
+      "Year (2023, 2024, 2025, 2026, 2027)",
+      "Cost per package (USD)",
+      "Entity (e.g., Amazon Prime Air, Wing, Zipline, Project SkyNet projection)",
+      "Unit: USD per package"
+    ],
+    "comparison_set": [
+      "Project SkyNet internal projections vs. published benchmarks from Amazon, Wing, Zipline, and industry reports (e.g., McKinsey, BCG)."
+    ],
+    "preferred_sources": [
+      "Company annual reports (Amazon, Alphabet/Wing, Zipline)",
+      "Industry reports (McKinsey 'Drone Delivery Economics', BCG 'Last-Mile Innovation')",
+      "Academic papers (e.g., Journal of Air Transport Management)"
+    ],
+    "search_queries": [
+      "Amazon Prime Air drone delivery cost per package 2023 2024 2025",
+      "Wing drone delivery cost per package benchmark 2024",
+      "Zipline drone delivery cost per package 2023 2024 2025"
+    ],
+    "data_quality_rule": "Only include publicly reported or estimated costs from credible sources. If only two data points exist, use CAGR to interpolate intermediate years and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Validate the financial viability hypothesis (H1) by showing that the projected 35% cost reduction aligns with or outperforms industry trends.",
+    "pre_exhibit_context": "The financial model assumes a 35% reduction in last-mile delivery costs by Q4 2027. We need to test this against real-world benchmarks.",
+    "post_exhibit_takeaway": "Project SkyNet's cost trajectory is consistent with industry leaders, supporting the feasibility of the 18-month break-even target."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Consumer Acceptance of Drone Delivery: Global Survey Trends (2022-2026)",
+    "chart_type": "line",
+    "executive_question": "Is the 68% consumer comfort level stable or declining, and how does it vary by region?",
+    "required_metrics": [
+      "Year (2022, 2023, 2024, 2025, 2026)",
+      "Percentage of consumers comfortable with drone delivery (%)",
+      "Region (Global, North America, Europe, Asia-Pacific)",
+      "Source (e.g., PwC, Deloitte, McKinsey survey)"
+    ],
+    "comparison_set": [
+      "Global average vs. North America vs. Europe vs. Asia-Pacific."
+    ],
+    "preferred_sources": [
+      "PwC 'Consumer Acceptance of Drones' reports",
+      "Deloitte 'Smart Mobility Consumer Survey'",
+      "McKinsey 'Last-Mile Delivery Consumer Insights'"
+    ],
+    "search_queries": [
+      "consumer acceptance drone delivery survey 2022 2023 2024 2025 2026",
+      "PwC drone delivery consumer comfort percentage 2024",
+      "Deloitte smart mobility drone delivery acceptance 2025"
+    ],
+    "data_quality_rule": "Use only surveys with sample sizes >1000 and published methodology. If annual data is missing, use linear interpolation with clear labeling.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Support H2 by showing that consumer acceptance is trending positively and that mitigation strategies can maintain high acceptance.",
+    "pre_exhibit_context": "Our survey shows 68% comfort with drone delivery, but concerns about noise and privacy persist. We need to see if this is consistent globally.",
+    "post_exhibit_takeaway": "Consumer acceptance is rising globally, and our mitigation measures (Whisper-Prop, camera shuttering) address the top concerns, making the 68% target sustainable."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Regulatory Milestones for Urban Drone Delivery: FAA/EASA Timeline (2020-2027)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key regulatory gates that Project SkyNet must pass, and are they on track?",
+    "required_metrics": [
+      "Date (Month/Year)",
+      "Milestone (e.g., FAA Part 135 waiver, EASA UAM certification, local noise ordinance approval)",
+      "Status (Planned, Achieved, Delayed)",
+      "Regulatory body (FAA, EASA, local authorities)"
+    ],
+    "comparison_set": [
+      "Project SkyNet planned milestones vs. actual regulatory developments."
+    ],
+    "preferred_sources": [
+      "FAA press releases and regulatory dockets",
+      "EASA UAM framework publications",
+      "Local government ordinances (e.g., Los Angeles, New York, Chicago)"
+    ],
+    "search_queries": [
+      "FAA drone delivery Part 135 waiver timeline 2024 2025 2026",
+      "EASA UAM regulatory framework 2025 2026",
+      "urban drone delivery noise ordinance Los Angeles 2025"
+    ],
+    "data_quality_rule": "Only include official regulatory announcements or published timelines. Mark estimated dates with an asterisk.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Assess regulatory compliance (H3) by mapping required approvals against planned launch date.",
+    "pre_exhibit_context": "Regulatory compliance is critical: altitude limits, restricted zones, weight limits, and data retention. We need to see if the timeline aligns with regulatory milestones.",
+    "post_exhibit_takeaway": "Key regulatory milestones (e.g., FAA Part 135 waiver, EASA UAM framework) are achievable by Q4 2026, but the weight limit issue requires fleet mix adjustment."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Fleet Mix Comparison: Heavy-Lifter v2 vs. Swift-Class",
+    "chart_type": "bar",
+    "executive_question": "How do the two drone models compare on weight, payload, and compliance, and what is the impact on delivery capacity?",
+    "required_metrics": [
+      "Drone model (Heavy-Lifter v2, Swift-Class)",
+      "Total takeoff weight (lbs)",
+      "Payload capacity (lbs)",
+      "Range (miles)",
+      "Compliance status (Compliant/Non-compliant)",
+      "Unit: lbs, miles"
+    ],
+    "comparison_set": [
+      "Heavy-Lifter v2 vs. Swift-Class."
+    ],
+    "preferred_sources": [
+      "Internal OmniLogistics drone specifications (from engineering team)",
+      "FAA weight limit regulations (14 CFR Part 107)"
+    ],
+    "search_queries": [
+      "Heavy-Lifter v2 drone specifications payload weight",
+      "Swift-Class drone specifications payload weight",
+      "FAA drone weight limit 25 lbs regulation"
+    ],
+    "data_quality_rule": "Use internal specs if publicly available; otherwise, request from engineering. Mark any estimated values.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantify the fleet readiness issue (H3) and the trade-off between using Heavy-Lifter v2 (non-compliant) vs. Swift-Class (compliant).",
+    "pre_exhibit_context": "The Heavy-Lifter v2 exceeds the 25 lbs weight limit by 2.5 lbs, making it non-compliant. We need to compare its capabilities with the Swift-Class to assess operational impact.",
+    "post_exhibit_takeaway": "Swift-Class is fully compliant but has lower payload capacity; shifting the fleet mix may reduce per-drone delivery volume, requiring more drones or longer operating hours."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Top 5 Urban Markets: Delivery Volume Potential (Packages per Day)",
+    "chart_type": "bar",
+    "executive_question": "Can the top 5 urban markets collectively support 150,000 packages/day?",
+    "required_metrics": [
+      "City/Market (e.g., Los Angeles, New York, Chicago, Houston, Phoenix)",
+      "Estimated daily delivery volume potential (packages/day)",
+      "Source (e.g., USPS, FedEx, local demand study)",
+      "Year of estimate (2026)"
+    ],
+    "comparison_set": [
+      "Each market's estimated volume vs. the target share (e.g., 30,000 per market)."
+    ],
+    "preferred_sources": [
+      "USPS package volume data by city",
+      "FedEx and UPS annual reports (city-level data if available)",
+      "Local economic development reports"
+    ],
+    "search_queries": [
+      "Los Angeles daily package delivery volume 2025",
+      "New York City last-mile delivery volume 2025",
+      "Chicago package delivery volume 2025"
+    ],
+    "data_quality_rule": "Use official postal or carrier data. If city-level data is unavailable, use metro area data and adjust by population share.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Test H5 by comparing market size estimates with the target volume.",
+    "pre_exhibit_context": "The break-even target requires 150,000 packages/day across top 5 markets. We need to validate that each market has sufficient demand.",
+    "post_exhibit_takeaway": "Markets A and B have high potential, but Markets D and E may fall short; a sixth market may be needed to reach the target."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Drone Delivery Investment & Funding Landscape (2022-2026)",
+    "chart_type": "bubble",
+    "executive_question": "How does Project SkyNet's $45.5M investment compare to competitors' funding and market cap?",
+    "required_metrics": [
+      "Company (Amazon, Wing, Zipline, Project SkyNet)",
+      "Total funding/investment (USD millions)",
+      "Year of funding (2022, 2023, 2024, 2025, 2026)",
+      "Market cap or valuation (USD millions, if public)",
+      "Unit: USD millions"
+    ],
+    "comparison_set": [
+      "Project SkyNet vs. Amazon, Wing, Zipline, and other drone delivery startups."
+    ],
+    "preferred_sources": [
+      "Crunchbase, PitchBook",
+      "Company press releases and SEC filings",
+      "Industry reports (e.g., Drone Industry Insights)"
+    ],
+    "search_queries": [
+      "Amazon drone delivery investment 2024 2025",
+      "Wing funding round 2024 2025",
+      "Zipline funding valuation 2025"
+    ],
+    "data_quality_rule": "Use only publicly disclosed funding rounds. If valuation is not public, exclude that metric.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provide external market validation (H4) by showing the competitive investment landscape.",
+    "pre_exhibit_context": "We have allocated $45.5M for launch. Competitors have raised significant capital; we need to see if our investment is sufficient relative to market leaders.",
+    "post_exhibit_takeaway": "Project SkyNet's investment is modest compared to top players; however, our focus on cost reduction and niche markets may still yield competitive advantage."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Noise Pollution Standards and Drone Decibel Levels",
+    "chart_type": "bar",
+    "executive_question": "Do Whisper-Prop technology and other mitigations bring drone noise within acceptable urban limits?",
+    "required_metrics": [
+      "Drone model (Heavy-Lifter v2, Swift-Class, with/without Whisper-Prop)",
+      "Noise level (dB) at 100 ft distance",
+      "Regulatory limit (dB) (e.g., FAA, WHO, local ordinances)",
+      "Urban background noise (dB) (e.g., 50-60 dB typical)",
+      "Unit: dB(A)"
+    ],
+    "comparison_set": [
+      "Drone noise levels vs. regulatory limits vs. urban background noise."
+    ],
+    "preferred_sources": [
+      "FAA noise standards (14 CFR Part 36)",
+      "WHO environmental noise guidelines",
+      "Local noise ordinances (e.g., Los Angeles Municipal Code)",
+      "Academic studies on drone noise (e.g., NASA, University of Southampton)"
+    ],
+    "search_queries": [
+      "FAA drone noise limit decibels 2025",
+      "WHO environmental noise guidelines 2024",
+      "drone noise decibel level Whisper-Prop technology"
+    ],
+    "data_quality_rule": "Use published decibel measurements from peer-reviewed studies or official test reports. If Whisper-Prop data is proprietary, request from engineering.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Support H2 by showing that noise mitigation brings decibel levels below regulatory and consumer thresholds.",
+    "pre_exhibit_context": "Noise is the top consumer concern (42%). Whisper-Prop claims 40% reduction. We need to compare decibel levels against standards.",
+    "post_exhibit_takeaway": "With Whisper-Prop, drone noise is below typical urban background noise and within FAA and WHO guidelines, alleviating the top concern."
+  }
+]
