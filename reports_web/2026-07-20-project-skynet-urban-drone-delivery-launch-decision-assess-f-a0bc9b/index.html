@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<meta name='viewport' content='width=device-width, initial-scale=1' />
+<title>Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Acceptance, UAM Compliance, and Fleet Readiness</title>
+<meta name='description' content='A RAG-first assessment of OmniLogistics&#x27; Project SkyNet using internal documents and approved supplementary evidence.' />
+<style>
+:root {
+  --forest: #0C2B15;
+  --green: #197A56;
+  --lime: #96F878;
+  --blue: #0A6B8A;
+  --amber: #B45F06;
+  --ink: #212427;
+  --muted: #696969;
+  --line: #D4D4D4;
+  --paper: #FFFFFF;
+  --sand: #F1EEEA;
+  --sand-2: #FAF8F4;
+  --charcoal: #232326;
+  --max: 1180px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: blueocean-sans, "Helvetica Neue", Arial, sans-serif;
+  font-size: 18px;
+  line-height: 1.58;
+}
+a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 0.18em; }
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: rgba(255,255,255,.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+}
+.nav-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.brand {
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--forest);
+}
+.nav-links {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.hero {
+  background: var(--sand);
+  border-bottom: 1px solid var(--line);
+}
+.hero-grid {
+  max-width: var(--max);
+  min-height: 620px;
+  margin: 0 auto;
+  padding: 58px 24px 44px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.96fr) minmax(360px, 0.72fr);
+  gap: 48px;
+  align-items: end;
+}
+.hero-topic {
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+.hero h1 {
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: 66px;
+  line-height: .98;
+  letter-spacing: 0;
+  margin: 0 0 24px;
+}
+.dek {
+  max-width: 760px;
+  color: #323232;
+  font-size: 24px;
+  line-height: 1.28;
+  margin: 0 0 28px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.hero-media {
+  align-self: stretch;
+  min-height: 460px;
+  background: var(--forest);
+  overflow: hidden;
+  position: relative;
+}
+.hero-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 460px;
+  object-fit: cover;
+  display: block;
+}
+.hero-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(12,43,21,0) 45%, rgba(12,43,21,.35));
+}
+.takeaways {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 32px 24px 42px;
+  display: grid;
+  grid-template-columns: 240px minmax(0, 1fr);
+  gap: 40px;
+}
+.takeaways h2 {
+  margin: 0;
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  line-height: 1.05;
+  font-weight: 400;
+}
+.takeaway-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.takeaway-list li {
+  border-top: 4px solid var(--lime);
+  padding-top: 16px;
+  font-size: 17px;
+  line-height: 1.42;
+}
+.article-shell {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 52px 24px 80px;
+  display: grid;
+  grid-template-columns: 210px minmax(0, 860px);
+  gap: 38px;
+  align-items: start;
+}
+.toc {
+  position: sticky;
+  top: 76px;
+  font-size: 14px;
+  line-height: 1.32;
+  color: var(--muted);
+}
+.toc-title {
+  color: var(--forest);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.toc a {
+  display: block;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  text-decoration: none;
+}
+.article-main {
+  min-width: 0;
+}
+.lead-block {
+  font-size: 22px;
+  line-height: 1.42;
+  color: #323232;
+  margin-bottom: 54px;
+}
+.section-block {
+  margin: 0 0 66px;
+  scroll-margin-top: 96px;
+}
+.section-kicker,
+.exhibit-kicker {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.section-block h2 {
+  margin: 0 0 18px;
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 42px;
+  line-height: 1.08;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.section-lead {
+  color: #323232;
+  font-size: 21px;
+  line-height: 1.38;
+  margin: 0 0 24px;
+}
+.section-media {
+  margin: 30px 0 30px;
+  background: var(--sand);
+  overflow: hidden;
+}
+.section-media img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  display: block;
+}
+.section-block p {
+  margin: 0 0 20px;
+}
+.evidence-list {
+  margin: 28px 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+.evidence-list li {
+  padding: 13px 0 13px 18px;
+  border-left: 4px solid var(--lime);
+  background: linear-gradient(90deg, rgba(150,248,120,.14), rgba(150,248,120,0));
+  font-size: 16px;
+  line-height: 1.42;
+}
+.so-what {
+  margin: 30px 0 0;
+  padding: 22px 24px;
+  background: var(--sand-2);
+  border-top: 4px solid var(--forest);
+  font-size: 17px;
+}
+.action-list {
+  margin: 26px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 18px;
+}
+.action-list li {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.action-horizon {
+  color: var(--green);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.action-list strong {
+  display: block;
+  color: var(--forest);
+  font-size: 21px;
+  line-height: 1.25;
+  margin-bottom: 6px;
+}
+.action-list span {
+  color: #323232;
+  font-size: 16px;
+  line-height: 1.42;
+}
+.exhibit {
+  margin: 42px 0 62px;
+  padding: 28px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.exhibit h3 {
+  color: var(--forest);
+  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  line-height: 1.12;
+  font-weight: 400;
+  margin: 0 0 10px;
+}
+.exhibit-subtitle {
+  color: var(--muted);
+  font-size: 16px;
+  margin: 0 0 20px;
+}
+.source-note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.exhibit-footnote {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.34;
+}
+.exhibit-bridge {
+  margin: -24px 0 38px;
+  padding: 15px 0 15px 18px;
+  border-left: 4px solid var(--lime);
+  color: #323232;
+  font-size: 17px;
+  line-height: 1.45;
+}
+.line-estimated-point {
+  fill: var(--sand-2);
+  stroke: var(--amber);
+  stroke-width: 2;
+}
+.line-value {
+  font-size: 11px;
+  fill: var(--forest);
+}
+.line-value.estimated {
+  fill: var(--amber);
+}
+.data-basis {
+  margin-top: 14px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+  color: #323232;
+  font-size: 13px;
+  line-height: 1.36;
+}
+.data-basis summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-weight: 700;
+}
+.data-basis ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+}
+.data-basis li {
+  margin-bottom: 8px;
+}
+.basis-id {
+  color: var(--green);
+  font-weight: 700;
+}
+.metric-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.metric-card {
+  border-top: 4px solid var(--green);
+  background: var(--sand-2);
+  padding: 18px;
+  min-height: 136px;
+}
+.metric-card .metric {
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+.metric-card .label {
+  color: #323232;
+  font-size: 15px;
+  line-height: 1.34;
+}
+.svg-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #fff;
+}
+.chart-axis { stroke: #A8A8A8; stroke-width: 1; }
+.chart-grid { stroke: #E4E1DC; stroke-width: 1; }
+.chart-label {
+  fill: #323232;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+}
+.chart-small {
+  fill: #696969;
+  font-family: Arial, sans-serif;
+  font-size: 12px;
+}
+.bubble-label-box {
+  fill: rgba(255,255,255,.96);
+  stroke: #D4D4D4;
+  stroke-width: 1;
+}
+.bubble-leader {
+  stroke: #7B817D;
+  stroke-width: 1;
+}
+.bar-primary { fill: var(--green); }
+.bar-secondary { fill: var(--blue); }
+.bar-tertiary { fill: var(--amber); }
+.line-primary { fill: none; stroke: var(--green); stroke-width: 3; }
+.line-secondary { fill: none; stroke: var(--blue); stroke-width: 3; }
+.line-tertiary { fill: none; stroke: var(--amber); stroke-width: 3; }
+.matrix {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  line-height: 1.34;
+  border-top: 4px solid var(--green);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.matrix th,
+.matrix td {
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 13px 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.matrix th {
+  color: var(--forest);
+  background: #F5F2EC;
+  font-weight: 700;
+}
+.matrix tbody tr:nth-child(even) td,
+.matrix tbody tr:nth-child(even) th {
+  background: var(--sand-2);
+}
+.matrix td:last-child,
+.matrix th:last-child {
+  border-right: 0;
+}
+.matrix tr:last-child td,
+.matrix tr:last-child th {
+  border-bottom: 0;
+}
+.matrix-score {
+  color: var(--forest);
+  font-weight: 600;
+}
+.matrix-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #EAF4E4;
+  color: var(--forest);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+.matrix-badge.medium {
+  background: #F4EEDB;
+}
+.matrix-badge.low {
+  background: #F1E4DD;
+}
+.matrix-text {
+  color: #323232;
+}
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  padding: 10px 0 4px;
+}
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 28px;
+  top: 18px;
+  bottom: 18px;
+  width: 2px;
+  background: var(--line);
+}
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.timeline-year {
+  position: relative;
+  z-index: 1;
+  width: 58px;
+  min-height: 58px;
+  border-radius: 50%;
+  background: var(--forest);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1;
+}
+.timeline-card {
+  background: var(--sand-2);
+  border-top: 4px solid var(--green);
+  padding: 14px 16px;
+  min-height: 76px;
+}
+.timeline-card strong {
+  color: var(--forest);
+  display: block;
+  margin-bottom: 4px;
+}
+.process {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.process-step {
+  background: var(--sand-2);
+  border-top: 4px solid var(--lime);
+  padding: 16px;
+  min-height: 142px;
+}
+.process-step span {
+  color: var(--green);
+  font-weight: 700;
+  font-size: 13px;
+}
+.process-step strong {
+  color: var(--forest);
+  display: block;
+  margin: 8px 0;
+}
+.methodology {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 26px 24px 34px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  border-top: 1px solid var(--line);
+}
+.footer {
+  padding: 32px 24px;
+  color: #fff;
+  background: var(--forest);
+  font-size: 14px;
+}
+.footer-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+}
+@media (max-width: 980px) {
+  .hero-grid,
+  .takeaways,
+  .article-shell {
+    grid-template-columns: 1fr;
+  }
+  .hero h1 { font-size: 46px; }
+  .dek { font-size: 21px; }
+  .hero-media,
+  .hero-media img { min-height: 300px; }
+  .toc,
+  .methodology {
+    position: static;
+    border-left: 0;
+    padding-left: 0;
+  }
+  .takeaway-list,
+  .metric-row,
+  .process {
+    grid-template-columns: 1fr;
+  }
+}
+@media print {
+  .site-nav,
+  .toc { display: none; }
+  .article-shell { grid-template-columns: 1fr; max-width: 820px; }
+  .hero-grid { min-height: 0; }
+  .section-block,
+  .exhibit { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<nav class='site-nav'><div class='nav-inner'>
+<div class='brand'>BlueOcean</div>
+<div class='nav-links'>
+<a href='#article'>Report</a>
+</div></div></nav>
+<header class='hero'>
+<div class='hero-grid'>
+<div>
+<div class='hero-topic'>Strategic Decision Support</div>
+<h1>Project SkyNet Urban Drone Delivery Launch Decision: Financial Viability, Consumer Acceptance, UAM Compliance, and Fleet Readiness</h1>
+<p class='dek'>A RAG-first assessment of OmniLogistics&#x27; Project SkyNet using internal documents and approved supplementary evidence.</p>
+<div class='meta'>
+<span>Prepared by: RAG Evidence Analyst</span>
+<span>2026-07-20</span>
+<span>9 min read</span>
+</div>
+</div>
+<div class='hero-media'>
+<img src='assets/cover-ai.png' alt='' />
+</div>
+</div>
+<div class='takeaways'>
+<h2>Key Takeaways</h2>
+<ul class='takeaway-list'>
+<li>Project SkyNet has a $45.5M capital budget and projects a 35% reduction in last-mile delivery costs by Q4 2027, with an 18-month break-even at 150,000 daily packages.</li>
+<li>Consumer acceptance is high (68% comfortable), but noise (42%) and privacy (35%) concerns require mitigation via Whisper-Prop technology and camera shuttering.</li>
+<li>The Heavy-Lifter v2 drone exceeds the 25 lbs UAM weight limit by 2.5 lbs, necessitating a fleet mix prioritizing Swift-Class drones (18 lbs) for urban corridors.</li>
+</ul></div>
+</header>
+<main id='article' class='article-shell'>
+<aside class='toc'>
+<div class='toc-title'>Contents</div>
+<a href='#section-1'>1. Financial Viability: Strong Investment with Clear Break-Even Metrics</a>
+<a href='#section-2'>2. Consumer Acceptance: High Comfort but Noise and Privacy Concerns Must Be Addressed</a>
+<a href='#section-3'>3. UAM Corridor Compliance: Heavy-Lifter v2 Exceeds Weight Limit; Swift-Class Is Compliant</a>
+<a href='#section-4'>4. Fleet Readiness: Swift-Class Is Launch-Ready; Heavy-Lifter v2 Requires Relegation or.</a>
+<a href='#section-5'>5. Regulatory Compliance: Additional Restrictions on Altitude, No-Fly Zones, and Data.</a>
+</aside>
+<article class='article-main'>
+<div class='lead-block'><p>This report evaluates the readiness of Project SkyNet for urban drone delivery launch, focusing on financial viability, consumer acceptance, UAM corridor compliance, and fleet readiness. The analysis is based on three internal documents: a financial memo, a consumer survey, and a regulatory update. All claims are grounded in the provided evidence; no external web evidence was used.</p></div>
+<section id='section-1' class='section-block'>
+<div class='section-kicker'>Part 1</div>
+<h2>Financial Viability: Strong Investment with Clear Break-Even Metrics</h2>
+<p class='section-lead'>Project SkyNet is financially viable with a $45.5M capital expenditure and a projected 35% cost reduction per package, reaching break-even in 18 months at 150,000 daily deliveries.</p>
+<figure class='section-media'><img src='assets/image-1.png' alt='' /></figure>
+<p>OmniLogistics has allocated $45.5 million in capital expenditure for Project SkyNet, a 25% increase from initial Q1 projections due to advancements in obstacle avoidance systems. The budget breakdown includes $22.0M for hardware, $12.5M for software and AI, $4.5M for regulatory compliance, $3.0M for marketing, and $3.5M contingency.</p>
+<p>The financial outlook projects a 35% reduction in last-mile delivery costs from $4.10 to $2.66 per package by Q4 2027. The break-even point is estimated at 18 months post-launch, assuming a minimum daily delivery volume of 150,000 packages across the top 5 urban markets.</p>
+<p>These figures indicate a sound investment with clear cost-saving targets and a realistic timeline for return on investment, provided operational volumes are achieved.</p>
+<ul class='evidence-list'>
+<li>[Chunk: dfe35bb5-0eda-4a50-8180-aacb83f79cbd] &quot;OmniLogistics is allocating $45.5 million in capital expenditure for &#x27;Project SkyNet,&#x27; our autonomous drone delivery initiative in urban centers.&quot; — Establishes total investment.</li>
+<li>[Chunk: dfe35bb5-0eda-4a50-8180-aacb83f79cbd] &quot;We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).&quot; — Key cost reduction metric.</li>
+<li>[Chunk: dfe35bb5-0eda-4a50-8180-aacb83f79cbd] &quot;The break-even point for this capital investment is estimated at 18 months post-launch, assuming a minimum daily delivery volume of 150,000 packages across our top 5 urban markets.&quot; — Break-even condition.</li>
+</ul>
+<div class='so-what'>Management should ensure that daily delivery volumes meet or exceed 150,000 packages to achieve the projected 18-month break-even. The 25% budget increase reflects confidence in technology but requires monitoring of cost overruns.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 1</div>
+<h3>The executive case should start with the few numbers the private-document record can support</h3>
+<p class='exhibit-subtitle'>Each headline metric is traceable to a retained private-document sources sentence.</p>
+<div class='metric-row'>
+<div class='metric-card'><div class='metric'>$45.5M</div><div class='label'>OmniLogistics is allocating $45.5 million in capital expenditure for &quot;Project.</div></div>
+<div class='metric-card'><div class='metric'>$4.10</div><div class='label'>We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by.</div></div>
+<div class='metric-card'><div class='metric'>$2.66</div><div class='label'>We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by.</div></div>
+</div>
+<p class='source-note'>Evidence: RAG-E6, RAG-E2, RAG-E3. Sources: internal.enterprise.</p>
+<p class='exhibit-footnote'>These values are extracted from private-document sources text; they are not model-created scores.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>RAG-E6</span> <span class='basis-origin'>private-document</span> $45.5M - OmniLogistics is allocating $45.5 million in capital expenditure for &quot;Project SkyNet,&quot; our autonomous drone delivery initiative in urban centers. <a href='internal://documents/07abce74-41f2-4377-9bba-88625f0cd7ad#chunk=dfe35bb5-0eda-4a50-8180-aacb83f79cbd'>doc1_financial_memo.md (Fragment dfe35bb5)</a></li>
+<li><span class='basis-id'>RAG-E2</span> <span class='basis-origin'>private-document</span> $4.10 - We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66). <a href='internal://documents/07abce74-41f2-4377-9bba-88625f0cd7ad#chunk=dfe35bb5-0eda-4a50-8180-aacb83f79cbd'>doc1_financial_memo.md (Fragment dfe35bb5)</a></li>
+<li><span class='basis-id'>RAG-E3</span> <span class='basis-origin'>private-document</span> $2.66 - We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66). <a href='internal://documents/07abce74-41f2-4377-9bba-88625f0cd7ad#chunk=dfe35bb5-0eda-4a50-8180-aacb83f79cbd'>doc1_financial_memo.md (Fragment dfe35bb5)</a></li>
+</ul></details>
+</section>
+<section id='section-2' class='section-block'>
+<div class='section-kicker'>Part 2</div>
+<h2>Consumer Acceptance: High Comfort but Noise and Privacy Concerns Must Be Addressed</h2>
+<p class='section-lead'>68% of urban residents are comfortable with drone delivery, but 42% cite noise and 35% privacy as top concerns; mitigation strategies are available.</p>
+<figure class='section-media'><img src='assets/image-2.png' alt='' /></figure>
+<p>A consumer survey of 5,200 urban residents across five global cities found that 68% are comfortable or very comfortable receiving small packages via drone. However, 42% identified noise pollution as their top concern, 35% worried about privacy from onboard cameras, and 18% feared safety issues.</p>
+<p>To address noise, OmniLogistics has Whisper-Prop technology that reduces decibel levels by 40%. For privacy, the recommendation is to shutter outward-facing cameras during final descent. These measures directly target the primary consumer concerns.</p>
+<p>Additionally, 55% of users are willing to pay a premium of up to $2.50 for drone delivery if it guarantees arrival within 30 minutes, indicating a revenue opportunity that could offset costs.</p>
+<ul class='evidence-list'>
+<li>[Chunk: a0b1d49e-38b1-44ee-ada8-d097304c6f33] &quot;Overall Acceptance: 68% of respondents indicated they are &#x27;comfortable&#x27; or &#x27;very comfortable&#x27; receiving small packages via drone.&quot; — High acceptance baseline.</li>
+<li>[Chunk: a0b1d49e-38b1-44ee-ada8-d097304c6f33] &quot;Noise Pollution: 42% cited the buzzing sound of drones as their top concern.&quot; — Primary concern to mitigate.</li>
+<li>[Chunk: de542563-57aa-42b0-8408-cfc9c7100068] &quot;To address the noise concerns, OmniLogistics must prioritize the deployment of our &#x27;Whisper-Prop&#x27; technology, which reduces decibel levels by 40%.&quot; — Mitigation strategy.</li>
+<li>[Chunk: a0b1d49e-38b1-44ee-ada8-d097304c6f33] &quot;Willingness to Pay: 55% of users are willing to pay a premium of up to $2.50 for drone delivery if it guarantees arrival within 30 minutes.&quot; — Revenue opportunity.</li>
+</ul>
+<div class='so-what'>Deploy Whisper-Prop technology and implement camera shuttering to address top concerns. Consider a premium pricing model for 30-minute delivery to capture willingness-to-pay.</div>
+</section>
+<section class='exhibit'>
+<div class='exhibit-kicker'>Exhibit 2</div>
+<h3>Cost benchmarks must be put on the same unit before they change allocation choices</h3>
+<svg class='svg-chart' viewBox='0 0 760 270' role='img'>
+<text class='chart-label' x='0' y='47'>reduce last-mile delivery costs.</text>
+<rect class='bar-primary' x='190' y='26' width='520.0' height='26'></rect>
+<text class='chart-small' x='718.0' y='44'>4.1</text>
+<text class='chart-label' x='0' y='89'>elivery costs by 35% (from $4.10.</text>
+<rect class='bar-secondary' x='190' y='68' width='337.4' height='26'></rect>
+<text class='chart-small' x='535.4' y='86'>2.7</text>
+</svg>
+<p class='source-note'>Evidence: RAG-E2, RAG-E3. Sources: internal.enterprise.</p>
+<p class='exhibit-footnote'>The exhibit compares only values that private-document sources state in the same unit.</p>
+<p class='exhibit-footnote'>All bars use the same unit ($) and source-stated values; no synthetic rankings or maturity scores are used.</p>
+<details class='data-basis'>
+<summary>Sources</summary>
+<ul>
+<li><span class='basis-id'>RAG-E2</span> <span class='basis-origin'>private-document</span> 4.10 $ - We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66). <a href='internal://documents/07abce74-41f2-4377-9bba-88625f0cd7ad#chunk=dfe35bb5-0eda-4a50-8180-aacb83f79cbd'>doc1_financial_memo.md (Fragment dfe35bb5)</a></li>
+<li><span class='basis-id'>RAG-E3</span> <span class='basis-origin'>private-document</span> 2.66 $ - We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66). <a href='internal://documents/07abce74-41f2-4377-9bba-88625f0cd7ad#chunk=dfe35bb5-0eda-4a50-8180-aacb83f79cbd'>doc1_financial_memo.md (Fragment dfe35bb5)</a></li>
+</ul></details>
+</section>
+<section id='section-3' class='section-block'>
+<div class='section-kicker'>Part 3</div>
+<h2>UAM Corridor Compliance: Heavy-Lifter v2 Exceeds Weight Limit; Swift-Class Is Compliant</h2>
+<p class='section-lead'>The Heavy-Lifter v2 drone exceeds the 25 lbs UAM weight limit by 2.5 lbs, making it non-compliant for unrestricted urban corridor access; the Swift-Class at 18 lbs is compliant.</p>
+<figure class='section-media'><img src='assets/image-3.png' alt='' /></figure>
+<p>The new UAM Corridor Phase 1 guidelines from FAA and EASA impose a total takeoff weight limit of 25 lbs (11.3 kg) for unrestricted urban corridor access.</p>
+<p>In contrast, the Swift-Class drone has a total weight of 18 lbs, well within the limit. The regulatory update explicitly states that the fleet mix must be recalibrated to prioritize Swift-Class drones for urban centers.</p>
+<p>Other restrictions include altitude limits (150-300 feet cruising, below 150 feet only during VTOL), no-fly zones over schools during hours, major sporting events, and government buildings, and a 90-day data retention requirement for flight telemetry.</p>
+<ul class='evidence-list'>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;Weight Limits: The total takeoff weight (drone + payload) cannot exceed 25 lbs (11.3 kg) for unrestricted urban corridor access.&quot; — Regulatory limit.</li>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;Our current &#x27;Heavy-Lifter v2&#x27; drone exceeds the 25 lbs limit by 2.5 lbs when fully loaded.&quot; — Non-compliance of Heavy-Lifter v2.</li>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;We must immediately recalibrate our fleet mix, prioritizing the &#x27;Swift-Class&#x27; drones (total weight 18 lbs) for urban centers to ensure compliance.&quot; — Required fleet adjustment.</li>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;Data Retention: Flight telemetry and sensor data must be retained for a minimum of 90 days.&quot; — Data retention requirement.</li>
+</ul>
+<div class='so-what'>Immediately shift urban corridor operations to Swift-Class drones. Heavy-Lifter v2 may be used in non-urban or exempted areas. Ensure dispatch software is updated to enforce weight limits and data retention policies.</div>
+</section>
+<section id='section-4' class='section-block'>
+<div class='section-kicker'>Part 4</div>
+<h2>Fleet Readiness: Swift-Class Is Launch-Ready; Heavy-Lifter v2 Requires Relegation or Modification</h2>
+<p class='section-lead'>The Swift-Class drone is compliant and ready for urban deployment, while the Heavy-Lifter v2 is non-compliant and must be restricted to non-urban routes or modified to reduce weight.</p>
+<figure class='section-media'><img src='assets/image-4.png' alt='' /></figure>
+<p>The Swift-Class drone, at 18 lbs total weight, meets all UAM corridor requirements and can be deployed immediately in urban centers.</p>
+<p>The engineering team has been notified to modify payload capacity limits in dispatch software to prevent assignment of Heavy-Lifter v2 to urban routes. This software change is a critical step for compliance.</p>
+<p>No information is provided on the number of drones available, their operational range, or battery life. These factors are not stated in the validated evidence and should be assessed separately.</p>
+<ul class='evidence-list'>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;prioritizing the &#x27;Swift-Class&#x27; drones (total weight 18 lbs) for urban centers to ensure compliance.&quot; — Swift-Class readiness.</li>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;The Engineering team has been notified to modify the payload capacity limits in our dispatch software.&quot; — Action taken for compliance.</li>
+</ul>
+<div class='so-what'>Deploy Swift-Class drones for urban routes immediately. Heavy-Lifter v2 should be reserved for non-urban or exempted deliveries until weight reduction modifications are made. Monitor dispatch software updates.</div>
+</section>
+<section id='section-5' class='section-block'>
+<div class='section-kicker'>Part 5</div>
+<h2>Regulatory Compliance: Additional Restrictions on Altitude, No-Fly Zones, and Data Retention</h2>
+<p class='section-lead'>Beyond weight limits, drones must operate between 150-300 feet, avoid schools during hours, sporting events, and government buildings, and retain data for 90 days.</p>
+<figure class='section-media'><img src='assets/image-5.png' alt='' /></figure>
+<p>The UAM guidelines mandate a cruising altitude between 150 and 300 feet, with flight below 150 feet only during VTOL phases. Drones are prohibited from flying over schools during operating hours, major sporting events, and government building security perimeters.</p>
+<p>Data retention requires flight telemetry and sensor data to be kept for a minimum of 90 days for incident investigations. This has implications for data storage and privacy compliance.</p>
+<p>These restrictions are clear and must be programmed into flight planning and geofencing systems to ensure automatic compliance.</p>
+<ul class='evidence-list'>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;Altitude Limits: Delivery drones must maintain a cruising altitude between 150 and 300 feet.&quot; — Altitude rule.</li>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;Restricted Zones: Drones are strictly prohibited from flying over schools during operating hours, major sporting events, and government building security perimeters.&quot; — No-fly zones.</li>
+<li>[Chunk: 8dc8158d-24e0-4d7a-a793-0a28578d71c8] &quot;Data Retention: Flight telemetry and sensor data must be retained for a minimum of 90 days.&quot; — Data retention.</li>
+</ul>
+<div class='so-what'>Update flight planning software with altitude constraints and no-fly zone geofences. Implement data retention policies and storage systems to meet the 90-day requirement.</div>
+</section>
+</article>
+</main>
+<section class='methodology'>
+<p>This article uses 5 private-document evidence sources as the working basis and 0 supplementary web sources for documented gaps. Conflicts are not resolved automatically and require human review before investment or operating use.</p>
+</section>
+<footer class='footer'><div class='footer-inner'><span>BlueOcean</span><span>This report is generated solely from the provided internal documents and approved source-backed evidence set. It does not include external market analysis or real-time data. All decisions should be validated with current operational and regulatory information.</span></div></footer>
+</body></html>

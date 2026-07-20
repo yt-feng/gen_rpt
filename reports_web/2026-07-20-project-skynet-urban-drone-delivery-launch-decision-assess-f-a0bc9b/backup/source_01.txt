@@ -1,0 +1,14 @@
+Title: doc3_regulatory_update.md (Fragment 8dc8158d)
+URL: internal://documents/85de3c55-cfc0-469c-8c67-7b86801fa501#chunk=8dc8158d-24e0-4d7a-a793-0a28578d71c8
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: Project SkyNet Urban Drone Delivery Launch Decision: Assess Financial Viability, Consumer Acceptance, UAM Corridor Compliance, and Heavy-Lifter v2 versus Swift-Class Fleet Readiness Using Only the Uploaded Documents
+
+Altitude Limits: Delivery drones must maintain a cruising altitude between 150 and 300 feet. Flight below 150 feet is only permitted during active vertical takeoff and landing (VTOL) phases.
+Restricted Zones: Drones are strictly prohibited from flying over schools during operating hours, major sporting events, and government building security perimeters.
+Weight Limits: The total takeoff weight (drone + payload) cannot exceed 25 lbs (11.3 kg) for unrestricted urban corridor access.
+Data Retention: Flight telemetry and sensor data must be retained for a minimum of 90 days to assist in any incident investigations.
+
+Impact on Project SkyNet
+Our current "Heavy-Lifter v2" drone exceeds the 25 lbs limit by 2.5 lbs when fully loaded. We must immediately recalibrate our fleet mix, prioritizing the "Swift-Class" drones (total weight 18 lbs) for urban centers to ensure compliance. The Engineering team has been notified to modify the payload capacity limits in our dispatch software.

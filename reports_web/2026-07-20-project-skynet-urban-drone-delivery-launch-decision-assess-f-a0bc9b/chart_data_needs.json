@@ -1,0 +1,215 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Annual Urban Drone Delivery Market Size (Top-Down Sizing)",
+    "chart_type": "line",
+    "executive_question": "How large is the total addressable market for urban drone delivery, and what is its projected growth?",
+    "required_metrics": [
+      "{'year': 2024, 'value': 'X', 'unit': 'USD billion', 'entity': 'Global urban drone delivery market'}",
+      "{'year': 2025, 'value': 'Y1', 'unit': 'USD billion', 'entity': 'Global urban drone delivery market'}",
+      "{'year': 2026, 'value': 'Y2', 'unit': 'USD billion', 'entity': 'Global urban drone delivery market'}",
+      "{'year': 2027, 'value': 'Y3', 'unit': 'USD billion', 'entity': 'Global urban drone delivery market'}",
+      "{'year': 2028, 'value': 'Y4', 'unit': 'USD billion', 'entity': 'Global urban drone delivery market'}"
+    ],
+    "comparison_set": [
+      "Annual values over 5 years"
+    ],
+    "preferred_sources": [
+      "Industry reports (e.g., McKinsey, BCG, Statista)",
+      "Market research firms (e.g., MarketsandMarkets, Grand View Research)"
+    ],
+    "search_queries": [
+      "urban drone delivery market size 2024 2025 2026 2027 2028 billion",
+      "global drone delivery market forecast CAGR 2024-2028",
+      "last-mile drone delivery market size report 2024"
+    ],
+    "data_quality_rule": "If only two endpoints are found, use CAGR to estimate intermediate years and mark as estimates. Do not present two endpoints as a trend line.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the market opportunity size and growth trajectory to justify investment.",
+    "pre_exhibit_context": "Before assessing financial viability, the board needs to understand the market potential. This chart shows the global urban drone delivery market size from 2024 to 2028.",
+    "post_exhibit_takeaway": "The market is projected to grow from $X billion in 2024 to $Y billion by 2028, a CAGR of Z%, indicating a substantial opportunity."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Projected Daily Package Volume by Drone Type (Bottom-Up Sizing)",
+    "chart_type": "bar",
+    "executive_question": "What daily package volumes can we expect for Heavy-Lifter v2 and Swift-Class drones in the first year?",
+    "required_metrics": [
+      "{'drone_type': 'Heavy-Lifter v2', 'daily_volume': 70000, 'unit': 'packages/day', 'year': 2026, 'entity': 'OmniLogistics Project SkyNet'}",
+      "{'drone_type': 'Swift-Class', 'daily_volume': 80000, 'unit': 'packages/day', 'year': 2026, 'entity': 'OmniLogistics Project SkyNet'}"
+    ],
+    "comparison_set": [
+      "Heavy-Lifter v2 vs. Swift-Class"
+    ],
+    "preferred_sources": [
+      "Company internal projections (from provided documents)",
+      "Industry benchmarks for drone delivery volumes"
+    ],
+    "search_queries": [
+      "OmniLogistics drone delivery daily package volume projection 2026",
+      "urban drone delivery daily volume per drone type",
+      "Swift-Class drone delivery capacity packages per day"
+    ],
+    "data_quality_rule": "Use provided document data if available; otherwise, note as internal estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides volume assumptions for financial projections and fleet mix decisions.",
+    "pre_exhibit_context": "To assess break-even, we need volume estimates. This chart shows projected daily packages for each drone type in Year 1.",
+    "post_exhibit_takeaway": "Swift-Class is expected to handle 80,000 packages/day vs. Heavy-Lifter v2's 70,000, making Swift-Class the primary workhorse."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Consumer Acceptance by Concern (Adoption Funnel)",
+    "chart_type": "bar",
+    "executive_question": "What are the primary consumer concerns that could hinder adoption, and how prevalent are they?",
+    "required_metrics": [
+      "{'concern': 'Noise', 'percentage': 42, 'unit': '% of respondents', 'entity': 'Consumer survey respondents'}",
+      "{'concern': 'Privacy', 'percentage': 35, 'unit': '% of respondents', 'entity': 'Consumer survey respondents'}",
+      "{'concern': 'Safety', 'percentage': 18, 'unit': '% of respondents', 'entity': 'Consumer survey respondents'}",
+      "{'concern': 'Other', 'percentage': 5, 'unit': '% of respondents', 'entity': 'Consumer survey respondents'}"
+    ],
+    "comparison_set": [
+      "Concern categories"
+    ],
+    "preferred_sources": [
+      "Provided consumer survey document",
+      "External consumer acceptance studies (e.g., PwC, Deloitte)"
+    ],
+    "search_queries": [
+      "drone delivery consumer concerns noise privacy survey 2026",
+      "urban drone delivery public acceptance study percentage noise privacy",
+      "consumer willingness to pay drone delivery premium survey"
+    ],
+    "data_quality_rule": "Use provided survey data; if external data differs, note discrepancy.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies key barriers to consumer acceptance that must be mitigated.",
+    "pre_exhibit_context": "Consumer survey shows 68% acceptance, but concerns remain. This chart breaks down the top concerns.",
+    "post_exhibit_takeaway": "Noise (42%) and privacy (35%) are the top concerns; mitigation technologies like Whisper-Prop and camera shuttering are critical."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Cost Reduction Projection: Last-Mile Delivery Cost per Package (Cost/Economics)",
+    "chart_type": "line",
+    "executive_question": "How will the cost per package evolve over time, and when does it reach the target 35% reduction?",
+    "required_metrics": [
+      "{'quarter': 'Q1 2026', 'cost_per_package': 5.0, 'unit': 'USD', 'entity': 'OmniLogistics last-mile delivery'}",
+      "{'quarter': 'Q3 2026', 'cost_per_package': 4.5, 'unit': 'USD', 'entity': 'OmniLogistics last-mile delivery'}",
+      "{'quarter': 'Q1 2027', 'cost_per_package': 3.8, 'unit': 'USD', 'entity': 'OmniLogistics last-mile delivery'}",
+      "{'quarter': 'Q3 2027', 'cost_per_package': 3.4, 'unit': 'USD', 'entity': 'OmniLogistics last-mile delivery'}",
+      "{'quarter': 'Q4 2027', 'cost_per_package': 3.25, 'unit': 'USD', 'entity': 'OmniLogistics last-mile delivery'}"
+    ],
+    "comparison_set": [
+      "Quarterly values over 2 years"
+    ],
+    "preferred_sources": [
+      "Provided financial memo",
+      "Industry benchmarks for drone delivery cost per package"
+    ],
+    "search_queries": [
+      "drone delivery cost per package 2026 2027 projection",
+      "last-mile delivery cost reduction drone vs traditional",
+      "OmniLogistics drone delivery cost per package forecast"
+    ],
+    "data_quality_rule": "If only endpoints available, use CAGR to estimate intermediate quarters and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the financial trajectory and validates the cost reduction claim.",
+    "pre_exhibit_context": "The business case assumes a 35% cost reduction by Q4 2027. This chart tracks the projected cost per package quarterly.",
+    "post_exhibit_takeaway": "Cost per package is projected to drop from $5.00 in Q1 2026 to $3.25 by Q4 2027, achieving the 35% reduction target."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Break-Even Analysis: Cumulative Profit vs. Volume (Value Pool/ROI)",
+    "chart_type": "line",
+    "executive_question": "At what daily volume and time does the project break even?",
+    "required_metrics": [
+      "{'month': 6, 'cumulative_profit_150k': -20, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 12, 'cumulative_profit_150k': -10, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 18, 'cumulative_profit_150k': 0, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 24, 'cumulative_profit_150k': 15, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 6, 'cumulative_profit_120k': -25, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 12, 'cumulative_profit_120k': -18, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 18, 'cumulative_profit_120k': -8, 'unit': 'USD million', 'entity': 'Project SkyNet'}",
+      "{'month': 24, 'cumulative_profit_120k': 0, 'unit': 'USD million', 'entity': 'Project SkyNet'}"
+    ],
+    "comparison_set": [
+      "Two volume scenarios (150k vs 120k packages/day)"
+    ],
+    "preferred_sources": [
+      "Provided financial memo",
+      "Internal financial model"
+    ],
+    "search_queries": [
+      "drone delivery break-even analysis volume 150000 packages per day",
+      "OmniLogistics Project SkyNet break-even timeline",
+      "last-mile drone delivery ROI break-even point"
+    ],
+    "data_quality_rule": "Use provided financial data; if not available, note as internal projection.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the financial viability threshold and timeline.",
+    "pre_exhibit_context": "The investment requires 150,000 packages/day to break even in 18 months. This chart shows cumulative profit over time at different volume scenarios.",
+    "post_exhibit_takeaway": "At 150,000 packages/day, break-even occurs at month 18; at 120,000 packages/day, break-even extends to month 24."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Fleet Compliance Matrix: Heavy-Lifter v2 vs. Swift-Class (Regulation/Adoption Gates)",
+    "chart_type": "matrix",
+    "executive_question": "How do the two drone types compare on key regulatory compliance dimensions?",
+    "required_metrics": [
+      "{'drone_type': 'Heavy-Lifter v2', 'weight_compliance': 'No (exceeds by 2.5 lbs)', 'altitude_compliance': 'Yes', 'restricted_zone_compliance': 'Yes', 'data_retention_compliance': 'Yes'}",
+      "{'drone_type': 'Swift-Class', 'weight_compliance': 'Yes', 'altitude_compliance': 'Yes', 'restricted_zone_compliance': 'Yes', 'data_retention_compliance': 'Yes'}"
+    ],
+    "comparison_set": [
+      "Heavy-Lifter v2 vs. Swift-Class across compliance dimensions"
+    ],
+    "preferred_sources": [
+      "Provided regulatory update document",
+      "FAA UAM corridor guidelines"
+    ],
+    "search_queries": [
+      "FAA UAM corridor drone weight limit 25 lbs",
+      "drone compliance matrix urban air mobility 2026",
+      "Heavy-Lifter v2 payload capacity weight"
+    ],
+    "data_quality_rule": "Use provided document data; verify weight limits with FAA source.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the compliance gap for Heavy-Lifter v2 and the readiness of Swift-Class.",
+    "pre_exhibit_context": "UAM corridor compliance is critical. This matrix compares both drones on weight, altitude, restricted zones, and data retention.",
+    "post_exhibit_takeaway": "Swift-Class is fully compliant; Heavy-Lifter v2 exceeds weight limit by 2.5 lbs, requiring payload reduction or exemption."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Timeline for Mitigation Technology Deployment (Capacity/Project Progress)",
+    "chart_type": "timeline",
+    "executive_question": "When will key mitigation technologies (Whisper-Prop, camera shuttering) be deployed?",
+    "required_metrics": [
+      "{'milestone': 'Whisper-Prop prototype testing', 'date': 'Q1 2026', 'entity': 'OmniLogistics R&D'}",
+      "{'milestone': 'Whisper-Prop deployment on Swift-Class', 'date': 'Q2 2026', 'entity': 'OmniLogistics Fleet'}",
+      "{'milestone': 'Camera shuttering software update', 'date': 'Q3 2026', 'entity': 'OmniLogistics Software'}",
+      "{'milestone': 'Heavy-Lifter v2 payload reduction modification', 'date': 'Q4 2026', 'entity': 'OmniLogistics Engineering'}",
+      "{'milestone': 'Full fleet compliance achieved', 'date': 'Q4 2026', 'entity': 'OmniLogistics'}"
+    ],
+    "comparison_set": [
+      "Milestones over time"
+    ],
+    "preferred_sources": [
+      "Provided project plan documents",
+      "Company announcements"
+    ],
+    "search_queries": [
+      "Whisper-Prop drone noise reduction technology deployment timeline",
+      "drone camera shuttering privacy feature rollout 2026",
+      "OmniLogistics drone fleet modification schedule"
+    ],
+    "data_quality_rule": "Use provided project timeline; if not available, note as internal estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the schedule for addressing consumer concerns and regulatory requirements.",
+    "pre_exhibit_context": "To maintain consumer acceptance, we need to deploy noise reduction and privacy features. This timeline shows key milestones.",
+    "post_exhibit_takeaway": "Whisper-Prop is scheduled for Q2 2026, camera shuttering by Q3 2026, and full compliance by Q4 2026."
+  }
+]
