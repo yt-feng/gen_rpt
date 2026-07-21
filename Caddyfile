@@ -1,9 +1,0 @@
-{
-    email admin@blueocean-research.com
-}
-
-# The domain will be replaced by the user with their actual VPS domain.
-# For now, it listens on all interfaces (or you can set your explicit domain like api.blueocean.com)
-:80, :443 {
-    reverse_proxy backend:8000
-}
