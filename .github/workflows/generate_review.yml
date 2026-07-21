@@ -5,7 +5,7 @@ name: Generate AI Review
 # If report generation fails this workflow does NOT run.
 on:
   workflow_run:
-    workflows: ["Generate HTML Thought Leadership Report"]
+    workflows: ["[V2] Generate HTML Thought Leadership Report"]
     types: [completed]
 
 # ─── Permissions ────────────────────────────────────────────────────────────
