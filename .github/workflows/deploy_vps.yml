@@ -1,0 +1,47 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'report-management-backend/**'
+      - 'docker-compose.yml'
+      - 'Caddyfile'
+
+jobs:
+  deploy:
+    name: Deploy API to Vultr VPS
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Create app directory if it doesn't exist
+            mkdir -p /opt/gen_rpt_backend
+            cd /opt/gen_rpt_backend
+            
+            # Note: You should have cloned the repo manually once on the VPS in /opt/gen_rpt_backend
+            # If the folder has the git repo, pull the latest changes
+            if [ -d ".git" ]; then
+              git fetch origin main
+              git reset --hard origin/main
+            else
+              echo "Error: Git repository not found in /opt/gen_rpt_backend. Please clone it manually first."
+              exit 1
+            fi
+
+            # Build and restart docker containers
+            docker compose build
+            docker compose up -d
+            
+            # Clean up dangling images to save disk space
+            docker image prune -f
