@@ -1,0 +1,65 @@
+Title: Can You Fly a Drone Over People? (2026 Regulations & Safety ...
+URL: https://www.jouav.com/blog/can-you-fly-a-drone-over-people.html
+Source Type: html
+Domain: jouav.com
+Content Type: text/html; charset=UTF-8
+Search Query: FAA EASA drone weight limit penalties enforcement 2026
+
+Can You Fly a Drone Over People? (2026 Regulations & Safety Guide) - JOUAV
+
+Can You Fly a Drone Over People? (2026 Regulations & Safety Guide)
+The U.S. Market: FAA Operations Over People (OOP) Rules
+The UK Market: The CAA's Distance-Based Framework
+The European Market: EASA's Risk-Based Approach
+Technical Solutions: Making Over-People Flights Possible
+The 150-Metre Buffer from Built-Up Areas
+The C-Class Labels: What the Sticker Tells You
+The A-Categories: How Close Can You Get?
+Do I Need a Waiver for Night Operations Over People?
+What's the Maximum Weight Allowed Without a Type Certificate?
+What's the Difference Between FAA Category 4 and EASA Specific Category?
+Can You Fly a Drone Over a Crowd of People?
+Is It Illegal to Fly Drones Over People's Homes?
+How High Can You Fly a Drone Without FAA Approval?
+The one-stop drone solution，vertical take off and landing, full-automatic operation, easy to use.
+Leveraging on technology for a better world. JOUAV has always been committed to using cutting-edge technology to benefit the society, making high-risk tasks safer and improving scientific research efficiently.
+JOUAV drones in action, see how our drones are changing the industries with cutting-edge technology.
+So, can you fly a drone over people in 2026?
+Short answer: yes—but don't expect a free pass. Over the past few years, regulators like the FAA and EASA have fundamentally changed the game. They've moved away from blanket prohibitions and started asking a more nuanced question: "How safely can you do this?"
+That shift changes everything, especially if you're flying something heavier than a consumer quad.
+For hobbyists, the rules remain fairly straightforward. Stay clear of crowds, respect privacy, and keep it light. However, when operating professional VTOL platforms for infrastructure inspections, emergency response, or security surveillance, the rules change significantly. You're not just flying over people. You're managing kinetic energy, redundancy protocols, and real-time risk over populated areas. That puts you squarely in categories like the FAA's Category 4 or EASA's Specific Category (SORA), where certifications aren't optional—they're the price of admission.
+In this guide, we'll walk you through what actually matters in 2026: where the regulations are tightening, why kinetic energy is the number one regulator actually care about, and—most importantly—how redundant safety systems make these missions possible without cutting corners.
+Before we dive into the rulebooks, it's worth asking a more fundamental question: Why are the rules so strict in the first place?
+To the casual observer, a drone might look like a harmless plastic gadget. But from the perspective of aviation authorities and safety engineers, a drone in flight is a high-velocity kinetic object. The restrictions aren't bureaucratic red tape—they're responses to three hard realities.
+Even a mid-sized drone—say, 1.5 kg—falling from 120 meters hits the ground with a force exceeding 16,000 Newtons. The FAA's safety studies classify any impact transferring more than 11 to 25 foot-pounds of kinetic energy to the human head as high-risk for skull fractures or severe neurological damage.
+Then there's the laceration factor. Professional drone rotors spin at 5,000 to 9,000 RPM. Without prop guards or an instant motor kill switch, those blades act as high-speed surgical tools. This is why every regulatory framework distinguishes sharply between drones with "exposed rotating parts" and those with shrouded or safety-tested propellers.
+In 2026, the radio frequency environment in populated areas is more congested than ever. Flying over crowds introduces two major technical risks:
+First, electromagnetic interference. High-density Wi-Fi networks, 5G towers, and industrial power lines can drown out the command-and-control link between pilot and aircraft. Second, GPS multipath effects. In urban canyons, GPS signals bounce off glass and steel, causing drones to lose position hold precisely when they're most vulnerable.
+For the industrial operator, this isn't a theoretical concern. It's why platforms like the JOUAV CW-15 use dual-antenna GNSS and anti-jamming technology—to maintain stable positioning even in RF-noisy environments.
+Beyond physical safety lies the legal concept of aerial trespass. In Europe, especially, flying a sensor-equipped drone over uninvolved persons can be legally interpreted as a privacy violation. The 2026 GDPR landscape has only sharpened that interpretation.
+And public perception matters. A drone hovering over a crowd creates a chilling effect. Authorities respond to complaints; in 2025 alone, the FAA increased civil penalties for unauthorized, overcrowded flights to $75,000 per violation. If an accident occurs, the operator isn't just liable for physical damage but also for consequential losses—a stadium evacuation triggered by a drone sighting can cost millions.
+Finally, statistics consistently show that 80-90% of drone accidents stem from human error: misjudging wind, battery mismanagement, and loss of situational awareness. By prohibiting flight over people by default, regulators create a safety buffer that accounts for the inevitable moment when a pilot makes a mistake.
+If you've been in the industry for a while, you know the FAA is obsessed with one thing: kinetic energy. The "Operations Over People" rule divides drones into four categories based entirely on how much harm they could cause in a failure.
+Here's how they break down—and where industrial operators actually live.
+This category applies to drones that weigh more than 250g but lack an airworthiness certificate.
+Heavy industrial drones begin to appear in this category, but they are attached to strings.
+Regardless of category, two rules apply to everyone:
+No sustained flight over open-air assemblies without Remote ID. If you're hovering over a crowd, your drone must be broadcasting its position and identity.
+Night operations no longer require a waiver, but you must complete updated FAA recurrent training, and your drone needs anti-collision lights visible for three statute miles.
+If the FAA thinks in categories, the UK's CAA thinks in meters. Their approach is almost geometric: draw a circle around every person, every building, every crowd, and stay outside it.
+For the professional pilot, this is both simpler and more restrictive than it sounds.
+Imagine an invisible cylinder around every uninvolved person. It's 50 metres wide and extends all the way up to the 120-metre legal ceiling. That cylinder is a no-fly zone. You cannot enter it, and you certainly cannot hover over the person at its centre.
+You must keep at least 150 meters from residential, recreational, commercial, and industrial areas. This includes:
+For the industrial operator: If your mission requires flying over a city centre or industrial complex, you're not in the Open Category anymore. You're applying for operational authorization.
+A crowd is defined as any group where people cannot easily move away due to density. Shopping areas, sports events, concerts, busy beaches—all are off-limits, regardless of drone size or weight.
+For the industrial operator: This rule has no exceptions. If your flight path might intersect with a gathering, even a temporary one, you need a contingency plan.
+The rules above cover basic Open Category flying. If your mission requires:
+...You need authorization from the CAA or the relevant authority. This typically means transitioning to the specific category and conducting a formal risk assessment.
+For the industrial operator: This isn't a failure of planning—it's the standard path for professional operations. The Open Category is for consumer flights. The specific category is where industrial work happens.
+If the FAA thinks in categories and the CAA thinks in meters, EASA thinks in labels and distances. Their framework combines aircraft classification (the "C" classes) with operational subcategories (A1, A2, A3) to create a system that's more nuanced than either the US or UK models.
+Every drone manufactured for the European market carries a C-class label. That label determines which operational category it belongs to.
+If your mission requires flying over people or built-up areas with a C3 or larger aircraft, you leave the open category entirely. You enter the specific category, which requires:
+All of these regulations lead to the same question: How do you actually do this safely? For the industrial operator, compliance isn't just about paperwork—it's about hardware. Here are the technologies that make over-people operations possible.
+This is the single most important safety device for flights over people. In the event of structural failure, motor loss, or critical system malfunction, a ballistic parachute can lower the entire aircraft to the ground at a survivable descent rate.
+Why regulators care: A parachute system transforms an uncontrolled impact into a controlled descent. It's the difference between 16,000 Newtons of force and a survivable landing.
+Single points of failure ar

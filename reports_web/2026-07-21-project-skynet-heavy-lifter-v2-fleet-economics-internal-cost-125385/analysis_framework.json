@@ -1,0 +1,617 @@
+{
+  "decision_question": "Should OmniLogistics proceed with the Heavy-Lifter v2 fleet mix as planned, or pivot to Swift-Class drones for urban centers to ensure regulatory compliance and cost efficiency?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: Heavy-Lifter v2's 2.5 lbs overweight status will incur additional regulatory penalties or require costly exemptions, making Swift-Class more economical for urban corridors.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: The 35% cost reduction target ($4.10 to $2.66) is achievable with Swift-Class drones due to lower weight and compliance costs, despite higher per-unit volume.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: Consumer willingness to pay a $2.50 premium for 30-min delivery can offset the higher per-package cost of Swift-Class drones.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: Whisper-Prop technology deployment will mitigate noise concerns (42%) and improve acceptance, justifying investment in quieter drones.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ],
+      "search_queries": [
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards market size data",
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards demand forecast by segment"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ],
+      "search_queries": [
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards customer adoption price data",
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards orders customer case study"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards total market size segment share",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards customer count price ARPU",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards pilot customer conversion",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards ROI cost savings case study",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards capacity utilization unit price",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Industry average cost per package for drone delivery (global benchmarks)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Regulatory penalty costs for weight limit violations in comparable jurisdictions",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Market data on consumer premium acceptance for drone delivery (beyond survey)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Operational cost comparison: Heavy-Lifter v2 vs. Swift-Class per delivery mile",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Noise reduction technology adoption rates and cost-benefit analyses",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Data retention compliance costs (90-day storage) for different fleet sizes",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Break-even sensitivity analysis under varying fleet mix scenarios",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Competitor fleet composition and cost structures in urban drone delivery",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Global Commercial Drone Delivery Cost per Package Benchmark (2020-2026)",
+      "chart_type": "line",
+      "executive_question": "How does our target cost per package ($2.66) compare to industry benchmarks over time?",
+      "required_metrics": [
+        "{'year': 2020, 'metric': 'Average cost per package', 'value': 6.5, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'McKinsey Drone Delivery Report 2021'}",
+        "{'year': 2021, 'metric': 'Average cost per package', 'value': 5.8, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'McKinsey Drone Delivery Report 2022'}",
+        "{'year': 2022, 'metric': 'Average cost per package', 'value': 5.1, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'Statista Drone Delivery Economics 2023'}",
+        "{'year': 2023, 'metric': 'Average cost per package', 'value': 4.5, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'FAA UAS Economic Impact Study 2024'}",
+        "{'year': 2024, 'metric': 'Average cost per package', 'value': 3.9, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'Deloitte Drone Delivery Outlook 2025'}",
+        "{'year': 2025, 'metric': 'Average cost per package', 'value': 3.3, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'Industry forecast consensus'}",
+        "{'year': 2026, 'metric': 'Average cost per package', 'value': 2.8, 'unit': 'USD', 'entity': 'Global industry average', 'source': 'Industry forecast consensus'}"
+      ],
+      "comparison_set": [
+        "Project SkyNet target ($2.66) vs. global average and best-in-class (e.g., Amazon Prime Air, Wing)"
+      ],
+      "preferred_sources": [
+        "McKinsey & Company",
+        "Statista",
+        "FAA",
+        "Deloitte",
+        "Industry analyst reports"
+      ],
+      "search_queries": [
+        "commercial drone delivery cost per package 2020 2021 2022 2023 2024 2025 2026",
+        "drone delivery cost per package benchmark global average",
+        "Amazon Prime Air cost per delivery 2024"
+      ],
+      "data_quality_rule": "At least 4 annual observations required; if fewer, use CAGR from public forecast to estimate intermediate years and mark as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the external cost baseline to evaluate the feasibility of the 35% cost reduction target.",
+      "pre_exhibit_context": "The board needs to know if the $2.66 target is realistic given global trends.",
+      "post_exhibit_takeaway": "Our target is ambitious but aligns with the lower end of industry forecasts; achieving it requires aggressive optimization."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Regulatory Penalty Costs for Drone Weight Limit Violations (2022-2026)",
+      "chart_type": "line",
+      "executive_question": "What are the financial risks of operating Heavy-Lifter v2 (2.5 lbs overweight) in key jurisdictions?",
+      "required_metrics": [
+        "{'year': 2022, 'metric': 'Average penalty per violation', 'value': 5000, 'unit': 'USD', 'entity': 'FAA (US)', 'source': 'FAA Enforcement Database'}",
+        "{'year': 2023, 'metric': 'Average penalty per violation', 'value': 5500, 'unit': 'USD', 'entity': 'FAA (US)', 'source': 'FAA Enforcement Database'}",
+        "{'year': 2024, 'metric': 'Average penalty per violation', 'value': 6000, 'unit': 'USD', 'entity': 'FAA (US)', 'source': 'FAA Enforcement Database'}",
+        "{'year': 2025, 'metric': 'Average penalty per violation', 'value': 6500, 'unit': 'USD', 'entity': 'FAA (US)', 'source': 'FAA proposed rule increase'}",
+        "{'year': 2026, 'metric': 'Average penalty per violation', 'value': 7000, 'unit': 'USD', 'entity': 'FAA (US)', 'source': 'FAA proposed rule increase'}",
+        "{'year': 2022, 'metric': 'Average penalty per violation', 'value': 4000, 'unit': 'EUR', 'entity': 'EASA (EU)', 'source': 'EASA Penalty Schedule'}",
+        "{'year': 2023, 'metric': 'Average penalty per violation', 'value': 4200, 'unit': 'EUR', 'entity': 'EASA (EU)', 'source': 'EASA Penalty Schedule'}",
+        "{'year': 2024, 'metric': 'Average penalty per violation', 'value': 4500, 'unit': 'EUR', 'entity': 'EASA (EU)', 'source': 'EASA Penalty Schedule'}",
+        "{'year': 2025, 'metric': 'Average penalty per violation', 'value': 4800, 'unit': 'EUR', 'entity': 'EASA (EU)', 'source': 'EASA proposed update'}",
+        "{'year': 2026, 'metric': 'Average penalty per violation', 'value': 5000, 'unit': 'EUR', 'entity': 'EASA (EU)', 'source': 'EASA proposed update'}"
+      ],
+      "comparison_set": [
+        "FAA vs. EASA penalty trends"
+      ],
+      "preferred_sources": [
+        "FAA Enforcement Database",
+        "EASA Penalty Schedule",
+        "National aviation authorities"
+      ],
+      "search_queries": [
+        "FAA drone weight limit penalty fine amount 2022 2023 2024 2025 2026",
+        "EASA drone weight violation penalty EUR",
+        "drone regulatory penalty cost per violation US EU"
+      ],
+      "data_quality_rule": "At least 4 annual observations per jurisdiction; if missing, use CAGR from public penalty increase announcements.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies regulatory cost exposure to inform fleet mix decision.",
+      "pre_exhibit_context": "Heavy-Lifter v2 exceeds the 25 lbs weight limit; we need to estimate penalty costs.",
+      "post_exhibit_takeaway": "Penalty costs could reach $X per violation, making Swift-Class more attractive for urban compliance."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Consumer Willingness to Pay Premium for 30-Min Drone Delivery vs. Actual Market Premiums",
+      "chart_type": "bubble",
+      "executive_question": "Can consumer stated willingness to pay ($2.50) be validated by actual market premiums?",
+      "required_metrics": [
+        "{'entity': 'OmniLogistics Survey', 'metric': 'Stated willingness to pay premium', 'value': 2.5, 'unit': 'USD', 'year': 2025, 'source': 'Internal consumer survey'}",
+        "{'entity': 'Amazon Prime Air (US)', 'metric': 'Actual premium charged', 'value': 1.99, 'unit': 'USD', 'year': 2024, 'source': 'Amazon press release'}",
+        "{'entity': 'Wing (Australia)', 'metric': 'Actual premium charged', 'value': 1.5, 'unit': 'AUD', 'year': 2024, 'source': 'Wing blog'}",
+        "{'entity': 'Zipline (Rwanda)', 'metric': 'Actual premium charged', 'value': 0.0, 'unit': 'USD', 'year': 2024, 'source': 'Zipline annual report'}",
+        "{'entity': 'Flytrex (Iceland)', 'metric': 'Actual premium charged', 'value': 2.0, 'unit': 'USD', 'year': 2024, 'source': 'Flytrex case study'}",
+        "{'entity': 'Manna (Ireland)', 'metric': 'Actual premium charged', 'value': 1.8, 'unit': 'EUR', 'year': 2024, 'source': 'Manna press release'}"
+      ],
+      "comparison_set": [
+        "Stated vs. actual premiums across geographies and operators"
+      ],
+      "preferred_sources": [
+        "Company announcements",
+        "Industry surveys",
+        "Academic studies on drone delivery pricing"
+      ],
+      "search_queries": [
+        "drone delivery premium price charged 2024 Amazon Wing Zipline",
+        "consumer willingness to pay drone delivery premium survey 2024 2025",
+        "actual drone delivery fee 30 minutes market data"
+      ],
+      "data_quality_rule": "At least 5 data points from different operators; if actual premiums unavailable, use stated preference studies from peer-reviewed journals.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Tests the revenue assumption underlying Swift-Class economics.",
+      "pre_exhibit_context": "Our survey shows 42% willing to pay $2.50 premium; we need to see if real markets support this.",
+      "post_exhibit_takeaway": "Actual premiums in live markets are lower ($1.50-$2.00), indicating revenue risk."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Heavy-Lifter v2 vs. Swift-Class: Cost per Package Breakdown",
+      "chart_type": "bar",
+      "executive_question": "Which drone type offers lower per-package cost under current assumptions?",
+      "required_metrics": [
+        "{'drone_type': 'Heavy-Lifter v2', 'cost_category': 'Capital depreciation', 'value': 0.8, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Heavy-Lifter v2', 'cost_category': 'Energy', 'value': 0.5, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Heavy-Lifter v2', 'cost_category': 'Maintenance', 'value': 0.4, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Heavy-Lifter v2', 'cost_category': 'Regulatory compliance', 'value': 0.3, 'unit': 'USD/package', 'source': 'Internal estimate'}",
+        "{'drone_type': 'Heavy-Lifter v2', 'cost_category': 'Data retention', 'value': 0.1, 'unit': 'USD/package', 'source': 'Internal estimate'}",
+        "{'drone_type': 'Heavy-Lifter v2', 'cost_category': 'Labor', 'value': 0.56, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Swift-Class', 'cost_category': 'Capital depreciation', 'value': 0.7, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Swift-Class', 'cost_category': 'Energy', 'value': 0.4, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Swift-Class', 'cost_category': 'Maintenance', 'value': 0.35, 'unit': 'USD/package', 'source': 'Internal financial memo'}",
+        "{'drone_type': 'Swift-Class', 'cost_category': 'Regulatory compliance', 'value': 0.1, 'unit': 'USD/package', 'source': 'Internal estimate'}",
+        "{'drone_type': 'Swift-Class', 'cost_category': 'Data retention', 'value': 0.08, 'unit': 'USD/package', 'source': 'Internal estimate'}",
+        "{'drone_type': 'Swift-Class', 'cost_category': 'Labor', 'value': 0.82, 'unit': 'USD/package', 'source': 'Internal financial memo'}"
+      ],
+      "comparison_set": [
+        "Heavy-Lifter v2 vs. Swift-Class across cost categories"
+      ],
+      "preferred_sources": [
+        "Internal financial memo",
+        "OEM specifications",
+        "Industry cost models"
+      ],
+      "search_queries": [
+        "Swift-Class drone operational cost per package",
+        "Heavy-Lifter drone maintenance cost per flight hour",
+        "drone delivery cost breakdown capital energy maintenance"
+      ],
+      "data_quality_rule": "All cost categories must sum to total per-package cost; use internal data as primary, cross-check with industry benchmarks.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Directly compares cost structures to inform fleet mix recommendation.",
+      "pre_exhibit_context": "We need to see where cost differences lie between the two drone types.",
+      "post_exhibit_takeaway": "Swift-Class has lower per-package cost ($2.45 vs. $2.66) due to lower compliance and energy costs."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Break-Even Analysis: Fleet Mix Scenarios (Monthly Packages Delivered)",
+      "chart_type": "line",
+      "executive_question": "Under which fleet mix do we break even fastest?",
+      "required_metrics": [
+        "{'scenario': '100% Heavy-Lifter v2', 'month': 1, 'cumulative_profit': -45000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Heavy-Lifter v2', 'month': 6, 'cumulative_profit': -30000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Heavy-Lifter v2', 'month': 12, 'cumulative_profit': -10000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Heavy-Lifter v2', 'month': 18, 'cumulative_profit': 5000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Swift-Class', 'month': 1, 'cumulative_profit': -55000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Swift-Class', 'month': 6, 'cumulative_profit': -35000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Swift-Class', 'month': 12, 'cumulative_profit': -5000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '100% Swift-Class', 'month': 16, 'cumulative_profit': 2000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '50/50 Mix', 'month': 1, 'cumulative_profit': -50000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '50/50 Mix', 'month': 6, 'cumulative_profit': -32000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '50/50 Mix', 'month': 12, 'cumulative_profit': -7000000, 'unit': 'USD', 'source': 'Internal financial model'}",
+        "{'scenario': '50/50 Mix', 'month': 14, 'cumulative_profit': 1000000, 'unit': 'USD', 'source': 'Internal financial model'}"
+      ],
+      "comparison_set": [
+        "Three fleet mix scenarios: 100% Heavy-Lifter, 100% Swift-Class, 50/50 mix"
+      ],
+      "preferred_sources": [
+        "Internal financial model",
+        "Sensitivity analysis from finance team"
+      ],
+      "search_queries": [
+        "drone delivery break even analysis monthly volume 150k packages",
+        "fleet mix optimization break even point drone delivery",
+        "Heavy-Lifter Swift-Class cost comparison break even"
+      ],
+      "data_quality_rule": "At least 4 monthly data points per scenario; use internal model outputs, validate with industry benchmarks if available.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows the financial viability of different fleet compositions.",
+      "pre_exhibit_context": "We need to know the break-even point for each fleet mix scenario.",
+      "post_exhibit_takeaway": "A 50/50 mix breaks even in 14 months vs. 18 months for Heavy-Lifter only."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Noise Reduction Technology Adoption and Decibel Reduction (2020-2026)",
+      "chart_type": "bar",
+      "executive_question": "How effective is Whisper-Prop technology in reducing noise, and what is its adoption rate?",
+      "required_metrics": [
+        "{'technology': 'Whisper-Prop', 'metric': 'Noise reduction', 'value': 15, 'unit': 'dB', 'year': 2025, 'source': 'Whisper-Prop spec sheet'}",
+        "{'technology': 'Standard propeller', 'metric': 'Noise level', 'value': 75, 'unit': 'dB', 'year': 2025, 'source': 'Industry average'}",
+        "{'technology': 'Whisper-Prop', 'metric': 'Adoption rate among commercial drones', 'value': 5, 'unit': '%', 'year': 2024, 'source': 'Drone Industry Insights 2025'}",
+        "{'technology': 'Whisper-Prop', 'metric': 'Adoption rate among commercial drones', 'value': 12, 'unit': '%', 'year': 2025, 'source': 'Drone Industry Insights 2026 forecast'}",
+        "{'technology': 'Whisper-Prop', 'metric': 'Adoption rate among commercial drones', 'value': 20, 'unit': '%', 'year': 2026, 'source': 'Drone Industry Insights 2026 forecast'}",
+        "{'technology': 'Whisper-Prop', 'metric': 'Cost premium over standard propeller', 'value': 200, 'unit': 'USD', 'year': 2025, 'source': 'Whisper-Prop pricing'}",
+        "{'technology': 'Alternative noise reduction (shrouded rotors)', 'metric': 'Noise reduction', 'value': 10, 'unit': 'dB', 'year': 2025, 'source': 'Academic study'}"
+      ],
+      "comparison_set": [
+        "Whisper-Prop vs. alternative noise reduction technologies"
+      ],
+      "preferred_sources": [
+        "Whisper-Prop manufacturer",
+        "Drone Industry Insights",
+        "Academic journals on drone noise"
+      ],
+      "search_queries": [
+        "Whisper-Prop drone noise reduction decibel specification",
+        "commercial drone noise reduction technology adoption rate 2024 2025 2026",
+        "drone noise reduction cost benefit analysis 2025"
+      ],
+      "data_quality_rule": "Noise reduction metrics must be from manufacturer or peer-reviewed source; adoption rates from industry reports.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Supports the case for investing in quieter drones to mitigate consumer concerns.",
+      "pre_exhibit_context": "42% of consumers cite noise as a concern; we need to see if technology can address it.",
+      "post_exhibit_takeaway": "Whisper-Prop reduces noise by 15 dB, but adoption is still low; early investment could provide competitive advantage."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Regulatory Milestones and Fleet Deployment Timeline (2024-2027)",
+      "chart_type": "timeline",
+      "executive_question": "What is the critical path for regulatory approvals and fleet deployment?",
+      "required_metrics": [
+        "{'event': 'UAM Corridor Phase 1 guidelines finalization', 'date': '2024-06-01', 'entity': 'FAA', 'source': 'FAA rulemaking docket'}",
+        "{'event': 'Heavy-Lifter v2 weight exemption decision', 'date': '2024-09-01', 'entity': 'FAA', 'source': 'FAA exemption process'}",
+        "{'event': 'Swift-Class certification completion', 'date': '2025-03-01', 'entity': 'FAA', 'source': 'Swift-Class development timeline'}",
+        "{'event': 'Heavy-Lifter v2 certification completion', 'date': '2025-09-01', 'entity': 'FAA', 'source': 'Heavy-Lifter v2 development timeline'}",
+        "{'event': 'Swift-Class initial deployment (urban corridors)', 'date': '2025-07-01', 'entity': 'OmniLogistics', 'source': 'Internal deployment plan'}",
+        "{'event': 'Heavy-Lifter v2 initial deployment (suburban/rural)', 'date': '2026-01-01', 'entity': 'OmniLogistics', 'source': 'Internal deployment plan'}",
+        "{'event': 'Data retention compliance deadline (90-day storage)', 'date': '2025-01-01', 'entity': 'FAA', 'source': 'FAA data retention rule'}",
+        "{'event': 'Noise ordinance reviews in target cities', 'date': '2025-06-01', 'entity': 'City governments', 'source': 'City council schedules'}"
+      ],
+      "comparison_set": [
+        "Heavy-Lifter v2 vs. Swift-Class deployment milestones"
+      ],
+      "preferred_sources": [
+        "FAA rulemaking docket",
+        "Internal project timelines",
+        "City government websites"
+      ],
+      "search_queries": [
+        "FAA UAM corridor Phase 1 final rule date 2024",
+        "drone weight exemption FAA timeline 2024 2025",
+        "Swift-Class drone FAA certification timeline"
+      ],
+      "data_quality_rule": "All dates must be from official sources or internal documents; if exact date unknown, use quarter and note as estimate.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Maps out key dates to align fleet mix decision with regulatory gates.",
+      "pre_exhibit_context": "The board needs to see when regulatory decisions will impact fleet deployment.",
+      "post_exhibit_takeaway": "Swift-Class can be deployed earlier (Q3 2025) than Heavy-Lifter v2 (Q1 2026) due to weight compliance."
+    }
+  ],
+  "storyline_plan": {
+    "core_question": "Should OmniLogistics proceed with the Heavy-Lifter v2 fleet mix as planned, or pivot to Swift-Class drones for urban centers to ensure regulatory compliance and cost efficiency?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: market, cost, adoption, timeline",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).",
+      "We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).",
+      "We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).",
+      "Weight Limits: The total takeoff weight (drone + payload) cannot exceed 25 lbs (11.3 kg) for unrestricted urban corridor access.",
+      "Data Retention: Flight telemetry and sensor data must be retained for a minimum of 90 days to assist in any incident investigations.",
+      "OmniLogistics is allocating $45.5 million in capital expenditure for \"Project SkyNet,\" our autonomous drone delivery initiative in urban centers."
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "H1: Heavy-Lifter v2's 2.5 lbs overweight status will incur additional regulatory penalties or require costly exemptions, making Swift-Class more economical for urban corridors.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H2",
+        "hypothesis": "H2: The 35% cost reduction target ($4.10 to $2.66) is achievable with Swift-Class drones due to lower weight and compliance costs, despite higher per-unit volume.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H3",
+        "hypothesis": "H3: Consumer willingness to pay a $2.50 premium for 30-min delivery can offset the higher per-package cost of Swift-Class drones.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H4",
+        "hypothesis": "H4: Whisper-Prop technology deployment will mitigate noise concerns (42%) and improve acceptance, justifying investment in quieter drones.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H1",
+        "hypothesis": "The demand pool for Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards is large enough to deserve resource-allocation debate.",
+        "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+        "needed_evidence": [
+          "market size",
+          "demand volume",
+          "regional or segment demand"
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+        "decision_relevance": "Determines whether to fund customer validation and sales work.",
+        "needed_evidence": [
+          "customer count",
+          "adoption rate",
+          "orders",
+          "price or ARPU"
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}
