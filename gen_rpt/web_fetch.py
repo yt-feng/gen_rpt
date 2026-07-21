@@ -107,10 +107,16 @@ def _search_searxng(query: str, max_results: int = 5) -> List[SearchResult]:
     endpoint = os.environ["SEARXNG_URL"].rstrip("/")
     if not endpoint.endswith("/search"):
         endpoint += "/search"
+        
+    headers = {"Accept": "application/json", "User-Agent": USER_AGENT}
+    api_key = os.getenv("SEARXNG_API_KEY", "").strip()
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+        
     response = requests.get(
         endpoint,
         params={"q": query, "format": "json", "safesearch": 1},
-        headers={"Accept": "application/json", "User-Agent": USER_AGENT},
+        headers=headers,
         timeout=float(os.getenv("GEN_RPT_SEARCH_TIMEOUT", "20")),
     )
     response.raise_for_status()

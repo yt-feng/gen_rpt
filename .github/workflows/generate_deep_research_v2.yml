@@ -87,6 +87,7 @@ jobs:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
           SEARXNG_URL: ${{ vars.SEARXNG_URL || secrets.SEARXNG_URL }}
+          SEARXNG_API_KEY: ${{ secrets.SEARXNG_API_KEY }}
         run: |
           set -euo pipefail
           TOPIC="$TOPIC_INPUT"
