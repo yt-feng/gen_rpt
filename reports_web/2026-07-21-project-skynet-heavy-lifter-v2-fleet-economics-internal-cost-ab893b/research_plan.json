@@ -1,0 +1,298 @@
+{
+  "objective": "Benchmark Project SkyNet Heavy-Lifter v2 internal cost structures against global commercial drone delivery standards, incorporating regulatory and consumer constraints from internal documents.",
+  "audience": "Executive Board, OmniLogistics Corp",
+  "decision_question": "Should OmniLogistics adjust its fleet mix and capital allocation for Project SkyNet to comply with UAM regulations and address consumer concerns, while achieving the projected 35% cost reduction by Q4 2027?",
+  "issue_tree": {
+    "Regulatory Compliance": {
+      "Weight Limit": "Heavy-Lifter v2 exceeds 25 lbs by 2.5 lbs; must prioritize Swift-Class (18 lbs) for urban corridors.",
+      "Altitude & Restricted Zones": "Operations limited to 150-300 ft; no flights over schools, events, government buildings.",
+      "Data Retention": "90-day telemetry retention required."
+    },
+    "Cost Structure": {
+      "Capital Expenditure": "$45.5M total; $22M hardware, $12.5M software, $4.5M compliance, $3M marketing, $3.5M contingency.",
+      "Operational Costs": "Current $4.10/package; target $2.66/package by Q4 2027.",
+      "Break-even": "18 months post-launch at 150,000 packages/day."
+    },
+    "Consumer Acceptance": {
+      "Noise": "42% concerned; Whisper-Prop reduces decibels by 40%.",
+      "Privacy": "35% concerned; shutter cameras during descent.",
+      "Willingness to Pay": "55% willing to pay up to $2.50 premium for 30-min delivery."
+    },
+    "Fleet Economics": {
+      "Heavy-Lifter v2": "Exceeds weight limit; limited urban use.",
+      "Swift-Class": "18 lbs; compliant; prioritize for urban centers.",
+      "Fleet Mix": "Recalibrate to balance compliance and cost efficiency."
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: Replacing Heavy-Lifter v2 with Swift-Class drones in urban corridors will increase per-package cost but ensure regulatory compliance, potentially delaying break-even.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Investing in Whisper-Prop technology and camera shutters will increase consumer acceptance and willingness to pay premium, offsetting higher operational costs.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The 35% cost reduction target ($2.66/package) is achievable only if Swift-Class drones achieve similar economies of scale as Heavy-Lifter v2.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: External benchmarks will show that OmniLogistics' cost structure is competitive but compliance costs are higher due to weight limit issues.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ],
+      "search_queries": [
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards market size data",
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards demand forecast by segment"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ],
+      "search_queries": [
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards customer adoption price data",
+        "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards orders customer case study"
+      ]
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Industry average cost per package for drone delivery (urban).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Benchmark fleet mix ratios (heavy vs light drones) among competitors.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Consumer premium acceptance rates for noise-reduced drones.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Regulatory compliance costs as % of total budget for similar projects.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Operational cost impact of using lighter drones (Swift-Class) vs heavier ones.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Market data on drone delivery adoption rates in top 5 urban markets.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Cost of Whisper-Prop technology per drone.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Average daily package volume needed for break-even in comparable projects.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "commercial drone delivery cost per package benchmark 2026",
+    "urban drone delivery fleet mix heavy vs light drones",
+    "consumer willingness to pay premium for drone delivery noise reduction",
+    "regulatory compliance cost percentage drone delivery projects",
+    "Swift-Class drone operational cost per package",
+    "drone delivery break-even daily volume urban market",
+    "Whisper-Prop technology cost per drone",
+    "global drone delivery market adoption rate 2026",
+    "FAA EASA UAM corridor compliance cost",
+    "drone delivery noise reduction consumer acceptance study",
+    "last-mile delivery cost reduction drone vs traditional",
+    "drone delivery fleet economics case study"
+  ],
+  "source_strategy": "Primary sources: internal documents (financial memo, regulatory update, consumer survey). Secondary sources: industry reports (e.g., McKinsey, Deloitte), regulatory filings (FAA, EASA), academic studies on drone economics, competitor financial disclosures (Amazon, Wing, Zipline).",
+  "outline": [
+    "1. Executive Summary: Project SkyNet Cost Structure and Compliance Challenge",
+    "2. Regulatory Constraints and Fleet Mix Implications",
+    "3. Internal Cost Breakdown vs Industry Benchmarks",
+    "4. Consumer Acceptance and Premium Pricing Potential",
+    "5. Financial Projections: Break-Even Analysis Under Fleet Recalibration",
+    "6. Strategic Recommendations for Fleet Optimization"
+  ],
+  "exhibit_ideas": [
+    "Exhibit 1: Comparison of Heavy-Lifter v2 vs Swift-Class compliance with UAM weight limits.",
+    "Exhibit 2: Project SkyNet budget allocation pie chart.",
+    "Exhibit 3: Per-package cost trajectory: current ($4.10) to target ($2.66) with fleet mix scenarios.",
+    "Exhibit 4: Consumer concern breakdown (noise, privacy, safety) and mitigation impact.",
+    "Exhibit 5: Benchmark table: OmniLogistics cost per package vs industry averages.",
+    "Exhibit 6: Break-even sensitivity analysis: daily volume vs fleet composition."
+  ],
+  "risks": [
+    "Regulatory non-compliance if Heavy-Lifter v2 is used in urban corridors.",
+    "Higher per-package cost with Swift-Class may delay break-even beyond 18 months.",
+    "Consumer acceptance may not translate to premium willingness to pay.",
+    "Whisper-Prop technology cost may exceed budget contingency.",
+    "Competitors may achieve lower costs with heavier drones in less regulated markets."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards total market size segment share",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards customer count price ARPU",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards pilot customer conversion",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards ROI cost savings case study",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards capacity utilization unit price",
+          "Project SkyNet Heavy-Lifter v2 Fleet Economics: Internal Cost Structures Benchmarked Against Global Commercial Drone Delivery Standards project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  }
+}
