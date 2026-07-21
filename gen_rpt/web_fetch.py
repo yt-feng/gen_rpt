@@ -112,6 +112,8 @@ def _search_searxng(query: str, max_results: int = 5) -> List[SearchResult]:
     api_key = os.getenv("SEARXNG_API_KEY", "").strip()
     if api_key:
         headers["Authorization"] = f"Bearer {api_key}"
+        headers["X-API-Key"] = api_key
+        headers["x-api-key"] = api_key
         
     response = requests.get(
         endpoint,
