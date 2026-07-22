@@ -142,7 +142,12 @@ jobs:
         run: |
           OUTPUT_DIR="${{ steps.find_report.outputs.output_dir }}"
           REPORT_ID="${{ steps.find_report.outputs.report_id }}"
-          STATUS="${{ steps.run_review.outcome }}"   
+          STATUS="${{ steps.run_review.outcome }}"
+
+          if [ -z "$OUTPUT_DIR" ]; then
+            echo "Skipping write of review_status.json because OUTPUT_DIR is empty (report step likely failed)"
+            exit 0
+          fi
 
           mkdir -p "$OUTPUT_DIR"
 
