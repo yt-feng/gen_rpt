@@ -1,0 +1,377 @@
+{
+  "objective": "Develop a market entry strategy for high-density urban drone deliveries that bypasses restricted zones (schools, events, government buildings) while complying with altitude and weight limits, addressing consumer concerns, and leveraging the allocated $45.5M budget.",
+  "audience": "Executive Board, OmniLogistics Corp",
+  "decision_question": "Should OmniLogistics proceed with Project SkyNet using the Swift-Class drone fleet, and what operational adjustments are needed to navigate restricted zones and maximize consumer acceptance?",
+  "issue_tree": {
+    "Regulatory Compliance": {
+      "Altitude Limits": "Cruising altitude 150-300 ft; below 150 ft only during VTOL.",
+      "Restricted Zones": "No flights over schools during hours, major sporting events, government security perimeters.",
+      "Weight Limits": "Total takeoff weight ≤25 lbs for unrestricted urban corridor access."
+    },
+    "Fleet Mix": {
+      "Heavy-Lifter v2": "Exceeds 25 lbs by 2.5 lbs when fully loaded; not compliant.",
+      "Swift-Class": "Total weight 18 lbs; compliant and prioritized for urban centers."
+    },
+    "Consumer Acceptance": {
+      "Noise": "42% top concern; Whisper-Prop tech reduces decibels by 40%.",
+      "Privacy": "35% concerned; outward cameras shuttered during final descent.",
+      "Safety": "18% fear drops/malfunctions; need robust fail-safes.",
+      "Willingness to Pay": "55% willing to pay up to $2.50 premium for 30-min delivery."
+    },
+    "Financial Viability": {
+      "Budget": "$45.5M allocated (hardware $22M, software $12.5M, compliance $4.5M, marketing $3M, contingency $3.5M).",
+      "Cost Reduction": "35% reduction in last-mile cost from $4.10 to $2.66 per package by Q4 2027.",
+      "Break-even": "18 months post-launch at 150,000 packages/day across top 5 markets."
+    },
+    "Operational Strategy": {
+      "Route Planning": "Bypass restricted zones via dynamic rerouting; use altitude compliance.",
+      "Data Retention": "Flight telemetry retained 90 days for incident investigations."
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: Using only Swift-Class drones (18 lbs) will ensure compliance with the 25 lbs weight limit and unrestricted urban corridor access, enabling faster market entry.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Implementing Whisper-Prop technology and shuttering cameras during descent will address the top consumer concerns (noise 42%, privacy 35%) and increase acceptance above the current 68%.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: Dynamic route planning that avoids schools during hours, events, and government perimeters can be achieved without significant delivery time increases, maintaining the 30-minute premium promise.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: The $45.5M budget is sufficient to deploy Swift-Class drones across top 5 markets, achieve 150,000 daily deliveries, and break even in 18 months.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) market size data",
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) demand forecast by segment"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) customer adoption price data",
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) orders customer case study"
+      ]
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Operational cost per delivery for Swift-Class vs Heavy-Lifter v2.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Actual noise reduction data for Whisper-Prop in urban environments.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Consumer acceptance survey results after implementing privacy measures.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Feasibility of dynamic rerouting around restricted zones without exceeding 30-min delivery window.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Detailed breakdown of regulatory compliance costs for each market.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Competitor drone delivery pricing and market share in target cities.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) cost CAPEX OPEX"
+      ]
+    }
+  ],
+  "search_queries": [
+    "FAA UAM corridor Phase 1 guidelines for drone delivery 2026",
+    "EASA drone delivery regulations urban areas 2026",
+    "Drone delivery noise reduction technology benchmarks decibel levels",
+    "Consumer drone delivery acceptance survey results 2026 global",
+    "Drone delivery last-mile cost per package industry average 2026",
+    "Swift-Class drone specifications payload range speed",
+    "Whisper-Prop drone propeller noise reduction data",
+    "Dynamic route planning algorithms for drone delivery restricted zones",
+    "Drone delivery market size urban centers 2026 forecast",
+    "Competitor drone delivery services pricing New York London Tokyo Singapore Dubai",
+    "Drone delivery insurance and liability costs urban operations",
+    "Best practices for drone delivery privacy camera shuttering"
+  ],
+  "source_strategy": "Primary sources: internal documents (doc1, doc2, doc3). Secondary sources: external industry reports, regulatory agency publications (FAA, EASA), academic studies on drone noise and privacy, competitor analysis from market research firms.",
+  "outline": [
+    "1. Executive Summary and Decision Request",
+    "2. Regulatory Compliance and Fleet Selection",
+    "3. Consumer Acceptance and Mitigation Strategies",
+    "4. Financial Analysis and Break-Even Projections",
+    "5. Operational Plan for Bypassing Restricted Zones",
+    "6. Risk Assessment and Contingency Measures"
+  ],
+  "exhibit_ideas": [
+    "Exhibit A: Comparison of Heavy-Lifter v2 vs Swift-Class compliance with weight and altitude limits.",
+    "Exhibit B: Consumer survey results bar chart showing top concerns and willingness to pay.",
+    "Exhibit C: Map of restricted zones (schools, event venues, government buildings) in a sample city with proposed drone corridors.",
+    "Exhibit D: Financial model showing cost reduction trajectory and break-even timeline.",
+    "Exhibit E: Timeline for regulatory approvals and fleet deployment milestones."
+  ],
+  "risks": [
+    "Regulatory changes: Future updates to UAM guidelines may impose stricter limits.",
+    "Consumer backlash: Despite mitigation, noise or privacy concerns could reduce adoption.",
+    "Technical failures: Drone malfunctions over restricted zones could lead to severe penalties.",
+    "Competitive pressure: Rivals may launch similar services with lower pricing.",
+    "Budget overruns: Contingency fund may be insufficient if compliance costs rise."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events), and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) total market size segment share",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) customer count price ARPU",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) pilot customer conversion",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) ROI cost savings case study",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) capacity utilization unit price",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  }
+}

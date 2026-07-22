@@ -1,0 +1,52 @@
+Title: Drone Noise Levels - Nextech
+URL: https://nextech.online/drone-noise-levels/
+Source Type: html
+Domain: nextech.online
+Content Type: text/html; charset=utf-8
+Search Query: Drone delivery noise reduction technology benchmarks decibel levels
+
+Drone Noise Levels - Nextech
+
+Drone noise levels. The advent of drone technology and the prospect of skies filled with whirring rotorcraft have raised alarms about increasing noise levels and the resulting impact on society (and the environment), challenging drone manufacturers to find ways of reducing the noise (acoustic) footprints of their aircraft.
+Drone technology powerfully extends the ability to observe remote objects of interest making it very popular in security and surveillance applications of people, facilities, wildlife and game.
+Risks to personal safety and high value assets are constantly increasing requiring constant vigilance and showing no signs of abating. At the same time criminal elements and their targets , are locked in a race to outwit one another in the hardening of, or breaking through, security defensive systems. Being able to benefit first from the technological advantages such as drone surveillance is essential.
+In addition, discreet surveillance with drones, is not only important when monitoring humans, but also when monitoring noise sensitive targets such as wildlife and game, or Arctic Research . Discreet surveillance with drones requires them to have even smaller noise footprints.
+(Read more about drones in Surveillance and Security here…)
+The most expensive element of drone technology is the payload sensor – which leads to the dilemma that, while the drone must fly as close as possible to its target to get us much detail as possible, at the same time the drone has to be far enough away to be unobtrusive. The question then becomes, how high must the drone fly to not be heard and still allow the minimum level of detail to be captured for actionable data.
+To understand the subjective nature of noise, the commonly used Noise Scale below compares the levels of noise in decibels (dB) to everyday examples of noise
+While limited regulations with regards to ANL s (Acceptable Noise Levels) exist, excessive noise levels have generally been pegged at 85dB.
+The next question is: how much noise does a drone make? How does it compare to other levels of noise? How quiet does it need to be to sufficiently discreet? The following tables lists noise levels recorded for a variety of drone models, or other aircraft, by way of comparison and illustration:
+Drones made by DJI have the following range of acoustic footprints (close to the excessive noise level of 85dBA ):
+The Matrice 600 Pro (also from DJI) has been recorded at: 4dBA (AGL: 20m, Distance 15m); 55dBA (AGL: 70m, distance 50m) and 43dBA (AGL: 350m)
+At 100m AGL (Above Ground Level) the following noise levels have been recorded:
+Noise from a drone is only relevant to the extent that it does not exceed ambient (background) noise levels in order to avoid detection by the objects (human/animals) of interest. Ambient noise obviously differs from CBD to SUBURBAN to RURAL (Wilderness) conditions, as well as from day to night time. The ability to be undetectable in the Rural setting being the highest level of stealthiness.
+Contrary to widespread expectations, ambient noise levels in a Rural setting seldom drop below 35dBA ( night-time) and 45dBA (daytime). Therefore, for both security and wildlife monitoring operations in the Rural setting the ideal drone noise range would be 35 – 45dBA . The question is how far/high does a drone have to fly to avoid detection in this setting?
+Understanding how far a drone has to be from a target to minimize detection requires an understanding of the rate at which sound decreases (drop-off) with distance. The rule-of-thumb is that sound decreases by 6dB for every doubling of distance .
+The lists of drones provided earlier are mainly consumer drones and given the importance of stealthiness in surveillance applications, some commercial drone manufacturers (like the ATLAS-T ) specialize in silent drone design by using specific motors, propeller and aircraft body designs to gain significant reduction in noise levels of up to 10dBA .
+Significant reductions in propeller noise can be achieved by increasing the propeller diameter while reducing its rotational speed, thereby reducing its blade tip speed, while maintaining a given level of static thrust. Further significant noise reductions are possible with lightweight and custom engineered components.
+With what we have learnt so far about acoustic profiles, attenuation and ambient noise levels , we are able to make certain predictions on the noise fall off rates over distance for the following selected UAV configurations:
+While most drone use-cases deal with the noise levels around humans during suburban daytime, discrete surveillance in the quiet of night in the wild poses a whole different challenge. This is where the noise efficient design of the multirotor UAVs, like the ATLAS-T , comes into its own, needing 360 meters less distance from its target than the next drone to become undetectable.
+( Fixed Wing Drones vs. Multirotor Drones and the 1 hour barrier )
+The noise impact of drones is still widely being researched but, key to the widespread adoption of drones, for surveillance in particular, is the lowering the noise footprint to meet the various ambient noise thresholds, with background noise level in Rural settings at night (35dBA), being the ideal target.
+Given the constraint of the power of the payload sensors to capture a minimum level of detail, not all drone configurations can achieve this level of stealthiness in a rural setting at night in a reasonable distance (altitude) from the target. In some cases, the drone will be too far away to capture a reasonable resolution of data.
+Even a small increase in dB levels of a drone’s acoustic signature can increase the detectable distance significantly. For example, to reach the ambient noise level of a rural setting at night-time (35dBA) the 3 selected drones will need to fly at the following different altitudes (AGL):
+Generally speaking, drones are very noisy, many of them operating close the limit of acceptable noise, being 85dBA. Getting close to your target (animal or human) without being detected and in so maximizing the amount of intelligence being collected, is a key challenge. Quiet commercial multi-rotors like the ATLAS-T or the provide the ideal surveillance solution when stealthiness is a critical requirement.
+Read more about drones in surveillance and security here…
+For suburban use-cases where drones have to fly quite close to people (see note below) , like food delivery by drones ( read more here ), noise solution can be a problem. Many consumer drones are every close to the ANL (Acceptable Noise Level) of 85dB , which is also way beyond the suburban ambient noise levels of 45dB by night and 55dB by day. Commercial drones , such as the Vanguard, are able to remain at 60dB even within 10m range. (Read more about The Secrets of Building Extra Long Range Quadcopters here.. )
+[ Delivering in built-up areas often often means drones are being flown in a 3D environment that is GPS-denied and with lots of EMI which can be very difficult to overcome. Being able to use DAA (Detect and Avoid) as well as an accurate digitised replica of the environment can be very useful to overcome these obstacles. Read how INSPECTION DRONES with full AUTONOMY and AI can assist. )
+Applications Applications Natural Disasters Inspection and Detection Oil and Gas Wildlife & Game Monitoring Pipeline Monitoring High Payload Drone for Delivery & Transport Heavy Lifting UAV Mapping & Surveying Search and Rescue Surveillance & Security
+High Payload Drone for Delivery & Transport Heavy Lifting UAV
+Products Products Fixed Wing Atlas-V Quad Copter Atlas-T Antenna Tracker
+Consumer drones (Typically designed to meet certain price points)
+Quiet Commercial drones (Designed for noise reduction, endurance, efficiency and flexibility)
+Fixed Wing UAV – Petrol (Designed for endurance)
+News The Use of UAVs for Public Surveillance
+News Surveillance UAVs and Their Benefit to First Responders
+News Drones use in border control and security
+News How police can utilise drones for further public security
+News The Importance Of The Use Of Drones In Public Safety
+News Long-range surveillance UAVs reducing costs for maritime surveillance
+Features Why Border Control Authorities need UAVS with longer fly time
+Features How Effective Are Long-Range UAVs for Pipeline Monitoring?
+Tips Drone Regulations in Europe, the Middle East, and Africa
+Tips Considerations When Choosing a Drone for Industrial Inspections

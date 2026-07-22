@@ -1,0 +1,16 @@
+Title: Noise-aware urban drone delivery: Integrating demand modeling ...
+URL: https://www.sciencedirect.com/science/article/pii/S2667091726000488
+Source Type: snippet
+Domain: sciencedirect.com
+Content Type: text/plain
+Search Query: Drone delivery noise reduction technology benchmarks decibel levels
+
+Noise-aware urban drone delivery: Integrating demand modeling ...
+
+Results based on the assessment of grid-based sound exposure indicate that noise-aware routing and micro-hub delivery reshape the spatial distribution of noise ...
+
+Source URL retained for public-source review: https://www.sciencedirect.com/science/article/pii/S2667091726000488
+
+Search context: Drone delivery noise reduction technology benchmarks decibel levels
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

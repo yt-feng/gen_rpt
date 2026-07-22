@@ -1,0 +1,18 @@
+Title: doc2_consumer_survey.md (Fragment a0b1d49e)
+URL: internal://documents/10ae100b-fe23-42ea-a35a-1fbcad4aff7e#chunk=a0b1d49e-38b1-44ee-ada8-d097304c6f33
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events)
+
+Consumer Acceptance Survey: Urban Drone Delivery
+Study Period: May - June 2026
+Sample Size: 5,200 urban residents across New York, London, Tokyo, Singapore, and Dubai.
+Key Findings
+
+Overall Acceptance: 68% of respondents indicated they are "comfortable" or "very comfortable" receiving small packages via drone.
+Primary Concerns:
+Noise Pollution: 42% cited the buzzing sound of drones as their top concern.
+Privacy: 35% were worried about cameras on drones recording private property.
+Safety: 18% expressed fear of packages being dropped or drones malfunctioning over crowded areas.
+Willingness to Pay: 55% of users are willing to pay a premium of up to $2.50 for drone delivery if it guarantees arrival within 30 minutes.
