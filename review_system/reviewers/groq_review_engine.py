@@ -90,6 +90,11 @@ class GroqReviewEngine:
                     import random
                     jitter = random.uniform(1.0, 12.0)
                     wait += jitter
+
+                    if wait > 60.0:
+                        log.error("Rate-limit wait (%.1fs) exceeds 60s cap. Aborting AI review to prevent CI hang.", wait)
+                        raise RuntimeError(f"Groq API rate limit penalty ({wait:.1f}s) exceeded 60s cap.")
+
                     log.warning(
                         "Rate-limited (429). Waiting %.1fs (includes %.1fs jitter) (attempt %d)",
                         wait, jitter, attempt + 1
