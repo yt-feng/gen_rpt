@@ -38,6 +38,10 @@ jobs:
       GEN_RPT_GDELT_QUERIES: 2
       GEN_RPT_GDELT_TIMESPAN: 36months
       GEN_RPT_FETCH_TIMEOUT: 18
+      GEN_RPT_RAG_WEB_MAX_QUERIES: 4
+      GEN_RPT_RAG_WEB_PER_QUERY: 2
+      GEN_RPT_RAG_WEB_MAX_SOURCES: 8
+      GEN_RPT_RAG_WEB_REQUIRED: false
       MAX_AI_SECTION_IMAGES: 12
       AI_IMAGE_TIMEOUT: 45
       AI_IMAGE_RETRIES: 3
@@ -266,6 +270,7 @@ jobs:
 
       - name: Upload GENERATED REPORT to R2
         if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        continue-on-error: true
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -291,7 +296,7 @@ jobs:
             exit 0
           fi
           
-          curl -X POST "$BACKEND_URL/api/internal/events/report-generated" \
+          curl --fail-with-body --show-error -i -X POST "$BACKEND_URL/api/internal/events/report-generated" \
                -H "Content-Type: application/json" \
                -H "x-internal-token: $INTERNAL_TOKEN" \
                -d '{
@@ -306,6 +311,7 @@ jobs:
 
       - name: Upload REVIEW to R2
         if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
+        continue-on-error: true
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -332,7 +338,7 @@ jobs:
             exit 0
           fi
           
-          curl -X POST "$BACKEND_URL/api/internal/events/review-generated" \
+          curl --fail-with-body --show-error -i -X POST "$BACKEND_URL/api/internal/events/review-generated" \
                -H "Content-Type: application/json" \
                -H "x-internal-token: $INTERNAL_TOKEN" \
                -d '{
