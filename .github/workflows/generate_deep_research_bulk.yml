@@ -140,6 +140,31 @@ jobs:
           echo "document_id=$SLUG"      >> "$GITHUB_OUTPUT"
           echo "Generation succeeded. Report dir: $REPORT_DIR"
 
+      - name: Trigger Backend Failure Webhook
+        if: failure() && steps.generate_report.outcome == 'failure'
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: |
+          if [ -z "$BACKEND_URL" ]; then
+            echo "BACKEND_URL secret missing, skipping failure webhook"
+            exit 0
+          fi
+          
+          curl -X POST "$BACKEND_URL/api/internal/events/report-failed" \
+               -H "Content-Type: application/json" \
+               -H "x-internal-token: $INTERNAL_TOKEN" \
+               -d '{
+                 "document_id": "${{ inputs.slug }}",
+                 "idempotency_key": "github-actions-bulk-fail-${{ github.run_id }}-${{ github.run_attempt }}",
+                 "metadata": {
+                   "run_id": "${{ github.run_id }}",
+                   "slug": "${{ inputs.slug }}",
+                   "bulk": true,
+                   "error": "Final RAG report quality gate failed or generation crashed"
+                 }
+               }'
+
       # NOTE: No Git Commit Step here. Makes workflow stateless & concurrent.
 
       # ---------------------------------------------------------
