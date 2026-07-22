@@ -95,6 +95,8 @@ jobs:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+          SEARXNG_URL: ${{ vars.SEARXNG_URL || secrets.SEARXNG_URL }}
+          SEARXNG_API_KEY: ${{ secrets.SEARXNG_API_KEY }}
         run: |
           TOPIC="$TOPIC_INPUT"
           SLUG="$SLUG_INPUT"
