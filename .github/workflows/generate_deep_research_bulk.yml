@@ -151,7 +151,7 @@ jobs:
             exit 0
           fi
           
-          curl -X POST "$BACKEND_URL/api/internal/events/report-failed" \
+          curl --fail-with-body --show-error -i -X POST "$BACKEND_URL/api/internal/events/report-failed" \
                -H "Content-Type: application/json" \
                -H "x-internal-token: $INTERNAL_TOKEN" \
                -d '{
