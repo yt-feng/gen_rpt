@@ -9,18 +9,21 @@ WORKDIR /app
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev \
+    && apt-get install -y --no-install-recommends gcc libpq-dev curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install python dependencies
-COPY requirements.txt .
+# Install python dependencies from backend subdirectory
+COPY report-management-backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install Playwright and chromium dependencies
 RUN playwright install --with-deps chromium
 
-# Copy application code
+# Copy full repository (gen_rpt modules + backend code)
 COPY . .
+
+# Set working directory to the backend package
+WORKDIR /app/report-management-backend
 
 # Expose port
 EXPOSE 8000
