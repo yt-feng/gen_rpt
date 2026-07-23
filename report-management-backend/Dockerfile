@@ -16,9 +16,6 @@ RUN apt-get update \
 COPY report-management-backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright and chromium dependencies
-RUN playwright install --with-deps chromium
-
 # Copy full repository (gen_rpt modules + backend code)
 COPY . .
 
