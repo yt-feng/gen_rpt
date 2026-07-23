@@ -14,9 +14,9 @@ python review_system/main.py --report path/to/your/report.md
 ```
 
 ### Advanced Usage (Specify Model)
-You can optionally specify a specific Groq model to use:
+You can optionally specify a specific OpenRouter model to use:
 ```bash
-python review_system/main.py --report path/to/your/report.md --model llama-3.3-70b-versatile
+python review_system/main.py --report path/to/your/report.md --model meta-llama/llama-3.3-70b-instruct
 ```
 
 ### Outputs
@@ -40,8 +40,8 @@ Responsible for reading and parsing the input reports.
 - **`claim_extractor.py`**: Extracts factual claims from the text for independent verification.
 
 ### 3. `reviewers/`
-The core AI logic that interacts with the Groq API to perform the actual audit.
-- **`groq_review_engine.py`**: Handles API calls to Groq.
+The core AI logic that interacts with the OpenRouter API to perform the actual audit.
+- **`openrouter_review_engine.py`**: Handles API calls to OpenRouter.
 - **`review_orchestrator.py`**: Manages the multi-step review pipeline (overall assessment, tone check, structural analysis).
 - **`review_builder.py`**: Assembles the raw AI output into a structured `ReviewData` object.
 
@@ -68,7 +68,7 @@ Contains log files (`review_run.log`, `review_generation.log`) that track the ex
 
 ## 🔑 Prerequisites
 
-Ensure you have your Groq API key set up in your `.env` file at the root of the project:
+Ensure you have your OpenRouter API key set up in your `.env` file at the root of the project:
 ```env
-OPENROUTER_API_KEY=gsk_your_api_key_here
+OPENROUTER_API_KEY=sk-or-v1-...
 ```
