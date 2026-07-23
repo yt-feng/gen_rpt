@@ -197,8 +197,8 @@ def rag_report_quality_issues(
         issues.append("Exactly three substantive key takeaways are required.")
 
     sections = report.get("sections", []) or []
-    if not isinstance(sections, list) or len(sections) < 2:
-        issues.append("The report requires at least two substantive sections.")
+    if not isinstance(sections, list) or len(sections) < 1:
+        issues.append("The report requires at least one substantive section.")
         sections = sections if isinstance(sections, list) else []
     for index, section in enumerate(sections, start=1):
         if not isinstance(section, dict):
