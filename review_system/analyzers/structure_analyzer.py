@@ -13,7 +13,7 @@ from shared.report_schema import ParsedReport
 from review_system.utils.logging_utils import get_run_logger
 
 if TYPE_CHECKING:
-    from review_system.reviewers.groq_review_engine import GroqReviewEngine
+    from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 
 log = get_run_logger()
 
@@ -56,7 +56,7 @@ Return JSON:
 
 
 def run(
-    engine: "GroqReviewEngine",
+    engine: "OpenRouterReviewEngine",
     parsed: ParsedReport,
     claims_audit: Dict[str, Any] = None,
     combined: Optional[Dict[str, Any]] = None,

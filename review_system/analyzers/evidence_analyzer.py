@@ -15,7 +15,7 @@ from review_system.config.review_config import ISSUE_DETECTION_MAX_CHARS
 from review_system.utils.logging_utils import get_run_logger
 
 if TYPE_CHECKING:
-    from review_system.reviewers.groq_review_engine import GroqReviewEngine
+    from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 
 log = get_run_logger()
 
@@ -42,7 +42,7 @@ def _build_claims_summary(audit: Dict[str, Any]) -> str:
 
 
 def run(
-    engine: "GroqReviewEngine",
+    engine: "OpenRouterReviewEngine",
     parsed: ParsedReport,
     claims_audit: Dict[str, Any],
     combined: Optional[Dict[str, Any]] = None,

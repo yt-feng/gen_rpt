@@ -17,13 +17,13 @@ from review_system.utils.logging_utils import get_claims_logger
 from review_system.utils.file_utils import write_json_safe
 
 if TYPE_CHECKING:
-    from review_system.reviewers.groq_review_engine import GroqReviewEngine
+    from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 
 log = get_claims_logger()
 
 
 def extract_claims(
-    engine: "GroqReviewEngine",
+    engine: "OpenRouterReviewEngine",
     parsed: ParsedReport,
     output_dir: Path,
 ) -> Dict[str, Any]:

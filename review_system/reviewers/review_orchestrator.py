@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Dict, Any
 
 from shared.report_schema import ParsedReport
-from review_system.reviewers.groq_review_engine import GroqReviewEngine
+from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 from review_system.extractors.claim_extractor import extract_claims
 from review_system.analyzers import (
     run_evidence, run_citation, run_writing,
@@ -47,7 +47,7 @@ def _grade(total: float) -> str:
 
 
 def _fetch_raw_scores(
-    engine: GroqReviewEngine,
+    engine: OpenRouterReviewEngine,
     parsed: ParsedReport,
     claims_audit: Dict[str, Any],
 ) -> Dict[str, Any]:
@@ -77,7 +77,7 @@ def _fetch_raw_scores(
 
 
 def _run_combined_analysis(
-    engine: GroqReviewEngine,
+    engine: OpenRouterReviewEngine,
     parsed: ParsedReport,
     claims_audit: Dict[str, Any],
 ) -> Dict[str, Any]:
@@ -132,7 +132,7 @@ def _run_combined_analysis(
 
 
 def run_pipeline(
-    engine: GroqReviewEngine,
+    engine: OpenRouterReviewEngine,
     parsed: ParsedReport,
     output_dir: Path,
     lean_mode: bool = True,

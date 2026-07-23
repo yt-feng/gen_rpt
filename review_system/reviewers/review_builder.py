@@ -15,7 +15,7 @@ from review_system.config.review_config import SYNTHESIS_MAX_CHARS
 from review_system.utils.logging_utils import get_run_logger
 
 if TYPE_CHECKING:
-    from review_system.reviewers.groq_review_engine import GroqReviewEngine
+    from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 
 log = get_run_logger()
 
@@ -29,7 +29,7 @@ def _ensure_list(items, fallback_key: str = "finding") -> List[Dict]:
 
 
 def _run_synthesis(
-    engine: "GroqReviewEngine",
+    engine: "OpenRouterReviewEngine",
     pipeline_results: Dict[str, Any],
 ) -> Dict[str, Any]:
     """Call Groq to produce executive readiness + improvement tasks."""
@@ -106,7 +106,7 @@ def _run_synthesis(
 
 
 def assemble(
-    engine: "GroqReviewEngine",
+    engine: "OpenRouterReviewEngine",
     pipeline_results: Dict[str, Any],
     report_title: str,
     report_path: str,

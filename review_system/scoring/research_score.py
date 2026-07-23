@@ -11,7 +11,7 @@ from review_system.config.prompts import SCORING_SYSTEM, SCORING_USER
 from review_system.utils.logging_utils import get_run_logger
 
 if TYPE_CHECKING:
-    from review_system.reviewers.groq_review_engine import GroqReviewEngine
+    from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 
 log = get_run_logger()
 _DIM = "research_quality"
@@ -19,7 +19,7 @@ _MAX = DIMENSION_MAX[_DIM]
 
 
 def score(
-    engine: "GroqReviewEngine",
+    engine: "OpenRouterReviewEngine",
     parsed: ParsedReport,
     claims_audit: Dict[str, Any],
     full_scores: Dict[str, Any],
