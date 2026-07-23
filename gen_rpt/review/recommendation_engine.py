@@ -264,7 +264,7 @@ def synthesise(
                 "priority": "High",
                 "section": "General",
                 "issue": "Synthesis step did not produce tasks.",
-                "fix": "Re-run the review pipeline with a valid GROQ_API_KEY.",
+                "fix": "Re-run the review pipeline with a valid OPENROUTER_API_KEY.",
                 "expected_impact": "Actionable improvement tasks will be generated.",
             }
         ]

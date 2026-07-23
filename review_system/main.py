@@ -32,7 +32,7 @@ try:
 except ImportError:
     pass  # python-dotenv is optional; rely on shell environment
 
-from review_system.reviewers.groq_review_engine import GroqReviewEngine
+from review_system.reviewers.openrouter_review_engine import OpenRouterReviewEngine
 from review_system.reviewers.review_orchestrator import run_pipeline
 from review_system.reviewers.review_builder import assemble
 from review_system.extractors.report_loader import load_report
@@ -81,7 +81,7 @@ Examples:
         "--model",
         default="",
         metavar="MODEL",
-        help="Groq model name to use (default: llama-3.3-70b-versatile)",
+        help="OpenRouter model name to use (default: meta-llama/llama-3.3-70b-instruct)",
     )
     parser.add_argument(
         "--full-analysis",
@@ -89,7 +89,7 @@ Examples:
         default=False,
         help=(
             "Run all 6 analyzers as separate API calls (9 total calls). "
-            "Use only if you have a paid Groq plan. "
+            "Use only if you have a paid OpenRouter plan or sufficient limits. "
             "Default: lean mode (3 API calls)."
         ),
     )
@@ -164,13 +164,13 @@ def main() -> None:
     _print_banner(report_path, output_dir, lean_mode)
     log.info("Review started | report=%s | output=%s", report_path, output_dir)
 
-    # ── Check GROQ_API_KEY ──────────────────────────────────────────────────
-    api_key = os.environ.get("GROQ_API_KEY", "").strip()
+    # ── Check OPENROUTER_API_KEY ──────────────────────────────────────────────────
+    api_key = os.environ.get("OPENROUTER_API_KEY", "").strip()
     if not api_key:
         print()
-        print("Error: GROQ_API_KEY is not set.")
+        print("Error: OPENROUTER_API_KEY is not set.")
         print("Set it in your .env file or shell environment and retry.")
-        log.error("GROQ_API_KEY not set. Aborting.")
+        log.error("OPENROUTER_API_KEY not set. Aborting.")
         sys.exit(1)
 
     # ── Load and parse report ───────────────────────────────────────────────
@@ -185,10 +185,10 @@ def main() -> None:
     print(f"  Parsed : {len(parsed.sections)} sections, {parsed.total_words} words")
     print()
 
-    # ── Groq engine ─────────────────────────────────────────────────────────
-    from review_system.config.review_config import GROQ_DEFAULT_MODEL
-    model = args.model.strip() or GROQ_DEFAULT_MODEL
-    engine = GroqReviewEngine(api_key=api_key, model=model)
+    # ── OpenRouter engine ─────────────────────────────────────────────────────────
+    from review_system.config.review_config import OPENROUTER_DEFAULT_MODEL
+    model = args.model.strip() or OPENROUTER_DEFAULT_MODEL
+    engine = OpenRouterReviewEngine(api_key=api_key, model=model)
 
     # ── Run review pipeline ─────────────────────────────────────────────────
     try:

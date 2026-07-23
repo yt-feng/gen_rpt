@@ -73,7 +73,7 @@ jobs:
       - name: Validate API keys
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
         run: |
@@ -81,8 +81,8 @@ jobs:
             echo "::error::Missing DEEPSEEK_API_KEY secret" >&2
             exit 1
           fi
-          if [ -z "$GROQ_API_KEY" ]; then
-            echo "::error::Missing GROQ_API_KEY secret" >&2
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "::error::Missing OPENROUTER_API_KEY secret" >&2
             exit 1
           fi
           if [ -z "$BACKEND_URL" ] || [ -z "$INTERNAL_TOKEN" ]; then
@@ -177,7 +177,8 @@ jobs:
       - name: Run AI review pipeline
         id: run_review
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          REVIEW_MODEL: meta-llama/llama-3.3-70b-instruct
         run: |
           set -euo pipefail
           REPORT_DIR="${{ steps.generate_report.outputs.report_dir }}"

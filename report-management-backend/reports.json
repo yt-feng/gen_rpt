@@ -221,7 +221,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -464,7 +464,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -846,7 +846,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -959,7 +959,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -1276,7 +1276,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -1526,7 +1526,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -1647,7 +1647,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -1760,7 +1760,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -1873,7 +1873,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -1986,7 +1986,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -2099,7 +2099,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -2204,7 +2204,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -2317,7 +2317,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -2422,7 +2422,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {
@@ -2535,7 +2535,7 @@
           {
             "issue": "Synthesis did not produce improvement tasks.",
             "priority_level": "High",
-            "suggested_fix": "Re-run review with a valid GROQ_API_KEY."
+            "suggested_fix": "Re-run review with a valid OPENROUTER_API_KEY."
           }
         ],
         "executive_readiness": {

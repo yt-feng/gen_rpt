@@ -70,5 +70,5 @@ Contains log files (`review_run.log`, `review_generation.log`) that track the ex
 
 Ensure you have your Groq API key set up in your `.env` file at the root of the project:
 ```env
-GROQ_API_KEY=gsk_your_api_key_here
+OPENROUTER_API_KEY=gsk_your_api_key_here
 ```

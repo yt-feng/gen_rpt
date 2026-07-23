@@ -94,7 +94,7 @@ def _run_synthesis(
             "priority": "High",
             "section":  "General",
             "issue":    "Synthesis did not produce improvement tasks.",
-            "fix":      "Re-run review with a valid GROQ_API_KEY.",
+            "fix":      "Re-run review with a valid OPENROUTER_API_KEY.",
             "expected_impact": "Actionable improvement tasks will be generated.",
         }]
 

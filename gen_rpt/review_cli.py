@@ -95,7 +95,7 @@ def main():
     else:
         print()
         print("Review failed or was skipped.")
-        print("Check that GROQ_API_KEY is set in your .env file.")
+        print("Check that OPENROUTER_API_KEY is set in your .env file.")
         sys.exit(1)
 
 

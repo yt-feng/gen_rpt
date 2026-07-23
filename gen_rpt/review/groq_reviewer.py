@@ -271,9 +271,9 @@ def run_groq_review(output_dir: Path) -> Dict[str, Any]:
     """
     print("[REVIEW] Starting evidence-based audit (pipeline mode)")
 
-    api_key = os.environ.get("GROQ_API_KEY")
+    api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        print("[REVIEW] GROQ_API_KEY not set. Skipping review.")
+        print("[REVIEW] OPENROUTER_API_KEY not set. Skipping review.")
         return {}
 
     text = _load_report_text(output_dir)
@@ -299,9 +299,9 @@ def run_groq_review_file(file_path: Path, output_dir: Path) -> Dict[str, Any]:
     """
     print(f"[REVIEW] Starting evidence-based audit (file mode): {file_path}")
 
-    api_key = os.environ.get("GROQ_API_KEY")
+    api_key = os.environ.get("OPENROUTER_API_KEY")
     if not api_key:
-        print("[REVIEW] GROQ_API_KEY not set. Skipping review.")
+        print("[REVIEW] OPENROUTER_API_KEY not set. Skipping review.")
         return {}
 
     if not file_path.exists() or not file_path.is_file():

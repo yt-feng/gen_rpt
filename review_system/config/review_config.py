@@ -6,14 +6,14 @@ No business logic — only named constants.
 """
 
 # ---------------------------------------------------------------------------
-# Groq API
+# OpenRouter API
 # ---------------------------------------------------------------------------
-GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_DEFAULT_MODEL = "llama-3.3-70b-versatile"
-GROQ_FALLBACK_MODEL = "llama-3.1-70b-versatile"
-GROQ_REQUEST_TIMEOUT = 90          # seconds
-GROQ_MAX_RETRIES = 12
-GROQ_RATE_LIMIT_BASE_WAIT = 15     # seconds, doubles on each retry
+OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct"
+OPENROUTER_FALLBACK_MODEL = "meta-llama/llama-3.1-70b-instruct"
+OPENROUTER_REQUEST_TIMEOUT = 90          # seconds
+OPENROUTER_MAX_RETRIES = 12
+OPENROUTER_RATE_LIMIT_BASE_WAIT = 15     # seconds, doubles on each retry
 
 # ---------------------------------------------------------------------------
 # Scoring dimensions

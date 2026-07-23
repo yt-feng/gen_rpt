@@ -386,7 +386,7 @@ async def revise_section(
     if not target_section:
         raise HTTPException(status_code=404, detail="Section not found in report")
     from app.core.config import settings
-    api_key = settings.DEEPSEEK_API_KEY or settings.GROQ_API_KEY
+    api_key = settings.DEEPSEEK_API_KEY or settings.OPENROUTER_API_KEY
     if api_key == "REPLACE_WITH_REAL_VALUE":
         api_key = None
     
@@ -550,7 +550,7 @@ async def ai_edit_block(
     original_text = req.text.strip()
     
     # Check API key
-    api_key = settings.DEEPSEEK_API_KEY or settings.GROQ_API_KEY
+    api_key = settings.DEEPSEEK_API_KEY or settings.OPENROUTER_API_KEY
     if api_key == "REPLACE_WITH_REAL_VALUE":
         api_key = None
     

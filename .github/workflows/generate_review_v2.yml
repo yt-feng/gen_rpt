@@ -26,8 +26,8 @@ jobs:
     timeout-minutes: 30
 
     env:
-      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      REVIEW_MODEL: llama-3.3-70b-versatile
+      OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+      REVIEW_MODEL: meta-llama/llama-3.3-70b-instruct
 
     steps:
       - name: Checkout repository
@@ -46,10 +46,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r review_system/requirements.txt
 
-      - name: Validate GROQ_API_KEY secret
+      - name: Validate OPENROUTER_API_KEY secret
         run: |
-          if [ -z "$GROQ_API_KEY" ]; then
-            echo "::error::GROQ_API_KEY secret is not set." >&2
+          if [ -z "$OPENROUTER_API_KEY" ]; then
+            echo "::error::OPENROUTER_API_KEY secret is not set." >&2
             exit 1
           fi
 
