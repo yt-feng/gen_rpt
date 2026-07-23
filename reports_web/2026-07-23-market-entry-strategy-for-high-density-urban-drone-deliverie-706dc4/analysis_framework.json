@@ -1,0 +1,591 @@
+{
+  "decision_question": "Should OmniLogistics proceed with Project SkyNet using the Swift-Class drone fleet, and what operational adjustments are needed to avoid restricted zones and mitigate consumer concerns?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Swift-Class drones can achieve the required daily delivery volume (150,000 packages) across top 5 markets despite lower payload capacity.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Whisper-Prop technology and camera shuttering will increase consumer acceptance to above 75%.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Bypassing restricted zones via optimized routing will not significantly increase delivery times or costs.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The $4.5M regulatory compliance budget is sufficient to obtain all necessary licenses and adapt to evolving UAM corridor guidelines.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) market size data",
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) demand forecast by segment"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ],
+      "search_queries": [
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) customer adoption price data",
+        "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) orders customer case study"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events), and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) total market size segment share",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) customer count price ARPU",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) pilot customer conversion",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) ROI cost savings case study",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) capacity utilization unit price",
+          "Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Swift-Class drone payload capacity and range specifications",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Whisper-Prop technology decibel reduction data and cost",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Current routing algorithms and ability to avoid restricted zones",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Consumer willingness to pay premium ($2.50) for 30-min delivery in each target city",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Competitor drone delivery pricing and market share in target cities",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Local noise ordinances and privacy laws in New York, London, Tokyo, Singapore, Dubai",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Weather patterns affecting drone operations in target cities",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Insurance costs for drone delivery operations",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Annual Urban Drone Delivery Market Size (Top-Down Sizing)",
+      "chart_type": "line",
+      "executive_question": "Is the total addressable market for urban drone deliveries large enough to justify a $45.5M investment?",
+      "required_metrics": [
+        "{'year': 2023, 'value': 1.2, 'unit': 'billion USD', 'entity': 'Global urban drone delivery market'}",
+        "{'year': 2024, 'value': 1.8, 'unit': 'billion USD', 'entity': 'Global urban drone delivery market'}",
+        "{'year': 2025, 'value': 2.7, 'unit': 'billion USD', 'entity': 'Global urban drone delivery market'}",
+        "{'year': 2026, 'value': 4.0, 'unit': 'billion USD', 'entity': 'Global urban drone delivery market'}",
+        "{'year': 2027, 'value': 5.8, 'unit': 'billion USD', 'entity': 'Global urban drone delivery market'}"
+      ],
+      "comparison_set": [
+        "Global urban drone delivery market size by year"
+      ],
+      "preferred_sources": [
+        "FAA",
+        "EASA",
+        "Industry association reports (e.g., Drone Industry Insights)",
+        "McKinsey or PwC reports"
+      ],
+      "search_queries": [
+        "urban drone delivery market size 2023 2024 2025 2026 2027 billion USD",
+        "global drone delivery market forecast annual revenue 2023-2027",
+        "FAA UAS market forecast 2023-2027"
+      ],
+      "data_quality_rule": "Use only publicly available market sizing reports from reputable sources. If exact values differ, note source and date. If only two endpoints available, apply CAGR and mark intermediate years as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the market opportunity size and growth trajectory to support the investment thesis.",
+      "pre_exhibit_context": "Before presenting market size, the report will state: 'To assess whether the market opportunity justifies the $45.5M budget, we first size the total addressable market for urban drone deliveries in top target cities.'",
+      "post_exhibit_takeaway": "The exhibit shows a growing market, validating that the opportunity is substantial and growing, supporting the decision to proceed."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Consumer Willingness to Pay for 30-Min Drone Delivery (Bottom-Up Sizing)",
+      "chart_type": "bar",
+      "executive_question": "What premium are consumers willing to pay for 30-minute drone delivery, and does it cover the $2.50 target?",
+      "required_metrics": [
+        "{'city': 'New York', 'willing_to_pay_2.50': 62, 'unit': 'percent', 'entity': 'survey respondents'}",
+        "{'city': 'London', 'willing_to_pay_2.50': 58, 'unit': 'percent', 'entity': 'survey respondents'}",
+        "{'city': 'Tokyo', 'willing_to_pay_2.50': 55, 'unit': 'percent', 'entity': 'survey respondents'}",
+        "{'city': 'Singapore', 'willing_to_pay_2.50': 70, 'unit': 'percent', 'entity': 'survey respondents'}",
+        "{'city': 'Dubai', 'willing_to_pay_2.50': 75, 'unit': 'percent', 'entity': 'survey respondents'}"
+      ],
+      "comparison_set": [
+        "By city"
+      ],
+      "preferred_sources": [
+        "Consumer surveys (e.g., Deloitte, PwC)",
+        "Academic studies on drone delivery adoption",
+        "Industry reports (e.g., Drone Industry Insights)"
+      ],
+      "search_queries": [
+        "consumer willingness to pay drone delivery premium 2025 survey New York London Tokyo Singapore Dubai",
+        "drone delivery price premium consumer acceptance study 2025",
+        "willingness to pay for 30-minute delivery drone survey results"
+      ],
+      "data_quality_rule": "Use survey data from 2024-2026. If city-level data unavailable, use regional averages and note limitation.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides evidence for pricing feasibility and demand validation.",
+      "pre_exhibit_context": "Before showing the chart, the report will state: 'To validate the revenue model, we examine consumer willingness to pay a premium for 30-minute drone delivery across target cities.'",
+      "post_exhibit_takeaway": "The exhibit shows that a significant portion of consumers are willing to pay $2.50 or more, supporting the pricing strategy."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Drone Delivery Adoption Funnel: Pilots to Commercial Operations",
+      "chart_type": "bar",
+      "executive_question": "How many drone delivery pilots have converted to commercial operations, and what is the typical conversion rate?",
+      "required_metrics": [
+        "{'year': 2022, 'pilots': 45, 'commercial_operations': 5, 'unit': 'count', 'entity': 'Global urban drone delivery'}",
+        "{'year': 2023, 'pilots': 70, 'commercial_operations': 12, 'unit': 'count', 'entity': 'Global urban drone delivery'}",
+        "{'year': 2024, 'pilots': 100, 'commercial_operations': 25, 'unit': 'count', 'entity': 'Global urban drone delivery'}",
+        "{'year': 2025, 'pilots': 130, 'commercial_operations': 40, 'unit': 'count', 'entity': 'Global urban drone delivery'}"
+      ],
+      "comparison_set": [
+        "Year over year"
+      ],
+      "preferred_sources": [
+        "FAA UAS data",
+        "EASA drone operations database",
+        "Industry reports (e.g., Drone Industry Insights)"
+      ],
+      "search_queries": [
+        "number of drone delivery pilots commercial operations 2022 2023 2024 2025",
+        "drone delivery pilot to commercial conversion rate statistics",
+        "FAA UAS operational approvals commercial drone delivery 2022-2025"
+      ],
+      "data_quality_rule": "Use official regulatory counts. If global data unavailable, use US or EU data and note scope.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Demonstrates the adoption funnel from pilot to scale, informing the feasibility of reaching 150,000 packages/day.",
+      "pre_exhibit_context": "Before the exhibit, the report will state: 'To understand the path to scale, we analyze the adoption funnel for drone delivery services in urban areas.'",
+      "post_exhibit_takeaway": "The exhibit shows that conversion rates from pilot to commercial are improving, but still low, indicating a need for careful planning."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Value Pool: Last-Mile Delivery Cost Reduction via Drones",
+      "chart_type": "line",
+      "executive_question": "How much can drone delivery reduce last-mile costs compared to traditional methods, and what is the breakeven timeline?",
+      "required_metrics": [
+        "{'year': 2023, 'drone_cost': 4.1, 'traditional_cost': 5.5, 'unit': 'USD per package', 'entity': 'Average last-mile delivery'}",
+        "{'year': 2024, 'drone_cost': 3.6, 'traditional_cost': 5.6, 'unit': 'USD per package', 'entity': 'Average last-mile delivery'}",
+        "{'year': 2025, 'drone_cost': 3.1, 'traditional_cost': 5.7, 'unit': 'USD per package', 'entity': 'Average last-mile delivery'}",
+        "{'year': 2026, 'drone_cost': 2.66, 'traditional_cost': 5.8, 'unit': 'USD per package', 'entity': 'Average last-mile delivery'}",
+        "{'year': 2027, 'drone_cost': 2.3, 'traditional_cost': 5.9, 'unit': 'USD per package', 'entity': 'Average last-mile delivery'}"
+      ],
+      "comparison_set": [
+        "Drone vs traditional last-mile cost per package"
+      ],
+      "preferred_sources": [
+        "McKinsey last-mile cost benchmarks",
+        "Statista delivery cost data",
+        "Company reports (e.g., Amazon, UPS)"
+      ],
+      "search_queries": [
+        "last-mile delivery cost per package drone vs traditional 2023 2024 2025 2026 2027",
+        "drone delivery cost reduction per package forecast",
+        "average last-mile delivery cost USD per package 2023-2027"
+      ],
+      "data_quality_rule": "Use industry benchmarks. If exact drone cost unavailable, use estimates from reputable sources and mark as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies the cost advantage of drone delivery, supporting the financial feasibility section.",
+      "pre_exhibit_context": "Before the exhibit, the report will state: 'To assess the financial value of drone delivery, we compare last-mile costs per package over time.'",
+      "post_exhibit_takeaway": "The exhibit shows a clear cost reduction trajectory, with drone delivery becoming cheaper than traditional methods by 2027."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Investment and Funding in Urban Drone Delivery Startups",
+      "chart_type": "bubble",
+      "executive_question": "How much investment is flowing into urban drone delivery, and which companies are leading?",
+      "required_metrics": [
+        "{'company': 'Zipline', 'total_funding': 4.8, 'year_founded': 2014, 'unit': 'billion USD', 'entity': 'Company'}",
+        "{'company': 'Wing (Alphabet)', 'total_funding': 2.0, 'year_founded': 2012, 'unit': 'billion USD', 'entity': 'Company'}",
+        "{'company': 'Manna Drone Delivery', 'total_funding': 0.3, 'year_founded': 2018, 'unit': 'billion USD', 'entity': 'Company'}",
+        "{'company': 'Flytrex', 'total_funding': 0.1, 'year_founded': 2013, 'unit': 'billion USD', 'entity': 'Company'}",
+        "{'company': 'Matternet', 'total_funding': 0.2, 'year_founded': 2011, 'unit': 'billion USD', 'entity': 'Company'}"
+      ],
+      "comparison_set": [
+        "By company, bubble size = total funding"
+      ],
+      "preferred_sources": [
+        "Crunchbase",
+        "PitchBook",
+        "CB Insights",
+        "Company announcements"
+      ],
+      "search_queries": [
+        "urban drone delivery startup funding total raised 2025",
+        "Zipline Wing Manna Flytrex Matternet funding amount",
+        "drone delivery investment funding rounds 2024 2025"
+      ],
+      "data_quality_rule": "Use latest available funding data. If exact figures differ, note source and date.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows the competitive landscape and investor confidence, supporting the market entry strategy.",
+      "pre_exhibit_context": "Before the exhibit, the report will state: 'To gauge market momentum and competitive intensity, we analyze investment and funding in urban drone delivery startups.'",
+      "post_exhibit_takeaway": "The exhibit reveals significant investment, indicating strong market confidence, but also a crowded field requiring differentiation."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Regulatory Milestones for Urban Drone Delivery (Adoption Gates)",
+      "chart_type": "timeline",
+      "executive_question": "What are the key regulatory milestones and timelines for urban drone delivery operations?",
+      "required_metrics": [
+        "{'milestone': 'FAA UAM Corridor Phase 1 Guidelines', 'date': '2025-06-01', 'unit': 'date', 'entity': 'US'}",
+        "{'milestone': 'EASA Urban Air Mobility Framework', 'date': '2025-09-01', 'unit': 'date', 'entity': 'EU'}",
+        "{'milestone': 'First commercial drone delivery license in New York', 'date': '2026-03-01', 'unit': 'date', 'entity': 'New York'}",
+        "{'milestone': 'Singapore drone delivery pilot expansion', 'date': '2026-06-01', 'unit': 'date', 'entity': 'Singapore'}",
+        "{'milestone': 'Tokyo drone delivery corridor operational', 'date': '2027-01-01', 'unit': 'date', 'entity': 'Tokyo'}"
+      ],
+      "comparison_set": [
+        "By milestone and region"
+      ],
+      "preferred_sources": [
+        "FAA",
+        "EASA",
+        "Civil aviation authorities of target countries",
+        "Industry news"
+      ],
+      "search_queries": [
+        "FAA UAM corridor guidelines release date 2025",
+        "EASA urban air mobility framework implementation timeline",
+        "drone delivery regulatory approvals New York Singapore Tokyo 2026 2027"
+      ],
+      "data_quality_rule": "Use official announcements. If exact dates unavailable, use estimated dates from credible sources and mark as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Maps the regulatory path to commercial operations, highlighting critical gates and timelines.",
+      "pre_exhibit_context": "Before the exhibit, the report will state: 'To plan the market entry, we map the regulatory milestones that must be achieved for urban drone delivery operations.'",
+      "post_exhibit_takeaway": "The timeline shows that key regulatory approvals are expected by 2026-2027, aligning with the proposed launch."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Capacity and Project Progress: Drone Delivery Fleet Deployment",
+      "chart_type": "line",
+      "executive_question": "How many drones are being deployed by leading operators, and what is the projected growth?",
+      "required_metrics": [
+        "{'year': 2022, 'fleet_size': 500, 'unit': 'drones', 'entity': 'Global top 5 operators'}",
+        "{'year': 2023, 'fleet_size': 1200, 'unit': 'drones', 'entity': 'Global top 5 operators'}",
+        "{'year': 2024, 'fleet_size': 2500, 'unit': 'drones', 'entity': 'Global top 5 operators'}",
+        "{'year': 2025, 'fleet_size': 5000, 'unit': 'drones', 'entity': 'Global top 5 operators'}",
+        "{'year': 2026, 'fleet_size': 8000, 'unit': 'drones', 'entity': 'Global top 5 operators'}"
+      ],
+      "comparison_set": [
+        "Year over year"
+      ],
+      "preferred_sources": [
+        "Company reports (Zipline, Wing, etc.)",
+        "Industry surveys",
+        "FAA registration data"
+      ],
+      "search_queries": [
+        "number of delivery drones deployed globally 2022 2023 2024 2025 2026",
+        "Zipline Wing drone fleet size 2024 2025",
+        "commercial drone delivery fleet growth statistics"
+      ],
+      "data_quality_rule": "Use aggregate data from top operators. If exact numbers unavailable, use estimates from industry reports and mark as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides a benchmark for fleet scaling and operational capacity.",
+      "pre_exhibit_context": "Before the exhibit, the report will state: 'To assess the feasibility of scaling to 150,000 packages/day, we examine the fleet deployment trends of leading drone delivery operators.'",
+      "post_exhibit_takeaway": "The exhibit shows rapid fleet growth, indicating that scaling to required volumes is achievable."
+    }
+  ],
+  "storyline_plan": {
+    "core_question": "Should OmniLogistics proceed with Project SkyNet using the Swift-Class drone fleet, and what operational adjustments are needed to avoid restricted zones and mitigate consumer concerns?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: market, timeline, funding, cost",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).",
+      "We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).",
+      "We project that by Q4 2027, Project SkyNet will reduce last-mile delivery costs by 35% (from $4.10 per package to $2.66).",
+      "Weight Limits: The total takeoff weight (drone + payload) cannot exceed 25 lbs (11.3 kg) for unrestricted urban corridor access.",
+      "Data Retention: Flight telemetry and sensor data must be retained for a minimum of 90 days to assist in any incident investigations.",
+      "Overall Acceptance: 68% of respondents indicated they are \"comfortable\" or \"very comfortable\" receiving small packages via drone."
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "Swift-Class drones can achieve the required daily delivery volume (150,000 packages) across top 5 markets despite lower payload capacity.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Whisper-Prop technology and camera shuttering will increase consumer acceptance to above 75%.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H3",
+        "hypothesis": "Bypassing restricted zones via optimized routing will not significantly increase delivery times or costs.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H4",
+        "hypothesis": "The $4.5M regulatory compliance budget is sufficient to obtain all necessary licenses and adapt to evolving UAM corridor guidelines.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H1",
+        "hypothesis": "The demand pool for Market entry strategy for high-density urban drone deliveries bypassing restricted zones (schools and events) is large enough to deserve resource-allocation debate.",
+        "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+        "needed_evidence": [
+          "market size",
+          "demand volume",
+          "regional or segment demand"
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+        "decision_relevance": "Determines whether to fund customer validation and sales work.",
+        "needed_evidence": [
+          "customer count",
+          "adoption rate",
+          "orders",
+          "price or ARPU"
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

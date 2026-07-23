@@ -1,0 +1,46 @@
+Title: The Ghatak: India's Premier Autonomous Stealth Drone
+URL: https://greydynamics.com/the-ghatak-indias-premier-autonomous-stealth-drone/
+Source Type: html
+Domain: greydynamics.com
+Content Type: text/html; charset=UTF-8
+Search Query: Swift-Class drone payload capacity specifications
+
+The Ghatak: India’s Premier Autonomous Stealth Drone
+
+The Ghatak: India’s Premier Autonomous Stealth Drone
+Join thousands of people receiving ground truth based reports that affect their business, investments and personal life.
+The Ghatak (Eng.: “deadly”) is an Indian stealth unmanned combat aerial vehicle (UCAV) . The classified nature of the platform continues to keep many details from the public eye, but enough information has surfaced to provide a solid overview of this advanced and promising tool.
+Created by the Defence Research and Development Organisation (DRDO) for the Indian Air Force (IAF), it is in an early development stage. It signals India’s attempt to enter into the strategic field of autonomous drones. The program aims to provide the IAF with a domestic stealth combat platform that can conduct operations in contested aerial environments.
+The Ghatak project is in line with India’s “Aatmanirbharta” (Eng.: self-reliance) defence strategy, aimed at reducing dependence on foreign military technology and boosting domestic technologies. [ source ]
+The Ghatak evolved from the earlier Autonomous Unmanned Research Aircraft (AURA) concept, made public in 2007. The aim was to develop an autonomous UCAV. While development was headed by the DRDO, the designing of the drone was later outsourced to the Aeronautical Development Agency (ADA). [ source ]
+During the early conceptual phases, the Ghatak was adopted as the operational name of the program. In 2016, the program received formal sanctioning and funding, marking the start of major development works. [ source ]
+The complexity of the project necessitated a phased development approach before full-scale deployment. Initial development began with a technology demonstrator of the Stealth Wing Flying Testbed (SWiFT), aimed to test key characteristics in aerodynamics, autonomous flight controls, and stealth characteristics. In 2022, the prototypes culminated in a successful maiden flight. [ source , source ]
+The Aeronautical Development Establishment (ADE) aimed to initiate the fabrication of the full Ghatak UCAV in Bengaluru in 2024, however, bureaucratic bottlenecks and other uncertainties have delayed funding the first full prototype flight until 2025-26, with IAF introduction aiming for 2030. [ source ]
+The full-scale Ghatak is designed to be a 13-ton UCAV, larger than most currently operating UCAVs globally. Many technical details are classified, however some known and estimated characteristics include: [ source , source , source ]
+The UCAV’s stealth capabilities are its most critical feature, something that required extensive domestic research and development. Hence, the Ghatak is being developed in close cooperation with the Advanced Medium Combat Aircraft (AMCA) program, India’s 5th generation fighter jet, allowing shared development of stealth technologies across both platforms. [ source ]
+Additionally, the IAF plans to equip the drone with advanced artificial intelligence (AI) capabilities and autonomous systems, including waypoint navigation, autonomous takeoff and landing, and decision-making algorithms for combat operations. [ source ]
+Future plans indicate that India’s military will develop multiple Ghatak variants, including one designed specifically for Combat Air Patrol (CAP) missions and air-superiority. This suggests the potential of having a family of UCAVs for different purposes, rather than a one-size-fits-all solution. India aims to acquire at least 150 Ghatak units. [ source , source ]
+India is developing the Ghatak amid persisting tensions and border disputes with its neighbors, specifically Pakistan and China. The Ghatak’s capabilities would give the IAF a tool to conduct deep-strike missions, monitor sensitive territories, and carry out suppression of enemy air defenses (SEAD) operations.
+ADA reportedly describes the Ghatak as a “self-defending high-speed reconnaissance UAV with weapon firing capability.” The mission set of the drone will likely include a wide range of scenarios—precision strike capabilities and intelligence, surveillance, and reconnaissance (ISR). [ source ]
+Additionally, the UCAV can function as a “loyal wingman,” supporting manned aircraft through forward reconnaissance and target engagement, while maintaining a safer distance. [ source ]
+The large 13-ton configuration allows space for extensive payload amounts, the deployment of advanced sensors, and extensive mission durations. The stealth capabilities allow for operations in contested air spaces without risks for human pilots.
+Despite significant technical developments, bureaucratic challenges—specifically the absence of Cabinet Committee on Security sanctioning—add uncertainty about the future of the project. Currently, the project’s timeline is delayed until 2030. This delay risks creating operational capability gaps for India’s military. [ source ]
+In 2024, the project’s founding project director raised concerns regarding the program’s path after parts of the development of the project shifted from a highly successful agency (ADA) to a lab with a weaker track record (ADE). [ source ]
+The DRDO Ghatak is a major development in India’s ambitions in the field of autonomous stealth UCAVs. It highlights New Delhi’s emphasis on domestic solutions for asymmetric combat scenarios with a focus on stealth and autonomous capabilities. The knowledge created during the development of the UCAV has the potential to provide a solid base for future Indian autonomous systems.
+Challenges remain in engine development, overcoming bureaucratic requirements, and bringing the projects to its final stage. That said, the Ghatak’s anticipated missions, including air combat, highlight India’s growing aerospace defence capabilities.
+Additional insights on the “loyal wingman” concept in UCAVs:
+https://www.aerosociety.com/news/loyal-wingmen-and-loyal-packs
+Ukraine’s Drone Economy: Assessing Viability, Sustainability, Exportability
+Turkey’s National Intelligence Organisation (MİT)
+Research and Analysis Wing (R&AW): Inside India’s Foreign Intelligence Agency
+Get a free weekly email that makes reading intel articles and reports actually enjoyable.
+Services Close Services Open Services Development & training Intelligence Capability Development & Training Intelligence Reporting Online Intelligence Reporting Operational Support Intelligence Operational Support
+About us Close About us Open About us Our Story Career FAQ Glossary Contact Our Story Career FAQ Glossary Contact Our story Career
+Maximum Takeoff Weight : 13,000 kg (28,660 lbs)
+Propulsion : Initially planned Russian NPO Saturn 36MT turbofan, with a potential switch to the Indian Kaveri engine by 2035. The engine was originally developed for manned aircraft but will also come in a variant with higher efficiency and lower infrared signature for the Ghatak.
+Payload Capacity : up to 1,5 tons with multi-role configuration for sensors and weapons systems. The design features an internal weapon bay to improve stealth characteristics.
+Control System: Fully autonomous with ground control override capability
+Stealth Features: Low radar cross-section optimized airframe geometry
+Services Intelligence Capability Development & Training Online Intelligence Reporting Intelligence Operational Support
+Intelligence Capability Development & Training
+About us Our Story Work with us FAQ Glossary Contact

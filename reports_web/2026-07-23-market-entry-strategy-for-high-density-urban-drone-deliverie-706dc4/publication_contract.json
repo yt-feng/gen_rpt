@@ -1,0 +1,12 @@
+{
+  "root_cause": "DeepSeek is treated as a diligent low-agency worker. It can collect data and draft structured text, but it is not trusted to decide what belongs in client-visible prose.",
+  "architecture": [
+    "Step 1: DeepSeek creates a backstage research plan with falsifiable hypotheses, opportunity-sizing methods and searchable data needs.",
+    "Step 2: DeepSeek converts those needs into chart storyboards with required metrics, source queries, narrative role, pre-exhibit setup and post-exhibit interpretation.",
+    "Step 3: deterministic collection and evidence extraction build a fact pack and evidence ledger from public sources.",
+    "Step 4: DeepSeek drafts only the publication layer: conclusions, examples, numbers, mechanisms, counter-evidence and management implications.",
+    "Step 5: deterministic exhibit generation replaces model-invented charts with source-backed exhibits and inserts narrative bridges between adjacent exhibits.",
+    "Step 6: audit gates fail generated HTML if workbench language, unsupported charts or consecutive exhibits without prose remain."
+  ],
+  "client_visible_contract": "DeepSeek role contract:\n- You are a diligent researcher and draft writer, not the final partner author. You may use hypotheses, opportunity-sizing logic, evidence ledgers and storyline plans backstage; never expose that workbench to the reader.\n- Client-visible prose may contain only conclusions, examples, numbers, mechanisms, counter-evidence, risks, management implications and where to start.\n- Client-visible fields must not contain: hypothesis, hypotheses, hypothesis-driven, market sizing, sizing bridge, TAM, SAM, SOM, issue tree, fact pack, evidence ledger, storyline plan, validation task, source boundary or data basis.\n- If you want to write \"Hypothesis H2 is supported\", write the conclusion directly. If you want to write \"market sizing\", write about demand, adoption, economics and supply constraints. If you want to write \"evidence gap\", write it as a business question still needing proof.\n- Exhibits must keep the JSON key data_basis for machine traceability, but title, subtitle, caption, source_note, body prose and methodology must not write the phrase \"data basis\".\n- Every exhibit must serve the section argument: set up the management question before it and give a client-readable interpretation after it. Never stack two exhibits without prose between them."
+}
