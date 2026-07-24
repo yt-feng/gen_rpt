@@ -1075,15 +1075,18 @@ async def regenerate_report_image(
         from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
         import uuid
 
-        stmt = select(Document).where(Document.slug == document_id)
-        res = await db.execute(stmt)
-        doc = res.scalar_one_or_none()
+        doc = None
+        try:
+            doc_uuid = uuid.UUID(document_id)
+            doc = await db.get(Document, doc_uuid)
+        except ValueError:
+            pass
+
         if not doc:
-            try:
-                doc_uuid = uuid.UUID(document_id)
-                doc = await db.get(Document, doc_uuid)
-            except ValueError:
-                pass
+            stmt = select(Document).where(Document.slug == document_id)
+            res = await db.execute(stmt)
+            doc = res.scalar_one_or_none()
+
         if doc:
             slug = doc.slug or str(doc.id)
             topic = doc.title or slug
