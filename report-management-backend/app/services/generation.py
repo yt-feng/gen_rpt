@@ -598,8 +598,9 @@ def _build_mock_report_entry(
                 url = storage_provider.s3_client.generate_presigned_url(
                     ClientMethod="get_object",
                     Params={"Bucket": storage_provider.bucket, "Key": key},
-                    ExpiresIn=3600
+                    ExpiresIn=86400
                 )
+
                 images.append({"key": fname, "url": url})
     except Exception as e:
         print(f"[mock_report_entry] Image generation failed: {e}")

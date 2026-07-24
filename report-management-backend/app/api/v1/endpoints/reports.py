@@ -192,36 +192,37 @@ async def get_report_details(
                         "full_name": owner.full_name,
                         "email": owner.email
                     }
-        # Backfill images if missing in cached reportContent
+        # Always refresh image presigned URLs on GET to ensure they never expire
         report_content = report.get("reportContent", {})
-        if "images" not in report_content or not report_content["images"]:
+        try:
+            from app.storage.provider import storage_provider
+            slug = report.get("slug") or document_id
+            r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
+            if r2_prefix and not r2_prefix.endswith("/"):
+                r2_prefix += "/"
+            
+            prefix = f"{r2_prefix}current/assets/"
+            res_list = storage_provider.s3_client.list_objects_v2(
+                Bucket=storage_provider.bucket,
+                Prefix=prefix
+            )
             images = []
-            try:
-                from app.storage.provider import storage_provider
-                slug = report.get("slug") or document_id
-                r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
-                if r2_prefix and not r2_prefix.endswith("/"):
-                    r2_prefix += "/"
-                
-                prefix = f"{r2_prefix}current/assets/"
-                res_list = storage_provider.s3_client.list_objects_v2(
-                    Bucket=storage_provider.bucket,
-                    Prefix=prefix
-                )
-                for obj in res_list.get("Contents", []):
-                    key = obj["Key"]
-                    fname = key.split("/")[-1]
-                    if fname.startswith("image-") and fname.endswith(".png"):
-                        url = storage_provider.s3_client.generate_presigned_url(
-                            ClientMethod="get_object",
-                            Params={"Bucket": storage_provider.bucket, "Key": key},
-                            ExpiresIn=3600
-                        )
-                        images.append({"key": fname, "url": url})
+            for obj in res_list.get("Contents", []):
+                key = obj["Key"]
+                fname = key.split("/")[-1]
+                if fname.startswith("image-") and fname.endswith(".png"):
+                    url = storage_provider.s3_client.generate_presigned_url(
+                        ClientMethod="get_object",
+                        Params={"Bucket": storage_provider.bucket, "Key": key},
+                        ExpiresIn=86400
+                    )
+                    images.append({"key": fname, "url": url})
+            if images:
                 report_content["images"] = images
-            except Exception as e:
-                print(f"[get_report_details] Fallback image generation failed: {e}")
+        except Exception as e:
+            print(f"[get_report_details] Dynamic image presigned URL refresh failed: {e}")
         return success_response(data=report, message="Fetched report details")
+
         
     # If not in MOCK_REPORTS, try loading dynamically from R2
     from app.models.document import Document
