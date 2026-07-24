@@ -4,7 +4,7 @@ from uuid import UUID
 from typing import Optional, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.responses import APIResponse, success_response
+from app.core.responses import APIResponse, success_response, error_response
 from app.api.deps import get_db
 from app.services.workflow import workflow_service
 from app.logging.logger import logger
@@ -44,7 +44,7 @@ async def _mark_job_completed_by_slug(db: AsyncSession, slug: str):
     from app.api.v1.endpoints.reports import MOCK_REPORTS
     from sqlalchemy import select
     from datetime import datetime, timezone
-    import hashlib, uuid as _uuid
+    import uuid as _uuid
 
     # Resolve document by slug
     doc_result = await db.execute(select(Document).where(Document.slug == slug))
@@ -79,10 +79,12 @@ async def _mark_job_completed_by_slug(db: AsyncSession, slug: str):
         job = job_result.scalar_one_or_none()
 
         if job and job.status in (JobStatusType.running, JobStatusType.pending):
+            from app.services.generation import generation_service
             job.status = JobStatusType.completed
             job.completed = datetime.now(timezone.utc)
             await db.commit()
             logger.info(f"[webhook] Job {job.id} marked completed via webhook for slug={slug}")
+            await generation_service.process_bulk_queue(db)
 
     # Load payload from R2 and inject into MOCK_REPORTS
     try:

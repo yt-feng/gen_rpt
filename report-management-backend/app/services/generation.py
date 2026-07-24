@@ -228,6 +228,7 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
         payload_data = None
         review_data = None
         found_folder = None
+        base_slug = slug.rsplit("-", 1)[0] if "-" in slug else slug
         try:
             # Check reports/
             res = storage_provider.s3_client.list_objects_v2(
@@ -235,7 +236,7 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
             )
             for prefix_obj in res.get('CommonPrefixes', []):
                 folder = prefix_obj['Prefix']
-                if slug in folder:
+                if slug in folder or (len(base_slug) > 8 and base_slug in folder):
                     path = f"{folder}metadata/web_report_payload.json"
                     try:
                         response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
@@ -260,7 +261,7 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
             )
             for prefix_obj in res2.get('CommonPrefixes', []):
                 folder = prefix_obj['Prefix']
-                if slug in folder:
+                if slug in folder or (len(base_slug) > 8 and base_slug in folder):
                     path = f"{folder}web_report_payload.json"
                     try:
                         response = storage_provider.s3_client.get_object(Bucket=storage_provider.bucket, Key=path)
@@ -273,6 +274,7 @@ async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
                         return payload_data, review_data, found_folder
         except Exception as e:
             print(f"[poll_r2] Error finding payload for {slug}: {e}")
+
         return None, None, None
 
     p_data, r_data, r2_folder = await to_thread.run_sync(_find_and_download)
