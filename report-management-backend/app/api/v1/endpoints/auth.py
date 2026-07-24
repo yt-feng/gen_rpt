@@ -11,7 +11,16 @@ router = APIRouter()
 
 MOCK_USERS = [
     {
+        "id": "00000000-0000-0000-0000-000000000000",
+        "email": "yash@gatex.com",
+        "username": "yash",
+        "password": "yash1@1",
+        "full_name": "Placeholder Admin",
+        "role": "admin"
+    },
+    {
         "id": "11111111-1111-1111-1111-111111111111",
+
         "email": "jacob@gatex.com",
         "username": "jacob",
         "password": "jacob1@1",
