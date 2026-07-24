@@ -1,0 +1,25 @@
+Title: Quantum Computing Patent Tracker 2026 | IP Leaders and Filing ...
+URL: https://entangledfuture.com/patents/
+Source Type: html
+Domain: entangledfuture.com
+Content Type: text/html; charset=utf-8
+Search Query: quantum computing patents 2026 by company
+
+Quantum Computing Patent Tracker 2026 | IP Leaders and Filing Trends
+
+Tracking quantum computing intellectual property across 156 companies worldwide
+What we count: Patent families, which deduplicate filings of the same invention across multiple jurisdictions. A single patent family may include US, EP, WO, CN, and JP filings. Publication counts are always higher than family counts.
+Primary sources: PatentVest Quantum Computing Pulse Report (Aug 2025, 14,762 families across 1,743 assignees), euroquic.org Global Patent Landscape 2025, QED-C State of Quantum Innovation, Harrity & Harrity Patent 50 List, OECD Quantum Ecosystem Mapping 2025.
+Limitations: China accounts for ~60% of all quantum patents globally but most are domestic-only filings. University patents (~37% of total) are not included in this company-focused tracker. Data is updated periodically and may not reflect the most recent filings.
+Patent counts represent patent families, not individual filings. A single patent family may include multiple filings across jurisdictions. Counts are estimated from public patent databases and may not reflect unpublished or pending applications.
+Join 5,000+ quantum computing professionals. Weekly insights delivered to your inbox.
+By subscribing, you agree to receive our weekly newsletter via Substack. Your email is processed by Substack . Unsubscribe anytime. See our Privacy Policy .
+A comprehensive directory of 1173 quantum computing organizations worldwide.
+© 2026 Quantum Navigator · Data sourced from QuantumZeitgeist.com
+Join 5,000+ quantum computing professionals
+Verified - Count directly confirmed from PatentVest, USPTO search, or company filings
+Estimated - Cross-referenced from 2+ analyst reports but not directly verified
+Unverified - Estimated from company size, funding, and R&D scope. May be inaccurate.
+Weekly insights on quantum computing breakthroughs
+Early access to company analysis & funding news
+Curated from 1,000+ quantum companies worldwide

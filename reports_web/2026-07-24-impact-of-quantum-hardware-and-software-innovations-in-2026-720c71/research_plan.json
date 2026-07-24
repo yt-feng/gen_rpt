@@ -1,0 +1,268 @@
+{
+  "objective": "Assess the impact of quantum hardware and software innovations in 2026, focusing on commercial applications, market adoption, and remaining challenges.",
+  "audience": "Senior executives and R&D leaders in technology and finance sectors.",
+  "decision_question": "Should our organization invest in quantum computing capabilities in 2026, and if so, which hardware and software innovations present the most viable opportunities?",
+  "issue_tree": {
+    "Hardware Innovations": {
+      "NexusQuantum 500-qubit processor": "99.99% fidelity, closed-loop helium-3 dilution refrigerator, photonic interconnects for multi-core",
+      "Impact": "Reduced decoherence, doubled processing power without error increase"
+    },
+    "Software and Algorithms": {
+      "Q-Sharpen framework": "Industry standard, abstracts hardware complexities",
+      "Protein folding simulation": "BioQuant simulated complex enzyme in 45 minutes vs 3 years classical"
+    },
+    "Market Adoption": {
+      "Financial sector": "Q-Risk model used by three major Wall Street firms for portfolio optimization and risk analysis",
+      "Challenges": "Shortage of cryogenic engineers and quantum algorithm specialists; high power consumption for cooling"
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "The NexusQuantum 500-qubit processor with 99.99% fidelity and photonic interconnects will enable practical multi-core quantum computing, accelerating commercial applications.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The Q-Sharpen framework's abstraction of hardware complexities will lower the barrier to entry for software developers, driving broader adoption.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "BioQuant's protein folding breakthrough will catalyze rapid drug discovery, attracting significant investment from pharmaceutical companies.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The shortage of cryogenic engineers and quantum algorithm specialists will constrain scaling, creating a bottleneck for industry growth.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "High power consumption of cooling systems will remain a major operational cost, potentially limiting deployment to well-funded organizations.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size and growth projections for quantum computing in 2026-2030",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Number of quantum computing patents filed in 2026 by company and technology area",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Investment and funding rounds for quantum startups in 2026",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption rates of quantum computing in finance, pharma, and materials science",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Availability and salary trends for cryogenic engineers and quantum algorithm specialists",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Energy consumption benchmarks for quantum cooling systems vs classical HPC",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Regulatory frameworks for quantum computing (e.g., export controls, standards)",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Competitor analysis: other quantum hardware providers (e.g., IBM, Google, IonQ) and their 2026 milestones",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "quantum computing market size 2026 forecast",
+    "quantum computing patents 2026 by company",
+    "quantum computing startup funding 2026",
+    "quantum computing adoption finance sector 2026",
+    "quantum computing pharmaceutical drug discovery 2026",
+    "cryogenic engineer shortage quantum computing 2026",
+    "quantum computing energy consumption cooling 2026",
+    "quantum computing regulations export controls 2026",
+    "IBM quantum processor 2026 fidelity",
+    "Google quantum computing 2026 milestone",
+    "IonQ quantum computer 2026 specifications",
+    "quantum algorithm specialist salary 2026"
+  ],
+  "source_strategy": "Primary sources: industry reports (Gartner, IDC), patent databases (USPTO, WIPO), funding databases (Crunchbase, PitchBook), job market data (LinkedIn, Glassdoor), energy reports (DOE, IEA), regulatory filings (BIS, EU Commission). Secondary sources: news articles (Nature, IEEE Spectrum, Financial Times), company press releases, academic papers.",
+  "outline": [
+    "1. Executive Summary of 2026 Quantum Computing Breakthroughs",
+    "2. Hardware Innovations: NexusQuantum's 500-Qubit Processor and Multi-Core Architecture",
+    "3. Software and Algorithmic Advances: Q-Sharpen Framework and Protein Folding Simulation",
+    "4. Market Adoption: Financial Sector Use of Q-Risk Model and Other Applications",
+    "5. Challenges: Talent Shortage and Power Consumption",
+    "6. Conclusions and Strategic Recommendations"
+  ],
+  "exhibit_ideas": [
+    "Chart: Fidelity comparison of leading quantum processors (NexusQuantum vs competitors) in 2026",
+    "Timeline: Key milestones in quantum computing from NISQ to early FTQC (2024-2026)",
+    "Table: Performance benchmarks for protein folding simulation (quantum vs classical)",
+    "Map: Geographic distribution of quantum computing talent and cryogenic engineers",
+    "Graph: Energy consumption trends for quantum cooling systems (2024-2026)",
+    "Infographic: Q-Risk model adoption in financial institutions"
+  ],
+  "risks": [
+    "Overreliance on a single hardware vendor (NexusQuantum) may limit generalizability",
+    "Talent shortage may slow down implementation and increase costs",
+    "High power consumption could make quantum computing economically unviable for some use cases",
+    "Regulatory changes could impact export of quantum technology",
+    "Rapid technological change may render current innovations obsolete"
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Impact of Quantum Hardware and Software Innovations in 2026, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Impact of Quantum Hardware and Software Innovations in 2026 total market size segment share",
+          "Impact of Quantum Hardware and Software Innovations in 2026 demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Impact of Quantum Hardware and Software Innovations in 2026 customer count price ARPU",
+          "Impact of Quantum Hardware and Software Innovations in 2026 adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Impact of Quantum Hardware and Software Innovations in 2026 pilot customer conversion",
+          "Impact of Quantum Hardware and Software Innovations in 2026 orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Impact of Quantum Hardware and Software Innovations in 2026 ROI cost savings case study",
+          "Impact of Quantum Hardware and Software Innovations in 2026 value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Impact of Quantum Hardware and Software Innovations in 2026 capacity utilization unit price",
+          "Impact of Quantum Hardware and Software Innovations in 2026 project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  }
+}

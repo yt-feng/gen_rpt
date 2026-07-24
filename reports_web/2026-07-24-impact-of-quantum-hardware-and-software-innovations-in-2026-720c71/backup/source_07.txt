@@ -1,0 +1,56 @@
+Title: Post-Quantum Cryptography Patent Landscape 2026 - Patsnap
+URL: https://www.patsnap.com/resources/blog/rd-blog/post-quantum-cryptography-patent-landscape/
+Source Type: html
+Domain: patsnap.com
+Content Type: text/html; charset=UTF-8
+Search Query: quantum computing patents 2026 by company
+
+Post-Quantum Cryptography Patent Landscape 2026 | Patsnap
+
+Post-Quantum Cryptography Patent Landscape 2026
+Post-Quantum Cryptography Patent Landscape in 2026
+Your Agentic AI Partner for Smarter Innovation
+Intel leads a moderately concentrated field with fast-rising challengers
+Sustained filing growth with an overwhelming focus on digital transmission security
+Highly cited patent families surfaced by the query
+What the patent structure means for R&D investment decisions
+Intel leads on volume; Wells Fargo and NXP are the fastest-rising challengers
+Under-served adjacent branches worth monitoring
+Generating a lattice basis for lattice-based crypt…
+Growth stage: filings rising consistently, no peak in sight
+Moderate concentration with a diverse mid-tier
+IBM–Bristol University leads a small but active co-filing network
+US-dominant filing with strong emerging-market presence
+Map your own post-quantum cryptography patent landscape
+Access to over 2,000,000,000 structured data points around patents, science, litigation, and tech sectors
+Cloud or on-prem for maximum privacy and control
+Trusted by more than 18,000 innovators worldwide
+To use , click the vertification button in the email we sent to [email protected] .
+You should receive it shortly. Don’t forget to check your spam folder.
+Unlock professional features and history
+To start using Patsnap Eureka, click the verification button in the email we sent to .
+This helps keep your account secure. Haven't received it? Check your spam folder.
+Post-quantum cryptography is in an active growth phase, with a 79% rise in filings over the recent window and 3,642 patent families in scope across a broad applicant mix spanning semiconductor firms, financial institutions, and dedicated cryptography specialists. The United States is the dominant filing jurisdiction and Intel Corp holds the leading position, though challengers are closing the gap rapidly.
+Intel Corp ranks first with 170 patent families, followed by Wells Fargo Bank at 120 , Arqit Ltd at 104, PQShield Ltd at 96, and IBM at 94. The top five filers account for 26% of the combined output of the hundred largest filers, indicating moderate rather than tight concentration.
+The tier gap between the leader and the second-ranked applicant is notable but not dominant — Wells Fargo trails Intel by roughly 50 patent families — and several challengers, including financial institutions and specialist firms, are filing at rates that are closing the distance. Below the top five, rankings flatten quickly, suggesting a broad mid-tier.
+Intel’s position reflects long-standing semiconductor and hardware-security research, while the presence of Wells Fargo, American Express, and Visa in the top ten signals that financial-sector players view quantum-resistant authentication as a core infrastructure investment, not a peripheral concern.
+Filing counts for the most recent 18–24 months are understated due to patent publication lag; the apparent 2025 – 2026 figures will rise as applications publish. Longer-window growth, applicant concentration, and technology-route coverage are therefore more reliable signals than the latest-year bar alone.
+The annual filing trend and technology composition together reveal a field that is expanding consistently and remains tightly anchored to communications-layer cryptography, with secondary activity in data-processing security and AI-assisted methods.
+Annual filings grew from 58 in 2017 to 573 in 2023 and reached 613 in 2024, with 2025–2026 figures understated by publication lag. The trajectory is one of continuous growth across the full window, consistent with the 79% recent-window rise; treat the apparent late-period moderation as an artifact of incomplete publication rather than a real plateau.
+H04L (digital information transmission) is by far the dominant branch, reflecting that most PQC work targets key exchange, digital signatures, and secure channel protocols. G06F (electric digital data processing) forms a substantial secondary cluster, and G06N (AI models) is a growing tertiary layer, suggesting early-stage integration of quantum-resistant methods into machine-learning pipelines.
+Citation-heavy patent families returned by the query. Use this section as citation context, not as a curated list of the most topic-specific patents.
+In a general aspect, a lattice basis parameter for a lattice-based cryptography system is generated. A first parameter for the lattice-based cryptography system is obtained. The first parameter includes a first set of values. Pseudorandom data is obtained from a pseudorandom generator. The lattice basis parameter is generated based on the first parameter… (excerpt from the patent abstract)
+Ranked by total forward citations. Citation counts favour older and broadly cited patent families, and broad or adjacent patents may appear when they match the search scope. Treat this section as citation context, not as a curated list of the most topic-specific patents. Some patent titles may be shown in their original, non-English language where an accurate translation could not be guaranteed.
+Four structural signals — lifecycle stage, competitive concentration, collaborative patterns, and geographic spread — frame the key decisions facing any team entering or expanding in this space.
+The field is classified as Growth, with annual filings still rising and the most recent years understated by publication lag. The 79% recent-window growth rate confirms that foundational patents are still being filed at pace. Teams entering now can still stake claims in core protocol areas, though the window for uncontested first-mover positions in the central H04L communications layer is narrowing as the roster of active filers expands.
+The top five filers hold 26% of the hundred largest filers’ combined output — moderate by technology-field standards. No single applicant has locked up the space. The mid-tier includes semiconductor companies, telecoms, and financial institutions, meaning competitive pressure comes from multiple industry verticals simultaneously. Entrants with domain-specific integration angles (e.g., embedded hardware or regulated-industry compliance) face less direct overlap than pure-cryptography generalists.
+The most active collaboration pair is IBM (international entity) and the University of Bristol, with 8 co-filed patent families; IBM also co-files with its own UK and German subsidiaries and with IBM China. Samsung Electronics co-files with Graz University of Technology (3 families), UNIST (2 families), Samsung China Semiconductor, and the SNU R&D Business Foundation. Industry–academia co-filing is present but sparse overall, pointing to opportunities for universities or research institutes to deepen partnerships with hardware and systems integrators.
+The United States leads with 1,542 patent records, followed by India at 448 , China at 434, and Europe (EPO) at 424. PCT (WIPO) filings stand at 340. India’s second-place ranking is notable and reflects active filing by domestic technology and telecoms players seeking local protection. Germany, the UK, and Japan are present but smaller. The relative under-filing in East Asian jurisdictions outside China and South Korea may represent geographic white space for applicants seeking broader regional protection.
+Go beyond the landscape: Eureka’s TRIZ Solution agent breaks down an R&D problem and returns patented concept solutions, each with a technical approach and cited patent & literature evidence.
+Co-filing pairs, ranked by the number of jointly-filed patent families.
+The leading applicants span semiconductor hardware, financial services, and specialist cryptography firms, with divergent momentum trajectories creating a shifting competitive order.
+Intel holds the top position with 170 patent families, concentrated in H04L 9 (digital transmission cryptography, 161 families), G06F 21 (platform security, 47 families), and G06F 7 (arithmetic/computational primitives, 19 families) — a profile consistent with hardware-level PQC acceleration for CPUs and accelerators. However, momentum has declined by 48% in the recent three-year window versus the prior period, suggesting the firm’s filing pace is moderating while challengers accelerate.
+Wells Fargo ranks second with 120 patent families, heavily weighted to H04L 9 ( 115 families) and G06F 21 (37 families), with a notable position in G06N 10 (quantum-computing AI models, 34 families) — the most pronounced AI-adjacent PQC focus among the top filers. Filing momentum is up 52% versus the prior three-year period, making it the fastest-growing major incumbent by percentage among the top-two, reflecting financial-sector urgency to replace classical public-key infrastructure ahead of regulatory deadlines.
+Holds multiple active families across this technology cluster spanning several jurisdictions.
+Holds multiple active families across this technology cluster spanning several jurisdictions.
+Several IPC branches sit adjacent to the dominant H04L communications cluster but have material

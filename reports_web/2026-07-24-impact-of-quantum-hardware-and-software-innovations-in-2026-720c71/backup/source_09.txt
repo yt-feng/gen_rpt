@@ -1,0 +1,42 @@
+Title: Most Funded Quantum Computing Startups 2026
+URL: https://entangledfuture.com/guides/most-funded-quantum-startups/
+Source Type: html
+Domain: entangledfuture.com
+Content Type: text/html; charset=utf-8
+Search Query: quantum computing startup funding 2026
+
+Most Funded Quantum Computing Startups 2026 | Investment Rankings
+
+Where Quantum Money Goes: Geographic Analysis
+Ranked by Total Disclosed Funding, March 2026
+The top 20 quantum computing companies by total disclosed funding, excluding public market capitalization of Big Tech divisions. Includes hardware makers, software platforms, and security companies across 8 countries.
+Quantum computing has attracted billions of dollars in private investment over the past decade, with the pace accelerating significantly since 2021. The shift from pure research bets to commercial validation is visible in the investor mix: government-backed funds and specialized quantum VCs that led early rounds have been joined by large institutional investors, sovereign wealth funds, and corporate strategics seeking portfolio exposure to the technology.
+The companies ranked below are primarily defined as independent commercial entities, not internal divisions of IBM, Google, or Microsoft, whose quantum programs are funded through corporate balance sheets at a scale that would distort any comparison. Five companies in this ranking have already accessed public capital markets, and three more are in active SPAC or IPO processes.
+Funding figures represent total disclosed equity raises, SPAC proceeds, and non-dilutive government grants. In cases where valuation or funding is approximated, figures are derived from QuantumZeitgeist.com reporting and official company announcements. For the full investment database, see the Quantum Computing Funding Landscape guide.
+The United States dominates quantum startup funding, with more than half the companies in this ranking headquartered in North America. However, European companies, particularly French startups supported by the EUR 1.8B Plan Quantique, have closed the gap substantially since 2021. Canada has two entries (Xanadu and Photonic Inc.) reflecting the Waterloo-Toronto quantum corridor and Vancouver's photonic research cluster.
+The European representation reflects the success of targeted national programs. France's PROQCIMA initiative designated five national quantum champions, Alice & Bob, Pasqal, Quandela, C12, and Quobly, and backed them with combined public and private capital. Finland's IQM benefited from EIC Fund and World Fund investment alongside government export credits for its international installations. Australia's Silicon Quantum Computing and Q-CTRL both reflect UNSW research commercialization and the DARPA QBI international inclusion policy.
+Israel appears via Classiq, the quantum circuit synthesis software company, which has attracted corporate VC from HSBC, HPE, and Mitsubishi alongside specialized quantum investors. Spain's Multiverse Computing, Europe's largest quantum software firm, reflects Barcelona's growing deep tech ecosystem.
+Photonic approaches have attracted the most aggregate capital, primarily due to PsiQuantum's fundraising thesis that silicon photonic manufacturing enables the only near-term path to fault tolerance at scale. Neutral-atom companies, QuEra, Pasqal, Atom Computing, and Infleqtion, have collectively raised over $700M, driven by their record 96 verified logical qubits (QuEra, Nature, January 2026) and DARPA QBI Stage B participation. Ion-trap remains the technology with the strongest revenue, entirely due to IonQ.
+The investor profile of top quantum startups has shifted from specialist quantum VCs toward large institutional investors, sovereign wealth funds, and corporate strategics. Quantonation, the world's largest dedicated quantum VC, appears in multiple portfolios including Pasqal, Quandela, and Multiverse Computing. However, the largest single fundings have been led by generalist institutional investors: BlackRock and Baillie Gifford in PsiQuantum, T. Rowe Price and Ray Dalio funds in SandboxAQ, and sovereign wealth funds in Quantinuum's recent rounds.
+Corporate venture capital has become a significant force: Google Ventures (GV) holds positions in IonQ and QuEra Computing; Microsoft partners directly with Atom Computing and Photonic Inc.; IBM Ventures has backed QEDMA, QunaSys, and Strangeworks. These corporate investors often provide both capital and access to hardware, providing portfolio companies with a development advantage. For a full analysis, see the Top Quantum Investors 2026 guide.
+Government funding has also scaled dramatically. The US National Quantum Initiative, UK National Quantum Strategy, France Plan Quantique, and European Quantum Flagship collectively represent over $10 billion in public commitments to quantum technology, much of which flows to commercial companies through grants, contracts, and non-dilutive programs. Canada's Quantum Champions Program provided Nord Quantique with CAD $16 million in non-dilutive government funding, a significant injection for a company at its stage.
+Several significant funding events have occurred in late 2025 and early 2026 that are not yet fully reflected in cumulative totals:
+Broader ranking including Big Tech quantum divisions
+VCs, corporate investors, and government funds backing quantum
+Full investment analysis by geography and technology
+Get the latest quantum computing news, company milestones, and research breakthroughs delivered to your inbox each week. No spam, unsubscribe anytime.
+Joined by 5,000+ quantum professionals. Privacy policy applies.
+Join 5,000+ quantum computing professionals. Weekly insights delivered to your inbox.
+By subscribing, you agree to receive our weekly newsletter via Substack. Your email is processed by Substack . Unsubscribe anytime. See our Privacy Policy .
+A comprehensive directory of 1173 quantum computing organizations worldwide.
+© 2026 Quantum Navigator · Data sourced from QuantumZeitgeist.com
+Join 5,000+ quantum computing professionals
+Infleqtion $550M+ raised through SPAC with Churchill Capital X (NYSE: INFQ, Feb 17 2026). First neutral-atom company to go public.
+Photonic Inc. CAD $131M (~$97M USD) led by Planet First Partners (Feb 2026), bringing total capital to approximately $300M.
+QuEra Computing $230M+ raised including rounds from Google QAI, SoftBank, and NVentures in 2025. 3,000 PQ system running continuously.
+IQM $1.8B SPAC merger with Real Asset Acquisition Corp (RAAQ) announced Feb 23 2026. Expected June 2026 close. $134M PIPE.
+Xanadu $3.1B SPAC with Crane Harbor Acquisition Corp (ticker XNDU). Shareholder vote March 19 2026. CAD $23M Canada Quantum Champions.
+Alice & Bob EUR 100M Series B (Jan 2025) led by Future French Champions / Qatar Investment Authority. Total raised approximately $130M.
+Weekly insights on quantum computing breakthroughs
+Early access to company analysis & funding news
+Curated from 1,000+ quantum companies worldwide

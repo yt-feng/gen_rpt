@@ -1,0 +1,14 @@
+Title: quantum_computing_2026.md (Fragment b0e5020d)
+URL: internal://documents/d0c4177a-cca2-403d-bc2b-908462c8d77f#chunk=b0e5020d-9dcc-4411-910f-1384774722a0
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: Impact of Quantum Hardware and Software Innovations in 2026
+
+The "Q-Risk" model is now used by three major Wall Street firms.
+
+However, challenges remain.
+
+The global shortage of cryogenic engineers and quantum algorithm specialists is the primary bottleneck for scaling these technologies.
+
+Additionally, the power consumption of maintaining milli-Kelvin temperatures remains a significant operational cost.

@@ -1,0 +1,27 @@
+{
+  "status": "active",
+  "required": true,
+  "context_characters": 2356,
+  "validated_chunk_count": 3,
+  "document_count": 1,
+  "chunk_ids": [
+    "30e8f40c-ff4c-4248-8150-148ec5be2cb8",
+    "77b04b15-3524-45e6-aaf9-50387023ecfc",
+    "b0e5020d-9dcc-4411-910f-1384774722a0"
+  ],
+  "document_ids": [
+    "d0c4177a-cca2-403d-bc2b-908462c8d77f"
+  ],
+  "internal_evidence_points": 6,
+  "rag_source_count": 3,
+  "web_source_count": 7,
+  "rag_evidence_points": 6,
+  "web_evidence_points": 24,
+  "conflict_count": 0,
+  "web_search_status": "success",
+  "web_search_required": false,
+  "web_search_query_count": 4,
+  "web_search_providers": [
+    "searxng"
+  ]
+}
