@@ -1068,10 +1068,41 @@ async def regenerate_report_image(
     import httpx
     import asyncio
 
-    # Locate report in memory cache
+    # Locate report in memory cache or load from DB/R2
     report = MOCK_REPORTS.get(document_id)
     if not report:
+        from app.models.document import Document
+        from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
+        import uuid
+
+        stmt = select(Document).where(Document.slug == document_id)
+        res = await db.execute(stmt)
+        doc = res.scalar_one_or_none()
+        if not doc:
+            try:
+                doc_uuid = uuid.UUID(document_id)
+                doc = await db.get(Document, doc_uuid)
+            except ValueError:
+                pass
+        if doc:
+            slug = doc.slug or str(doc.id)
+            topic = doc.title or slug
+            payload = await _load_report_payload_from_r2(slug, topic)
+            report = _build_mock_report_entry(document_id, topic, slug, payload)
+            MOCK_REPORTS[document_id] = report
+            MOCK_REPORTS[str(doc.id)] = report
+            if doc.slug:
+                MOCK_REPORTS[doc.slug] = report
+        else:
+            payload = await _load_report_payload_from_r2(document_id, document_id)
+            if payload:
+                title = payload.get("topic") or payload.get("title") or document_id.replace('-', ' ').title()
+                report = _build_mock_report_entry(document_id, title, document_id, payload)
+                MOCK_REPORTS[document_id] = report
+
+    if not report:
         raise HTTPException(status_code=404, detail="Report not found")
+
 
     slug = report.get("slug") or document_id
     r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
