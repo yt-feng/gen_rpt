@@ -49,4 +49,7 @@ async def chat_completions(
         )
         return res
     except Exception as e:
+        import logging
+        logging.getLogger("app.api.aigateway").error(f"AI Gateway error: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
+

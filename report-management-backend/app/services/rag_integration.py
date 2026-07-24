@@ -539,99 +539,116 @@ class AIGatewayService:
         slug: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Proxy completions request to DeepSeek, managing budget, logging, and retry strategies.
+        Proxy completions request to DeepSeek (or OpenRouter fallback), managing budget, logging, and retry strategies.
         """
         from pydantic import ValidationError
-        api_key = settings.DEEPSEEK_API_KEY
-        if not api_key or api_key == "REPLACE_WITH_REAL_VALUE":
-            raise ValueError("DEEPSEEK_API_KEY is not configured. Set it in environment variables.")
-            
-        # Standard DeepSeek endpoint
-        url = "https://api.deepseek.com/chat/completions"
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        payload = {
-            "model": model,
-            "messages": messages,
-            "temperature": temperature
-        }
-        if response_format:
-            payload["response_format"] = response_format
-        if max_tokens:
-            payload["max_tokens"] = max_tokens
-            
-        logger.info(f"AI Gateway: forwarding request to LLM (model={model}, messages={len(messages)})")
-        
-        # Implement retry logic on transient errors/timeouts (up to 3 retries)
-        retries = 3
+
+        providers = []
+        if settings.DEEPSEEK_API_KEY and settings.DEEPSEEK_API_KEY != "REPLACE_WITH_REAL_VALUE":
+            providers.append({
+                "name": "DeepSeek",
+                "url": "https://api.deepseek.com/chat/completions",
+                "key": settings.DEEPSEEK_API_KEY,
+                "model": model,
+                "headers": {
+                    "Authorization": f"Bearer {settings.DEEPSEEK_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+            })
+        if getattr(settings, "OPENROUTER_API_KEY", None):
+            providers.append({
+                "name": "OpenRouter",
+                "url": "https://openrouter.ai/api/v1/chat/completions",
+                "key": settings.OPENROUTER_API_KEY,
+                "model": "deepseek/deepseek-chat" if "deepseek" in model else model,
+                "headers": {
+                    "Authorization": f"Bearer {settings.OPENROUTER_API_KEY}",
+                    "Content-Type": "application/json"
+                }
+            })
+
+        if not providers:
+            raise ValueError("Neither DEEPSEEK_API_KEY nor OPENROUTER_API_KEY is configured. Set at least one in environment variables.")
+
         last_err = None
         start_time = time.time()
-        
-        async with httpx.AsyncClient(timeout=180.0) as client:
-            for attempt in range(retries):
-                try:
-                    resp = await client.post(url, headers=headers, json=payload)
-                    resp.raise_for_status()
-                    
-                    raw_body = resp.text
+
+        for provider in providers:
+            p_name = provider["name"]
+            url = provider["url"]
+            headers = provider["headers"]
+            p_model = provider["model"]
+
+            payload = {
+                "model": p_model,
+                "messages": messages,
+                "temperature": temperature
+            }
+            if response_format:
+                payload["response_format"] = response_format
+            if max_tokens:
+                payload["max_tokens"] = max_tokens
+
+            logger.info(f"AI Gateway: forwarding request via {p_name} (model={p_model}, messages={len(messages)})")
+
+            retries = 2
+            async with httpx.AsyncClient(timeout=180.0) as client:
+                for attempt in range(retries):
                     try:
-                        data = json.loads(raw_body)
-                        from app.schemas.ai_gateway import DeepSeekResponse
-                        DeepSeekResponse(**data)
-                    except ValidationError as ve:
-                        logger.error(
-                            "AI Gateway: LLM response did not match expected schema",
-                            error=str(ve),
-                            raw_response=raw_body
-                        )
-                        raise ValueError(f"Invalid DeepSeek response schema: {ve}") from ve
-                    
-                    elapsed_ms = int((time.time() - start_time) * 1000)
-                    logger.info(f"AI Gateway: successful LLM response in {elapsed_ms}ms")
-                    
-                    # Log generation statistics if we have a job
-                    if slug:
-                        # Find job by slug (or documents.slug)
-                        from app.models.document import Document
-                        from app.models.workflow import GenerationJob
-                        
-                        job_stmt = select(GenerationJob).join(Document, GenerationJob.document_id == Document.id).where(Document.slug == slug)
-                        job_res = await db.execute(job_stmt)
-                        job = job_res.scalar_one_or_none()
-                        
-                        if job:
-                            # Update token usage and analytics
-                            token_usage = data.get("usage", {})
-                            job.token_usage = token_usage
-                            
-                            # Increment analytics generation time
-                            from sqlalchemy import update
-                            from app.models.rag_integration import GenerationAnalytics
-                            stmt = update(GenerationAnalytics).where(GenerationAnalytics.generation_job_id == job.id).values(
-                                generation_time_ms=elapsed_ms
+                        resp = await client.post(url, headers=headers, json=payload)
+                        resp.raise_for_status()
+
+                        raw_body = resp.text
+                        try:
+                            data = json.loads(raw_body)
+                            from app.schemas.ai_gateway import DeepSeekResponse
+                            DeepSeekResponse(**data)
+                        except ValidationError as ve:
+                            logger.error(
+                                f"AI Gateway ({p_name}): LLM response did not match expected schema",
+                                error=str(ve),
+                                raw_response=raw_body
                             )
-                            await db.execute(stmt)
-                            await db.commit()
-                            
-                    return data
-                    
-                except httpx.HTTPStatusError as e:
-                    last_err = e
-                    if e.response.status_code >= 500 or e.response.status_code == 429:
-                        wait = (2 ** attempt) * 0.5
-                        logger.warning(f"LLM request error {e.response.status_code}, retrying in {wait}s...")
-                        await asyncio.sleep(wait)
+                            raise ValueError(f"Invalid {p_name} response schema: {ve}") from ve
+
+                        elapsed_ms = int((time.time() - start_time) * 1000)
+                        logger.info(f"AI Gateway ({p_name}): successful LLM response in {elapsed_ms}ms")
+
+                        # Log generation statistics if we have a job
+                        if slug:
+                            from app.models.document import Document
+                            from app.models.workflow import GenerationJob
+
+                            job_stmt = select(GenerationJob).join(Document, GenerationJob.document_id == Document.id).where(Document.slug == slug)
+                            job_res = await db.execute(job_stmt)
+                            job = job_res.scalar_one_or_none()
+
+                            if job:
+                                token_usage = data.get("usage", {})
+                                job.token_usage = token_usage
+
+                                from sqlalchemy import update
+                                from app.models.rag_integration import GenerationAnalytics
+                                stmt = update(GenerationAnalytics).where(GenerationAnalytics.generation_job_id == job.id).values(
+                                    generation_time_ms=elapsed_ms
+                                )
+                                await db.execute(stmt)
+                                await db.commit()
+
+                        return data
+
+                    except httpx.HTTPStatusError as e:
+                        last_err = e
+                        logger.warning(f"AI Gateway ({p_name}) HTTP error {e.response.status_code}: {e.response.text[:200]}, retrying...")
+                        await asyncio.sleep(1.0)
                         continue
-                    raise e
-                except Exception as e:
-                    last_err = e
-                    wait = (2 ** attempt) * 0.5
-                    logger.warning(f"LLM connection error: {e}, retrying in {wait}s...")
-                    await asyncio.sleep(wait)
-                    
-        raise Exception(f"AI Gateway: DeepSeek completions proxy failed after all retries. Last error: {last_err}")
+                    except Exception as e:
+                        last_err = e
+                        logger.warning(f"AI Gateway ({p_name}) connection error: {e}, retrying...")
+                        await asyncio.sleep(1.0)
+
+        raise Exception(f"AI Gateway: completions proxy failed after trying all providers ({[p['name'] for p in providers]}). Last error: {last_err}")
+
 
 
 class SelectiveContextBuilder:
