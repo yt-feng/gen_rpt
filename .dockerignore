@@ -1,0 +1,11 @@
+venv/
+.venv/
+.git/
+.pytest_cache/
+scratch/
+reports/
+reports_web/
+review_outputs/
+branding/
+__pycache__/
+*.pyc
