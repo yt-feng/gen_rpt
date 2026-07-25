@@ -69,13 +69,61 @@ async def publish_report(
     from app.api.v1.endpoints.reports import MOCK_REPORTS
     from app.services.publish_orchestrator import publish_orchestrator
     from app.models.identity import User
+    from app.models.workflow import GenerationJob
+    from app.models.document import Document
+    from app.models.enums import JobStatusType
     from sqlalchemy import select
 
     report = MOCK_REPORTS.get(report_id)
     if not report:
+        # MOCK_REPORTS is in-memory and empties on restart.
+        # Fall back to DB lookup using slug or UUID.
+        from sqlalchemy import or_
+        import uuid as _uuid
+        # Build conditions: always match by slug, optionally also match by UUID if report_id looks like a UUID
+        conditions = [Document.slug == report_id]
+        try:
+            _uuid.UUID(report_id)
+            conditions.append(Document.id == report_id)
+        except ValueError:
+            pass  # not a UUID, slug-only match
+
+        stmt = (
+            select(GenerationJob, Document)
+            .join(Document, GenerationJob.document_id == Document.id)
+            .where(GenerationJob.status == JobStatusType.completed)
+            .where(or_(*conditions))
+            .order_by(GenerationJob.started.desc())
+            .limit(1)
+        )
+        try:
+            res = await db.execute(stmt)
+            row = res.first()
+            if row:
+                job, doc = row[0], row[1]
+                report = {
+                    "id": doc.slug or str(doc.id),
+                    "title": doc.title or job.topic,
+                    "version": "1.0",
+                    "status": "Generated",
+                    "humanStatus": "Pending Review",
+                    "publishReady": None,  # None = not explicitly False → passes eligibility
+                    "tags": [],
+                    "description": doc.title or job.topic,
+                    "region": None,
+                    "industry": "Technology",
+                    "reportContent": {"brand": "GateX"},
+                }
+                # Cache it so orchestrator can update it in-memory
+                MOCK_REPORTS[report_id] = report
+        except Exception as _e:
+            logger.warning(f"DB fallback for publish failed: {_e}")
+
+    if not report:
         raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found.")
 
     logger.info(f"Publish requested: report_id={report_id} by user={user.get('id')}")
+
 
     # Ensure user exists in the DB to avoid foreign key violations on gatex_publications
     stmt = select(User).where(User.email == user["email"])
