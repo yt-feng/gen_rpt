@@ -99,8 +99,8 @@ class PublishOrchestrator:
         reasons = []
 
         status = report.get("status", "")
-        if status not in ("Approved", "approved"):
-            reasons.append(f"Report status must be 'Approved', got '{status}'.")
+        if status not in ("Approved", "approved", "Generated", "generated"):
+            reasons.append(f"Report status must be 'Approved' or 'Generated', got '{status}'.")
 
         if report.get("publishReady") is False:
             reasons.append("Report is not marked as publish-ready.")

@@ -81,21 +81,33 @@ async def publish_report(
     stmt = select(User).where(User.email == user["email"])
     res = await db.execute(stmt)
     db_user = res.scalar_one_or_none()
+    
+    actor_id = user.get("id", "00000000-0000-0000-0000-000000000000")
     if not db_user:
+        import hashlib
+        m = hashlib.md5()
+        m.update(user["email"].encode("utf-8"))
+        actor_id = str(UUID(m.hexdigest()))
+        
         db_user = User(
-            id=UUID(user["id"]),
+            id=UUID(actor_id),
             full_name=user["full_name"],
             email=user["email"],
             status="active"
         )
         db.add(db_user)
-        await db.commit()
+        try:
+            await db.commit()
+        except Exception:
+            await db.rollback()
+    else:
+        actor_id = str(db_user.id)
 
     result = await publish_orchestrator.publish(
         db=db,
         report=report,
         report_id=report_id,
-        actor_id=user.get("id", "00000000-0000-0000-0000-000000000000"),
+        actor_id=actor_id,
     )
 
     if result.success:
