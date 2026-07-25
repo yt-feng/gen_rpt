@@ -11,16 +11,15 @@ router = APIRouter()
 
 MOCK_USERS = [
     {
-        "id": "00000000-0000-0000-0000-000000000000",
+        "id": "55555555-5555-5555-5555-555555555555",
         "email": "yash@gatex.com",
         "username": "yash",
         "password": "yash1@1",
-        "full_name": "Placeholder Admin",
+        "full_name": "Yash Yelave",
         "role": "admin"
     },
     {
         "id": "11111111-1111-1111-1111-111111111111",
-
         "email": "jacob@gatex.com",
         "username": "jacob",
         "password": "jacob1@1",
@@ -50,14 +49,6 @@ MOCK_USERS = [
         "password": "sam1@1",
         "full_name": "Sam",
         "role": "reviewer"
-    },
-    {
-        "id": "55555555-5555-5555-5555-555555555555",
-        "email": "yash@gatex.com",
-        "username": "yash",
-        "password": "yash1@1",
-        "full_name": "Yash Yelave",
-        "role": "manager"
     },
     {
         "id": "00000000-0000-0000-0000-000000000000",
