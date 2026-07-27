@@ -357,3 +357,5 @@ python -m gen_rpt.main_web \
 ## 作者
 
 - [@yt-feng](https://github.com/yt-feng)
+#   C o d e R a b b i t   C I   v e r i f i c a t i o n   t e s t  
+ 
