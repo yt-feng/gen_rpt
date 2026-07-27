@@ -1116,7 +1116,7 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
     rows = [item for item in _as_list(basis) if isinstance(item, dict)]
     if not rows:
         return
-    parts.append("<details class='data-basis'>")
+    parts.append("<details class='data-basis' open>")
     parts.append(f"<summary>{_e(labels.get('data_basis') or 'Sources')}</summary>")
     parts.append("<ul>")
     for item in rows[:8]:
