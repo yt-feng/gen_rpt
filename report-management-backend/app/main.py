@@ -29,41 +29,22 @@ async def lifespan(app: FastAPI):
     # --- STARTUP ---
     logger.info(f"Starting {settings.APP_NAME} [{settings.APP_ENV}]")
     logger.info(f"DATABASE_URL configured: {'YES' if settings.DATABASE_URL else 'NO'}")
-    
     # Validate DB connection and run migrations
     try:
-        import time
-        from sqlalchemy import text
+        import asyncio
+        from sqlalchemy import text, select
+        from sqlalchemy.orm import sessionmaker
+        from sqlalchemy.ext.asyncio import AsyncSession
+        from uuid import UUID
         from app.core.database import engine
+        from app.models.identity import User
+        from app.api.v1.endpoints.auth import MOCK_USERS
+
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
         logger.info("Database connection: OK")
 
-        # Run Alembic migrations programmatically
-        try:
-            import alembic.config
-            import alembic.command
-            logger.info("Running database migrations...")
-            alembic_cfg = alembic.config.Config("alembic.ini")
-            
-            # Run the synchronous alembic command in a thread so it doesn't block asyncio
-            from anyio import to_thread
-            await to_thread.run_sync(alembic.command.upgrade, alembic_cfg, "head")
-            logger.info("Database migrations applied successfully.")
-        except Exception as e:
-            logger.error(f"Failed to run database migrations: {e}")
-
-        # Seed all mock users if not present
-        from sqlalchemy.orm import sessionmaker
-        from sqlalchemy.ext.asyncio import AsyncSession
-        from sqlalchemy import select
-        from uuid import UUID
-        from app.models.identity import User
-        from app.api.v1.endpoints.auth import MOCK_USERS
-        
-        async_session = sessionmaker(
-            engine, class_=AsyncSession, expire_on_commit=False
-        )
+        async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
         async with async_session() as session:
             for mock_user in MOCK_USERS:
                 u_id = UUID(mock_user["id"])
@@ -79,26 +60,19 @@ async def lifespan(app: FastAPI):
                     session.add(db_user)
             await session.commit()
             logger.info("All mock users seeded successfully.")
-    except Exception as e:
-        logger.error(f"Database connection or seeding FAILED at startup: {e}")
-    
-    # Validate R2 connection (non-fatal)
-    try:
-        from app.storage.provider import storage_provider
-        r2_health = await storage_provider.health_check()
-        if r2_health.get("status") == "healthy":
-            logger.info("Cloudflare R2 connection: OK")
-        else:
-            logger.warning(f"Cloudflare R2 degraded: {r2_health.get('error')}")
-    except Exception as e:
-        logger.warning(f"Cloudflare R2 check skipped: {e}")
 
-    # Hydrate MOCK_REPORTS from R2 so reports survive backend restarts.
-    # This is critical for bulk-generated reports which have no DB rows.
+            # Migrate all existing knowledge collections to public visibility
+            await session.execute(
+                text("UPDATE knowledge_collections SET visibility = 'public' WHERE visibility != 'public' OR visibility IS NULL")
+            )
+            await session.commit()
+            logger.info("Migrated all existing knowledge collections to public visibility.")
+    except Exception as e:
+        logger.error(f"Database connection, seeding, or migration error at startup: {e}")
+
+    # Hydrate MOCK_REPORTS from R2
     try:
-        import asyncio
         from app.services.startup_hydration import hydrate_mock_reports_from_r2
-        # Run in background so startup isn't blocked by a slow R2 scan
         asyncio.create_task(hydrate_mock_reports_from_r2())
         logger.info("R2 hydration task scheduled.")
     except Exception as e:

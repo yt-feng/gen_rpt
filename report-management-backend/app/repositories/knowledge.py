@@ -46,9 +46,13 @@ class CollectionRepository(BaseRepository[KnowledgeCollection, CollectionCreate,
         return result.scalars().first()
 
     async def list_active_collections(self, db: AsyncSession, owner_id: UUID) -> List[KnowledgeCollection]:
+        from sqlalchemy import or_
         result = await db.execute(
             select(self.model).filter(
-                self.model.owner_id == owner_id,
+                or_(
+                    self.model.owner_id == owner_id,
+                    self.model.visibility.in_(["public", "shared"])
+                ),
                 self.model.deleted_at.is_(None)
             )
         )

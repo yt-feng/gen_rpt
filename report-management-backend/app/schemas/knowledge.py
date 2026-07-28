@@ -83,7 +83,7 @@ class CollectionCreate(BaseModel):
     status: str = "active"
     owner_id: Optional[UUID] = None
     organization_id: Optional[UUID] = None
-    visibility: str = "private"
+    visibility: str = "public"
 
 class CollectionUpdate(BaseModel):
     name: Optional[str] = None

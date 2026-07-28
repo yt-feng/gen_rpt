@@ -45,7 +45,7 @@ class KnowledgeCollectionService:
             status=obj_in.status or "active",
             owner_id=user_id,
             organization_id=obj_in.organization_id,
-            visibility=obj_in.visibility or "private",
+            visibility=obj_in.visibility or "public",
             created_by=user_id
         )
         db.add(db_obj)
@@ -204,11 +204,15 @@ class KnowledgeCollectionService:
 
     async def list_collections(self, db: AsyncSession, owner_id: uuid.UUID) -> List[KnowledgeCollection]:
         from sqlalchemy.orm import selectinload
+        from sqlalchemy import or_
         result = await db.execute(
             select(KnowledgeCollection).options(
                 selectinload(KnowledgeCollection.tags)
             ).filter(
-                KnowledgeCollection.owner_id == owner_id,
+                or_(
+                    KnowledgeCollection.owner_id == owner_id,
+                    KnowledgeCollection.visibility.in_(["public", "shared"])
+                ),
                 KnowledgeCollection.deleted_at.is_(None)
             )
         )
