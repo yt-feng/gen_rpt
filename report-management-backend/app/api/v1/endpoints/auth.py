@@ -35,6 +35,14 @@ MOCK_USERS = [
         "role": "reviewer"
     },
     {
+        "id": "66666666-6666-6666-6666-666666666666",
+        "email": "denise@gatex.com",
+        "username": "denise",
+        "password": "denise1@1",
+        "full_name": "Denise",
+        "role": "reviewer"
+    },
+    {
         "id": "33333333-3333-3333-3333-333333333333",
         "email": "frank@gatex.com",
         "username": "frank",
