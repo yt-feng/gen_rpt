@@ -58,7 +58,7 @@ async def list_reports(
                 "aiScore": 85,
                 "aiGrade": "Silver",
                 "commentCount": 0,
-                "lastUpdated": (job.completed or job.started).isoformat() + "Z",
+                "lastUpdated": (job.completed or job.started).strftime("%Y-%m-%dT%H:%M:%SZ") if (job.completed or job.started) else datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
                 "aiReview": {
                     "scores": {
                         "overall_score": 85,

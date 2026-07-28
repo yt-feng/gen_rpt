@@ -619,7 +619,7 @@ def _build_mock_report_entry(
         "aiScore": ai_score,
         "aiGrade": ai_grade,
         "commentCount": 0,
-        "lastUpdated": now.isoformat() + "Z",
+        "lastUpdated": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "publishReady": False,
         "aiReview": formatted_ai_review,
         "slug": slug,
