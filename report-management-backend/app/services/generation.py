@@ -610,6 +610,48 @@ def _build_mock_report_entry(
     evidence_audit = payload.get("evidenceAudit") or {}
     conflicts = payload.get("conflicts") or evidence_audit.get("conflicts") or []
 
+    # Determine real report date from payload or R2 prefix / slug
+    report_date_str = (
+        payload.get("lastUpdated")
+        or payload.get("created_at")
+        or payload.get("generated_at")
+        or payload.get("date")
+        or (payload.get("reportContent") or {}).get("date")
+    )
+    r2_prefix = payload.get("r2_prefix") or ""
+    
+    parsed_dt = None
+    if report_date_str:
+        try:
+            from dateutil.parser import parse as parse_date
+            parsed_dt = parse_date(str(report_date_str))
+            if parsed_dt.tzinfo is None:
+                parsed_dt = parsed_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            pass
+
+    if not parsed_dt and r2_prefix:
+        match = re.search(r"(\d{4}-\d{2}-\d{2})", str(r2_prefix))
+        if match:
+            try:
+                parsed_dt = datetime.strptime(match.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except Exception:
+                pass
+
+    if not parsed_dt and slug:
+        match = re.search(r"(\d{4}-\d{2}-\d{2})", str(slug))
+        if match:
+            try:
+                parsed_dt = datetime.strptime(match.group(1), "%Y-%m-%d").replace(tzinfo=timezone.utc)
+            except Exception:
+                pass
+
+    if not parsed_dt:
+        parsed_dt = now
+
+    last_updated_formatted = parsed_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
+    date_formatted = parsed_dt.strftime("%B %d, %Y")
+
     return {
         "id": doc_str_id,
         "title": title,
@@ -619,14 +661,14 @@ def _build_mock_report_entry(
         "aiScore": ai_score,
         "aiGrade": ai_grade,
         "commentCount": 0,
-        "lastUpdated": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "lastUpdated": last_updated_formatted,
         "publishReady": False,
         "aiReview": formatted_ai_review,
         "slug": slug,
         "reportContent": {
             "brand": payload.get("brand") or "GateX Intelligence",
             "label": payload.get("label") or "Deep Research",
-            "date": now.strftime("%B %d, %Y"),
+            "date": date_formatted,
             "sections": sections,
             "images": images,
             "references": payload.get("references") or [],
