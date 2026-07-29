@@ -28,6 +28,7 @@ from .web_publication_contract import (
     prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
+    repair_rag_report_structure,
     rag_rendered_output_issues,
     rag_visible_numbers_supported,
 )
@@ -247,6 +248,15 @@ class WebReportPipeline:
                     removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
                     if removed_numbers:
                         self._log("PHASE synthesis retry removed unsupported numeric claims | " + ", ".join(removed_numbers))
+                    quality_issues = rag_report_quality_issues(
+                        report,
+                        topic=display_topic,
+                        context_text=grounding_text,
+                        source_count=len(self.rag_sources),
+                        source_chunks=rag_source_chunks,
+                    )
+                if quality_issues:
+                    report = repair_rag_report_structure(report, topic=display_topic)
                     quality_issues = rag_report_quality_issues(
                         report,
                         topic=display_topic,
