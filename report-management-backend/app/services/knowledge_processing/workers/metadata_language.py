@@ -12,6 +12,15 @@ LANG_STOPWORDS = {
 }
 
 def detect_language(text: str) -> Dict[str, Any]:
+    # Check for Chinese / CJK characters first
+    cjk_matches = re.findall(r"[\u4e00-\u9fff]", text or "")
+    if len(cjk_matches) > 5:
+        return {
+            "primary_language": "zh",
+            "secondary_languages": [],
+            "confidence_score": 0.95,
+            "language_distribution": {"zh": 1.0}
+        }
     # Clean and split text into lowercase words
     words = re.findall(r"\b\w+\b", text.lower())
     if not words:

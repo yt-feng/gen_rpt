@@ -21,8 +21,10 @@ ALLOWED_EXTENSIONS = {".pdf", ".md", ".docx", ".txt", ".html"}
 ALLOWED_MIME_TYPES = {
     "application/pdf",
     "text/markdown",
+    "text/x-markdown",
     "text/plain",
     "text/html",
+    "application/octet-stream",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 }
 
