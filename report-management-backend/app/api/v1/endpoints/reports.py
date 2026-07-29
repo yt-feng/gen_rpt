@@ -392,10 +392,16 @@ async def revise_section(
 
     if document_id not in MOCK_REPORTS:
         await get_report_details(document_id, db, user)
-    if document_id not in MOCK_REPORTS:
-        raise HTTPException(status_code=404, detail="Report not found")
 
-    report = MOCK_REPORTS[document_id]
+    report = MOCK_REPORTS.get(document_id)
+    if not report:
+        for k, v in MOCK_REPORTS.items():
+            if document_id in str(k) or str(k) in document_id:
+                report = v
+                break
+
+    if not report:
+        raise HTTPException(status_code=404, detail=f"Report '{document_id}' not found")
     
     if req.section_heading == "Overall Report":
         # Full report regeneration
