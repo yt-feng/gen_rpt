@@ -105,12 +105,8 @@ async def hydrate_mock_reports_from_r2():
                     else:
                         entry["assignedTo"] = None
 
-                    # Store under multiple keys to guarantee lookup matches:
-                    # 1. Bare slug key (what frontend uses)
+                    # Store under canonical bare slug key (what frontend uses)
                     MOCK_REPORTS[bare_slug] = entry
-                    # 2. Folder name key (date-prefixed slug)
-                    MOCK_REPORTS[folder_name] = entry
-
                     loaded += 1
                     logger.info(f"[startup_hydration] Loaded report: {bare_slug}")
                 except Exception as e:

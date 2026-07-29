@@ -153,6 +153,18 @@ async def list_reports(
     except Exception as _e:
         pass  # DB reconciliation is best-effort; never break the reports list
 
+    # Deduplicate reports list by bare slug / title so duplicate R2 date-prefixed stub entries are never returned
+    seen_slugs = set()
+    deduped_reports = []
+    for r in reports_list:
+        raw_id = str(r.get("id") or "")
+        bare_slug = re.sub(r"^\d{4}-\d{2}-\d{2}-", "", raw_id)
+        if bare_slug in seen_slugs:
+            continue
+        seen_slugs.add(bare_slug)
+        deduped_reports.append(r)
+    reports_list = deduped_reports
+
     # Simple mock filtering to support frontend tabs
     if filters.status:
         reports_list = [r for r in reports_list if r["status"].lower() == filters.status.lower()]
