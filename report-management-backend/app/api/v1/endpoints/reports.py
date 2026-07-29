@@ -164,6 +164,11 @@ async def list_reports(
             continue
         seen_slugs.add(bare_slug)
         deduped_reports.append(r)
+    for r in deduped_reports:
+        if r.get("aiReview") and isinstance(r["aiReview"].get("scores"), dict):
+            overall = r["aiReview"]["scores"].get("overall_score")
+            if overall is not None:
+                r["aiScore"] = overall
     reports_list = deduped_reports
 
     # Simple mock filtering to support frontend tabs
@@ -232,8 +237,12 @@ async def get_report_details(
                     images.append({"key": fname, "url": url})
             if images:
                 report_content["images"] = images
-        except Exception as e:
-            print(f"[get_report_details] Dynamic image presigned URL refresh failed: {e}")
+        # Synchronize top-level aiScore with aiReview.scores.overall_score
+        if report.get("aiReview") and isinstance(report["aiReview"].get("scores"), dict):
+            overall = report["aiReview"]["scores"].get("overall_score")
+            if overall is not None:
+                report["aiScore"] = overall
+
         return success_response(data=report, message="Fetched report details")
 
         
