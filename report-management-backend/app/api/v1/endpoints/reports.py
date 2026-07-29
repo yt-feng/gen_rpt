@@ -437,8 +437,11 @@ async def revise_section(
     original_text = ""
     target_section = None
     
+    req_clean = re.sub(r"^section\s*\d*:\s*", "", req.section_heading.lower()).strip()
     for section in report.get("reportContent", {}).get("sections", []):
-        if section.get("heading") == req.section_heading:
+        sec_h = str(section.get("heading") or section.get("title") or "").strip().lower()
+        sec_h_clean = re.sub(r"^section\s*\d*:\s*", "", sec_h).strip()
+        if sec_h and (sec_h_clean in req_clean or req_clean in sec_h_clean or sec_h in req.section_heading.lower()):
             original_text = section.get("body", "")
             target_section = section
             break
