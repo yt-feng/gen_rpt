@@ -391,7 +391,12 @@ async def revise_section(
     import os
 
     if document_id not in MOCK_REPORTS:
-        await get_report_details(document_id, db, user)
+        from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
+        payload = await _load_report_payload_from_r2(document_id, document_id)
+        if payload:
+            title = payload.get("topic") or payload.get("title") or document_id.replace('-', ' ').title()
+            entry = _build_mock_report_entry(document_id, title, document_id, payload)
+            MOCK_REPORTS[document_id] = entry
 
     report = MOCK_REPORTS.get(document_id)
     if not report:
