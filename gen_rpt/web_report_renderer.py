@@ -764,7 +764,8 @@ def render_web_report_markdown(
         if section.get("evidence"):
             lines.extend(["Evidence:", ""])
             for item in section["evidence"]:
-                lines.append(f"- {item}")
+                clean_item = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(item or ""), flags=re.I).strip()
+                lines.append(f"- {clean_item}")
             lines.append("")
     if normalized.get("conflicts"):
         heading = "Conflicts requiring human review" if not str(language).lower().startswith("zh") else "需要人工复核的证据冲突"
@@ -1122,7 +1123,9 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
     for item in rows[:8]:
         basis_id = _text(item.get("id") or "")
         value = _text(item.get("value") or "")
-        fact = _compact(_text(item.get("fact") or item.get("text") or item.get("description") or ""), 220)
+        fact_raw = _text(item.get("fact") or item.get("text") or item.get("description") or "")
+        fact_clean = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", fact_raw, flags=re.I)
+        fact = _compact(fact_clean, 220)
         title = _compact(_text(item.get("source_title") or item.get("title") or item.get("domain") or ""), 80)
         url = _text(item.get("url") or "")
         origin = _text(item.get("origin") or "")
@@ -1972,6 +1975,7 @@ def _display_domain(url: str) -> str:
 
 def _brand_safe_text(value: Any) -> str:
     text = str(value or "")
+    text = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", text, flags=re.I)
     legacy = "".join(["b", "c", "g"])
     text = re.sub(rf"\bwww\.{legacy}\.com\b", BRAND_NAME, text, flags=re.I)
     text = re.sub(rf"\b{legacy}\.com\b", BRAND_NAME, text, flags=re.I)

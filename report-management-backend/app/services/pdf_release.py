@@ -167,12 +167,14 @@ async def _generate_pdf_via_playwright(html_content: str) -> bytes:
     """
     Converts HTML to PDF bytes using Playwright.
     """
+    import re
+    clean_html = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(html_content or ""), flags=re.I)
     from playwright.async_api import async_playwright
 
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
-        await page.set_content(html_content, wait_until="networkidle")
+        await page.set_content(clean_html, wait_until="networkidle")
         pdf_bytes = await page.pdf(format="A4", print_background=True)
         await browser.close()
         return pdf_bytes
@@ -471,6 +473,8 @@ class PdfReleaseService:
         return html_str
 
     async def _generate_pdf(self, html_content: str) -> bytes:
+        import re
+        clean_html = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(html_content or ""), flags=re.I)
         from playwright.async_api import async_playwright
         async with async_playwright() as p:
             browser = await p.chromium.launch(
@@ -478,7 +482,7 @@ class PdfReleaseService:
                 args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             page = await browser.new_page()
-            await page.set_content(html_content, wait_until="load")
+            await page.set_content(clean_html, wait_until="load")
             pdf_bytes = await page.pdf(
                 format="A4",
                 print_background=True,

@@ -433,14 +433,15 @@ def _build_mock_report_entry(
             
         # Strip any HTML tags for MOCK_REPORTS text preview
         import re
-        body_text = re.sub(r"<[^>]+>", "", str(body))[:2000]
+        body_text = re.sub(r"<[^>]+>", "", str(body))
+        body_text = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", body_text, flags=re.I)[:2000]
         section = {"heading": heading, "body": body_text}
         if s.get("id"):
             section["id"] = s["id"]
         if s.get("evidence"):
-            section["evidence"] = s["evidence"]
+            section["evidence"] = [re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(e), flags=re.I) for e in s["evidence"]]
         if s.get("so_what"):
-            section["soWhat"] = s["so_what"]
+            section["soWhat"] = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(s["so_what"]), flags=re.I)
         sections.append(section)
 
     if not sections:
