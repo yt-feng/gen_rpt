@@ -77,7 +77,10 @@ async def _call_hf_api(
                     return []
             except urllib.error.HTTPError as e:
                 status = e.code
-                if status == 503 and attempt < retries - 1:
+                if status in (401, 402):
+                    logger.error("HF Inference API status error, fast failing to local fallback", status=status, error=str(e))
+                    raise
+                elif status == 503 and attempt < retries - 1:
                     wait = float(e.headers.get("X-Wait-For-Model", delay * 5))
                     logger.warning(f"HF model loading (503), waiting {wait}s before retry", attempt=attempt + 1)
                     time.sleep(wait)
