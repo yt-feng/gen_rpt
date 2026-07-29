@@ -235,8 +235,9 @@ async def get_report_details(
                         ExpiresIn=86400
                     )
                     images.append({"key": fname, "url": url})
-            if images:
-                report_content["images"] = images
+        except Exception as e:
+            print(f"[get_report_details] Dynamic image presigned URL refresh failed: {e}")
+
         # Synchronize top-level aiScore with aiReview.scores.overall_score
         if report.get("aiReview") and isinstance(report["aiReview"].get("scores"), dict):
             overall = report["aiReview"]["scores"].get("overall_score")
