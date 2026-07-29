@@ -1,44 +1,44 @@
 {
-  "core_question": "Which climate resilience infrastructure segments offer the highest risk-adjusted returns for investment, and how can a China-UAE partnership deliver integrated solutions?",
+  "core_question": "Which specific climate resilience infrastructure sub-sectors and companies offer the highest risk-adjusted returns over the next 3-5 years, and how can a China-UAE partnership be structured to capitalize on these opportunities?",
   "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
-  "narrative_focus": "Evidence is densest around: funding, timeline, market, adoption",
+  "narrative_focus": "Evidence is densest around: market, timeline, funding, capacity",
   "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
   "evidence_must_cover": [
-    "In late 2013, President Xi Jinping officially endorsed the sponge city concept, and the following year the Ministry of Housing and Urban-Rural Development issued a set of technical guidelines aimed at ensuring that 70 percent of surface runoff be captured in place.",
-    "In July 2012, a huge rainstorm in Beijing led to flooding that caused 79 deaths and an estimated $1.7 billion in damage.",
-    "The central government has pledged a total of $5.8 billion (40 billion Chinese yuan) to incentivize Shenzhen and the 29 other pilot cities to invest in and ...",
-    "The central government has pledged a total of $5.8 billion (40 billion Chinese yuan) to incentivize Shenzhen and the 29 other pilot cities to invest in and ...",
-    "In what may have been a taste of what’s to come, Super Typhoon Mangkhut, which hit in 2018, blew down half the trees in the city.",
-    "Deng took control of China in 1978, after the death of Mao Zedong."
+    "As a percentage of firms’ sales revenue, industrial subsidies amounted to 1.3% in 2024, which was the second highest level on record after the previous peak in 2009 during the global financial crisis.",
+    "Subsidies for the 15 industrial sectors covered by the OECD Manufacturing Groups and Industrial Corporations (MAGIC) database reached USD 108 billion (nominal) in 2024.",
+    "OECD research shows that around 22% of the global market share gains of firms that grew between 2005 and 2023 can be explained by the subsidies they received.",
+    " 3 OECD MAGIC DATABASE OF INDUSTRIAL SUBSIDIES © OECD 2026 Table of contents Key messages 5 1 Bringing new evidence on industrial subsidies 6 2 Key trends in industrial subsidies 7 Subsidies have reached their highest levels since the global financial crisis of 2008-09 7 Subsidy levels and types vary across economies 8 Renewable energy equipment, semiconduc",
+    "Between 2005 and 2024, the production of solar photovoltaic panels, semiconductors, aluminium, steel, and shipbuilding were – as a percentage of firms’ sales revenue – the top five recipients of subsidies across the 15 sectors covered in the OECD MAGIC database.",
+    "On average, state enterprises with state ownership above 25% are significantly larger recipients of industrial subsidies than their private competitors, especially for grants and below-market-borrowings."
   ],
   "hypotheses_to_test": [
     {
       "id": "H1",
-      "hypothesis": "Dam safety and digital monitoring will see the most sustained investment due to regulatory push after the Guangxi reservoir breach.",
+      "hypothesis": "H1: Water infrastructure (reservoir upgrades, urban drainage) will receive the largest share of government funding due to the severity of flooding in Guangxi, Hubei, and Guangdong.",
       "decision_relevance": "",
       "needed_evidence": []
     },
     {
       "id": "H2",
-      "hypothesis": "Urban drainage upgrades in cities like Shenyang and Nanning will be prioritized with central funding, creating demand for smart water management.",
+      "hypothesis": "H2: Geological monitoring companies with existing government contracts and recurring service revenue will outperform pure equipment suppliers.",
       "decision_relevance": "",
       "needed_evidence": []
     },
     {
       "id": "H3",
-      "hypothesis": "Geological hazard monitoring (InSAR, AI) has high technical barriers and recurring service revenue, making it attractive for long-term investment.",
+      "hypothesis": "H3: Emergency equipment demand is cyclical and not a sustainable long-term investment, despite short-term spikes.",
       "decision_relevance": "",
       "needed_evidence": []
     },
     {
       "id": "H4",
-      "hypothesis": "Emergency equipment demand is cyclical and not suitable for stable returns, but mobile infrastructure (pumps, satellites) may have steady government procurement.",
+      "hypothesis": "H4: A bundled China-UAE solution for urban flood resilience can gain traction in Gulf markets, leveraging China's recent disaster experience.",
       "decision_relevance": "",
       "needed_evidence": []
     },
     {
       "id": "H5",
-      "hypothesis": "A China-UAE integrated solution combining drainage, slope monitoring, mobile pumps, satellite comms, and insurance models can be marketed to Gulf municipalities.",
+      "hypothesis": "H5: Catastrophe insurance uptake will accelerate, but traditional insurers face near-term claims pressure; parametric insurance models offer better growth.",
       "decision_relevance": "",
       "needed_evidence": []
     }

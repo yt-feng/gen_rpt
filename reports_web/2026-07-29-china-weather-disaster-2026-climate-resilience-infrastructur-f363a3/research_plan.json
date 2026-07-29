@@ -1,67 +1,69 @@
 {
   "objective": "Assess climate resilience infrastructure investment opportunities in China following the 2026 weather disasters, with a focus on cross-border solutions for the UAE.",
-  "audience": "Chinese and UAE investors, infrastructure developers, and government agencies seeking to capitalize on post-disaster reconstruction and climate adaptation.",
-  "decision_question": "Which climate resilience infrastructure segments offer the highest risk-adjusted returns for investment, and how can a China-UAE partnership deliver integrated solutions?",
+  "audience": "Chinese and UAE investors, infrastructure developers, and government agencies seeking actionable investment targets and partnership models.",
+  "decision_question": "Which specific climate resilience infrastructure sub-sectors and companies offer the highest risk-adjusted returns over the next 3-5 years, and how can a China-UAE partnership be structured to capitalize on these opportunities?",
   "issue_tree": {
-    "Disaster Impact Assessment": [
-      "Casualties and economic losses",
-      "Regional distribution",
-      "Infrastructure damage patterns"
-    ],
-    "Policy and Funding Landscape": [
-      "Central and local government budgets",
-      "Insurance payouts",
-      "Special bonds and fiscal support"
-    ],
-    "Infrastructure Gaps": [
-      "Dam safety and flood control",
-      "Urban drainage and sponge city",
-      "Geological hazard monitoring",
-      "Emergency equipment"
-    ],
-    "Investment Opportunities": [
-      "Short-term vs long-term",
-      "Technology barriers and recurring revenue",
-      "Government contract pipeline"
-    ],
-    "Cross-border Potential": [
-      "UAE municipal needs",
-      "Solution integration",
-      "Case study development"
+    "root": "Investment opportunities in China's climate resilience infrastructure post-2026 disasters",
+    "branches": [
+      {
+        "node": "Disaster impact and government response",
+        "children": [
+          "Direct losses and insurance claims (document: 63.8B RMB insurance estimates, 1.8B central emergency funds)",
+          "Policy priorities (document: reservoir upgrades, urban drainage, geological monitoring, emergency equipment)"
+        ]
+      },
+      {
+        "node": "Sector-specific opportunities",
+        "children": [
+          "Water infrastructure (reservoir safety, drainage systems, sponge cities)",
+          "Geological monitoring (slope radar, InSAR, AI early warning)",
+          "Emergency equipment (pumps, drones, satellite comms)",
+          "Reconstruction materials and engineering",
+          "Agricultural recovery and smart farming",
+          "Catastrophe insurance and climate finance"
+        ]
+      },
+      {
+        "node": "Cross-border potential with UAE",
+        "children": [
+          "Integrated solution: urban drainage + slope monitoring + mobile pumps + satellite comms + insurance models",
+          "Target clients: UAE municipalities, developers, industrial zones, airports"
+        ]
+      }
     ]
   },
   "hypotheses": [
     {
       "id": "H1",
-      "hypothesis": "Dam safety and digital monitoring will see the most sustained investment due to regulatory push after the Guangxi reservoir breach.",
+      "hypothesis": "H1: Water infrastructure (reservoir upgrades, urban drainage) will receive the largest share of government funding due to the severity of flooding in Guangxi, Hubei, and Guangdong.",
       "decision_relevance": "",
       "needed_evidence": [],
       "search_queries": []
     },
     {
       "id": "H2",
-      "hypothesis": "Urban drainage upgrades in cities like Shenyang and Nanning will be prioritized with central funding, creating demand for smart water management.",
+      "hypothesis": "H2: Geological monitoring companies with existing government contracts and recurring service revenue will outperform pure equipment suppliers.",
       "decision_relevance": "",
       "needed_evidence": [],
       "search_queries": []
     },
     {
       "id": "H3",
-      "hypothesis": "Geological hazard monitoring (InSAR, AI) has high technical barriers and recurring service revenue, making it attractive for long-term investment.",
+      "hypothesis": "H3: Emergency equipment demand is cyclical and not a sustainable long-term investment, despite short-term spikes.",
       "decision_relevance": "",
       "needed_evidence": [],
       "search_queries": []
     },
     {
       "id": "H4",
-      "hypothesis": "Emergency equipment demand is cyclical and not suitable for stable returns, but mobile infrastructure (pumps, satellites) may have steady government procurement.",
+      "hypothesis": "H4: A bundled China-UAE solution for urban flood resilience can gain traction in Gulf markets, leveraging China's recent disaster experience.",
       "decision_relevance": "",
       "needed_evidence": [],
       "search_queries": []
     },
     {
       "id": "H5",
-      "hypothesis": "A China-UAE integrated solution combining drainage, slope monitoring, mobile pumps, satellite comms, and insurance models can be marketed to Gulf municipalities.",
+      "hypothesis": "H5: Catastrophe insurance uptake will accelerate, but traditional insurers face near-term claims pressure; parametric insurance models offer better growth.",
       "decision_relevance": "",
       "needed_evidence": [],
       "search_queries": []
@@ -70,49 +72,49 @@
   "validation_data_needs": [
     {
       "id": "D1",
-      "metric": "Government budget allocations for water conservancy and urban drainage in 2026-2027",
+      "metric": "Government budget allocations for water infrastructure and geological monitoring in 2026-2027",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
     },
     {
       "id": "D2",
-      "metric": "List of awarded EPC contracts for dam reinforcement and sponge city projects",
+      "metric": "List of publicly listed Chinese companies with confirmed contracts in reservoir monitoring, drainage, or slope stability",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
     },
     {
       "id": "D3",
-      "metric": "Market size and growth rate for geological monitoring equipment and services in China",
+      "metric": "UAE municipal flood resilience spending plans and existing infrastructure gaps",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
     },
     {
       "id": "D4",
-      "metric": "UAE municipal infrastructure spending plans and climate adaptation budgets",
+      "metric": "Insurance penetration rates for catastrophe coverage in China vs. UAE",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
     },
     {
       "id": "D5",
-      "metric": "Insurance industry data on parametric and catastrophe insurance uptake in China",
+      "metric": "Historical revenue and order backlog data for top 5 water infrastructure and monitoring companies",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
     },
     {
       "id": "D6",
-      "metric": "Technology readiness and cost of InSAR, AI landslide prediction, and digital twin solutions",
+      "metric": "Regulatory framework for public-private partnerships in Chinese disaster resilience projects",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
     },
     {
       "id": "D7",
-      "metric": "Export regulations and certification requirements for Chinese infrastructure solutions in UAE",
+      "metric": "Case studies of successful China-UAE infrastructure technology transfers",
       "decision_use": "",
       "preferred_sources": [],
       "search_queries": []
@@ -194,42 +196,39 @@
     }
   ],
   "search_queries": [
-    "China 2026 water conservancy investment budget central government",
-    "sponge city pilot program 2026 funding allocation China",
-    "geological hazard monitoring market size China 2026",
-    "UAE climate resilience infrastructure spending 2026",
-    "China dam safety sensor market forecast 2026",
-    "Chinese emergency equipment export to Middle East regulations",
-    "parametric insurance China agriculture 2026 market growth",
-    "InSAR landslide monitoring commercial contracts China 2026",
-    "China urban drainage digital twin project case study",
-    "UAE flood risk management solutions procurement 2026",
-    "China infrastructure companies with UAE project experience",
-    "China 2026 special bonds for disaster prevention and mitigation"
+    "China 2026 flood disaster government budget allocation reservoir upgrade drainage",
+    "List of Chinese companies reservoir safety monitoring government contracts 2026",
+    "China urban drainage sponge city investment plan 2026 2027",
+    "UAE flood resilience infrastructure spending 2026 municipal",
+    "China geological monitoring slope radar InSAR listed companies revenue",
+    "China catastrophe insurance market growth parametric insurance 2026",
+    "China UAE infrastructure technology transfer partnership case study",
+    "China emergency equipment pump drone satellite communication companies government orders",
+    "China water infrastructure EPC companies order backlog 2026",
+    "UAE industrial zone flood protection requirements standards"
   ],
-  "source_strategy": "Prioritize official government sources (Ministry of Water Resources, NDRC, Ministry of Emergency Management), industry reports from CCID and Frost & Sullivan, UAE government portals (MOEI, Dubai Municipality), and international development bank publications (World Bank, ADB). Use Chinese-language sources for local procurement data.",
+  "source_strategy": "Primary: Chinese government policy documents (NDRC, Ministry of Water Resources, Ministry of Emergency Management), company annual reports and investor presentations, UAE municipal budget documents. Secondary: Industry reports from McKinsey, BCG on climate resilience infrastructure, insurance industry data from Swiss Re, news articles from Caixin, Xinhua, Gulf News.",
   "outline": [
-    "1. Overview of 2026 China Weather Disasters and Infrastructure Damage",
-    "2. Government Policy Response and Funding Mechanisms",
-    "3. Key Infrastructure Gaps and Technology Needs",
-    "4. Investment Opportunity Analysis by Segment",
-    "5. Cross-Border Solution: China-UAE Climate Resilience Partnership",
-    "6. Risk Factors and Mitigation Strategies"
+    "1. Disaster Overview and Government Response (based on document data)",
+    "2. Sector Deep-Dive: Water Infrastructure and Geological Monitoring",
+    "3. Sector Deep-Dive: Emergency Equipment and Reconstruction",
+    "4. Cross-Border Opportunity: China-UAE Integrated Solution",
+    "5. Investment Criteria and Risk Assessment",
+    "6. Recommendations and Next Steps"
   ],
   "exhibit_ideas": [
-    "Map of disaster-affected regions with casualty and economic loss data",
-    "Table comparing government funding vs insurance payouts by province",
-    "Bar chart of market size for dam monitoring, urban drainage, geological monitoring, and emergency equipment",
-    "Flowchart of China-UAE solution integration and go-to-market strategy",
-    "Timeline of policy milestones and investment cycles"
+    "Map of disaster-affected provinces with key damage statistics (from document)",
+    "Table comparing government funding vs. insurance payouts by sector",
+    "Company scorecard: revenue, government contract share, cash flow, disaster-related revenue",
+    "UAE market entry framework: regulatory, partnership, and financing options",
+    "Timeline of policy announcements and investment cycles"
   ],
   "risks": [
-    "Government budget execution delays due to fiscal constraints",
-    "Competition from state-owned enterprises in infrastructure projects",
-    "Technology transfer barriers and IP protection in cross-border deals",
-    "Regulatory changes in disaster prevention standards",
-    "Currency fluctuation and repatriation risks for UAE investors",
-    "Overestimation of recurring revenue from monitoring services"
+    "Government funding may be delayed or redirected, affecting project timelines.",
+    "Competition from state-owned enterprises may limit returns for private investors.",
+    "UAE market may have different technical standards and slower adoption.",
+    "Insurance sector faces near-term losses, potentially reducing appetite for new products.",
+    "Technological solutions may become obsolete quickly; need to monitor innovation pace."
   ],
   "market_sizing_plan": {
     "sizing_question": "How large is the credible opportunity for China Weather Disaster 2026: Climate Resilience Infrastructure & Investment Opportunities, and which variables still need validation?",

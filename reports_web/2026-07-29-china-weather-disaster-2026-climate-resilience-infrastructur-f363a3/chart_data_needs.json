@@ -1,240 +1,263 @@
 [
   {
     "id": "chart-need-1",
-    "title": "China Government Budget Allocations for Water Conservancy and Urban Drainage (2022-2027)",
+    "title": "Government Budget Allocations for Climate Resilience Infrastructure (2026-2030)",
     "chart_type": "line",
-    "executive_question": "How has central government funding for water conservancy and urban drainage evolved, and what is the projected trajectory post-2026 disasters?",
+    "executive_question": "How is Chinese government funding for water infrastructure and geological monitoring expected to grow over the next five years?",
     "required_metrics": [
-      "{'year': 2022, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Central government water conservancy budget'}",
-      "{'year': 2023, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Central government water conservancy budget'}",
-      "{'year': 2024, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Central government water conservancy budget'}",
-      "{'year': 2025, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Central government water conservancy budget'}",
-      "{'year': 2026, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Central government water conservancy budget'}",
-      "{'year': 2027, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Central government water conservancy budget (projected)'}"
+      "{'year': 2026, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Water infrastructure'}",
+      "{'year': 2027, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Water infrastructure'}",
+      "{'year': 2028, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Water infrastructure'}",
+      "{'year': 2029, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Water infrastructure'}",
+      "{'year': 2030, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Water infrastructure'}",
+      "{'year': 2026, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Geological monitoring'}",
+      "{'year': 2027, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Geological monitoring'}",
+      "{'year': 2028, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Geological monitoring'}",
+      "{'year': 2029, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Geological monitoring'}",
+      "{'year': 2030, 'amount': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Central government', 'segment': 'Geological monitoring'}"
     ],
     "comparison_set": [
-      "Annual budget figures for water conservancy and urban drainage from 2022 to 2027."
+      "Water infrastructure vs. geological monitoring vs. emergency equipment"
     ],
     "preferred_sources": [
-      "Ministry of Water Resources annual budget reports",
-      "NDRC five-year plan implementation reports",
-      "Ministry of Finance budget execution reports"
+      "NDRC five-year plan",
+      "Ministry of Water Resources budget documents",
+      "State Council disaster resilience investment plan"
     ],
     "search_queries": [
-      "China water conservancy investment budget 2022 2023 2024 2025 2026",
-      "central government urban drainage funding allocation 2022-2026",
-      "NDRC water conservancy budget plan 2027"
+      "China water infrastructure investment plan 2026 2030 NDRC budget",
+      "China geological monitoring government funding 2026 2030",
+      "China climate resilience infrastructure budget allocation 2026 2030"
     ],
-    "data_quality_rule": "Use official budget execution data from Ministry of Finance or NDRC. If 2027 projection is unavailable, use CAGR from 2022-2026 and mark as estimate.",
+    "data_quality_rule": "If only 2026 and 2030 endpoints are available, use CAGR from official plan to interpolate intermediate years, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Establishes the scale and trend of public investment to support the claim that government spending is the primary driver of infrastructure opportunities.",
-    "pre_exhibit_context": "The 2026 disasters triggered a surge in government funding. We need to quantify the baseline and the increase to size the addressable market.",
-    "post_exhibit_takeaway": "Central budget allocations have grown at a CAGR of X% from 2022 to 2026, with a projected Y% increase in 2027, confirming sustained fiscal commitment."
+    "narrative_role": "Establishes the scale and trajectory of public investment, validating H1 that water infrastructure receives largest share.",
+    "pre_exhibit_context": "Claim: Government funding for water infrastructure will dominate post-disaster spending. Need to show annual budget trends.",
+    "post_exhibit_takeaway": "Government budgets show a clear upward trend, with water infrastructure receiving 60%+ of total climate resilience allocations, confirming H1."
   },
   {
     "id": "chart-need-2",
-    "title": "Market Size of Geological Hazard Monitoring Equipment and Services in China (2022-2027)",
+    "title": "Revenue and Order Backlog of Top 5 Water Infrastructure Companies (2024-2028)",
     "chart_type": "line",
-    "executive_question": "What is the historical and projected market size for geological hazard monitoring, and is the growth rate sufficient to justify investment?",
+    "executive_question": "Which companies show sustained revenue growth and strong order pipelines in water infrastructure?",
     "required_metrics": [
-      "{'year': 2022, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Geological hazard monitoring market (equipment + services)'}",
-      "{'year': 2023, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Geological hazard monitoring market'}",
-      "{'year': 2024, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Geological hazard monitoring market'}",
-      "{'year': 2025, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Geological hazard monitoring market'}",
-      "{'year': 2026, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Geological hazard monitoring market'}",
-      "{'year': 2027, 'amount': 'value', 'unit': 'CNY billion', 'entity': 'Geological hazard monitoring market (projected)'}"
+      "{'year': 2024, 'revenue': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2025, 'revenue': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2026, 'revenue': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2027, 'revenue': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2028, 'revenue': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2024, 'order_backlog': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2025, 'order_backlog': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2026, 'order_backlog': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2027, 'order_backlog': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}",
+      "{'year': 2028, 'order_backlog': 'XX billion RMB', 'unit': 'RMB', 'entity': 'Company A', 'segment': 'Water infrastructure'}"
     ],
     "comparison_set": [
-      "Annual market size from 2022 to 2027."
+      "Top 5 companies by market cap in water infrastructure sector"
     ],
     "preferred_sources": [
-      "CCID consulting reports",
-      "Frost & Sullivan China geotechnical monitoring market",
-      "Ministry of Emergency Management procurement data"
+      "Company annual reports",
+      "Company investor presentations",
+      "Wind financial database"
     ],
     "search_queries": [
-      "China geological hazard monitoring market size 2022 2023 2024 2025 2026",
-      "geological monitoring equipment market China forecast 2027",
-      "CCID geological disaster monitoring industry report"
+      "China water infrastructure company revenue 2024 2028 annual report",
+      "China reservoir monitoring company order backlog 2026",
+      "Top Chinese water infrastructure companies revenue 2024 2028"
     ],
-    "data_quality_rule": "Prefer industry association or consulting reports. If 2027 projection is unavailable, use CAGR from 2022-2026 and mark as estimate.",
+    "data_quality_rule": "If only 2024 and 2028 data available, use CAGR from company guidance to estimate intermediate years, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Quantifies the opportunity in geological monitoring, supporting the hypothesis that high technical barriers and recurring revenue make it attractive.",
-    "pre_exhibit_context": "Geological hazard monitoring is a niche but high-growth segment. We need to validate market size and growth trajectory.",
-    "post_exhibit_takeaway": "The market grew from X to Y between 2022 and 2026, with a projected CAGR of Z% to 2027, driven by regulatory mandates and technology adoption."
+    "narrative_role": "Validates H2 by showing revenue trends and backlog growth for leading companies, indicating recurring revenue potential.",
+    "pre_exhibit_context": "Claim: Companies with government contracts and recurring service revenue outperform. Need to show revenue and backlog data.",
+    "post_exhibit_takeaway": "Companies with multi-year government contracts show stable revenue growth and expanding backlogs, supporting H2."
   },
   {
     "id": "chart-need-3",
-    "title": "Investment Opportunity Matrix: Risk-Adjusted Return vs. Technology Barrier by Segment",
-    "chart_type": "bubble",
-    "executive_question": "Which infrastructure segments offer the best balance of high return and manageable technology barriers for cross-border investors?",
+    "title": "UAE Municipal Flood Resilience Spending Plans (2026-2030)",
+    "chart_type": "bar",
+    "executive_question": "What is the scale of UAE municipal investment in flood resilience, and which cities are leading?",
     "required_metrics": [
-      "{'segment': 'Dam safety monitoring', 'risk_adjusted_return': 'value', 'unit': 'CNY billion', 'technology_barrier': 'value', 'market_size': 'value'}",
-      "{'segment': 'Urban drainage/sponge city', 'risk_adjusted_return': 'value', 'unit': 'CNY billion', 'technology_barrier': 'value', 'market_size': 'value'}",
-      "{'segment': 'Geological hazard monitoring', 'risk_adjusted_return': 'value', 'unit': 'CNY billion', 'technology_barrier': 'value', 'market_size': 'value'}",
-      "{'segment': 'Emergency equipment', 'risk_adjusted_return': 'value', 'unit': 'CNY billion', 'technology_barrier': 'value', 'market_size': 'value'}"
+      "{'year': 2026, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Dubai Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2027, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Dubai Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2028, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Dubai Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2029, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Dubai Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2030, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Dubai Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2026, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Abu Dhabi Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2027, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Abu Dhabi Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2028, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Abu Dhabi Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2029, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Abu Dhabi Municipality', 'segment': 'Urban drainage'}",
+      "{'year': 2030, 'amount': 'XX million USD', 'unit': 'USD', 'entity': 'Abu Dhabi Municipality', 'segment': 'Urban drainage'}"
     ],
     "comparison_set": [
-      "Four infrastructure segments: dam safety, urban drainage, geological monitoring, emergency equipment."
+      "Dubai vs. Abu Dhabi vs. Sharjah"
     ],
     "preferred_sources": [
-      "Industry expert interviews",
-      "CCID reports",
-      "Ministry of Emergency Management procurement data",
-      "Company annual reports (e.g., CETC, CASIC)"
+      "UAE Ministry of Climate Change and Environment budget",
+      "Dubai Municipality annual budget",
+      "Abu Dhabi Department of Municipalities and Transport"
     ],
     "search_queries": [
-      "dam safety monitoring market size China 2026",
-      "sponge city market size China 2026",
-      "geological hazard monitoring market size China 2026",
-      "emergency equipment market size China 2026"
+      "UAE flood resilience infrastructure spending 2026 2030 municipal budget",
+      "Dubai urban drainage investment plan 2026 2030",
+      "Abu Dhabi flood protection budget 2026 2030"
     ],
-    "data_quality_rule": "Risk-adjusted return and technology barrier are synthetic indices derived from qualitative assessment; clearly state methodology. Market size from credible sources.",
+    "data_quality_rule": "If only total budget available, allocate by population or historical spending share, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Provides a visual comparison of segments to guide investment prioritization, directly addressing the decision question.",
-    "pre_exhibit_context": "Investors need to compare segments on multiple dimensions. This matrix plots segments by risk-adjusted return and technology barrier, with bubble size representing market size.",
-    "post_exhibit_takeaway": "Dam safety monitoring and urban drainage show high returns with moderate barriers, while geological monitoring offers high returns but higher barriers. Emergency equipment has lower returns."
+    "narrative_role": "Quantifies the addressable market for China-UAE integrated solutions, supporting H4.",
+    "pre_exhibit_context": "Claim: UAE municipalities have significant flood resilience spending gaps. Need to show planned investments.",
+    "post_exhibit_takeaway": "UAE municipalities plan to invest over $X billion in flood resilience by 2030, with Dubai and Abu Dhabi leading, confirming a sizable market for Chinese solutions."
   },
   {
     "id": "chart-need-4",
-    "title": "Awarded EPC Contracts for Dam Reinforcement and Sponge City Projects by Province (2026)",
-    "chart_type": "bar",
-    "executive_question": "Which provinces are receiving the most contracts for dam reinforcement and sponge city projects, indicating priority regions for investment?",
+    "title": "Catastrophe Insurance Penetration Rate: China vs. UAE (2020-2026)",
+    "chart_type": "line",
+    "executive_question": "How has catastrophe insurance penetration evolved in China and UAE, and what is the growth trajectory?",
     "required_metrics": [
-      "{'province': 'Guangxi', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}",
-      "{'province': 'Guangdong', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}",
-      "{'province': 'Sichuan', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}",
-      "{'province': 'Jiangsu', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}",
-      "{'province': 'Zhejiang', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}",
-      "{'province': 'Hunan', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}",
-      "{'province': 'Hubei', 'dam_reinforcement_contracts': 'value', 'unit': 'CNY billion', 'sponge_city_contracts': 'value'}"
+      "{'year': 2020, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2021, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2022, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2023, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2024, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2025, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2026, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'China', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2020, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2021, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2022, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2023, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2024, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2025, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}",
+      "{'year': 2026, 'penetration_rate': 'X%', 'unit': 'percentage', 'entity': 'UAE', 'segment': 'Catastrophe insurance'}"
     ],
     "comparison_set": [
-      "Provinces with highest contract values."
+      "China vs. UAE"
     ],
     "preferred_sources": [
-      "China Tendering and Bidding Public Service Platform",
-      "Provincial water resources department announcements",
-      "Construction industry news (e.g., China Construction News)"
+      "Swiss Re sigma reports",
+      "China Banking and Insurance Regulatory Commission (CBIRC)",
+      "UAE Insurance Authority"
     ],
     "search_queries": [
-      "dam reinforcement EPC contract award 2026 province",
-      "sponge city project contract 2026 province",
-      "water conservancy project bidding results 2026"
+      "China catastrophe insurance penetration rate 2020 2026 Swiss Re",
+      "UAE catastrophe insurance penetration rate 2020 2026",
+      "China parametric insurance market growth 2026"
     ],
-    "data_quality_rule": "Use official tender award data. If exact contract values are unavailable, use number of projects or estimated value from project descriptions.",
+    "data_quality_rule": "If only 2020 and 2026 data available, use CAGR from industry reports to estimate intermediate years, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Identifies geographic hotspots for infrastructure spending, guiding market entry and partnership strategies.",
-    "pre_exhibit_context": "Government funding is being deployed through EPC contracts. We need to map where the money is flowing to target investment.",
-    "post_exhibit_takeaway": "Guangxi, Guangdong, and Sichuan lead in dam reinforcement contracts, while Jiangsu and Zhejiang lead in sponge city projects, reflecting disaster impact and policy priorities."
+    "narrative_role": "Validates H5 by showing insurance uptake trends and potential for parametric models.",
+    "pre_exhibit_context": "Claim: Catastrophe insurance uptake is accelerating, but traditional models face pressure. Need to show penetration rates.",
+    "post_exhibit_takeaway": "China's catastrophe insurance penetration has grown from X% to Y% (2020-2026), while UAE remains low at Z%, indicating significant growth potential for parametric insurance."
   },
   {
     "id": "chart-need-5",
-    "title": "UAE Municipal Climate Resilience Infrastructure Spending by Category (2026-2027)",
-    "chart_type": "bar",
-    "executive_question": "How is the UAE allocating its climate resilience budget across infrastructure categories, and where is the demand for external solutions?",
+    "title": "Company Scorecard: Revenue, Government Contract Share, and Disaster-Related Revenue (2026)",
+    "chart_type": "bubble",
+    "executive_question": "Which companies have the highest government contract share and disaster-related revenue, indicating strong positioning?",
     "required_metrics": [
-      "{'category': 'Urban drainage and flood management', 'amount': 'value', 'unit': 'AED billion', 'year': 2026}",
-      "{'category': 'Urban drainage and flood management', 'amount': 'value', 'unit': 'AED billion', 'year': 2027}",
-      "{'category': 'Geological hazard monitoring', 'amount': 'value', 'unit': 'AED billion', 'year': 2026}",
-      "{'category': 'Geological hazard monitoring', 'amount': 'value', 'unit': 'AED billion', 'year': 2027}",
-      "{'category': 'Emergency equipment and mobile infrastructure', 'amount': 'value', 'unit': 'AED billion', 'year': 2026}",
-      "{'category': 'Emergency equipment and mobile infrastructure', 'amount': 'value', 'unit': 'AED billion', 'year': 2027}",
-      "{'category': 'Other resilience infrastructure', 'amount': 'value', 'unit': 'AED billion', 'year': 2026}",
-      "{'category': 'Other resilience infrastructure', 'amount': 'value', 'unit': 'AED billion', 'year': 2027}"
+      "{'year': 2026, 'company': 'Company A', 'total_revenue': 'XX billion RMB', 'unit': 'RMB', 'government_contract_share': 'XX%', 'disaster_related_revenue': 'XX billion RMB'}",
+      "{'year': 2026, 'company': 'Company B', 'total_revenue': 'XX billion RMB', 'unit': 'RMB', 'government_contract_share': 'XX%', 'disaster_related_revenue': 'XX billion RMB'}",
+      "{'year': 2026, 'company': 'Company C', 'total_revenue': 'XX billion RMB', 'unit': 'RMB', 'government_contract_share': 'XX%', 'disaster_related_revenue': 'XX billion RMB'}",
+      "{'year': 2026, 'company': 'Company D', 'total_revenue': 'XX billion RMB', 'unit': 'RMB', 'government_contract_share': 'XX%', 'disaster_related_revenue': 'XX billion RMB'}",
+      "{'year': 2026, 'company': 'Company E', 'total_revenue': 'XX billion RMB', 'unit': 'RMB', 'government_contract_share': 'XX%', 'disaster_related_revenue': 'XX billion RMB'}"
     ],
     "comparison_set": [
-      "Spending categories for 2026 and 2027."
+      "Top 5 companies in water infrastructure and geological monitoring"
     ],
     "preferred_sources": [
-      "UAE Ministry of Energy and Infrastructure budget documents",
-      "Dubai Municipality annual budget",
-      "Abu Dhabi Department of Municipalities and Transport plans"
+      "Company annual reports",
+      "Company investor presentations",
+      "Wind financial database"
     ],
     "search_queries": [
-      "UAE climate resilience infrastructure budget 2026 2027",
-      "Dubai flood management spending 2026",
-      "Abu Dhabi municipal infrastructure investment plan 2026"
+      "China water infrastructure company government contract share 2026 annual report",
+      "China geological monitoring company disaster related revenue 2026",
+      "Top Chinese reservoir monitoring companies revenue 2026"
     ],
-    "data_quality_rule": "Use official budget documents. If category breakdown is not available, use total resilience budget and estimate shares from project announcements.",
+    "data_quality_rule": "If government contract share not disclosed, estimate from revenue breakdown by customer type, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Quantifies the UAE market opportunity for Chinese solutions, supporting the cross-border partnership hypothesis.",
-    "pre_exhibit_context": "The UAE is investing heavily in climate resilience. We need to understand the spending breakdown to identify entry points.",
-    "post_exhibit_takeaway": "Urban drainage and flood management account for the largest share, followed by monitoring systems, indicating strong demand for integrated solutions."
+    "narrative_role": "Identifies top investment targets by combining revenue scale, government dependency, and disaster exposure, supporting H2 and H3.",
+    "pre_exhibit_context": "Claim: Companies with government contracts and recurring revenue outperform. Need to compare companies on key metrics.",
+    "post_exhibit_takeaway": "Companies A and B have high government contract share (>60%) and significant disaster-related revenue, making them attractive for long-term investment."
   },
   {
     "id": "chart-need-6",
-    "title": "Timeline of Policy Milestones and Investment Cycles for Climate Resilience in China (2020-2028)",
+    "title": "Timeline of Policy Announcements and Investment Cycles (2026-2028)",
     "chart_type": "timeline",
-    "executive_question": "What are the key policy events and investment cycles that shape the opportunity window for climate resilience infrastructure?",
+    "executive_question": "What is the sequence of key policy announcements and investment cycles that will shape the market?",
     "required_metrics": [
-      "{'date': '2020-01', 'event': 'Sponge City pilot program expansion', 'type': 'policy'}",
-      "{'date': '2021-06', 'event': '14th Five-Year Plan for Water Security released', 'type': 'policy'}",
-      "{'date': '2022-08', 'event': 'Ministry of Emergency Management established', 'type': 'policy'}",
-      "{'date': '2023-03', 'event': 'Special bonds for disaster prevention increased', 'type': 'funding'}",
-      "{'date': '2024-09', 'event': 'National Dam Safety Reinforcement Plan announced', 'type': 'policy'}",
-      "{'date': '2025-12', 'event': '2025 budget: water conservancy investment reaches X', 'type': 'funding'}",
-      "{'date': '2026-06', 'event': 'Guangxi reservoir breach; emergency response', 'type': 'disaster'}",
-      "{'date': '2026-09', 'event': 'Central government emergency allocation Y billion', 'type': 'funding'}",
-      "{'date': '2027-01', 'event': '2027 budget: projected increase in resilience spending', 'type': 'funding'}",
-      "{'date': '2028-12', 'event': 'End of current investment cycle', 'type': 'cycle'}"
+      "{'date': '2026-Q1', 'event': 'Central government announces 2026-2030 climate resilience plan', 'entity': 'State Council', 'segment': 'Policy'}",
+      "{'date': '2026-Q2', 'event': 'Ministry of Water Resources releases reservoir upgrade tender', 'entity': 'Ministry of Water Resources', 'segment': 'Tender'}",
+      "{'date': '2026-Q3', 'event': 'UAE Dubai Municipality issues flood resilience RFP', 'entity': 'Dubai Municipality', 'segment': 'RFP'}",
+      "{'date': '2027-Q1', 'event': 'China-UAE infrastructure cooperation MOU signed', 'entity': 'Ministry of Commerce', 'segment': 'Policy'}",
+      "{'date': '2027-Q2', 'event': 'First batch of sponge city projects funded', 'entity': 'NDRC', 'segment': 'Funding'}",
+      "{'date': '2027-Q3', 'event': 'Geological monitoring equipment procurement tender', 'entity': 'Ministry of Emergency Management', 'segment': 'Tender'}",
+      "{'date': '2028-Q1', 'event': 'Parametric insurance pilot launched in Guangdong', 'entity': 'CBIRC', 'segment': 'Policy'}",
+      "{'date': '2028-Q2', 'event': 'UAE industrial zone flood protection project awarded', 'entity': 'Abu Dhabi Municipality', 'segment': 'Project'}"
     ],
     "comparison_set": [
-      "Chronological events from 2020 to 2028."
+      "China vs. UAE events"
     ],
     "preferred_sources": [
-      "State Council policy documents",
+      "State Council press releases",
       "Ministry of Water Resources announcements",
-      "NDRC five-year plan documents",
-      "News archives"
+      "UAE government procurement portals"
     ],
     "search_queries": [
-      "China water conservancy policy timeline 2020-2028",
-      "sponge city policy milestones 2020-2026",
-      "China disaster prevention special bonds 2023 2024 2025 2026"
+      "China climate resilience policy timeline 2026 2028 State Council",
+      "UAE flood resilience RFP 2026 2027 Dubai Municipality",
+      "China sponge city project funding timeline 2026 2028"
     ],
-    "data_quality_rule": "Use official policy release dates and budget announcements. For projected events, mark as estimated.",
+    "data_quality_rule": "If exact dates not available, use quarter-level estimates based on typical government fiscal cycles, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Provides temporal context for investment decisions, showing how policy triggers and funding cycles align.",
-    "pre_exhibit_context": "Investment opportunities are time-sensitive and policy-driven. This timeline maps critical milestones.",
-    "post_exhibit_takeaway": "The 2026 disasters triggered emergency funding and policy acceleration, with major investment cycles peaking in 2027-2028, creating a clear window for entry."
+    "narrative_role": "Provides a chronological framework for investment timing, showing when funding becomes available and projects are tendered.",
+    "pre_exhibit_context": "Claim: Government funding cycles and policy announcements drive project timelines. Need to map key events.",
+    "post_exhibit_takeaway": "Major policy announcements in Q1 2026 and Q3 2027 will trigger investment cycles, with project tenders peaking in 2027-2028."
   },
   {
     "id": "chart-need-7",
-    "title": "Adoption Funnel: Pilot to Full-Scale Deployment of Smart Water Management in Chinese Cities (2022-2026)",
-    "chart_type": "line",
-    "executive_question": "How quickly are Chinese cities moving from pilot projects to full-scale deployment of smart water management solutions, and what is the conversion rate?",
+    "title": "Emergency Equipment Demand: Cyclical vs. Structural Growth (2024-2028)",
+    "chart_type": "bar",
+    "executive_question": "Is emergency equipment demand a short-term spike or a sustainable growth trend?",
     "required_metrics": [
-      "{'year': 2022, 'pilot_cities': 'value', 'unit': 'number', 'full_deployment_cities': 'value'}",
-      "{'year': 2023, 'pilot_cities': 'value', 'unit': 'number', 'full_deployment_cities': 'value'}",
-      "{'year': 2024, 'pilot_cities': 'value', 'unit': 'number', 'full_deployment_cities': 'value'}",
-      "{'year': 2025, 'pilot_cities': 'value', 'unit': 'number', 'full_deployment_cities': 'value'}",
-      "{'year': 2026, 'pilot_cities': 'value', 'unit': 'number', 'full_deployment_cities': 'value'}"
+      "{'year': 2024, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Pumps'}",
+      "{'year': 2025, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Pumps'}",
+      "{'year': 2026, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Pumps'}",
+      "{'year': 2027, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Pumps'}",
+      "{'year': 2028, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Pumps'}",
+      "{'year': 2024, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Drones'}",
+      "{'year': 2025, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Drones'}",
+      "{'year': 2026, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Drones'}",
+      "{'year': 2027, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Drones'}",
+      "{'year': 2028, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Drones'}",
+      "{'year': 2024, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Satellite comms'}",
+      "{'year': 2025, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Satellite comms'}",
+      "{'year': 2026, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Satellite comms'}",
+      "{'year': 2027, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Satellite comms'}",
+      "{'year': 2028, 'procurement_volume': 'XX units', 'unit': 'units', 'entity': 'Ministry of Emergency Management', 'segment': 'Satellite comms'}"
     ],
     "comparison_set": [
-      "Annual counts of pilot and full-deployment cities from 2022 to 2026."
+      "Pumps vs. drones vs. satellite comms"
     ],
     "preferred_sources": [
-      "Ministry of Housing and Urban-Rural Development sponge city progress reports",
-      "China Urban Water Association publications",
-      "Smart water management case studies"
+      "Ministry of Emergency Management procurement announcements",
+      "China government procurement platform",
+      "Company order disclosures"
     ],
     "search_queries": [
-      "sponge city pilot cities count 2022 2023 2024 2025 2026",
-      "smart water management full deployment cities China",
-      "China urban drainage digital twin project case study"
+      "China emergency pump procurement 2024 2028 Ministry of Emergency Management",
+      "China drone procurement disaster response 2024 2028",
+      "China satellite communication equipment government orders 2024 2028"
     ],
-    "data_quality_rule": "Use official ministry reports. If exact counts are unavailable, use number of projects or investment amounts as proxy.",
+    "data_quality_rule": "If procurement volume not available, use spending amounts in RMB, mark as estimates.",
     "sizing_role": "",
     "hypothesis_ids": [],
-    "narrative_role": "Demonstrates the adoption trajectory for smart water management, supporting the hypothesis that urban drainage upgrades will create demand for smart solutions.",
-    "pre_exhibit_context": "Smart water management is a key component of sponge city upgrades. We need to track adoption to forecast revenue.",
-    "post_exhibit_takeaway": "The number of pilot cities grew from X to Y between 2022 and 2026, with conversion to full deployment increasing from Z% to W%, indicating accelerating adoption."
+    "narrative_role": "Tests H3 by comparing annual procurement volumes for pumps, drones, and satellite comms, showing whether demand persists beyond disaster years.",
+    "pre_exhibit_context": "Claim: Emergency equipment demand is cyclical. Need to show annual procurement data to assess sustainability.",
+    "post_exhibit_takeaway": "Emergency equipment procurement spiked in 2026 but is projected to decline in 2027-2028, confirming cyclical nature and supporting H3."
   }
 ]
