@@ -1,0 +1,112 @@
+{
+  "core_question": "Which climate resilience infrastructure segments offer the highest risk-adjusted returns for investment, and how can a China-UAE partnership deliver integrated solutions?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, market, adoption",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "In late 2013, President Xi Jinping officially endorsed the sponge city concept, and the following year the Ministry of Housing and Urban-Rural Development issued a set of technical guidelines aimed at ensuring that 70 percent of surface runoff be captured in place.",
+    "In July 2012, a huge rainstorm in Beijing led to flooding that caused 79 deaths and an estimated $1.7 billion in damage.",
+    "The central government has pledged a total of $5.8 billion (40 billion Chinese yuan) to incentivize Shenzhen and the 29 other pilot cities to invest in and ...",
+    "The central government has pledged a total of $5.8 billion (40 billion Chinese yuan) to incentivize Shenzhen and the 29 other pilot cities to invest in and ...",
+    "In what may have been a taste of what’s to come, Super Typhoon Mangkhut, which hit in 2018, blew down half the trees in the city.",
+    "Deng took control of China in 1978, after the death of Mao Zedong."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Dam safety and digital monitoring will see the most sustained investment due to regulatory push after the Guangxi reservoir breach.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Urban drainage upgrades in cities like Shenyang and Nanning will be prioritized with central funding, creating demand for smart water management.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Geological hazard monitoring (InSAR, AI) has high technical barriers and recurring service revenue, making it attractive for long-term investment.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Emergency equipment demand is cyclical and not suitable for stable returns, but mobile infrastructure (pumps, satellites) may have steady government procurement.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "A China-UAE integrated solution combining drainage, slope monitoring, mobile pumps, satellite comms, and insurance models can be marketed to Gulf municipalities.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
