@@ -391,6 +391,8 @@ async def revise_section(
     import os
 
     if document_id not in MOCK_REPORTS:
+        await get_report_details(document_id, db, user)
+    if document_id not in MOCK_REPORTS:
         raise HTTPException(status_code=404, detail="Report not found")
 
     report = MOCK_REPORTS[document_id]
