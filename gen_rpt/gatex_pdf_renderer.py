@@ -186,7 +186,7 @@ def _normalized_section(value: Any, index: int) -> Dict[str, Any]:
 
 def _cover_html(report: Mapping[str, Any]) -> str:
     title = _e(report["title"])
-    subtitle = _e(report.get("subtitle") or report.get("summary") or "Private decision intelligence")
+    subtitle = _e(report.get("summary") or report.get("subtitle") or "Private decision intelligence")
     report_type = _e(report.get("reportType") or "GateX Decision Intelligence")
     classification = _e(release_classification(report))
     language = "ZH" if report.get("language") == "zh" else "EN"

@@ -108,6 +108,10 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertGreaterEqual(artifact["pageCount"], 4)
             self.assertTrue(artifact["qa"]["passed"])
             self.assertRegex(artifact["sha256"], r"^[0-9a-f]{64}$")
+            with fitz.open(path) as document:
+                cover_text = document[0].get_text("text")
+            self.assertIn(payload["summary"], cover_text)
+            self.assertNotIn(payload["subtitle"], cover_text)
 
     def test_renders_chinese_release_with_extractable_cjk_text(self):
         payload = sample_release()
