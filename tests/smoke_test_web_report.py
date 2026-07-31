@@ -3,19 +3,74 @@ from __future__ import annotations
 import json
 import shutil
 import sys
+import zipfile
 from pathlib import Path
+
+import fitz
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from gen_rpt.brand_assets import copy_or_generate_brand_assets
+from gen_rpt.private_sources import combine_source_documents, load_private_sources
 from gen_rpt.research_quality import build_research_fact_pack
 from gen_rpt.web_evidence import build_evidence_exhibits, build_evidence_ledger, build_storyline_plan
 from gen_rpt.web_fetch import SourceDocument
 from gen_rpt.web_publication_contract import publication_contract_prompt
+from gen_rpt.web_report_pipeline import WebReportPipeline
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 from tools.local_web_report_audit import find_consecutive_exhibit_pairs
+
+
+def _write_private_source_fixtures(root: Path) -> None:
+    root.mkdir(parents=True, exist_ok=True)
+    (root / "brief.md").write_text(
+        "# Private Market Brief\n\nPrivate demand reached $120 million in 2025.",
+        encoding="utf-8",
+    )
+    (root / "notes.txt").write_text(
+        "Private operating notes\nCapacity increased 18% during 2024.",
+        encoding="utf-8",
+    )
+    (root / "page.html").write_text(
+        "<html><head><title>Private HTML Evidence</title><script>ignore me</script></head>"
+        "<body><h1>Private HTML Evidence</h1><p>Customer adoption reached 42% in 2026.</p></body></html>",
+        encoding="utf-8",
+    )
+    (root / ".hidden.md").write_text("# Hidden source", encoding="utf-8")
+    (root / "ignored.csv").write_text("ignored,source", encoding="utf-8")
+
+    with zipfile.ZipFile(root / "source.docx", "w") as archive:
+        archive.writestr(
+            "word/document.xml",
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:body>
+    <w:p><w:r><w:t>Private DOCX Evidence</w:t></w:r></w:p>
+    <w:p><w:r><w:t>Operating margin improved 12% in 2025.</w:t></w:r></w:p>
+  </w:body>
+</w:document>""",
+        )
+
+    with zipfile.ZipFile(root / "deck.pptx", "w") as archive:
+        archive.writestr(
+            "ppt/slides/slide1.xml",
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<p:sld xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"
+       xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
+  <p:cSld><p:spTree><p:sp><p:txBody><a:p><a:r><a:t>Private PPTX Evidence</a:t></a:r></a:p>
+  <a:p><a:r><a:t>Pipeline conversion reached 31% in 2026.</a:t></a:r></a:p>
+  </p:txBody></p:sp></p:spTree></p:cSld>
+</p:sld>""",
+        )
+
+    document = fitz.open()
+    page = document.new_page()
+    page.insert_text((72, 72), "Private PDF Evidence: investment reached $75 million in 2024.")
+    document.set_metadata({"title": "Private PDF Evidence"})
+    document.save(root / "paper.pdf")
+    document.close()
 
 
 def main() -> None:
@@ -25,6 +80,20 @@ def main() -> None:
     assets_dir = out / "assets"
     assets_dir.mkdir(parents=True, exist_ok=True)
     assets = copy_or_generate_brand_assets(assets_dir)
+    private_source_dir = out / "private_sources"
+    _write_private_source_fixtures(private_source_dir)
+    private_sources = load_private_sources(private_source_dir)
+    assert len(private_sources) == 6
+    assert {source.source_type for source in private_sources} == {"pdf", "docx", "pptx", "md", "txt", "html"}
+    assert all(source.url.startswith("private://private.collection/") for source in private_sources)
+    assert all(str(private_source_dir) not in source.url for source in private_sources)
+    assert all(source.domain == "private.collection" for source in private_sources)
+    assert any("Operating margin improved 12%" in source.content for source in private_sources)
+    assert any("Pipeline conversion reached 31%" in source.content for source in private_sources)
+    assert any("investment reached $75 million" in source.content for source in private_sources)
+    html_private_source = next(source for source in private_sources if source.source_type == "html")
+    assert html_private_source.title == "Private HTML Evidence"
+    assert "ignore me" not in html_private_source.content
 
     plan = {
         "objective": "Assess how AI can offset the process-industry talent cliff.",
@@ -141,6 +210,31 @@ def main() -> None:
             domain="blueocean.example",
         ),
     ]
+    assert combine_source_documents(sample_sources, private_sources, "web_only") == sample_sources
+    assert combine_source_documents(sample_sources, private_sources, "collection_only") == private_sources
+    combined_sources = combine_source_documents(sample_sources, private_sources, "web_and_collection")
+    assert combined_sources[: len(private_sources)] == private_sources
+    assert combined_sources[len(private_sources) :] == sample_sources
+    assert len(combine_source_documents(sample_sources, private_sources + private_sources, "web_and_collection")) == len(private_sources) + len(sample_sources)
+    try:
+        combine_source_documents(sample_sources, private_sources, "invalid")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("invalid source mode must fail")
+    pipeline = WebReportPipeline(client=object())
+    try:
+        pipeline.build_report(
+            "Private source smoke topic",
+            out / "missing-private-source-output",
+            private_sources=[],
+            source_mode="collection_only",
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("collection_only build must require private sources")
+    assert not (out / "missing-private-source-output").exists()
     fact_pack = build_research_fact_pack("AI and process-industry talent", plan, sample_sources)
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
     storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")

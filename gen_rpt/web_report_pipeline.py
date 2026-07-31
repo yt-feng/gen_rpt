@@ -11,6 +11,7 @@ from .brand_assets import copy_or_generate_brand_assets, write_reference_backup
 from .deepseek_client import DeepSeekClient
 from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
+from .private_sources import combine_source_documents, normalize_source_mode
 from .research_quality import ResearchFactPack, build_research_fact_pack
 from .web_evidence import (
     build_evidence_exhibits,
@@ -58,19 +59,33 @@ class WebReportPipeline:
         rag_context: str | None = None,
         rag_sources: List[SourceDocument] | None = None,
         rag_required: bool = False,
+        *,
+        private_sources: List[SourceDocument] | None = None,
+        source_mode: str = "web_only",
     ) -> Dict[str, Any]:
         run_start = time.monotonic()
-        self.rag_context = rag_context  # Store for use in _plan_research and _synthesize_web_report
+        self.rag_context = rag_context
         self.rag_sources = list(rag_sources or [])
         self.rag_required = bool(rag_required)
         if self.rag_required and (not self.rag_context or not self.rag_sources):
             raise RuntimeError("RAG report generation requires both validated context text and structured sources")
+        normalized_source_mode = normalize_source_mode(source_mode)
+        private_source_list = list(private_sources or [])
+        if normalized_source_mode != "web_only" and not private_source_list:
+            raise ValueError(
+                f"source_mode={normalized_source_mode!r} requires at least one private source"
+            )
         ensure_dir(output_dir)
         assets_dir = output_dir / "assets"
         ensure_dir(assets_dir)
         display_topic = str(topic or "").strip()
-        rag_mode_label = "RAG-GROUNDED" if rag_context else "PUBLIC-RESEARCH"
-        self._log(f"START web report pipeline | topic={display_topic!r} | mode={rag_mode_label} | output_dir={output_dir}")
+        rag_mode_label = "RAG-GROUNDED" if self.rag_context else "PUBLIC-RESEARCH"
+        self._log(
+            "START web report pipeline "
+            f"| topic={display_topic!r} | output_dir={output_dir} "
+            f"| mode={rag_mode_label} | source_mode={normalized_source_mode} "
+            f"| rag_sources={len(self.rag_sources)} | private_sources={len(private_source_list)}"
+        )
         self._log("ETA planning=15-90s, chart_data_needs=10-60s, source_collection=60-300s, evidence=5-15s, synthesis=60-180s, visuals=60-360s")
 
         phase_start = time.monotonic()
@@ -112,15 +127,31 @@ class WebReportPipeline:
         max_queries = int(os.getenv("GEN_RPT_MAX_QUERIES", "18"))
         search_queries = self._expanded_search_queries(plan, chart_data_needs)[:max_queries]
         phase_start = time.monotonic()
-        self._log(
-            "PHASE source_collection started "
-            f"| expected 45-240s | queries={len(search_queries)} | per_query={per_query} | max_sources={max_sources}"
+        public_sources: List[SourceDocument] = []
+        web_required = normalized_source_mode != "collection_only" and self._rag_web_required()
+        if normalized_source_mode == "collection_only":
+            self._log(
+                "PHASE source_collection web search skipped "
+                f"| source_mode={normalized_source_mode} | private_sources={len(private_source_list)}"
+            )
+        else:
+            self._log(
+                "PHASE source_collection started "
+                f"| expected 45-240s | queries={len(search_queries)} | per_query={per_query} | max_sources={max_sources}"
+            )
+            if search_queries:
+                self._log("PHASE source_collection query_plan | " + " || ".join(query[:120] for query in search_queries[:10]))
+            public_sources = self._collect_public_sources(
+                search_queries,
+                per_query=per_query,
+                max_sources=max_sources,
+            )
+        supplemental_sources = combine_source_documents(
+            public_sources,
+            private_source_list,
+            normalized_source_mode,
         )
-        if search_queries:
-            self._log("PHASE source_collection query_plan | " + " || ".join(query[:120] for query in search_queries[:10]))
-        web_required = self._rag_web_required()
-        public_sources = self._collect_public_sources(search_queries, per_query=per_query, max_sources=max_sources)
-        sources = merge_sources(self.rag_sources, public_sources)
+        sources = merge_sources(self.rag_sources, supplemental_sources)
         if self.rag_required and not any(source.source_type == "internal" for source in sources):
             raise RuntimeError("Validated RAG sources were lost before evidence generation")
         rag_source_chunks = {
@@ -132,13 +163,16 @@ class WebReportPipeline:
         domains = sorted({source.domain for source in sources if source.domain})
         self._log(
             "PHASE source_collection completed "
-            f"| elapsed={self._elapsed(phase_start)} | sources={len(sources)} | domains={', '.join(domains[:8]) or 'none'}"
+            f"| elapsed={self._elapsed(phase_start)} | sources={len(sources)} "
+            f"| rag_sources={len(self.rag_sources)} | web_sources={len(public_sources)} "
+            f"| private_sources={len(private_source_list) if normalized_source_mode != 'web_only' else 0} "
+            f"| domains={', '.join(domains[:8]) or 'none'}"
         )
 
         phase_start = time.monotonic()
         self._log("PHASE fact_pack started | expected <10s")
         rag_fact_pack = build_research_fact_pack(display_topic, plan, self.rag_sources) if self.rag_context else None
-        web_fact_pack = build_research_fact_pack(display_topic, plan, public_sources) if self.rag_context and public_sources else None
+        web_fact_pack = build_research_fact_pack(display_topic, plan, supplemental_sources) if self.rag_context and supplemental_sources else None
         fact_pack = rag_fact_pack or build_research_fact_pack(display_topic, plan, sources)
         self._log(
             "PHASE fact_pack completed "
@@ -160,12 +194,12 @@ class WebReportPipeline:
                 web_evidence_ledger = (
                     build_evidence_ledger(
                         display_topic,
-                        public_sources,
+                        supplemental_sources,
                         web_fact_pack or fact_pack,
                         limit=24,
                         id_prefix="WEB-E",
                     )
-                    if public_sources
+                    if supplemental_sources
                     else []
                 )
                 reconciliation = reconcile_rag_web_evidence([*rag_evidence_ledger, *web_evidence_ledger])
@@ -374,7 +408,7 @@ class WebReportPipeline:
         web_query_count = min(
             len(search_queries),
             max(1, min(8, int(os.getenv("GEN_RPT_RAG_WEB_MAX_QUERIES", "4")))),
-        ) if self.rag_context else 0
+        ) if self.rag_context and normalized_source_mode != "collection_only" else 0
         rag_manifest = build_rag_manifest(
             self.rag_context,
             self.rag_sources,
@@ -387,7 +421,7 @@ class WebReportPipeline:
         )
         report["evidenceAudit"] = {
             "manifest": rag_manifest,
-            "reconciliationStatus": "checked" if web_evidence_ledger else "no_structured_web_evidence" if public_sources else "web_search_unavailable",
+            "reconciliationStatus": "checked" if web_evidence_ledger else "no_structured_web_evidence" if supplemental_sources else "web_search_unavailable",
             "corroborationCount": sum(1 for item in web_evidence_ledger if item.get("status") == "corroborates_rag"),
             "evidenceLedger": evidence_ledger,
             "ragEvidenceLedger": rag_evidence_ledger,
@@ -460,6 +494,10 @@ class WebReportPipeline:
             "html_path": str(html_path),
             "markdown_path": str(markdown_path),
             "backup_dir": str(backup_dir),
+            "source_mode": normalized_source_mode,
+            "web_source_count": len(public_sources),
+            "private_source_count": len(private_source_list) if normalized_source_mode != "web_only" else 0,
+            "rag_source_count": len(self.rag_sources),
         }
 
     def _log(self, message: str) -> None:

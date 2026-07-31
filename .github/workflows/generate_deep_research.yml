@@ -18,13 +18,40 @@ on:
         required: false
         default: deepseek-chat
         type: string
+      job_id:
+        description: Optional GateX generation job UUID. Leave empty for the original manual workflow.
+        required: false
+        default: ""
+        type: string
+      language:
+        description: Report language
+        required: false
+        default: en
+        type: choice
+        options:
+          - en
+          - zh
+      source_mode:
+        description: Source policy used by a GateX generation job
+        required: false
+        default: web_only
+        type: choice
+        options:
+          - web_only
+          - collection_only
+          - web_and_collection
+      callback_base:
+        description: GateX callback origin used only when job_id is set
+        required: false
+        default: https://gatex.fund
+        type: string
 
 permissions:
   contents: write
   actions: read
 
 concurrency:
-  group: gen-rpt-${{ github.ref }}
+  group: gen-rpt-${{ inputs.job_id || github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -45,6 +72,10 @@ jobs:
       TOPIC_INPUT: ${{ inputs.topic || '' }}
       SLUG_INPUT: ${{ inputs.slug || '' }}
       MODEL_INPUT: ${{ inputs.model || '' }}
+      JOB_ID_INPUT: ${{ inputs.job_id || '' }}
+      LANGUAGE_INPUT: ${{ inputs.language || 'en' }}
+      SOURCE_MODE_INPUT: ${{ inputs.source_mode || 'web_only' }}
+      CALLBACK_BASE_INPUT: ${{ inputs.callback_base || 'https://gatex.fund' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,6 +110,11 @@ jobs:
           echo "[estimate] Dependency install usually takes 20-90s; cold runners can take up to 3m."
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          if [ -n "$JOB_ID_INPUT" ] && [ -n "$GROQ_API_KEY" ]; then
+            pip install -r review_system/requirements.txt
+          fi
+        env:
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
       - name: Run HTML smoke test
         env:
@@ -88,6 +124,7 @@ jobs:
           python tests/smoke_test_web_report.py
 
       - name: Validate secret
+        if: ${{ env.JOB_ID_INPUT == '' }}
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
         run: |
@@ -97,7 +134,29 @@ jobs:
             exit 1
           fi
 
+      - name: Run GateX generation bridge
+        if: ${{ env.JOB_ID_INPUT != '' }}
+        id: gatex_bridge
+        env:
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+          GATEX_GENERATION_CALLBACK_ALLOWED_HOSTS: gatex.fund,www.gatex.fund
+          REVIEW_MODEL: llama-3.3-70b-versatile
+        run: |
+          set -euo pipefail
+          python -u tools/gatex_generation_bridge.py run \
+            --job-id "$JOB_ID_INPUT" \
+            --topic "$TOPIC_INPUT" \
+            --slug "$SLUG_INPUT" \
+            --language "$LANGUAGE_INPUT" \
+            --source-mode "$SOURCE_MODE_INPUT" \
+            --callback-base "$CALLBACK_BASE_INPUT" \
+            --model "${MODEL_INPUT:-deepseek-chat}" \
+            --out-root reports_web/gatex_jobs
+
       - name: Generate report
+        if: ${{ env.JOB_ID_INPUT == '' }}
         id: generate_report
         env:
           DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
@@ -134,7 +193,7 @@ jobs:
           python -u -m gen_rpt.main_web \
             --topic "$TOPIC" \
             --slug "$SLUG" \
-            --language en \
+            --language "$LANGUAGE_INPUT" \
             --model "$MODEL" \
             --out-root reports_web > "$GEN_LOG" 2>&1 &
           GEN_PID="$!"
@@ -178,11 +237,13 @@ jobs:
           echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
 
       - name: Audit generated report
+        if: ${{ env.JOB_ID_INPUT == '' }}
         run: |
           echo "[estimate] Audit should finish in <10s."
           python tools/local_web_report_audit.py "${{ steps.generate_report.outputs.report_dir }}"
 
       - name: Commit generated report back to repo
+        if: ${{ env.JOB_ID_INPUT == '' }}
         run: |
           set -euo pipefail
           echo "[estimate] Commit and push usually takes 5-60s depending on artifact size and remote contention."
@@ -203,6 +264,7 @@ jobs:
       # the secret and sets an output flag, then subsequent steps gate on that.
       - name: Check R2 secrets
         id: check_r2
+        if: ${{ env.JOB_ID_INPUT == '' }}
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -219,13 +281,13 @@ jobs:
 
       # ── R2: Install storage dependencies ──────────────────────────────────
       - name: Install R2 storage dependencies
-        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        if: ${{ env.JOB_ID_INPUT == '' && steps.check_r2.outputs.has_r2_secrets == 'true' }}
         run: |
           pip install -r storage/requirements.txt
 
       # ── R2: Upload report ──────────────────────────────────────────────────
       - name: Upload report to R2
-        if: steps.check_r2.outputs.has_r2_secrets == 'true'
+        if: ${{ env.JOB_ID_INPUT == '' && steps.check_r2.outputs.has_r2_secrets == 'true' }}
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -252,7 +314,7 @@ jobs:
 
       # ── R2: Upload storage logs as artifact ──────────────────────────────────
       - name: Upload R2 storage logs
-        if: steps.check_r2.outputs.has_r2_secrets == 'true' && always()
+        if: ${{ always() && env.JOB_ID_INPUT == '' && steps.check_r2.outputs.has_r2_secrets == 'true' }}
         uses: actions/upload-artifact@v4
         with:
           name: r2-storage-logs-report
@@ -260,4 +322,75 @@ jobs:
           retention-days: 30
           if-no-files-found: ignore
 
+      - name: Notify GateX if the workflow stopped before completion
+        if: ${{ failure() && env.JOB_ID_INPUT != '' && steps.gatex_bridge.outputs.gatex_completed != 'true' && steps.gatex_bridge.outputs.gatex_failure_notified != 'true' }}
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+        run: |
+          python3 - <<'PY' || true
+          import json
+          import os
+          import time
+          import uuid
+          from urllib.error import HTTPError, URLError
+          from urllib.parse import urlparse
+          from urllib.request import Request, urlopen
 
+          job_id = str(uuid.UUID(os.environ["JOB_ID_INPUT"]))
+          callback_base = os.environ["CALLBACK_BASE_INPUT"].strip().rstrip("/")
+          parsed = urlparse(callback_base)
+          try:
+              port = parsed.port
+          except ValueError as exc:
+              raise ValueError("GateX callback origin contains an invalid port.") from exc
+          if (
+              parsed.scheme != "https"
+              or parsed.hostname not in {"gatex.fund", "www.gatex.fund"}
+              or parsed.username is not None
+              or parsed.password is not None
+              or port not in {None, 443}
+              or parsed.path not in {"", "/"}
+              or parsed.params
+              or parsed.query
+              or parsed.fragment
+          ):
+              raise ValueError("GateX callback origin is not allowed.")
+          callback_base = f"https://{parsed.hostname}"
+          token = os.environ.get("GATEX_GENERATION_CALLBACK_SECRET", "").strip()
+          if not token:
+              raise ValueError("GATEX_GENERATION_CALLBACK_SECRET is missing.")
+          body = json.dumps(
+              {
+                  "phase": "failed",
+                  "error": "The GitHub Actions workflow stopped before the GateX bridge completed.",
+                  "message": "The GateX generation workflow stopped before completion.",
+                  "workflowRunId": os.environ.get("GITHUB_RUN_ID", ""),
+              }
+          ).encode("utf-8")
+          endpoint = f"{callback_base}/api/generation/jobs/{job_id}/fail"
+          last_error = None
+          for attempt in range(4):
+              request = Request(
+                  endpoint,
+                  data=body,
+                  method="POST",
+                  headers={
+                      "authorization": f"Bearer {token}",
+                      "content-type": "application/json",
+                      "user-agent": "GateX-GenRPT-Bridge/1.0",
+                  },
+              )
+              try:
+                  with urlopen(request, timeout=45) as response:
+                      if 200 <= response.status < 300:
+                          break
+              except HTTPError as exc:
+                  last_error = exc
+                  if exc.code < 500 and exc.code != 429:
+                      raise
+              except URLError as exc:
+                  last_error = exc
+              if attempt == 3:
+                  raise RuntimeError(f"GateX fail callback was not accepted: {last_error}")
+              time.sleep(2**attempt)
+          PY
