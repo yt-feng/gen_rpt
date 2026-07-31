@@ -211,8 +211,8 @@ def rag_report_quality_issues(
         if not paragraphs and str(section.get("body") or "").strip():
             paragraphs = [str(section.get("body")).strip()]
         lead = str(section.get("lead") or "").strip()
-        if len(paragraphs) < 3 or len(lead) + sum(map(len, paragraphs)) < 450:
-            issues.append(f"Section {index} is too thin; use at least three evidence-led analytical paragraphs.")
+        if len(paragraphs) < 5 or len(lead) + sum(map(len, paragraphs)) < 900:
+            issues.append(f"Section {index} is too thin; use at least five evidence-led analytical paragraphs of 60+ words each.")
         evidence = [str(item).strip() for item in section.get("evidence", []) or [] if str(item).strip()]
         if not evidence:
             issues.append(f"Section {index} has no traceable document evidence.")
@@ -301,9 +301,9 @@ def repair_rag_report_structure(report: dict, topic: str = "") -> dict:
                 f"To preserve operating flexibility, decision-makers should maintain strict risk limits, monitor lead indicators, and align capital deployment with verified progress metrics."
             )
 
-        # Ensure total section text length >= 450 chars
+        # Ensure total section text length >= 900 chars
         total_len = len(lead) + sum(len(p) for p in paragraphs)
-        if total_len < 450:
+        if total_len < 900:
             expansion = f" In summary, {sec_title} highlights the necessity of structured decision gates and evidence density to navigate market uncertainties effectively."
             paragraphs[-1] = paragraphs[-1] + expansion
 

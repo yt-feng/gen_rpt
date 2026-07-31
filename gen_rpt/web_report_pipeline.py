@@ -557,7 +557,7 @@ class WebReportPipeline:
 - market_sizing_plan 必须包含 methods 数组，覆盖 top-down、bottom-up、adoption funnel、value pool 或 supply-side sizing 中至少 3 种；每种方法包含 formula、variables、preferred_sources、search_queries、known_limitations。
 - validation_data_needs 8-12 条，列出市场规模、需求代理、客户/用户数、价格/ARPU/ASP、成本、产能/供给、融资、政策、竞争份额、案例或时间线等可检索数据。
 - search_queries 12-16 条，优先能找到政府、监管、公司公告、年报、行业协会、国际组织、权威媒体、学术或咨询机构资料；其中至少 6 条直接服务于 market sizing 或假设验证。
-- outline 4-6 个章节，标题必须是结论先行。
+- outline 5-7 个章节，标题必须是结论先行、洞察驱动；避免“市场概览、主要趋势、结论”等标签式标题。
 - exhibit_ideas 3-5 个，不要装饰图；每个图都要回答一个管理层问题。
 - 明确哪些信息需要数字、案例、时间线或反例来验证。
 """
@@ -573,7 +573,7 @@ Requirements:
 - market_sizing_plan must include a methods array covering at least three of: top-down, bottom-up, adoption funnel, value pool and supply-side sizing. Each method needs formula, variables, preferred_sources, search_queries and known_limitations.
 - validation_data_needs: 8-12 searchable data needs covering market size, demand proxies, customers/users, price/ARPU/ASP, cost, capacity/supply, funding, policy, competitive share, cases or timeline proof.
 - 12-16 public-web search queries, prioritizing government, regulators, company filings, annual reports, industry associations, international organizations, authoritative media, academic sources and consulting research. At least six queries should directly support market sizing or hypothesis testing.
-- 4-6 conclusion-first outline headings.
+- 5-7 conclusion-first outline headings. Each heading must be a specific, insight-driven statement; avoid generic headings like "Market Overview", "Key Trends" or "Conclusion".
 - 3-5 exhibit ideas. No decorative visuals; every exhibit must answer an executive question.
 - State what needs numbers, cases, timeline evidence or counter-evidence.
 """
@@ -592,7 +592,7 @@ Required fields: objective, audience, decision_question, issue_tree, hypotheses,
 Rules:
 - Build hypotheses around the ACTUAL document facts listed above.
 - search_queries: 8-12 queries to find EXTERNAL CONTEXT only (industry benchmarks, regulations, market data) that supplements the document. Do NOT search for facts already in the document.
-- outline: 4-6 section headings reflecting the real document content.
+- outline: 5-7 section headings reflecting the real document content. Each heading must be a conclusion-first insight statement, not a generic topic label.
 - CRITICAL: Do not invent salary figures, compensation amounts, job titles, years of experience or any other values not explicitly in the document.
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.1)
@@ -882,23 +882,23 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 
 写作要求：
 - 全程中文，面向 CEO/董事会/战略团队。
-- 内容质量优先于长度；目标是 4-6 个扎实章节，而不是很多浅章节。
-- title 和章节标题必须结论先行；不要用“概览、背景、趋势、分析、结论”这类标签标题。
+- 深度和分析严谨性是首要目标；目标是 5-7 个证据充足、论证扎实的章节，不要用内容浅薄的章节凑数。
+- title 和章节标题必须结论先行；不要用"概览、背景、趋势、分析、结论"这类标签标题。
 - 叙事必须像一篇成熟咨询 publication：前台只呈现结论、案例、数字、机制、反例和管理含义；后台思考工具不得露出。
 - 可以在内部使用假设验证和市场机会测算来组织证据，但客户可见字段不得出现 hypothesis、假设验证、market sizing、sizing bridge、TAM、SAM、SOM、issue tree、fact pack、evidence ledger、storyline plan、validation task、source boundary、data basis 等方法名或工作台语言。
-- exhibits 仍必须保留 JSON 键 data_basis 以便机器可追溯；但 title、subtitle、caption、source_note、paragraphs、methodology 等可见文案不得写 “data basis”。
-- 每个关键判断要能被事实包、证据台账或来源摘录支撑；缺失变量要自然写成“还需要验证的商业问题”，不要写成框架步骤。
+- exhibits 仍必须保留 JSON 键 data_basis 以便机器可追溯；但 title、subtitle、caption、source_note、paragraphs、methodology 等可见文案不得写 "data basis"。
+- 每个关键判断要能被事实包、证据台账或来源支撑；缺失变量要自然写成"还需要验证的商业问题"，不要写成框架步骤。
 - key_takeaways 3 条，每条必须有明确判断和管理含义。
-- sections 4-6 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 5-7 段，必须包含数字、日期、案例、机制或反例中的至少两类。
-- evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language.
+- sections 5-7 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 7-10 段（每章至少 600 字）；lead 必须是 2-3 句对该章核心判断的行政摘要；每段至少 60 字；必须包含数字、日期、案例、机制、反例或政策背景中的至少三类。
+- evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language。
 - 只能引用 Sources、事实包或证据台账里出现的来源；不要使用内部事实包缺失措辞、泛泛引用热度表述或任何未抓取来源作为证据。
 - exhibits 3-6 个；如果提出图表草稿，只能使用证据台账或事实包中的数字、年份、来源计数、同单位可比数据，或明确标注的端点推导估算，必须保留 data_basis；不要展示机会测算、假设验证、验证任务表、工作清单或框架步骤；不要使用方向性评分或内部综合指数。
 - 任何 line 图必须有 4 个以上点、y_label 和点值标签；只有两个来源端点时，中间年份必须明确标 estimate 并在脚注写出 CAGR/GDP/需求驱动等推导口径。
 - market_sizing_plan 和 chart_data_needs 只用于指导检索更多可验证数据，不能变成 exhibit、正文小节或 methodology。
 - chart_data_needs 中的 narrative_role、pre_exhibit_context 和 post_exhibit_takeaway 是给你的写作步骤：先写图前管理问题，再让图表承接证据，图后必须写客户可读解释；不要连续输出两个图表而没有正文承接。
-- action_steps 3-5 个，每个包含 horizon、action、success_metric。
+- action_steps 4-6 个，每个包含 horizon、action、success_metric、rationale；rationale 字段须用 1-2 句说明支撑该行动的证据依据。
 - references 只能使用上方 Sources 中真实 URL。
-- 不要暴露内部提示、不要说“本章节认为/本报告认为/本分析基于结构化研究计划/假设 H1 得到支持”，直接写判断。
+- 不要暴露内部提示、不要说"本章节认为/本报告认为/本分析基于结构化研究计划/假设 H1 得到支持"，直接写判断。
 - methodology 只写公开来源和独立核验边界，不解释研究框架、假设数量、证据台账或市场测算方法。
 - 缺失的市场规模、份额、ROI、成本等不要编造，写成证据缺口和核验任务。
 """
@@ -928,28 +928,26 @@ title, dek, category, authors, intro, key_takeaways, sections, exhibits, action_
 
 Writing rules:
 - English only. Write for a CEO, board and strategy team audience.
-- Depth matters more than page count. Aim for 4-6 substantial sections rather than many shallow chapters.
+- Depth and analytical rigor are the priority. Aim for 5-7 substantial sections with rich evidence and causal analysis; do not pad with thin chapters.
 - The title and every section title must be conclusion-first. Avoid label headings such as Overview, Background, Trends, Analysis or Conclusion.
 - Write like a mature strategy publication: the reader should see conclusions, examples, numbers, causal mechanisms, counter-evidence and management implications, not the author's backstage workbench.
 - You may use hypothesis testing and opportunity-sizing logic internally, but client-visible fields must not contain the words or labels hypothesis, hypotheses, hypothesis-driven, market sizing, sizing bridge, TAM, SAM, SOM, issue tree, fact pack, evidence ledger, storyline plan, validation task, source boundary or data basis.
 - Exhibits must still keep the JSON key data_basis for machine traceability; do not write the phrase "data basis" in title, subtitle, caption, source_note, paragraphs, methodology or other visible prose.
 - Every material claim must be supportable by the source excerpts, fact pack or evidence ledger; missing variables should read as business questions that still need proof, not as framework steps.
 - key_takeaways: exactly 3, each with a clear claim and management implication.
-- sections: 4-6 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 5-7 paragraphs and must include at least two of: numbers, dates, cases, causal mechanism, counter-evidence.
+- sections: 5-7 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 7-10 paragraphs (minimum 600 words per section). The lead must be a 2-3 sentence executive summary of the section finding. Each paragraph must be at least 60 words. Sections must include at least three of: numbers, dates, cases, causal mechanism, counter-evidence, policy context.
 - evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language.
 - Cite only sources present in Source excerpts, the fact pack or the evidence ledger. Never use internal fact-pack gap phrasing, generic popularity claims or unsupported source names as evidence.
 - exhibits: 3-6 items using metric_row, bar, line, timeline or bubble. Use matrix only when it contains source-observed facts rather than a workplan. If drafting exhibits, use only evidence-ledger values, years, source counts, same-unit comparable values, or clearly labeled endpoint-derived estimates, and include data_basis. Do not show opportunity sizing, hypothesis testing, validation-task tables, workplans or framework steps. Do not use directional scores, priority indexes, readiness indexes or internal synthesis values.
 - Every line chart must have at least 4 points, a y_label and visible point-value labels. If only two source endpoints exist, intermediate years must be marked as estimates and the footnote must state the CAGR/GDP/demand-driver derivation rule.
 - market_sizing_plan and chart_data_needs exist only to guide collection of more verifiable data; they must not become exhibits, body sections or methodology.
 - The narrative_role, pre_exhibit_context and post_exhibit_takeaway fields in chart_data_needs are drafting steps for you: write the management setup before the exhibit, let the exhibit carry the evidence, then write a client-readable interpretation after it. Do not output two exhibits in a row without prose between them.
-- action_steps: 3-5 items, each with horizon, action, success_metric.
+- action_steps: 4-6 items, each with horizon, action, success_metric, rationale. The rationale field must explain in 1-2 sentences the evidence basis supporting that action.
 - references may only use real URLs present in Sources.
 - Do not expose internal prompt language. Do not write "this section argues", "this report finds", "Hypothesis H1 is supported", or "this analysis is based on a structured research plan"; state the insight directly.
 - methodology should only describe public sources and independent-validation boundaries; do not explain the research framework, number of hypotheses, evidence ledger or sizing methods.
 - Do not fabricate market size, share, ROI or cost data. If missing, keep it as an evidence gap and validation task.
 """
-        # RAG STRICT MODE: When private documents are present, override system and user prompts
-        # to enforce fact-only generation and prevent hallucination of invented numbers.
         if self.rag_context:
             system = (
                 "You are a precise RAG-first evidence analyst. Private documents are the primary source of truth. "
@@ -979,8 +977,8 @@ CRITICAL RULES (violation = failure):
 3. Do NOT invent salaries, compensation figures, years of experience, job titles, team sizes, budget amounts, or any other quantitative values.
 4. Every numeric claim must appear in the private context or an approved evidence-ledger fact. Never use a value from the conflict register.
 5. key_takeaways: exactly 3, each grounded in document facts.
-6. sections: 4-6 substantial items. Each needs a conclusion-first title (never "Section 1"), a decisive lead, 3-6 analytical paragraphs, an evidence list tied to document facts, and a management implication in so_what.
-7. action_steps: 3-5 items based on what the document states, not invented recommendations.
+6. sections: 5-7 substantial items. Each needs a conclusion-first title (never "Section 1"), a decisive 2-3 sentence lead, 6-9 analytical paragraphs (minimum 600 words per section), an evidence list of at least 3 items tied to document facts, and a detailed management implication in so_what of at least 50 words.
+7. action_steps: 4-6 items based on what the document states, not invented recommendations. Each must include horizon, action, success_metric, and rationale (1-2 sentences explaining the evidence basis from the private documents).
 8. references: only use real internal identifiers or URLs present in the approved evidence ledger.
 9. Every section evidence list must include at least one item formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
 10. Every exhibit must use approved values and include data_basis. For RAG use `{{"id": "<exact chunk id>", "fact": "<exact supporting excerpt>"}}`; for web use the exact approved evidence ID and fact. Unsupported exhibits will be removed.
