@@ -266,6 +266,14 @@ def _safe_file_name(value: str, index: int) -> str:
     return f"{index:03d}-{stem}{suffix}"
 
 
+def _private_reference_url(document_id: str, original_name: str, index: int) -> str:
+    """Return an opaque, stable URL used only to retain private-source citations."""
+
+    seed = str(document_id or "").strip() or f"{index}:{original_name}"
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()[:16]
+    return f"private://gatex.collection/{digest}"
+
+
 def download_private_sources(
     api: GateXApi,
     manifest: Dict[str, Any],
@@ -310,7 +318,7 @@ def download_private_sources(
             documents.append(
                 SourceDocument(
                     title=original_name,
-                    url="",
+                    url=_private_reference_url(document_id, original_name, index),
                     query="GateX private knowledge collection",
                     snippet=snippet[:600],
                     content=text[:MAX_EXTRACTED_CHARS],

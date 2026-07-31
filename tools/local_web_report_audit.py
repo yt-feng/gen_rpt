@@ -66,6 +66,19 @@ META_CHART_PATTERNS = (
 )
 
 
+def required_reference_count(sources: Any) -> int:
+    """Require every available source up to the four-source publication target."""
+
+    source_items = sources if isinstance(sources, list) else []
+    source_urls = {
+        str(item.get("url") or "").strip()
+        for item in source_items
+        if isinstance(item, dict) and str(item.get("url") or "").strip()
+    }
+    source_count = len(source_urls)
+    return min(4, source_count) if source_count else 4
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit HTML-first thought leadership report output.")
     parser.add_argument("report_dir", type=Path)
@@ -112,6 +125,7 @@ def main() -> int:
     }
     action_steps = [x for x in as_list(payload.get("action_steps")) if isinstance(x, dict)]
     references = [x for x in as_list(payload.get("references")) if isinstance(x, dict)]
+    minimum_references = required_reference_count(sources)
     ledger_items = [x for x in as_list(evidence_ledger) if isinstance(x, dict)]
     chart_needs = [x for x in as_list(chart_data_needs) if isinstance(x, dict)]
     data_backed_exhibits = [x for x in exhibits if any(isinstance(item, dict) for item in as_list(x.get("data_basis")))]
@@ -123,6 +137,7 @@ def main() -> int:
             "takeaways": len(takeaways),
             "actions": len(action_steps),
             "references": len(references),
+            "required_references": minimum_references,
             "evidence_ledger_points": len(ledger_items),
             "chart_data_needs": len(chart_needs),
             "data_backed_exhibits": len(data_backed_exhibits),
@@ -147,8 +162,10 @@ def main() -> int:
         issues.append(f"expected 3-6 exhibits, got {len(exhibits)}")
     if len(action_steps) < 3:
         issues.append(f"expected at least 3 action steps, got {len(action_steps)}")
-    if len(references) < 4:
-        issues.append(f"expected at least 4 retained references, got {len(references)}")
+    if len(references) < minimum_references:
+        issues.append(
+            f"expected at least {minimum_references} retained references, got {len(references)}"
+        )
     if len(html_text) < 12000:
         issues.append(f"HTML article appears too thin ({len(html_text)} text chars)")
     if len(ledger_items) < 3:
