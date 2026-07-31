@@ -1,0 +1,218 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Annual Economic Losses from Weather Disasters in China (2016-2026)",
+    "chart_type": "line",
+    "executive_question": "How have annual economic losses from weather disasters trended over the past decade, and what is the 2026 estimate?",
+    "required_metrics": [
+      "Annual economic losses (RMB billion) from weather disasters in China for years 2016-2026",
+      "Year (2016-2026)",
+      "Loss amount (RMB billion)",
+      "Entity: China (national)"
+    ],
+    "comparison_set": [
+      "Year-over-year trend from 2016 to 2026"
+    ],
+    "preferred_sources": [
+      "Ministry of Emergency Management (MEM) annual disaster reports",
+      "National Bureau of Statistics of China",
+      "World Bank disaster loss database"
+    ],
+    "search_queries": [
+      "China annual economic losses weather disasters 2016 2026 official data",
+      "Ministry of Emergency Management China disaster loss statistics 2026",
+      "China weather disaster economic loss trend 2016 2026"
+    ],
+    "data_quality_rule": "Use official government or international organization data. If 2026 data is preliminary, mark as estimate. Require at least 4 annual data points; if only two endpoints are found, use CAGR to interpolate and label as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the scale and urgency of the disaster impact, setting the stage for investment opportunities.",
+    "pre_exhibit_context": "The report claims that 2026 losses exceed ¥68B, but we need to show the historical trend to contextualize this figure.",
+    "post_exhibit_takeaway": "Losses have been volatile but generally increasing, with 2026 representing a peak, underscoring the need for resilience investment."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Government Investment in Climate Resilience Infrastructure (2020-2028)",
+    "chart_type": "line",
+    "executive_question": "How has government investment in climate resilience infrastructure evolved, and what are the projected allocations for 2026-2028?",
+    "required_metrics": [
+      "Annual government investment (RMB billion) in climate resilience infrastructure for years 2020-2028",
+      "Year (2020-2028)",
+      "Investment amount (RMB billion)",
+      "Entity: China (national and provincial)"
+    ],
+    "comparison_set": [
+      "Year-over-year trend from 2020 to 2028"
+    ],
+    "preferred_sources": [
+      "Ministry of Finance budget documents",
+      "NDRC investment plans",
+      "Ministry of Water Resources annual reports"
+    ],
+    "search_queries": [
+      "China government investment climate resilience infrastructure 2020 2028 budget",
+      "NDRC urban drainage investment plan 2026",
+      "China fiscal response flood disaster 2026 investment"
+    ],
+    "data_quality_rule": "Use official budget or plan documents. For future years, use announced plans and mark as projections. Require at least 4 annual data points; if only two endpoints are found, use CAGR to interpolate and label as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the policy tailwind and multi-year investment pipeline that underpins market growth.",
+    "pre_exhibit_context": "The report claims ¥200-250B in 2026 fiscal response and ¥500-800B urban drainage plan; we need to show the historical and projected investment trend.",
+    "post_exhibit_takeaway": "Government investment is on a clear upward trajectory, with a significant jump in 2026, signaling sustained opportunities."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Smart Water Management Market Size and Growth (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the market size and growth trajectory for smart water management in China?",
+    "required_metrics": [
+      "Market size (RMB billion) for smart water management in China for years 2020-2030",
+      "Year (2020-2030)",
+      "Market size (RMB billion)",
+      "Entity: China (national)"
+    ],
+    "comparison_set": [
+      "Year-over-year trend from 2020 to 2030"
+    ],
+    "preferred_sources": [
+      "Frost & Sullivan market reports",
+      "IDC China smart water forecast",
+      "China Water Risk reports"
+    ],
+    "search_queries": [
+      "China smart water management market size 2020 2030 forecast",
+      "Frost Sullivan China smart water market 2026",
+      "IDC China smart water market forecast 2026"
+    ],
+    "data_quality_rule": "Use credible market research reports. If only two endpoints are found, use CAGR to interpolate and label as estimates. Require at least 4 annual data points.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the opportunity in a key segment, showing its size and growth potential.",
+    "pre_exhibit_context": "The report claims the market is ¥42B in 2025 growing at 14% CAGR; we need to show the historical and projected trend.",
+    "post_exhibit_takeaway": "Smart water management is a high-growth market with a clear upward trend, making it an attractive investment."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Geo-hazard Monitoring Market Size and Growth (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the market size and growth trajectory for geo-hazard monitoring in China?",
+    "required_metrics": [
+      "Market size (RMB billion) for geo-hazard monitoring in China for years 2020-2030",
+      "Year (2020-2030)",
+      "Market size (RMB billion)",
+      "Entity: China (national)"
+    ],
+    "comparison_set": [
+      "Year-over-year trend from 2020 to 2030"
+    ],
+    "preferred_sources": [
+      "China Geological Survey reports",
+      "Industry association data",
+      "Market research firms (e.g., MarketsandMarkets)"
+    ],
+    "search_queries": [
+      "China geo-hazard monitoring market size 2020 2030 forecast",
+      "China geological disaster monitoring market 2026",
+      "Geo-hazard monitoring market China growth rate"
+    ],
+    "data_quality_rule": "Use credible market research reports. If only two endpoints are found, use CAGR to interpolate and label as estimates. Require at least 4 annual data points.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the opportunity in a niche but high-margin segment.",
+    "pre_exhibit_context": "The report claims the market is ¥18B growing at 18% CAGR; we need to show the historical and projected trend.",
+    "post_exhibit_takeaway": "Geo-hazard monitoring is a rapidly growing niche with strong potential, driven by policy and technology."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Market Size vs. Growth Rate for Climate Resilience Segments (2026)",
+    "chart_type": "bubble",
+    "executive_question": "How do different climate resilience segments compare in market size and growth rate?",
+    "required_metrics": [
+      "Market size (RMB billion) for each segment in 2026",
+      "Growth rate (CAGR %) for each segment for 2026-2030",
+      "Segment name (smart water, sponge city, geo-hazard, emergency equipment, agricultural insurance)",
+      "Year: 2026"
+    ],
+    "comparison_set": [
+      "Segments compared on market size (x-axis) and growth rate (y-axis)"
+    ],
+    "preferred_sources": [
+      "Market research reports (Frost & Sullivan, IDC)",
+      "Industry association data",
+      "Company annual reports"
+    ],
+    "search_queries": [
+      "China smart water market size 2026 growth rate",
+      "China sponge city market size 2026",
+      "China geo-hazard monitoring market size 2026",
+      "China emergency equipment market size 2026"
+    ],
+    "data_quality_rule": "Use consistent sources for all segments. If data is unavailable for a segment, exclude it or mark as not available. Do not invent values.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a comparative view of investment opportunities across segments, highlighting the most attractive ones.",
+    "pre_exhibit_context": "The report discusses multiple segments (smart water, sponge city, geo-hazard, emergency equipment, agricultural insurance); we need to visualize their relative attractiveness.",
+    "post_exhibit_takeaway": "Smart water and geo-hazard monitoring offer the best combination of size and growth, while agricultural insurance is large but slower-growing."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Government Funding Allocation by Program (2026)",
+    "chart_type": "bar",
+    "executive_question": "How is the 2026 government funding for climate resilience allocated across different programs?",
+    "required_metrics": [
+      "Funding amount (RMB billion) allocated to each program in 2026",
+      "Program name (urban drainage, reservoir reinforcement, geo-hazard monitoring, emergency equipment, agricultural insurance, etc.)",
+      "Year: 2026"
+    ],
+    "comparison_set": [
+      "Programs compared by funding amount"
+    ],
+    "preferred_sources": [
+      "Ministry of Finance budget documents",
+      "NDRC investment plans",
+      "Ministry of Water Resources announcements"
+    ],
+    "search_queries": [
+      "China 2026 flood resilience funding allocation by program",
+      "Ministry of Finance China disaster resilience budget 2026",
+      "NDRC urban drainage investment 2026"
+    ],
+    "data_quality_rule": "Use official budget documents. If exact allocations are not public, use announced plans and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows where the money is going, helping investors identify priority areas.",
+    "pre_exhibit_context": "The report claims ¥200-250B in fiscal response; we need to break down the allocation by program.",
+    "post_exhibit_takeaway": "Urban drainage and reservoir reinforcement receive the largest shares, indicating where the most significant opportunities lie."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Timeline of Policy Milestones and Investment Windows (2024-2028)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key policy milestones and investment windows for climate resilience in China?",
+    "required_metrics": [
+      "Date (year and quarter) of each policy milestone or investment window",
+      "Milestone description (e.g., policy announcement, funding allocation, project start)",
+      "Entity: China (national and provincial)"
+    ],
+    "comparison_set": [
+      "Chronological sequence from 2024 to 2028"
+    ],
+    "preferred_sources": [
+      "Government policy documents",
+      "NDRC announcements",
+      "Ministry of Water Resources plans"
+    ],
+    "search_queries": [
+      "China climate resilience policy timeline 2024 2028",
+      "China urban drainage investment plan 2026 announcement",
+      "China sponge city program 2026 new investment"
+    ],
+    "data_quality_rule": "Use official policy announcements and credible news sources. Mark estimated dates as such.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a chronological view of policy developments and investment opportunities, helping investors time their entry.",
+    "pre_exhibit_context": "The report discusses upcoming policies and investment plans; we need to visualize the sequence of events.",
+    "post_exhibit_takeaway": "There are clear investment windows around policy announcements and implementation phases, with 2026 being a pivotal year."
+  }
+]

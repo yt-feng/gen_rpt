@@ -1,0 +1,44 @@
+Title: text.md (Fragment 824a0aae)
+URL: internal://documents/6b59b466-fc66-4626-843b-1d5fb60af3e6#chunk=824a0aae-e0d8-45ba-8b7e-477af7b3d776
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: China Weather Disaster 2026: Climate Resilience Infrastructure & Investment Opportunities
+
+四、基础设施损毁专项数据 — Infrastructure Damage Breakdown
+4.1 水利工程 Hydraulic Infrastructure
+
+病险水库出现险情: 广西本轮 23座，其中 4座超汛限严重，1座（六蓝水库）决口，缺口宽度 230m
+堤防决口: 广西 7处、湖北 3处、吉林 2处，合计 12处主要堤坝决口或漫顶
+排涝泵站故障: 沈阳市主城区 11台大型泵站中 4台超负荷停机
+水文监测站损毁: 广西 37个站点通信中断，浙江 18个站点损毁
+
+4.2 道路与桥梁 Roads and Bridges
+
+国省道损毁里程: ≥ 2,300km（含临时中断）
+县乡道损毁: ≥ 18,000km
+桥梁损毁: ≥ 380座（含危桥鉴定）
+铁路受影响: 广深港高铁、杭深高铁累计延误/停运 127班次
+
+4.3 通信与电力 Communication & Power
+
+基站中断峰值: 全国累计 4,800余个基站离线
+用电恢复平均时间: 约 56小时（受灾较严重地区）
+地下电缆损毁: 约 1,800km
+
+4.4 农业损失 Agricultural Losses
+
+受灾农田总面积: ≥ 2,100万亩（含水稻、玉米、蔬菜、水产养殖）
+绝收面积: ≥ 320万亩
+牲畜死亡: ≥ 42万头（广西、湖北、浙江合计）
+水产养殖损失: ≥ 18亿元（浙江台州温州、广东惠州为主）
+
+五、政策与监管响应 — Policy & Regulatory Response
+5.1 已出台应急政策
+
+国家防汛抗旱总指挥部于2026-07-12将防汛应急响应提升至Ⅱ级（仅次于最高Ⅰ级）
+水利部2026-07-18下达通知：全国病险水库年内完成安全鉴定；新增资金 4.5亿元
+应急管理部启动"十四五"自然灾害综合风险普查成果转化工程第二批项目，预算约 35亿元
+国家发改委将城市内涝治理列入2026年下半年中央预算内投资重点，第一批 18.6亿元已下达
+
+5.2 即将出台政策（预期2026Q3–Q4）

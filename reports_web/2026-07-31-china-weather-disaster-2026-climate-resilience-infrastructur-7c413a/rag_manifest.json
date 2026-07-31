@@ -1,0 +1,36 @@
+{
+  "status": "active",
+  "required": true,
+  "context_characters": 10911,
+  "validated_chunk_count": 12,
+  "document_count": 1,
+  "chunk_ids": [
+    "93b3f166-6294-4538-a6e9-a67ab010de8f",
+    "53bd314e-688d-4489-8686-4b512128ad28",
+    "f22539b9-39e9-493a-b48c-c2fc4f3f6786",
+    "824a0aae-e0d8-45ba-8b7e-477af7b3d776",
+    "a1f8485e-b17d-455e-ae63-415383865b77",
+    "403c918c-65d4-41bd-b1e4-a3d46eeb914c",
+    "8b0368cf-f050-40f2-b3f7-3172f76ad28f",
+    "900790de-5b7f-461b-a649-109c49afd637",
+    "f114ec59-dbc9-4f3a-ac54-8710a1864224",
+    "35094c78-4843-4e36-b950-25013d51d07a",
+    "76788493-7966-4e4c-979c-7ff91bc31526",
+    "6c6ec369-8490-48fc-87e3-3c896d9b358f"
+  ],
+  "document_ids": [
+    "6b59b466-fc66-4626-843b-1d5fb60af3e6"
+  ],
+  "internal_evidence_points": 24,
+  "rag_source_count": 12,
+  "web_source_count": 8,
+  "rag_evidence_points": 24,
+  "web_evidence_points": 24,
+  "conflict_count": 0,
+  "web_search_status": "success",
+  "web_search_required": false,
+  "web_search_query_count": 4,
+  "web_search_providers": [
+    "searxng"
+  ]
+}

@@ -1,0 +1,28 @@
+Title: text.md (Fragment 403c918c)
+URL: internal://documents/6b59b466-fc66-4626-843b-1d5fb60af3e6#chunk=403c918c-65d4-41bd-b1e4-a3d46eeb914c
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: China Weather Disaster 2026: Climate Resilience Infrastructure & Investment Opportunities
+
+二、分事件详细数据 — Event-by-Event Detailed Data
+事件1｜台风"美莎克" — Typhoon Meisak (July 3–10, Hainan & Guangxi)
+气象参数 Meteorological Parameters:
+- Landfall location: 海南文昌 (July 3, 06:30 CST), Category 3 equivalent
+- Residual circulation stalled over Guangxi for 72+ hours
+- Peak 24h rainfall: 横州站 618mm (2026-07-05), 宾阳站 543mm (2026-07-04)
+- Return period estimate: 100-year event for 横州流域
+基础设施损毁 Infrastructure Damage:
+- 六蓝水库 (Guangxi Nanning): 库顶漫溢 + 缺口 230m，一级应急预案启动
+- 3 additional reservoirs in 横州/宾阳 experienced overflow (具体容量未公开)
+- Roads damaged: 横州 G322国道 14km中断，宾阳 28条乡道损毁
+- Power lines: 67条10kV线路停运，18.4万户停电
+- Communication towers down: 桂南 312基站离线
+人员伤亡 Casualties:
+- 广西死亡: 39人 (其中六蓝水库事件: 26人死亡、7人失联)
+- 海南: 1人死亡、4人受伤
+- 转移安置: 南宁市 6.45万人；广西全区 47.2万人
+经济损失估算 Economic Loss Estimates:
+- 广西直接损失: 约 52亿元（广西减灾办初报）
+- 农业受损: 广西约 310万亩农田受灾，其中绝收约 48万亩
+- 保险估损: 广西单灾件约 9.3亿元（金融监管总局广西局）

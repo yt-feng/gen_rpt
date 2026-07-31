@@ -1,0 +1,112 @@
+{
+  "core_question": "Which climate resilience infrastructure segments in China offer the most attractive risk-adjusted investment opportunities in 2026-2028, and how can investors position to capture them?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, other, funding, media",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "2024年4月UAE暴雨: Dubai 24h降雨量 254.8mm（超过年均降雨量的5倍），直接经济损失估 USD 7–10亿",
+    "UAE政府2024年宣布基础设施现代化投资（10年期）: AED 3,000亿（约 USD 820亿）",
+    "农产品价格上涨压力: 受淹绝收 > 300万亩，蔬菜、水稻价格预期上涨 8–15%（2026Q3）",
+    "| UAE 2024年4月暴雨损失（估） | USD 7–10亿 | 国际媒体/保险业 |",
+    "China 2026 Major Climate Disasters: Ground Data, Economic Losses & Investment Opportunities",
+    "Updated: 2026-07-31 | Sources: 应急管理部、水利部、金融监管总局、新华社、AP、中央气象台、国家气候中心"
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The 2026 disaster will accelerate government spending on smart water management and urban flood resilience, creating a multi-billion RMB market with predictable cash flows.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Geo-hazard monitoring will see rapid adoption due to high-profile landslides, with technology leaders capturing high margins.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: Agricultural insurance penetration will rise, driven by policy expansion and the demonstrated coverage gap, benefiting parametric insurance providers.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: Chinese climate resilience solutions have strong export potential to UAE/GCC, given their infrastructure vulnerabilities and investment plans.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: Fiscal constraints in affected provinces may delay project implementation, posing execution risks.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

@@ -1,0 +1,41 @@
+Title: text.md (Fragment 6c6ec369)
+URL: internal://documents/6b59b466-fc66-4626-843b-1d5fb60af3e6#chunk=6c6ec369-8490-48fc-87e3-3c896d9b358f
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: China Weather Disaster 2026: Climate Resilience Infrastructure & Investment Opportunities
+
+三、经济损失综合分析 — Comprehensive Economic Loss Analysis
+3.1 保险业汇总数据 — Insurance Industry Aggregate
+来源：金融监管总局 (National Financial Regulatory Administration, NFRA)
+| 统计口径 | 数据 |
+|---|---|
+| 统计范围 | 广西、湖北、浙江等20个省区市（截至7月13日） |
+| 累计报案件数 | 约 38万件 |
+| 保险估损总额 | 63.8亿元 |
+| 已赔付金额 | 28.9亿元 |
+| 台风"巴威"单台风估损 | 5.4亿元 |
+| "红霞"广东报案（截至7月27日） | 20,005件，已赔 3,679万元 |
+保险密度估算 Insurance Penetration:
+- 受灾总损失与保险赔付比约为 1:12（保险仅覆盖约8%总损失），参数保险与巨灾保险存在显著市场空间。
+3.2 政府财政投入 — Government Fiscal Response
+| 来源 | 金额 | 用途 |
+|---|---|---|
+| 中央应急预拨（广东、福建、江西、湖南、辽宁、吉林） | 1.8亿元 | 抢险、安置、排查、民房修复 |
+| 国家发改委 — 浙江 | 1.0亿元 | 道路、水利、学校、医院恢复 |
+| 国家发改委 — 河北 | 0.3亿元 | 道路、水利恢复 |
+| 国家发改委 — 吉林 | 0.3亿元 | 道路、水利恢复 |
+| 水利部应急资金（水毁修复，2026Q3预估） | 8–12亿元 | 险情水库、堤防修复 |
+| 地方政府专项债（估算，2026H2） | 50–80亿元 | 城市排涝、海绵城市、基础设施 |
+| 合计估算（2026年全年） | 约 200–250亿元 | 中央+地方抗灾恢复投入 |
+3.3 2026年上半年自然灾害基准数据 — H1 2026 Baseline
+来源：应急管理部（2026年上半年全国自然灾害情况）
+| 指标 | H1 2026数据 |
+|---|---|
+| 受灾人次 | 1,132.6万人次 |
+| 死亡失踪 | 124人 |
+| 直接经济损失（洪涝+地质） | 338.7亿元 |
+| 全部自然灾害直接损失 | 421.4亿元 |
+| 倒塌房屋 | 约 3.2万间 |
+| 农业受损面积 | 约 1,450万亩 |
+注：7月灾情叠加后，全年损失预计达到 900–1,200亿元区间。

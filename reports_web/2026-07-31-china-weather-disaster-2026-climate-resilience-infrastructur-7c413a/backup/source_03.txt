@@ -1,0 +1,26 @@
+Title: text.md (Fragment f22539b9)
+URL: internal://documents/6b59b466-fc66-4626-843b-1d5fb60af3e6#chunk=f22539b9-39e9-493a-b48c-c2fc4f3f6786
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: China Weather Disaster 2026: Climate Resilience Infrastructure & Investment Opportunities
+
+事件6｜甘肃定西渭源山洪 — Gansu Weiyuan Flash Flood (July 26)
+气象数据:
+- 1小时降雨量: 双石门景区站 87mm（超百年一遇）
+- 触发山洪时间: 2026-07-26 14:23 CST
+人员伤亡:
+- 死亡: 10人；受伤: 23人（含3人重伤）；获救: 174人
+- 救援人员: 305名消防救援人员；被困者: 露营、自驾游客约 207人
+
+事件7｜台风"红霞" — Typhoon Haikui (July 26–, Guangdong & South/Central China)
+气象参数:
+- 登陆广东惠州惠东 (2026-07-26 10:05 CST), 中心风速 42 m/s
+- 影响省份: 广东、福建、江西、湖南、湖北、广西
+广东 Guangdong（截至7月31日）:
+- 转移人口: ≥ 70万人
+- 惠州/汕尾/惠东: 道路损毁 142km，桥梁损毁 18座
+- 东江流域博罗水文站最大洪峰: 9,300m³/s
+- 电力中断: 广东 89.6万户
+广东保险业（截至7月27日）:
+- 报案件数: 20,005件；已赔付: 约 3,679万元（后续仍在增加）

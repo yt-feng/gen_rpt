@@ -1,0 +1,47 @@
+Title: China - GEO - The Group on Earth Observations
+URL: https://earthobservations.org/get-involved/partner/china
+Source Type: html
+Domain: earthobservations.org
+Content Type: text/html; charset=UTF-8
+Search Query: China geo-hazard monitoring market key players 2026
+
+China - GEO
+
+Participation in GEO Work Programme 2025 Onwards
+Participation in Regional Caucus - AOGEO
+National Policy Implementation Priorities
+Policy Priorities on Environment and Climate
+China actively participates in several GEO Work Programme activities, with a focus on disaster risk reduction, agricultural monitoring, water and land sustainability, and water resources management.
+China plays a co-leading role in the GEO Global Agricultural Monitoring ( GEOGLAM ) flagship, significantly advancing global crop monitoring capabilities for food security and agricultural drought early warning. Through the CropWatch Cloud developed by the Chinese Academy of Sciences (CAS), China supports near-real-time crop assessments worldwide, substantially improving transparency in crop production information. A cornerstone of China's contribution is its extensive capacity-building initiatives across 26 countries, particularly in Africa and Asia, where it conducts technical training workshops and provides customized system to enable independent crop monitoring capabilities. This empowerment enables participating nations to produce their own independent crop monitoring reports , reducing reliance on external sources and enhancing local decision-making. Moreover, CropWatch offers over 60 APIs, allowing users to access and customize crop monitoring services by reducing technical and financial constraints. This approach democratizes advanced technology by providing modular, scalable tools that support everything from local farming communities to national ministries, thereby bridging the digital divide and fostering equitable access. These efforts collectively strengthen global food security, advance the "Zero Hunger" goal, and align with the Early Warnings for All initiative by building resilient, self-sustaining crop monitoring systems worldwide.
+China also leads GEO-PDRS initiative. Coordinated by Chinese Academy of Sciences (CAS) with support from FAO, GBIF, CABI et al., GEO-PDRS develops a scalable framework for dynamic monitoring, risk analysis, and early warning of major vegetation pests and diseases. By integrating multi-source remote sensing with AI-driven models, the initiative targets over 85% accuracy in habitat monitoring and provides warnings at least ten days in advance. Its open data, user tools, and softwares enhance food security, reduce pesticide dependence, and protect biodiversity, directly supporting SDG 2, SDG 13, and the Sendai Framework.
+China also plays a leading role in Night-Light initiative, which plans to provide four types of public products to global users using night-time light remote sensing technology which is an efficient way to record human activities from outer space. These products are Humanitarian Disaster Evaluation Report, Light Pollution Map and Evaluation Report, Wealth Index Map, Urban Living Condition Report . The products will support ground operations to achieve SDGs by connecting GEO participants, users and stakeholders. The initiative is led by Wuhan University and other research institutions.
+China also engages in GEO Cold Regions Initiative (GEOCRI) strengthening monitoring in snow, ice, and permafrost environments, led by the Chinese Academy of Sciences (CAS) with contributions from its meteorological agency (CMA). In addition, China participates in the Human Planet Initiative (HPI) , enhancing global exposure and vulnerability mapping. Further underscoring its leadership, a prominent Chinese expert is a co-chair the Disaster Risk Reduction and Resilience (DRRA) Working Group leading efforts to highlight the critical DRR-Climate-Biodiversity nexus and integrate Earth observations across multiple risk domains.
+China through China GEO, promotes public-private partnerships and the involvement of the private sector to foster EO solutions, and achieve Earth Intelligence for All.
+China GEO encourages companies in the EO and related tech fields to participate in GEO activities, such as Global Forum, GEO Symposium, and other thematic workshops; this not only provides a platform for private-sector voices to be heard in GEO’s global dialogue but also fosters collaboration between private sector and GEO governance, and other stakeholders. And also, domestic companies who meet conditions are encouraged to join GEO community as associates, thus to formally participate in GEO’s cooperative mechanisms and contribute industry expertise to global EO initiatives. In addition, China has supported private sector in developing public goods under GEO framework, such as projects related to global environmental monitoring, climate resilience tools, and EO data service platforms, which would be shared on GEO platforms.
+China is an active member and a Co-Chair within the AOGEO regional caucus and plays a critical role in coordinating regional EO activities. It plays a key role in regional capacity building and international cooperation through AOGEO by hosting major GEO events, like the AOGEO Workshops since 2019, covering areas such as spectral earth data fusion, global ecological and environmental monitoring, agricultural and food security, urban resilience, data sharing and regional capacity building.
+China has developed comprehensive Earth observation capabilities, including:
+China's development cooperation priorities focus on:
+China's key environmental policy priorities include:
+China is actively engaged in various technical cooperation projects related to Earth observations that extend beyond the GEO Work Programme. These include:
+Our Work Impact GEO Work Programme Solutions Agriculture and Food Security Water and Land Sustainability Ecosystems, Biodiversity and Carbon Management Weather, Hazard and Disaster Resilience Climate, Energy and Urbanisation One Health Community Impact Open Data, Open Knowledge and Infrastructure Application Driver
+Solutions Agriculture and Food Security Water and Land Sustainability Ecosystems, Biodiversity and Carbon Management Weather, Hazard and Disaster Resilience Climate, Energy and Urbanisation One Health Community Impact Open Data, Open Knowledge and Infrastructure Application Driver
+Ecosystems, Biodiversity and Carbon Management
+Open Data, Open Knowledge and Infrastructure
+Get Involved The Role of GEO Principals and GEO Focal Points Member Governments Participating Organisations Associates Job Opportunities
+The Role of GEO Principals and GEO Focal Points
+Resources GEO Knowledge Hub Publications What is Earth Intelligence? Brand Assets
+About Us Secretariat Team Governance 20 Years of GEO Our Organisation Our Mission FAQ Highlights Latest News Events
+Our Work Impact Solutions Agriculture and Food Security Water and Land Sustainability Ecosystems, Biodiversity and Carbon Management Weather, Hazard and Disaster Resilience Climate, Energy and Urbanisation One Health Community Impact Open Data, Open Knowledge and Infrastructure Application Driver
+Solutions Agriculture and Food Security Water and Land Sustainability Ecosystems, Biodiversity and Carbon Management Weather, Hazard and Disaster Resilience Climate, Energy and Urbanisation One Health Community Impact Open Data, Open Knowledge and Infrastructure Application Driver
+Ecosystems, Biodiversity and Carbon Management
+Open Data, Open Knowledge and Infrastructure
+Get Involved Member Governments Participating Organisations Associates Job Opportunities
+Resources GEO Knowledge Hub Publications What is Earth Intelligence? Brand Assets
+About Us 20 Years of GEO Our Organisation Our Mission FAQ Highlights Latest News Events
+China is a founding member of GEO and has served as Co-Chair in the Executive Committee, representing Asia-Oceania interests in global governance since 2005.
+China is one of GEO's contributors and has supported the GEO Trust Fund with annual voluntary contributions.
+China has also provided substantial extra budgetary funding for capacity building programmes, hosting international workshops, and supporting developing country participation through South-South cooperation mechanisms. China has also assisted the Secretariat with second staff.
+The lead ministry that engages with GEO is the Ministry of Science and Technology (MOST) with the China Science and Technology Exchange Center (CSTEC) serving as the key focal point.
+Chinese participation in GEO involves an inter-ministerial mechanism including multiple government ministries and institutions including: China Meteorological Administration (CMA) China National Space Administration (CNSA) Chinese Academy of Sciences (CAS) Ministry of Natural Resources (MNR) Ministry of Foreign Affairs (MFA) National Development and Reform Commission (NDRC) Ministry of Education o Ministry of Ecology and Environment (MEE) Ministry of Housing and Urban-Rural Development Ministry of Water Resources Ministry of Emergency Management (MEM) Ministry of Agriculture and Rural Affairs (MARA) National Forestry and Grassland Administration
+China Meteorological Administration (CMA)
+China National Space Administration
