@@ -21,6 +21,18 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn("::error title=Generator failure::", workflow)
         self.assertLess(workflow.index('cat "$GEN_LOG"'), workflow.index('exit "$GEN_STATUS"'))
 
+    def test_gatex_pdf_release_is_manual_version_bound_and_cjk_ready(self):
+        workflow = (ROOT / ".github/workflows/render_gatex_release_pdf.yml").read_text(encoding="utf-8")
+
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("item_id:", workflow)
+        self.assertIn("version_id:", workflow)
+        self.assertIn("content_checksum:", workflow)
+        self.assertIn("permissions:\n  contents: read", workflow)
+        self.assertIn("fonts-noto-cjk", workflow)
+        self.assertIn("GATEX_GENERATION_CALLBACK_SECRET", workflow)
+        self.assertIsNone(re.search(r"^  (push|pull_request):\s*$", workflow, re.MULTILINE))
+
 
 if __name__ == "__main__":
     unittest.main()
