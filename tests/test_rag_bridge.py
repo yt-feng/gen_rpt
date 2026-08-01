@@ -887,6 +887,20 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertEqual(report["sections"][0]["paragraphs"], ["Malformed sentence.", '"A complete quotation."'])
 
+    def test_section_prose_normalization_removes_exact_repeated_paragraphs(self):
+        repeated = "Repeated evidence " + " ".join(f"word{i}" for i in range(50)) + "."
+        report = {
+            "sections": [
+                {"paragraphs": [repeated]},
+                {"paragraphs": [repeated, "Distinct mechanism.", "Distinct risk.", "Distinct implication."]},
+            ]
+        }
+
+        normalize_report_section_prose(report)
+
+        self.assertEqual(report["sections"][0]["paragraphs"], [repeated])
+        self.assertNotIn(repeated, report["sections"][1]["paragraphs"])
+
     def test_numeric_gate_matches_equivalent_chinese_large_number_units(self):
         context = "报告记录了340万次紧急转移、680亿元损失，以及5-15亿美元的市场区间。"
 

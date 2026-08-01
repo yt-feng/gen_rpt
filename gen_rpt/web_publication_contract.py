@@ -312,6 +312,7 @@ def normalize_report_section_prose(report: Any) -> Any:
         r"prioriti[sz]e|recommend|action|strategy|implication)\b|管理|决策|领导|投资者|企业|应当|需要|优先",
         re.I,
     )
+    seen_paragraphs: set[str] = set()
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
@@ -327,6 +328,16 @@ def normalize_report_section_prose(report: Any) -> Any:
             balanced = _three_balanced_paragraphs(paragraphs)
             if balanced:
                 paragraphs = balanced
+        unique_paragraphs = []
+        for paragraph in paragraphs:
+            key = _normalized_words(paragraph)
+            if key and key in seen_paragraphs:
+                continue
+            seen_paragraphs.add(key)
+            unique_paragraphs.append(paragraph)
+        if len(unique_paragraphs) != len(paragraphs):
+            paragraphs = _three_balanced_paragraphs(unique_paragraphs) or unique_paragraphs
+        seen_paragraphs.update(_normalized_words(paragraph) for paragraph in paragraphs)
         section["paragraphs"] = paragraphs
     return report
 
