@@ -880,6 +880,28 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(report["sections"][0]["paragraphs"], ["Too short."])
         self.assertEqual(report["sections"][0]["so_what"], "Also short.")
 
+    def test_numeric_gate_matches_equivalent_chinese_large_number_units(self):
+        context = "报告记录了340万次紧急转移、680亿元损失，以及5-15亿美元的市场区间。"
+
+        self.assertTrue(rag_visible_numbers_supported("3.4 million evacuations and 68 billion yuan", context))
+        self.assertTrue(rag_visible_numbers_supported("USD 0.5-1.5 billion", context))
+        self.assertFalse(rag_visible_numbers_supported("340 million evacuations", context))
+        self.assertFalse(rag_visible_numbers_supported("USD 15 billion", context))
+
+    def test_numeric_pruning_preserves_equivalent_unit_conversions(self):
+        report = {
+            "key_takeaways": [
+                "At least 3.4 million evacuations were recorded.",
+                "Direct losses exceeded 68 billion yuan.",
+                "The decision remains conditional on validated evidence.",
+            ]
+        }
+
+        removed = prune_unsupported_numeric_claims(report, "至少紧急转移340万人，直接经济损失超过680亿元。")
+
+        self.assertEqual(removed, [])
+        self.assertEqual(len(report["key_takeaways"]), 3)
+
     def test_report_revision_receives_the_rejected_draft_and_quality_corrections(self):
         client = Mock()
         client.chat_json.return_value = {"title": "Revised report"}

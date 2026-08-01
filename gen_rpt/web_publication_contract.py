@@ -643,12 +643,26 @@ def _visible_value_text(value: Any) -> str:
 def _number_tokens(text: Any) -> set[str]:
     values = set()
     claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
-    for token in re.findall(r"(?<![\w])-?\s*[$€£]?\s*\d[\d,]*(?:\.\d+)?\s*%?", claim_text):
-        match = re.search(r"-?\d[\d,]*(?:\.\d+)?", token)
-        if not match:
-            continue
-        try:
-            values.add(format(Decimal(match.group(0).replace(",", "")).normalize(), "f"))
-        except InvalidOperation:
-            continue
+    number = r"-?\s*[$€£]?\s*\d[\d,]*(?:\.\d+)?"
+    units = {
+        "thousand": Decimal("1000"),
+        "million": Decimal("1000000"),
+        "billion": Decimal("1000000000"),
+        "trillion": Decimal("1000000000000"),
+        "万": Decimal("10000"),
+        "亿": Decimal("100000000"),
+        "万亿": Decimal("1000000000000"),
+    }
+    pattern = rf"(?<![\w])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|thousand|million|billion|trillion)?"
+    for match in re.finditer(pattern, claim_text, re.I):
+        scale = units.get(str(match.group(3) or "").lower(), Decimal(1))
+        for token in match.group(1), match.group(2):
+            numeric = re.search(r"-?\d[\d,]*(?:\.\d+)?", str(token or ""))
+            if not numeric:
+                continue
+            try:
+                value = Decimal(numeric.group(0).replace(",", "")) * scale
+                values.add(format(value.normalize(), "f"))
+            except InvalidOperation:
+                continue
     return values
