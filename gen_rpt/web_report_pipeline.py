@@ -276,8 +276,13 @@ class WebReportPipeline:
                 source_chunks=rag_source_chunks,
                 approved_evidence=approved_evidence,
             )
-            if quality_issues:
-                self._log("PHASE synthesis retry | " + " | ".join(quality_issues[:8]))
+            for revision_attempt in range(1, 3):
+                if not quality_issues:
+                    break
+                self._log(
+                    f"PHASE synthesis revision {revision_attempt}/2 | "
+                    + " | ".join(quality_issues[:8])
+                )
                 report = self._revise_report_draft(report, quality_issues, storyline_plan)
                 report, quality_issues = self._prepare_report_draft(
                     report,
@@ -640,6 +645,7 @@ Rejected report:
 
 Revision contract:
 - Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
+- Correct only the rejected fields named above. Keep compliant sections, evidence and actions unchanged.
 - Keep exactly 3 key_takeaways, 5-6 sections and 4-6 action_steps.
 - Each section must contain title, lead, paragraphs, evidence and so_what.
 - paragraphs must be a JSON array with exactly 4 separate strings. Never put all section prose into one string.

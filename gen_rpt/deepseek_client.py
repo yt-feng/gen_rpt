@@ -169,6 +169,14 @@ def _normalize_sections(value: Any) -> List[Dict[str, Any]]:
         ]
         if not section["paragraphs"]:
             section["paragraphs"] = [section["lead"] or section["title"]]
+        section["evidence"] = [
+            str(x)
+            for x in _as_list(section.get("evidence") or section.get("proof_points") or section.get("facts"))
+            if str(x).strip()
+        ]
+        section["so_what"] = str(
+            section.get("so_what") or section.get("management_implication") or section.get("implication") or ""
+        )
         section["key_takeaways"] = [str(x) for x in _as_list(section.get("key_takeaways")) if str(x).strip()]
         section["visual_hint"] = str(section.get("visual_hint") or f"image-{idx}")
         sections.append(section)

@@ -832,6 +832,8 @@ class RAGBridgeTests(unittest.TestCase):
                         "title": "Evidence supports a conditional decision",
                         "lead": "The decision remains conditional.",
                         "body": "First developed paragraph.\n\nSecond developed paragraph.\n\nThird developed paragraph.",
+                        "proof_points": ["Grounded proof."],
+                        "management_implication": "Management should preserve a decision gate.",
                     }
                 ]
             }
@@ -841,6 +843,8 @@ class RAGBridgeTests(unittest.TestCase):
             report["sections"][0]["paragraphs"],
             ["First developed paragraph.", "Second developed paragraph.", "Third developed paragraph."],
         )
+        self.assertEqual(report["sections"][0]["evidence"], ["Grounded proof."])
+        self.assertEqual(report["sections"][0]["so_what"], "Management should preserve a decision gate.")
 
     def test_report_revision_receives_the_rejected_draft_and_quality_corrections(self):
         client = Mock()
