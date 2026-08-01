@@ -140,6 +140,8 @@ def normalize_structured_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
         return {}
     if "sections" in payload:
         payload["sections"] = _normalize_sections(payload.get("sections"))
+    if "action_steps" in payload:
+        payload["action_steps"] = _normalize_action_steps(payload.get("action_steps"))
     if "insight_cards" in payload:
         payload["insight_cards"] = _normalize_cards(payload.get("insight_cards"))
     if "charts" in payload:
@@ -181,6 +183,23 @@ def _normalize_sections(value: Any) -> List[Dict[str, Any]]:
         section["visual_hint"] = str(section.get("visual_hint") or f"image-{idx}")
         sections.append(section)
     return sections
+
+
+def _normalize_action_steps(value: Any) -> List[Dict[str, str]]:
+    actions: List[Dict[str, str]] = []
+    for item in _as_list(value):
+        if not isinstance(item, dict):
+            actions.append({"horizon": "", "action": str(item), "success_metric": "", "rationale": ""})
+            continue
+        actions.append(
+            {
+                "horizon": str(item.get("horizon") or item.get("timing") or item.get("timeframe") or item.get("time_horizon") or ""),
+                "action": str(item.get("action") or item.get("recommendation") or item.get("title") or item.get("name") or ""),
+                "success_metric": str(item.get("success_metric") or item.get("decision_gate") or item.get("success_measure") or item.get("metric") or item.get("kpi") or ""),
+                "rationale": str(item.get("rationale") or item.get("evidence_basis") or item.get("justification") or item.get("why_it_matters") or item.get("reasoning") or item.get("reason") or item.get("description") or ""),
+            }
+        )
+    return [action for action in actions if action["action"].strip()]
 
 
 def _normalize_cards(value: Any) -> List[Dict[str, Any]]:

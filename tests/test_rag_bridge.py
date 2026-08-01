@@ -847,6 +847,33 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(report["sections"][0]["evidence"], ["Grounded proof."])
         self.assertEqual(report["sections"][0]["so_what"], "Management should preserve a decision gate.")
 
+    def test_action_normalization_canonicalizes_revision_aliases(self):
+        report = normalize_structured_payload(
+            {
+                "action_steps": [
+                    {
+                        "timing": "Next decision gate",
+                        "recommendation": "Validate the investment thesis.",
+                        "decision_gate": "Evidence owners approve the documented conditions.",
+                        "evidence_basis": "The retained evidence supports validation before additional resources are committed.",
+                        "unused_model_field": "USD 800 billion",
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(
+            report["action_steps"],
+            [
+                {
+                    "horizon": "Next decision gate",
+                    "action": "Validate the investment thesis.",
+                    "success_metric": "Evidence owners approve the documented conditions.",
+                    "rationale": "The retained evidence supports validation before additional resources are committed.",
+                }
+            ],
+        )
+
     def test_section_prose_normalization_only_rebalances_existing_text(self):
         sentence = lambda label: f"{label} " + " ".join(f"word{i}" for i in range(29)) + "."
         management = "Management should act " + " ".join(f"decision{i}" for i in range(37)) + "."
