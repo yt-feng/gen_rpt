@@ -671,6 +671,17 @@ Revision contract:
         merged = dict(report)
         for key, value in revision.items():
             if value not in (None, "", [], {}):
+                if key in {"action_steps", "sections"} and isinstance(value, list) and isinstance(merged.get(key), list):
+                    original_items = merged[key]
+                    value = [
+                        {
+                            **(original_items[index] if index < len(original_items) and isinstance(original_items[index], dict) else {}),
+                            **{field: field_value for field, field_value in item.items() if field_value not in (None, "", [], {})},
+                        }
+                        if isinstance(item, dict)
+                        else item
+                        for index, item in enumerate(value)
+                    ] + original_items[len(value):]
                 merged[key] = value
         return merged
 

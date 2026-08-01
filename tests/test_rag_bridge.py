@@ -933,6 +933,25 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("paragraphs must be a JSON array", prompt)
         self.assertIn("[Chunk: chunk-1]", prompt)
 
+    def test_report_revision_preserves_omitted_nested_fields(self):
+        client = Mock()
+        client.chat_json.return_value = {
+            "action_steps": [{"action": "Use the corrected action.", "horizon": ""}],
+            "sections": [{"paragraphs": ["Corrected developed paragraph."], "evidence": []}],
+        }
+        pipeline = WebReportPipeline(client)
+        rejected = {
+            "action_steps": [{"horizon": "Next decision gate", "action": "Original action."}],
+            "sections": [{"paragraphs": ["Original paragraph."], "evidence": ["Grounded evidence."]}],
+        }
+
+        revised = pipeline._revise_report_draft(rejected, ["Correct the action and paragraph."], {})
+
+        self.assertEqual(revised["action_steps"][0]["horizon"], "Next decision gate")
+        self.assertEqual(revised["action_steps"][0]["action"], "Use the corrected action.")
+        self.assertEqual(revised["sections"][0]["paragraphs"], ["Corrected developed paragraph."])
+        self.assertEqual(revised["sections"][0]["evidence"], ["Grounded evidence."])
+
     def test_action_normalization_uses_a_non_numeric_default_horizon(self):
         report = normalize_web_report(
             {
