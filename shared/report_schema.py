@@ -73,14 +73,23 @@ class ParsedReport:
     def as_prompt_text(self, max_chars: int = 24_000) -> str:
         """Compact text for LLM prompts."""
         lines: List[str] = []
+        bibliography: List[str] = []
         for s in self.sections:
-            lines.append(f"\n## {s.title}")
+            section_lines = [f"\n## {s.title}"]
             for p in s.paragraphs:
-                lines.append(f"[Para {p.index}] {p.text}")
+                section_lines.append(f"[Para {p.index}] {p.text}")
+            lines.extend(section_lines)
+            if s.title.strip().casefold() in {"references", "bibliography", "works cited"}:
+                bibliography = section_lines
         full = "\n".join(lines)
         if len(full) <= max_chars:
             return full
-        return full[:max_chars] + "\n\n[... report truncated for length ...]"
+        marker = "\n\n[... report truncated for length ...]\n"
+        bibliography_text = "\n".join(bibliography)
+        if bibliography_text and len(bibliography_text) + len(marker) < max_chars:
+            head_chars = max_chars - len(marker) - len(bibliography_text)
+            return full[:head_chars] + marker + bibliography_text
+        return full[:max_chars] + marker
 
     def as_context_dict(self) -> Dict[str, Any]:
         return {

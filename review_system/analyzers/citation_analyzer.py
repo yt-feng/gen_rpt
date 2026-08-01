@@ -66,12 +66,17 @@ def run(
     Otherwise, make an individual API call (full mode).
     Returns citation findings dict.
     """
+    has_bibliography = any(
+        s.paragraphs
+        and s.title.strip().casefold() in {"references", "bibliography", "works cited"}
+        for s in parsed.sections
+    )
     if combined is not None:
         log.info("Citation analyzer: extracting from combined result (lean mode)")
         return {
             "citation_strengths":  combined.get("citation_strengths", []),
             "citation_weaknesses": combined.get("citation_weaknesses", []),
-            "has_bibliography":    combined.get("has_bibliography", False),
+            "has_bibliography":    bool(combined.get("has_bibliography") or has_bibliography),
             "named_sources_count": combined.get("named_sources_count", 0),
         }
 
@@ -106,6 +111,6 @@ def run(
     return {
         "citation_strengths":  result.get("citation_strengths", []),
         "citation_weaknesses": result.get("citation_weaknesses", []),
-        "has_bibliography":    result.get("has_bibliography", False),
+        "has_bibliography":    bool(result.get("has_bibliography") or has_bibliography),
         "named_sources_count": result.get("named_sources_count", 0),
     }
