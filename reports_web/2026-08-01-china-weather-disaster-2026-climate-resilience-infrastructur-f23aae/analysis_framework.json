@@ -1,0 +1,740 @@
+{
+  "decision_question": "Should the investor allocate capital to Chinese climate resilience infrastructure companies and/or develop a China-to-UAE export solution for urban flood and geo-hazard management, and if so, which segments and entry strategies are most promising?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "The demand pool for China Weather Disaster 2026: Climate Resilience Infrastructure is large enough to deserve resource-allocation debate.",
+      "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+      "needed_evidence": [
+        "market size",
+        "demand volume",
+        "regional or segment demand"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure market size data",
+        "China Weather Disaster 2026: Climate Resilience Infrastructure demand forecast by segment"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+      "decision_relevance": "Determines whether to fund customer validation and sales work.",
+      "needed_evidence": [
+        "customer count",
+        "adoption rate",
+        "orders",
+        "price or ARPU"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure customer adoption price data",
+        "China Weather Disaster 2026: Climate Resilience Infrastructure orders customer case study"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Supply, capacity or delivery capability will not bottleneck near-term growth.",
+      "decision_relevance": "Determines whether the growth case needs a supply-side haircut.",
+      "needed_evidence": [
+        "capacity",
+        "projects",
+        "supply chain",
+        "delivery timeline"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure capacity projects supply chain",
+        "China Weather Disaster 2026: Climate Resilience Infrastructure company announcement capacity"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Unit economics or the cost curve is close enough to commercial range.",
+      "decision_relevance": "Determines whether the opportunity is a budget item, pilot or watchlist topic.",
+      "needed_evidence": [
+        "cost",
+        "price",
+        "gross margin",
+        "CAPEX",
+        "OPEX"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure cost price margin",
+        "China Weather Disaster 2026: Climate Resilience Infrastructure CAPEX OPEX economics"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Leading players have defensible advantage rather than a temporary window.",
+      "decision_relevance": "Determines whether to back a company, partner or capability.",
+      "needed_evidence": [
+        "market share",
+        "patents",
+        "customer references",
+        "funding",
+        "channels"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure competitive landscape market share",
+        "China Weather Disaster 2026: Climate Resilience Infrastructure leading companies funding patents customers"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "Policy, regulatory or standards timing supports commercialization.",
+      "decision_relevance": "Determines entry timing and risk buffers.",
+      "needed_evidence": [
+        "policy date",
+        "regulatory license",
+        "standard",
+        "subsidy or procurement"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure regulation policy standard",
+        "China Weather Disaster 2026: Climate Resilience Infrastructure subsidy license timeline"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for China Weather Disaster 2026: Climate Resilience Infrastructure, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "China Weather Disaster 2026: Climate Resilience Infrastructure total market size segment share",
+          "China Weather Disaster 2026: Climate Resilience Infrastructure demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "China Weather Disaster 2026: Climate Resilience Infrastructure customer count price ARPU",
+          "China Weather Disaster 2026: Climate Resilience Infrastructure adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "China Weather Disaster 2026: Climate Resilience Infrastructure pilot customer conversion",
+          "China Weather Disaster 2026: Climate Resilience Infrastructure orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "China Weather Disaster 2026: Climate Resilience Infrastructure ROI cost savings case study",
+          "China Weather Disaster 2026: Climate Resilience Infrastructure value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "China Weather Disaster 2026: Climate Resilience Infrastructure capacity utilization unit price",
+          "China Weather Disaster 2026: Climate Resilience Infrastructure project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Government budget allocations and procurement plans for water conservancy, urban drainage, and geo-hazard monitoring in 2026-2028.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Financial performance and order backlogs of key listed companies in water digitalization, monitoring, and drainage equipment.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "UAE/GCC infrastructure project tenders and procurement requirements for flood management and monitoring systems.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Insurance industry data on catastrophe and parametric insurance penetration and growth forecasts.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Agricultural commodity price forecasts and government support measures for affected regions.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "China Weather Disaster 2026: Climate Resilience Infrastructure capacity project pipeline"
+      ]
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "China's Annual Investment in Climate Resilience Infrastructure (2020-2026)",
+      "chart_type": "line",
+      "executive_question": "How has China's annual investment in climate resilience infrastructure evolved, and what is the projected trajectory through 2026?",
+      "required_metrics": [
+        "Year (2020-2026)",
+        "Annual investment amount (billion CNY)",
+        "Investment category (e.g., water conservancy, urban drainage, geo-hazard monitoring)"
+      ],
+      "comparison_set": [
+        "Annual investment across categories (water conservancy, urban drainage, geo-hazard monitoring) from 2020 to 2026."
+      ],
+      "preferred_sources": [
+        "Ministry of Water Resources",
+        "National Development and Reform Commission (NDRC)",
+        "China Water Risk",
+        "Official government budget reports"
+      ],
+      "search_queries": [
+        "China annual investment in water conservancy 2020 2021 2022 2023 2024 2025 2026",
+        "China urban drainage infrastructure investment annual data",
+        "China geological hazard monitoring investment annual statistics"
+      ],
+      "data_quality_rule": "Require at least 4 annual data points from official sources. If only two endpoints are found, use CAGR or government budget forecasts to estimate intermediate values, clearly marking them as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the scale and growth trend of China's investment in climate resilience infrastructure, setting the stage for opportunity sizing.",
+      "pre_exhibit_context": "The report argues that China's 2026 climate disasters have triggered a surge in infrastructure investment. This chart quantifies that surge.",
+      "post_exhibit_takeaway": "Investment has grown steadily, with a sharp acceleration post-2026 disasters, indicating a robust and expanding market."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "China's Catastrophe Insurance Coverage and Payouts (2015-2026)",
+      "chart_type": "line",
+      "executive_question": "How has China's catastrophe insurance coverage and payout ratio evolved, and what is the projected growth?",
+      "required_metrics": [
+        "Year (2015-2026)",
+        "Insurance coverage ratio (%)",
+        "Total insurance payouts (billion CNY)",
+        "Total economic losses (billion CNY)"
+      ],
+      "comparison_set": [
+        "Annual insurance coverage ratio and payout amounts from 2015 to 2026."
+      ],
+      "preferred_sources": [
+        "National Financial Regulatory Administration",
+        "China Insurance Regulatory Commission",
+        "Swiss Re Sigma",
+        "Munich Re NatCatSERVICE"
+      ],
+      "search_queries": [
+        "China catastrophe insurance coverage ratio historical data",
+        "China insurance payouts for natural disasters 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025 2026",
+        "China economic losses from natural disasters annual data"
+      ],
+      "data_quality_rule": "Require at least 4 annual data points. If only two endpoints are found, use CAGR or industry forecasts to estimate intermediate values, clearly marking them as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Highlights the insurance gap and growth potential, supporting the case for parametric insurance and cross-border solutions.",
+      "pre_exhibit_context": "The report notes that insurance covers only ~8% of disaster losses. This chart shows the historical trend and future opportunity.",
+      "post_exhibit_takeaway": "Coverage is low but growing, indicating a significant untapped market for insurance and risk management products."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Market Size vs. Growth Rate for Climate Resilience Segments (2026)",
+      "chart_type": "bubble",
+      "executive_question": "Which climate resilience segments offer the most attractive combination of market size and growth rate?",
+      "required_metrics": [
+        "Segment name (e.g., water digitalization, urban flood resilience, geo-hazard monitoring)",
+        "Market size (billion CNY, 2026)",
+        "CAGR (2026-2030, %)",
+        "Investment attractiveness (optional, but not synthetic)"
+      ],
+      "comparison_set": [
+        "Segments: water digitalization, urban flood resilience, geo-hazard monitoring, emergency equipment, smart water management."
+      ],
+      "preferred_sources": [
+        "Industry research reports (e.g., Frost & Sullivan, McKinsey)",
+        "China Water Risk",
+        "Company annual reports",
+        "Government five-year plans"
+      ],
+      "search_queries": [
+        "China water digitalization market size forecast 2026",
+        "China urban flood resilience market size growth rate",
+        "China geo-hazard monitoring market size forecast"
+      ],
+      "data_quality_rule": "Use credible market research sources. If data is unavailable, mark as a validation task and do not invent values.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Visualizes the opportunity landscape, helping prioritize segments for investment.",
+      "pre_exhibit_context": "The report identifies water digitalization, urban flood resilience, and geo-hazard monitoring as key opportunities. This chart compares them.",
+      "post_exhibit_takeaway": "Urban flood resilience has the largest market size, while water digitalization shows the highest growth, guiding investment focus."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Government Budget Allocations for Disaster Resilience (2026-2028)",
+      "chart_type": "bar",
+      "executive_question": "What are the planned government budget allocations for climate resilience infrastructure in the next three years?",
+      "required_metrics": [
+        "Year (2026, 2027, 2028)",
+        "Budget allocation (billion CNY)",
+        "Category (water conservancy, urban drainage, geo-hazard monitoring, etc.)"
+      ],
+      "comparison_set": [
+        "Budget allocations across categories for 2026-2028."
+      ],
+      "preferred_sources": [
+        "Ministry of Water Resources",
+        "NDRC",
+        "Ministry of Emergency Management",
+        "Government budget documents"
+      ],
+      "search_queries": [
+        "China water conservancy budget 2026 2027 2028",
+        "China urban drainage investment plan 2026",
+        "China geological hazard monitoring budget allocation"
+      ],
+      "data_quality_rule": "Use official budget documents. If exact figures are not available, use credible news reports or policy announcements.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies the public funding commitment, indicating the scale of opportunities for companies.",
+      "pre_exhibit_context": "The report claims new investments of 60-90 billion yuan in water digitalization, etc. This chart shows the budget breakdown.",
+      "post_exhibit_takeaway": "Government budgets are substantial and growing, providing a stable demand base for infrastructure companies."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "UAE/GCC Infrastructure Spending on Flood Management (2020-2026)",
+      "chart_type": "bar",
+      "executive_question": "How much are UAE/GCC countries investing in flood management infrastructure, and what is the trend?",
+      "required_metrics": [
+        "Year (2020-2026)",
+        "Investment amount (USD billion)",
+        "Country (UAE, Saudi Arabia, Qatar, etc.)"
+      ],
+      "comparison_set": [
+        "Annual investment in flood management across GCC countries from 2020 to 2026."
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Infrastructure",
+        "GCC government announcements",
+        "World Bank",
+        "International trade publications"
+      ],
+      "search_queries": [
+        "UAE flood management infrastructure investment 2020 2021 2022 2023 2024 2025 2026",
+        "GCC climate resilience infrastructure spending",
+        "Saudi Arabia flood protection budget"
+      ],
+      "data_quality_rule": "Use official government sources or credible international reports. If data is sparse, use project tenders as a proxy.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Assesses the cross-border opportunity by quantifying the demand in the Gulf region.",
+      "pre_exhibit_context": "The report proposes exporting China's solutions to the UAE/GCC. This chart shows the market size there.",
+      "post_exhibit_takeaway": "UAE/GCC investment is significant and growing, presenting a viable export market for Chinese companies."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Timeline of Policy Responses and Regulatory Milestones (2026-2028)",
+      "chart_type": "timeline",
+      "executive_question": "What are the key policy and regulatory milestones that will shape the climate resilience infrastructure market?",
+      "required_metrics": [
+        "Date (month/year)",
+        "Policy or regulation name",
+        "Description",
+        "Impact (e.g., funding, standards, procurement)"
+      ],
+      "comparison_set": [
+        "Key policy events from 2026 to 2028."
+      ],
+      "preferred_sources": [
+        "Government websites (e.g., State Council, NDRC)",
+        "Policy announcements",
+        "Industry news"
+      ],
+      "search_queries": [
+        "China climate resilience policy timeline 2026",
+        "China water conservancy policy 2026 2027",
+        "UAE flood management regulation 2026"
+      ],
+      "data_quality_rule": "Use official policy documents and announcements. Ensure dates are accurate.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows the timing of policy support, helping investors anticipate market catalysts and entry points.",
+      "pre_exhibit_context": "The report discusses policy acceleration. This timeline visualizes the sequence of regulatory actions.",
+      "post_exhibit_takeaway": "Policy support is imminent and sustained, creating a favorable environment for investment."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Financial Performance of Key Listed Companies in Climate Resilience (2023-2025)",
+      "chart_type": "line",
+      "executive_question": "How have the revenues and order backlogs of leading climate resilience companies evolved?",
+      "required_metrics": [
+        "Year (2023, 2024, 2025)",
+        "Company name",
+        "Revenue (billion CNY)",
+        "Order backlog (billion CNY)"
+      ],
+      "comparison_set": [
+        "Annual revenue and order backlog for 3-5 key companies (e.g., China Water Affairs, Beijing Enterprises Water Group, etc.)"
+      ],
+      "preferred_sources": [
+        "Company annual reports",
+        "Stock exchange filings",
+        "Financial news (e.g., Bloomberg, Reuters)"
+      ],
+      "search_queries": [
+        "China Water Affairs revenue 2023 2024 2025",
+        "Beijing Enterprises Water Group order backlog",
+        "China smart water company financial performance"
+      ],
+      "data_quality_rule": "Use audited financial statements. If data is not available for all years, use the most recent years and note the limitation.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides evidence of market growth and company performance, supporting investment recommendations.",
+      "pre_exhibit_context": "The report identifies specific companies as investment targets. This chart shows their financial trends.",
+      "post_exhibit_takeaway": "Leading companies show strong revenue growth and expanding order backlogs, indicating a healthy market."
+    }
+  ],
+  "storyline_plan": {
+    "report_archetype": "market_investment",
+    "selected_modules": [
+      "source and forecast comparison",
+      "base, upside and downside scenarios",
+      "sensitivity drivers",
+      "segment and micro-market implications",
+      "investment recommendations"
+    ],
+    "coverage_requirements": [
+      "executive thesis",
+      "source-backed findings",
+      "causal mechanisms",
+      "counter-evidence and risks",
+      "decision implications",
+      "evidence-based actions"
+    ],
+    "core_question": "Should the investor allocate capital to Chinese climate resilience infrastructure companies and/or develop a China-to-UAE export solution for urban flood and geo-hazard management, and if so, which segments and entry strategies are most promising?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: timeline, market, funding, other",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "2024年4月UAE暴雨: Dubai 24h降雨量 254.8mm（超过年均降雨量的5倍），直接经济损失估 USD 7–10亿",
+      "UAE政府2024年宣布基础设施现代化投资（10年期）: AED 3,000亿（约 USD 820亿）",
+      "农产品价格上涨压力: 受淹绝收 > 300万亩，蔬菜、水稻价格预期上涨 8–15%（2026Q3）",
+      "| UAE 2024年4月暴雨损失（估） | USD 7–10亿 | 国际媒体/保险业 |",
+      "China 2026 Major Climate Disasters: Ground Data, Economic Losses & Investment Opportunities",
+      "Updated: 2026-07-31 | Sources: 应急管理部、水利部、金融监管总局、新华社、AP、中央气象台、国家气候中心"
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "The demand pool for China Weather Disaster 2026: Climate Resilience Infrastructure is large enough to deserve resource-allocation debate.",
+        "decision_relevance": "Determines whether a full sizing exercise is warranted.",
+        "needed_evidence": [
+          "market size",
+          "demand volume",
+          "regional or segment demand"
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Customer adoption and willingness to pay are visible in public evidence.",
+        "decision_relevance": "Determines whether to fund customer validation and sales work.",
+        "needed_evidence": [
+          "customer count",
+          "adoption rate",
+          "orders",
+          "price or ARPU"
+        ]
+      },
+      {
+        "id": "H3",
+        "hypothesis": "Supply, capacity or delivery capability will not bottleneck near-term growth.",
+        "decision_relevance": "Determines whether the growth case needs a supply-side haircut.",
+        "needed_evidence": [
+          "capacity",
+          "projects",
+          "supply chain",
+          "delivery timeline"
+        ]
+      },
+      {
+        "id": "H4",
+        "hypothesis": "Unit economics or the cost curve is close enough to commercial range.",
+        "decision_relevance": "Determines whether the opportunity is a budget item, pilot or watchlist topic.",
+        "needed_evidence": [
+          "cost",
+          "price",
+          "gross margin",
+          "CAPEX",
+          "OPEX"
+        ]
+      },
+      {
+        "id": "H5",
+        "hypothesis": "Leading players have defensible advantage rather than a temporary window.",
+        "decision_relevance": "Determines whether to back a company, partner or capability.",
+        "needed_evidence": [
+          "market share",
+          "patents",
+          "customer references",
+          "funding",
+          "channels"
+        ]
+      },
+      {
+        "id": "H6",
+        "hypothesis": "Policy, regulatory or standards timing supports commercialization.",
+        "decision_relevance": "Determines entry timing and risk buffers.",
+        "needed_evidence": [
+          "policy date",
+          "regulatory license",
+          "standard",
+          "subsidy or procurement"
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

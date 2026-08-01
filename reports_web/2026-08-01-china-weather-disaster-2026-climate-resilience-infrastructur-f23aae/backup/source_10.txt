@@ -1,0 +1,37 @@
+Title: text.md (Fragment 35094c78)
+URL: internal://documents/6b59b466-fc66-4626-843b-1d5fb60af3e6#chunk=35094c78-4843-4e36-b950-25013d51d07a
+Source Type: internal
+Domain: internal.enterprise
+Content Type: text/plain
+Search Query: China Weather Disaster 2026: Climate Resilience Infrastructure
+
+事件2｜湖北龙卷风 + 强对流 — Hubei Tornado & Severe Convection (July 6–7)
+气象参数:
+- EF2级龙卷风登陆黄冈 (2026-07-06 21:47 CST)
+- Wind speed at peak: 约 60 m/s (218 km/h)
+- Path length: 18.3km, 最大宽度 400m
+基础设施损毁:
+- 房屋倒塌: 22间；严重损坏: 4,855间
+- 电力线路中断: 黄冈 43条10kV线路，5.6万户停电
+- 道路损毁: 鄂东 127km地方公路
+- 农业大棚损毁: 黄石蔬菜基地 3,200亩
+人员伤亡:
+- 受灾: 1.46万人
+- 死亡: 11人；失联: 1人；受伤: 331人
+经济损失:
+- 湖北黄冈直接损失: 约 7.8亿元（湖北省减灾委初报）
+- 农业损失: 约 1.2亿元
+
+事件3｜甘肃陇南宕昌山体滑坡 — Gansu Dangchang Landslide (July 7)
+地质参数:
+- 滑坡体积: 约 42万m³（初步估算）
+- 滑动速度: 约 25 m/s（高速滑坡）
+- 触发机制: 强降雨 + 地层软化（仍在调查）
+- 被困人员: 33名林业作业人员
+人员伤亡:
+- 死亡: 21人；受伤: 7人（轻伤）；安全: 5人
+搜救资源投入:
+- 搜救人员: 520名
+- 专业设备: 32台大型挖掘机、6台生命探测仪、2架搜救直升机
+直接损失:
+- 基础设施损毁: 约 1.1亿元（甘肃省应急管理厅初报）
