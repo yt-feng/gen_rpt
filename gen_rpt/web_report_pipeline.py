@@ -277,11 +277,11 @@ class WebReportPipeline:
                 source_chunks=rag_source_chunks,
                 approved_evidence=approved_evidence,
             )
-            for revision_attempt in range(1, 3):
+            for revision_attempt in range(1, 4):
                 if not quality_issues:
                     break
                 self._log(
-                    f"PHASE synthesis revision {revision_attempt}/2 | "
+                    f"PHASE synthesis revision {revision_attempt}/3 | "
                     + " | ".join(quality_issues[:8])
                 )
                 report = self._revise_report_draft(report, quality_issues, storyline_plan)
