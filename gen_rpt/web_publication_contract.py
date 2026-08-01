@@ -180,159 +180,142 @@ def rag_report_quality_issues(
     source_chunks: dict[str, str] | None = None,
 ) -> List[str]:
     """Reject structurally valid but empty or ungrounded RAG drafts."""
+    issues = report_content_quality_issues(
+        report,
+        topic=topic,
+        context_text=context_text,
+        source_count=source_count,
+    )
+    if not isinstance(report, dict) or not source_chunks:
+        return issues
+    for index, section in enumerate(report.get("sections", []) or [], start=1):
+        if not isinstance(section, dict):
+            continue
+        grounded_ids = {
+            match.group(1).strip()
+            for item in section.get("evidence", []) or []
+            if (match := _matching_chunk_citation(str(item or ""), source_chunks))
+        }
+        if len(grounded_ids) < 2:
+            issues.append(
+                f"Section {index} needs at least two distinct exact private-document citations; found {len(grounded_ids)}."
+            )
+    return issues
+
+
+def report_content_quality_issues(
+    report: Any,
+    *,
+    topic: str,
+    context_text: str,
+    source_count: int,
+) -> List[str]:
+    """Enforce the compact, evidence-led executive brief contract for every report."""
     if not isinstance(report, dict):
         return ["The model did not return a report object."]
     issues: List[str] = []
     if source_count < 1:
-        issues.append("No validated private-document sources were retained.")
+        issues.append("No validated sources were retained.")
 
     title = str(report.get("title") or "").strip()
     title_key = re.sub(r"\W+", " ", title.lower()).strip()
     topic_key = re.sub(r"\W+", " ", str(topic or "").lower()).strip()
     if not title:
         issues.append("The title is missing.")
+    elif title_key == topic_key or (
+        not re.search(r"[\u3400-\u9fff]", title) and len(title.split()) < 5
+    ) or (
+        re.search(r"[\u3400-\u9fff]", title) and len(re.findall(r"[\u3400-\u9fff]", title)) < 12
+    ):
+        issues.append("The title needs a specific decision conclusion, not a topic label.")
 
     takeaways = [str(item).strip() for item in report.get("key_takeaways", []) or [] if str(item).strip()]
     if len(takeaways) != 3:
         issues.append("Exactly three substantive key takeaways are required.")
 
     sections = report.get("sections", []) or []
-    if not isinstance(sections, list) or len(sections) < 1:
-        issues.append("The report requires at least one substantive section.")
+    if not isinstance(sections, list) or not 5 <= len(sections) <= 6:
+        count = len(sections) if isinstance(sections, list) else 0
+        issues.append(f"The report requires 5-6 substantive sections; found {count}.")
         sections = sections if isinstance(sections, list) else []
+    seen_paragraphs: set[str] = set()
     for index, section in enumerate(sections, start=1):
         if not isinstance(section, dict):
             issues.append(f"Section {index} is not a structured section object.")
             continue
         section_title = str(section.get("title") or section.get("heading") or "").strip()
-        if len(section_title) < 18 or re.fullmatch(r"(?:section|chapter|part)\s*\d*", section_title, re.I):
+        cjk_title = bool(re.search(r"[\u3400-\u9fff]", section_title))
+        if (
+            (cjk_title and len(re.findall(r"[\u3400-\u9fff]", section_title)) < 8)
+            or (not cjk_title and len(section_title) < 18)
+            or re.fullmatch(r"(?:section|chapter|part)\s*\d*", section_title, re.I)
+            or re.fullmatch(r"(?:market\s+)?(?:overview|background|trends?|analysis|conclusion|recommendations?)", section_title, re.I)
+        ):
             issues.append(f"Section {index} needs a conclusion-first, topic-specific title.")
         paragraphs = [str(item).strip() for item in section.get("paragraphs", []) or [] if str(item).strip()]
         if not paragraphs and str(section.get("body") or "").strip():
             paragraphs = [str(section.get("body")).strip()]
         lead = str(section.get("lead") or "").strip()
-        if len(paragraphs) < 5 or len(lead) + sum(map(len, paragraphs)) < 900:
-            issues.append(f"Section {index} is too thin; use at least five evidence-led analytical paragraphs of 60+ words each.")
+        if not 3 <= len(paragraphs) <= 6:
+            issues.append(f"Section {index} needs 3-6 developed analytical paragraphs; found {len(paragraphs)}.")
+        section_words = _word_count(" ".join([lead, *paragraphs, str(section.get("so_what") or "")]))
+        if not 250 <= section_words <= 450:
+            issues.append(f"Section {index} needs 250-450 words of analysis; found {section_words}.")
+        short_paragraphs = [position for position, paragraph in enumerate(paragraphs, start=1) if _word_count(paragraph) < 45]
+        if short_paragraphs:
+            issues.append(f"Section {index} has underdeveloped paragraphs under 45 words: {short_paragraphs}.")
+        for position, paragraph in enumerate(paragraphs, start=1):
+            key = _normalized_words(paragraph)
+            if key and key in seen_paragraphs:
+                issues.append(f"Section {index} paragraph {position} repeats earlier report prose.")
+            seen_paragraphs.add(key)
         evidence = [str(item).strip() for item in section.get("evidence", []) or [] if str(item).strip()]
-        if not evidence:
-            issues.append(f"Section {index} has no traceable document evidence.")
-        elif source_chunks:
-            pass # Relaxed for bulk generation: do not strictly enforce chunk formatting rules if evidence exists.
+        if len(evidence) < 2:
+            issues.append(f"Section {index} needs at least two traceable evidence items; found {len(evidence)}.")
+        if _word_count(section.get("so_what")) < 35:
+            issues.append(f"Section {index} needs a developed management implication of at least 35 words.")
+
+    total_words = _word_count(_report_narrative_text(report))
+    if not 2000 <= total_words <= 3000:
+        issues.append(f"The reader-visible decision brief needs 2,000-3,000 words; found {total_words}.")
+
+    actions = [item for item in report.get("action_steps", []) or [] if isinstance(item, dict)]
+    if not 4 <= len(actions) <= 6:
+        issues.append(f"The management agenda requires 4-6 actions; found {len(actions)}.")
+    for index, action in enumerate(actions, start=1):
+        if not str(action.get("horizon") or "").strip():
+            issues.append(f"Action {index} is missing a horizon.")
+        if not str(action.get("action") or "").strip():
+            issues.append(f"Action {index} is missing the action decision.")
+        if not str(action.get("success_metric") or action.get("decision_gate") or "").strip():
+            issues.append(f"Action {index} is missing a success metric or decision gate.")
+        if _word_count(action.get("rationale")) < 12:
+            issues.append(f"Action {index} needs an evidence-based rationale of at least 12 words.")
 
     report_numbers = _number_tokens(_rag_reader_text(report))
     unsupported_numbers = sorted(report_numbers - _number_tokens(context_text))
     if unsupported_numbers:
         issues.append(
-            "Numeric claims not found in the validated private context: "
+            "Numeric claims not found in the validated evidence: "
             + ", ".join(unsupported_numbers[:8])
         )
     return issues
 
 
-def repair_rag_report_structure(report: dict, topic: str = "") -> dict:
-    """
-    Auto-repairs structural quality defects (thin sections, missing key takeaways)
-    so RAG report synthesis never crashes with a RuntimeError quality gate failure.
-    """
-    if not isinstance(report, dict):
-        return report
-
-    # 1. Repair key_takeaways (ensure exactly 3 substantive items)
-    takeaways = [str(t).strip() for t in (report.get("key_takeaways") or []) if str(t).strip()]
-    sections = report.get("sections") or []
-
-    while len(takeaways) < 3:
-        idx = len(takeaways)
-        if idx < len(sections) and isinstance(sections[idx], dict):
-            sec_lead = str(sections[idx].get("lead") or sections[idx].get("title") or "").strip()
-            if sec_lead and sec_lead not in takeaways and len(sec_lead) >= 20:
-                takeaways.append(sec_lead)
-                continue
-        takeaways.append(
-            f"Strategic risk management and evidence-led monitoring must guide decision timing for {topic or 'the target sector'}."
-        )
-
-    report["key_takeaways"] = takeaways[:3]
-
-    # 2. Repair thin sections (ensure >= 3 paragraphs and >= 450 total length)
-    for idx, section in enumerate(sections):
-        if not isinstance(section, dict):
-            continue
-
-        paragraphs = [str(p).strip() for p in (section.get("paragraphs") or []) if str(p).strip()]
-        if not paragraphs and str(section.get("body") or "").strip():
-            paragraphs = [str(section.get("body")).strip()]
-
-        lead = str(section.get("lead") or "").strip()
-
-        # If paragraphs < 3, attempt sentence splitting
-        if len(paragraphs) < 3:
-            expanded_p = []
-            for p in paragraphs:
-                sentences = re.split(r"(?<=[.!?。！？])\s+", p)
-                if len(sentences) >= 2 and (len(paragraphs) + len(expanded_p) + len(sentences) - 1 >= 3):
-                    mid = len(sentences) // 2
-                    expanded_p.append(" ".join(sentences[:mid]))
-                    expanded_p.append(" ".join(sentences[mid:]))
-                else:
-                    expanded_p.append(p)
-            paragraphs = expanded_p
-
-        # If still < 3 paragraphs, append analytical paragraph extensions
-        sec_title = str(section.get("title") or section.get("heading") or f"Section {idx + 1} Analysis").strip()
-        evidence_list = section.get("evidence") or []
-        evidence_str = " ".join([str(e) for e in evidence_list[:2]])
-
-        if len(paragraphs) < 1:
-            paragraphs.append(
-                f"The primary analytical thesis for {sec_title} establishes that capital allocation and operational commitments require validated milestone verification before scaling."
-            )
-
-        if len(paragraphs) < 2:
-            if evidence_str:
-                paragraphs.append(f"Empirical evidence confirms: {evidence_str}")
-            else:
-                paragraphs.append(
-                    f"Detailed evidence tracking indicates that market dynamics and policy indicators are converging on actionable decision gates over the 12 to 36 month horizon."
-                )
-
-        if len(paragraphs) < 3:
-            paragraphs.append(
-                f"To preserve operating flexibility, decision-makers should maintain strict risk limits, monitor lead indicators, and align capital deployment with verified progress metrics."
-            )
-
-        # Ensure total section text length >= 900 chars
-        total_len = len(lead) + sum(len(p) for p in paragraphs)
-        if total_len < 900:
-            expansion = f" In summary, {sec_title} highlights the necessity of structured decision gates and evidence density to navigate market uncertainties effectively."
-            paragraphs[-1] = paragraphs[-1] + expansion
-
-        section["paragraphs"] = paragraphs
-
-        # 3. Repair missing evidence: if a section has no evidence items after synthesis,
-        #    inject a generic fallback so the quality gate does not raise RuntimeError.
-        #    The report will still be reviewed by humans; this prevents hard crashes.
-        evidence = [str(e).strip() for e in (section.get("evidence") or []) if str(e).strip()]
-        if not evidence:
-            section["evidence"] = [
-                f"Document context for {sec_title}: the private document corpus contains supporting context "
-                f"for this section. Additional evidence attribution was not completed during synthesis. "
-                f"This section should be manually reviewed for evidence traceability."
-            ]
-
-    return report
-
-
 def _evidence_matches_chunk(evidence: str, source_chunks: dict[str, str]) -> bool:
+    return bool(_matching_chunk_citation(evidence, source_chunks))
+
+
+def _matching_chunk_citation(evidence: str, source_chunks: dict[str, str]) -> re.Match[str] | None:
     chunk_match = re.search(r"\[Chunk:\s*([^\]|]+)(?:\s*\|[^\]]*)?\]", evidence, re.I)
-    if not chunk_match:
-        return False
+    quote_match = re.search(r'\]\s*"(.{20,}?)"(?:\s*(?:-|\u2014)|$)', evidence)
+    if not chunk_match or not quote_match:
+        return None
     chunk_text = source_chunks.get(chunk_match.group(1).strip())
     if not chunk_text:
-        return False
-    # If the LLM successfully attributed a valid RAG chunk ID, consider it grounded.
-    # Exact-string quotation matching is too brittle and crashes valid reports.
-    return True
+        return None
+    quote = _normalized_words(quote_match.group(1))
+    return chunk_match if quote and quote in _normalized_words(chunk_text) else None
 
 
 def rag_exhibit_is_grounded(
@@ -368,14 +351,20 @@ def rag_exhibit_is_grounded(
 
 
 def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> Any:
-    """Attach an exact best-matching chunk excerpt when the model citation format drifts."""
+    """Attach exact matching chunk excerpts without inventing generic support."""
     if not isinstance(report, dict) or not source_chunks:
         return report
+    added_any = False
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
         evidence = [str(item).strip() for item in section.get("evidence", []) or [] if str(item).strip()]
-        if any(_evidence_matches_chunk(item, source_chunks) for item in evidence):
+        grounded_ids = {
+            match.group(1).strip()
+            for item in evidence
+            if (match := _matching_chunk_citation(item, source_chunks))
+        }
+        if len(grounded_ids) >= 2:
             continue
         section_text = " ".join(
             [str(section.get(key) or "") for key in ("title", "lead", "body", "so_what")]
@@ -383,7 +372,7 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
         )
         section_terms = _grounding_terms(section_text)
         ranked_chunks = sorted(
-            source_chunks.items(),
+            (item for item in source_chunks.items() if item[0] not in grounded_ids),
             key=lambda item: len(section_terms & _grounding_terms(item[1])),
             reverse=True,
         )
@@ -394,11 +383,26 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
         quote = max(
             sentences or [chunk_text.strip()],
             key=lambda item: len(section_terms & _grounding_terms(item)),
-        )[:360].rsplit(" ", 1)[0].strip()
+        ).strip()
+        if len(quote) > 360:
+            quote = quote[:360].rsplit(" ", 1)[0].strip()
         quote = quote.replace('"', "'").replace("“", "'").replace("”", "'")
         if quote:
             evidence.append(f'[Chunk: {chunk_id}] "{quote}" — Supporting document evidence.')
             section["evidence"] = evidence
+            added_any = True
+    if added_any and any(
+        len(
+            {
+                match.group(1).strip()
+                for item in section.get("evidence", []) or []
+                if (match := _matching_chunk_citation(str(item or ""), source_chunks))
+            }
+        ) < 2
+        for section in report.get("sections", []) or []
+        if isinstance(section, dict)
+    ):
+        return ground_rag_section_evidence(report, source_chunks)
     return report
 
 
@@ -451,11 +455,17 @@ def prune_unsupported_numeric_claims(report: Any, context_text: str) -> List[str
         for key in ("paragraphs", "evidence"):
             if key in section:
                 section[key] = clean_list(section.get(key))
-    report["action_steps"] = [
-        action
-        for action in report.get("action_steps", []) or []
-        if not (_number_tokens(_visible_value_text(action)) - allowed)
-    ]
+    cleaned_actions = []
+    for action in report.get("action_steps", []) or []:
+        if not isinstance(action, dict):
+            continue
+        cleaned = dict(action)
+        for key in ("horizon", "action", "success_metric", "decision_gate", "rationale", "description"):
+            if key in cleaned:
+                cleaned[key] = clean_text(cleaned.get(key))
+        if str(cleaned.get("action") or "").strip():
+            cleaned_actions.append(cleaned)
+    report["action_steps"] = cleaned_actions
     return sorted(removed)
 
 
@@ -505,6 +515,8 @@ def rag_rendered_output_issues(html_text: str, *, conflict_count: int) -> List[s
     fallback_markers = (">A</text>", ">60</text>", ">45</text>", ">30</text>")
     if all(marker in html_value for marker in fallback_markers):
         issues.append("Rendered HTML contains the legacy synthetic A/B/C = 60/45/30 chart.")
+    if "action-block" not in html_value:
+        issues.append("Rendered HTML omitted the evidence-based management agenda.")
     if conflict_count and "conflicts-requiring-human-review" not in html_value:
         issues.append("Rendered HTML omitted the conflicts requiring human review section.")
     return issues
@@ -512,6 +524,27 @@ def rag_rendered_output_issues(html_text: str, *, conflict_count: int) -> List[s
 
 def _normalized_words(value: Any) -> str:
     return " ".join(re.findall(r"\w+", str(value or "").lower()))
+
+
+def _word_count(value: Any) -> int:
+    text = str(value or "")
+    cjk_characters = len(re.findall(r"[\u3400-\u9fff]", text))
+    latin_words = len(re.findall(r"\b[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*\b", text))
+    return cjk_characters + latin_words
+
+
+def _report_narrative_text(report: dict) -> str:
+    parts = [str(report.get(key) or "") for key in ("title", "dek")]
+    parts.extend(str(item) for key in ("intro", "key_takeaways") for item in report.get(key, []) or [])
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        parts.extend(str(section.get(key) or "") for key in ("title", "lead", "body", "so_what"))
+        parts.extend(str(item) for item in section.get("paragraphs", []) or [])
+    for action in report.get("action_steps", []) or []:
+        if isinstance(action, dict):
+            parts.extend(str(action.get(key) or "") for key in ("horizon", "action", "success_metric", "rationale"))
+    return "\n".join(parts)
 
 
 def _rag_reader_text(report: dict) -> str:

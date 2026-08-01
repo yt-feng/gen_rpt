@@ -431,6 +431,7 @@ def _render_actions(section: Mapping[str, Any]) -> str:
             f"<span>{_e(item.get('horizon') or f'Priority {index}')}</span>"
             f"<h3>{_e(item.get('action'))}</h3>"
             + (f"<p><strong>Decision gate:</strong> {_e(item.get('successMetric'))}</p>" if item.get("successMetric") else "")
+            + (f"<p><strong>Rationale:</strong> {_e(item.get('rationale'))}</p>" if item.get("rationale") else "")
             + "</article>"
         )
     parts.append("</div></section>")
@@ -545,12 +546,14 @@ def _action_items(value: Any) -> List[Dict[str, str]]:
             action = _clean(raw.get("action") or raw.get("description"), 4_000)
             horizon = _clean(raw.get("horizon"), 160)
             success = _clean(raw.get("success_metric") or raw.get("successMetric"), 1_000)
+            rationale = _clean(raw.get("rationale"), 2_000)
         else:
             action = _clean(raw, 4_000)
             horizon = ""
             success = ""
+            rationale = ""
         if action:
-            items.append({"action": action, "horizon": horizon, "successMetric": success})
+            items.append({"action": action, "horizon": horizon, "successMetric": success, "rationale": rationale})
     return items
 
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 from urllib.parse import urlparse
 
 from .research_quality import ResearchFactPack
@@ -209,8 +209,12 @@ def build_storyline_plan(
     decision_question = str(plan.get("decision_question") or fact_pack.decision_question or topic)
     hypotheses = _plan_hypotheses(plan)
     sizing_methods = _plan_sizing_methods(plan)
+    report_archetype, selected_modules = _adaptive_report_modules(topic, decision_question)
     if str(language or "").lower().startswith("zh"):
         return {
+            "report_archetype": report_archetype,
+            "selected_modules": selected_modules,
+            "coverage_requirements": ["executive thesis", "source-backed findings", "causal mechanisms", "counter-evidence and risks", "decision implications", "evidence-based actions"],
             "core_question": decision_question,
             "central_thesis": "先由公开证据决定报告主线，再把数据、时间线和管理含义串成可执行判断。",
             "narrative_focus": "围绕证据最密集的主题推进：" + "、".join(strongest[:4]),
@@ -222,6 +226,9 @@ def build_storyline_plan(
             "exhibit_narrative_rule": "每张图必须嵌入章节论证：图前有管理问题或判断铺垫，图后有客户可读解释；不得连续堆放图表。",
         }
     return {
+        "report_archetype": report_archetype,
+        "selected_modules": selected_modules,
+        "coverage_requirements": ["executive thesis", "source-backed findings", "causal mechanisms", "counter-evidence and risks", "decision implications", "evidence-based actions"],
         "core_question": decision_question,
         "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
         "narrative_focus": "Evidence is densest around: " + ", ".join(strongest[:4] or ["source quality", "timing", "commercial proof"]),
@@ -1716,6 +1723,33 @@ def _basis_item(point: Dict[str, Any]) -> Dict[str, Any]:
         "origin": point.get("origin") or ("rag" if point.get("source_type") == "internal" else "web"),
         "status": point.get("status") or "",
     }
+
+
+def _adaptive_report_modules(topic: str, decision_question: str) -> Tuple[str, List[str]]:
+    text = f"{topic} {decision_question}".lower()
+    if re.search(r"\b(property|real estate|market|investment|investor|portfolio|capital|forecast|valuation)\b", text):
+        return "market_investment", [
+            "source and forecast comparison",
+            "base, upside and downside scenarios",
+            "sensitivity drivers",
+            "segment and micro-market implications",
+            "investment recommendations",
+        ]
+    if re.search(r"\b(policy|regulation|regulatory|government|public sector|compliance)\b", text):
+        return "policy_regulatory", [
+            "policy baseline and intended outcome",
+            "stakeholder impact",
+            "implementation scenarios",
+            "delivery and compliance risks",
+            "management response",
+        ]
+    return "operating_strategy", [
+        "current decision baseline",
+        "options and trade-offs",
+        "causal and economic drivers",
+        "failure modes and uncertainty",
+        "staged decision gates",
+    ]
 
 
 def _mixed_basis(ledger: List[Dict[str, Any]], fact_pack: ResearchFactPack, *, limit: int) -> List[Dict[str, Any]]:

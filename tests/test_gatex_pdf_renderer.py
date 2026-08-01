@@ -59,6 +59,7 @@ def sample_release():
                         "horizon": "0-90 days",
                         "action": "Define governance and data boundaries before selecting assets.",
                         "success_metric": "The investment committee approves decision rights.",
+                        "rationale": "The approved evidence makes governance control a condition for durable value.",
                     }
                 ],
             },
@@ -110,8 +111,10 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertRegex(artifact["sha256"], r"^[0-9a-f]{64}$")
             with fitz.open(path) as document:
                 cover_text = document[0].get_text("text")
+                full_text = "\n".join(page.get_text("text") for page in document)
             self.assertIn(payload["summary"], cover_text)
             self.assertNotIn(payload["subtitle"], cover_text)
+            self.assertIn("governance control a condition", full_text)
 
     def test_renders_chinese_release_with_extractable_cjk_text(self):
         payload = sample_release()

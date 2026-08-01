@@ -239,6 +239,8 @@ def main() -> None:
     evidence_ledger = build_evidence_ledger("AI and process-industry talent", sample_sources, fact_pack)
     storyline_plan = build_storyline_plan("AI and process-industry talent", plan, fact_pack, evidence_ledger, language="en")
     assert storyline_plan.get("exhibit_narrative_rule")
+    assert storyline_plan["report_archetype"] == "operating_strategy"
+    assert "failure modes and uncertainty" in storyline_plan["selected_modules"]
     chart_data_needs = [
         {
             "id": "chart-need-1",
@@ -525,8 +527,11 @@ def main() -> None:
     assert "Source base" not in html_text
     assert "Methodology and source boundary" not in html_text
     assert "<h2>Sources</h2>" not in html_text
-    assert "Management agenda" not in html_text
-    assert "Where to Start" not in html_text
+    assert "Management agenda" in html_text
+    assert "Where to Start" in html_text
+    assert "Management Agenda" in md_text
+    assert "Management implication" in md_text
+    assert "## References" in md_text
     assert ">Article<" not in html_text
     assert "exhibit-footnote" in html_text
     assert "exhibit-bridge" in html_text

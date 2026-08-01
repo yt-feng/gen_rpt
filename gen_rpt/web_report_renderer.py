@@ -722,6 +722,7 @@ def render_web_report_html(
         last_output_was_exhibit = bool(section_exhibits)
     opening_previous = previous_exhibit if last_output_was_exhibit else None
     _render_exhibit_group(parts, exhibit_by_after.get("", []), labels, opening_previous)
+    _render_actions(parts, normalized.get("action_steps", []), labels, language)
     _render_conflicts(parts, normalized.get("conflicts", []), language)
     parts.append("</article>")
     parts.append("</main>")
@@ -764,9 +765,25 @@ def render_web_report_markdown(
         if section.get("evidence"):
             lines.extend(["Evidence:", ""])
             for item in section["evidence"]:
-                clean_item = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(item or ""), flags=re.I).strip()
-                lines.append(f"- {clean_item}")
+                lines.append(f"- {item}")
             lines.append("")
+        if section.get("so_what"):
+            lines.extend(["**Management implication:**", "", section["so_what"], ""])
+    if normalized.get("exhibits"):
+        lines.extend(["## Evidence Exhibits", ""])
+        for exhibit in normalized["exhibits"]:
+            lines.extend([f"### Exhibit {exhibit.get('no')}: {exhibit.get('title')}", ""])
+            for value in (exhibit.get("subtitle"), exhibit.get("caption"), exhibit.get("source_note")):
+                if value:
+                    lines.extend([str(value), ""])
+    if normalized.get("action_steps"):
+        lines.extend(["## Management Agenda", ""])
+        for item in normalized["action_steps"]:
+            lines.extend([f"### {item.get('horizon')}: {item.get('action')}", ""])
+            if item.get("success_metric"):
+                lines.extend([f"Decision gate: {item['success_metric']}", ""])
+            if item.get("rationale"):
+                lines.extend([f"Rationale: {item['rationale']}", ""])
     if normalized.get("conflicts"):
         heading = "Conflicts requiring human review" if not str(language).lower().startswith("zh") else "需要人工复核的证据冲突"
         lines.extend([f"## {heading}", ""])
@@ -777,6 +794,17 @@ def render_web_report_markdown(
             lines.append(f"- Supplementary web claim: {conflict['web']['fact']} ({conflict['web']['source_title']})")
             lines.append(f"- Status: {conflict['status']}")
             lines.append("")
+    if normalized.get("methodology"):
+        lines.extend(["## Methodology", "", normalized["methodology"], ""])
+    if normalized.get("references"):
+        lines.extend(["## References", ""])
+        for reference in normalized["references"]:
+            title = reference.get("title") or reference.get("url") or "Source"
+            url = reference.get("url") or ""
+            lines.append(f"- [{title}]({url})" if url else f"- {title}")
+        lines.append("")
+    if normalized.get("disclaimer"):
+        lines.extend(["## Disclaimer", "", normalized["disclaimer"], ""])
     output_file.parent.mkdir(parents=True, exist_ok=True)
     output_file.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
     return output_file
@@ -848,6 +876,7 @@ def normalize_web_report(
         "source_count": source_count or len(references),
         "evidence_quality": _text(data.get("evidence_quality") or data.get("evidence_boundary") or ""),
         "disclaimer": _text(data.get("disclaimer") or ""),
+        "content_quality_audit": data.get("content_quality_audit") or {},
     }
 
 
@@ -877,7 +906,7 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
     image = _section_image(assets or {}, idx)
     if image:
         parts.append(f"<figure class='section-media'><img src='{_e(image)}' alt='' /></figure>")
-    for paragraph in section.get("paragraphs", [])[:7]:
+    for paragraph in section.get("paragraphs", []):
         parts.append(f"<p>{_e(paragraph)}</p>")
     if section.get("evidence"):
         parts.append("<ul class='evidence-list'>")
@@ -890,7 +919,7 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
 
 
 def _render_actions(parts: List[str], actions: Any, labels: Dict[str, str], language: str) -> None:
-    items = _normalize_actions(actions)[:5]
+    items = _normalize_actions(actions)[:6]
     if not items:
         return
     zh = str(language or "").lower().startswith("zh")
@@ -908,6 +937,7 @@ def _render_actions(parts: List[str], actions: Any, labels: Dict[str, str], lang
         horizon = _compact(_text(item.get("horizon") or ""), 70)
         action = _compact(_text(item.get("action") or ""), 190)
         metric = _compact(_text(item.get("success_metric") or item.get("description") or ""), 190)
+        rationale = _compact(_text(item.get("rationale") or ""), 360)
         if not action:
             continue
         if metric:
@@ -924,6 +954,8 @@ def _render_actions(parts: List[str], actions: Any, labels: Dict[str, str], lang
         parts.append(f"<strong>{_e(action)}</strong>")
         if metric_text:
             parts.append(f"<span>{_e(metric_text)}</span>")
+        if rationale:
+            parts.append(f"<span>{_e(rationale)}</span>")
         parts.append("</li>")
     parts.append("</ul></section>")
 
@@ -1585,10 +1617,11 @@ def _normalize_actions(value: Any) -> List[Dict[str, str]]:
                     "action": _compact(_text(item.get("action") or item.get("title") or item.get("name") or ""), 180),
                     "success_metric": _compact(_text(item.get("success_metric") or item.get("metric") or item.get("decision_gate") or ""), 180),
                     "description": _compact(_text(item.get("description") or ""), 180),
+                    "rationale": _compact(_text(item.get("rationale") or ""), 420),
                 }
             )
         else:
-            actions.append({"horizon": "Decision gate", "action": _compact(_text(item), 180), "success_metric": "", "description": ""})
+            actions.append({"horizon": "Decision gate", "action": _compact(_text(item), 180), "success_metric": "", "description": "", "rationale": ""})
     return [x for x in actions if x.get("action")]
 
 

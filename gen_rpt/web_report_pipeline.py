@@ -29,11 +29,15 @@ from .web_publication_contract import (
     prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
-    repair_rag_report_structure,
+    report_content_quality_issues,
     rag_rendered_output_issues,
     rag_visible_numbers_supported,
 )
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
+
+
+class ReportQualityError(RuntimeError):
+    """The evidence or editorial contract is too weak for publication."""
 
 
 class WebReportPipeline:
@@ -224,7 +228,20 @@ class WebReportPipeline:
             self._log(f"PHASE evidence_ledger fallback used | reason={str(exc)[:240]!r}")
         if web_required and not web_evidence_ledger:
             raise RuntimeError("Combined web search returned sources but zero structured evidence points")
-        grounding_text = self._combined_grounding_text(approved_evidence)
+        evidence_base_issues = self._evidence_base_issues(
+            max(
+                fact_pack.authoritative_source_count,
+                web_fact_pack.authoritative_source_count if web_fact_pack else 0,
+            ),
+            approved_evidence,
+            web_evidence_ledger,
+            web_required=web_required,
+        )
+        if evidence_base_issues:
+            message = "Evidence base is not publication-ready: " + " | ".join(evidence_base_issues)
+            (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+            raise ReportQualityError(message)
+        grounding_text = self._combined_grounding_text(approved_evidence, sources)
         storyline_plan = build_storyline_plan(display_topic, plan, fact_pack, approved_evidence, language=self.language)
         family_counts: Dict[str, int] = {}
         for item in approved_evidence:
@@ -251,58 +268,72 @@ class WebReportPipeline:
                 storyline_plan,
                 evidence_conflicts=evidence_conflicts,
             )
-            if self.rag_context:
-                report = ground_rag_section_evidence(report, rag_source_chunks)
-                self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
-                removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
-                if removed_numbers:
-                    self._log("PHASE synthesis removed unsupported numeric claims | " + ", ".join(removed_numbers))
-                quality_issues = rag_report_quality_issues(
+            report, quality_issues = self._prepare_report_draft(
+                report,
+                topic=display_topic,
+                grounding_text=grounding_text,
+                source_count=len(sources),
+                source_chunks=rag_source_chunks,
+                approved_evidence=approved_evidence,
+            )
+            if quality_issues:
+                self._log("PHASE synthesis retry | " + " | ".join(quality_issues[:8]))
+                report = self._synthesize_web_report(
+                    display_topic,
+                    plan,
+                    chart_data_needs,
+                    sources,
+                    fact_pack,
+                    approved_evidence,
+                    storyline_plan,
+                    quality_corrections=quality_issues,
+                    evidence_conflicts=evidence_conflicts,
+                )
+                report, quality_issues = self._prepare_report_draft(
                     report,
                     topic=display_topic,
-                    context_text=grounding_text,
-                    source_count=len(self.rag_sources),
+                    grounding_text=grounding_text,
+                    source_count=len(sources),
                     source_chunks=rag_source_chunks,
+                    approved_evidence=approved_evidence,
+                )
+            if quality_issues:
+                raise ReportQualityError("Report content quality gate failed: " + " | ".join(quality_issues))
+
+            self._post_process(report, display_topic, sources, fact_pack)
+            audit = self._audit_report_content(report, storyline_plan)
+            if not self._editorial_audit_passed(audit):
+                corrections = self._audit_corrections(audit)
+                self._log("PHASE editorial revision | " + " | ".join(corrections[:8]))
+                report = self._synthesize_web_report(
+                    display_topic,
+                    plan,
+                    chart_data_needs,
+                    sources,
+                    fact_pack,
+                    approved_evidence,
+                    storyline_plan,
+                    quality_corrections=corrections,
+                    evidence_conflicts=evidence_conflicts,
+                )
+                report, quality_issues = self._prepare_report_draft(
+                    report,
+                    topic=display_topic,
+                    grounding_text=grounding_text,
+                    source_count=len(sources),
+                    source_chunks=rag_source_chunks,
+                    approved_evidence=approved_evidence,
                 )
                 if quality_issues:
-                    self._log("PHASE synthesis retry | " + " | ".join(quality_issues[:8]))
-                    report = self._synthesize_web_report(
-                        display_topic,
-                        plan,
-                        chart_data_needs,
-                        sources,
-                        fact_pack,
-                        approved_evidence,
-                        storyline_plan,
-                        quality_corrections=quality_issues,
-                        evidence_conflicts=evidence_conflicts,
-                    )
-                    report = ground_rag_section_evidence(report, rag_source_chunks)
-                    self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
-                    removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
-                    if removed_numbers:
-                        self._log("PHASE synthesis retry removed unsupported numeric claims | " + ", ".join(removed_numbers))
-                    quality_issues = rag_report_quality_issues(
-                        report,
-                        topic=display_topic,
-                        context_text=grounding_text,
-                        source_count=len(self.rag_sources),
-                        source_chunks=rag_source_chunks,
-                    )
-                if quality_issues:
-                    report = repair_rag_report_structure(report, topic=display_topic)
-                    quality_issues = rag_report_quality_issues(
-                        report,
-                        topic=display_topic,
-                        context_text=grounding_text,
-                        source_count=len(self.rag_sources),
-                        source_chunks=rag_source_chunks,
-                    )
-                if quality_issues:
-                    raise RuntimeError("RAG report quality gate failed: " + " | ".join(quality_issues))
+                    raise ReportQualityError("Editorial revision failed the content gate: " + " | ".join(quality_issues))
+                self._post_process(report, display_topic, sources, fact_pack)
+                audit = self._audit_report_content(report, storyline_plan)
+            if not self._editorial_audit_passed(audit):
+                raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
+            report["content_quality_audit"] = audit
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
-            if self.rag_required:
+            if self.rag_required or isinstance(exc, ReportQualityError):
                 raise
             report = self._fallback_report(display_topic, plan, sources, fact_pack, str(exc))
             self._log(f"PHASE synthesis fallback used | reason={str(exc)[:240]!r}")
@@ -344,7 +375,6 @@ class WebReportPipeline:
 
         phase_start = time.monotonic()
         self._log("PHASE normalize_and_validate_schema started | expected <10s")
-        self._post_process(report, display_topic, sources, fact_pack)
         report = normalize_web_report(
             report,
             topic=display_topic,
@@ -356,13 +386,21 @@ class WebReportPipeline:
                 report,
                 topic=display_topic,
                 context_text=grounding_text,
-                source_count=len(self.rag_sources),
+                source_count=len(sources),
                 source_chunks=rag_source_chunks,
             )
-            if final_quality_issues:
-                message = "Final RAG report quality gate failed: " + " | ".join(final_quality_issues)
-                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
-                raise RuntimeError(message)
+        else:
+            final_quality_issues = report_content_quality_issues(
+                report,
+                topic=display_topic,
+                context_text=grounding_text,
+                source_count=len(sources),
+            )
+        if final_quality_issues:
+            message = "Final report content quality gate failed: " + " | ".join(final_quality_issues)
+            (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+            raise ReportQualityError(message)
+        if self.rag_context:
             evidence_issues = combined_evidence_quality_issues(
                 report,
                 approved_evidence=approved_evidence,
@@ -444,15 +482,14 @@ class WebReportPipeline:
             self.language,
             allow_synthetic_fallbacks=allow_synthetic_fallbacks,
         )
-        if self.rag_context:
-            rendered_issues = rag_rendered_output_issues(
-                html_path.read_text(encoding="utf-8"),
-                conflict_count=len(evidence_conflicts),
-            )
-            if rendered_issues:
-                message = "Rendered RAG report quality gate failed: " + " | ".join(rendered_issues)
-                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
-                raise RuntimeError(message)
+        rendered_issues = rag_rendered_output_issues(
+            html_path.read_text(encoding="utf-8"),
+            conflict_count=len(evidence_conflicts),
+        )
+        if rendered_issues:
+            message = "Rendered report quality gate failed: " + " | ".join(rendered_issues)
+            (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+            raise ReportQualityError(message)
 
         (output_dir / "web_report_payload.json").write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "research_plan.json").write_text(json.dumps(plan, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -535,13 +572,128 @@ class WebReportPipeline:
             and str(os.getenv("GEN_RPT_RAG_WEB_REQUIRED", "true")).strip().lower() in {"1", "true", "yes", "on"}
         )
 
-    def _combined_grounding_text(self, approved_evidence: List[Dict[str, Any]]) -> str:
+    def _combined_grounding_text(
+        self,
+        approved_evidence: List[Dict[str, Any]],
+        sources: List[SourceDocument] | None = None,
+    ) -> str:
         facts = [
             str(item.get("fact") or "").strip()
             for item in approved_evidence
             if str(item.get("fact") or "").strip()
         ]
-        return "\n".join([self.rag_context or "", *facts]).strip()
+        source_text = [
+            "\n".join(str(value or "").strip() for value in (source.title, source.snippet, source.content) if str(value or "").strip())
+            for source in sources or []
+        ]
+        return "\n".join([self.rag_context or "", *facts, *source_text]).strip()
+
+    def _evidence_base_issues(
+        self,
+        authoritative_source_count: int,
+        approved_evidence: List[Dict[str, Any]],
+        web_evidence: List[Dict[str, Any]],
+        *,
+        web_required: bool,
+    ) -> List[str]:
+        issues = []
+        if len(approved_evidence) < 10:
+            issues.append(f"at least 10 approved evidence points are required; found {len(approved_evidence)}")
+        if (not self.rag_context or web_required) and authoritative_source_count < 1:
+            issues.append("at least one authority-weighted public source is required")
+        if self.rag_context and web_required and len(web_evidence) < 2:
+            issues.append(f"at least two supplementary public evidence points are required; found {len(web_evidence)}")
+        return issues
+
+    def _prepare_report_draft(
+        self,
+        report: Dict[str, Any],
+        *,
+        topic: str,
+        grounding_text: str,
+        source_count: int,
+        source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]],
+    ) -> tuple[Dict[str, Any], List[str]]:
+        if self.rag_context:
+            report = ground_rag_section_evidence(report, source_chunks)
+            self._filter_rag_exhibits(report, source_chunks, approved_evidence, grounding_text)
+        removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
+        if removed_numbers:
+            self._log("PHASE synthesis removed unsupported numeric claims | " + ", ".join(removed_numbers))
+        if self.rag_context:
+            issues = rag_report_quality_issues(
+                report,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+            )
+        else:
+            issues = report_content_quality_issues(
+                report,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+            )
+        return report, issues
+
+    def _audit_report_content(self, report: Dict[str, Any], storyline_plan: Dict[str, Any]) -> Dict[str, Any]:
+        prompt = f"""Audit this executive decision brief against its selected content modules. Use only the report text; do not add outside facts. Return JSON only.
+
+Selected modules:
+{json.dumps(storyline_plan.get('selected_modules') or [], ensure_ascii=False)}
+
+Report:
+{json.dumps(report, ensure_ascii=False)}
+
+Score these dimensions: thesis_and_logic (0-25), evidence_and_citations (0-25), uncertainty_and_scenarios (0-25), strategic_usefulness (0-25).
+Check for internal contradictions, unsupported high-risk claims, filler, repetition, incomplete sentences, unsupported scenario probabilities, and recommendations without an evidence rationale.
+
+Return exactly:
+{{
+  "score": <integer 0-100>,
+  "thesis_and_logic": <integer 0-25>,
+  "evidence_and_citations": <integer 0-25>,
+  "uncertainty_and_scenarios": <integer 0-25>,
+  "strategic_usefulness": <integer 0-25>,
+  "critical_issues": ["specific issue"],
+  "revision_instructions": ["specific correction"]
+}}
+"""
+        return self.client.chat_json(
+            [
+                {"role": "system", "content": "You are a strict institutional research editor. Return one valid JSON object only."},
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.0,
+        )
+
+    @staticmethod
+    def _editorial_audit_passed(audit: Dict[str, Any]) -> bool:
+        try:
+            return bool(
+                int(audit.get("score", 0)) >= 80
+                and int(audit.get("evidence_and_citations", 0)) >= 20
+                and int(audit.get("strategic_usefulness", 0)) >= 20
+                and not [item for item in _as_list(audit.get("critical_issues")) if str(item).strip()]
+            )
+        except (TypeError, ValueError):
+            return False
+
+    @staticmethod
+    def _audit_corrections(audit: Dict[str, Any]) -> List[str]:
+        corrections = [
+            str(item).strip()
+            for key in ("critical_issues", "revision_instructions")
+            for item in _as_list(audit.get(key))
+            if str(item).strip()
+        ]
+        if corrections:
+            return corrections
+        return [
+            "Raise the editorial score to at least 80/100, including at least 20/25 for evidence and strategic usefulness."
+        ]
 
     def _plan_research(self, topic: str) -> Dict[str, Any]:
         system = "You are a senior research planner for a BlueOcean-style digital publication. Return strict JSON only."
@@ -557,7 +709,8 @@ class WebReportPipeline:
 - market_sizing_plan 必须包含 methods 数组，覆盖 top-down、bottom-up、adoption funnel、value pool 或 supply-side sizing 中至少 3 种；每种方法包含 formula、variables、preferred_sources、search_queries、known_limitations。
 - validation_data_needs 8-12 条，列出市场规模、需求代理、客户/用户数、价格/ARPU/ASP、成本、产能/供给、融资、政策、竞争份额、案例或时间线等可检索数据。
 - search_queries 12-16 条，优先能找到政府、监管、公司公告、年报、行业协会、国际组织、权威媒体、学术或咨询机构资料；其中至少 6 条直接服务于 market sizing 或假设验证。
-- outline 5-7 个章节，标题必须是结论先行、洞察驱动；避免“市场概览、主要趋势、结论”等标签式标题。
+- outline 5-6 个章节，标题必须是结论先行、洞察驱动；避免“市场概览、主要趋势、结论”等标签式标题。
+- 生成紧凑的管理层决策简报，覆盖核心判断、来源支撑、因果机制、反例或风险、决策含义和行动。投资类主题还应在证据允许时包含来源比较、情景、敏感性和细分市场含义。
 - exhibit_ideas 3-5 个，不要装饰图；每个图都要回答一个管理层问题。
 - 明确哪些信息需要数字、案例、时间线或反例来验证。
 """
@@ -573,7 +726,9 @@ Requirements:
 - market_sizing_plan must include a methods array covering at least three of: top-down, bottom-up, adoption funnel, value pool and supply-side sizing. Each method needs formula, variables, preferred_sources, search_queries and known_limitations.
 - validation_data_needs: 8-12 searchable data needs covering market size, demand proxies, customers/users, price/ARPU/ASP, cost, capacity/supply, funding, policy, competitive share, cases or timeline proof.
 - 12-16 public-web search queries, prioritizing government, regulators, company filings, annual reports, industry associations, international organizations, authoritative media, academic sources and consulting research. At least six queries should directly support market sizing or hypothesis testing.
-- 5-7 conclusion-first outline headings. Each heading must be a specific, insight-driven statement; avoid generic headings like "Market Overview", "Key Trends" or "Conclusion".
+- 5-6 conclusion-first outline headings. Each heading must be a specific, insight-driven statement; avoid generic headings like "Market Overview", "Key Trends" or "Conclusion".
+- Build a compact executive decision brief, not an encyclopedia. The outline must cover a thesis, source-backed findings, causal drivers, counter-evidence or risk, decision implications and actions.
+- Adapt the analysis to the topic: investment reports need source comparison, scenarios, sensitivities and segment implications; policy reports need stakeholder and implementation analysis; operating reports need options, trade-offs and failure modes.
 - 3-5 exhibit ideas. No decorative visuals; every exhibit must answer an executive question.
 - State what needs numbers, cases, timeline evidence or counter-evidence.
 """
@@ -592,7 +747,8 @@ Required fields: objective, audience, decision_question, issue_tree, hypotheses,
 Rules:
 - Build hypotheses around the ACTUAL document facts listed above.
 - search_queries: 8-12 queries to find EXTERNAL CONTEXT only (industry benchmarks, regulations, market data) that supplements the document. Do NOT search for facts already in the document.
-- outline: 5-7 section headings reflecting the real document content. Each heading must be a conclusion-first insight statement, not a generic topic label.
+- outline: 5-6 section headings reflecting the real document content. Each heading must be a conclusion-first insight statement, not a generic topic label.
+- Build a compact decision brief around a thesis, source-backed findings, causal drivers, counter-evidence or risk, decision implications and actions. For investment topics include source comparison, scenarios, sensitivities and segment implications when the evidence supports them.
 - CRITICAL: Do not invent salary figures, compensation amounts, job titles, years of experience or any other values not explicitly in the document.
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.1)
@@ -882,14 +1038,15 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 
 写作要求：
 - 全程中文，面向 CEO/董事会/战略团队。
-- 深度和分析严谨性是首要目标；目标是 5-7 个证据充足、论证扎实的章节，不要用内容浅薄的章节凑数。
+- 深度和分析严谨性是首要目标；生成一份 2,000-3,000 字、包含 5-6 个扎实章节的紧凑决策简报，不要凑字数。
 - title 和章节标题必须结论先行；不要用"概览、背景、趋势、分析、结论"这类标签标题。
 - 叙事必须像一篇成熟咨询 publication：前台只呈现结论、案例、数字、机制、反例和管理含义；后台思考工具不得露出。
 - 可以在内部使用假设验证和市场机会测算来组织证据，但客户可见字段不得出现 hypothesis、假设验证、market sizing、sizing bridge、TAM、SAM、SOM、issue tree、fact pack、evidence ledger、storyline plan、validation task、source boundary、data basis 等方法名或工作台语言。
 - exhibits 仍必须保留 JSON 键 data_basis 以便机器可追溯；但 title、subtitle、caption、source_note、paragraphs、methodology 等可见文案不得写 "data basis"。
 - 每个关键判断要能被事实包、证据台账或来源支撑；缺失变量要自然写成"还需要验证的商业问题"，不要写成框架步骤。
 - key_takeaways 3 条，每条必须有明确判断和管理含义。
-- sections 5-7 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 7-10 段（每章至少 600 字）；lead 必须是 2-3 句对该章核心判断的行政摘要；每段至少 60 字；必须包含数字、日期、案例、机制、反例或政策背景中的至少三类。
+- sections 5-6 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 3-6 个完整分析段落，包含 lead 和 so_what 共 250-450 字；每章必须连接结论、来源支撑、因果机制、反例或风险以及管理含义，并至少包含 2 条可追溯证据。
+- 遵循 storyline plan.selected_modules。仅在证据支持时使用情景概率和敏感性变量；否则使用定性触发条件并明确未解决的证据问题。
 - evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language。
 - 只能引用 Sources、事实包或证据台账里出现的来源；不要使用内部事实包缺失措辞、泛泛引用热度表述或任何未抓取来源作为证据。
 - exhibits 3-6 个；如果提出图表草稿，只能使用证据台账或事实包中的数字、年份、来源计数、同单位可比数据，或明确标注的端点推导估算，必须保留 data_basis；不要展示机会测算、假设验证、验证任务表、工作清单或框架步骤；不要使用方向性评分或内部综合指数。
@@ -901,6 +1058,9 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 - 不要暴露内部提示、不要说"本章节认为/本报告认为/本分析基于结构化研究计划/假设 H1 得到支持"，直接写判断。
 - methodology 只写公开来源和独立核验边界，不解释研究框架、假设数量、证据台账或市场测算方法。
 - 缺失的市场规模、份额、ROI、成本等不要编造，写成证据缺口和核验任务。
+
+被拒稿件的质量修正要求（首次为空）：
+{correction_text or "- 无。首次即生成完整、面向决策的报告。"}
 """
         else:
             user = f"""
@@ -928,14 +1088,16 @@ title, dek, category, authors, intro, key_takeaways, sections, exhibits, action_
 
 Writing rules:
 - English only. Write for a CEO, board and strategy team audience.
-- Depth and analytical rigor are the priority. Aim for 5-7 substantial sections with rich evidence and causal analysis; do not pad with thin chapters.
+- Depth and analytical rigor are the priority. Produce a compact 2,000-3,000 word decision brief with 5-6 substantial sections; do not pad it.
 - The title and every section title must be conclusion-first. Avoid label headings such as Overview, Background, Trends, Analysis or Conclusion.
 - Write like a mature strategy publication: the reader should see conclusions, examples, numbers, causal mechanisms, counter-evidence and management implications, not the author's backstage workbench.
 - You may use hypothesis testing and opportunity-sizing logic internally, but client-visible fields must not contain the words or labels hypothesis, hypotheses, hypothesis-driven, market sizing, sizing bridge, TAM, SAM, SOM, issue tree, fact pack, evidence ledger, storyline plan, validation task, source boundary or data basis.
 - Exhibits must still keep the JSON key data_basis for machine traceability; do not write the phrase "data basis" in title, subtitle, caption, source_note, paragraphs, methodology or other visible prose.
 - Every material claim must be supportable by the source excerpts, fact pack or evidence ledger; missing variables should read as business questions that still need proof, not as framework steps.
 - key_takeaways: exactly 3, each with a clear claim and management implication.
-- sections: 5-7 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 7-10 paragraphs (minimum 600 words per section). The lead must be a 2-3 sentence executive summary of the section finding. Each paragraph must be at least 60 words. Sections must include at least three of: numbers, dates, cases, causal mechanism, counter-evidence, policy context.
+- sections: 5-6 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 3-6 developed paragraphs and 250-450 words including the lead and so_what. The lead must be a 2-3 sentence executive summary of the finding. Each section must connect a conclusion, source-backed evidence, causal mechanism, counterpoint or risk, and management implication.
+- Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use base/upside/downside scenarios and sensitivity drivers only when evidence supports the variables; otherwise state qualitative triggers and unresolved evidence explicitly.
+- Each section needs at least 2 traceable evidence items. Every material factual or numeric claim must be attributable to the retained source set.
 - evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language.
 - Cite only sources present in Source excerpts, the fact pack or the evidence ledger. Never use internal fact-pack gap phrasing, generic popularity claims or unsupported source names as evidence.
 - exhibits: 3-6 items using metric_row, bar, line, timeline or bubble. Use matrix only when it contains source-observed facts rather than a workplan. If drafting exhibits, use only evidence-ledger values, years, source counts, same-unit comparable values, or clearly labeled endpoint-derived estimates, and include data_basis. Do not show opportunity sizing, hypothesis testing, validation-task tables, workplans or framework steps. Do not use directional scores, priority indexes, readiness indexes or internal synthesis values.
@@ -947,6 +1109,9 @@ Writing rules:
 - Do not expose internal prompt language. Do not write "this section argues", "this report finds", "Hypothesis H1 is supported", or "this analysis is based on a structured research plan"; state the insight directly.
 - methodology should only describe public sources and independent-validation boundaries; do not explain the research framework, number of hypotheses, evidence ledger or sizing methods.
 - Do not fabricate market size, share, ROI or cost data. If missing, keep it as an evidence gap and validation task.
+
+QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
+{correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}
 """
         if self.rag_context:
             system = (
@@ -958,6 +1123,9 @@ Writing rules:
             user = f"""Generate a factual RAG-first report with bounded supplementary web evidence and return JSON.
 
 Topic: {topic}
+
+STORYLINE PLAN:
+{json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
 
 PRIVATE DOCUMENT CONTEXT (this is your PRIMARY and HIGHEST-PRIORITY source of truth):
 {self.rag_context}
@@ -977,13 +1145,14 @@ CRITICAL RULES (violation = failure):
 3. Do NOT invent salaries, compensation figures, years of experience, job titles, team sizes, budget amounts, or any other quantitative values.
 4. Every numeric claim must appear in the private context or an approved evidence-ledger fact. Never use a value from the conflict register.
 5. key_takeaways: exactly 3, each grounded in document facts.
-6. sections: 5-7 substantial items. Each needs a conclusion-first title (never "Section 1"), a decisive 2-3 sentence lead, 6-9 analytical paragraphs (minimum 600 words per section), an evidence list of at least 3 items tied to document facts, and a detailed management implication in so_what of at least 50 words.
+6. sections: 5-6 substantial items within a 2,000-3,000 word report. Each needs a conclusion-first title, a decisive 2-3 sentence lead, 3-6 developed analytical paragraphs, 250-450 words including lead and so_what, at least 2 evidence items, causal explanation, a counterpoint or risk, and a management implication of at least 35 words.
 7. action_steps: 4-6 items based on what the document states, not invented recommendations. Each must include horizon, action, success_metric, and rationale (1-2 sentences explaining the evidence basis from the private documents).
 8. references: only use real internal identifiers or URLs present in the approved evidence ledger.
-9. Every section evidence list must include at least one item formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
+9. Every section evidence list must include at least two items from distinct chunks formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
 10. Every exhibit must use approved values and include data_basis. For RAG use `{{"id": "<exact chunk id>", "fact": "<exact supporting excerpt>"}}`; for web use the exact approved evidence ID and fact. Unsupported exhibits will be removed.
 11. Numbers in action_steps, success metrics, timelines, labels, and exhibits must appear in the private context or approved evidence. Use non-numeric decision gates when no approved value exists.
 12. Do not generate or resolve the human-review conflict section. The pipeline adds it deterministically after synthesis.
+13. Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use scenario probabilities only when they appear in approved evidence; otherwise use qualitative scenario triggers and state the unresolved evidence.
 
 QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
 {correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}
@@ -1049,11 +1218,6 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
             )
             seen_ref_urls.add(source.url)
         report["references"] = refs
-        # A grounded draft has already passed the RAG quality gate. Do not add
-        # generic fact-pack prose afterward; that can introduce claims that
-        # were not present in the validated private context.
-        if not self.rag_context:
-            self._strengthen_thin_sections(report, topic, fact_pack)
         report.setdefault(
             "disclaimer",
             "Prepared for strategy discussion; validate source data before investment, transaction or operating decisions."
@@ -1293,7 +1457,9 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
                 "Step 3: deterministic collection and evidence extraction build a fact pack and evidence ledger from public sources.",
                 "Step 4: DeepSeek drafts only the publication layer: conclusions, examples, numbers, mechanisms, counter-evidence and management implications.",
                 "Step 5: deterministic exhibit generation replaces model-invented charts with source-backed exhibits and inserts narrative bridges between adjacent exhibits.",
-                "Step 6: audit gates fail generated HTML if workbench language, unsupported charts or consecutive exhibits without prose remain.",
+                "Step 6: one shared content gate enforces a 2,000-3,000 word decision brief, evidence depth, management implications and evidence-based actions.",
+                "Step 7: a pre-publication editorial audit revises one failed draft, then holds publication if evidence or strategic quality remains below threshold.",
+                "Step 8: rendered-output gates fail HTML if workbench language, unsupported charts or consecutive exhibits without prose remain.",
             ],
             "client_visible_contract": publication_contract_prompt(self.language),
         }
@@ -1441,64 +1607,6 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
             "_fallback_used": True,
         }
 
-    def _strengthen_thin_sections(self, report: Dict[str, Any], topic: str, fact_pack: ResearchFactPack) -> None:
-        sections = report.get("sections") or []
-        if not isinstance(sections, list):
-            return
-        facts = []
-        for fact in fact_pack.numeric_facts + fact_pack.dated_facts + fact_pack.high_confidence_facts:
-            cleaned_fact = _clean_fact_for_reader(fact)
-            if cleaned_fact:
-                facts.append(cleaned_fact)
-        if not facts:
-            facts = [
-                (
-                    f"The public source base contains {fact_pack.source_count} retained sources and "
-                    f"{fact_pack.authoritative_source_count} authority-weighted sources for {topic}."
-                )
-            ]
-        for idx, section in enumerate(sections, start=1):
-            if not isinstance(section, dict):
-                continue
-            lead = str(section.get("lead") or "")
-            paragraphs = [str(item).strip() for item in section.get("paragraphs") or [] if str(item).strip()]
-            evidence = [_clean_fact_for_reader(str(item).strip()) for item in section.get("evidence") or [] if str(item).strip()]
-            evidence = [item for item in evidence if item]
-            title = str(section.get("title") or topic)
-            fact = facts[(idx - 1) % len(facts)]
-            while len(paragraphs) < 5:
-                paragraphs.append(self._section_support_paragraph(topic, title, fact, len(paragraphs)))
-            body_len = len(" ".join([lead] + paragraphs + evidence))
-            fact_cursor = idx
-            while body_len < 1550 and len(paragraphs) < 8:
-                paragraphs.append(self._section_support_paragraph(topic, title, facts[fact_cursor % len(facts)], len(paragraphs)))
-                body_len = len(" ".join([lead] + paragraphs + evidence))
-                fact_cursor += 1
-            if not evidence:
-                evidence = facts[:3]
-            body = " ".join([lead] + paragraphs + evidence)
-            if not _has_numeric_cue(body):
-                numeric_fact = next((item for item in facts if _has_numeric_cue(item)), facts[0] if facts else "")
-                if numeric_fact and numeric_fact not in evidence:
-                    evidence = [numeric_fact] + evidence
-                if numeric_fact and len(paragraphs) < 8:
-                    paragraphs.append(self._section_support_paragraph(topic, title, numeric_fact, len(paragraphs)))
-            section["paragraphs"] = paragraphs[:8]
-            section["evidence"] = evidence[:5]
-
-    def _section_support_paragraph(self, topic: str, title: str, fact: str, position: int) -> str:
-        if position % 2 == 0:
-            return (
-                f"The practical management test is whether this claim changes a real decision on {topic}: {fact} "
-                "Leadership can translate that signal into explicit gates for capital allocation, partner selection, "
-                "customer validation, operating readiness and the timing of the next commitment."
-            )
-        return (
-            f"The evidence boundary also matters for {title}. {fact} "
-            "Any stronger claim on market size, cost curve, ROI, schedule certainty or competitive advantage still needs "
-            "primary validation before it becomes a board-level commitment."
-        )
-
     def _fallback_report(
         self,
         topic: str,
@@ -1566,51 +1674,6 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
             "references": [{"title": source.title or source.url, "url": source.url, "note": source.snippet} for source in sources[:10]],
             "_fallback_used": True,
         }
-
-
-def _clean_fact_for_reader(fact: str) -> str:
-    text = re.sub(r"^\[Source\s+\d+:[^\]]+\]\s*", "", str(fact or "")).strip()
-    if re.match(r"^\s*\{['\"]id['\"]\s*:", text):
-        fact_match = re.search(r"['\"]fact['\"]\s*:\s*['\"](.+?)(?<!\\)['\"]\s*,\s*['\"](?:value|display_value|year|unit|metric_family)['\"]", text, re.S)
-        display_match = re.search(r"['\"]display_value['\"]\s*:\s*['\"](.+?)(?<!\\)['\"]", text, re.S)
-        extracted = fact_match.group(1) if fact_match else ""
-        display = display_match.group(1) if display_match else ""
-        if extracted:
-            text = f"{display}: {extracted}" if display and display not in extracted else extracted
-    text = re.sub(r"\s+", " ", text).strip(" .")
-    if _reader_noise(text):
-        return ""
-    return text
-
-
-def _has_numeric_cue(text: str) -> bool:
-    return bool(
-        re.search(
-            r"\b(19|20)\d{2}\b|\b\d+(?:\.\d+)?%|\b\$\d+|\b\d+(?:\.\d+)?\s*(?:billion|million|trillion|GW|MW|MJ|kg|years?|months?)\b",
-            str(text or ""),
-            re.I,
-        )
-    )
-
-
-def _reader_noise(text: str) -> bool:
-    lower = str(text or "").lower()
-    if not lower:
-        return True
-    return any(
-        token in lower
-        for token in (
-            "making it work advantages of fusion",
-            "fusion glossary",
-            "all news",
-            "photos videos",
-            "subscribe to the newsletter",
-            "select your newsletters",
-            "page body could not be fully extracted",
-            "not in fact pack",
-            "widely cited",
-        )
-    )
 
 
 def _as_list(value: Any) -> List[Any]:

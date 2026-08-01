@@ -375,18 +375,27 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertTrue(any("decision conclusion" in issue for issue in issues))
         self.assertTrue(any("conclusion-first" in issue for issue in issues))
-        self.assertTrue(any("no traceable" in issue for issue in issues))
+        self.assertTrue(any("traceable evidence" in issue for issue in issues))
         self.assertTrue(any("99" in issue for issue in issues))
 
     def test_quality_gate_accepts_substantive_grounded_report(self):
-        paragraph = (
-            "The validated documents support the launch assessment with an investment of $45.5 million "
-            "and a 68% consumer acceptance signal. The management implication is to condition the launch "
-            "on the documented compliance and fleet-readiness gates before committing additional capital."
-        )
+        areas = ("financial", "consumer", "compliance", "fleet", "operating", "governance")
+
+        def paragraphs(area):
+            return [
+                f"The {area} evidence establishes a decision baseline rather than a promise of automatic success. Management should distinguish what the documents demonstrate from what still depends on execution, because a sound commitment follows verified operating conditions instead of treating a positive signal as permission to scale without controls, ownership, or review.",
+                f"The causal mechanism in the {area} case runs through disciplined sequencing. Evidence supports a conditional move, while the value of that move depends on compliance, readiness, and accountable decision rights working together. If one gate remains unresolved, leadership retains the option to pause without abandoning the broader opportunity or weakening factual discipline.",
+                f"Counter-evidence matters because the same {area} signal can be interpreted too aggressively when it is separated from implementation risk. The documents support measured progress, not certainty. A credible report therefore explains both the positive case and the conditions that could delay, narrow, or reverse the recommendation before additional resources become difficult to recover.",
+                f"The practical implication for the {area} workstream is to connect every commitment to an observable gate and named owner. That approach converts research into a decision sequence, preserves learning, and prevents a broad strategic narrative from outrunning the evidence that the organization can actually verify and govern during implementation.",
+                f"Source discipline keeps the {area} recommendation useful after the initial decision. Teams can revisit the same evidence when conditions change, compare the observed result with the original rationale, and update the commitment without rewriting history. This creates a repeatable management process instead of a one-time narrative that becomes harder to challenge once execution begins.",
+            ]
+
         report = {
             "title": "Project SkyNet Requires a Conditional Launch Before Further Investment",
             "dek": "Validated financial, customer, compliance, and fleet evidence supports a gated decision.",
+            "intro": [
+                "The decision brief connects validated financial, customer, compliance, fleet, operating, and governance evidence into one conditional recommendation. It separates demonstrated facts from execution assumptions, explains how the major gates interact, and preserves explicit pause conditions so leadership can advance the opportunity without treating a positive signal as proof that every implementation risk has already been resolved."
+            ],
             "key_takeaways": [
                 "The documented investment is $45.5 million.",
                 "Consumer acceptance is 68% in the validated survey.",
@@ -396,23 +405,34 @@ class RAGBridgeTests(unittest.TestCase):
                 {
                     "title": f"Validated evidence makes the {area} decision conditional",
                     "lead": "The private documents support a decision only when the recorded launch gates are satisfied.",
-                    "paragraphs": [paragraph, paragraph, paragraph],
+                    "paragraphs": paragraphs(area),
                     "evidence": [
-                        '[Chunk: chunk-1] "The validated investment is $45.5 million and consumer acceptance is 68%." — This supports the conditional decision.'
+                        '[Chunk: chunk-1] "The validated investment is $45.5 million and consumer acceptance is 68%." — This supports the conditional decision.',
+                        '[Chunk: chunk-2] "Compliance and fleet readiness must be verified before launch approval." — This establishes the operating gate.',
                     ],
-                    "so_what": "Do not release additional capital before the documented gate is met.",
+                    "so_what": "Leadership should release resources only after the documented gate is met, assign an accountable owner to each unresolved condition, and preserve a pause decision if compliance, operating readiness, or governance evidence weakens before the next commitment.",
                 }
-                for area in ("financial", "consumer", "compliance", "fleet")
+                for area in areas
+            ],
+            "action_steps": [
+                {
+                    "horizon": "Immediate",
+                    "action": f"Confirm the documented {area} decision gate.",
+                    "success_metric": "The accountable owner records a pass, pause, or escalate decision.",
+                    "rationale": "The private evidence supports conditional progress only when the relevant readiness gate is verified.",
+                }
+                for area in areas[:4]
             ],
         }
 
         issues = rag_report_quality_issues(
             report,
             topic="Project SkyNet Urban Drone Delivery Launch Decision",
-            context_text="The validated investment is $45.5 million and consumer acceptance is 68%.",
+            context_text="The validated investment is $45.5 million and consumer acceptance is 68%. Compliance and fleet readiness must be verified before launch approval.",
             source_count=3,
             source_chunks={
-                "chunk-1": "The validated investment is $45.5 million and consumer acceptance is 68%."
+                "chunk-1": "The validated investment is $45.5 million and consumer acceptance is 68%.",
+                "chunk-2": "Compliance and fleet readiness must be verified before launch approval.",
             },
         )
 
@@ -487,7 +507,8 @@ class RAGBridgeTests(unittest.TestCase):
             conflict_count=1,
         )
 
-        self.assertEqual(len(issues), 2)
+        self.assertEqual(len(issues), 3)
+        self.assertTrue(any("management agenda" in issue for issue in issues))
 
     @patch("gen_rpt.web_report_pipeline.collect_sources")
     def test_rag_web_collection_is_bounded_without_changing_public_collection(self, mock_collect):
@@ -596,6 +617,12 @@ class RAGBridgeTests(unittest.TestCase):
             "action_steps": [
                 {"action": "Use the documented decision gate."},
                 {"action": "Target an unsupported 27.5% improvement."},
+                {
+                    "horizon": "Next gate",
+                    "action": "Preserve the evidence-based action.",
+                    "success_metric": "Reach an unsupported 27.5% improvement.",
+                    "rationale": "The documented evidence supports retaining this action while its metric is corrected.",
+                },
             ],
         }
 
@@ -603,7 +630,18 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertEqual(removed, ["27.5"])
         self.assertEqual(report["intro"], ["Acceptance is 68%."])
-        self.assertEqual(report["action_steps"], [{"action": "Use the documented decision gate."}])
+        self.assertEqual(
+            report["action_steps"],
+            [
+                {"action": "Use the documented decision gate."},
+                {
+                    "horizon": "Next gate",
+                    "action": "Preserve the evidence-based action.",
+                    "success_metric": "",
+                    "rationale": "The documented evidence supports retaining this action while its metric is corrected.",
+                },
+            ],
+        )
         self.assertNotIn("27.5", str(report))
 
     def test_section_citation_is_repaired_from_best_matching_chunk(self):
@@ -613,7 +651,7 @@ class RAGBridgeTests(unittest.TestCase):
                     "title": "Consumer acceptance supports a conditional launch",
                     "lead": "Acceptance is the strongest demand signal.",
                     "paragraphs": ["Consumer survey evidence should govern the launch decision."],
-                    "evidence": ["The survey supports demand."],
+                    "evidence": ['[Chunk: consumer] "This quotation does not occur in the private document." — Invalid.'],
                 }
             ]
         }
@@ -624,7 +662,9 @@ class RAGBridgeTests(unittest.TestCase):
 
         ground_rag_section_evidence(report, chunks)
 
-        self.assertTrue(any(item.startswith("[Chunk: consumer]") for item in report["sections"][0]["evidence"]))
+        self.assertTrue(
+            any("The consumer acceptance survey recorded" in item for item in report["sections"][0]["evidence"])
+        )
 
     def test_rag_normalization_does_not_inject_synthetic_fallbacks(self):
         report = normalize_web_report(
@@ -795,6 +835,18 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertEqual(report["action_steps"][3]["horizon"], "Decision gate")
+
+    def test_editorial_audit_requires_evidence_strategy_and_no_critical_issues(self):
+        passing = {
+            "score": 84,
+            "evidence_and_citations": 21,
+            "strategic_usefulness": 22,
+            "critical_issues": [],
+        }
+        failing = {**passing, "critical_issues": ["A scenario probability is unsupported."]}
+
+        self.assertTrue(WebReportPipeline._editorial_audit_passed(passing))
+        self.assertFalse(WebReportPipeline._editorial_audit_passed(failing))
 
     def test_nested_table_numbers_are_inside_the_rag_quality_boundary(self):
         exhibit = {

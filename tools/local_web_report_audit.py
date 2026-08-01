@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from gen_rpt.web_publication_contract import client_visible_internal_hits, is_internal_workbench_exhibit
+from gen_rpt.web_publication_contract import client_visible_internal_hits, is_internal_workbench_exhibit, report_content_quality_issues
 
 
 BAD_HEADINGS = {
@@ -129,6 +129,18 @@ def main() -> int:
     ledger_items = [x for x in as_list(evidence_ledger) if isinstance(x, dict)]
     chart_needs = [x for x in as_list(chart_data_needs) if isinstance(x, dict)]
     data_backed_exhibits = [x for x in exhibits if any(isinstance(item, dict) for item in as_list(x.get("data_basis")))]
+    grounding_text = "\n".join(
+        [text(item.get("fact")) for item in ledger_items]
+        + [text(item.get("content")) for item in as_list(sources) if isinstance(item, dict)]
+    )
+    issues.extend(
+        report_content_quality_issues(
+            payload,
+            topic="",
+            context_text=grounding_text,
+            source_count=len(as_list(sources)),
+        )
+    )
 
     metrics.update(
         {
@@ -151,17 +163,8 @@ def main() -> int:
         }
     )
 
-    if not (4 <= len(sections) <= 6):
-        issues.append(f"expected 4-6 substantial sections, got {len(sections)}")
-    if len(takeaways) != 3:
-        issues.append(
-            f"expected exactly 3 key takeaways, got {len(takeaways)} "
-            f"(candidate counts: {takeaway_candidates})"
-        )
     if not (3 <= len(exhibits) <= 6):
         issues.append(f"expected 3-6 exhibits, got {len(exhibits)}")
-    if len(action_steps) < 3:
-        issues.append(f"expected at least 3 action steps, got {len(action_steps)}")
     if len(references) < minimum_references:
         issues.append(
             f"expected at least {minimum_references} retained references, got {len(references)}"
