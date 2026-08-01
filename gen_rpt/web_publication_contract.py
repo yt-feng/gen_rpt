@@ -302,6 +302,35 @@ def report_content_quality_issues(
     return issues
 
 
+def normalize_report_section_prose(report: Any) -> Any:
+    """Repair paragraph boundaries without adding or rewriting report content."""
+    if not isinstance(report, dict):
+        return report
+    management_cues = re.compile(
+        r"\b(?:management|managers|leadership|leaders|executives?|boards?|investors?|"
+        r"operators?|developers?|policymakers?|decision[- ]makers?|should|must|"
+        r"prioriti[sz]e|recommend|action|strategy|implication)\b|管理|决策|领导|投资者|企业|应当|需要|优先",
+        re.I,
+    )
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        paragraphs = [str(item).strip() for item in section.get("paragraphs", []) or [] if str(item).strip()]
+        so_what = str(section.get("so_what") or "").strip()
+        if _word_count(so_what) < 35:
+            for index in range(len(paragraphs) - 1, -1, -1):
+                if _word_count(paragraphs[index]) >= 35 and management_cues.search(paragraphs[index]):
+                    so_what = " ".join(filter(None, (so_what, paragraphs.pop(index))))
+                    section["so_what"] = so_what
+                    break
+        if (not 3 <= len(paragraphs) <= 6 or any(_word_count(item) < 45 for item in paragraphs)):
+            balanced = _three_balanced_paragraphs(paragraphs)
+            if balanced:
+                paragraphs = balanced
+        section["paragraphs"] = paragraphs
+    return report
+
+
 def _evidence_matches_chunk(evidence: str, source_chunks: dict[str, str]) -> bool:
     return bool(_matching_chunk_citation(evidence, source_chunks))
 
@@ -531,6 +560,32 @@ def _word_count(value: Any) -> int:
     cjk_characters = len(re.findall(r"[\u3400-\u9fff]", text))
     latin_words = len(re.findall(r"\b[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*\b", text))
     return cjk_characters + latin_words
+
+
+def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
+    text = "\n".join(paragraphs)
+    if _word_count(text) < 135:
+        return []
+    sentences = [
+        item.strip()
+        for item in re.split(r"(?<=[。！？])|(?<=[.!?])\s+|\n+", text)
+        if item.strip()
+    ]
+    best: tuple[int, List[str]] | None = None
+    for first in range(1, len(sentences) - 1):
+        for second in range(first + 1, len(sentences)):
+            groups = [
+                " ".join(sentences[:first]),
+                " ".join(sentences[first:second]),
+                " ".join(sentences[second:]),
+            ]
+            counts = [_word_count(group) for group in groups]
+            if min(counts) < 45:
+                continue
+            score = max(counts) - min(counts)
+            if best is None or score < best[0]:
+                best = score, groups
+    return best[1] if best else []
 
 
 def _report_narrative_text(report: dict) -> str:

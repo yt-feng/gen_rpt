@@ -27,6 +27,7 @@ from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
     combined_evidence_quality_issues,
     ground_rag_section_evidence,
+    normalize_report_section_prose,
     prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
     rag_report_quality_issues,
@@ -845,6 +846,39 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertEqual(report["sections"][0]["evidence"], ["Grounded proof."])
         self.assertEqual(report["sections"][0]["so_what"], "Management should preserve a decision gate.")
+
+    def test_section_prose_normalization_only_rebalances_existing_text(self):
+        sentence = lambda label: f"{label} " + " ".join(f"word{i}" for i in range(29)) + "."
+        management = "Management should act " + " ".join(f"decision{i}" for i in range(37)) + "."
+        report = {
+            "sections": [{
+                "paragraphs": [
+                    sentence("Evidence"),
+                    sentence("Mechanism") + " " + sentence("Exposure"),
+                    sentence("Risk") + " " + sentence("Response") + " " + sentence("Outlook"),
+                    management,
+                ],
+                "so_what": "Keep the decision conditional.",
+            }]
+        }
+        words_before = sum(len(item.split()) for item in report["sections"][0]["paragraphs"]) + len(report["sections"][0]["so_what"].split())
+
+        normalize_report_section_prose(report)
+
+        section = report["sections"][0]
+        words_after = sum(len(item.split()) for item in section["paragraphs"]) + len(section["so_what"].split())
+        self.assertEqual(len(section["paragraphs"]), 3)
+        self.assertTrue(all(len(item.split()) >= 45 for item in section["paragraphs"]))
+        self.assertIn(management, section["so_what"])
+        self.assertEqual(words_after, words_before)
+
+    def test_section_prose_normalization_does_not_pad_thin_content(self):
+        report = {"sections": [{"paragraphs": ["Too short."], "so_what": "Also short."}]}
+
+        normalize_report_section_prose(report)
+
+        self.assertEqual(report["sections"][0]["paragraphs"], ["Too short."])
+        self.assertEqual(report["sections"][0]["so_what"], "Also short.")
 
     def test_report_revision_receives_the_rejected_draft_and_quality_corrections(self):
         client = Mock()

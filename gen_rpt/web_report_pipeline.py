@@ -25,6 +25,7 @@ from .web_publication_contract import (
     client_visible_internal_hits,
     combined_evidence_quality_issues,
     ground_rag_section_evidence,
+    normalize_report_section_prose,
     publication_contract_prompt,
     prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
@@ -606,6 +607,7 @@ class WebReportPipeline:
         removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
         if removed_numbers:
             self._log("PHASE synthesis removed unsupported numeric claims | " + ", ".join(removed_numbers))
+        normalize_report_section_prose(report)
         if self.rag_context:
             issues = rag_report_quality_issues(
                 report,
