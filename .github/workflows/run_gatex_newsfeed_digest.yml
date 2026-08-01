@@ -1,0 +1,29 @@
+name: Run GateX Newsfeed Digest
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gatex-newsfeed-digest
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run due GateX member digests
+        env:
+          GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
+        run: |
+          test -n "$GATEX_NEWSFEED_CRON_SECRET"
+          curl --fail-with-body --silent --show-error \
+            --retry 2 \
+            --request POST \
+            --header "Authorization: Bearer $GATEX_NEWSFEED_CRON_SECRET" \
+            https://gatex.fund/api/newsfeed/digest/run
