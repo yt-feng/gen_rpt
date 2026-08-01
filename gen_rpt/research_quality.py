@@ -1396,8 +1396,8 @@ def _ensure_author_credentials(value: Any, *, language: str) -> List[Dict[str, s
     if out:
         return out[:4]
     if language == "zh":
-        return [{"name": "BlueOcean Research", "role": "研究综合团队", "credentials": "负责公开资料收集、证据边界校验、管理层视角综合和报告排版 QA。"}]
-    return [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Responsible for public-source collection, evidence-boundary checks, executive synthesis and report layout QA."}]
+        return [{"name": "GateX Research", "role": "研究综合团队", "credentials": "负责公开资料收集、证据边界校验、管理层视角综合和报告排版 QA。"}]
+    return [{"name": "GateX Research", "role": "Research synthesis team", "credentials": "Responsible for public-source collection, evidence-boundary checks, executive synthesis and report layout QA."}]
 
 
 def _ensure_sections(sections: List[Dict[str, Any]], summary: List[str], topic: str, fact_pack: ResearchFactPack, *, language: str) -> List[Dict[str, Any]]:

@@ -203,7 +203,7 @@ def _normalize_charts(value: Any) -> List[Dict[str, Any]]:
         if "series" not in chart and chart["type"] not in {"matrix", "heatmap", "bubble", "scatter"}:
             chart["series"] = [{"name": "Value", "values": [1]}]
         chart["caption"] = str(chart.get("caption") or "")
-        chart["source_note"] = str(chart.get("source_note") or "BlueOcean synthesis.")
+        chart["source_note"] = str(chart.get("source_note") or "GateX synthesis.")
         chart["x_label"] = str(chart.get("x_label") or "")
         chart["y_label"] = str(chart.get("y_label") or "")
         charts.append(_repair_low_quality_chart(chart, idx))
@@ -251,7 +251,7 @@ def _repair_low_quality_chart(chart: Dict[str, Any], idx: int) -> Dict[str, Any]
         chart["x_label"] = "Priority score"
         chart["y_label"] = ""
         chart["caption"] = "The exhibit separates the proof points management should close before escalating resources."
-        chart["source_note"] = str(chart.get("source_note") or "BlueOcean synthesis from public evidence.")
+        chart["source_note"] = str(chart.get("source_note") or "GateX synthesis from public evidence.")
     elif suspicious_title and max(values_flat or [0]) <= 1.0:
         for item in chart.get("series", []):
             item["values"] = [round(v * 100, 1) for v in item.get("values", [])]

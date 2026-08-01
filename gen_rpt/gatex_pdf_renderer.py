@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import html
 import io
@@ -21,6 +22,9 @@ from reportlab.pdfgen import canvas
 PDF_MIME_TYPE = "application/pdf"
 PDF_SCHEMA = "gatex-pdf-release/v1"
 MAX_PDF_BYTES = 50 * 1024 * 1024
+BRANDING_DIR = Path(__file__).resolve().parents[1] / "branding"
+COVER_TEXTURE_PATH = BRANDING_DIR / "gatex-cover-cloth-v1.jpg"
+G_MARK_PATH = BRANDING_DIR / "gatex-g-mark-white.png"
 
 
 class GatexPdfError(RuntimeError):
@@ -185,14 +189,16 @@ def _normalized_section(value: Any, index: int) -> Dict[str, Any]:
 
 
 def _cover_html(report: Mapping[str, Any]) -> str:
+    texture_uri = _asset_data_uri(COVER_TEXTURE_PATH, "image/jpeg")
+    mark_uri = _asset_data_uri(G_MARK_PATH, "image/png")
     title = _e(report["title"])
-    subtitle = _e(report.get("summary") or report.get("subtitle") or "Private decision intelligence")
+    subtitle = _e(report.get("summary") or report.get("subtitle") or "Executive intelligence for consequential decisions")
     report_type = _e(report.get("reportType") or "GateX Decision Intelligence")
     classification = _e(release_classification(report))
     language = "ZH" if report.get("language") == "zh" else "EN"
     version = int(report.get("versionNo") or 1)
     issued = _display_date(report.get("versionSubmittedAt") or report.get("releaseDate"))
-    title_size = 42 if len(str(report["title"])) < 74 else 35 if len(str(report["title"])) < 130 else 30
+    title_size = 39 if len(str(report["title"])) < 74 else 34 if len(str(report["title"])) < 130 else 29
     return f"""<!doctype html>
 <html lang="{report.get('language', 'en')}">
 <head><meta charset="utf-8"><style>
@@ -204,33 +210,35 @@ body {{
   font-family: "Noto Sans CJK SC", "Noto Sans CJK TC", "Source Han Sans SC", Arial, "Helvetica Neue", sans-serif;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
   background:
-    radial-gradient(circle at 83% 11%, rgba(65,154,255,.32), transparent 27%),
-    radial-gradient(circle at 12% 88%, rgba(28,102,222,.24), transparent 31%),
-    linear-gradient(145deg, #02091d 0%, #041d50 47%, #071438 100%);
+    radial-gradient(circle at 85% 9%, rgba(58,126,202,.20), transparent 28%),
+    radial-gradient(circle at 12% 87%, rgba(17,70,135,.26), transparent 35%),
+    linear-gradient(142deg, #020917 0%, #061b3a 48%, #071227 100%);
 }}
-.grid {{ position: absolute; inset: 0; opacity: .18; background-image: linear-gradient(rgba(126,183,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(126,183,255,.16) 1px, transparent 1px); background-size: 14mm 14mm; }}
-.ring, .ring:before, .ring:after {{ position: absolute; border: .35mm solid rgba(153,203,255,.17); border-radius: 50%; content: ""; }}
-.ring {{ width: 120mm; height: 120mm; right: 0; top: 0; }}
-.ring:before {{ width: 90mm; height: 90mm; left: 14mm; top: 14mm; }}
-.ring:after {{ width: 60mm; height: 60mm; left: 29mm; top: 29mm; }}
-.frame {{ position: absolute; inset: 13mm; border: .3mm solid rgba(188,219,255,.2); }}
-.rail {{ position: absolute; left: 13mm; top: 13mm; bottom: 13mm; width: 2.2mm; background: linear-gradient(#46a8ff, #176ce0 55%, rgba(23,108,224,.15)); }}
-.content {{ position: relative; z-index: 2; height: 100%; padding: 20mm 23mm 18mm 28mm; display: flex; flex-direction: column; }}
+.texture {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .40; filter: saturate(.58) contrast(1.18) brightness(.64); mix-blend-mode: soft-light; }}
+.grain {{ position: absolute; inset: 0; opacity: .22; background-image: repeating-linear-gradient(92deg, rgba(255,255,255,.032) 0, rgba(255,255,255,.032) .18mm, transparent .18mm, transparent .62mm), repeating-linear-gradient(2deg, rgba(0,0,0,.09) 0, rgba(0,0,0,.09) .18mm, transparent .18mm, transparent .68mm); }}
+.halo {{ position: absolute; right: 0; top: 31mm; width: 104mm; height: 104mm; border: .28mm solid rgba(202,221,240,.13); border-radius: 50%; }}
+.halo:before, .halo:after {{ position: absolute; content: ""; border: .28mm solid rgba(202,221,240,.09); border-radius: 50%; }}
+.halo:before {{ inset: 14mm; }} .halo:after {{ inset: 31mm; }}
+.frame {{ position: absolute; inset: 12.5mm; border: .25mm solid rgba(215,227,239,.20); box-shadow: inset 0 0 0 .35mm rgba(0,0,0,.22); }}
+.rail {{ position: absolute; left: 12.5mm; top: 12.5mm; bottom: 12.5mm; width: 2.6mm; background: linear-gradient(90deg, rgba(0,0,0,.32), rgba(153,185,218,.28) 52%, rgba(0,0,0,.30)); border-right: .2mm solid rgba(220,233,246,.17); }}
+.content {{ position: relative; z-index: 2; height: 100%; padding: 19mm 22mm 17mm 26mm; display: flex; flex-direction: column; }}
 .mast {{ display: flex; justify-content: space-between; align-items: flex-start; }}
-.brand {{ font-size: 22pt; line-height: 1; font-weight: 800; letter-spacing: .16em; }}
-.brand small {{ display: block; margin-top: 3.2mm; color: #7fc2ff; font-size: 6.5pt; font-weight: 700; letter-spacing: .26em; }}
-.class {{ padding: 2.4mm 3.4mm; color: #cbe5ff; border: .3mm solid rgba(147,202,255,.36); border-radius: 20mm; font-size: 6.5pt; font-weight: 700; letter-spacing: .14em; }}
-.copy {{ margin-top: 56mm; width: 156mm; }}
-.kicker {{ margin: 0 0 7mm; color: #70baff; font-size: 8pt; font-weight: 800; letter-spacing: .22em; text-transform: uppercase; }}
-h1 {{ margin: 0; max-width: 156mm; font-family: "Noto Serif CJK SC", "Noto Serif CJK TC", "Source Han Serif SC", Georgia, "Times New Roman", serif; font-size: {title_size}pt; font-weight: 400; line-height: 1.04; letter-spacing: -.025em; }}
-.rule {{ width: 36mm; height: 1.1mm; margin: 9mm 0 7mm; background: #4daeff; }}
-.subtitle {{ max-width: 130mm; margin: 0; color: rgba(230,241,255,.76); font-size: 12pt; line-height: 1.45; }}
-.foot {{ display: grid; margin-top: auto; padding-top: 8mm; grid-template-columns: 1fr 1fr 1fr; border-top: .3mm solid rgba(194,222,255,.25); color: rgba(222,237,255,.68); font-size: 7pt; letter-spacing: .08em; }}
+.brand {{ display: flex; align-items: center; gap: 3.6mm; }}
+.brand img {{ display: block; width: 15.5mm; height: 15.5mm; object-fit: contain; }}
+.brand-word {{ color: #f7f9fb; font-size: 17pt; line-height: 1; font-weight: 750; letter-spacing: .105em; text-shadow: 0 .35mm .4mm rgba(0,0,0,.38); }}
+.brand-word small {{ display: block; margin-top: 3mm; color: rgba(205,224,242,.72); font-size: 5.8pt; font-weight: 650; letter-spacing: .255em; }}
+.class {{ margin-top: 1.5mm; padding: 2.3mm 0 2mm 6mm; min-width: 49mm; color: rgba(220,234,247,.82); border-top: .25mm solid rgba(205,222,238,.40); border-bottom: .25mm solid rgba(205,222,238,.23); font-size: 6pt; font-weight: 700; letter-spacing: .14em; text-align: right; }}
+.copy {{ margin-top: 49mm; width: 156mm; }}
+.kicker {{ margin: 0 0 7mm; color: #83b9e7; font-size: 7.5pt; font-weight: 750; letter-spacing: .22em; text-transform: uppercase; }}
+h1 {{ margin: 0; max-width: 156mm; color: #f7f9fb; font-family: "Noto Serif CJK SC", "Noto Serif CJK TC", "Source Han Serif SC", Georgia, "Times New Roman", serif; font-size: {title_size}pt; font-weight: 400; line-height: 1.06; letter-spacing: -.022em; text-shadow: 0 .45mm .55mm rgba(0,0,0,.40); }}
+.rule {{ width: 39mm; height: .55mm; margin: 9mm 0 7mm; background: linear-gradient(90deg, #80b7e8 0%, rgba(206,226,244,.82) 48%, rgba(128,183,232,.05) 100%); }}
+.subtitle {{ max-width: 133mm; margin: 0; color: rgba(229,238,247,.74); font-size: 11.5pt; line-height: 1.5; }}
+.foot {{ display: grid; margin-top: auto; padding-top: 7mm; grid-template-columns: 1fr 1fr 1fr; border-top: .25mm solid rgba(205,222,238,.23); color: rgba(216,230,243,.66); font-size: 6.5pt; letter-spacing: .095em; }}
 .foot span:nth-child(2) {{ text-align: center; }} .foot span:last-child {{ text-align: right; }}
 </style></head>
-<body><div class="grid"></div><div class="ring"></div><div class="frame"></div><div class="rail"></div>
+<body><img class="texture" alt="" src="{texture_uri}"><div class="grain"></div><div class="halo"></div><div class="frame"></div><div class="rail"></div>
 <main class="content">
-  <div class="mast"><div class="brand">GATEX<small>PRIVATE DECISION INTELLIGENCE</small></div><div class="class">{classification}</div></div>
+  <div class="mast"><div class="brand"><img alt="GateX G mark" src="{mark_uri}"><div class="brand-word">GATEX<small>EXECUTIVE INTELLIGENCE</small></div></div><div class="class">{classification}</div></div>
   <section class="copy"><p class="kicker">{report_type}</p><h1>{title}</h1><div class="rule"></div><p class="subtitle">{subtitle}</p></section>
   <footer class="foot"><span>EDITION {issued}</span><span>{language} / VERSION {version:02d}</span><span>GATEX.FUND</span></footer>
 </main></body></html>"""
@@ -249,7 +257,7 @@ def _body_html(report: Mapping[str, Any]) -> str:
         "<!doctype html>",
         f"<html lang='{_e(report.get('language') or 'en')}'><head><meta charset='utf-8'><style>{_body_css()}</style></head><body>",
         "<section class='opening'>",
-        "<div class='eyebrow'>PRIVATE DECISION BRIEF</div>",
+        "<div class='eyebrow'>EXECUTIVE BRIEF</div>",
         f"<h1>{_e(report['title'])}</h1>",
         f"<p class='opening-summary'>{_e(report.get('summary') or report.get('subtitle') or '')}</p>",
     ]
@@ -286,7 +294,7 @@ def _body_html(report: Mapping[str, Any]) -> str:
             parts.append(_render_section(section, section_number))
 
     if notes:
-        parts.append("<section class='notes page'><div class='eyebrow'>EDITORIAL NOTES</div><h2>Methodology and use</h2>")
+        parts.append("<section class='notes page'><div class='eyebrow'>REPORT NOTES</div><h2>Methodology and use</h2>")
         for note in notes:
             parts.append(f"<article><h3>{_e(note.get('heading'))}</h3><p>{_e(_section_text(note))}</p></article>")
         parts.append("</section>")
@@ -369,7 +377,7 @@ def _render_section(section: Mapping[str, Any], number: int) -> str:
         parts.append(f"<p>{_e(paragraph)}</p>")
     evidence = list(section.get("evidence") or [])
     if evidence:
-        parts.append("<aside class='evidence'><strong>Evidence retained</strong><ul>")
+        parts.append("<aside class='evidence'><strong>Key evidence</strong><ul>")
         for entry in evidence:
             parts.append(f"<li>{_e(entry)}</li>")
         parts.append("</ul></aside>")
@@ -496,9 +504,9 @@ def _assemble_pdf(cover_pdf: Path, body_pdf: Path, output_pdf: Path, report: Map
     writer.add_metadata(
         {
             "/Title": str(report.get("title") or "GateX Report"),
-            "/Author": "GateX / Blue Ocean",
-            "/Subject": str(report.get("reportType") or "Private decision intelligence"),
-            "/Keywords": "GateX, Blue Ocean, private decision intelligence, board report",
+            "/Author": "GateX",
+            "/Subject": str(report.get("reportType") or "Executive decision intelligence"),
+            "/Keywords": "GateX, executive intelligence, strategic research, decision brief",
             "/Creator": "GateX PDF Release Pipeline",
             "/Producer": "GateX / Chromium / pypdf",
         }
@@ -527,9 +535,9 @@ def _page_furniture(
     surface.line(48, 39, width - 48, 39)
     surface.setFillColor(navy)
     surface.setFont("Helvetica-Bold", 7.2)
-    surface.drawString(48, height - 29, "GATEX  |  PRIVATE OFFICE RESEARCH")
+    surface.drawString(48, height - 29, "GATEX  |  EXECUTIVE INTELLIGENCE")
     surface.setFillColor(blue)
-    surface.drawRightString(width - 48, height - 29, "BOARD EDITION")
+    surface.drawRightString(width - 48, height - 29, "CONFIDENTIAL")
     surface.setFillColor(muted)
     surface.setFont("Helvetica", 6.8)
     surface.drawString(48, 25, _ascii(classification)[:52])
@@ -537,6 +545,13 @@ def _page_furniture(
     surface.drawRightString(width - 48, 25, f"{page_number:02d} / {total_pages:02d}")
     surface.save()
     return buffer.getvalue()
+
+
+def _asset_data_uri(path: Path, media_type: str) -> str:
+    if not path.is_file() or path.stat().st_size < 1_024:
+        raise GatexPdfError(f"Required GateX branding asset is missing: {path.name}")
+    encoded = base64.b64encode(path.read_bytes()).decode("ascii")
+    return f"data:{media_type};base64,{encoded}"
 
 
 def _action_items(value: Any) -> List[Dict[str, str]]:

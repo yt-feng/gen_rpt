@@ -28,6 +28,9 @@ def copy_or_generate_brand_assets(output_assets_dir: Path) -> Dict[str, str]:
     logo_target = output_assets_dir / "brand-logo.svg"
     if logo_src.exists():
         shutil.copyfile(logo_src, logo_target)
+    mark_src = repo_root / "branding" / "gatex-g-mark-white.png"
+    if mark_src.exists():
+        shutil.copyfile(mark_src, output_assets_dir / mark_src.name)
 
     custom_cover = None
     for name in ["cover_background.png", "cover_background.jpg", "cover_background.jpeg", "cover_background.webp"]:
@@ -183,7 +186,7 @@ def _institution_from_url(url: str) -> str:
         "imf.org": "IMF",
         "oecd.org": "OECD",
         "statista.com": "Statista",
-        "".join(["b", "c", "g"]) + ".com": "BlueOcean",
+        "".join(["b", "c", "g"]) + ".com": "Boston Consulting Group",
         "bain.com": "Bain & Company",
         "gs.com": "Goldman Sachs",
         "openai.com": "OpenAI",
@@ -215,7 +218,8 @@ def _institution_from_title(title: str) -> str:
         "IMF",
         "OECD",
         "Statista",
-        "BlueOcean",
+        "Boston Consulting Group",
+        "GateX",
         "Bain",
         "OpenAI",
         "DeepSeek",

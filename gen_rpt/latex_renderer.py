@@ -58,7 +58,7 @@ HEADER = r'''
 \renewcommand{\footrulewidth}{0pt}
 \fancyhead[L]{}
 \fancyhead[R]{}
-\fancyfoot[L]{\scriptsize\color{BOMuted} BlueOcean}
+\fancyfoot[L]{\scriptsize\color{BOMuted} GateX}
 \fancyfoot[C]{\scriptsize\color{BOMuted} Deep Research Report}
 \fancyfoot[R]{\scriptsize\color{BOMuted} \thepage}
 \newcolumntype{Y}{>{\raggedright\arraybackslash}X}
@@ -124,7 +124,7 @@ def _build_tex(report: Dict[str, Any], assets: Dict[str, str], topic: str) -> st
         remaining_group_index += 1
         chart_index += len(group)
     parts.append(_disclaimer_page(refs))
-    parts.append(_about_blueocean_page(report, refs))
+    parts.append(_about_gatex_page(report, refs))
     parts.append(_back_cover_page(_asset_path(assets.get('cover-background', ''))))
     parts.append('\\end{document}\n')
     return '\n'.join(parts)
@@ -142,7 +142,7 @@ def _cover_page(title: str, cover: str, topic: str) -> str:
 \vspace*{7mm}
 \noindent\hspace*{2mm}{\setlength{\fboxsep}{8mm}\fcolorbox{white}{white}{\begin{minipage}{132mm}
 \raggedright
-{\sffamily\scriptsize\bfseries\color{BOMuted} BLUEOCEAN RESEARCH}\par\vspace{5pt}
+{\sffamily\scriptsize\bfseries\color{BOMuted} GATEX RESEARCH}\par\vspace{5pt}
 {\textcolor{BOGreen}{\rule{132mm}{1.5pt}}}\par\vspace{8pt}
 {\sffamily\fontsize{21}{26}\selectfont\color{BONavy} ''' + title_tex + r'''}\par\vspace{10pt}
 {\sffamily\scriptsize\bfseries\color{BOText} ''' + topic_line + r'''}\par\vspace{3pt}
@@ -150,7 +150,7 @@ def _cover_page(title: str, cover: str, topic: str) -> str:
 \end{minipage}}}
 \vfill
 \begin{flushright}
-{\sffamily\bfseries\Large\color{white} BlueOcean}\hspace*{3mm}
+{\sffamily\bfseries\Large\color{white} GateX}\hspace*{3mm}
 \end{flushright}
 \vspace*{7mm}
 \clearpage
@@ -1173,17 +1173,17 @@ def _disclaimer_page(refs: List[Any]) -> str:
     )
 
 
-def _about_blueocean_page(report: Dict[str, Any], refs: List[Any]) -> str:
+def _about_gatex_page(report: Dict[str, Any], refs: List[Any]) -> str:
     authors = _as_list(report.get('author_credentials'))[:4]
     rows = []
     if authors:
         for item in authors:
-            name = _tex(_shorten(_field(item, 'name') or 'BlueOcean Research', 80))
+            name = _tex(_shorten(_field(item, 'name') or 'GateX Research', 80))
             role = _tex(_shorten(_field(item, 'role') or 'Research synthesis team', 100))
             credentials = _tex(_shorten(_field(item, 'credentials') or 'Executive research, evidence synthesis and report QA.', 360))
             rows.append('{\\small\\bfseries ' + name + '}\\par{\\scriptsize\\color{BOGreen} ' + role + '} & {\\footnotesize ' + credentials + '} \\\\[7pt]\n')
     if not rows:
-        rows.append('{\\small\\bfseries BlueOcean Research}\\par{\\scriptsize\\color{BOGreen} Research synthesis team} & {\\footnotesize Executive research, evidence synthesis and report QA for senior-management discussion.} \\\\[7pt]\n')
+        rows.append('{\\small\\bfseries GateX Research}\\par{\\scriptsize\\color{BOGreen} Research synthesis team} & {\\footnotesize Executive research, evidence synthesis and report QA for senior-management discussion.} \\\\[7pt]\n')
     institutions = ', '.join(str(x) for x in refs[:8]) if refs else 'public research, company materials, policy sources and market evidence'
     capability_rows = [
         ('Strategy research', 'Decision-focused market, technology and competitive research for senior leadership.'),
@@ -1198,14 +1198,14 @@ def _about_blueocean_page(report: Dict[str, Any], refs: List[Any]) -> str:
     return (
         '\\clearpage\n'
         + _green_rule('38mm')
-        + '{\\sffamily\\fontsize{24}{30}\\selectfont\\color{BONavy} About BlueOcean}\\par\\vspace{10pt}\n'
+        + '{\\sffamily\\fontsize{24}{30}\\selectfont\\color{BONavy} About GateX}\\par\\vspace{10pt}\n'
         + '\\begin{minipage}[t]{0.44\\linewidth}\n'
         + '{\\sffamily\\fontsize{16}{22}\\selectfont\\color{BOGreen} Research is most useful when it changes a management decision.}\\par\\vspace{8pt}\n'
-        + '{\\footnotesize\\color{BOText} BlueOcean prepares decision-focused research for executives who need to separate credible evidence from market noise, translate technology shifts into commercial implications and stage commitments around proof.}\\par\\vspace{7pt}\n'
+        + '{\\footnotesize\\color{BOText} GateX prepares decision-focused intelligence for executives who need to separate credible evidence from market noise, translate structural shifts into commercial implications and stage commitments around proof.}\\par\\vspace{7pt}\n'
         + '{\\footnotesize\\color{BOMuted} This report draws on ' + _tex(_shorten(institutions, 360)) + '.}\\par\n'
         + '\\vspace{10pt}\\fcolorbox{BOLine}{BOLight}{\\begin{minipage}{0.90\\linewidth}\\vspace{5pt}{\\scriptsize\\color{BOText} The work is designed for CEOs and leadership teams who need a concise view of what changes now, what waits for stronger proof and which external facts would change the answer.}\\vspace{5pt}\\end{minipage}}\n'
         + '\\end{minipage}\\hfill\\begin{minipage}[t]{0.48\\linewidth}\n'
-        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries HOW BLUEOCEAN SUPPORTS EXECUTIVE TEAMS}}\\par\\vspace{5pt}\n'
+        + '{\\textcolor{BOGreen}{\\scriptsize\\bfseries HOW GATEX SUPPORTS EXECUTIVE TEAMS}}\\par\\vspace{5pt}\n'
         + '\\begin{tabularx}{\\linewidth}{p{8mm}Y}\n'
         + capabilities
         + '\\end{tabularx}\\vspace{6pt}\n'
@@ -1223,7 +1223,7 @@ def _back_cover_page(cover: str) -> str:
         + r'''
 \vspace*{\fill}
 \begin{flushright}
-{\sffamily\bfseries\Large\color{white} BlueOcean}\hspace*{3mm}
+{\sffamily\bfseries\Large\color{white} GateX}\hspace*{3mm}
 \end{flushright}
 \vspace*{8mm}
 '''

@@ -13,23 +13,23 @@ from .web_publication_contract import clean_client_text, clean_client_value, is_
 
 
 THEME = load_theme()
-BRAND_NAME = THEME.get("brand_name", "BlueOcean")
+BRAND_NAME = THEME.get("brand_name", "GateX")
 
 
 CSS = """
 :root {
-  --forest: #0C2B15;
-  --green: #197A56;
-  --lime: #96F878;
-  --blue: #0A6B8A;
-  --amber: #B45F06;
-  --ink: #212427;
-  --muted: #696969;
-  --line: #D4D4D4;
+  --forest: #061B46;
+  --green: #176DDC;
+  --lime: #78BCFF;
+  --blue: #0A5CB8;
+  --amber: #607791;
+  --ink: #17233A;
+  --muted: #5C6F88;
+  --line: #CBD8E8;
   --paper: #FFFFFF;
-  --sand: #F1EEEA;
-  --sand-2: #FAF8F4;
-  --charcoal: #232326;
+  --sand: #EEF4FA;
+  --sand-2: #F7F9FC;
+  --charcoal: #101B2E;
   --max: 1180px;
 }
 * { box-sizing: border-box; }
@@ -38,7 +38,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: blueocean-sans, "Helvetica Neue", Arial, sans-serif;
+  font-family: gatex-sans, "Helvetica Neue", Arial, sans-serif;
   font-size: 18px;
   line-height: 1.58;
 }
@@ -96,7 +96,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 }
 .hero h1 {
   color: var(--forest);
-  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-family: gatex-serif, Georgia, "Times New Roman", serif;
   font-weight: 400;
   font-size: 66px;
   line-height: .98;
@@ -148,7 +148,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 .takeaways h2 {
   margin: 0;
   color: var(--forest);
-  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-family: gatex-serif, Georgia, "Times New Roman", serif;
   font-size: 34px;
   line-height: 1.05;
   font-weight: 400;
@@ -219,7 +219,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 .section-block h2 {
   margin: 0 0 18px;
   color: var(--forest);
-  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-family: gatex-serif, Georgia, "Times New Roman", serif;
   font-size: 42px;
   line-height: 1.08;
   letter-spacing: 0;
@@ -305,7 +305,7 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
 }
 .exhibit h3 {
   color: var(--forest);
-  font-family: blueocean-serif, Georgia, "Times New Roman", serif;
+  font-family: gatex-serif, Georgia, "Times New Roman", serif;
   font-size: 32px;
   line-height: 1.12;
   font-weight: 400;
@@ -2009,11 +2009,8 @@ def _display_domain(url: str) -> str:
 def _brand_safe_text(value: Any) -> str:
     text = str(value or "")
     text = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", text, flags=re.I)
-    legacy = "".join(["b", "c", "g"])
-    text = re.sub(rf"\bwww\.{legacy}\.com\b", BRAND_NAME, text, flags=re.I)
-    text = re.sub(rf"\b{legacy}\.com\b", BRAND_NAME, text, flags=re.I)
-    text = re.sub(r"\bBoston\s+Consulting\s+Group\b", BRAND_NAME, text, flags=re.I)
-    text = re.sub(rf"\b{legacy}\b", BRAND_NAME, text, flags=re.I)
+    text = re.sub(r"\bBlue\s*Ocean\b", BRAND_NAME, text, flags=re.I)
+    text = re.sub(r"\bBO\b", BRAND_NAME, text)
     return text
 
 

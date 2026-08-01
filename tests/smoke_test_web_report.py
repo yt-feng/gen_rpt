@@ -537,7 +537,8 @@ def main() -> None:
     assert "exhibit-bridge" in html_text
     assert not find_consecutive_exhibit_pairs(html_text)
     assert "retained public sources" in html_text
-    assert "BlueOcean sample talent cliff article" in html_text
+    assert "GateX sample talent cliff article" in html_text
+    assert "BlueOcean sample talent cliff article" not in html_text
     forbidden_internal_terms = [
         "Hypothesis H",
         "claim H",

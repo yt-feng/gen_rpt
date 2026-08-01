@@ -30,7 +30,7 @@ def main():
     image_url = base_url + quote(args.prompt, safe="") + query
 
     try:
-        resp = requests.get(image_url, timeout=60, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
+        resp = requests.get(image_url, timeout=60, headers={"User-Agent": "GateXReportGenerator/1.0"})
         resp.raise_for_status()
         image_bytes = resp.content
         print(f"Downloaded generated image successfully ({len(image_bytes)} bytes).")

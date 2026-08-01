@@ -13,7 +13,7 @@ from .theme import load_theme
 
 THEME = load_theme()
 PALETTE = THEME["palette"]
-BRAND_NAME = THEME.get("brand_name", "BlueOcean")
+BRAND_NAME = THEME.get("brand_name", "GateX")
 
 NAVY = PALETTE.get("navy_dark", "#051C2C")
 ACCENT = PALETTE.get("accent", "#003087")

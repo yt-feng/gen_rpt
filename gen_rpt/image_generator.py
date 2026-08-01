@@ -70,7 +70,7 @@ def generate_ai_image_assets(
     result: Dict[str, str] = {}
 
     cover_keywords = (
-        f"{topic}; full-page premium BlueOcean strategy report cover background; topic-specific editorial visual; "
+        f"{topic}; full-page premium GateX executive intelligence report cover background; topic-specific editorial visual; "
         "show a sophisticated real-world or cinematic conceptual scene directly related to the researched industry or technology; "
         "photorealistic magazine-quality lighting, crisp foreground detail, layered depth, natural materials and human-scale context; "
         "executive publication quality; restrained blue, white and electric-blue accents; no readable words; no logo; "
@@ -92,7 +92,7 @@ def generate_ai_image_assets(
         title = _section_title_for_prompt(section, idx)
         lead = _shorten(section.get("lead", ""), 180)
         keywords = (
-            f"{title}; {lead}; {topic}; premium BlueOcean editorial strategy report image; "
+            f"{title}; {lead}; {topic}; premium GateX executive intelligence report image; "
             "topic-specific real-world business, industrial, technology, policy, infrastructure or executive setting; "
             "photorealistic editorial scene with crisp detail, realistic people or equipment when relevant, layered foreground and background; "
             "human-scale context; cinematic but natural lighting; restrained blue and white accents; clean composition; no readable text; no logo; "
@@ -133,7 +133,7 @@ Return JSON only:
 
 Rules:
 - English only
-- premium BlueOcean strategy publication visual
+- premium GateX executive intelligence publication visual
 - topic-specific real-world scene or concrete visual metaphor; reflect the industry/technology instead of generic decoration
 - photorealistic high-end editorial visual with crisp detail, realistic depth and natural lighting
 - restrained blue/white accents, clean composition
@@ -148,7 +148,7 @@ Rules:
             return _sanitize(prompt)
     except Exception:
         pass
-    return _sanitize(f"Premium BlueOcean topic-specific editorial strategy report visual, photorealistic, crisp detail, natural lighting, restrained blue and white accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
+    return _sanitize(f"Premium GateX topic-specific executive intelligence report visual, photorealistic, crisp detail, natural lighting, restrained navy and cool-blue accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
 
 
 def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, retries: int, allow_fallback: bool) -> Tuple[str, str]:
@@ -164,7 +164,7 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
     last_error = ""
     for attempt in range(max(1, retries)):
         try:
-            response = requests.get(_url(prompt), timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
+            response = requests.get(_url(prompt), timeout=timeout_seconds, headers={"User-Agent": "GateXReportGenerator/1.0"})
             response.raise_for_status()
             tmp = output_path.with_suffix(".raw")
             tmp.write_bytes(response.content)
@@ -285,7 +285,7 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         "origin": "*",
     }
     try:
-        response = requests.get(api, params=params, timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
+        response = requests.get(api, params=params, timeout=timeout_seconds, headers={"User-Agent": "GateXReportGenerator/1.0"})
         response.raise_for_status()
         pages = list((response.json().get("query", {}).get("pages", {}) or {}).values())
     except Exception as exc:
@@ -316,7 +316,7 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
     ordered = candidates[start:] + candidates[:start]
     for _score, url, title in ordered:
         try:
-            image_response = requests.get(url, timeout=timeout_seconds, headers={"User-Agent": "BlueOceanReportGenerator/1.0"})
+            image_response = requests.get(url, timeout=timeout_seconds, headers={"User-Agent": "GateXReportGenerator/1.0"})
             image_response.raise_for_status()
             content = image_response.content
         except Exception:

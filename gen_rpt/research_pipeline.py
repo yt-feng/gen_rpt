@@ -197,7 +197,7 @@ JSON 字段要求：objective、audience、decision_question、issue_tree、sear
         system = "You are an elite strategy consultant and research writer. Return one valid JSON object only. No markdown."
         if self.language == "en":
             user = f"""
-Generate a client-ready BlueOcean research report data structure and return valid JSON only.
+Generate a client-ready GateX executive intelligence report data structure and return valid JSON only.
 Topic: {topic}
 Raw user input for context only: {raw_topic}
 Rules:
@@ -238,7 +238,7 @@ Hard constraints:
 """
         else:
             user = f"""
-请生成一份 client-ready、可直接分发的 BlueOcean 研究报告数据结构，输出合法 JSON，不要 markdown。
+请生成一份 client-ready、可直接分发的 GateX 研究报告数据结构，输出合法 JSON，不要 markdown。
 选题：{topic}
 要求：{self._lang_instruction()} {self._scope_instruction()} {self._title_style_instruction()} {self._method_instruction()}
 研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
@@ -387,7 +387,7 @@ sections 7-10 项，每节 6-8 段且后半部分不能变薄；charts 固定 14
                 {"title": "CEO investment committee scenario", "situation": "Management is deciding whether to allocate budget and partner capacity before all public-evidence gaps are closed.", "ceo_question": "Which decisions are safe now, and which should wait for customer, cost, financing or policy validation?", "recommended_move": "Approve low-cost validation and partner discussions while holding larger commitments behind evidence gates.", "watchouts": "Do not treat market enthusiasm or technical narrative as proof of ROI, bankability or scalable demand."}
             ]
             methodology_note = f"This fallback report is based on {len(sources)} fetched public sources and retained references. It distinguishes verified public evidence, directional synthesis and open questions; unsupported market size, ROI, cost or share assumptions should be replaced with verified data before investment use."
-            author_credentials = [{"name": "BlueOcean Research", "role": "Research synthesis team", "credentials": "Responsible for public-source collection, evidence-boundary checks, executive synthesis and report QA."}]
+            author_credentials = [{"name": "GateX Research", "role": "Research synthesis team", "credentials": "Responsible for public-source collection, evidence-boundary checks, executive synthesis and report QA."}]
             method_steps = [{"name": "Evidence boundary", "description": "Identify public-source support and open validation gaps."}, {"name": "Commercial translation", "description": "Convert technical facts into CEO decisions, risks and actions."}, {"name": "Decision readiness", "description": "Sequence no-regret moves, options and major commitments."}]
         else:
             executive_summary_text = (
@@ -415,7 +415,7 @@ sections 7-10 项，每节 6-8 段且后半部分不能变薄；charts 固定 14
                 {"title": "CEO 投资委员会场景", "situation": "管理层正在判断是否在证据缺口完全关闭前投入预算和合作资源。", "ceo_question": "哪些动作可以现在做，哪些必须等待客户、成本、融资或政策证据？", "recommended_move": "先批准低成本验证和伙伴讨论，把重大投入放在证据门槛之后。", "watchouts": "不要把市场热度或技术叙事等同于投资回报、可融资性或可规模化需求。"}
             ]
             methodology_note = f"本兜底报告基于{len(sources)}个已抓取公开来源和来源底稿，区分已验证公开证据、方向性综合和待核验缺口；未经来源支持的市场规模、ROI、成本或份额假设应在投资使用前替换为经核验数据。"
-            author_credentials = [{"name": "BlueOcean Research", "role": "研究综合团队", "credentials": "负责公开资料收集、证据边界校验、管理层视角综合和报告 QA。"}]
+            author_credentials = [{"name": "GateX Research", "role": "研究综合团队", "credentials": "负责公开资料收集、证据边界校验、管理层视角综合和报告 QA。"}]
             method_steps = [{"name": "证据边界", "description": "识别公开来源支持和待核验缺口。"}, {"name": "商业翻译", "description": "把技术事实转成 CEO 决策、风险和行动。"}, {"name": "决策就绪", "description": "区分无悔动作、选择权和重大承诺。"}]
         return {
             "report_title": topic,
@@ -477,10 +477,10 @@ def _fallback_charts() -> List[Dict[str, Any]]:
     return [
         {"id": "chart-1", "exhibit_no": "1", "title": "China's installed base is pulling away from other VRFB regions", "subtitle": "Illustrative installed capacity by region, indexed", "type": "stacked_bar", "categories": ["2020", "2021", "2022", "2023", "2024"], "series": [{"name": "China", "values": [30, 45, 70, 110, 180]}, {"name": "Japan", "values": [25, 22, 24, 27, 30]}, {"name": "Europe", "values": [16, 18, 21, 25, 30]}, {"name": "North America", "values": [10, 12, 15, 18, 23]}, {"name": "Rest of world", "values": [6, 7, 8, 10, 12]}], "x_label": "Year", "y_label": "Indexed capacity", "caption": "China's VRFB installed base has scaled faster than other regions.", "source_note": "Illustrative synthesis from public sources."},
         {"id": "chart-2", "exhibit_no": "2", "title": "VRFB cost competitiveness improves as storage duration increases", "subtitle": "Indicative LCOS trajectory for long-duration use cases", "type": "line", "categories": ["2024", "2025", "2026", "2027", "2028"], "series": [{"name": "China VRFB", "values": [0.13, 0.12, 0.105, 0.095, 0.085]}, {"name": "Global VRFB", "values": [0.17, 0.16, 0.145, 0.13, 0.12]}, {"name": "Li-ion 8h", "values": [0.15, 0.145, 0.14, 0.135, 0.13]}], "x_label": "Year", "y_label": "$/kWh", "caption": "VRFB economics improve when duration and cycle life matter.", "source_note": "Illustrative synthesis from public cost benchmarks."},
-        {"id": "chart-3", "exhibit_no": "3", "title": "Dali's leadership case is strongest when cost and bankability are assessed together", "subtitle": "Qualitative competitive position matrix", "type": "matrix", "rows": ["Cost position", "Supply security", "Project proof", "Technology maturity", "International channel"], "columns": ["Dali", "Chinese peers", "Sumitomo", "Invinity"], "values": [[5, 4, 3, 2], [5, 4, 3, 2], [3, 3, 5, 3], [4, 3, 5, 4], [2, 2, 4, 4]], "caption": "Dali's next challenge is to turn structural advantages into bankable global proof.", "source_note": "BlueOcean qualitative assessment."},
-        {"id": "chart-4", "exhibit_no": "4", "title": "Market entry should prioritize proof potential over headline demand size", "subtitle": "Illustrative market-entry attractiveness map", "type": "bubble", "points": [{"label": "China", "x": 85, "y": 90, "size": 90}, {"label": "Southeast Asia", "x": 72, "y": 68, "size": 55}, {"label": "Europe", "x": 62, "y": 74, "size": 60}, {"label": "North America", "x": 48, "y": 78, "size": 70}, {"label": "Middle East", "x": 58, "y": 55, "size": 45}], "x_label": "Entry feasibility", "y_label": "Demand attractiveness", "caption": "The best early international markets combine project proof, partner access and financing readiness.", "source_note": "BlueOcean scenario assessment."},
-        {"id": "chart-5", "exhibit_no": "5", "title": "Commercialization priorities should shift from products to projects", "subtitle": "Illustrative management attention allocation", "type": "bar", "categories": ["Reference projects", "Financing model", "Local partners", "Cost roadmap", "Product roadmap"], "series": [{"name": "Priority index", "values": [92, 84, 76, 66, 58]}], "caption": "Management focus should move toward bankable delivery and repeatable channels.", "source_note": "BlueOcean synthesis."},
-        {"id": "chart-6", "exhibit_no": "6", "title": "Policy support and supply security reinforce China's scaling advantage", "subtitle": "Indicative strength by strategic lever", "type": "bar", "categories": ["Policy demand", "Vanadium access", "Manufacturing scale", "Project references", "Global channels"], "series": [{"name": "Relative strength", "values": [90, 86, 82, 68, 52]}], "x_label": "Score", "y_label": "", "caption": "China's strongest advantages sit in the upstream and domestic deployment system.", "source_note": "Public sources and BlueOcean synthesis."},
+        {"id": "chart-3", "exhibit_no": "3", "title": "Dali's leadership case is strongest when cost and bankability are assessed together", "subtitle": "Qualitative competitive position matrix", "type": "matrix", "rows": ["Cost position", "Supply security", "Project proof", "Technology maturity", "International channel"], "columns": ["Dali", "Chinese peers", "Sumitomo", "Invinity"], "values": [[5, 4, 3, 2], [5, 4, 3, 2], [3, 3, 5, 3], [4, 3, 5, 4], [2, 2, 4, 4]], "caption": "Dali's next challenge is to turn structural advantages into bankable global proof.", "source_note": "GateX qualitative assessment."},
+        {"id": "chart-4", "exhibit_no": "4", "title": "Market entry should prioritize proof potential over headline demand size", "subtitle": "Illustrative market-entry attractiveness map", "type": "bubble", "points": [{"label": "China", "x": 85, "y": 90, "size": 90}, {"label": "Southeast Asia", "x": 72, "y": 68, "size": 55}, {"label": "Europe", "x": 62, "y": 74, "size": 60}, {"label": "North America", "x": 48, "y": 78, "size": 70}, {"label": "Middle East", "x": 58, "y": 55, "size": 45}], "x_label": "Entry feasibility", "y_label": "Demand attractiveness", "caption": "The best early international markets combine project proof, partner access and financing readiness.", "source_note": "GateX scenario assessment."},
+        {"id": "chart-5", "exhibit_no": "5", "title": "Commercialization priorities should shift from products to projects", "subtitle": "Illustrative management attention allocation", "type": "bar", "categories": ["Reference projects", "Financing model", "Local partners", "Cost roadmap", "Product roadmap"], "series": [{"name": "Priority index", "values": [92, 84, 76, 66, 58]}], "caption": "Management focus should move toward bankable delivery and repeatable channels.", "source_note": "GateX synthesis."},
+        {"id": "chart-6", "exhibit_no": "6", "title": "Policy support and supply security reinforce China's scaling advantage", "subtitle": "Indicative strength by strategic lever", "type": "bar", "categories": ["Policy demand", "Vanadium access", "Manufacturing scale", "Project references", "Global channels"], "series": [{"name": "Relative strength", "values": [90, 86, 82, 68, 52]}], "x_label": "Score", "y_label": "", "caption": "China's strongest advantages sit in the upstream and domestic deployment system.", "source_note": "Public sources and GateX synthesis."},
     ]
 
 

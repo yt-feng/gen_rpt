@@ -5,6 +5,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import fitz
+from pypdf import PdfReader
 
 from gen_rpt.gatex_pdf_renderer import (
     release_classification,
@@ -74,6 +75,28 @@ def sample_release():
 
 
 class GatexPdfRendererTests(unittest.TestCase):
+    def test_gatex_branding_assets_are_versioned_and_legacy_free(self):
+        branding_dir = Path(__file__).resolve().parents[1] / "branding"
+        texture_path = branding_dir / "gatex-cover-cloth-v1.jpg"
+        mark_path = branding_dir / "gatex-g-mark-white.png"
+        theme_path = branding_dir / "theme.json"
+        logo_path = branding_dir / "logo.svg"
+
+        texture = fitz.Pixmap(str(texture_path))
+        mark = fitz.Pixmap(str(mark_path))
+        self.assertGreaterEqual(texture.width, 1_500)
+        self.assertGreaterEqual(texture.height, 1_000)
+        self.assertEqual((mark.width, mark.height), (600, 600))
+        self.assertTrue(mark.alpha)
+
+        theme = json.loads(theme_path.read_text(encoding="utf-8"))
+        self.assertEqual(theme["brand_name"], "GateX")
+        customer_branding = theme_path.read_text(encoding="utf-8") + logo_path.read_text(encoding="utf-8")
+        self.assertNotRegex(customer_branding.lower(), r"blue[ -]?ocean|\bbo\b")
+        self.assertIn("gatex-g-mark-white.png", logo_path.read_text(encoding="utf-8"))
+        dockerignore = (branding_dir.parent / ".dockerignore").read_text(encoding="utf-8").splitlines()
+        self.assertNotIn("branding/", [line.strip() for line in dockerignore])
+
     def test_release_file_name_is_versioned_and_deterministic(self):
         payload = sample_release()
         self.assertEqual(
@@ -112,9 +135,17 @@ class GatexPdfRendererTests(unittest.TestCase):
             with fitz.open(path) as document:
                 cover_text = document[0].get_text("text")
                 full_text = "\n".join(page.get_text("text") for page in document)
+                cover_images = document[0].get_images(full=True)
             self.assertIn(payload["summary"], cover_text)
             self.assertNotIn(payload["subtitle"], cover_text)
-            self.assertIn("governance control a condition", full_text)
+            self.assertRegex(full_text, r"governance\s+control a condition")
+            self.assertGreaterEqual(len(cover_images), 2)
+
+            metadata = PdfReader(str(path)).metadata
+            self.assertEqual(metadata.author, "GateX")
+            self.assertEqual(metadata.creator, "GateX PDF Release Pipeline")
+            visible_brand = " ".join([cover_text, *(str(value or "") for value in metadata.values())]).lower()
+            self.assertNotRegex(visible_brand, r"blue[ -]?ocean|\bbo\b")
 
     def test_renders_chinese_release_with_extractable_cjk_text(self):
         payload = sample_release()

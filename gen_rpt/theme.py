@@ -7,19 +7,19 @@ from typing import Any, Dict
 
 
 DEFAULT_THEME: Dict[str, Any] = {
-    "brand_name": "BO Institute Strategy Agent",
-    "report_label": "Deep Research Report",
+    "brand_name": "GateX",
+    "report_label": "Executive Intelligence Report",
     "palette": {
-        "accent": "#0E6B72",
-        "accent_dark": "#0A4F56",
-        "ink": "#1F2937",
-        "subtle": "#667085",
-        "grid": "#D8DEE5",
+        "accent": "#176DDC",
+        "accent_dark": "#061B46",
+        "ink": "#17233A",
+        "subtle": "#5C6F88",
+        "grid": "#D7E2EF",
         "paper": "#FFFFFF",
-        "panel": "#F7F9FB",
-        "line": "#DCE6EC",
+        "panel": "#F3F7FC",
+        "line": "#CBD8E8",
     },
-    "series_colors": ["#0E6B72", "#233645", "#7E96A8", "#C4D0D8"],
+    "series_colors": ["#176DDC", "#061B46", "#7893AF", "#D7E2EF"],
 }
 
 

@@ -696,7 +696,7 @@ Return exactly:
         ]
 
     def _plan_research(self, topic: str) -> Dict[str, Any]:
-        system = "You are a senior research planner for a BlueOcean-style digital publication. Return strict JSON only."
+        system = "You are a senior research planner for a GateX executive intelligence publication. Return strict JSON only."
         if self.language == "zh":
             user = f"""
 为一个 HTML-first 深度分析网页生成研究计划，输出 JSON。
@@ -1017,7 +1017,7 @@ Requirements:
         system = "You are an elite strategy research author. Return one valid JSON object only. No markdown."
         if self.language == "zh":
             user = f"""
-生成一份 HTML-first、类似 BlueOcean publication 的深度分析网页报告数据结构，输出 JSON。
+生成一份 HTML-first、符合 GateX executive intelligence publication 标准的深度分析网页报告数据结构，输出 JSON。
 
 	主题：{topic}
 	研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
@@ -1064,7 +1064,7 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 """
         else:
             user = f"""
-Generate an HTML-first, BlueOcean-publication-like deep analysis report data structure and return JSON.
+Generate an HTML-first GateX executive intelligence report data structure and return JSON.
 
 	Topic: {topic}
 	Research plan:
@@ -1663,7 +1663,7 @@ QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
             "title": topic,
             "dek": takeaways[0],
             "category": "Deep research" if self.language == "en" else "深度研究",
-            "authors": ["BlueOcean Research"],
+            "authors": ["GateX Research"],
             "intro": [takeaways[0]],
             "key_takeaways": takeaways,
             "sections": sections,

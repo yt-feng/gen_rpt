@@ -8,7 +8,7 @@ from .theme import load_theme
 
 THEME = load_theme()
 PALETTE = THEME["palette"]
-BRAND_NAME = THEME.get("brand_name", "BlueOcean")
+BRAND_NAME = THEME.get("brand_name", "GateX")
 
 CSS = f"""
 :root {{ --navy:{PALETTE.get('navy_dark', '#051C2C')}; --accent:{PALETTE.get('accent', '#003087')}; --blue:{PALETTE.get('bright_blue', '#3273F6')}; --ink:{PALETTE.get('ink', '#333333')}; --muted:{PALETTE.get('subtle', '#64696E')}; --line:{PALETTE.get('line', '#C8C8C8')}; --panel:{PALETTE.get('panel', '#F5F7FA')}; --lightblue:{PALETTE.get('light_blue_fill', '#EBF5FF')}; }}
