@@ -848,6 +848,7 @@ class RAGBridgeTests(unittest.TestCase):
         pipeline = WebReportPipeline(client)
         rejected = {
             "title": "Conditional launch",
+            "action_steps": [{"horizon": "Immediate", "action": "Preserve this grounded action."}],
             "sections": [
                 {
                     "title": "Evidence supports a gate",
@@ -864,7 +865,9 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
-        self.assertEqual(revised, {"title": "Revised report"})
+        self.assertEqual(revised["title"], "Revised report")
+        self.assertEqual(revised["action_steps"], rejected["action_steps"])
+        self.assertEqual(revised["sections"], rejected["sections"])
         self.assertIn("The rejected draft is too short.", prompt)
         self.assertIn("Section 1 needs 3-6 developed analytical paragraphs", prompt)
         self.assertIn("paragraphs must be a JSON array", prompt)

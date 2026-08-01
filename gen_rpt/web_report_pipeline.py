@@ -625,7 +625,7 @@ class WebReportPipeline:
         storyline_plan: Dict[str, Any],
     ) -> Dict[str, Any]:
         correction_text = "\n".join(f"- {item}" for item in corrections)
-        prompt = f"""Revise the rejected executive report below and return the complete corrected JSON object only.
+        prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
 
 Keep the report in its existing language. Preserve its grounded facts, exact quotations, chunk identifiers, evidence items, references and supported numbers. Do not introduce outside facts, new numbers, new sources or invented citations.
 
@@ -639,17 +639,17 @@ Rejected report:
 {json.dumps(report, ensure_ascii=False)}
 
 Revision contract:
-- Return the full report with all existing top-level fields.
+- Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
 - Keep exactly 3 key_takeaways, 5-6 sections and 4-6 action_steps.
 - Each section must contain title, lead, paragraphs, evidence and so_what.
-- paragraphs must be a JSON array with 3-6 separate strings. Never put all section prose into one string.
-- Each section must contain 250-450 words including lead and so_what; each paragraph must contain at least 45 words.
+- paragraphs must be a JSON array with exactly 4 separate strings. Never put all section prose into one string.
+- Each paragraph must contain 55-75 words (or Chinese characters), lead must contain 30-45, and so_what must contain 35-50. Keep every complete section between 300 and 400 words (or Chinese characters).
 - Develop evidence, causal mechanism, counterpoint or risk, and management implication without filler or repetition.
 - Keep at least 2 traceable evidence items per section. Private-document evidence must retain exact chunk quotations.
-- Keep the full report between 2,000 and 3,000 reader-visible words.
+- Keep the full reader-visible report between 2,000 and 2,700 words (or Chinese characters); never exceed the requested ranges.
 - Every action must retain horizon, action, success_metric and a 12-word minimum evidence rationale.
 """
-        return self.client.chat_json(
+        revision = self.client.chat_json(
             [
                 {
                     "role": "system",
@@ -659,6 +659,11 @@ Revision contract:
             ],
             temperature=0.05,
         )
+        merged = dict(report)
+        for key, value in revision.items():
+            if value not in (None, "", [], {}):
+                merged[key] = value
+        return merged
 
     def _audit_report_content(self, report: Dict[str, Any], storyline_plan: Dict[str, Any]) -> Dict[str, Any]:
         prompt = f"""Audit this executive decision brief against its selected content modules. Use only the report text; do not add outside facts. Return JSON only.
