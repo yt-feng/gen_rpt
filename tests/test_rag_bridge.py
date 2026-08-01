@@ -880,6 +880,13 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(report["sections"][0]["paragraphs"], ["Too short."])
         self.assertEqual(report["sections"][0]["so_what"], "Also short.")
 
+    def test_section_prose_normalization_removes_only_unmatched_terminal_quotes(self):
+        report = {"sections": [{"paragraphs": ['Malformed sentence."', '"A complete quotation."']}]}
+
+        normalize_report_section_prose(report)
+
+        self.assertEqual(report["sections"][0]["paragraphs"], ["Malformed sentence.", '"A complete quotation."'])
+
     def test_numeric_gate_matches_equivalent_chinese_large_number_units(self):
         context = "报告记录了340万次紧急转移、680亿元损失，以及5-15亿美元的市场区间。"
 
@@ -992,6 +999,23 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("Never penalize omitted probabilities", prompt)
         self.assertIn("remove or qualify it", prompt)
         self.assertIn("Do not require direct numerical comparisons between unlike units", prompt)
+
+    def test_final_editorial_audit_verifies_requested_corrections_without_moving_goalposts(self):
+        client = Mock()
+        client.chat_json.return_value = {"score": 80}
+        pipeline = WebReportPipeline(client)
+
+        pipeline._audit_report_content(
+            {"title": "Conditional resilience investment"},
+            {"selected_modules": []},
+            revision_corrections=["Remove the unmatched trailing quote."],
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("final verification", prompt)
+        self.assertIn("Remove the unmatched trailing quote.", prompt)
+        self.assertIn("Do not introduce a new requirement", prompt)
+        self.assertIn("deterministic check against the complete validated corpus", prompt)
 
     def test_nested_table_numbers_are_inside_the_rag_quality_boundary(self):
         exhibit = {

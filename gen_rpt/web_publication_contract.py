@@ -315,7 +315,7 @@ def normalize_report_section_prose(report: Any) -> Any:
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
-        paragraphs = [str(item).strip() for item in section.get("paragraphs", []) or [] if str(item).strip()]
+        paragraphs = [_clean_stray_terminal_quote(str(item).strip()) for item in section.get("paragraphs", []) or [] if str(item).strip()]
         so_what = str(section.get("so_what") or "").strip()
         if _word_count(so_what) < 35:
             for index in range(len(paragraphs) - 1, -1, -1):
@@ -586,6 +586,14 @@ def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
             if best is None or score < best[0]:
                 best = score, groups
     return best[1] if best else []
+
+
+def _clean_stray_terminal_quote(text: str) -> str:
+    if text.endswith('"') and text.count('"') % 2:
+        return text[:-1].rstrip()
+    if text.endswith("”") and text.count("”") > text.count("“"):
+        return text[:-1].rstrip()
+    return text
 
 
 def _report_narrative_text(report: dict) -> str:

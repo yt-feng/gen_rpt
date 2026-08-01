@@ -5,7 +5,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from .brand_assets import copy_or_generate_brand_assets, write_reference_backup
 from .deepseek_client import DeepSeekClient
@@ -313,7 +313,7 @@ class WebReportPipeline:
                 if quality_issues:
                     raise ReportQualityError("Editorial revision failed the content gate: " + " | ".join(quality_issues))
                 self._post_process(report, display_topic, sources, fact_pack)
-                audit = self._audit_report_content(report, storyline_plan)
+                audit = self._audit_report_content(report, storyline_plan, revision_corrections=corrections)
             if not self._editorial_audit_passed(audit):
                 raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
             report["content_quality_audit"] = audit
@@ -685,7 +685,19 @@ Revision contract:
                 merged[key] = value
         return merged
 
-    def _audit_report_content(self, report: Dict[str, Any], storyline_plan: Dict[str, Any]) -> Dict[str, Any]:
+    def _audit_report_content(
+        self,
+        report: Dict[str, Any],
+        storyline_plan: Dict[str, Any],
+        revision_corrections: Optional[List[str]] = None,
+    ) -> Dict[str, Any]:
+        audit_stage = ""
+        if revision_corrections:
+            audit_stage = f"""
+This is the final verification after the report's single editorial revision. Verify the requested corrections below and reject any serious problem introduced or worsened by that revision. Do not introduce a new requirement for an issue that already existed but was omitted from the first audit.
+Requested corrections:
+{json.dumps(revision_corrections, ensure_ascii=False)}
+"""
         prompt = f"""Audit this executive decision brief against its selected content modules. Use only the report text; do not add outside facts. Return JSON only.
 
 Selected modules:
@@ -702,6 +714,8 @@ Evidence-discipline rules:
 - If a claim lacks support in the report, instruct the author to remove or qualify it; do not request new outside facts, sources, thresholds or calculations.
 - Do not require direct numerical comparisons between unlike units, geographies or time bases. Require a qualitative comparison or an explicit comparability limitation instead.
 - Treat a clearly labeled unresolved possibility as uncertainty, not a critical issue. Reserve critical_issues for publication-blocking contradictions, unsupported material conclusions, fabricated evidence, or recommendations that remain ungrounded.
+- Every visible number has already passed a deterministic check against the complete validated corpus. Do not request a generic numeric cross-check merely because the full corpus is not repeated in this audit prompt; flag only an internal contradiction or misuse visible in the report.
+{audit_stage}
 
 Return exactly:
 {{
