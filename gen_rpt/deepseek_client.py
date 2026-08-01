@@ -160,7 +160,13 @@ def _normalize_sections(value: Any) -> List[Dict[str, Any]]:
         section["id"] = str(section.get("id") or f"section-{idx}")
         section["title"] = str(section.get("title") or f"Section {idx}")
         section["lead"] = str(section.get("lead") or "")
-        section["paragraphs"] = [str(x) for x in _as_list(section.get("paragraphs")) if str(x).strip()]
+        paragraph_source = section.get("paragraphs") or section.get("body") or section.get("content")
+        section["paragraphs"] = [
+            paragraph.strip()
+            for value in _as_list(paragraph_source)
+            for paragraph in re.split(r"\n\s*\n+", str(value))
+            if paragraph.strip()
+        ]
         if not section["paragraphs"]:
             section["paragraphs"] = [section["lead"] or section["title"]]
         section["key_takeaways"] = [str(x) for x in _as_list(section.get("key_takeaways")) if str(x).strip()]

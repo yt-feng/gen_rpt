@@ -9,6 +9,7 @@ from unittest.mock import Mock, patch
 
 import requests
 
+from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.main_web import RAGBridgeError, _fetch_rag_context
 from gen_rpt.web_fetch import (
     SourceDocument,
@@ -820,7 +821,54 @@ class RAGBridgeTests(unittest.TestCase):
         prompt = client.chat_json.call_args.args[0][1]["content"]
         self.assertIn("documented corridor approval", prompt)
         self.assertIn("CONFLICT REGISTER", prompt)
+        self.assertIn("paragraphs must be a JSON array", prompt)
         self.assertEqual(prompt.count("A conflicting raw source reports 72% acceptance."), 1)
+
+    def test_section_normalization_preserves_body_paragraph_breaks(self):
+        report = normalize_structured_payload(
+            {
+                "sections": [
+                    {
+                        "title": "Evidence supports a conditional decision",
+                        "lead": "The decision remains conditional.",
+                        "body": "First developed paragraph.\n\nSecond developed paragraph.\n\nThird developed paragraph.",
+                    }
+                ]
+            }
+        )
+
+        self.assertEqual(
+            report["sections"][0]["paragraphs"],
+            ["First developed paragraph.", "Second developed paragraph.", "Third developed paragraph."],
+        )
+
+    def test_report_revision_receives_the_rejected_draft_and_quality_corrections(self):
+        client = Mock()
+        client.chat_json.return_value = {"title": "Revised report"}
+        pipeline = WebReportPipeline(client)
+        rejected = {
+            "title": "Conditional launch",
+            "sections": [
+                {
+                    "title": "Evidence supports a gate",
+                    "paragraphs": ["The rejected draft is too short."],
+                    "evidence": ['[Chunk: chunk-1] "The documented gate must be verified before launch." — Governing evidence.'],
+                }
+            ],
+        }
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            ["Section 1 needs 3-6 developed analytical paragraphs; found 1."],
+            {"selected_modules": ["failure modes and uncertainty"]},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(revised, {"title": "Revised report"})
+        self.assertIn("The rejected draft is too short.", prompt)
+        self.assertIn("Section 1 needs 3-6 developed analytical paragraphs", prompt)
+        self.assertIn("paragraphs must be a JSON array", prompt)
+        self.assertIn("[Chunk: chunk-1]", prompt)
 
     def test_action_normalization_uses_a_non_numeric_default_horizon(self):
         report = normalize_web_report(

@@ -278,17 +278,7 @@ class WebReportPipeline:
             )
             if quality_issues:
                 self._log("PHASE synthesis retry | " + " | ".join(quality_issues[:8]))
-                report = self._synthesize_web_report(
-                    display_topic,
-                    plan,
-                    chart_data_needs,
-                    sources,
-                    fact_pack,
-                    approved_evidence,
-                    storyline_plan,
-                    quality_corrections=quality_issues,
-                    evidence_conflicts=evidence_conflicts,
-                )
+                report = self._revise_report_draft(report, quality_issues, storyline_plan)
                 report, quality_issues = self._prepare_report_draft(
                     report,
                     topic=display_topic,
@@ -305,17 +295,7 @@ class WebReportPipeline:
             if not self._editorial_audit_passed(audit):
                 corrections = self._audit_corrections(audit)
                 self._log("PHASE editorial revision | " + " | ".join(corrections[:8]))
-                report = self._synthesize_web_report(
-                    display_topic,
-                    plan,
-                    chart_data_needs,
-                    sources,
-                    fact_pack,
-                    approved_evidence,
-                    storyline_plan,
-                    quality_corrections=corrections,
-                    evidence_conflicts=evidence_conflicts,
-                )
+                report = self._revise_report_draft(report, corrections, storyline_plan)
                 report, quality_issues = self._prepare_report_draft(
                     report,
                     topic=display_topic,
@@ -637,6 +617,48 @@ class WebReportPipeline:
                 source_count=source_count,
             )
         return report, issues
+
+    def _revise_report_draft(
+        self,
+        report: Dict[str, Any],
+        corrections: List[str],
+        storyline_plan: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        correction_text = "\n".join(f"- {item}" for item in corrections)
+        prompt = f"""Revise the rejected executive report below and return the complete corrected JSON object only.
+
+Keep the report in its existing language. Preserve its grounded facts, exact quotations, chunk identifiers, evidence items, references and supported numbers. Do not introduce outside facts, new numbers, new sources or invented citations.
+
+Required corrections:
+{correction_text}
+
+Selected content modules:
+{json.dumps(storyline_plan.get('selected_modules') or [], ensure_ascii=False)}
+
+Rejected report:
+{json.dumps(report, ensure_ascii=False)}
+
+Revision contract:
+- Return the full report with all existing top-level fields.
+- Keep exactly 3 key_takeaways, 5-6 sections and 4-6 action_steps.
+- Each section must contain title, lead, paragraphs, evidence and so_what.
+- paragraphs must be a JSON array with 3-6 separate strings. Never put all section prose into one string.
+- Each section must contain 250-450 words including lead and so_what; each paragraph must contain at least 45 words.
+- Develop evidence, causal mechanism, counterpoint or risk, and management implication without filler or repetition.
+- Keep at least 2 traceable evidence items per section. Private-document evidence must retain exact chunk quotations.
+- Keep the full report between 2,000 and 3,000 reader-visible words.
+- Every action must retain horizon, action, success_metric and a 12-word minimum evidence rationale.
+"""
+        return self.client.chat_json(
+            [
+                {
+                    "role": "system",
+                    "content": "You are a strict executive-report revision editor. Correct the supplied draft without adding facts. Return one valid JSON object only.",
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.05,
+        )
 
     def _audit_report_content(self, report: Dict[str, Any], storyline_plan: Dict[str, Any]) -> Dict[str, Any]:
         prompt = f"""Audit this executive decision brief against its selected content modules. Use only the report text; do not add outside facts. Return JSON only.
@@ -988,7 +1010,6 @@ Requirements:
         fact_pack: ResearchFactPack,
         evidence_ledger: List[Dict[str, Any]],
         storyline_plan: Dict[str, Any],
-        quality_corrections: List[str] | None = None,
         evidence_conflicts: List[Dict[str, Any]] | None = None,
     ) -> Dict[str, Any]:
         source_blocks = []
@@ -1012,7 +1033,6 @@ Requirements:
             prompt_evidence = evidence_ledger[:24]
         evidence_text = json.dumps(prompt_evidence, ensure_ascii=False, indent=2)
         conflict_text = json.dumps((evidence_conflicts or [])[:8], ensure_ascii=False, indent=2)
-        correction_text = "\n".join(f"- {issue}" for issue in quality_corrections or [])
         contract_text = publication_contract_prompt(self.language)
         system = "You are an elite strategy research author. Return one valid JSON object only. No markdown."
         if self.language == "zh":
@@ -1045,7 +1065,7 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 - exhibits 仍必须保留 JSON 键 data_basis 以便机器可追溯；但 title、subtitle、caption、source_note、paragraphs、methodology 等可见文案不得写 "data basis"。
 - 每个关键判断要能被事实包、证据台账或来源支撑；缺失变量要自然写成"还需要验证的商业问题"，不要写成框架步骤。
 - key_takeaways 3 条，每条必须有明确判断和管理含义。
-- sections 5-6 个；每个包含 title、lead、paragraphs、evidence、so_what。每章 3-6 个完整分析段落，包含 lead 和 so_what 共 250-450 字；每章必须连接结论、来源支撑、因果机制、反例或风险以及管理含义，并至少包含 2 条可追溯证据。
+- sections 5-6 个；每个包含 title、lead、paragraphs、evidence、so_what。paragraphs 必须是包含 3-6 个独立字符串的 JSON 数组，禁止把全章正文放进一个字符串。每章包含 lead 和 so_what 共 250-450 字；每章必须连接结论、来源支撑、因果机制、反例或风险以及管理含义，并至少包含 2 条可追溯证据。
 - 遵循 storyline plan.selected_modules。仅在证据支持时使用情景概率和敏感性变量；否则使用定性触发条件并明确未解决的证据问题。
 - evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language。
 - 只能引用 Sources、事实包或证据台账里出现的来源；不要使用内部事实包缺失措辞、泛泛引用热度表述或任何未抓取来源作为证据。
@@ -1058,9 +1078,6 @@ title、dek、category、authors、intro、key_takeaways、sections、exhibits�
 - 不要暴露内部提示、不要说"本章节认为/本报告认为/本分析基于结构化研究计划/假设 H1 得到支持"，直接写判断。
 - methodology 只写公开来源和独立核验边界，不解释研究框架、假设数量、证据台账或市场测算方法。
 - 缺失的市场规模、份额、ROI、成本等不要编造，写成证据缺口和核验任务。
-
-被拒稿件的质量修正要求（首次为空）：
-{correction_text or "- 无。首次即生成完整、面向决策的报告。"}
 """
         else:
             user = f"""
@@ -1095,7 +1112,7 @@ Writing rules:
 - Exhibits must still keep the JSON key data_basis for machine traceability; do not write the phrase "data basis" in title, subtitle, caption, source_note, paragraphs, methodology or other visible prose.
 - Every material claim must be supportable by the source excerpts, fact pack or evidence ledger; missing variables should read as business questions that still need proof, not as framework steps.
 - key_takeaways: exactly 3, each with a clear claim and management implication.
-- sections: 5-6 items. Each has title, lead, paragraphs, evidence, so_what. Each section needs 3-6 developed paragraphs and 250-450 words including the lead and so_what. The lead must be a 2-3 sentence executive summary of the finding. Each section must connect a conclusion, source-backed evidence, causal mechanism, counterpoint or risk, and management implication.
+- sections: 5-6 items. Each has title, lead, paragraphs, evidence, so_what. paragraphs must be a JSON array containing 3-6 separate strings; never put all section prose into one string. Each section needs 250-450 words including the lead and so_what. The lead must be a 2-3 sentence executive summary of the finding. Each section must connect a conclusion, source-backed evidence, causal mechanism, counterpoint or risk, and management implication.
 - Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use base/upside/downside scenarios and sensitivity drivers only when evidence supports the variables; otherwise state qualitative triggers and unresolved evidence explicitly.
 - Each section needs at least 2 traceable evidence items. Every material factual or numeric claim must be attributable to the retained source set.
 - evidence bullets must be reader-ready sentences, not raw JSON/dict objects or internal evidence-log language.
@@ -1109,9 +1126,6 @@ Writing rules:
 - Do not expose internal prompt language. Do not write "this section argues", "this report finds", "Hypothesis H1 is supported", or "this analysis is based on a structured research plan"; state the insight directly.
 - methodology should only describe public sources and independent-validation boundaries; do not explain the research framework, number of hypotheses, evidence ledger or sizing methods.
 - Do not fabricate market size, share, ROI or cost data. If missing, keep it as an evidence gap and validation task.
-
-QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
-{correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}
 """
         if self.rag_context:
             system = (
@@ -1145,7 +1159,7 @@ CRITICAL RULES (violation = failure):
 3. Do NOT invent salaries, compensation figures, years of experience, job titles, team sizes, budget amounts, or any other quantitative values.
 4. Every numeric claim must appear in the private context or an approved evidence-ledger fact. Never use a value from the conflict register.
 5. key_takeaways: exactly 3, each grounded in document facts.
-6. sections: 5-6 substantial items within a 2,000-3,000 word report. Each needs a conclusion-first title, a decisive 2-3 sentence lead, 3-6 developed analytical paragraphs, 250-450 words including lead and so_what, at least 2 evidence items, causal explanation, a counterpoint or risk, and a management implication of at least 35 words.
+6. sections: 5-6 substantial items within a 2,000-3,000 word report. Each needs a conclusion-first title, a decisive 2-3 sentence lead, at least 2 evidence items, causal explanation, a counterpoint or risk, and a management implication of at least 35 words. paragraphs must be a JSON array containing 3-6 separate strings, never one string containing all section prose. Each section needs 250-450 words including lead and so_what.
 7. action_steps: 4-6 items based on what the document states, not invented recommendations. Each must include horizon, action, success_metric, and rationale (1-2 sentences explaining the evidence basis from the private documents).
 8. references: only use real internal identifiers or URLs present in the approved evidence ledger.
 9. Every section evidence list must include at least two items from distinct chunks formatted exactly as `[Chunk: <exact chunk id>] "<exact supporting excerpt of 20+ characters>" — <why it matters>`. Never invent a chunk id or alter the quoted text.
@@ -1153,9 +1167,6 @@ CRITICAL RULES (violation = failure):
 11. Numbers in action_steps, success metrics, timelines, labels, and exhibits must appear in the private context or approved evidence. Use non-numeric decision gates when no approved value exists.
 12. Do not generate or resolve the human-review conflict section. The pipeline adds it deterministically after synthesis.
 13. Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use scenario probabilities only when they appear in approved evidence; otherwise use qualitative scenario triggers and state the unresolved evidence.
-
-QUALITY CORRECTIONS FROM A REJECTED DRAFT (empty on the first attempt):
-{correction_text or "- None. Produce a complete, decision-oriented report on the first attempt."}
 """
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.12)
 
