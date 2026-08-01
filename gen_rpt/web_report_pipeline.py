@@ -633,6 +633,7 @@ class WebReportPipeline:
         prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
 
 Keep the report in its existing language. Preserve its grounded facts, exact quotations, chunk identifiers, evidence items, references and supported numbers. Do not introduce outside facts, new numbers, new sources or invented citations.
+If a correction asks for evidence or a probability that is absent from the rejected report, remove or explicitly qualify the claim instead of inventing support.
 
 Required corrections:
 {correction_text}
@@ -682,6 +683,12 @@ Report:
 
 Score these dimensions: thesis_and_logic (0-25), evidence_and_citations (0-25), uncertainty_and_scenarios (0-25), strategic_usefulness (0-25).
 Check for internal contradictions, unsupported high-risk claims, filler, repetition, incomplete sentences, unsupported scenario probabilities, and recommendations without an evidence rationale.
+
+Evidence-discipline rules:
+- Qualitative base, upside and downside triggers are valid when the evidence contains no defensible probabilities. Never penalize omitted probabilities or request invented probability values.
+- If a claim lacks support in the report, instruct the author to remove or qualify it; do not request new outside facts, sources, thresholds or calculations.
+- Do not require direct numerical comparisons between unlike units, geographies or time bases. Require a qualitative comparison or an explicit comparability limitation instead.
+- Treat a clearly labeled unresolved possibility as uncertainty, not a critical issue. Reserve critical_issues for publication-blocking contradictions, unsupported material conclusions, fabricated evidence, or recommendations that remain ungrounded.
 
 Return exactly:
 {{

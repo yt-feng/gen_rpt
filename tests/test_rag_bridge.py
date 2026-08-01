@@ -903,6 +903,21 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertTrue(WebReportPipeline._editorial_audit_passed(passing))
         self.assertFalse(WebReportPipeline._editorial_audit_passed(failing))
 
+    def test_editorial_audit_does_not_request_unsupported_probabilities(self):
+        client = Mock()
+        client.chat_json.return_value = {"score": 80}
+        pipeline = WebReportPipeline(client)
+
+        pipeline._audit_report_content(
+            {"title": "Conditional resilience investment"},
+            {"selected_modules": ["base, upside and downside scenarios"]},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("Never penalize omitted probabilities", prompt)
+        self.assertIn("remove or qualify it", prompt)
+        self.assertIn("Do not require direct numerical comparisons between unlike units", prompt)
+
     def test_nested_table_numbers_are_inside_the_rag_quality_boundary(self):
         exhibit = {
             "type": "table",
