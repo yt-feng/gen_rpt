@@ -383,9 +383,41 @@ class WebReportPipeline:
                 source_count=len(sources),
             )
         if final_quality_issues:
-            message = "Final report content quality gate failed: " + " | ".join(final_quality_issues)
-            (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
-            raise ReportQualityError(message)
+            self._log("PHASE final_quality_rescue started | issues=" + " | ".join(final_quality_issues[:6]))
+            report = self._revise_report_draft(report, final_quality_issues, storyline_plan)
+            report, _rescue_draft_issues = self._prepare_report_draft(
+                report,
+                topic=display_topic,
+                grounding_text=grounding_text,
+                source_count=len(sources),
+                source_chunks=rag_source_chunks,
+                approved_evidence=approved_evidence,
+            )
+            report = normalize_web_report(
+                report,
+                topic=display_topic,
+                language=self.language,
+                allow_synthetic_fallbacks=not bool(self.rag_context),
+            )
+            if self.rag_context:
+                final_quality_issues = rag_report_quality_issues(
+                    report,
+                    topic=display_topic,
+                    context_text=grounding_text,
+                    source_count=len(sources),
+                    source_chunks=rag_source_chunks,
+                )
+            else:
+                final_quality_issues = report_content_quality_issues(
+                    report,
+                    topic=display_topic,
+                    context_text=grounding_text,
+                    source_count=len(sources),
+                )
+            if final_quality_issues:
+                message = "Final report content quality gate failed: " + " | ".join(final_quality_issues)
+                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+                raise ReportQualityError(message)
         if self.rag_context:
             evidence_issues = combined_evidence_quality_issues(
                 report,
