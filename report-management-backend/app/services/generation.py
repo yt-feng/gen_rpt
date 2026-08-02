@@ -47,7 +47,7 @@ class GitHubActionsWorker(WorkerInterface):
             "inputs": {
                 "topic": job.topic,
                 "slug": slug,
-                "rag_required": "true",
+                "rag_required": str(bool((job.audit_metadata or {}).get("rag_required", True))).lower(),
             }
         }
         
@@ -833,7 +833,8 @@ class GenerationService:
         topic: str,
         prompt: str,
         report_type: str,
-        created_by: uuid.UUID
+        created_by: uuid.UUID,
+        rag_required: bool = False,
     ) -> GenerationJob:
         job = GenerationJob(
             id=uuid.uuid4(),
@@ -842,6 +843,7 @@ class GenerationService:
             prompt=prompt,
             report_type=report_type,
             created_by=created_by,
+            audit_metadata={"rag_required": rag_required},
             status=JobStatusType.pending,
             started=datetime.now(timezone.utc)
         )

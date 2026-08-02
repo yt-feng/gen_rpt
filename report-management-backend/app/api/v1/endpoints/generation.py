@@ -29,6 +29,15 @@ class CreateJobRequest(BaseModel):
     industry: Optional[str] = None
     report_type: str = "technical"
     collection_ids: Optional[List[UUID]] = None
+    rag_required: bool = False
+
+
+def _require_validated_evidence(required: bool, validated_chunks: list) -> None:
+    if required and not validated_chunks:
+        raise HTTPException(
+            status_code=422,
+            detail="RAG generation requires validated evidence, but no matching evidence was found. Upload and process relevant documents, then try again.",
+        )
 
 
 @router.post("/jobs", response_model=APIResponse[dict])
@@ -96,14 +105,13 @@ async def create_job(
                 slug=slug_val
             )
             validated_chunks = context_package.get("validated_chunks", [])
-            if not validated_chunks:
-                raise HTTPException(
-                    status_code=422,
-                    detail="RAG generation requires validated evidence, but no matching evidence was found. Upload and process relevant documents, then try again.",
-                )
+            _require_validated_evidence(req.rag_required, validated_chunks)
             rag_state = {
                 "requested": True,
-                "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
+                "status": (
+                    context_package.get("context_metadata", {}).get("rag_status", "ready")
+                    if validated_chunks else "no_matching_evidence"
+                ),
                 "chunk_count": len(validated_chunks),
                 "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
                 "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
@@ -127,7 +135,8 @@ async def create_job(
         topic=req.topic,
         prompt=prompt,
         report_type=req.report_type,
-        created_by=UUID(user["id"])
+        created_by=UUID(user["id"]),
+        rag_required=req.rag_required,
     )
     job.audit_metadata = {**(job.audit_metadata or {}), "rag": rag_state}
     await db.commit()

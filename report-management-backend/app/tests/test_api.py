@@ -1,8 +1,19 @@
 import pytest
 from httpx import AsyncClient, ASGITransport
+from fastapi import HTTPException
 from app.main import app
 from app.core.config import settings
-from app.api.v1.endpoints import reports
+from app.api.v1.endpoints import generation, reports
+
+
+def test_generation_rag_gate_is_opt_in():
+    request = generation.CreateJobRequest(topic="Unrelated public research topic")
+    generation._require_validated_evidence(request.rag_required, [])
+
+    with pytest.raises(HTTPException) as exc:
+        generation._require_validated_evidence(True, [])
+    assert exc.value.status_code == 422
+
 
 @pytest.mark.asyncio
 async def test_api_standard_response():
