@@ -1,0 +1,128 @@
+{
+  "report_archetype": "market_investment",
+  "selected_modules": [
+    "source and forecast comparison",
+    "base, upside and downside scenarios",
+    "sensitivity drivers",
+    "segment and micro-market implications",
+    "investment recommendations"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "Should we invest in developing and marketing a China-UAE climate technology transfer package for flood-resilience systems, and if so, what is the optimal product scope, target segments, and go-to-market strategy?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: funding, timeline, market, cost",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "In September 2023, the UAE introduced an optional savings program for private sector and free zone employees to contribute up to 25 percent of their income to an investment account and receive employer contributions of between 5.83 percent and 8.33 percent.",
+    "In September 2023, the UAE introduced an optional savings program for private sector and free zone employees to contribute up to 25 percent of their income to an investment account and receive employer contributions of between 5.83 percent and 8.33 percent.",
+    "In September 2023, the UAE introduced an optional savings program for private sector and free zone employees to contribute up to 25 percent of their income to an investment account and receive employer contributions of between 5.83 percent and 8.33 percent.",
+    "In March 2025, the UAE committed to a 10-year, $1.4 trillion investment framework focusing on AI, frontier technologies, energy, and manufacturing.",
+    "During the first half of 2024, there was a 62 percent growth in the wealth management sector of Dubai’s financial hub, according to the Dubai Financial Services Authority (DFSA).",
+    "In March 2025, the Cabinet approved National Investment Strategy 2031 aiming to more than double total foreign investment inflows from $30.5 billion in 2023 to $65.3 billion by 2031."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The UAE and Gulf region face increasing storm intensity and frequency, creating a tangible demand for flood-resilience infrastructure, but current market offerings are fragmented and lack integrated solutions.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: China's 2026 flood response has accelerated the maturity and proven effectiveness of technologies such as urban drainage systems, slope monitoring, mobile pumping, and satellite communication, making them credible and transferable to the UAE context.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: UAE government entities and large developers are likely to prioritize climate resilience investments due to long-term sustainability goals and recent extreme weather events, but they require solutions that are locally adapted and compliant with Gulf standards.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: A successful market entry requires forming strategic partnerships with UAE-based engineering firms or government-linked entities to navigate regulatory requirements and establish trust.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The integrated solution can be priced competitively by leveraging China's manufacturing scale and operational experience, but long-term profitability depends on securing recurring revenue from maintenance, monitoring, and data analytics services.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

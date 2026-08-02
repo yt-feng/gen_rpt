@@ -1,0 +1,567 @@
+{
+  "decision_question": "Should we invest in developing and marketing a China-UAE climate technology transfer package for flood-resilience systems, and if so, what is the optimal product scope, target segments, and go-to-market strategy?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The UAE and Gulf region face increasing storm intensity and frequency, creating a tangible demand for flood-resilience infrastructure, but current market offerings are fragmented and lack integrated solutions.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: China's 2026 flood response has accelerated the maturity and proven effectiveness of technologies such as urban drainage systems, slope monitoring, mobile pumping, and satellite communication, making them credible and transferable to the UAE context.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: UAE government entities and large developers are likely to prioritize climate resilience investments due to long-term sustainability goals and recent extreme weather events, but they require solutions that are locally adapted and compliant with Gulf standards.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: A successful market entry requires forming strategic partnerships with UAE-based engineering firms or government-linked entities to navigate regulatory requirements and establish trust.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The integrated solution can be priced competitively by leveraging China's manufacturing scale and operational experience, but long-term profitability depends on securing recurring revenue from maintenance, monitoring, and data analytics services.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk total market size segment share",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk customer count price ARPU",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk pilot customer conversion",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk ROI cost savings case study",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk capacity utilization unit price",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating Storm Risk project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "UAE and Gulf region historical and projected storm frequency and intensity data (e.g., from meteorological agencies).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "UAE government climate adaptation plans, building codes, and infrastructure investment budgets.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Competitive landscape analysis of existing flood-resilience solution providers in the UAE/Gulf.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Regulatory requirements for importing and deploying technology systems in the UAE (e.g., standards, certifications).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Cost benchmarks for similar infrastructure projects in the Gulf region.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Case studies of successful technology transfer from China to Gulf countries in related fields.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Potential partner identification and assessment (e.g., local engineering firms, government entities).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Financing options and incentives for climate resilience projects in the UAE (e.g., green bonds, government funds).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "UAE and Gulf Region Storm Frequency and Intensity Trends (1990-2025)",
+      "chart_type": "line",
+      "executive_question": "Are Gulf cities facing escalating storm risk that creates a need for flood-resilience systems?",
+      "required_metrics": [
+        "Annual number of storm events (e.g., tropical storms, cyclones, extreme rainfall events) in UAE/Gulf region, 1990-2025",
+        "Annual maximum rainfall intensity (mm/hour) or storm surge height (meters) in UAE/Gulf region, 1990-2025",
+        "Annual economic losses (USD) due to storm events in UAE/Gulf region, 1990-2025"
+      ],
+      "comparison_set": [
+        "UAE vs. other Gulf states (Saudi Arabia, Oman, Qatar, Bahrain, Kuwait) or Gulf region vs. global average"
+      ],
+      "preferred_sources": [
+        "UAE National Center of Meteorology (NCM)",
+        "World Meteorological Organization (WMO)",
+        "EM-DAT International Disaster Database",
+        "IPCC reports on regional climate projections"
+      ],
+      "search_queries": [
+        "UAE storm frequency intensity historical data 1990-2025",
+        "Gulf region extreme weather events trend data EM-DAT",
+        "UAE rainfall intensity climate change projections"
+      ],
+      "data_quality_rule": "Use official meteorological data or peer-reviewed studies. If annual data is incomplete, interpolate using linear regression or use 5-year moving averages, clearly marking estimates. Do not present two endpoints as a trend.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the market demand by showing the upward trend in storm events and intensity in the UAE and Gulf region over time.",
+      "pre_exhibit_context": "Before presenting this chart, the report will have introduced the hypothesis that Gulf cities face escalating storm risk. This exhibit provides the quantitative evidence to support that claim.",
+      "post_exhibit_takeaway": "The data confirms a statistically significant increase in storm frequency and intensity in the Gulf region over the past three decades, validating the demand for flood-resilience systems."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "UAE Government Climate Adaptation and Infrastructure Investment Budgets (2020-2030)",
+      "chart_type": "line",
+      "executive_question": "Do UAE municipalities, developers, and free zones have budget or financing mechanisms for such systems?",
+      "required_metrics": [
+        "Annual UAE federal and emirate-level budget allocations for climate adaptation and infrastructure (USD), 2020-2030",
+        "Annual UAE green bond issuances or climate finance flows (USD), 2020-2030",
+        "Annual UAE infrastructure spending (USD) by sector (e.g., water, transport, urban development), 2020-2030"
+      ],
+      "comparison_set": [
+        "UAE vs. other Gulf states or UAE federal vs. emirate-level budgets"
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Finance",
+        "UAE Ministry of Climate Change and Environment",
+        "World Bank Climate Finance data",
+        "UAE government budget documents and announcements"
+      ],
+      "search_queries": [
+        "UAE climate adaptation budget 2020-2030",
+        "UAE green bond issuance climate finance 2020-2030",
+        "UAE infrastructure investment budget 2025"
+      ],
+      "data_quality_rule": "Use official government budget documents or verified financial reports. If annual data is not available, use announced multi-year commitments and distribute evenly, marking as estimates. Do not use speculative figures.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Demonstrates the financial capacity and commitment of UAE government entities to invest in climate resilience, supporting the market opportunity.",
+      "pre_exhibit_context": "The report will have established the storm risk. This exhibit shows that the UAE government is allocating significant budgets to climate adaptation, indicating a willingness to fund solutions.",
+      "post_exhibit_takeaway": "UAE government investment in climate adaptation is substantial and growing, providing a clear funding source for flood-resilience projects."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Competitive Landscape: Existing Flood-Resilience Solution Providers in UAE/Gulf",
+      "chart_type": "bubble",
+      "executive_question": "Who are the existing providers in the UAE/Gulf for similar solutions, and how does our offering compare?",
+      "required_metrics": [
+        "Number of flood-resilience solution providers in UAE/Gulf (by segment: urban drainage, slope monitoring, mobile pumping, satellite comms, insurance)",
+        "Market share (%) of top providers in each segment",
+        "Revenue (USD) of top providers in the region",
+        "Geographic coverage (number of emirates/cities served)",
+        "Technology maturity (e.g., number of projects deployed, years in operation)"
+      ],
+      "comparison_set": [
+        "Competitors by segment and size (bubble size = revenue, x-axis = technology maturity, y-axis = market share)"
+      ],
+      "preferred_sources": [
+        "Industry reports (e.g., Frost & Sullivan, McKinsey, Deloitte)",
+        "Company annual reports and websites",
+        "Government procurement databases",
+        "Trade associations (e.g., Middle East Smart Cities Council)"
+      ],
+      "search_queries": [
+        "flood resilience solution providers UAE Gulf market",
+        "urban drainage systems Middle East companies",
+        "smart city flood management vendors Dubai"
+      ],
+      "data_quality_rule": "Use publicly available company data and industry reports. If exact revenue is not disclosed, use estimates from industry analysts and mark as approximate. Do not include unverified startups.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Positions the China-UAE integrated solution against existing competitors, highlighting gaps in the market.",
+      "pre_exhibit_context": "The report will have discussed the solution's components. This exhibit maps the competitive landscape to show where the integrated solution fits.",
+      "post_exhibit_takeaway": "The competitive landscape is fragmented, with few providers offering integrated solutions. This creates an opportunity for a comprehensive China-UAE offering."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Regulatory and Adoption Gates for Climate Resilience Technologies in UAE",
+      "chart_type": "timeline",
+      "executive_question": "Are there UAE or Gulf-wide regulations, building codes, or climate adaptation mandates that would compel adoption?",
+      "required_metrics": [
+        "Key regulatory milestones (e.g., building code updates, climate adaptation strategies, mandatory flood risk assessments) with dates (year)",
+        "Adoption rates (%) of climate resilience technologies in new developments (if available)",
+        "Number of projects requiring compliance with new regulations (if available)"
+      ],
+      "comparison_set": [
+        "UAE vs. other Gulf states (e.g., Saudi Vision 2030, Qatar National Vision 2030)"
+      ],
+      "preferred_sources": [
+        "UAE government official gazette and regulatory bodies (e.g., Dubai Municipality, Abu Dhabi Urban Planning Council)",
+        "Gulf Cooperation Council (GCC) standardization organization",
+        "International Code Council (ICC) reports on Gulf building codes"
+      ],
+      "search_queries": [
+        "UAE building code flood resilience requirements 2025",
+        "Dubai climate adaptation strategy regulations",
+        "GCC building codes climate resilience"
+      ],
+      "data_quality_rule": "Use official regulatory documents and announcements. If exact dates are not available, use year of publication or enforcement. Do not speculate on future regulations.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows the regulatory milestones and adoption gates that will influence market entry and timing.",
+      "pre_exhibit_context": "The report will have discussed the need for regulatory compliance. This exhibit maps the regulatory landscape and upcoming changes.",
+      "post_exhibit_takeaway": "The UAE is actively updating building codes and climate regulations, creating a favorable environment for early movers who can align with these standards."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "Cost Benchmarks for Flood-Resilience Infrastructure Projects in Gulf Region",
+      "chart_type": "bar",
+      "executive_question": "What are the estimated costs for developing, marketing, and deploying the solution?",
+      "required_metrics": [
+        "Average cost per project (USD) for urban drainage systems, slope monitoring, mobile pumping, satellite communication, and insurance modeling in Gulf region",
+        "Cost per square kilometer (USD) for flood protection infrastructure",
+        "Cost per unit (e.g., per pump, per sensor) for key equipment",
+        "Project duration (months) and cost overrun rates (%)"
+      ],
+      "comparison_set": [
+        "By solution component and by country (UAE, Saudi Arabia, Qatar, etc.)"
+      ],
+      "preferred_sources": [
+        "World Bank project documents",
+        "Asian Infrastructure Investment Bank (AIIB) reports",
+        "Industry cost databases (e.g., RSMeans, Turner & Townsend)",
+        "Academic studies on infrastructure costs in Gulf"
+      ],
+      "search_queries": [
+        "flood protection infrastructure cost per km UAE",
+        "urban drainage system cost Middle East",
+        "slope monitoring system cost Gulf"
+      ],
+      "data_quality_rule": "Use published cost data from credible sources. If exact costs are not available, use ranges and mark as estimates. Do not use proprietary or confidential data.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides cost benchmarks to inform financial modeling and pricing strategy.",
+      "pre_exhibit_context": "The report will have discussed the solution's components. This exhibit shows typical costs for similar projects in the region.",
+      "post_exhibit_takeaway": "Cost benchmarks indicate that integrated flood-resilience projects are capital-intensive but within the range of typical infrastructure investments in the Gulf."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Financing Options and Incentives for Climate Resilience Projects in UAE",
+      "chart_type": "bar",
+      "executive_question": "Do UAE municipalities, developers, and free zones have budget or financing mechanisms for such systems?",
+      "required_metrics": [
+        "Total value (USD) of green bonds issued in UAE, 2020-2025",
+        "Size of government climate funds (USD) (e.g., UAE Green Fund, Masdar)",
+        "Number and value (USD) of public-private partnership (PPP) projects in climate infrastructure",
+        "Incentive programs (e.g., tax breaks, subsidies) with monetary value (USD)"
+      ],
+      "comparison_set": [
+        "By financing type (green bonds, government funds, PPPs, incentives) and by year"
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Finance",
+        "Abu Dhabi Securities Exchange (ADX) green bond listings",
+        "World Bank PPP database",
+        "UAE government incentive program announcements"
+      ],
+      "search_queries": [
+        "UAE green bonds climate finance 2020-2025",
+        "UAE government climate fund size",
+        "UAE PPP climate infrastructure projects"
+      ],
+      "data_quality_rule": "Use official financial data and announcements. If exact values are not available, use ranges and mark as estimates. Do not include speculative or unannounced funds.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Identifies available financing mechanisms and incentives that can support the business case for clients.",
+      "pre_exhibit_context": "The report will have discussed budget availability. This exhibit details the specific financing options and incentives available.",
+      "post_exhibit_takeaway": "A range of financing options, including green bonds, government funds, and public-private partnerships, are available to support climate resilience projects in the UAE."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "China's 2026 Flood Response: Technology Deployment and Effectiveness",
+      "chart_type": "timeline",
+      "executive_question": "Can China's flood-resilience technologies be adapted to UAE's climate, infrastructure, and regulatory context?",
+      "required_metrics": [
+        "Number of cities/provinces where each technology was deployed during 2026 floods",
+        "Response time (hours) for mobile pumping units",
+        "Number of slope monitoring sensors installed",
+        "Satellite communication coverage area (square kilometers)",
+        "Insurance claims processed (number and value in USD) using parametric models",
+        "Effectiveness metrics (e.g., reduction in flood damage, lives saved)"
+      ],
+      "comparison_set": [
+        "By technology component and by region within China"
+      ],
+      "preferred_sources": [
+        "Chinese government reports (e.g., Ministry of Emergency Management)",
+        "Company announcements from Chinese technology providers",
+        "News articles from reputable sources (e.g., Xinhua, Reuters)",
+        "Academic case studies"
+      ],
+      "search_queries": [
+        "China 2026 flood response technology deployment",
+        "China flood control mobile pumping satellite communication 2026",
+        "China slope monitoring system flood 2026"
+      ],
+      "data_quality_rule": "Use official reports and verified news sources. If exact metrics are not available, use qualitative descriptions and mark as qualitative. Do not fabricate quantitative data.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Showcases China's proven experience and the maturity of its technologies, building credibility for transferability.",
+      "pre_exhibit_context": "The report will have introduced the solution components. This exhibit provides evidence of their real-world deployment and effectiveness during China's 2026 floods.",
+      "post_exhibit_takeaway": "China's 2026 flood response demonstrated the effectiveness of these technologies at scale, providing a strong proof point for their transferability to the UAE."
+    }
+  ],
+  "storyline_plan": {
+    "report_archetype": "market_investment",
+    "selected_modules": [
+      "source and forecast comparison",
+      "base, upside and downside scenarios",
+      "sensitivity drivers",
+      "segment and micro-market implications",
+      "investment recommendations"
+    ],
+    "coverage_requirements": [
+      "executive thesis",
+      "source-backed findings",
+      "causal mechanisms",
+      "counter-evidence and risks",
+      "decision implications",
+      "evidence-based actions"
+    ],
+    "core_question": "Should we invest in developing and marketing a China-UAE climate technology transfer package for flood-resilience systems, and if so, what is the optimal product scope, target segments, and go-to-market strategy?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: funding, timeline, market, cost",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "In September 2023, the UAE introduced an optional savings program for private sector and free zone employees to contribute up to 25 percent of their income to an investment account and receive employer contributions of between 5.83 percent and 8.33 percent.",
+      "In September 2023, the UAE introduced an optional savings program for private sector and free zone employees to contribute up to 25 percent of their income to an investment account and receive employer contributions of between 5.83 percent and 8.33 percent.",
+      "In September 2023, the UAE introduced an optional savings program for private sector and free zone employees to contribute up to 25 percent of their income to an investment account and receive employer contributions of between 5.83 percent and 8.33 percent.",
+      "In March 2025, the UAE committed to a 10-year, $1.4 trillion investment framework focusing on AI, frontier technologies, energy, and manufacturing.",
+      "During the first half of 2024, there was a 62 percent growth in the wealth management sector of Dubai’s financial hub, according to the Dubai Financial Services Authority (DFSA).",
+      "In March 2025, the Cabinet approved National Investment Strategy 2031 aiming to more than double total foreign investment inflows from $30.5 billion in 2023 to $65.3 billion by 2031."
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "H1: The UAE and Gulf region face increasing storm intensity and frequency, creating a tangible demand for flood-resilience infrastructure, but current market offerings are fragmented and lack integrated solutions.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H2",
+        "hypothesis": "H2: China's 2026 flood response has accelerated the maturity and proven effectiveness of technologies such as urban drainage systems, slope monitoring, mobile pumping, and satellite communication, making them credible and transferable to the UAE context.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H3",
+        "hypothesis": "H3: UAE government entities and large developers are likely to prioritize climate resilience investments due to long-term sustainability goals and recent extreme weather events, but they require solutions that are locally adapted and compliant with Gulf standards.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H4",
+        "hypothesis": "H4: A successful market entry requires forming strategic partnerships with UAE-based engineering firms or government-linked entities to navigate regulatory requirements and establish trust.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H5",
+        "hypothesis": "H5: The integrated solution can be priced competitively by leveraging China's manufacturing scale and operational experience, but long-term profitability depends on securing recurring revenue from maintenance, monitoring, and data analytics services.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

@@ -1,0 +1,225 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "UAE and Gulf Region Storm Frequency and Intensity Trends (1990-2025)",
+    "chart_type": "line",
+    "executive_question": "Are Gulf cities facing escalating storm risk that creates a need for flood-resilience systems?",
+    "required_metrics": [
+      "Annual number of storm events (e.g., tropical storms, cyclones, extreme rainfall events) in UAE/Gulf region, 1990-2025",
+      "Annual maximum rainfall intensity (mm/hour) or storm surge height (meters) in UAE/Gulf region, 1990-2025",
+      "Annual economic losses (USD) due to storm events in UAE/Gulf region, 1990-2025"
+    ],
+    "comparison_set": [
+      "UAE vs. other Gulf states (Saudi Arabia, Oman, Qatar, Bahrain, Kuwait) or Gulf region vs. global average"
+    ],
+    "preferred_sources": [
+      "UAE National Center of Meteorology (NCM)",
+      "World Meteorological Organization (WMO)",
+      "EM-DAT International Disaster Database",
+      "IPCC reports on regional climate projections"
+    ],
+    "search_queries": [
+      "UAE storm frequency intensity historical data 1990-2025",
+      "Gulf region extreme weather events trend data EM-DAT",
+      "UAE rainfall intensity climate change projections"
+    ],
+    "data_quality_rule": "Use official meteorological data or peer-reviewed studies. If annual data is incomplete, interpolate using linear regression or use 5-year moving averages, clearly marking estimates. Do not present two endpoints as a trend.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the market demand by showing the upward trend in storm events and intensity in the UAE and Gulf region over time.",
+    "pre_exhibit_context": "Before presenting this chart, the report will have introduced the hypothesis that Gulf cities face escalating storm risk. This exhibit provides the quantitative evidence to support that claim.",
+    "post_exhibit_takeaway": "The data confirms a statistically significant increase in storm frequency and intensity in the Gulf region over the past three decades, validating the demand for flood-resilience systems."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "UAE Government Climate Adaptation and Infrastructure Investment Budgets (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "Do UAE municipalities, developers, and free zones have budget or financing mechanisms for such systems?",
+    "required_metrics": [
+      "Annual UAE federal and emirate-level budget allocations for climate adaptation and infrastructure (USD), 2020-2030",
+      "Annual UAE green bond issuances or climate finance flows (USD), 2020-2030",
+      "Annual UAE infrastructure spending (USD) by sector (e.g., water, transport, urban development), 2020-2030"
+    ],
+    "comparison_set": [
+      "UAE vs. other Gulf states or UAE federal vs. emirate-level budgets"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Finance",
+      "UAE Ministry of Climate Change and Environment",
+      "World Bank Climate Finance data",
+      "UAE government budget documents and announcements"
+    ],
+    "search_queries": [
+      "UAE climate adaptation budget 2020-2030",
+      "UAE green bond issuance climate finance 2020-2030",
+      "UAE infrastructure investment budget 2025"
+    ],
+    "data_quality_rule": "Use official government budget documents or verified financial reports. If annual data is not available, use announced multi-year commitments and distribute evenly, marking as estimates. Do not use speculative figures.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the financial capacity and commitment of UAE government entities to invest in climate resilience, supporting the market opportunity.",
+    "pre_exhibit_context": "The report will have established the storm risk. This exhibit shows that the UAE government is allocating significant budgets to climate adaptation, indicating a willingness to fund solutions.",
+    "post_exhibit_takeaway": "UAE government investment in climate adaptation is substantial and growing, providing a clear funding source for flood-resilience projects."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Competitive Landscape: Existing Flood-Resilience Solution Providers in UAE/Gulf",
+    "chart_type": "bubble",
+    "executive_question": "Who are the existing providers in the UAE/Gulf for similar solutions, and how does our offering compare?",
+    "required_metrics": [
+      "Number of flood-resilience solution providers in UAE/Gulf (by segment: urban drainage, slope monitoring, mobile pumping, satellite comms, insurance)",
+      "Market share (%) of top providers in each segment",
+      "Revenue (USD) of top providers in the region",
+      "Geographic coverage (number of emirates/cities served)",
+      "Technology maturity (e.g., number of projects deployed, years in operation)"
+    ],
+    "comparison_set": [
+      "Competitors by segment and size (bubble size = revenue, x-axis = technology maturity, y-axis = market share)"
+    ],
+    "preferred_sources": [
+      "Industry reports (e.g., Frost & Sullivan, McKinsey, Deloitte)",
+      "Company annual reports and websites",
+      "Government procurement databases",
+      "Trade associations (e.g., Middle East Smart Cities Council)"
+    ],
+    "search_queries": [
+      "flood resilience solution providers UAE Gulf market",
+      "urban drainage systems Middle East companies",
+      "smart city flood management vendors Dubai"
+    ],
+    "data_quality_rule": "Use publicly available company data and industry reports. If exact revenue is not disclosed, use estimates from industry analysts and mark as approximate. Do not include unverified startups.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Positions the China-UAE integrated solution against existing competitors, highlighting gaps in the market.",
+    "pre_exhibit_context": "The report will have discussed the solution's components. This exhibit maps the competitive landscape to show where the integrated solution fits.",
+    "post_exhibit_takeaway": "The competitive landscape is fragmented, with few providers offering integrated solutions. This creates an opportunity for a comprehensive China-UAE offering."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Regulatory and Adoption Gates for Climate Resilience Technologies in UAE",
+    "chart_type": "timeline",
+    "executive_question": "Are there UAE or Gulf-wide regulations, building codes, or climate adaptation mandates that would compel adoption?",
+    "required_metrics": [
+      "Key regulatory milestones (e.g., building code updates, climate adaptation strategies, mandatory flood risk assessments) with dates (year)",
+      "Adoption rates (%) of climate resilience technologies in new developments (if available)",
+      "Number of projects requiring compliance with new regulations (if available)"
+    ],
+    "comparison_set": [
+      "UAE vs. other Gulf states (e.g., Saudi Vision 2030, Qatar National Vision 2030)"
+    ],
+    "preferred_sources": [
+      "UAE government official gazette and regulatory bodies (e.g., Dubai Municipality, Abu Dhabi Urban Planning Council)",
+      "Gulf Cooperation Council (GCC) standardization organization",
+      "International Code Council (ICC) reports on Gulf building codes"
+    ],
+    "search_queries": [
+      "UAE building code flood resilience requirements 2025",
+      "Dubai climate adaptation strategy regulations",
+      "GCC building codes climate resilience"
+    ],
+    "data_quality_rule": "Use official regulatory documents and announcements. If exact dates are not available, use year of publication or enforcement. Do not speculate on future regulations.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the regulatory milestones and adoption gates that will influence market entry and timing.",
+    "pre_exhibit_context": "The report will have discussed the need for regulatory compliance. This exhibit maps the regulatory landscape and upcoming changes.",
+    "post_exhibit_takeaway": "The UAE is actively updating building codes and climate regulations, creating a favorable environment for early movers who can align with these standards."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Cost Benchmarks for Flood-Resilience Infrastructure Projects in Gulf Region",
+    "chart_type": "bar",
+    "executive_question": "What are the estimated costs for developing, marketing, and deploying the solution?",
+    "required_metrics": [
+      "Average cost per project (USD) for urban drainage systems, slope monitoring, mobile pumping, satellite communication, and insurance modeling in Gulf region",
+      "Cost per square kilometer (USD) for flood protection infrastructure",
+      "Cost per unit (e.g., per pump, per sensor) for key equipment",
+      "Project duration (months) and cost overrun rates (%)"
+    ],
+    "comparison_set": [
+      "By solution component and by country (UAE, Saudi Arabia, Qatar, etc.)"
+    ],
+    "preferred_sources": [
+      "World Bank project documents",
+      "Asian Infrastructure Investment Bank (AIIB) reports",
+      "Industry cost databases (e.g., RSMeans, Turner & Townsend)",
+      "Academic studies on infrastructure costs in Gulf"
+    ],
+    "search_queries": [
+      "flood protection infrastructure cost per km UAE",
+      "urban drainage system cost Middle East",
+      "slope monitoring system cost Gulf"
+    ],
+    "data_quality_rule": "Use published cost data from credible sources. If exact costs are not available, use ranges and mark as estimates. Do not use proprietary or confidential data.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides cost benchmarks to inform financial modeling and pricing strategy.",
+    "pre_exhibit_context": "The report will have discussed the solution's components. This exhibit shows typical costs for similar projects in the region.",
+    "post_exhibit_takeaway": "Cost benchmarks indicate that integrated flood-resilience projects are capital-intensive but within the range of typical infrastructure investments in the Gulf."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Financing Options and Incentives for Climate Resilience Projects in UAE",
+    "chart_type": "bar",
+    "executive_question": "Do UAE municipalities, developers, and free zones have budget or financing mechanisms for such systems?",
+    "required_metrics": [
+      "Total value (USD) of green bonds issued in UAE, 2020-2025",
+      "Size of government climate funds (USD) (e.g., UAE Green Fund, Masdar)",
+      "Number and value (USD) of public-private partnership (PPP) projects in climate infrastructure",
+      "Incentive programs (e.g., tax breaks, subsidies) with monetary value (USD)"
+    ],
+    "comparison_set": [
+      "By financing type (green bonds, government funds, PPPs, incentives) and by year"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Finance",
+      "Abu Dhabi Securities Exchange (ADX) green bond listings",
+      "World Bank PPP database",
+      "UAE government incentive program announcements"
+    ],
+    "search_queries": [
+      "UAE green bonds climate finance 2020-2025",
+      "UAE government climate fund size",
+      "UAE PPP climate infrastructure projects"
+    ],
+    "data_quality_rule": "Use official financial data and announcements. If exact values are not available, use ranges and mark as estimates. Do not include speculative or unannounced funds.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies available financing mechanisms and incentives that can support the business case for clients.",
+    "pre_exhibit_context": "The report will have discussed budget availability. This exhibit details the specific financing options and incentives available.",
+    "post_exhibit_takeaway": "A range of financing options, including green bonds, government funds, and public-private partnerships, are available to support climate resilience projects in the UAE."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "China's 2026 Flood Response: Technology Deployment and Effectiveness",
+    "chart_type": "timeline",
+    "executive_question": "Can China's flood-resilience technologies be adapted to UAE's climate, infrastructure, and regulatory context?",
+    "required_metrics": [
+      "Number of cities/provinces where each technology was deployed during 2026 floods",
+      "Response time (hours) for mobile pumping units",
+      "Number of slope monitoring sensors installed",
+      "Satellite communication coverage area (square kilometers)",
+      "Insurance claims processed (number and value in USD) using parametric models",
+      "Effectiveness metrics (e.g., reduction in flood damage, lives saved)"
+    ],
+    "comparison_set": [
+      "By technology component and by region within China"
+    ],
+    "preferred_sources": [
+      "Chinese government reports (e.g., Ministry of Emergency Management)",
+      "Company announcements from Chinese technology providers",
+      "News articles from reputable sources (e.g., Xinhua, Reuters)",
+      "Academic case studies"
+    ],
+    "search_queries": [
+      "China 2026 flood response technology deployment",
+      "China flood control mobile pumping satellite communication 2026",
+      "China slope monitoring system flood 2026"
+    ],
+    "data_quality_rule": "Use official reports and verified news sources. If exact metrics are not available, use qualitative descriptions and mark as qualitative. Do not fabricate quantitative data.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Showcases China's proven experience and the maturity of its technologies, building credibility for transferability.",
+    "pre_exhibit_context": "The report will have introduced the solution components. This exhibit provides evidence of their real-world deployment and effectiveness during China's 2026 floods.",
+    "post_exhibit_takeaway": "China's 2026 flood response demonstrated the effectiveness of these technologies at scale, providing a strong proof point for their transferability to the UAE."
+  }
+]
