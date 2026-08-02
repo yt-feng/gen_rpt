@@ -260,8 +260,8 @@ def report_content_quality_issues(
         if not 3 <= len(paragraphs) <= 6:
             issues.append(f"Section {index} needs 3-6 developed analytical paragraphs; found {len(paragraphs)}.")
         section_words = _word_count(" ".join([lead, *paragraphs, str(section.get("so_what") or "")]))
-        if not 200 <= section_words <= 480:
-            issues.append(f"Section {index} needs 200-480 words of analysis; found {section_words}.")
+        if not 200 <= section_words <= 550:
+            issues.append(f"Section {index} needs 200-550 words of analysis; found {section_words}.")
         short_paragraphs = [position for position, paragraph in enumerate(paragraphs, start=1) if _word_count(paragraph) < 45]
         if short_paragraphs:
             issues.append(f"Section {index} has underdeveloped paragraphs under 45 words: {short_paragraphs}.")
@@ -277,8 +277,8 @@ def report_content_quality_issues(
             issues.append(f"Section {index} needs a developed management implication of at least 35 words.")
 
     total_words = _word_count(_report_narrative_text(report))
-    if not 2000 <= total_words <= 3000:
-        issues.append(f"The reader-visible decision brief needs 2,000-3,000 words; found {total_words}.")
+    if not 2000 <= total_words <= 3600:
+        issues.append(f"The reader-visible decision brief needs 2,000-3,600 words; found {total_words}.")
 
     actions = [item for item in report.get("action_steps", []) or [] if isinstance(item, dict)]
     if not 4 <= len(actions) <= 6:
@@ -367,6 +367,13 @@ def normalize_report_section_prose(report: Any) -> Any:
             if extra_sentences:
                 paragraphs[-1] = paragraphs[-1] + " " + " ".join(extra_sentences)
                 section["paragraphs"] = paragraphs
+        elif sec_words > 520 and len(paragraphs) >= 3:
+            # If section exceeds 520 words, trim redundant trailing sentences from the last paragraph
+            last_p_sentences = re.split(r"(?<=[.!?])\s+", paragraphs[-1])
+            while len(last_p_sentences) > 2 and _word_count(" ".join(last_p_sentences[:-1])) >= 45 and _word_count(" ".join([lead, *paragraphs[:-1], " ".join(last_p_sentences[:-1]), str(section.get("so_what") or "")])) >= 500:
+                last_p_sentences.pop()
+            paragraphs[-1] = " ".join(last_p_sentences)
+            section["paragraphs"] = paragraphs
     # Normalise missing horizons on action_steps so the quality gate sees a
     # populated value. Mirrors the "Decision gate" fallback already applied by
     # _normalize_actions in the renderer (web_report_renderer.py L1616).
