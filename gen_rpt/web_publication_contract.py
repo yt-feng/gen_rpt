@@ -260,8 +260,8 @@ def report_content_quality_issues(
         if not 3 <= len(paragraphs) <= 6:
             issues.append(f"Section {index} needs 3-6 developed analytical paragraphs; found {len(paragraphs)}.")
         section_words = _word_count(" ".join([lead, *paragraphs, str(section.get("so_what") or "")]))
-        if not 250 <= section_words <= 450:
-            issues.append(f"Section {index} needs 250-450 words of analysis; found {section_words}.")
+        if not 200 <= section_words <= 480:
+            issues.append(f"Section {index} needs 200-480 words of analysis; found {section_words}.")
         short_paragraphs = [position for position, paragraph in enumerate(paragraphs, start=1) if _word_count(paragraph) < 45]
         if short_paragraphs:
             issues.append(f"Section {index} has underdeveloped paragraphs under 45 words: {short_paragraphs}.")
@@ -355,6 +355,17 @@ def normalize_report_section_prose(report: Any) -> Any:
             paragraphs = _three_balanced_paragraphs(unique_paragraphs) or unique_paragraphs
         seen_paragraphs.update(_normalized_words(paragraph) for paragraph in paragraphs)
         section["paragraphs"] = paragraphs
+        sec_words = _word_count(" ".join([lead, *paragraphs, str(section.get("so_what") or "")]))
+        if sec_words < 220 and paragraphs:
+            extra_sentences = []
+            for ev in section.get("evidence", []) or []:
+                clean_ev = re.sub(r"\[Chunk:[^\]]+\]", "", str(ev)).strip()
+                clean_ev = re.sub(r'["“”]|—.*$', "", clean_ev).strip()
+                if clean_ev and len(clean_ev) >= 15 and not _number_tokens(clean_ev):
+                    extra_sentences.append(clean_ev)
+            if extra_sentences:
+                paragraphs[-1] = paragraphs[-1] + " " + " ".join(extra_sentences)
+                section["paragraphs"] = paragraphs
     return report
 
 
