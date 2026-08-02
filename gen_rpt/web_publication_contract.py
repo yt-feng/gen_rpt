@@ -327,8 +327,23 @@ def normalize_report_section_prose(report: Any) -> Any:
                     break
         if (not 3 <= len(paragraphs) <= 6 or any(_word_count(item) < 45 for item in paragraphs)):
             balanced = _three_balanced_paragraphs(paragraphs)
-            if balanced:
+            if balanced and not any(_word_count(item) < 45 for item in balanced):
                 paragraphs = balanced
+            else:
+                merged: List[str] = []
+                for p in paragraphs:
+                    if merged and (_word_count(merged[-1]) < 45 or _word_count(p) < 45):
+                        merged[-1] = merged[-1] + " " + p
+                    else:
+                        merged.append(p)
+                if len(merged) > 1 and _word_count(merged[-1]) < 45:
+                    merged[-2] = merged[-2] + " " + merged.pop()
+
+                balanced_merged = _three_balanced_paragraphs(merged)
+                if balanced_merged:
+                    paragraphs = balanced_merged
+                elif merged:
+                    paragraphs = merged
         unique_paragraphs = []
         for paragraph in paragraphs:
             key = _normalized_words(paragraph)
@@ -584,14 +599,16 @@ def _word_count(value: Any) -> int:
 
 def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
     text = "\n".join(paragraphs)
-    if _word_count(text) < 135:
+    if _word_count(text) < 120:
         return []
     sentences = [
         item.strip()
         for item in re.split(r"(?<=[。！？])|(?<=[.!?])\s+|\n+", text)
         if item.strip()
     ]
-    best: tuple[int, List[str]] | None = None
+    if len(sentences) < 3:
+        return []
+    best: tuple[tuple[int, int], List[str]] | None = None
     for first in range(1, len(sentences) - 1):
         for second in range(first + 1, len(sentences)):
             groups = [
@@ -600,12 +617,14 @@ def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
                 " ".join(sentences[second:]),
             ]
             counts = [_word_count(group) for group in groups]
-            if min(counts) < 45:
-                continue
-            score = max(counts) - min(counts)
-            if best is None or score < best[0]:
-                best = score, groups
-    return best[1] if best else []
+            min_c = min(counts)
+            spread = max(counts) - min_c
+            candidate_key = (-min_c, spread)
+            if best is None or candidate_key < best[0]:
+                best = (candidate_key, groups)
+    if best and -best[0][0] >= 40:
+        return best[1]
+    return []
 
 
 def _clean_stray_terminal_quote(text: str) -> str:
