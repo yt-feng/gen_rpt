@@ -715,6 +715,12 @@ Revision contract:
                         for index, item in enumerate(value)
                     ] + original_items[len(value):]
                 merged[key] = value
+        # Ensure every action_steps item has a non-empty horizon after merge.
+        # The merge loop skips empty/null values, so if the LLM revision still
+        # returns horizon="" the original empty value survives unchanged.
+        for action in merged.get("action_steps", []) or []:
+            if isinstance(action, dict) and not str(action.get("horizon") or "").strip():
+                action["horizon"] = "Decision gate"
         return merged
 
     def _audit_report_content(

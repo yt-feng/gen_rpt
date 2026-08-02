@@ -367,6 +367,12 @@ def normalize_report_section_prose(report: Any) -> Any:
             if extra_sentences:
                 paragraphs[-1] = paragraphs[-1] + " " + " ".join(extra_sentences)
                 section["paragraphs"] = paragraphs
+    # Normalise missing horizons on action_steps so the quality gate sees a
+    # populated value. Mirrors the "Decision gate" fallback already applied by
+    # _normalize_actions in the renderer (web_report_renderer.py L1616).
+    for action in report.get("action_steps", []) or []:
+        if isinstance(action, dict) and not str(action.get("horizon") or "").strip():
+            action["horizon"] = "Decision gate"
     return report
 
 
