@@ -32,11 +32,28 @@ class CreateJobRequest(BaseModel):
     rag_required: bool = False
 
 
-def _require_validated_evidence(required: bool, validated_chunks: list) -> None:
-    if required and not validated_chunks:
+def _require_validated_evidence(
+    required: bool,
+    validated_chunks: list,
+    has_active_collections: bool = False,
+) -> None:
+    """
+    Only hard-block with 422 when ALL THREE conditions are true:
+      1. caller explicitly set rag_required=True
+      2. the user actually has active knowledge collections (they intended RAG)
+      3. retrieval still returned no validated chunks (retrieval genuinely failed)
+
+    If the user has NO collections at all, allow the dispatch to proceed with
+    web-search fallback — do not penalise users who haven't uploaded documents yet.
+    """
+    if required and has_active_collections and not validated_chunks:
         raise HTTPException(
             status_code=422,
-            detail="RAG generation requires validated evidence, but no matching evidence was found. Upload and process relevant documents, then try again.",
+            detail=(
+                "RAG generation requires validated evidence, but no matching evidence "
+                "was found in your knowledge collections. Upload and process relevant "
+                "documents, then try again."
+            ),
         )
 
 
@@ -105,7 +122,11 @@ async def create_job(
                 slug=slug_val
             )
             validated_chunks = context_package.get("validated_chunks", [])
-            _require_validated_evidence(req.rag_required, validated_chunks)
+            _require_validated_evidence(
+                req.rag_required,
+                validated_chunks,
+                has_active_collections=bool(effective_collection_ids),
+            )
             rag_state = {
                 "requested": True,
                 "status": (
@@ -121,12 +142,28 @@ async def create_job(
             logger.exception(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
             await db.rollback()
             if isinstance(e, HTTPException):
-                raise
-            stage = e.stage if isinstance(e, RAGContextPreparationError) else "unknown"
-            raise HTTPException(
-                status_code=503,
-                detail=f"RAG context preparation failed during {stage}. No report was dispatched.",
-            ) from e
+                if e.status_code == 422:
+                    # A 422 from prepare_context means "no matching evidence".
+                    # Degrade gracefully to web-search fallback instead of blocking
+                    # the dispatch — the GitHub Actions workflow will handle the rest.
+                    logger.warning(
+                        f"RAG prepare_context returned 422 for slug={slug_val}; "
+                        f"falling back to web-only mode. Detail: {e.detail}"
+                    )
+                    rag_state = {
+                        "requested": True,
+                        "status": "fallback_to_web",
+                        "chunk_count": 0,
+                    }
+                    # fall through — dispatch proceeds normally
+                else:
+                    raise  # re-raise non-422 HTTP errors (401, 403, 503 …)
+            else:
+                stage = e.stage if isinstance(e, RAGContextPreparationError) else "unknown"
+                raise HTTPException(
+                    status_code=503,
+                    detail=f"RAG context preparation failed during {stage}. No report was dispatched.",
+                ) from e
 
 
     job = await generation_service.create_job(
