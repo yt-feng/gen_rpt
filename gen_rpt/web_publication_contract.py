@@ -360,6 +360,11 @@ def _matching_chunk_citation(evidence: str, source_chunks: dict[str, str]) -> re
 
 
 
+def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
+    visible_text = _exhibit_reader_text(value) if isinstance(value, dict) and "type" in value else _visible_value_text(value)
+    return not (_number_tokens(visible_text) - _number_tokens(context_text))
+
+
 def rag_exhibit_is_grounded(
     exhibit: Any,
     *,
