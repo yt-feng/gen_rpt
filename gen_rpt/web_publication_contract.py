@@ -318,6 +318,7 @@ def normalize_report_section_prose(report: Any) -> Any:
         if not isinstance(section, dict):
             continue
         paragraphs = [_clean_stray_terminal_quote(str(item).strip()) for item in section.get("paragraphs", []) or [] if str(item).strip()]
+        lead = str(section.get("lead") or "").strip()
         so_what = str(section.get("so_what") or "").strip()
         if _word_count(so_what) < 35:
             for index in range(len(paragraphs) - 1, -1, -1):
