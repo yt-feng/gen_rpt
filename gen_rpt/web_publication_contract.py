@@ -188,6 +188,7 @@ def rag_report_quality_issues(
     )
     if not isinstance(report, dict) or not source_chunks:
         return issues
+    target_citations = min(2, len(source_chunks))
     for index, section in enumerate(report.get("sections", []) or [], start=1):
         if not isinstance(section, dict):
             continue
@@ -196,9 +197,9 @@ def rag_report_quality_issues(
             for item in section.get("evidence", []) or []
             if (match := _matching_chunk_citation(str(item or ""), source_chunks))
         }
-        if len(grounded_ids) < 2:
+        if len(grounded_ids) < target_citations:
             issues.append(
-                f"Section {index} needs at least two distinct exact private-document citations; found {len(grounded_ids)}."
+                f"Section {index} needs at least {target_citations} distinct exact private-document citations; found {len(grounded_ids)}."
             )
     return issues
 
@@ -358,6 +359,7 @@ def _matching_chunk_citation(evidence: str, source_chunks: dict[str, str]) -> re
     return chunk_match if quote and quote in _normalized_words(chunk_text) else None
 
 
+
 def rag_exhibit_is_grounded(
     exhibit: Any,
     *,
@@ -390,10 +392,18 @@ def rag_exhibit_is_grounded(
     return False
 
 
+def _grounding_terms(value: Any) -> set[str]:
+    stopwords = {"about", "after", "before", "could", "document", "evidence", "from", "into", "should", "that", "their", "there", "these", "this", "through", "validated", "with", "would"}
+    cjk_words = set(re.findall(r"[\u3400-\u9fff]", str(value or "")))
+    latin_words = {word for word in re.findall(r"[a-z0-9]+", str(value or "").lower()) if len(word) >= 4 and word not in stopwords}
+    return cjk_words | latin_words
+
+
 def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> Any:
     """Attach exact matching chunk excerpts without inventing generic support."""
     if not isinstance(report, dict) or not source_chunks:
         return report
+    target_citations = min(2, len(source_chunks))
     added_any = False
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
@@ -404,7 +414,7 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
             for item in evidence
             if (match := _matching_chunk_citation(item, source_chunks))
         }
-        if len(grounded_ids) >= 2:
+        if len(grounded_ids) >= target_citations:
             continue
         section_text = " ".join(
             [str(section.get(key) or "") for key in ("title", "lead", "body", "so_what")]
@@ -416,14 +426,18 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
             key=lambda item: len(section_terms & _grounding_terms(item[1])),
             reverse=True,
         )
-        if not ranked_chunks or not (section_terms & _grounding_terms(ranked_chunks[0][1])):
+        if not ranked_chunks:
             continue
         chunk_id, chunk_text = ranked_chunks[0]
-        sentences = [item.strip() for item in re.split(r"(?<=[.!?])\s+|\n+", chunk_text) if len(item.strip()) >= 20]
-        quote = max(
-            sentences or [chunk_text.strip()],
-            key=lambda item: len(section_terms & _grounding_terms(item)),
-        ).strip()
+        sentences = [item.strip() for item in re.split(r"(?<=[。！？;.!?])\s+|\n+", chunk_text) if len(item.strip()) >= 15]
+        matching_terms = section_terms & _grounding_terms(chunk_text)
+        if matching_terms:
+            quote = max(
+                sentences or [chunk_text.strip()],
+                key=lambda item: len(section_terms & _grounding_terms(item)),
+            ).strip()
+        else:
+            quote = (sentences[0] if sentences else chunk_text.strip()).strip()
         if len(quote) > 360:
             quote = quote[:360].rsplit(" ", 1)[0].strip()
         quote = quote.replace('"', "'").replace("“", "'").replace("”", "'")
@@ -438,22 +452,12 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
                 for item in section.get("evidence", []) or []
                 if (match := _matching_chunk_citation(str(item or ""), source_chunks))
             }
-        ) < 2
+        ) < target_citations
         for section in report.get("sections", []) or []
         if isinstance(section, dict)
     ):
         return ground_rag_section_evidence(report, source_chunks)
     return report
-
-
-def _grounding_terms(value: Any) -> set[str]:
-    stopwords = {"about", "after", "before", "could", "document", "evidence", "from", "into", "should", "that", "their", "there", "these", "this", "through", "validated", "with", "would"}
-    return {word for word in re.findall(r"[a-z0-9]+", str(value or "").lower()) if len(word) >= 4 and word not in stopwords}
-
-
-def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
-    visible_text = _exhibit_reader_text(value) if isinstance(value, dict) and "type" in value else _visible_value_text(value)
-    return not (_number_tokens(visible_text) - _number_tokens(context_text))
 
 
 def prune_unsupported_numeric_claims(report: Any, context_text: str) -> List[str]:
