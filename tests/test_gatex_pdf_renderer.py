@@ -8,6 +8,7 @@ import fitz
 from pypdf import PdfReader
 
 from gen_rpt.gatex_pdf_renderer import (
+    COVER_TEXTURE_PATH,
     release_classification,
     release_pdf_filename,
     render_gatex_release_pdf,
@@ -77,11 +78,14 @@ def sample_release():
 class GatexPdfRendererTests(unittest.TestCase):
     def test_gatex_branding_assets_are_versioned_and_legacy_free(self):
         branding_dir = Path(__file__).resolve().parents[1] / "branding"
-        texture_path = branding_dir / "gatex-cover-cloth-v1.jpg"
+        legacy_texture_path = branding_dir / "gatex-cover-cloth-v1.jpg"
+        texture_path = branding_dir / "gatex-cover-paper-v2.jpg"
         mark_path = branding_dir / "gatex-g-mark-white.png"
         theme_path = branding_dir / "theme.json"
         logo_path = branding_dir / "logo.svg"
 
+        self.assertTrue(legacy_texture_path.is_file())
+        self.assertEqual(COVER_TEXTURE_PATH, texture_path)
         texture = fitz.Pixmap(str(texture_path))
         mark = fitz.Pixmap(str(mark_path))
         self.assertGreaterEqual(texture.width, 1_500)

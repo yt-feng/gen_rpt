@@ -23,7 +23,7 @@ PDF_MIME_TYPE = "application/pdf"
 PDF_SCHEMA = "gatex-pdf-release/v1"
 MAX_PDF_BYTES = 50 * 1024 * 1024
 BRANDING_DIR = Path(__file__).resolve().parents[1] / "branding"
-COVER_TEXTURE_PATH = BRANDING_DIR / "gatex-cover-cloth-v1.jpg"
+COVER_TEXTURE_PATH = BRANDING_DIR / "gatex-cover-paper-v2.jpg"
 G_MARK_PATH = BRANDING_DIR / "gatex-g-mark-white.png"
 
 
@@ -210,17 +210,13 @@ body {{
   font-family: "Noto Sans CJK SC", "Noto Sans CJK TC", "Source Han Sans SC", Arial, "Helvetica Neue", sans-serif;
   -webkit-print-color-adjust: exact; print-color-adjust: exact;
   background:
-    radial-gradient(circle at 85% 9%, rgba(58,126,202,.20), transparent 28%),
-    radial-gradient(circle at 12% 87%, rgba(17,70,135,.26), transparent 35%),
-    linear-gradient(142deg, #020917 0%, #061b3a 48%, #071227 100%);
+    radial-gradient(circle at 18% 12%, rgba(100,145,193,.13), transparent 36%),
+    linear-gradient(148deg, #071426 0%, #0a203d 49%, #061426 100%);
 }}
-.texture {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .40; filter: saturate(.58) contrast(1.18) brightness(.64); mix-blend-mode: soft-light; }}
-.grain {{ position: absolute; inset: 0; opacity: .22; background-image: repeating-linear-gradient(92deg, rgba(255,255,255,.032) 0, rgba(255,255,255,.032) .18mm, transparent .18mm, transparent .62mm), repeating-linear-gradient(2deg, rgba(0,0,0,.09) 0, rgba(0,0,0,.09) .18mm, transparent .18mm, transparent .68mm); }}
-.halo {{ position: absolute; right: 0; top: 31mm; width: 104mm; height: 104mm; border: .28mm solid rgba(202,221,240,.13); border-radius: 50%; }}
-.halo:before, .halo:after {{ position: absolute; content: ""; border: .28mm solid rgba(202,221,240,.09); border-radius: 50%; }}
-.halo:before {{ inset: 14mm; }} .halo:after {{ inset: 31mm; }}
+.texture {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .92; filter: saturate(.76) contrast(1.05) brightness(.75); }}
+.light {{ position: absolute; inset: 0; background: linear-gradient(118deg, rgba(181,210,237,.09) 0%, transparent 36%, rgba(0,7,18,.21) 100%); }}
 .frame {{ position: absolute; inset: 12.5mm; border: .25mm solid rgba(215,227,239,.20); box-shadow: inset 0 0 0 .35mm rgba(0,0,0,.22); }}
-.rail {{ position: absolute; left: 12.5mm; top: 12.5mm; bottom: 12.5mm; width: 2.6mm; background: linear-gradient(90deg, rgba(0,0,0,.32), rgba(153,185,218,.28) 52%, rgba(0,0,0,.30)); border-right: .2mm solid rgba(220,233,246,.17); }}
+.rail {{ position: absolute; left: 12.5mm; top: 12.5mm; bottom: 12.5mm; width: 2.2mm; background: linear-gradient(90deg, rgba(0,0,0,.30), rgba(177,202,228,.18) 52%, rgba(0,0,0,.28)); border-right: .2mm solid rgba(220,233,246,.13); }}
 .content {{ position: relative; z-index: 2; height: 100%; padding: 19mm 22mm 17mm 26mm; display: flex; flex-direction: column; }}
 .mast {{ display: flex; justify-content: space-between; align-items: flex-start; }}
 .brand {{ display: flex; align-items: center; gap: 3.6mm; }}
@@ -236,7 +232,7 @@ h1 {{ margin: 0; max-width: 156mm; color: #f7f9fb; font-family: "Noto Serif CJK 
 .foot {{ display: grid; margin-top: auto; padding-top: 7mm; grid-template-columns: 1fr 1fr 1fr; border-top: .25mm solid rgba(205,222,238,.23); color: rgba(216,230,243,.66); font-size: 6.5pt; letter-spacing: .095em; }}
 .foot span:nth-child(2) {{ text-align: center; }} .foot span:last-child {{ text-align: right; }}
 </style></head>
-<body><img class="texture" alt="" src="{texture_uri}"><div class="grain"></div><div class="halo"></div><div class="frame"></div><div class="rail"></div>
+<body><img class="texture" alt="" src="{texture_uri}"><div class="light"></div><div class="frame"></div><div class="rail"></div>
 <main class="content">
   <div class="mast"><div class="brand"><img alt="GateX G mark" src="{mark_uri}"><div class="brand-word">GATEX<small>EXECUTIVE INTELLIGENCE</small></div></div><div class="class">{classification}</div></div>
   <section class="copy"><p class="kicker">{report_type}</p><h1>{title}</h1><div class="rule"></div><p class="subtitle">{subtitle}</p></section>
