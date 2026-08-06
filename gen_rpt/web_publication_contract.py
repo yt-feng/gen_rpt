@@ -707,9 +707,28 @@ def convert_evidence_to_human_readable(
         if isinstance(item, dict) and item.get("id")
     }
 
+    def _clean_prose_internal_ids(text: Any) -> str:
+        if not isinstance(text, str) or not text.strip():
+            return str(text or "")
+        cleaned = re.sub(r"\[Chunk:\s*[^\]]+\]", "", text, flags=re.I)
+        cleaned = re.sub(r"\((?:WEB-E|RAG-E|E)\d+\)", "", cleaned)
+        def _replace_id(match: re.Match) -> str:
+            eid = match.group(0)
+            info = evidence_id_map.get(eid)
+            if info:
+                stitle = info.get("source_title") or info.get("domain") or info.get("source_url")
+                if stitle and not re.search(r"\b(?:WEB-E|RAG-E|E)\d+\b", str(stitle)):
+                    return str(stitle)
+            return "retained evidence"
+        cleaned = re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", _replace_id, cleaned)
+        return re.sub(r"\s+", " ", cleaned).strip()
+
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
+        if "evidence_internal" not in section:
+            section["evidence_internal"] = list(section.get("evidence", []) or [])
+
         internal_list = section.get("evidence_internal") or section.get("evidence") or []
         human_readable = []
         for item in internal_list:
@@ -746,15 +765,40 @@ def convert_evidence_to_human_readable(
                 eid = id_match.group(1)
                 info = evidence_id_map.get(eid)
                 if info:
-                    stitle = info.get("source_title") or info.get("domain") or info.get("source_url") or eid
+                    stitle = info.get("source_title") or info.get("domain") or info.get("source_url") or "Validated Source"
+                    if re.search(r"\b(?:WEB-E|RAG-E|E)\d+\b", str(stitle)):
+                        stitle = info.get("domain") or info.get("source_url") or "Validated Source"
                     sfact = info.get("fact") or info.get("value") or ""
                     human_readable.append(f"{stitle} — {sfact}".strip(" —"))
                     continue
+                else:
+                    cleaned_item = _clean_prose_internal_ids(text_item)
+                    if cleaned_item:
+                        human_readable.append(cleaned_item)
+                    continue
 
-            human_readable.append(text_item)
+            human_readable.append(_clean_prose_internal_ids(text_item))
 
         section["evidence"] = human_readable
+
+        for key in ("lead", "so_what"):
+            if key in section and isinstance(section[key], str):
+                section[key] = _clean_prose_internal_ids(section[key])
+        if "paragraphs" in section and isinstance(section["paragraphs"], list):
+            section["paragraphs"] = [_clean_prose_internal_ids(p) for p in section["paragraphs"]]
+
+    for key in ("intro", "key_takeaways"):
+        if key in report and isinstance(report[key], list):
+            report[key] = [_clean_prose_internal_ids(item) for item in report[key]]
+
+    for action in report.get("action_steps", []) or []:
+        if isinstance(action, dict):
+            for key in ("action", "rationale", "success_metric", "description"):
+                if key in action and isinstance(action[key], str):
+                    action[key] = _clean_prose_internal_ids(action[key])
+
     return report
+
 
 
 def rag_rendered_output_issues(html_text: str, *, conflict_count: int = 0) -> List[str]:

@@ -527,7 +527,15 @@ class WebReportPipeline:
             "approvedEvidence": approved_evidence,
             "conflicts": evidence_conflicts,
         }
+        report = convert_evidence_to_human_readable(
+
+            report,
+            rag_source_chunks if self.rag_context else {},
+            getattr(self, "rag_source_titles", {}),
+            approved_evidence,
+        )
         html_path = render_web_report_html(
+
             report,
             assets,
             output_dir / "index.html",
