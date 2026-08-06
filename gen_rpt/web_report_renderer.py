@@ -1612,7 +1612,15 @@ def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
 
 
 
+def _word_count(value: Any) -> int:
+    text = str(value or "")
+    cjk_characters = len(re.findall(r"[\u3400-\u9fff]", text))
+    latin_words = len(re.findall(r"\b[A-Za-z0-9]+(?:[-'][A-Za-z0-9]+)*\b", text))
+    return cjk_characters + latin_words
+
+
 def _normalize_actions(value: Any) -> List[Dict[str, str]]:
+
     actions = []
     for idx, item in enumerate(_as_list(value), start=1):
         if isinstance(item, dict):
