@@ -386,5 +386,17 @@ This document contains a daily breakdown of the development work strictly regard
 - When re-approving an unpublished report, updated the DB record to `re_approved` so reconciliation stops overriding it back to Rejected.
 - Set price=5800 (GateX minimum) and improved 207 error messages with field-level validation details.
 
-### Frontend (`gen-rpt-frontend`)
-- Appended July 2 fixes for the publish pipeline and duplicate protection to the documentation.
+
+---
+
+## August 6, 2026
+
+### Backend (`gen_rpt`)
+- Implemented full 16-step report quality, grounding, and publication contract workflow in `WebReportPipeline`.
+- Added strict raw-byte decoding cascade (`utf-8-sig`, `utf-8`, `gb18030`, `big5`) with 2% U+FFFD/mojibake quarantine in `private_sources.py`.
+- Added recommendation stance evaluation logic with `do_not_proceed` evaluated first, followed by deterministic stance intro enforcement.
+- Implemented dual-field section evidence (`evidence_internal` for grounding audit, `evidence` humanized for client rendering).
+- Implemented `validate_takeaway_completeness` quality gate and `convert_evidence_to_human_readable` transformation.
+- Implemented macro exhibit post-merge filter (contextual decision relevance tag, max 1 macro exhibit limit).
+- Added unit test suite in `tests/test_report_publication_contract.py` verifying publication contract, humanization, stance rules, and rendered HTML output quality gates.
+

@@ -329,6 +329,7 @@ def build_rag_manifest(
     conflicts: List[Dict[str, Any]] | None = None,
     web_required: bool = False,
     web_query_count: int = 0,
+    source_mode: str = "web_only",
 ) -> Dict[str, Any]:
     chunk_ids = [
         str(source.metadata.get("chunk_id") or "")
@@ -362,6 +363,7 @@ def build_rag_manifest(
     return {
         "status": "active" if rag_sources else "off",
         "required": bool(required),
+        "source_mode": source_mode,
         "context_characters": len(context_text or ""),
         "validated_chunk_count": len(chunk_ids),
         "document_count": len(document_ids),
@@ -378,6 +380,7 @@ def build_rag_manifest(
         "web_search_query_count": int(web_query_count),
         "web_search_providers": web_providers,
     }
+
 
 
 def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8) -> List[SourceDocument]:

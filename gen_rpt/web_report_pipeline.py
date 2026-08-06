@@ -24,6 +24,7 @@ from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merg
 from .web_publication_contract import (
     client_visible_internal_hits,
     combined_evidence_quality_issues,
+    convert_evidence_to_human_readable,
     ground_rag_section_evidence,
     normalize_report_section_prose,
     publication_contract_prompt,
@@ -164,6 +165,16 @@ class WebReportPipeline:
             for source in self.rag_sources
             if source.metadata.get("chunk_id")
         }
+        rag_source_titles = {
+            str(source.metadata.get("chunk_id")): (
+                source.metadata.get("file_name")
+                or source.metadata.get("document_id")
+                or source.url
+                or f"Document_{idx+1}"
+            )
+            for idx, source in enumerate(self.rag_sources)
+            if source.metadata.get("chunk_id")
+        }
         source_dicts = [source.__dict__ for source in sources]
         domains = sorted({source.domain for source in sources if source.domain})
         self._log(
@@ -195,6 +206,7 @@ class WebReportPipeline:
                     rag_fact_pack or fact_pack,
                     limit=24,
                     id_prefix="RAG-E",
+                    plan=plan,
                 )
                 web_evidence_ledger = (
                     build_evidence_ledger(
@@ -203,6 +215,7 @@ class WebReportPipeline:
                         web_fact_pack or fact_pack,
                         limit=24,
                         id_prefix="WEB-E",
+                        plan=plan,
                     )
                     if supplemental_sources
                     else []
@@ -214,11 +227,12 @@ class WebReportPipeline:
                 approved_evidence = reconciliation["approved"]
                 evidence_conflicts = reconciliation["conflicts"]
             else:
-                evidence_ledger = build_evidence_ledger(display_topic, sources, fact_pack)
+                evidence_ledger = build_evidence_ledger(display_topic, sources, fact_pack, plan=plan)
                 rag_evidence_ledger = []
                 web_evidence_ledger = evidence_ledger
                 approved_evidence = evidence_ledger
                 evidence_conflicts = []
+
         except Exception as exc:
             (output_dir / "web_evidence_error.txt").write_text(str(exc), encoding="utf-8")
             evidence_ledger = []
@@ -249,10 +263,15 @@ class WebReportPipeline:
             family = str(item.get("metric_family") or "other")
             family_counts[family] = family_counts.get(family, 0) + 1
         family_summary = ", ".join(f"{key}:{value}" for key, value in sorted(family_counts.items(), key=lambda x: (-x[1], x[0]))[:6])
+
+        # Step 6: Recommendation stance calculation BEFORE synthesis
+        computed_stance = self._evaluate_recommendation_stance(plan, approved_evidence, conflicts=evidence_conflicts)
+
         self._log(
             "PHASE evidence_ledger_and_storyline completed "
             f"| elapsed={self._elapsed(phase_start)} | evidence_points={len(approved_evidence)} "
             f"| conflicts={len(evidence_conflicts)} "
+            f"| stance={computed_stance} "
             f"| families={family_summary or 'none'}"
         )
 
@@ -268,6 +287,7 @@ class WebReportPipeline:
                 approved_evidence,
                 storyline_plan,
                 evidence_conflicts=evidence_conflicts,
+                stance=computed_stance,
             )
             report, quality_issues = self._prepare_report_draft(
                 report,
@@ -331,7 +351,15 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE evidence_exhibits started | expected <10s")
         report["conflicts"] = evidence_conflicts
-        evidence_exhibits = build_evidence_exhibits(display_topic, approved_evidence, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=self.language)
+        evidence_exhibits = build_evidence_exhibits(
+            display_topic,
+            approved_evidence,
+            fact_pack,
+            plan=plan,
+            chart_data_needs=chart_data_needs,
+            language=self.language,
+            allow_fallbacks=not bool(self.rag_context),
+        )
         if self.rag_context:
             self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
             evidence_exhibits = [
@@ -350,6 +378,7 @@ class WebReportPipeline:
             evidence_exhibits,
             preserve_existing=bool(self.rag_context),
         )
+        report = self._filter_post_merge_exhibits(report, approved_evidence)
         if self.rag_context:
             self._label_exhibit_origins(report, rag_source_chunks, approved_evidence)
             self._apply_source_aware_exhibit_text(report)
@@ -429,6 +458,17 @@ class WebReportPipeline:
                 message = "Combined evidence quality gate failed: " + " | ".join(evidence_issues)
                 (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
                 raise RuntimeError(message)
+
+        # Step 12: Deterministic Stance Enforcement & Humanization
+        report["recommendation_stance"] = computed_stance
+        self._enforce_stance_intro_sentence(report, computed_stance, display_topic)
+        convert_evidence_to_human_readable(
+            report,
+            rag_source_chunks,
+            rag_source_titles,
+            approved_evidence,
+        )
+
         visible_hits = client_visible_internal_hits(self._client_visible_text(report))
         if visible_hits:
             self._log("PHASE publication_contract warning | visible_internal_language=" + ",".join(visible_hits[:6]))
@@ -474,7 +514,9 @@ class WebReportPipeline:
             conflicts=evidence_conflicts,
             web_required=web_required,
             web_query_count=web_query_count,
+            source_mode=normalized_source_mode,
         )
+
         report["evidenceAudit"] = {
             "manifest": rag_manifest,
             "reconciliationStatus": "checked" if web_evidence_ledger else "no_structured_web_evidence" if supplemental_sources else "web_search_unavailable",
@@ -1406,6 +1448,65 @@ CRITICAL RULES (violation = failure):
         normalized["market_sizing_plan"] = self._normalize_market_sizing_plan(normalized.get("market_sizing_plan"), topic)
         normalized["validation_data_needs"] = self._normalize_validation_data_needs(normalized.get("validation_data_needs"), topic)
 
+        critical_reqs = list(normalized.get("critical_evidence_required") or [])
+        existing_ids = {str(req.get("id") or "") for req in critical_reqs if isinstance(req, dict)}
+
+        baseline_investment = [
+            {
+                "id": "BASE-1",
+                "description": "Product-specific demand: procurement records, tenders, RFPs, orders, or contracts for the specific product category in the target market",
+                "type": "demand_signal",
+                "required_for": "conditional_pilot",
+            },
+            {
+                "id": "BASE-2",
+                "description": "Identifiable customer or procurement route: named buyer, procurement channel, or comparable contract in the target geography",
+                "type": "customer",
+                "required_for": "conditional_pilot",
+            },
+            {
+                "id": "BASE-3",
+                "description": "Competitive alternatives: named competing products, services, or suppliers with at least one comparable data point",
+                "type": "competition",
+                "required_for": "conditional_pilot",
+            },
+            {
+                "id": "BASE-4",
+                "description": "Indicative commercial economics: pricing, contract value, margin, or cost benchmark from a comparable transaction or product",
+                "type": "financial",
+                "required_for": "invest",
+            },
+        ]
+        baseline_regulated = [
+            {
+                "id": "BASE-5",
+                "description": "Regulatory pathway: relevant approvals, certifications, standards, or licences required for the product in the target market",
+                "type": "regulation",
+                "required_for": "conditional_pilot",
+            },
+            {
+                "id": "BASE-6",
+                "description": "Technical feasibility: performance specification, integration requirement, or comparable deployment evidence",
+                "type": "technical",
+                "required_for": "conditional_pilot",
+            },
+        ]
+
+        for item in baseline_investment:
+            if item["id"] not in existing_ids:
+                critical_reqs.append(item)
+                existing_ids.add(item["id"])
+
+        topic_lower = f"{topic} {normalized.get('decision_question') or ''}".lower()
+        regulated_keywords = ("medical", "pharmaceutical", "infrastructure", "hardware", "device", "construction", "installation", "grid", "power", "water", "flood")
+        if any(kw in topic_lower for kw in regulated_keywords):
+            for item in baseline_regulated:
+                if item["id"] not in existing_ids:
+                    critical_reqs.append(item)
+                    existing_ids.add(item["id"])
+
+        normalized["critical_evidence_required"] = critical_reqs
+
         if not self.rag_context:
             for query in self._analysis_framework_queries(normalized):
                 if query not in normalized["search_queries"]:
@@ -1413,6 +1514,112 @@ CRITICAL RULES (violation = failure):
                 if len(normalized["search_queries"]) >= 18:
                     break
         return normalized
+
+    def _evaluate_recommendation_stance(
+        self,
+        plan: Dict[str, Any],
+        evidence_ledger: List[Dict[str, Any]],
+        conflicts: List[Dict[str, Any]] | None = None,
+    ) -> str:
+        if conflicts and len(conflicts) >= 3:
+            return "do_not_proceed"
+        for item in evidence_ledger:
+            if item.get("status") == "disproves_thesis" or item.get("thesis_contradiction"):
+                return "do_not_proceed"
+
+        critical_reqs = plan.get("critical_evidence_required") or []
+        satisfied_ids = {
+            str(item.get("critical_requirement_id") or "")
+            for item in evidence_ledger
+            if item.get("critical_requirement_id")
+        }
+
+        cond_pilot_reqs = [r for r in critical_reqs if isinstance(r, dict) and r.get("required_for") == "conditional_pilot"]
+        invest_reqs = [r for r in critical_reqs if isinstance(r, dict) and r.get("required_for") == "invest"]
+
+        cond_pilot_satisfied = bool(cond_pilot_reqs) and all(str(r.get("id")) in satisfied_ids for r in cond_pilot_reqs)
+        invest_satisfied = bool(invest_reqs) and all(str(r.get("id")) in satisfied_ids for r in invest_reqs)
+
+        demand_sources = {
+            str(item.get("source_url") or item.get("domain") or "")
+            for item in evidence_ledger
+            if item.get("relevance_type") == "demand_signal" and (item.get("source_url") or item.get("domain"))
+        }
+
+        if cond_pilot_satisfied and invest_satisfied and len(demand_sources) > 1:
+            return "invest"
+        if cond_pilot_satisfied:
+            return "conditional_pilot"
+        return "validation_only"
+
+    def _enforce_stance_intro_sentence(self, report: Dict[str, Any], stance: str, topic: str) -> None:
+        stance_sentences = {
+            "en": {
+                "invest": f"The evidence supports proceeding with investment in {topic}.",
+                "conditional_pilot": f"The evidence supports a conditional pilot for {topic}, contingent on validating key operational assumptions.",
+                "validation_only": f"A validation phase is required before committing capital to {topic}.",
+                "do_not_proceed": f"The current evidence does not support proceeding with {topic}; human review is required.",
+            },
+            "zh": {
+                "invest": f"现有证据支持推进对{topic}的投资。",
+                "conditional_pilot": f"现有证据支持对{topic}进行条件性试点，前提是验证核心运营假设。",
+                "validation_only": f"在向{topic}投入资本之前，需要完成验证阶段。",
+                "do_not_proceed": f"现有证据不支持推进{topic}；需要人工审核。",
+            },
+        }
+        lang = "zh" if str(self.language or "").lower().startswith("zh") else "en"
+        sentence = stance_sentences[lang].get(stance) or stance_sentences[lang]["validation_only"]
+
+        intro = report.get("intro")
+        if isinstance(intro, list) and intro:
+            first = str(intro[0] or "").strip()
+            if not any(first.startswith(s) for s in stance_sentences[lang].values()):
+                intro[0] = f"{sentence} {first}".strip()
+        else:
+            report["intro"] = [sentence]
+
+    def _filter_post_merge_exhibits(
+        self,
+        report: Dict[str, Any],
+        evidence_ledger: List[Dict[str, Any]],
+    ) -> Dict[str, Any]:
+        ledger_map = {
+            str(item.get("id") or ""): item
+            for item in evidence_ledger
+            if isinstance(item, dict) and item.get("id")
+        }
+        exhibits = report.get("exhibits", []) or []
+        filtered_exhibits = []
+        macro_count = 0
+
+        for exhibit in exhibits:
+            if not isinstance(exhibit, dict):
+                continue
+            data_basis = exhibit.get("data_basis", []) or []
+            basis_types = set()
+            for bitem in data_basis:
+                if isinstance(bitem, dict):
+                    rtype = bitem.get("relevance_type")
+                    if not rtype:
+                        eid = str(bitem.get("id") or "")
+                        mapped = ledger_map.get(eid)
+                        if mapped:
+                            rtype = mapped.get("relevance_type")
+                    if rtype:
+                        basis_types.add(rtype)
+
+            is_macro_only = bool(basis_types) and all(t == "macro_environment" for t in basis_types)
+            if is_macro_only:
+                exhibit["decision_relevance"] = "contextual"
+                macro_count += 1
+                if macro_count > 1:
+                    continue
+
+            filtered_exhibits.append(exhibit)
+
+        report["exhibits"] = filtered_exhibits
+        return report
+
 
     def _normalize_hypotheses(self, value: Any, topic: str) -> List[Dict[str, Any]]:
         items = []

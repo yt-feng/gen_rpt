@@ -1438,6 +1438,7 @@ def _normalize_sections(value: Any, takeaways: List[str]) -> List[Dict[str, Any]
         lead = _text(section.get("lead") or section.get("summary") or section.get("dek") or "")
         paragraphs = _list_text(section.get("paragraphs") or section.get("body") or section.get("content"))
         evidence = _list_text(section.get("evidence") or section.get("proof_points") or section.get("facts"))
+        evidence_internal = _list_text(section.get("evidence_internal"))
         so_what = _text(section.get("so_what") or section.get("management_implication") or section.get("implication") or "")
         if not paragraphs and lead:
             paragraphs = [lead]
@@ -1445,10 +1446,11 @@ def _normalize_sections(value: Any, takeaways: List[str]) -> List[Dict[str, Any]
             {
                 "id": _slug(section.get("id") or f"section-{idx}"),
                 "title": _compact(title, 120),
-                "lead": _compact(lead, 260),
-                "paragraphs": [_compact(x, 900) for x in paragraphs[:8]],
-                "evidence": [_compact(x, 260) for x in evidence[:5]],
-                "so_what": _compact(so_what, 420),
+                "lead": lead,
+                "paragraphs": paragraphs[:8],
+                "evidence": evidence[:5],
+                "evidence_internal": evidence_internal,
+                "so_what": so_what,
             }
         )
     return [s for s in sections if s["title"] or s["paragraphs"]]
@@ -1598,13 +1600,16 @@ def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
                     "domain": _compact(_text(item.get("domain") or ""), 80),
                     "origin": _text(item.get("origin") or ""),
                     "status": _text(item.get("status") or ""),
+                    "relevance_type": _text(item.get("relevance_type") or ""),
+                    "decision_relevance": _text(item.get("decision_relevance") or ""),
                 }
             )
         else:
             text_value = _text(item)
             if text_value:
-                basis.append({"id": f"E{idx}", "value": "", "fact": _compact(text_value, 300), "source_title": "", "url": "", "domain": ""})
-    return [item for item in basis if item.get("fact") or item.get("url") or item.get("source_title")][:12]
+                basis.append({"id": f"E{idx}", "value": "", "fact": _compact(text_value, 300), "source_title": "", "url": "", "domain": "", "relevance_type": "", "decision_relevance": ""})
+    return [item for item in basis if item.get("fact") or item.get("url") or item.get("source_title") or item.get("id")][:12]
+
 
 
 def _normalize_actions(value: Any) -> List[Dict[str, str]]:

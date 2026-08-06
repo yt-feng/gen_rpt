@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import ast
+import json
 import re
 from decimal import Decimal, InvalidOperation
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 
 CLIENT_VISIBLE_INTERNAL_PATTERNS: Tuple[str, ...] = (
@@ -21,23 +23,15 @@ CLIENT_VISIBLE_INTERNAL_PATTERNS: Tuple[str, ...] = (
     r"\bdata\s+basis\b",
     r"\bsizing\s+use\b",
     r"\bopen\s+validation\b",
-    r"\bpublic\s+data\s+found\b",
+    r"\bpublic\s+data\b",
     r"\bwhat\s+to\s+verify\s+next\b",
     r"\bTAM\b",
     r"\bSAM\b",
     r"\bSOM\b",
-    r"假设\s*[Hh]\d+",
-    r"假设验证",
-    r"市场测算",
-    r"测算桥",
-    r"问题树",
-    r"事实包",
-    r"证据台账",
-    r"叙事计划",
-    r"核验任务",
-    r"验证任务",
-    r"数据基础",
-    r"下一步核验",
+    r"\[Chunk:\s*[^\]]+\]",
+    r"\b(?:WEB-E|RAG-E|E)\d+\b",
+    r"\bwhy_it_matters\b",
+    r"\bchunk_id\b",
 )
 
 WORKBENCH_EXHIBIT_QUALITIES = {
@@ -54,18 +48,14 @@ WORKBENCH_EXHIBIT_PATTERNS: Tuple[str, ...] = (
     r"\bsizing\s+bridge\b",
     r"\bsizing\s+use\b",
     r"\bopen\s+validation\b",
-    r"\bpublic\s+data\s+found\b",
+    r"\bpublic\s+data\b",
     r"\bwhat\s+to\s+verify\s+next\b",
     r"\bevidence\s+gap\b",
     r"\bopportunity\s+case\b",
     r"\boption\s+map\b",
     r"\bstaged\s+path\b",
     r"\bcommitment\s+behind\s+proof\b",
-    r"假设验证",
-    r"市场测算",
-    r"下一步核验",
 )
-
 
 CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bThis analysis is based on a structured research plan with [^.]+?hypotheses?, each tested against publicly available evidence from\b", "This analysis draws on publicly available evidence from"),
@@ -101,21 +91,10 @@ CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bnot\s+(?:included\s+)?in\s+(?:the\s+)?fact\s*[- ]?\s*pack\b", "not validated in the retained source set"),
     (r"\bwidely\s+cited\b", "commonly referenced"),
     (r"\bmanagement\s+agenda\b", "leadership priorities"),
-    (r"管理议程", "领导层优先事项"),
 )
 
 
 def publication_contract_prompt(language: str = "en") -> str:
-    if str(language or "").lower().startswith("zh"):
-        return """
-Deepseek 角色合同：
-- 你是勤奋的研究员和初稿作者，不是最终合伙人作者。后台可以使用假设验证、机会测算、证据台账和叙事计划；前台绝不能暴露这些工作台。
-- 客户只能看到：结论、案例、数字、机制、反例、风险、管理含义和从哪里开始。
-- 客户可见字段禁止出现：hypothesis、假设验证、market sizing、sizing bridge、TAM、SAM、SOM、issue tree、fact pack、evidence ledger、storyline plan、validation task、source boundary、data basis。
-- 如果你想写“假设 H2 得到支持”，改成直接判断；如果你想写“market sizing”，改成“机会判断/需求、采用、经济性和供给约束”；如果你想写“证据缺口”，改成“仍需验证的商业问题”。
-- exhibits 必须保留 JSON 键 data_basis 给机器追溯，但任何 title、subtitle、caption、source_note、正文和 methodology 都不得写 data basis 这个短语。
-- 每张图必须服务于章节论证：图前要有管理问题或判断铺垫，图后要有客户可读的解释；不得连续堆放两张图而没有正文承接。
-""".strip()
     return """
 DeepSeek role contract:
 - You are a diligent researcher and draft writer, not the final partner author. You may use hypotheses, opportunity-sizing logic, evidence ledgers and storyline plans backstage; never expose that workbench to the reader.
@@ -172,8 +151,6 @@ def is_internal_workbench_exhibit(exhibit: Any) -> bool:
 
 
 def rag_report_quality_issues(
-    report: Any,
-    *,
     topic: str,
     context_text: str,
     source_count: int,
@@ -577,6 +554,27 @@ def combined_evidence_quality_issues(
         if isinstance(side, dict) and side.get("id")
     }
     issues: List[str] = []
+
+
+def combined_evidence_quality_issues(
+    report: Any,
+    *,
+    approved_evidence: List[dict[str, Any]],
+    conflicts: List[dict[str, Any]],
+    source_chunks: dict[str, str],
+) -> List[str]:
+    """Reject exhibits that bypass approved evidence or reuse quarantined web claims."""
+    if not isinstance(report, dict):
+        return ["The combined-evidence report is not a structured object."]
+    approved_ids = {str(item.get("id") or "") for item in approved_evidence if item.get("id")}
+    allowed_ids = approved_ids | set(source_chunks)
+    conflict_ids = {
+        str(side.get("id") or "")
+        for conflict in conflicts
+        for side in (conflict.get("web") or {},)
+        if isinstance(side, dict) and side.get("id")
+    }
+    issues: List[str] = []
     for index, exhibit in enumerate(report.get("exhibits", []) or [], start=1):
         if not isinstance(exhibit, dict):
             continue
@@ -597,7 +595,88 @@ def combined_evidence_quality_issues(
     return issues
 
 
-def rag_rendered_output_issues(html_text: str, *, conflict_count: int) -> List[str]:
+CONNECTOR_WORDS = {"and", "or", "but", "because", "requires", "depends on", "including", "such as", "which", "where", "when", "that", "for", "to", "of", "with", "in", "on", "at", "by", "from"}
+
+
+
+def validate_takeaway_completeness(takeaways: List[str]) -> List[str]:
+    issues: List[str] = []
+    for idx, takeaway in enumerate(takeaways or [], start=1):
+        text = str(takeaway or "").strip()
+        if not text:
+            issues.append(f"Key takeaway {idx} is empty.")
+            continue
+        if not re.search(r"[.!?。！？]$", text):
+            issues.append(f"Key takeaway {idx} does not end with complete sentence punctuation.")
+        words = re.findall(r"\b[a-zA-Z]+\b", text)
+        if words and words[-1].lower() in CONNECTOR_WORDS:
+            issues.append(f"Key takeaway {idx} ends prematurely with connector word '{words[-1]}'.")
+    return issues
+
+
+def convert_evidence_to_human_readable(
+    report: Dict[str, Any],
+    rag_source_chunks: Dict[str, str],
+    rag_source_titles: Dict[str, str],
+    approved_evidence: List[Dict[str, Any]],
+) -> Dict[str, Any]:
+    evidence_id_map = {
+        str(item.get("id") or ""): item
+        for item in approved_evidence
+        if isinstance(item, dict) and item.get("id")
+    }
+
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        internal_list = section.get("evidence_internal") or section.get("evidence") or []
+        human_readable = []
+        for item in internal_list:
+            text_item = str(item or "").strip()
+            if not text_item:
+                continue
+
+            chunk_match = re.search(r"\[Chunk:\s*([^\]]+)\]\s*(?:\"([^\"]+)\"|'([^']+)'|([^\n—]+))?", text_item)
+            if chunk_match:
+                cid = chunk_match.group(1).strip()
+                excerpt = chunk_match.group(2) or chunk_match.group(3) or chunk_match.group(4) or ""
+                title = rag_source_titles.get(cid) or f"Document_{cid[:8]}"
+                human_readable.append(f"{title} — {excerpt.strip()}" if excerpt.strip() else title)
+                continue
+
+            parsed_dict = None
+            if text_item.startswith("{") and ("chunk_id" in text_item or "excerpt" in text_item or "id" in text_item):
+                try:
+                    parsed_dict = json.loads(text_item)
+                except Exception:
+                    try:
+                        parsed_dict = ast.literal_eval(text_item)
+                    except Exception:
+                        pass
+            if isinstance(parsed_dict, dict):
+                cid = str(parsed_dict.get("chunk_id") or parsed_dict.get("id") or "").strip()
+                excerpt = str(parsed_dict.get("excerpt") or parsed_dict.get("fact") or "").strip()
+                title = rag_source_titles.get(cid) or f"Document_{cid[:8]}"
+                human_readable.append(f"{title} — {excerpt}" if excerpt else title)
+                continue
+
+            id_match = re.search(r"\b((?:WEB-E|RAG-E|E)\d+)\b", text_item)
+            if id_match:
+                eid = id_match.group(1)
+                info = evidence_id_map.get(eid)
+                if info:
+                    stitle = info.get("source_title") or info.get("domain") or info.get("source_url") or eid
+                    sfact = info.get("fact") or info.get("value") or ""
+                    human_readable.append(f"{stitle} — {sfact}".strip(" —"))
+                    continue
+
+            human_readable.append(text_item)
+
+        section["evidence"] = human_readable
+    return report
+
+
+def rag_rendered_output_issues(html_text: str, *, conflict_count: int = 0) -> List[str]:
     """Catch renderer regressions after the normalized payload has passed grounding."""
     html_value = str(html_text or "")
     issues: List[str] = []
@@ -608,6 +687,23 @@ def rag_rendered_output_issues(html_text: str, *, conflict_count: int) -> List[s
         issues.append("Rendered HTML omitted the evidence-based management agenda.")
     if conflict_count and "conflicts-requiring-human-review" not in html_value:
         issues.append("Rendered HTML omitted the conflicts requiring human review section.")
+
+    body_text = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", html_value, flags=re.DOTALL | re.I)
+    body_text = re.sub(r"<[^>]+>", " ", body_text)
+
+    # 1. 2% Mojibake scan
+    replacement_count = body_text.count("\ufffd")
+    mojibake_pats = ("Ã©", "â€", "Â·", "Ã¼", "Ã¤", "Ã¶")
+    mojibake_count = sum(body_text.count(pat) for pat in mojibake_pats)
+    if (replacement_count + mojibake_count) / max(1, len(body_text)) > 0.02:
+        issues.append("Rendered HTML contains corrupted text or severe mojibake (>2%).")
+
+    # 2. Internal metadata leak scan
+    if re.search(r"\[Chunk:\s*[^\]]+\]", body_text):
+        issues.append("Rendered HTML contains un-humanized raw [Chunk: ...] citations.")
+    if re.search(r"\b(?:WEB-E|RAG-E|E)\d+\b", body_text):
+        issues.append("Rendered HTML contains un-humanized internal evidence IDs (WEB-E/RAG-E/E).")
+
     return issues
 
 

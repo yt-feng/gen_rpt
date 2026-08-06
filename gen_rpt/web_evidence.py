@@ -62,9 +62,77 @@ class EvidencePoint:
     origin: str
     authoritative: bool
     score: int
+    relevance_type: str = ""
+    decision_relevance: str = ""
+    source_query: str = ""
+    critical_requirement_id: str = ""
 
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
+
+
+def classify_evidence_relevance(
+    fact: str,
+    topic: str,
+    source_query: str,
+    plan: Dict[str, Any] | None = None,
+) -> Tuple[str, str, str]:
+    """Classify evidence point into (relevance_type, decision_relevance, critical_requirement_id)."""
+    fact_lower = str(fact or "").lower()
+    topic_lower = str(topic or "").lower()
+
+    relevance_type = "macro_environment"
+    decision_relevance = "contextual"
+    critical_req_id = ""
+
+    demand_words = {"procurement", "tender", "rfp", "contract", "order", "purchase", "customer spend", "revenue pool", "sales", "buyer demand", "offtake"}
+    customer_words = {"customer", "buyer", "user", "adoption rate", "willingness to pay", "subscriber", "client", "procurement route"}
+    competition_words = {"competitor", "market share", "alternative", "incumbent", "peer", "rival", "vendor share"}
+    financial_words = {"irr", "npv", "gross margin", "capex", "opex", "payback", "arpu", "asp", "contract value", "pricing"}
+    regulation_words = {"regulation", "license", "licence", "approval", "permit", "certification", "compliance", "standard", "policy gate"}
+    technical_words = {"efficiency", "capacity", "mw", "gwh", "performance", "specification", "technical", "yield"}
+
+    if any(w in fact_lower for w in demand_words):
+        relevance_type = "demand_signal"
+    elif any(w in fact_lower for w in customer_words):
+        relevance_type = "customer"
+    elif any(w in fact_lower for w in competition_words):
+        relevance_type = "competition"
+    elif any(w in fact_lower for w in financial_words):
+        relevance_type = "financial"
+    elif any(w in fact_lower for w in regulation_words):
+        relevance_type = "regulation"
+    elif any(w in fact_lower for w in technical_words):
+        relevance_type = "technical"
+    else:
+        relevance_type = "macro_environment"
+
+    if plan and isinstance(plan.get("critical_evidence_required"), list):
+        for req in plan["critical_evidence_required"]:
+            if not isinstance(req, dict):
+                continue
+            req_type = str(req.get("type") or "").strip()
+            req_desc = str(req.get("description") or "").lower()
+            req_id = str(req.get("id") or "").strip()
+
+            desc_tokens = set(re.findall(r"[a-z0-9]{3,}", req_desc)) - {"required", "evidence", "product", "target", "market", "specific"}
+            fact_tokens = set(re.findall(r"[a-z0-9]{3,}", fact_lower))
+
+            if (req_type == relevance_type or req_type in fact_lower) and len(desc_tokens & fact_tokens) >= 1:
+                relevance_type = req_type or relevance_type
+                decision_relevance = "critical" if req.get("required_for") in {"invest", "conditional_pilot"} else "supporting"
+                critical_req_id = req_id
+                break
+
+    if not decision_relevance or decision_relevance == "contextual":
+        if relevance_type in {"demand_signal", "financial"}:
+            decision_relevance = "critical"
+        elif relevance_type in {"customer", "competition", "regulation", "technical"}:
+            decision_relevance = "supporting"
+        else:
+            decision_relevance = "contextual"
+
+    return relevance_type, decision_relevance, critical_req_id
 
 
 def build_evidence_ledger(
@@ -74,13 +142,9 @@ def build_evidence_ledger(
     *,
     limit: int = 36,
     id_prefix: str = "E",
+    plan: Dict[str, Any] | None = None,
 ) -> List[Dict[str, Any]]:
-    """Extract source-backed numeric/date evidence for web exhibits.
-
-    The web report should not ask the LLM to invent chart values. This ledger
-    keeps every chartable data point tied to a source sentence and URL.
-    """
-
+    """Extract source-backed numeric/date evidence for web exhibits."""
     candidates: List[EvidencePoint] = []
     for source_idx, source in enumerate(sources, start=1):
         source_text = "\n".join([source.title or "", source.snippet or "", source.content or ""])
@@ -95,9 +159,15 @@ def build_evidence_ledger(
                 candidates.extend(_points_from_sentence(_strip_source_prefix(fact), source, 0, topic))
 
     ranked = _dedupe_points(sorted(candidates, key=lambda item: item.score, reverse=True), limit=limit)
+    out: List[Dict[str, Any]] = []
     for idx, point in enumerate(ranked, start=1):
         point.id = f"{id_prefix}{idx}"
-    return [point.to_dict() for point in ranked]
+        rel_type, dec_rel, crit_id = classify_evidence_relevance(point.fact, topic, point.source_query, plan)
+        point.relevance_type = rel_type
+        point.decision_relevance = dec_rel
+        point.critical_requirement_id = crit_id
+        out.append(point.to_dict())
+    return out
 
 
 def reconcile_rag_web_evidence(evidence_ledger: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
@@ -217,6 +287,7 @@ def build_storyline_plan(
             "coverage_requirements": ["executive thesis", "source-backed findings", "causal mechanisms", "counter-evidence and risks", "decision implications", "evidence-based actions"],
             "core_question": decision_question,
             "central_thesis": "先由公开证据决定报告主线，再把数据、时间线和管理含义串成可执行判断。",
+            "central_thesis": "先由公开证据决定报告主线，再把数据、时间线和管理含义串成可执行判断。",
             "narrative_focus": "围绕证据最密集的主题推进：" + "、".join(strongest[:4]),
             "structure_logic": "先说明管理层问题，再呈现源自事实包的数据图表，随后讨论商业含义、风险和行动门槛。",
             "evidence_must_cover": facts,
@@ -249,9 +320,10 @@ def build_evidence_exhibits(
     plan: Dict[str, Any] | None = None,
     chart_data_needs: List[Dict[str, Any]] | None = None,
     language: str = "en",
+    allow_fallbacks: bool = True,
 ) -> List[Dict[str, Any]]:
     if not evidence_ledger:
-        return _fact_pack_exhibits(topic, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=language)
+        return _fact_pack_exhibits(topic, fact_pack, plan=plan, chart_data_needs=chart_data_needs, language=language) if allow_fallbacks else []
 
     exhibits: List[Dict[str, Any]] = []
     exhibits.append(_metric_row_exhibit(evidence_ledger, fact_pack))
@@ -271,23 +343,24 @@ def build_evidence_exhibits(
     if timeline:
         exhibits.append(timeline)
 
-    if len(exhibits) < 6:
-        for comparable in _comparable_value_exhibits(evidence_ledger, limit=3, family_order=family_order):
-            exhibits.append(comparable)
+    if allow_fallbacks:
+        if len(exhibits) < 6:
+            for comparable in _comparable_value_exhibits(evidence_ledger, limit=3, family_order=family_order):
+                exhibits.append(comparable)
 
-    matrix = _opportunity_matrix_exhibit(evidence_ledger, fact_pack)
-    if matrix and len(exhibits) < 3:
-        exhibits.append(matrix)
+        matrix = _opportunity_matrix_exhibit(evidence_ledger, fact_pack)
+        if matrix and len(exhibits) < 3:
+            exhibits.append(matrix)
 
-    opportunity = _opportunity_map_exhibit(evidence_ledger, fact_pack)
-    if opportunity and len(exhibits) < 3:
-        exhibits.append(opportunity)
+        opportunity = _opportunity_map_exhibit(evidence_ledger, fact_pack)
+        if opportunity and len(exhibits) < 3:
+            exhibits.append(opportunity)
 
-    if len(exhibits) < 3:
-        fallback = [_year_exhibit(evidence_ledger), _support_matrix_exhibit(evidence_ledger, fact_pack)]
-        exhibits.extend([item for item in fallback if item][: 3 - len(exhibits)])
-    if len(exhibits) < 3:
-        exhibits.extend(_fact_pack_exhibits(topic, fact_pack)[: 3 - len(exhibits)])
+        if len(exhibits) < 3:
+            fallback = [_year_exhibit(evidence_ledger), _support_matrix_exhibit(evidence_ledger, fact_pack)]
+            exhibits.extend([item for item in fallback if item][: 3 - len(exhibits)])
+        if len(exhibits) < 3:
+            exhibits.extend(_fact_pack_exhibits(topic, fact_pack)[: 3 - len(exhibits)])
 
     exhibits = _dedupe_exhibits(exhibits)
     for idx, exhibit in enumerate(exhibits[:6], start=1):

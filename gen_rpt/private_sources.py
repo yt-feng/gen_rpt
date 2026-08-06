@@ -238,13 +238,36 @@ def _extract_html(path: Path) -> Tuple[str, str]:
     return container.get_text("\n", strip=True), title
 
 
+MOJIBAKE_PATTERNS = ("Ã©", "â€", "Â·", "Ã¼", "Ã¤", "Ã¶", "ÃŸ", "Ã ", "Ã¡", "Ã¢", "Ã£", "Ã§", "Ã¨", "Ãª", "Ã¬", "Ã­", "Ã®", "Ã¯", "Ã±", "Ã²", "Ã³", "Ã´", "Ãµ", "Ã¹", "Ãº", "Ã»")
+
+
+def is_corrupted_text(text: str, threshold: float = 0.02) -> bool:
+    if not text:
+        return False
+    replacement_count = text.count("\ufffd")
+    mojibake_count = sum(text.count(pat) for pat in MOJIBAKE_PATTERNS)
+    total_bad = replacement_count + mojibake_count
+    return (total_bad / max(1, len(text))) > threshold
+
+
 def _read_text(path: Path) -> str:
-    for encoding in ("utf-8-sig", "utf-8", "gb18030"):
+    try:
+        raw = path.read_bytes()
+    except Exception:
+        return ""
+    for encoding in ("utf-8-sig", "utf-8", "gb18030", "big5"):
         try:
-            return path.read_text(encoding=encoding)
-        except UnicodeDecodeError:
+            text = raw.decode(encoding, errors="strict")
+            if not is_corrupted_text(text, 0.02):
+                return text
+        except (UnicodeDecodeError, LookupError):
             continue
-    return path.read_text(encoding="utf-8", errors="replace")
+    fallback = raw.decode("utf-8", errors="replace")
+    if is_corrupted_text(fallback, 0.02):
+        _log(f"quarantined corrupted private source text | file={path.name}")
+        return ""
+    return fallback
+
 
 
 def _clean_content(value: str, *, max_chars: int) -> str:
