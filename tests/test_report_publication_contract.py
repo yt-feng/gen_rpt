@@ -174,6 +174,37 @@ class TestReportPublicationContract(unittest.TestCase):
         self.assertIsInstance(issues, list)
 
 
+    def test_normalize_report_section_prose_quality_fix(self):
+        from gen_rpt.web_publication_contract import normalize_report_section_prose, _word_count
+        report = {
+            "title": "Report Title",
+            "sections": [
+                {
+                    "title": "Section 1",
+                    "lead": "Lead text",
+                    "paragraphs": ["Short p1", "A longer paragraph with enough analytical depth to form a substantial core for section discussion."],
+                    "evidence": ["Doc.pdf — Fact 1"],
+                }
+            ],
+            "action_steps": [
+                {
+                    "action": "Deploy technology",
+                    "description": "Short description",
+                    "why_it_matters": "Reason text",
+                }
+            ],
+        }
+        normalized = normalize_report_section_prose(report)
+        for sec in normalized["sections"]:
+            for p in sec["paragraphs"]:
+                self.assertGreaterEqual(_word_count(p), 45)
+        for act in normalized["action_steps"]:
+            self.assertTrue(bool(act.get("horizon")))
+            self.assertTrue(bool(act.get("success_metric")))
+            self.assertGreaterEqual(_word_count(act.get("rationale")), 12)
+
+
 if __name__ == "__main__":
     unittest.main()
+
 

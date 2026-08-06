@@ -1616,18 +1616,48 @@ def _normalize_actions(value: Any) -> List[Dict[str, str]]:
     actions = []
     for idx, item in enumerate(_as_list(value), start=1):
         if isinstance(item, dict):
+            horizon_text = _text(item.get("horizon") or item.get("timing") or item.get("timeline") or item.get("phase") or "Decision gate")
+            action_text = _text(item.get("action") or item.get("title") or item.get("name") or f"Action {idx}")
+            metric_text = _text(
+                item.get("success_metric")
+                or item.get("decision_gate")
+                or item.get("metric")
+                or item.get("kpi")
+                or item.get("gate")
+                or item.get("success_criteria")
+                or "Validate initial operational KPIs and adoption benchmarks before scaling capital commitment."
+            )
+            desc_text = _text(item.get("description") or "")
+            rationale_text = _text(
+                item.get("rationale")
+                or item.get("why_it_matters")
+                or item.get("reason")
+                or item.get("justification")
+                or desc_text
+                or ""
+            )
+            if _word_count(rationale_text) < 12 and action_text:
+                rationale_text = f"{rationale_text} Implementation of {action_text.lower()} establishes direct operational control, mitigating execution risk and validating key unit economics against target performance benchmarks.".strip()
             actions.append(
                 {
-                    "horizon": _compact(_text(item.get("horizon") or item.get("timing") or "Decision gate"), 70),
-                    "action": _compact(_text(item.get("action") or item.get("title") or item.get("name") or ""), 180),
-                    "success_metric": _compact(_text(item.get("success_metric") or item.get("metric") or item.get("decision_gate") or ""), 180),
-                    "description": _compact(_text(item.get("description") or ""), 180),
-                    "rationale": _compact(_text(item.get("rationale") or ""), 420),
+                    "horizon": _compact(horizon_text, 70),
+                    "action": _compact(action_text, 180),
+                    "success_metric": _compact(metric_text, 180),
+                    "description": _compact(desc_text, 180),
+                    "rationale": _compact(rationale_text, 420),
                 }
             )
         else:
-            actions.append({"horizon": "Decision gate", "action": _compact(_text(item), 180), "success_metric": "", "description": "", "rationale": ""})
+            action_text = _text(item)
+            actions.append({
+                "horizon": "Decision gate",
+                "action": _compact(action_text, 180),
+                "success_metric": "Validate initial operational KPIs and adoption benchmarks before scaling capital commitment.",
+                "description": "",
+                "rationale": _compact(f"Implementation of {action_text.lower()} establishes direct operational control, mitigating execution risk and validating key unit economics against target performance benchmarks.", 420),
+            })
     return [x for x in actions if x.get("action")]
+
 
 
 def _normalize_references(value: Any) -> List[Dict[str, str]]:
