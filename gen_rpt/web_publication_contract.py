@@ -797,7 +797,40 @@ def convert_evidence_to_human_readable(
                 if key in action and isinstance(action[key], str):
                     action[key] = _clean_prose_internal_ids(action[key])
 
+    for exhibit in report.get("exhibits", []) or []:
+        if isinstance(exhibit, dict):
+            for key in ("title", "subtitle", "caption", "source_note", "footnote", "evidence_quality"):
+                if key in exhibit and isinstance(exhibit[key], str):
+                    exhibit[key] = _clean_prose_internal_ids(exhibit[key])
+            if "data_basis" in exhibit and isinstance(exhibit["data_basis"], list):
+                for item in exhibit["data_basis"]:
+                    if isinstance(item, dict):
+                        if "id" in item and isinstance(item["id"], str):
+                            item["id"] = re.sub(r"\b(?:WEB-E|RAG-E|E)(\d+)\b", r"Source \1", item["id"])
+                        for fkey in ("fact", "text", "description", "source_title", "title"):
+                            if fkey in item and isinstance(item[fkey], str):
+                                item[fkey] = _clean_prose_internal_ids(item[fkey])
+
+    for ref in report.get("references", []) or []:
+        if isinstance(ref, dict):
+            for key in ("title", "note"):
+                if key in ref and isinstance(ref[key], str):
+                    ref[key] = _clean_prose_internal_ids(ref[key])
+
+    for conflict in report.get("conflicts", []) or []:
+        if isinstance(conflict, dict):
+            if "id" in conflict and isinstance(conflict["id"], str):
+                conflict["id"] = re.sub(r"\b(?:WEB-E|RAG-E|E)(\d+)\b", r"Conflict \1", conflict["id"])
+            if "reason" in conflict and isinstance(conflict["reason"], str):
+                conflict["reason"] = _clean_prose_internal_ids(conflict["reason"])
+            for subkey in ("rag", "web"):
+                if subkey in conflict and isinstance(conflict[subkey], dict):
+                    for fkey in ("fact", "source_title"):
+                        if fkey in conflict[subkey] and isinstance(conflict[subkey][fkey], str):
+                            conflict[subkey][fkey] = _clean_prose_internal_ids(conflict[subkey][fkey])
+
     return report
+
 
 
 

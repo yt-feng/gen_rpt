@@ -1153,10 +1153,12 @@ def _render_data_basis(parts: List[str], basis: Any, labels: Dict[str, str]) -> 
     parts.append(f"<summary>{_e(labels.get('data_basis') or 'Sources')}</summary>")
     parts.append("<ul>")
     for item in rows[:8]:
-        basis_id = _text(item.get("id") or "")
+        basis_id_raw = _text(item.get("id") or "")
+        basis_id = re.sub(r"\b(?:WEB-E|RAG-E|E)(\d+)\b", r"Source \1", basis_id_raw)
         value = _text(item.get("value") or "")
         fact_raw = _text(item.get("fact") or item.get("text") or item.get("description") or "")
         fact_clean = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", fact_raw, flags=re.I)
+        fact_clean = re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", "retained evidence", fact_clean)
         fact = _compact(fact_clean, 220)
         title = _compact(_text(item.get("source_title") or item.get("title") or item.get("domain") or ""), 80)
         url = _text(item.get("url") or "")
@@ -1194,8 +1196,9 @@ def _render_conflicts(parts: List[str], conflicts: Any, language: str) -> None:
     for conflict in rows:
         rag = conflict["rag"]
         web = conflict["web"]
+        cid_clean = re.sub(r"\b(?:WEB-E|RAG-E|E)(\d+)\b", r"Conflict \1", _text(conflict.get("id") or ""))
         parts.append("<div class='evidence-box'>")
-        parts.append(f"<strong>{_e(conflict['id'])}: {_e(conflict['reason'])}</strong>")
+        parts.append(f"<strong>{_e(cid_clean)}: {_e(conflict['reason'])}</strong>")
         parts.append(f"<p><b>{'私有文档工作依据' if zh else 'RAG working basis'}:</b> {_e(rag['fact'])} {_e(rag['source_title'])}</p>")
         parts.append(f"<p><b>{'补充网页主张' if zh else 'Supplementary web claim'}:</b> {_e(web['fact'])} {_e(web['source_title'])}</p>")
         parts.append("</div>")
@@ -1590,12 +1593,14 @@ def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
     basis = []
     for idx, item in enumerate(_as_list(value), start=1):
         if isinstance(item, dict):
+            raw_id = _text(item.get("id") or f"Source {idx}")
+            clean_id = re.sub(r"\b(?:WEB-E|RAG-E|E)(\d+)\b", r"Source \1", raw_id)[:160]
             basis.append(
                 {
-                    "id": _text(item.get("id") or f"E{idx}")[:160],
+                    "id": clean_id,
                     "value": _compact(_text(item.get("value") or item.get("display_value") or ""), 40),
-                    "fact": _compact(_text(item.get("fact") or item.get("text") or item.get("description") or ""), 300),
-                    "source_title": _compact(_text(item.get("source_title") or item.get("title") or ""), 120),
+                    "fact": _compact(re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", "retained evidence", _text(item.get("fact") or item.get("text") or item.get("description") or "")), 300),
+                    "source_title": _compact(re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", "Source", _text(item.get("source_title") or item.get("title") or "")), 120),
                     "url": _text(item.get("url") or item.get("source_url") or ""),
                     "domain": _compact(_text(item.get("domain") or ""), 80),
                     "origin": _text(item.get("origin") or ""),
@@ -1607,7 +1612,8 @@ def _normalize_data_basis(value: Any) -> List[Dict[str, str]]:
         else:
             text_value = _text(item)
             if text_value:
-                basis.append({"id": f"E{idx}", "value": "", "fact": _compact(text_value, 300), "source_title": "", "url": "", "domain": "", "relevance_type": "", "decision_relevance": ""})
+                clean_text = re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", "retained evidence", text_value)
+                basis.append({"id": f"Source {idx}", "value": "", "fact": _compact(clean_text, 300), "source_title": "", "url": "", "domain": "", "relevance_type": "", "decision_relevance": ""})
     return [item for item in basis if item.get("fact") or item.get("url") or item.get("source_title") or item.get("id")][:12]
 
 
