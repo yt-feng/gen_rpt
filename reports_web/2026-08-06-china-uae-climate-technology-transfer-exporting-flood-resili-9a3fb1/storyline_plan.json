@@ -1,0 +1,134 @@
+{
+  "report_archetype": "market_investment",
+  "selected_modules": [
+    "source and forecast comparison",
+    "base, upside and downside scenarios",
+    "sensitivity drivers",
+    "segment and micro-market implications",
+    "investment recommendations"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "Should we invest in developing and marketing an integrated flood-resilience solution package for UAE municipal and industrial clients, and if so, what is the optimal market entry strategy?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, funding, market, other",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "Copyright © 2024 ISEC Press ISSN: 2644-108X www.doi.org/10.14455/ISEC.2024.11(2).RAD-04 RAD-04-1 FLASH FLOODS: RISK ASSESSMENT AND MITIGATION SOUGHAH ALSAMAHI1, HAZEM GOUDA1, SANA AMIR1, and ASDAM ALGHEZAWI2 1School of Engineering, Univ of Wollongong in Dubai, Dubai, United Arab Emirates 2Ministry of Energy and Infrastructure, Abu Dhabi, United Arab Emirates",
+    "According to the World Meteorological Organization (WMO) (2020), the global temperature as of 2020 is 1.2 ± 0.1 °C warmer than the pre-industrial (1850-1900) baseline, the sea level has been rising on an average of 3.29 (+/- 0.3) mm per year, and no.",
+    "1.1 United Nation’s Sustainability Development Goals The United Nations has developed several Sustainable Development Goals (United Nations Sustainable Development 2015) targeting the environmental, social and economic factors on a global scale that are set to be achieved by its 2030 agenda.",
+    "Following up with the development of the SDGs, the Paris agreement, which is a legal binding international treaty on climate change, was also adopted by 196 parties at COP 21 in Paris in 2015 (UNFCCC 2015).",
+    "(eds.) RAD-04-2 © 2024 ISEC Press has set a National Climate Change Adaptation Program NCCAP 2017-2050 developed by UAE Ministry of Climate Change and Environment (MOCCAE 2020) to make it stand out as one of the climate-resilient countries worldwide.",
+    "The program focuses on assessing the impacts of climate change on key sectors such as health, infrastructure, environment and energy, and to identify the associated risks in order to build resilience, take urgent actions and develop well-established adaptation measures towards them (MOCCAE 2020)."
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: UAE municipalities and developers have a significant and growing need for flood-resilience systems due to recent extreme rainfall events and climate change projections, creating a viable market.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: China's recent flood response has accelerated the maturity and proven effectiveness of integrated flood-resilience technologies, making them competitive in the UAE market.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The UAE's regulatory environment and investment in smart city and climate adaptation initiatives will facilitate the adoption of advanced flood-resilience solutions.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: A key barrier is the lack of local track record and certification for Chinese systems, which can be overcome through pilot projects and partnerships with UAE entities.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The integrated solution package offers a unique value proposition compared to single-technology competitors, but requires significant upfront investment and customization.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H6",
+      "hypothesis": "H6: Financial viability depends on securing anchor clients and leveraging climate finance mechanisms; without them, the project may not be profitable in the short term.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
