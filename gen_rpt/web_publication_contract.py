@@ -151,6 +151,8 @@ def is_internal_workbench_exhibit(exhibit: Any) -> bool:
 
 
 def rag_report_quality_issues(
+    report: Any,
+    *,
     topic: str,
     context_text: str,
     source_count: int,

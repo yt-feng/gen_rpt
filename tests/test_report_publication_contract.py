@@ -141,5 +141,39 @@ class TestReportPublicationContract(unittest.TestCase):
         self.assertIn("un-humanized internal evidence IDs", issues[1])
 
 
+    def test_rag_report_quality_issues_signature(self):
+        from gen_rpt.web_publication_contract import rag_report_quality_issues
+        report = {
+            "title": "Valid Title",
+            "dek": "Valid Dek Description",
+            "intro": ["Valid intro paragraph with sufficient word count to pass quality checks."],
+            "sections": [
+                {
+                    "title": "Section 1",
+                    "lead": "Lead paragraph for section 1 with adequate depth.",
+                    "paragraphs": ["Paragraph 1 with detailed discussion.", "Paragraph 2 with context."],
+                    "evidence": ["Doc.pdf — Sample quote"],
+                }
+            ],
+            "action_steps": [
+                {
+                    "horizon": "Near-term",
+                    "action": "Proceed with deployment",
+                    "success_metric": "Adoption rate",
+                    "rationale": "High ROI",
+                }
+            ],
+        }
+        issues = rag_report_quality_issues(
+            report,
+            topic="Test Topic",
+            context_text="Grounding text content for testing purposes.",
+            source_count=1,
+            source_chunks={"chunk1": "Sample quote"},
+        )
+        self.assertIsInstance(issues, list)
+
+
 if __name__ == "__main__":
     unittest.main()
+
