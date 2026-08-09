@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -70,21 +71,36 @@ class DeepSeekClient:
             return data["choices"][0]["message"]["content"]
 
         url = f"{self.base_url}/chat/completions"
-        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
-        payload = {"model": model or self.model, "messages": messages, "temperature": temperature}
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "GateX-Research-Pipeline/4.0",
+        }
+        payload = {"model": model or self.model, "messages": messages, "temperature": temperature, "stream": False}
 
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
         max_tokens = _int_env("DEEPSEEK_MAX_TOKENS", 0)
         if max_tokens > 0:
             payload["max_tokens"] = max_tokens
-        response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
-        if json_mode and response.status_code in {400, 422}:
-            payload.pop("response_format", None)
+        last_error = "unknown chat-completion failure"
+        for attempt in range(3):
             response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
-        response.raise_for_status()
-        data = response.json()
-        return data["choices"][0]["message"]["content"]
+            if json_mode and response.status_code in {400, 422} and "response_format" in payload:
+                payload.pop("response_format", None)
+                response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            try:
+                response.raise_for_status()
+                content = _completion_content(response)
+                if content.strip():
+                    return content
+                last_error = f"HTTP {response.status_code} returned an empty completion"
+            except Exception as exc:
+                last_error = str(exc)
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+        raise RuntimeError(f"Chat completion failed after retries: {last_error}")
 
     def chat_json(
         self,
@@ -147,6 +163,34 @@ def _uses_apimart(model: str) -> bool:
         return True
     normalized = str(model or "").strip().lower()
     return normalized.startswith(("gpt-", "o1", "o3", "o4"))
+
+
+def _completion_content(response: requests.Response) -> str:
+    try:
+        data = response.json()
+        return str(data["choices"][0]["message"]["content"] or "")
+    except (ValueError, KeyError, IndexError, TypeError):
+        chunks: List[str] = []
+        for line in response.text.splitlines():
+            if not line.startswith("data:"):
+                continue
+            raw = line[5:].strip()
+            if not raw or raw == "[DONE]":
+                continue
+            try:
+                payload = json.loads(raw)
+                choice = (payload.get("choices") or [{}])[0]
+                delta = choice.get("delta") if isinstance(choice.get("delta"), dict) else {}
+                message = choice.get("message") if isinstance(choice.get("message"), dict) else {}
+                value = delta.get("content") or message.get("content") or ""
+                if value:
+                    chunks.append(str(value))
+            except (ValueError, IndexError, TypeError):
+                continue
+        if chunks:
+            return "".join(chunks)
+        excerpt = response.text[:500].strip()
+        raise ValueError(f"Chat endpoint returned invalid JSON: {excerpt or '<empty body>'}")
 
 
 def normalize_structured_payload(payload: Dict[str, Any]) -> Dict[str, Any]:

@@ -5,7 +5,7 @@ from unittest import mock
 
 from PIL import Image
 
-from gen_rpt.deepseek_client import DeepSeekClient
+from gen_rpt.deepseek_client import DeepSeekClient, _completion_content
 from gen_rpt.gatex_whitepaper_pipeline import _authors, _source_packet, visual_quality_issues
 
 
@@ -21,6 +21,13 @@ def test_deepseek_model_keeps_deepseek_endpoint() -> None:
         client = DeepSeekClient(model="deepseek-chat")
     assert client.api_key == "test-key"
     assert client.base_url == "https://api.deepseek.com/v1"
+
+
+def test_completion_parser_accepts_sse_fallback() -> None:
+    response = mock.Mock()
+    response.json.side_effect = ValueError("not json")
+    response.text = 'data: {"choices":[{"delta":{"content":"Gate"}}]}\n\ndata: {"choices":[{"delta":{"content":"X"}}]}\n\ndata: [DONE]\n'
+    assert _completion_content(response) == "GateX"
 
 
 def test_source_packet_prefers_official_and_requires_https() -> None:

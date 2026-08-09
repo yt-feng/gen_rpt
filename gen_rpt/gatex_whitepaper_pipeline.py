@@ -20,7 +20,9 @@ from pypdf import PdfReader
 
 from .deepseek_client import DeepSeekClient
 from .gatex_pdf_renderer import render_gatex_release_pdf, validate_gatex_pdf
-from .web_report_pipeline import WebReportPipeline
+from .research_quality import build_research_fact_pack
+from .web_evidence import build_evidence_ledger
+from .web_fetch import collect_sources
 
 
 class GatexWhitepaperError(RuntimeError):
@@ -116,6 +118,87 @@ def _progress(stage: str, percent: int, message: str, eta_minutes: int) -> None:
     print("GATEX_PROGRESS " + json.dumps(payload, ensure_ascii=True), flush=True)
     if os.getenv("GITHUB_ACTIONS") == "true":
         print(f"::notice title=GateX {stage} ({percent}%)::{message} Estimated {eta_minutes} minute(s) remaining.", flush=True)
+
+
+def _fallback_queries(topic: str) -> list[str]:
+    subject = _clean(topic, 500)
+    return [
+        f"{subject} official statistics 2025 2026 filetype:pdf",
+        "site:stats.gov.cn China 2025 research development high technology manufacturing statistics",
+        "site:miit.gov.cn China 2025 integrated circuit semiconductor robotics official statistics",
+        "site:hkex.com.hk 2025 annual market statistics China technology listings filetype:pdf",
+        "site:sse.com.cn STAR Market 2025 annual report semiconductor technology filetype:pdf",
+        "site:szse.cn ChiNext 2025 technology capital market statistics filetype:pdf",
+        "China semiconductor equipment optical modules annual report 2025 filetype:pdf",
+        "China AI infrastructure computing power data center official report 2025 filetype:pdf",
+        "China industrial robotics production 2025 official data",
+        "China technology IPO capital raising 2025 official exchange statistics",
+        "China technology Gulf investment cooperation official 2025 semiconductor AI data center",
+        "China technology companies 2025 annual report semiconductor robotics optical components filetype:pdf",
+    ]
+
+
+def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
+    fallback = _fallback_queries(topic)
+    queries = list(fallback)
+    try:
+        planner = DeepSeekClient(model=os.getenv("GATEX_RESEARCH_MODEL", "deepseek-chat"), timeout=240)
+        planned = planner.chat_json(
+            [
+                {
+                    "role": "system",
+                    "content": "You plan evidence searches for an institutional white paper. Return valid JSON only.",
+                },
+                {
+                    "role": "user",
+                    "content": f"""Create 10 distinct, concise web-search queries for this publication.
+
+Topic: {topic}
+Brief: {brief}
+
+Requirements:
+- Prioritise primary government data, securities-exchange statistics, regulator releases, company filings and downloadable PDF reports.
+- Cover semiconductors, AI infrastructure, robotics, optical components and capital-market access.
+- Include one query for evidence-backed China-Gulf technology or capital links, without assuming a link exists.
+- Do not repeat the full topic in every query.
+
+Return: {{"queries":["query 1","query 2"]}}""",
+                },
+            ],
+            temperature=0.05,
+        )
+        generated = [_clean(item, 320) for item in planned.get("queries") or [] if _clean(item, 320)]
+        if len(generated) >= 8:
+            queries = generated[:10] + fallback[:4]
+    except Exception as exc:
+        print(f"[gatex.whitepaper] query planner fallback: {exc}", flush=True)
+    queries = list(dict.fromkeys(queries))[:14]
+    (work_dir / "research-queries.json").write_text(json.dumps({"queries": queries}, ensure_ascii=False, indent=2), encoding="utf-8")
+    _progress("research", 16, f"Searching {len(queries)} evidence queries with Tavily and GDELT.", 13)
+    sources = collect_sources(
+        queries,
+        per_query=max(2, min(6, int(os.getenv("GEN_RPT_PER_QUERY", "4")))),
+        max_sources=max(16, min(40, int(os.getenv("GEN_RPT_MAX_SOURCES", "30")))),
+    )
+    if len(sources) < 12:
+        raise GatexWhitepaperError(f"Public research produced only {len(sources)} usable sources; at least 12 are required.")
+    plan = {
+        "objective": topic,
+        "decision_question": "Where is China's technology capability becoming commercially and financially investable, and what still constrains execution?",
+        "search_queries": queries,
+        "outline": ["industrial capability", "compute and infrastructure", "capital-market access", "cross-border relevance"],
+    }
+    fact_pack = build_research_fact_pack(topic, plan, sources)
+    evidence = build_evidence_ledger(topic, sources, fact_pack, limit=36, plan=plan)
+    if len(evidence) < 12:
+        raise GatexWhitepaperError(f"Research produced only {len(evidence)} structured evidence points; at least 12 are required.")
+    if fact_pack.authoritative_source_count < 2:
+        raise GatexWhitepaperError("Research requires at least two authoritative public sources.")
+    source_rows = [source.__dict__ for source in sources]
+    (work_dir / "sources.json").write_text(json.dumps(source_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    (work_dir / "research-fact-pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
+    (work_dir / "evidence-ledger.json").write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"sources": source_rows, "fact_pack": fact_pack.to_dict(), "approved_evidence": evidence, "evidence_ledger": evidence}
 
 
 def _source_score(source: Mapping[str, Any]) -> int:
@@ -721,22 +804,12 @@ def generate_gatex_whitepaper(
     publication_date = publication_date or date.today().isoformat()
 
     _progress("research", 8, "Planning the evidence search and source requirements.", 18)
-    client = DeepSeekClient(model=model, timeout=420)
-    previous_disable_images = os.getenv("DISABLE_AI_IMAGES")
-    os.environ["DISABLE_AI_IMAGES"] = "true"
-    try:
-        research = WebReportPipeline(client=client, language="en").build_report(
-            topic=topic,
-            output_dir=work_dir / "research",
-            source_mode="web_only",
-        )
-    finally:
-        if previous_disable_images is None:
-            os.environ.pop("DISABLE_AI_IMAGES", None)
-        else:
-            os.environ["DISABLE_AI_IMAGES"] = previous_disable_images
+    research_dir = work_dir / "research"
+    research_dir.mkdir(parents=True, exist_ok=True)
+    research = _collect_research(topic, brief, research_dir)
 
     _progress("synthesis", 42, "Converting the evidence base into the GateX white-paper architecture.", 10)
+    client = DeepSeekClient(model=model, timeout=420)
     sources, source_packet = _source_packet(research)
     content = _prepare_editorial(
         client,
