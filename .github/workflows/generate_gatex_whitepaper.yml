@@ -83,6 +83,15 @@ jobs:
             gen_rpt/gatex_whitepaper_pipeline.py \
             tools/generate_gatex_whitepaper.py
 
+      - name: Restore research checkpoint
+        id: research_cache
+        uses: actions/cache/restore@v4
+        with:
+          path: output/gatex-whitepapers/${{ inputs.slug }}/research
+          key: gatex-research-${{ inputs.slug }}-${{ github.run_id }}
+          restore-keys: |
+            gatex-research-${{ inputs.slug }}-
+
       - name: Generate review-gated GateX PDF
         id: generate
         run: |
@@ -109,6 +118,13 @@ jobs:
           if-no-files-found: warn
           retention-days: 14
           compression-level: 6
+
+      - name: Save research checkpoint
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: output/gatex-whitepapers/${{ inputs.slug }}/research
+          key: gatex-research-${{ inputs.slug }}-${{ github.run_id }}
 
       - name: Publish review summary
         if: ${{ always() }}

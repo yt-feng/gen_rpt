@@ -40,6 +40,7 @@ class DeepSeekClient:
         temperature: float = 0.2,
         model: Optional[str] = None,
         json_mode: bool = False,
+        max_tokens: Optional[int] = None,
     ) -> str:
         backend_url = os.getenv("BACKEND_URL")
         if backend_url:
@@ -58,9 +59,9 @@ class DeepSeekClient:
             }
             if json_mode:
                 payload["response_format"] = {"type": "json_object"}
-            max_tokens = _int_env("DEEPSEEK_MAX_TOKENS", 0)
-            if max_tokens > 0:
-                payload["max_tokens"] = max_tokens
+            requested_max_tokens = max_tokens if max_tokens is not None else _int_env("DEEPSEEK_MAX_TOKENS", 0)
+            if requested_max_tokens > 0:
+                payload["max_tokens"] = requested_max_tokens
                 
             response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
             if json_mode and response.status_code in {400, 422}:
@@ -81,9 +82,9 @@ class DeepSeekClient:
 
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
-        max_tokens = _int_env("DEEPSEEK_MAX_TOKENS", 0)
-        if max_tokens > 0:
-            payload["max_tokens"] = max_tokens
+        requested_max_tokens = max_tokens if max_tokens is not None else _int_env("DEEPSEEK_MAX_TOKENS", 0)
+        if requested_max_tokens > 0:
+            payload["max_tokens"] = requested_max_tokens
         last_error = "unknown chat-completion failure"
         for attempt in range(3):
             response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
@@ -108,8 +109,15 @@ class DeepSeekClient:
         *,
         temperature: float = 0.2,
         model: Optional[str] = None,
+        max_tokens: Optional[int] = None,
     ) -> Dict[str, Any]:
-        raw = self.chat(messages, temperature=temperature, model=model, json_mode=_json_mode_enabled())
+        raw = self.chat(
+            messages,
+            temperature=temperature,
+            model=model,
+            json_mode=_json_mode_enabled(),
+            max_tokens=max_tokens,
+        )
         try:
             return normalize_structured_payload(extract_json_object(raw))
         except Exception as first_error:
@@ -130,7 +138,13 @@ class DeepSeekClient:
                     ),
                 },
             ]
-            repaired = self.chat(repair_messages, temperature=0.0, model=model, json_mode=True)
+            repaired = self.chat(
+                repair_messages,
+                temperature=0.0,
+                model=model,
+                json_mode=True,
+                max_tokens=max_tokens,
+            )
             try:
                 return normalize_structured_payload(extract_json_object(repaired))
             except Exception as second_error:

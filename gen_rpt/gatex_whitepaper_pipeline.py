@@ -139,6 +139,20 @@ def _fallback_queries(topic: str) -> list[str]:
 
 
 def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
+    sources_path = work_dir / "sources.json"
+    fact_pack_path = work_dir / "research-fact-pack.json"
+    evidence_path = work_dir / "evidence-ledger.json"
+    if os.getenv("GATEX_REUSE_RESEARCH", "true").strip().lower() not in {"0", "false", "no", "off"}:
+        if sources_path.is_file() and fact_pack_path.is_file() and evidence_path.is_file():
+            try:
+                source_rows = json.loads(sources_path.read_text(encoding="utf-8"))
+                fact_pack = json.loads(fact_pack_path.read_text(encoding="utf-8"))
+                evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
+                if len(source_rows) >= 12 and len(evidence) >= 12:
+                    _progress("research", 30, f"Reusing {len(source_rows)} cached sources and {len(evidence)} evidence points.", 10)
+                    return {"sources": source_rows, "fact_pack": fact_pack, "approved_evidence": evidence, "evidence_ledger": evidence}
+            except (OSError, ValueError, TypeError):
+                pass
     fallback = _fallback_queries(topic)
     queries = list(fallback)
     try:
@@ -195,9 +209,9 @@ Return: {{"queries":["query 1","query 2"]}}""",
     if fact_pack.authoritative_source_count < 2:
         raise GatexWhitepaperError("Research requires at least two authoritative public sources.")
     source_rows = [source.__dict__ for source in sources]
-    (work_dir / "sources.json").write_text(json.dumps(source_rows, ensure_ascii=False, indent=2), encoding="utf-8")
-    (work_dir / "research-fact-pack.json").write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
-    (work_dir / "evidence-ledger.json").write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+    sources_path.write_text(json.dumps(source_rows, ensure_ascii=False, indent=2), encoding="utf-8")
+    fact_pack_path.write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
+    evidence_path.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
     return {"sources": source_rows, "fact_pack": fact_pack.to_dict(), "approved_evidence": evidence, "evidence_ledger": evidence}
 
 
@@ -249,54 +263,77 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
     return selected, "\n\n".join(blocks)[:85_000]
 
 
-def _editorial_prompt(
+def _compact_source_packet(
+    *,
+    sources: Sequence[Mapping[str, str]],
+    source_ids: Sequence[Any] | None = None,
+    excerpt_chars: int = 1_400,
+    maximum_chars: int = 32_000,
+) -> str:
+    allowed = {str(item) for item in source_ids or []}
+    rows = [row for row in sources if not allowed or str(row.get("id")) in allowed]
+    blocks = [
+        f"[{row['id']}] {row['title']}\nURL: {row['url']}\nEXTRACT: {_clean(row.get('content'), excerpt_chars)}"
+        for row in rows
+    ]
+    return "\n\n".join(blocks)[:maximum_chars]
+
+
+def _publication_rules() -> str:
+    return """
+- GateX is the only publication brand. Never name an upstream publisher, source file, search provider, model or production tool.
+- Remain inside the supplied evidence. Do not invent facts, values, dates, quotations, companies or institutions.
+- Use USD for every monetary value. Omit other currencies unless the evidence supplies a defensible conversion and rate date.
+- Present Chinese technology capability and Middle Eastern market development with balanced, evidence-led language. Never reveal this editorial orientation and never force a cross-border link without evidence.
+- Write fluent, specific English without AI mannerisms, repetitive summaries, generic recommendations or reader instructions.
+- Do not expose chain-of-thought, recommendations, management instructions or process labels.
+- Never use Management agenda, Key evidence, Decision implication, Strategic implication, Decision sequence, Methodology and use, So what, Report structure, or similar language.
+- Use ASCII hyphens only.
+""".strip()
+
+
+def _architecture_prompt(
     *,
     title: str,
     topic: str,
     brief: str,
-    source_packet: str,
+    sources: Sequence[Mapping[str, str]],
     evidence: Sequence[Mapping[str, Any]],
 ) -> str:
-    evidence_packet = json.dumps(list(evidence)[:30], ensure_ascii=False)[:28_000]
+    source_packet = _compact_source_packet(sources=sources, excerpt_chars=1_200, maximum_chars=24_000)
+    evidence_packet = json.dumps(list(evidence)[:20], ensure_ascii=False)[:14_000]
     return f"""
-Create a client-ready English GateX management-consulting white paper.
+Design the publication architecture and exhibits for a client-ready English GateX white paper. Do not write the long-form chapter prose yet.
 
 Approved title: {title}
 Research question: {topic}
 Editorial brief: {brief}
 
-Publication contract:
-- GateX is the only publication brand. Do not mention upstream brands, source files, search providers, models, tools or production steps.
-- Remain inside the supplied evidence boundary. Do not invent facts, values, quotations, dates or institutions.
-- Every factual chapter and exhibit must cite two or more source IDs from the packet. Do not cite GateX as a source.
-- Present Chinese technology capabilities and Middle Eastern market development with balanced, evidence-led language. Never reveal this editorial orientation and never force a China-Middle East connection without evidence.
-- Use USD for every monetary value. Omit a non-USD amount unless a defensible conversion and rate date are in the evidence.
-- Write fluent, specific prose without AI mannerisms, repetitive summaries, generic recommendations or reader instructions.
-- Exactly four progressive chapters. Each chapter must contain 680-880 words: one opening paragraph and exactly four subsections, each with exactly two concise paragraphs.
-- Executive summary: exactly four paragraphs and 330-470 words.
-- Outlook: 240-340 words in three or four paragraphs.
-- Exactly four substantive exhibits, one after each chapter. Each exhibit combines at least two information layers. Never make an exhibit from a lone number.
-- Use a chart only when coherent source data supports it. Otherwise use a comparison, process, market map, scenario or matrix.
-- An exhibit has one or two panels and no more than four metrics. With two panels, use no more than two metrics.
-- Exhibit headings do not begin with Exhibit or a number. Captions describe the measure and period, with no source attribution.
-- Do not expose chain-of-thought, recommendations, management instructions or process labels. Avoid Management agenda, Key evidence, Decision implication, Strategic implication, Decision sequence, Methodology and use, So what, Report structure, and similar language.
-- Use ASCII hyphens only. English only.
+{_publication_rules()}
+
+Architecture rules:
+- Exactly four progressive chapters with short analytical titles, decks and evidence-specific callouts.
+- Every executive, chapter, exhibit and outlook row cites two to five valid source IDs.
+- Exactly four substantive exhibits, one after each chapter. Each combines at least two information layers and is grounded in cited source IDs.
+- Use quantitative charts only for coherent source series. Otherwise use comparison, process, market map, scenario or matrix.
+- Each exhibit has one or two panels and no more than four metrics. With two panels, use no more than two metrics.
+- Exhibit headings never begin with Exhibit or a number. Captions contain no source attribution.
+- Produce five distinct documentary visual briefs showing actual industry, infrastructure, technology or operating context, with no text, logos, flags or abstract decoration.
 
 Supported exhibit panel types: process, matrix, bars, scenario, comparison, line, stacked_bar, scatter, waterfall, market_map, milestones.
 
 Return valid JSON only in this exact shape:
 {{
-  "title": "{title}",
   "subtitle": "short analytical subtitle",
   "coverSummary": "55-80 word synopsis",
-  "executiveSummary": {{"headline":"...","deck":"...","paragraphs":["...","...","...","..."],"sourceIds":["S1","S2"]}},
+  "executiveSummary": {{"headline":"...","deck":"...","sourceIds":["S1","S2"]}},
   "chapters": [
-    {{"number":"01","title":"...","deck":"...","callout":"...","opening":"...","sourceIds":["S1","S2"],"subsections":[{{"heading":"...","paragraphs":["...","..."]}}]}}
+    {{"number":"01","title":"...","deck":"...","callout":"...","sourceIds":["S1","S2"]}}
   ],
   "exhibits": [
     {{"heading":"...","caption":"...","sourceIds":["S1","S2"],"metrics":[{{"value":"...","label":"...","note":"..."}}],"panels":[{{"type":"matrix","span":"wide","title":"...","items":[{{"tag":"01","title":"...","body":"..."}}]}}]}}
   ],
-  "outlook": {{"title":"...","deck":"...","callout":"...","paragraphs":["...","...","..."],"sourceIds":["S1","S2"]}},
+  "outlook": {{"title":"...","deck":"...","callout":"...","sourceIds":["S1","S2"]}},
   "visuals": [
     {{"id":"executive-summary","prompt":"documentary photograph brief","alt":"specific factual caption"}},
     {{"id":"chapter-1","prompt":"...","alt":"..."}},
@@ -309,7 +346,7 @@ Return valid JSON only in this exact shape:
 STRUCTURED EVIDENCE LEDGER
 {evidence_packet}
 
-PUBLIC SOURCE PACKET
+SELECTED PUBLIC SOURCE PACKET
 {source_packet}
 """.strip()
 
@@ -385,54 +422,226 @@ def _prepare_editorial(
     sources: Sequence[Mapping[str, str]],
     work_dir: Path,
 ) -> dict[str, Any]:
-    prompt = _editorial_prompt(
-        title=title,
-        topic=topic,
-        brief=brief,
-        source_packet=source_packet,
-        evidence=evidence,
-    )
-    draft = client.chat_json(
-        [
-            {"role": "system", "content": "You are the senior English-language white-paper editor at GateX. Return valid JSON only."},
-            {"role": "user", "content": prompt},
-        ],
-        temperature=0.16,
-    )
-    (work_dir / "editorial-draft.json").write_text(json.dumps(draft, ensure_ascii=False, indent=2), encoding="utf-8")
     valid_ids = {str(item["id"]) for item in sources}
-    candidate = _ascii(draft)
-    for attempt in range(3):
-        issues = _editorial_issues(candidate, valid_ids)
-        if not issues:
-            candidate["title"] = title
-            (work_dir / "editorial-final.json").write_text(
-                json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8"
+    fallback_ids = [str(item["id"]) for item in sources[:4]]
+
+    architecture: dict[str, Any] | None = None
+    architecture_error = ""
+    for attempt in range(2):
+        try:
+            architecture = _ascii(
+                client.chat_json(
+                    [
+                        {"role": "system", "content": "You are the senior publication architect at GateX. Return valid JSON only."},
+                        {
+                            "role": "user",
+                            "content": _architecture_prompt(
+                                title=title,
+                                topic=topic,
+                                brief=brief,
+                                sources=sources,
+                                evidence=evidence,
+                            )
+                            + (f"\n\nPrevious attempt failed: {architecture_error}" if architecture_error else ""),
+                        },
+                    ],
+                    temperature=0.12,
+                    max_tokens=5_500,
+                )
             )
-            return candidate
-        if attempt == 2:
-            raise GatexWhitepaperError("Editorial QA failed: " + " | ".join(issues))
-        candidate = _ascii(
+            chapters = architecture.get("chapters") if isinstance(architecture.get("chapters"), list) else []
+            exhibits = architecture.get("exhibits") if isinstance(architecture.get("exhibits"), list) else []
+            visuals = architecture.get("visuals") if isinstance(architecture.get("visuals"), list) else []
+            if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
+                raise GatexWhitepaperError("Architecture requires four chapters, four exhibits and five visuals.")
+            break
+        except Exception as exc:
+            architecture = None
+            architecture_error = str(exc)
+    if architecture is None:
+        raise GatexWhitepaperError(f"Unable to prepare the publication architecture: {architecture_error}")
+
+    def normalized_source_ids(value: Any) -> list[str]:
+        rows = [str(item) for item in value or [] if str(item) in valid_ids]
+        rows = list(dict.fromkeys(rows))
+        return (rows if len(rows) >= 2 else fallback_ids)[:5]
+
+    executive_meta = architecture.get("executiveSummary") if isinstance(architecture.get("executiveSummary"), Mapping) else {}
+    executive_ids = normalized_source_ids(executive_meta.get("sourceIds"))
+    executive: dict[str, Any] | None = None
+    executive_error = ""
+    for attempt in range(2):
+        executive = _ascii(
             client.chat_json(
                 [
-                    {"role": "system", "content": "You are the final GateX publication editor. Return the complete corrected JSON object only."},
+                    {"role": "system", "content": "You are the senior English-language editor at GateX. Return valid JSON only."},
                     {
                         "role": "user",
-                        "content": (
-                            "Repair the manuscript so every issue is resolved without inventing evidence. Preserve the exact schema, title, four-chapter progression and source IDs.\n\n"
-                            + "ISSUES\n- " + "\n- ".join(issues)
-                            + "\n\nCURRENT JSON\n" + json.dumps(candidate, ensure_ascii=False)
-                            + "\n\nSOURCE PACKET\n" + source_packet
-                        ),
+                        "content": f"""Write the executive summary for {title}.
+
+Headline: {_clean(executive_meta.get('headline'), 300)}
+Deck: {_clean(executive_meta.get('deck'), 500)}
+Editorial brief: {brief}
+
+{_publication_rules()}
+
+Write exactly four paragraphs and 330-470 words. Establish the evidence-led thesis, the industrial capability, the capital-market transmission and the bounded cross-border relevance. Do not describe the report structure.
+Return only: {{"paragraphs":["paragraph 1","paragraph 2","paragraph 3","paragraph 4"]}}
+
+SOURCES
+{_compact_source_packet(sources=sources, source_ids=executive_ids, excerpt_chars=3_500, maximum_chars=18_000)}
+{f'Previous attempt failed: {executive_error}' if executive_error else ''}""",
                     },
                 ],
-                temperature=0.08,
+                temperature=0.14,
+                max_tokens=1_800,
             )
         )
-        (work_dir / f"editorial-repair-{attempt + 1}.json").write_text(
-            json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8"
+        executive.update(
+            {
+                "headline": _clean(executive_meta.get("headline"), 300),
+                "deck": _clean(executive_meta.get("deck"), 500),
+                "sourceIds": executive_ids,
+            }
         )
-    raise GatexWhitepaperError("Editorial preparation ended unexpectedly.")
+        if len(executive.get("paragraphs") or []) == 4 and 300 <= _word_count(executive) <= 520:
+            break
+        executive_error = f"Need exactly four paragraphs and 330-470 words; received {_word_count(executive)} words."
+        executive = None
+    if executive is None:
+        raise GatexWhitepaperError(f"Executive summary failed editorial QA: {executive_error}")
+    (work_dir / "editorial-executive.json").write_text(json.dumps(executive, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    chapters: list[dict[str, Any]] = []
+    for index, raw_meta in enumerate(architecture["chapters"], start=1):
+        meta = raw_meta if isinstance(raw_meta, Mapping) else {}
+        source_ids = normalized_source_ids(meta.get("sourceIds"))
+        chapter: dict[str, Any] | None = None
+        chapter_error = ""
+        for attempt in range(2):
+            chapter = _ascii(
+                client.chat_json(
+                    [
+                        {"role": "system", "content": "You are the senior long-form white-paper editor at GateX. Return valid JSON only."},
+                        {
+                            "role": "user",
+                            "content": f"""Write chapter {index} of {title}.
+
+Chapter title: {_clean(meta.get('title'), 300)}
+Deck: {_clean(meta.get('deck'), 500)}
+Callout: {_clean(meta.get('callout'), 500)}
+Editorial brief: {brief}
+
+{_publication_rules()}
+
+Write 680-880 words in total. Start with one opening paragraph, followed by exactly four progressive subsections. Every subsection has exactly two concise paragraphs. Use evidence-specific mechanisms and comparisons; do not repeat the executive summary.
+Return only: {{"opening":"...","subsections":[{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}}]}}
+
+SOURCES
+{_compact_source_packet(sources=sources, source_ids=source_ids, excerpt_chars=3_500, maximum_chars=20_000)}
+{f'Previous attempt failed: {chapter_error}' if chapter_error else ''}""",
+                        },
+                    ],
+                    temperature=0.15,
+                    max_tokens=2_700,
+                )
+            )
+            chapter.update(
+                {
+                    "number": f"{index:02d}",
+                    "title": _clean(meta.get("title"), 300),
+                    "deck": _clean(meta.get("deck"), 500),
+                    "callout": _clean(meta.get("callout"), 500),
+                    "sourceIds": source_ids,
+                }
+            )
+            subsections = chapter.get("subsections") if isinstance(chapter.get("subsections"), list) else []
+            paragraphs_ok = len(subsections) == 4 and all(
+                isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in subsections
+            )
+            if paragraphs_ok and 560 <= _word_count(chapter) <= 980:
+                break
+            chapter_error = f"Need one opening, four two-paragraph subsections and 680-880 words; received {_word_count(chapter)} words."
+            chapter = None
+        if chapter is None:
+            raise GatexWhitepaperError(f"Chapter {index} failed editorial QA: {chapter_error}")
+        chapters.append(chapter)
+        (work_dir / f"editorial-chapter-{index}.json").write_text(json.dumps(chapter, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    outlook_meta = architecture.get("outlook") if isinstance(architecture.get("outlook"), Mapping) else {}
+    outlook_ids = normalized_source_ids(outlook_meta.get("sourceIds"))
+    outlook: dict[str, Any] | None = None
+    outlook_error = ""
+    for attempt in range(2):
+        outlook = _ascii(
+            client.chat_json(
+                [
+                    {"role": "system", "content": "You are the final white-paper editor at GateX. Return valid JSON only."},
+                    {
+                        "role": "user",
+                        "content": f"""Write the closing outlook for {title}.
+
+Title: {_clean(outlook_meta.get('title'), 300)}
+Deck: {_clean(outlook_meta.get('deck'), 500)}
+Callout: {_clean(outlook_meta.get('callout'), 500)}
+
+{_publication_rules()}
+
+Write three or four paragraphs and 240-340 words. Close with a bounded view of industrial execution, capital-market access and cross-border relevance. Do not give an action plan.
+Return only: {{"paragraphs":["...","...","..."]}}
+
+SOURCES
+{_compact_source_packet(sources=sources, source_ids=outlook_ids, excerpt_chars=3_500, maximum_chars=18_000)}
+{f'Previous attempt failed: {outlook_error}' if outlook_error else ''}""",
+                    },
+                ],
+                temperature=0.14,
+                max_tokens=1_300,
+            )
+        )
+        outlook.update(
+            {
+                "title": _clean(outlook_meta.get("title"), 300),
+                "deck": _clean(outlook_meta.get("deck"), 500),
+                "callout": _clean(outlook_meta.get("callout"), 500),
+                "sourceIds": outlook_ids,
+            }
+        )
+        if 3 <= len(outlook.get("paragraphs") or []) <= 4 and 200 <= _word_count(outlook) <= 400:
+            break
+        outlook_error = f"Need three or four paragraphs and 240-340 words; received {_word_count(outlook)} words."
+        outlook = None
+    if outlook is None:
+        raise GatexWhitepaperError(f"Outlook failed editorial QA: {outlook_error}")
+
+    exhibits: list[dict[str, Any]] = []
+    for raw in architecture["exhibits"]:
+        exhibit = dict(raw) if isinstance(raw, Mapping) else {}
+        exhibit["sourceIds"] = normalized_source_ids(exhibit.get("sourceIds"))
+        exhibits.append(_ascii(exhibit))
+    visuals = [dict(item) for item in architecture["visuals"] if isinstance(item, Mapping)]
+    expected_visual_ids = ["executive-summary", "chapter-1", "chapter-2", "chapter-3", "chapter-4"]
+    for index, visual in enumerate(visuals):
+        visual["id"] = expected_visual_ids[index]
+
+    candidate = _ascii(
+        {
+            "title": title,
+            "subtitle": _clean(architecture.get("subtitle"), 500),
+            "coverSummary": _clean(architecture.get("coverSummary"), 1_500),
+            "executiveSummary": executive,
+            "chapters": chapters,
+            "exhibits": exhibits,
+            "outlook": outlook,
+            "visuals": visuals,
+        }
+    )
+    issues = _editorial_issues(candidate, valid_ids)
+    if issues:
+        raise GatexWhitepaperError("Assembled editorial QA failed: " + " | ".join(issues))
+    (work_dir / "editorial-architecture.json").write_text(json.dumps(architecture, ensure_ascii=False, indent=2), encoding="utf-8")
+    (work_dir / "editorial-final.json").write_text(json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
+    return candidate
 
 
 def visual_quality_issues(source: bytes | Path | Image.Image) -> list[str]:
