@@ -9,6 +9,7 @@ from pypdf import PdfReader
 
 from gen_rpt.gatex_pdf_renderer import (
     COVER_TEXTURE_PATH,
+    _deduplicated_word_text,
     release_classification,
     release_pdf_filename,
     render_gatex_release_pdf,
@@ -125,6 +126,16 @@ class GatexPdfRendererTests(unittest.TestCase):
         canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         self.assertEqual(stable_json_checksum(payload), hashlib.sha256(canonical.encode("utf-8")).hexdigest())
 
+    def test_cover_title_text_deduplicates_printed_text_shadows(self):
+        words = [
+            (10.0, 20.0, 40.0, 30.0, "Red", 0, 0, 0),
+            (45.0, 20.0, 80.0, 30.0, "Chips:", 0, 0, 1),
+            (10.0, 18.8, 40.0, 28.8, "Red", 0, 1, 0),
+            (45.0, 18.8, 80.0, 28.8, "Chips:", 0, 1, 1),
+            (10.0, 52.0, 85.0, 62.0, "Technology", 0, 2, 0),
+        ]
+        self.assertEqual(_deduplicated_word_text(words), "Red Chips: Technology")
+
     def test_renders_cover_body_furniture_and_metadata(self):
         payload = sample_release()
         with TemporaryDirectory() as directory:
@@ -150,6 +161,16 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertEqual(metadata.creator, "GateX PDF Release Pipeline")
             visible_brand = " ".join([cover_text, *(str(value or "") for value in metadata.values())]).lower()
             self.assertNotRegex(visible_brand, r"blue[ -]?ocean|\bbo\b")
+
+    def test_renders_and_validates_a_multiline_cover_title(self):
+        payload = {
+            **sample_release(),
+            "title": "Red Chips: China Technology and Capital Markets Outlook",
+            "contentKey": "red-chips-china-technology-capital-markets",
+        }
+        with TemporaryDirectory() as directory:
+            artifact = render_gatex_release_pdf(payload, Path(directory))
+        self.assertTrue(artifact["qa"]["passed"])
 
     def test_renders_the_approved_topic_art_into_the_pdf_cover(self):
         payload = {**sample_release(), "coverImagePath": str(COVER_TEXTURE_PATH)}

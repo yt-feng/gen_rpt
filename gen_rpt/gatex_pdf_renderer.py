@@ -124,7 +124,11 @@ def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str,
         page_text = [document.load_page(index).get_text("text").strip() for index in range(document.page_count)]
         if "GATEX" not in page_text[0].upper():
             raise GatexPdfError("GateX cover mark is missing from the rendered PDF.")
-        if expected_title and _comparison_key(expected_title) not in _comparison_key(" ".join(page_text[:2])):
+        cover_text = " ".join(
+            _deduplicated_word_text(document.load_page(index).get_text("words"))
+            for index in range(min(2, document.page_count))
+        )
+        if expected_title and _comparison_key(expected_title) not in _comparison_key(cover_text):
             raise GatexPdfError("The PDF cover does not contain the approved report title.")
         if "FRANK FENG" not in page_text[-1].upper() or "GATEX" not in page_text[-1].upper():
             raise GatexPdfError("The GateX publication-team back cover is missing.")
@@ -1702,6 +1706,33 @@ def _ascii(value: Any) -> str:
 
 def _comparison_key(value: Any) -> str:
     return re.sub(r"[^a-z0-9\u4e00-\u9fff]+", "", str(value or "").lower())
+
+
+def _deduplicated_word_text(words: Sequence[Any]) -> str:
+    accepted: List[tuple[float, float, str]] = []
+    output: List[str] = []
+    for raw in words:
+        if not isinstance(raw, Sequence) or len(raw) < 5:
+            continue
+        token = _clean(raw[4], 300)
+        if not token:
+            continue
+        try:
+            x0 = float(raw[0])
+            y0 = float(raw[1])
+        except (TypeError, ValueError):
+            output.append(token)
+            continue
+        key = _comparison_key(token)
+        is_shadow = any(
+            key == prior_key and abs(x0 - prior_x) <= 1.8 and abs(y0 - prior_y) <= 2.2
+            for prior_x, prior_y, prior_key in accepted[-60:]
+        )
+        if is_shadow:
+            continue
+        accepted.append((x0, y0, key))
+        output.append(token)
+    return " ".join(output)
 
 
 def _sha256(path: Path) -> str:

@@ -1,12 +1,20 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from unittest import mock
 
 from PIL import Image
 
 from gen_rpt.deepseek_client import DeepSeekClient, _completion_content
-from gen_rpt.gatex_whitepaper_pipeline import _authors, _paragraph_word_count, _source_packet, visual_quality_issues
+from gen_rpt.gatex_whitepaper_pipeline import (
+    _authors,
+    _generate_visuals,
+    _paragraph_word_count,
+    _source_packet,
+    visual_quality_issues,
+)
 
 
 def test_gpt_model_uses_apimart_endpoint() -> None:
@@ -80,3 +88,15 @@ def test_outlook_word_count_excludes_metadata() -> None:
         "paragraphs": ["One two three.", "Four five six."],
     }
     assert _paragraph_word_count(outlook) == 6
+
+
+def test_valid_cached_visual_is_reused_without_api_call() -> None:
+    with TemporaryDirectory() as directory:
+        target_dir = Path(directory)
+        image = Image.effect_noise((1280, 854), 48).convert("RGB")
+        image.save(target_dir / "chapter-1.jpg", format="JPEG", quality=90)
+        content = {"visuals": [{"id": "chapter-1", "prompt": "Semiconductor production", "alt": "Production line"}]}
+        with mock.patch("gen_rpt.gatex_whitepaper_pipeline._download_apimart_image") as download:
+            result = _generate_visuals(content, target_dir)
+        download.assert_not_called()
+        assert result["chapter-1"]["path"].endswith("chapter-1.jpg")

@@ -865,6 +865,11 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
     def generate(identifier: str, row: Mapping[str, Any]) -> tuple[str, dict[str, str]]:
         target = target_dir / f"{identifier}.jpg"
         prompt = _clean(row.get("prompt"), 3_500) + shared
+        if target.is_file():
+            issues = visual_quality_issues(target)
+            if not issues:
+                return identifier, {"path": str(target), "alt": _clean(row.get("alt"), 500)}
+            print(f"[gatex.whitepaper] cached visual rejected for {identifier}: {'; '.join(issues)}", flush=True)
         errors: list[str] = []
         for attempt in range(3):
             try:
