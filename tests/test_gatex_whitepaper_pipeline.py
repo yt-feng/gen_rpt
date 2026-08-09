@@ -6,7 +6,7 @@ from unittest import mock
 from PIL import Image
 
 from gen_rpt.deepseek_client import DeepSeekClient, _completion_content
-from gen_rpt.gatex_whitepaper_pipeline import _authors, _source_packet, visual_quality_issues
+from gen_rpt.gatex_whitepaper_pipeline import _authors, _paragraph_word_count, _source_packet, visual_quality_issues
 
 
 def test_gpt_model_uses_apimart_endpoint() -> None:
@@ -69,3 +69,14 @@ def test_author_emails_are_client_ready_and_deterministic() -> None:
     assert first == second
     assert first[0] == {"name": "Frank Feng", "role": "Managing Partner", "email": "frank@gatex.fund"}
     assert all(row["email"].endswith("@gatex.fund") and not row["email"].startswith("xxx") for row in first)
+
+
+def test_outlook_word_count_excludes_metadata() -> None:
+    outlook = {
+        "title": "A long closing title that should not count",
+        "deck": "Deck metadata is laid out separately from the body.",
+        "callout": "This is also not paragraph prose.",
+        "sourceIds": ["S1", "S2"],
+        "paragraphs": ["One two three.", "Four five six."],
+    }
+    assert _paragraph_word_count(outlook) == 6

@@ -28,6 +28,11 @@ on:
         required: false
         default: "gpt-5.6-sol"
         type: string
+      resume_run_id:
+        description: Optional prior workflow run ID whose review artifact should be resumed
+        required: false
+        default: ""
+        type: string
 
 permissions:
   contents: read
@@ -83,6 +88,17 @@ jobs:
             gen_rpt/gatex_whitepaper_pipeline.py \
             tools/generate_gatex_whitepaper.py
 
+      - name: Restore prior cloud checkpoint
+        if: ${{ inputs.resume_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.resume_run_id }}
+          pattern: gatex-review-${{ inputs.slug }}-*
+          path: output/gatex-whitepapers
+          merge-multiple: true
+
       - name: Restore research checkpoint
         id: research_cache
         uses: actions/cache/restore@v4
@@ -126,6 +142,13 @@ jobs:
           path: output/gatex-whitepapers/${{ inputs.slug }}/research
           key: gatex-research-${{ inputs.slug }}-${{ github.run_id }}
 
+      - name: Save editorial checkpoint
+        if: ${{ always() }}
+        uses: actions/cache/save@v4
+        with:
+          path: output/gatex-whitepapers/${{ inputs.slug }}/editorial-*.json
+          key: gatex-editorial-${{ inputs.slug }}-${{ github.run_id }}
+
       - name: Publish review summary
         if: ${{ always() }}
         run: |
@@ -136,6 +159,7 @@ jobs:
             echo "- Slug: \`${{ inputs.slug }}\`"
             echo "- Publication state: awaiting human review"
             echo "- Automatic publication: disabled"
+            echo "- Resumed run: ${{ inputs.resume_run_id || 'none' }}"
             echo "- Report-level concurrency flag: ${{ vars.GATEX_REPORT_CONCURRENCY_ENABLED || 'false' }}"
             echo "- Review package: ${{ steps.artifact.outputs.artifact-url }}"
           } >> "$GITHUB_STEP_SUMMARY"

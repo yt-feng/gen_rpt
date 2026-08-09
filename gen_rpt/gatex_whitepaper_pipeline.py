@@ -107,6 +107,18 @@ def _word_count(value: Any) -> int:
     return len(re.findall(r"\b[A-Za-z0-9][A-Za-z0-9'-]*\b", json.dumps(value, ensure_ascii=False)))
 
 
+def _paragraph_word_count(section: Mapping[str, Any]) -> int:
+    return _word_count(section.get("paragraphs") or [])
+
+
+def _read_json_mapping(path: Path) -> dict[str, Any] | None:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return None
+    return value if isinstance(value, dict) else None
+
+
 def _progress(stage: str, percent: int, message: str, eta_minutes: int) -> None:
     payload = {
         "stage": stage,
@@ -385,8 +397,9 @@ def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) ->
             issues.append(f"Exhibit {index} has too many metrics.")
         if any(_clean(panel.get("type"), 60).lower() not in SUPPORTED_PANELS for panel in panels or [] if isinstance(panel, Mapping)):
             issues.append(f"Exhibit {index} uses an unsupported panel type.")
-    if not 200 <= _word_count(outlook) <= 400:
-        issues.append(f"Outlook length is {_word_count(outlook)} words.")
+    outlook_words = _paragraph_word_count(outlook)
+    if not 200 <= outlook_words <= 340:
+        issues.append(f"Outlook body length is {outlook_words} words.")
     if {str(item.get("id")) for item in visuals if isinstance(item, Mapping)} != {
         "executive-summary", "chapter-1", "chapter-2", "chapter-3", "chapter-4"
     }:
@@ -425,24 +438,93 @@ def _prepare_editorial(
     valid_ids = {str(item["id"]) for item in sources}
     fallback_ids = [str(item["id"]) for item in sources[:4]]
 
+    def normalized_source_ids(value: Any) -> list[str]:
+        rows = [str(item) for item in value or [] if str(item) in valid_ids]
+        rows = list(dict.fromkeys(rows))
+        return (rows if len(rows) >= 2 else fallback_ids)[:5]
+
+    def checkpoint_has_sources(value: Mapping[str, Any]) -> bool:
+        return len({str(item) for item in value.get("sourceIds") or []} & valid_ids) >= 2
+
+    checkpoint_executive = _read_json_mapping(work_dir / "editorial-executive.json")
+    if checkpoint_executive is not None and not (
+        len(checkpoint_executive.get("paragraphs") or []) == 4
+        and 300 <= _word_count(checkpoint_executive) <= 520
+        and checkpoint_has_sources(checkpoint_executive)
+    ):
+        checkpoint_executive = None
+
+    checkpoint_chapters: list[dict[str, Any]] = []
+    for index in range(1, 5):
+        checkpoint = _read_json_mapping(work_dir / f"editorial-chapter-{index}.json")
+        subsections = checkpoint.get("subsections") if checkpoint is not None else []
+        valid_checkpoint = bool(
+            checkpoint is not None
+            and len(subsections or []) == 4
+            and all(isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in subsections or [])
+            and 560 <= _word_count(checkpoint) <= 980
+            and checkpoint_has_sources(checkpoint)
+        )
+        if not valid_checkpoint:
+            checkpoint_chapters = []
+            break
+        checkpoint_chapters.append(checkpoint)
+
+    locked_checkpoint_meta: dict[str, Any] | None = None
+    if checkpoint_executive is not None and len(checkpoint_chapters) == 4:
+        locked_checkpoint_meta = {
+            "executiveSummary": {
+                "headline": checkpoint_executive.get("headline"),
+                "deck": checkpoint_executive.get("deck"),
+                "sourceIds": checkpoint_executive.get("sourceIds"),
+            },
+            "chapters": [
+                {
+                    "number": chapter.get("number") or f"{index:02d}",
+                    "title": chapter.get("title"),
+                    "deck": chapter.get("deck"),
+                    "callout": chapter.get("callout"),
+                    "sourceIds": chapter.get("sourceIds"),
+                }
+                for index, chapter in enumerate(checkpoint_chapters, start=1)
+            ],
+        }
+        _progress("synthesis", 48, "Resuming from the saved executive brief and four chapter checkpoints.", 7)
+
     architecture: dict[str, Any] | None = None
     architecture_error = ""
-    for attempt in range(2):
+    architecture_path = work_dir / "editorial-architecture.json"
+    cached_architecture = _read_json_mapping(architecture_path)
+    if cached_architecture is not None:
+        cached_chapters = cached_architecture.get("chapters") if isinstance(cached_architecture.get("chapters"), list) else []
+        cached_exhibits = cached_architecture.get("exhibits") if isinstance(cached_architecture.get("exhibits"), list) else []
+        cached_visuals = cached_architecture.get("visuals") if isinstance(cached_architecture.get("visuals"), list) else []
+        if len(cached_chapters) == 4 and len(cached_exhibits) == 4 and len(cached_visuals) == 5:
+            architecture = cached_architecture
+
+    for attempt in range(2 if architecture is None else 0):
         try:
+            prompt = _architecture_prompt(
+                title=title,
+                topic=topic,
+                brief=brief,
+                sources=sources,
+                evidence=evidence,
+            )
+            if locked_checkpoint_meta is not None:
+                prompt += (
+                    "\n\nLOCKED EDITORIAL CHECKPOINTS\n"
+                    "The executive and chapter prose already passed review. Preserve these exact headlines, titles, decks, "
+                    "callouts and source IDs. Design each exhibit and visual for its corresponding locked chapter.\n"
+                    + json.dumps(locked_checkpoint_meta, ensure_ascii=False)
+                )
             architecture = _ascii(
                 client.chat_json(
                     [
                         {"role": "system", "content": "You are the senior publication architect at GateX. Return valid JSON only."},
                         {
                             "role": "user",
-                            "content": _architecture_prompt(
-                                title=title,
-                                topic=topic,
-                                brief=brief,
-                                sources=sources,
-                                evidence=evidence,
-                            )
-                            + (f"\n\nPrevious attempt failed: {architecture_error}" if architecture_error else ""),
+                            "content": prompt + (f"\n\nPrevious attempt failed: {architecture_error}" if architecture_error else ""),
                         },
                     ],
                     temperature=0.12,
@@ -454,6 +536,10 @@ def _prepare_editorial(
             visuals = architecture.get("visuals") if isinstance(architecture.get("visuals"), list) else []
             if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
                 raise GatexWhitepaperError("Architecture requires four chapters, four exhibits and five visuals.")
+            if locked_checkpoint_meta is not None:
+                architecture["executiveSummary"] = locked_checkpoint_meta["executiveSummary"]
+                architecture["chapters"] = locked_checkpoint_meta["chapters"]
+            architecture_path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2), encoding="utf-8")
             break
         except Exception as exc:
             architecture = None
@@ -461,16 +547,11 @@ def _prepare_editorial(
     if architecture is None:
         raise GatexWhitepaperError(f"Unable to prepare the publication architecture: {architecture_error}")
 
-    def normalized_source_ids(value: Any) -> list[str]:
-        rows = [str(item) for item in value or [] if str(item) in valid_ids]
-        rows = list(dict.fromkeys(rows))
-        return (rows if len(rows) >= 2 else fallback_ids)[:5]
-
     executive_meta = architecture.get("executiveSummary") if isinstance(architecture.get("executiveSummary"), Mapping) else {}
     executive_ids = normalized_source_ids(executive_meta.get("sourceIds"))
-    executive: dict[str, Any] | None = None
+    executive: dict[str, Any] | None = checkpoint_executive
     executive_error = ""
-    for attempt in range(2):
+    for attempt in range(2 if executive is None else 0):
         executive = _ascii(
             client.chat_json(
                 [
@@ -516,9 +597,9 @@ SOURCES
     for index, raw_meta in enumerate(architecture["chapters"], start=1):
         meta = raw_meta if isinstance(raw_meta, Mapping) else {}
         source_ids = normalized_source_ids(meta.get("sourceIds"))
-        chapter: dict[str, Any] | None = None
+        chapter: dict[str, Any] | None = checkpoint_chapters[index - 1] if len(checkpoint_chapters) == 4 else None
         chapter_error = ""
-        for attempt in range(2):
+        for attempt in range(2 if chapter is None else 0):
             chapter = _ascii(
                 client.chat_json(
                     [
@@ -570,9 +651,16 @@ SOURCES
 
     outlook_meta = architecture.get("outlook") if isinstance(architecture.get("outlook"), Mapping) else {}
     outlook_ids = normalized_source_ids(outlook_meta.get("sourceIds"))
-    outlook: dict[str, Any] | None = None
+    outlook_path = work_dir / "editorial-outlook.json"
+    outlook = _read_json_mapping(outlook_path)
+    if outlook is not None and not (
+        3 <= len(outlook.get("paragraphs") or []) <= 4
+        and 200 <= _paragraph_word_count(outlook) <= 340
+        and checkpoint_has_sources(outlook)
+    ):
+        outlook = None
     outlook_error = ""
-    for attempt in range(2):
+    for attempt in range(3 if outlook is None else 0):
         outlook = _ascii(
             client.chat_json(
                 [
@@ -587,7 +675,7 @@ Callout: {_clean(outlook_meta.get('callout'), 500)}
 
 {_publication_rules()}
 
-Write three or four paragraphs and 240-340 words. Close with a bounded view of industrial execution, capital-market access and cross-border relevance. Do not give an action plan.
+Write three or four paragraphs and 220-300 body words. Close with a bounded view of industrial execution, capital-market access and cross-border relevance. Do not give an action plan. Count only the paragraph prose, but stay strictly below 300 words.
 Return only: {{"paragraphs":["...","...","..."]}}
 
 SOURCES
@@ -596,7 +684,7 @@ SOURCES
                     },
                 ],
                 temperature=0.14,
-                max_tokens=1_300,
+                max_tokens=1_000,
             )
         )
         outlook.update(
@@ -607,12 +695,14 @@ SOURCES
                 "sourceIds": outlook_ids,
             }
         )
-        if 3 <= len(outlook.get("paragraphs") or []) <= 4 and 200 <= _word_count(outlook) <= 400:
+        outlook_words = _paragraph_word_count(outlook)
+        if 3 <= len(outlook.get("paragraphs") or []) <= 4 and 200 <= outlook_words <= 340:
             break
-        outlook_error = f"Need three or four paragraphs and 240-340 words; received {_word_count(outlook)} words."
+        outlook_error = f"Need three or four paragraphs and 220-300 body words; received {outlook_words} body words."
         outlook = None
     if outlook is None:
         raise GatexWhitepaperError(f"Outlook failed editorial QA: {outlook_error}")
+    outlook_path.write_text(json.dumps(outlook, ensure_ascii=False, indent=2), encoding="utf-8")
 
     exhibits: list[dict[str, Any]] = []
     for raw in architecture["exhibits"]:
@@ -639,7 +729,6 @@ SOURCES
     issues = _editorial_issues(candidate, valid_ids)
     if issues:
         raise GatexWhitepaperError("Assembled editorial QA failed: " + " | ".join(issues))
-    (work_dir / "editorial-architecture.json").write_text(json.dumps(architecture, ensure_ascii=False, indent=2), encoding="utf-8")
     (work_dir / "editorial-final.json").write_text(json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
     return candidate
 
