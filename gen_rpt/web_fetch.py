@@ -66,14 +66,21 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
     results: List[SearchResult] = []
     seen: set = set()
 
-    # Build provider chain: SearXNG first when available, then DDG, then Bing.
+    # Build provider chain: Tavily and SearXNG first when configured, then HTML fallbacks.
+    tavily_key = os.getenv("TAVILY_API_KEY", "").strip()
     searxng_url = os.getenv("SEARXNG_URL", "").strip()
-    searchers = ([_search_searxng] if searxng_url else []) + [_search_duckduckgo, _search_bing]
+    searchers = (
+        ([_search_tavily] if tavily_key else [])
+        + ([_search_searxng] if searxng_url else [])
+        + [_search_duckduckgo, _search_bing]
+    )
 
-    if searxng_url:
-        _log(f"search provider chain | order=searxng,duckduckgo,bing | searxng_url_set=true")
-    else:
-        _log(f"search provider chain | order=duckduckgo,bing | searxng_url_set=false (configure SEARXNG_URL to use preferred provider)")
+    configured = [name for name, enabled in (("tavily", tavily_key), ("searxng", searxng_url)) if enabled]
+    _log(
+        "search provider chain | order="
+        + ",".join([*configured, "duckduckgo", "bing"])
+        + f" | tavily_set={bool(tavily_key)} | searxng_set={bool(searxng_url)}"
+    )
 
     for searcher in searchers:
         provider_name = searcher.__name__.removeprefix("_search_")
@@ -96,11 +103,49 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
         _log(f"search provider result | provider={provider_name} | found={found} | total={len(results)}")
         # If SearXNG already found results, skip the HTML-scraping fallbacks
         # (DDG/Bing runner IPs are often blocked; wasting time on them degrades latency).
-        if provider_name == "searxng" and results:
-            _log(f"search provider chain | skipping_remaining_fallbacks=true | reason=searxng_succeeded")
+        if provider_name in {"tavily", "searxng"} and results:
+            _log(f"search provider chain | skipping_remaining_fallbacks=true | reason={provider_name}_succeeded")
             return results
 
     return results
+
+
+def _search_tavily(query: str, max_results: int = 5) -> List[SearchResult]:
+    api_key = os.environ["TAVILY_API_KEY"].strip()
+    response = requests.post(
+        os.getenv("TAVILY_SEARCH_URL", "https://api.tavily.com/search"),
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "api_key": api_key,
+            "query": query,
+            "search_depth": "advanced",
+            "max_results": max_results,
+            "include_answer": False,
+            "include_raw_content": False,
+        },
+        timeout=float(os.getenv("TAVILY_SEARCH_TIMEOUT", "35")),
+    )
+    response.raise_for_status()
+    payload = response.json()
+    output: List[SearchResult] = []
+    for item in payload.get("results") or []:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get("url") or "").strip()
+        if not url.startswith(("https://", "http://")):
+            continue
+        output.append(
+            SearchResult(
+                title=str(item.get("title") or url).strip(),
+                url=url,
+                snippet=str(item.get("content") or "").strip(),
+                query=query,
+                provider="tavily",
+            )
+        )
+        if len(output) >= max_results:
+            break
+    return output
 
 
 def _search_searxng(query: str, max_results: int = 5) -> List[SearchResult]:

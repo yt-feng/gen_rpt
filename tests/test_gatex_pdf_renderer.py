@@ -151,6 +151,16 @@ class GatexPdfRendererTests(unittest.TestCase):
             visible_brand = " ".join([cover_text, *(str(value or "") for value in metadata.values())]).lower()
             self.assertNotRegex(visible_brand, r"blue[ -]?ocean|\bbo\b")
 
+    def test_renders_the_approved_topic_art_into_the_pdf_cover(self):
+        payload = {**sample_release(), "coverImagePath": str(COVER_TEXTURE_PATH)}
+        with TemporaryDirectory() as directory:
+            artifact = render_gatex_release_pdf(payload, Path(directory))
+            with fitz.open(artifact["path"]) as document:
+                cover_images = document[0].get_images(full=True)
+
+        # G mark + paper grain + the approved, version-bound topic artwork.
+        self.assertGreaterEqual(len(cover_images), 3)
+
     def test_renders_chinese_release_with_extractable_cjk_text(self):
         payload = sample_release()
         payload.update(

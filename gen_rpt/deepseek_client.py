@@ -12,17 +12,24 @@ class DeepSeekClient:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        base_url: str = "https://api.deepseek.com/v1",
+        base_url: Optional[str] = None,
         model: str = "deepseek-chat",
         timeout: int = 180,
     ) -> None:
-        self.api_key = api_key or os.getenv("DEEPSEEK_API_KEY")
-        self.base_url = base_url.rstrip("/")
         self.model = model
+        use_apimart = _uses_apimart(model)
+        default_key_name = "APIMART_API_KEY" if use_apimart else "DEEPSEEK_API_KEY"
+        default_base_url = (
+            os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").rstrip("/") + "/v1"
+            if use_apimart
+            else "https://api.deepseek.com/v1"
+        )
+        self.api_key = api_key or os.getenv(default_key_name)
+        self.base_url = (base_url or default_base_url).rstrip("/")
         self.timeout = timeout
         if not self.api_key:
             raise ValueError(
-                "Missing DEEPSEEK_API_KEY. Please configure it in GitHub Actions Secrets or your local environment."
+                f"Missing {default_key_name}. Please configure it in GitHub Actions Secrets or your local environment."
             )
 
     def chat(
@@ -133,6 +140,13 @@ def extract_json_object(text: str) -> Dict[str, Any]:
     if not isinstance(parsed, dict):
         raise ValueError(f"Expected a JSON object, got {type(parsed).__name__}")
     return parsed
+
+
+def _uses_apimart(model: str) -> bool:
+    if os.getenv("APIMART_FORCE_CHAT", "").strip().lower() in {"1", "true", "yes", "on"}:
+        return True
+    normalized = str(model or "").strip().lower()
+    return normalized.startswith(("gpt-", "o1", "o3", "o4"))
 
 
 def normalize_structured_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
