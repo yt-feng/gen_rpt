@@ -50,6 +50,10 @@ jobs:
       APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
       APIMART_BASE_URL: https://api.apimart.ai
       APIMART_IMAGE_MODEL: gpt-image-2
+      QWEN_VL_API_KEY: ${{ secrets.QWEN_VL_API_KEY }}
+      QWEN_VL_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
+      QWEN_VL_MODEL: qwen3-vl-flash
+      GATEX_REQUIRE_SEMANTIC_VISUAL_QA: "true"
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       DEEPSEEK_MAX_TOKENS: "16000"
@@ -81,6 +85,7 @@ jobs:
         run: |
           test -n "$APIMART_API_KEY" || { echo "Missing APIMART_API_KEY" >&2; exit 1; }
           test -n "$TAVILY_API_KEY" || { echo "Missing TAVILY_API_KEY" >&2; exit 1; }
+          test -n "$QWEN_VL_API_KEY" || { echo "Missing QWEN_VL_API_KEY" >&2; exit 1; }
           python -m py_compile \
             gen_rpt/deepseek_client.py \
             gen_rpt/web_fetch.py \

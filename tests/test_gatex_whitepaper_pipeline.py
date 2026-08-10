@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import json
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -20,6 +22,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _payload_renderability_issues,
     _source_packet,
     _uniform_dark_region_issue,
+    semantic_visual_quality_issues,
     visual_quality_issues,
 )
 
@@ -83,7 +86,41 @@ def test_source_packet_prefers_official_and_requires_https() -> None:
     rows, packet = _source_packet({"sources": sources})
     assert len(rows) == 8
     assert rows[0]["id"] == "S1"
+    assert rows[0]["qualityTier"] == "PRIMARY"
     assert "https://example0.gov/report.pdf" in packet
+
+
+def test_source_packet_rejects_social_and_prediction_market_sources() -> None:
+    sources = [
+        {
+            "title": f"Official source {index}",
+            "url": f"https://authority{index}.gov/report",
+            "domain": f"authority{index}.gov",
+            "source_type": "html",
+            "content": "Verified public evidence " * 40,
+        }
+        for index in range(8)
+    ]
+    sources.extend(
+        [
+            {
+                "title": "Prediction market",
+                "url": "https://polymarket.com/event/example",
+                "domain": "polymarket.com",
+                "source_type": "html",
+                "content": "Market odds " * 100,
+            },
+            {
+                "title": "Social post",
+                "url": "https://www.youtube.com/watch?v=example",
+                "domain": "youtube.com",
+                "source_type": "snippet",
+                "content": "Video claim " * 100,
+            },
+        ]
+    )
+    rows, _ = _source_packet({"sources": sources})
+    assert not any("polymarket" in row["domain"] or "youtube" in row["domain"] for row in rows)
 
 
 def test_fallback_queries_follow_the_requested_topic() -> None:
@@ -106,6 +143,75 @@ def test_large_black_band_is_rejected() -> None:
             image.putpixel((x, y), (0, 0, 0))
     issues = visual_quality_issues(image)
     assert "image contains a large solid-black band" in issues
+
+
+def _sample_visual_bytes() -> bytes:
+    image = Image.effect_noise((1280, 854), 48).convert("RGB")
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG", quality=84)
+    return buffer.getvalue()
+
+
+def test_semantic_visual_qa_rejects_readable_generated_text() -> None:
+    response = mock.Mock()
+    response.json.return_value = {
+        "choices": [
+            {
+                "message": {
+                    "content": json.dumps(
+                        {
+                            "pass": False,
+                            "readableTextPresent": True,
+                            "readableText": ["A deep dive into consumer behavior"],
+                            "contextRelevance": 0.9,
+                            "professionalQuality": 0.8,
+                            "issues": ["Prominent generated headline"],
+                            "scene": "Retail storefront",
+                        }
+                    )
+                }
+            }
+        ]
+    }
+    response.raise_for_status.return_value = None
+    with mock.patch.dict(os.environ, {"QWEN_VL_API_KEY": "test-key"}, clear=False):
+        with mock.patch("gen_rpt.gatex_whitepaper_pipeline.requests.post", return_value=response):
+            issues = semantic_visual_quality_issues(
+                _sample_visual_bytes(),
+                brief="Chinese household consumption and retail activity",
+            )
+    assert any("readable" in issue for issue in issues)
+
+
+def test_semantic_visual_qa_accepts_relevant_documentary_image() -> None:
+    response = mock.Mock()
+    response.json.return_value = {
+        "choices": [
+            {
+                "message": {
+                    "content": json.dumps(
+                        {
+                            "pass": True,
+                            "readableTextPresent": False,
+                            "readableText": [],
+                            "contextRelevance": 0.94,
+                            "professionalQuality": 0.91,
+                            "issues": [],
+                            "scene": "Automated semiconductor production line",
+                        }
+                    )
+                }
+            }
+        ]
+    }
+    response.raise_for_status.return_value = None
+    with mock.patch.dict(os.environ, {"QWEN_VL_API_KEY": "test-key"}, clear=False):
+        with mock.patch("gen_rpt.gatex_whitepaper_pipeline.requests.post", return_value=response):
+            issues = semantic_visual_quality_issues(
+                _sample_visual_bytes(),
+                brief="Semiconductor manufacturing equipment inside a cleanroom",
+            )
+    assert issues == []
 
 
 def test_rendered_page_black_rectangle_is_rejected() -> None:

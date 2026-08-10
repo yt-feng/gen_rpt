@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import hashlib
 import io
 import json
@@ -123,6 +124,45 @@ AUTHOR_POOL = (
     "Samuel Price",
     "Victoria Cole",
     "Adrian Foster",
+)
+BLOCKED_SOURCE_DOMAIN_TOKENS = (
+    "baijiahao.baidu.com",
+    "blog.udn.com",
+    "facebook.com",
+    "linkedin.com",
+    "news.dayoo.com",
+    "polymarket.com",
+    "substack.com",
+    "youtube.com",
+)
+PRIMARY_SOURCE_DOMAIN_TOKENS = (
+    ".gov",
+    "gov.",
+    "hkex",
+    "sse.com",
+    "szse",
+    "stats.gov",
+    "statistics.gov",
+    "miit",
+    "csrc",
+    "sec.gov",
+    "pbc.gov",
+    "customs.gov",
+)
+INSTITUTIONAL_SOURCE_DOMAIN_TOKENS = (
+    "worldbank",
+    "imf.org",
+    "oecd.org",
+    "un.org",
+    "iea.org",
+    "eia.gov",
+    "bis.org",
+    "adb.org",
+    "reuters",
+    "ft.com",
+    "bloomberg",
+    "economist",
+    "economy.com",
 )
 
 
@@ -265,37 +305,27 @@ Return: {{"queries":["query 1","query 2"]}}""",
     return {"sources": source_rows, "fact_pack": fact_pack.to_dict(), "approved_evidence": evidence, "evidence_ledger": evidence}
 
 
+def _source_tier(source: Mapping[str, Any]) -> str:
+    domain = str(source.get("domain") or urllib.parse.urlparse(str(source.get("url") or "")).netloc).lower()
+    title = str(source.get("title") or "").lower()
+    if any(token in domain for token in PRIMARY_SOURCE_DOMAIN_TOKENS):
+        return "PRIMARY"
+    if any(token in domain for token in INSTITUTIONAL_SOURCE_DOMAIN_TOKENS):
+        return "INSTITUTIONAL"
+    if any(token in title for token in ("annual report", "prospectus", "regulatory filing", "official statistics")):
+        return "PRIMARY"
+    return "SECONDARY"
+
+
 def _source_score(source: Mapping[str, Any]) -> int:
     url = str(source.get("url") or "").lower()
     domain = str(source.get("domain") or "").lower()
     title = str(source.get("title") or "").lower()
-    score = 0
-    if any(
-        token in domain
-        for token in (
-            ".gov",
-            "gov.",
-            "hkex",
-            "sse",
-            "szse",
-            "stats",
-            "miit",
-            "csrc",
-            "sec.gov",
-            "worldbank",
-            "imf.org",
-            "oecd.org",
-            "un.org",
-            "iea.org",
-            "eia.gov",
-            "centralbank",
-        )
-    ):
-        score += 8
+    score = {"PRIMARY": 12, "INSTITUTIONAL": 8, "SECONDARY": 0}[_source_tier(source)]
     if url.endswith(".pdf") or "annual report" in title or "statistics" in title:
         score += 4
-    if any(token in domain for token in ("reuters", "ft.com", "bloomberg", "economist")):
-        score += 2
+    if any(token in domain for token in ("tradingeconomics", "statista", "china.org.cn", "cgtn")):
+        score += 1
     if str(source.get("source_type") or "") == "pdf":
         score += 2
     return score
@@ -309,7 +339,13 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
     for raw in ordered:
         url = _clean(raw.get("url"), 2_000)
         content = _clean(raw.get("content"), 5_000)
-        if not url.startswith("https://") or not content or url in seen_urls:
+        domain = (_clean(raw.get("domain"), 120) or urllib.parse.urlparse(url).netloc).lower()
+        if (
+            not url.startswith("https://")
+            or not content
+            or url in seen_urls
+            or any(token in domain for token in BLOCKED_SOURCE_DOMAIN_TOKENS)
+        ):
             continue
         seen_urls.add(url)
         selected.append(
@@ -317,8 +353,9 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
                 "id": f"S{len(selected) + 1}",
                 "title": _clean(raw.get("title"), 240) or urllib.parse.urlparse(url).netloc,
                 "url": url,
-                "domain": _clean(raw.get("domain"), 120) or urllib.parse.urlparse(url).netloc,
+                "domain": domain,
                 "content": content,
+                "qualityTier": _source_tier(raw),
             }
         )
         if len(selected) >= maximum:
@@ -328,7 +365,7 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
     blocks = []
     for row in selected:
         blocks.append(
-            f"[{row['id']}] {row['title']}\nURL: {row['url']}\nEXTRACT: {row['content']}"
+            f"[{row['id']}] [{row['qualityTier']}] {row['title']}\nURL: {row['url']}\nEXTRACT: {row['content']}"
         )
     return selected, "\n\n".join(blocks)[:85_000]
 
@@ -343,7 +380,7 @@ def _compact_source_packet(
     allowed = {str(item) for item in source_ids or []}
     rows = [row for row in sources if not allowed or str(row.get("id")) in allowed]
     blocks = [
-        f"[{row['id']}] {row['title']}\nURL: {row['url']}\nEXTRACT: {_clean(row.get('content'), excerpt_chars)}"
+        f"[{row['id']}] [{row.get('qualityTier', 'SECONDARY')}] {row['title']}\nURL: {row['url']}\nEXTRACT: {_clean(row.get('content'), excerpt_chars)}"
         for row in rows
     ]
     return "\n\n".join(blocks)[:maximum_chars]
@@ -384,6 +421,7 @@ Editorial brief: {brief}
 Architecture rules:
 - Exactly four progressive chapters with short analytical titles, decks and evidence-specific callouts.
 - Every executive, chapter, exhibit and outlook row cites two to five valid source IDs.
+- Every cited set includes at least one PRIMARY or INSTITUTIONAL source. Treat SECONDARY sources as corroboration only.
 - Exactly four substantive exhibits, one after each chapter. Each combines at least two information layers and is grounded in cited source IDs.
 - Use quantitative charts only for coherent source series. Otherwise use comparison, process, market map, scenario or matrix.
 - Each exhibit has one or two panels and no more than four metrics. With two panels, use no more than two metrics.
@@ -486,7 +524,11 @@ def _normalize_panel(panel: Mapping[str, Any]) -> dict[str, Any]:
     return normalized
 
 
-def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) -> list[str]:
+def _editorial_issues(
+    content: Mapping[str, Any],
+    valid_source_ids: set[str],
+    authoritative_source_ids: set[str],
+) -> list[str]:
     issues: list[str] = []
     executive = content.get("executiveSummary") if isinstance(content.get("executiveSummary"), Mapping) else {}
     chapters = content.get("chapters") if isinstance(content.get("chapters"), list) else []
@@ -540,6 +582,8 @@ def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) ->
         ids = {str(item) for item in section.get("sourceIds") or []} if isinstance(section, Mapping) else set()
         if len(ids & valid_source_ids) < 2:
             issues.append(f"{label} requires at least two valid source IDs.")
+        if not ids & authoritative_source_ids:
+            issues.append(f"{label} requires at least one primary or institutional source ID.")
     full_text = json.dumps(content, ensure_ascii=False).lower()
     found = [term for term in FORBIDDEN_TERMS if term in full_text]
     if found:
@@ -563,17 +607,51 @@ def _prepare_editorial(
     work_dir: Path,
 ) -> dict[str, Any]:
     valid_ids = {str(item["id"]) for item in sources}
+    authoritative_ids = {
+        str(item["id"])
+        for item in sources
+        if str(item.get("qualityTier") or "").upper() in {"PRIMARY", "INSTITUTIONAL"}
+    }
     fallback_ids = [str(item["id"]) for item in sources[:4]]
+    source_fingerprint = hashlib.sha256(
+        json.dumps(
+            [
+                {
+                    "id": item.get("id"),
+                    "url": item.get("url"),
+                    "qualityTier": item.get("qualityTier"),
+                }
+                for item in sources
+            ],
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    fingerprint_path = work_dir / "editorial-source-fingerprint.txt"
+    checkpoint_compatible = (
+        fingerprint_path.is_file()
+        and fingerprint_path.read_text(encoding="utf-8").strip() == source_fingerprint
+    )
 
     def normalized_source_ids(value: Any) -> list[str]:
         rows = [str(item) for item in value or [] if str(item) in valid_ids]
         rows = list(dict.fromkeys(rows))
-        return (rows if len(rows) >= 2 else fallback_ids)[:5]
+        if len(rows) < 2:
+            rows = list(fallback_ids)
+        if not set(rows) & authoritative_ids and authoritative_ids:
+            preferred = next(
+                (item for item in fallback_ids if item in authoritative_ids),
+                sorted(authoritative_ids, key=lambda item: int(item[1:]) if item[1:].isdigit() else 999)[0],
+            )
+            rows = [preferred, *rows]
+        return list(dict.fromkeys(rows))[:5]
 
     def checkpoint_has_sources(value: Mapping[str, Any]) -> bool:
-        return len({str(item) for item in value.get("sourceIds") or []} & valid_ids) >= 2
+        ids = {str(item) for item in value.get("sourceIds") or []} & valid_ids
+        return len(ids) >= 2 and bool(ids & authoritative_ids)
 
-    checkpoint_executive = _read_json_mapping(work_dir / "editorial-executive.json")
+    checkpoint_executive = _read_json_mapping(work_dir / "editorial-executive.json") if checkpoint_compatible else None
     if checkpoint_executive is not None and not (
         len(checkpoint_executive.get("paragraphs") or []) == 4
         and 300 <= _paragraph_word_count(checkpoint_executive) <= 500
@@ -583,7 +661,7 @@ def _prepare_editorial(
 
     checkpoint_chapters: list[dict[str, Any]] = []
     for index in range(1, 5):
-        checkpoint = _read_json_mapping(work_dir / f"editorial-chapter-{index}.json")
+        checkpoint = _read_json_mapping(work_dir / f"editorial-chapter-{index}.json") if checkpoint_compatible else None
         subsections = checkpoint.get("subsections") if checkpoint is not None else []
         valid_checkpoint = bool(
             checkpoint is not None
@@ -621,7 +699,7 @@ def _prepare_editorial(
     architecture: dict[str, Any] | None = None
     architecture_error = ""
     architecture_path = work_dir / "editorial-architecture.json"
-    cached_architecture = _read_json_mapping(architecture_path)
+    cached_architecture = _read_json_mapping(architecture_path) if checkpoint_compatible else None
     if cached_architecture is not None:
         cached_chapters = cached_architecture.get("chapters") if isinstance(cached_architecture.get("chapters"), list) else []
         cached_exhibits = cached_architecture.get("exhibits") if isinstance(cached_architecture.get("exhibits"), list) else []
@@ -667,6 +745,7 @@ def _prepare_editorial(
                 architecture["executiveSummary"] = locked_checkpoint_meta["executiveSummary"]
                 architecture["chapters"] = locked_checkpoint_meta["chapters"]
             architecture_path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2), encoding="utf-8")
+            fingerprint_path.write_text(source_fingerprint + "\n", encoding="utf-8")
             break
         except Exception as exc:
             architecture = None
@@ -855,7 +934,7 @@ SOURCES
             "visuals": visuals,
         }
     )
-    issues = _editorial_issues(candidate, valid_ids)
+    issues = _editorial_issues(candidate, valid_ids, authoritative_ids)
     if issues:
         raise GatexWhitepaperError("Assembled editorial QA failed: " + " | ".join(issues))
     (work_dir / "editorial-final.json").write_text(json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -912,6 +991,110 @@ def visual_quality_issues(source: bytes | Path | Image.Image) -> list[str]:
     if longest_run(dark_rows) / max(1, sample.height) >= 0.28 or longest_run(dark_columns) / max(1, sample.width) >= 0.28:
         issues.append("image contains a large solid-black band")
     return issues
+
+
+def _visual_data_url(source: bytes | Path | Image.Image) -> str:
+    if isinstance(source, Image.Image):
+        image = source.copy()
+    elif isinstance(source, Path):
+        image = Image.open(source)
+    else:
+        image = Image.open(io.BytesIO(source))
+    with image:
+        image.load()
+        preview = image.convert("RGB")
+        preview.thumbnail((1_280, 1_280), Image.Resampling.LANCZOS)
+        buffer = io.BytesIO()
+        preview.save(buffer, format="JPEG", quality=82, optimize=True)
+    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return f"data:image/jpeg;base64,{encoded}"
+
+
+def semantic_visual_quality_issues(
+    source: bytes | Path | Image.Image,
+    *,
+    brief: str,
+    alt: str = "",
+) -> list[str]:
+    api_key = os.getenv("QWEN_VL_API_KEY", "").strip()
+    required = os.getenv("GATEX_REQUIRE_SEMANTIC_VISUAL_QA", "").strip().lower() in {"1", "true", "yes"}
+    if not api_key:
+        return ["Qwen visual QA is not configured"] if required else []
+
+    base_url = os.getenv("QWEN_VL_BASE_URL", "https://dashscope.aliyuncs.com/compatible-mode/v1").rstrip("/")
+    model = os.getenv("QWEN_VL_MODEL", "qwen3-vl-flash").strip() or "qwen3-vl-flash"
+    instruction = f"""Assess one raw editorial image before it is placed in a GateX management-consulting white paper.
+Visual brief: {_clean(brief, 2_500)}
+Intended alt text: {_clean(alt, 500)}
+
+Reject the image when any of these are true:
+- it contains readable words, letters, numbers, logos, watermarks, captions, interfaces or generated pseudo-text;
+- it is abstract filler, decorative geometry, a chart, a document screenshot or a mostly empty/black frame;
+- the visible subject does not materially match the visual brief;
+- it looks staged, synthetic, distorted, low-quality or unsuitable for a polished McKinsey/BCG-style publication.
+
+Return JSON only with this exact shape:
+{{"pass":true,"readableTextPresent":false,"readableText":[],"contextRelevance":0.0,"professionalQuality":0.0,"issues":[],"scene":"short factual description"}}
+Scores range from 0 to 1. Be strict. Do not provide reasoning outside the JSON object."""
+    response = requests.post(
+        f"{base_url}/chat/completions",
+        headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+        json={
+            "model": model,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "image_url", "image_url": {"url": _visual_data_url(source)}},
+                        {"type": "text", "text": instruction},
+                    ],
+                }
+            ],
+            "response_format": {"type": "json_object"},
+            "enable_thinking": False,
+            "temperature": 0,
+        },
+        timeout=120,
+    )
+    response.raise_for_status()
+    payload = response.json()
+    choices = payload.get("choices") if isinstance(payload, Mapping) else []
+    message = choices[0].get("message") if choices and isinstance(choices[0], Mapping) else {}
+    raw_content = message.get("content") if isinstance(message, Mapping) else ""
+    if isinstance(raw_content, list):
+        raw_content = "".join(
+            str(item.get("text") or "") for item in raw_content if isinstance(item, Mapping)
+        )
+    raw_text = str(raw_content or "").strip()
+    raw_text = re.sub(r"^```(?:json)?\s*|\s*```$", "", raw_text, flags=re.IGNORECASE | re.DOTALL)
+    try:
+        assessment = json.loads(raw_text)
+    except (TypeError, ValueError) as exc:
+        raise GatexWhitepaperError(f"Qwen visual QA returned invalid JSON: {exc}") from exc
+    if not isinstance(assessment, Mapping):
+        raise GatexWhitepaperError("Qwen visual QA did not return a JSON object.")
+
+    issues: list[str] = []
+    readable = assessment.get("readableText")
+    readable_rows = readable if isinstance(readable, list) else [readable] if readable else []
+    if bool(assessment.get("readableTextPresent")) or readable_rows:
+        excerpt = ", ".join(_clean(item, 80) for item in readable_rows if _clean(item, 80))
+        issues.append("image contains readable or generated text" + (f" ({excerpt[:180]})" if excerpt else ""))
+    try:
+        context_score = float(assessment.get("contextRelevance", 0))
+        quality_score = float(assessment.get("professionalQuality", 0))
+    except (TypeError, ValueError):
+        context_score = quality_score = 0
+    if context_score < 0.72:
+        issues.append(f"image is not sufficiently relevant to its visual brief ({context_score:.2f})")
+    if quality_score < 0.72:
+        issues.append(f"image is not publication quality ({quality_score:.2f})")
+    model_issues = assessment.get("issues") if isinstance(assessment.get("issues"), list) else []
+    if not bool(assessment.get("pass")):
+        issues.extend(_clean(item, 180) for item in model_issues if _clean(item, 180))
+        if not issues:
+            issues.append("image failed semantic visual QA")
+    return list(dict.fromkeys(issues))
 
 
 def _download_apimart_image(prompt: str) -> bytes:
@@ -972,10 +1155,11 @@ def _pollinations_image(prompt: str, seed: str) -> bytes:
     return response.content
 
 
-def _save_visual(blob: bytes, target: Path) -> None:
+def _save_visual(blob: bytes, target: Path, *, brief: str, alt: str) -> None:
     issues = visual_quality_issues(blob)
+    issues.extend(semantic_visual_quality_issues(blob, brief=brief, alt=alt))
     if issues:
-        raise GatexWhitepaperError("Generated image failed pixel QA: " + "; ".join(issues))
+        raise GatexWhitepaperError("Generated image failed visual QA: " + "; ".join(issues))
     with Image.open(io.BytesIO(blob)) as source:
         image = source.convert("RGB")
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -994,23 +1178,25 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
     def generate(identifier: str, row: Mapping[str, Any]) -> tuple[str, dict[str, str]]:
         target = target_dir / f"{identifier}.jpg"
         prompt = _clean(row.get("prompt"), 3_500) + shared
+        alt = _clean(row.get("alt"), 500)
         if target.is_file():
             issues = visual_quality_issues(target)
+            issues.extend(semantic_visual_quality_issues(target, brief=prompt, alt=alt))
             if not issues:
-                return identifier, {"path": str(target), "alt": _clean(row.get("alt"), 500)}
+                return identifier, {"path": str(target), "alt": alt}
             print(f"[gatex.whitepaper] cached visual rejected for {identifier}: {'; '.join(issues)}", flush=True)
         errors: list[str] = []
         for attempt in range(3):
             try:
                 blob = _download_apimart_image(prompt + (f" Alternate documentary camera composition {attempt + 1}." if attempt else ""))
-                _save_visual(blob, target)
-                return identifier, {"path": str(target), "alt": _clean(row.get("alt"), 500)}
+                _save_visual(blob, target, brief=prompt, alt=alt)
+                return identifier, {"path": str(target), "alt": alt}
             except Exception as exc:
                 errors.append(str(exc))
         try:
             blob = _pollinations_image(prompt, hashlib.sha256(identifier.encode("utf-8")).hexdigest()[:10])
-            _save_visual(blob, target)
-            return identifier, {"path": str(target), "alt": _clean(row.get("alt"), 500)}
+            _save_visual(blob, target, brief=prompt, alt=alt)
+            return identifier, {"path": str(target), "alt": alt}
         except Exception as exc:
             errors.append(str(exc))
         raise GatexWhitepaperError(f"Visual generation failed for {identifier}: {' | '.join(errors)}")
