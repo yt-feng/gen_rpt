@@ -76,6 +76,7 @@ FORBIDDEN_TERMS = (
     "key evidence",
     "decision implication",
     "strategic implication",
+    "implication",
     "methodology and use",
     "decision sequence",
     "source: gatex",
@@ -88,6 +89,20 @@ FORBIDDEN_TERMS = (
     "qwen",
     "tavily",
     "gdelt",
+)
+EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v2"
+META_NARRATION_PATTERNS = (
+    re.compile(
+        r"\b(?:this|the|an?|opening|final|first|second|third|fourth)\s+"
+        r"(?:chapter|report|paper|section|analysis)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b(?:chapter|report|paper|section|analysis)\s+"
+        r"(?:examines|explains|sets out|establishes|contrasts|connects|reviews|assesses|shows|traces)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(r"\b(?:is|are|will be)\s+(?:examined|analysed|analyzed|reviewed|considered)\b", re.IGNORECASE),
 )
 NON_USD_CURRENCY_RE = re.compile(
     r"(?:\bRMB\b|\bCNY\b|\bAED\b|\bSAR\b|\bHKD\b|\bEUR\b|\bGBP\b|\byuan\b|\bdirham(?:s)?\b|\briyal(?:s)?\b|\u00a5)",
@@ -395,6 +410,8 @@ def _publication_rules() -> str:
 - Write fluent, specific English without AI mannerisms, repetitive summaries, generic recommendations or reader instructions.
 - Do not expose chain-of-thought, recommendations, management instructions or process labels.
 - Never use Management agenda, Key evidence, Decision implication, Strategic implication, Decision sequence, Methodology and use, So what, Report structure, or similar language.
+- Do not use the word implication. State the observable consequence directly, without narrating an inference step.
+- Do not say what a chapter, report, paper, section or analysis examines, establishes, connects or will do.
 - Use ASCII hyphens only.
 """.strip()
 
@@ -420,9 +437,12 @@ Editorial brief: {brief}
 
 Architecture rules:
 - Exactly four progressive chapters with short analytical titles, decks and evidence-specific callouts.
+- Every deck and callout states a substantive finding. Never narrate what a chapter, report, paper, section or analysis does.
 - Every executive, chapter, exhibit and outlook row cites two to five valid source IDs.
 - Every cited set includes at least one PRIMARY or INSTITUTIONAL source. Treat SECONDARY sources as corroboration only.
 - Exactly four substantive exhibits, one after each chapter. Each combines at least two information layers and is grounded in cited source IDs.
+- Each exhibit contains at least six evidence units across metric cards and panel rows or data points. Sparse scorecards are unacceptable.
+- Comparison panels need at least three complete rows. Matrix, process, market-map and milestone panels need at least four complete items. Quantitative charts need at least four labelled observations.
 - Use quantitative charts only for coherent source series. Otherwise use comparison, process, market map, scenario or matrix.
 - Each exhibit has one or two panels and no more than four metrics. With two panels, use no more than two metrics.
 - Exhibit headings never begin with Exhibit or a number. Captions contain no source attribution.
@@ -477,33 +497,34 @@ def _panel_renderability_issue(panel: Mapping[str, Any]) -> str:
     if kind == "comparison":
         columns = panel.get("columns") if isinstance(panel.get("columns"), list) else []
         valid_rows = [item for item in items if (item.get("metric") or item.get("label")) and item.get("left") and item.get("right")]
-        return "comparison requires two named columns and at least two complete rows" if len(columns) != 2 or len(valid_rows) < 2 else ""
+        return "comparison requires two named columns and at least three complete rows" if len(columns) != 2 or len(valid_rows) < 3 else ""
     if kind in {"line", "line_chart"}:
         series = [item for item in panel.get("series") or [] if isinstance(item, Mapping)]
         valid_series = [item for item in series if len(item.get("values") or []) >= 2]
         fallback_values = [item for item in items if item.get("label") and item.get("value") is not None]
-        return "line chart requires a series with at least two values" if not valid_series and len(fallback_values) < 2 else ""
+        has_depth = any(len(item.get("values") or []) >= 4 for item in valid_series)
+        return "line chart requires at least four labelled observations" if not has_depth and len(fallback_values) < 4 else ""
     if kind in {"scatter", "scatter_plot"}:
         valid_rows = [item for item in items if item.get("label") and item.get("x") is not None and item.get("y") is not None]
-        return "scatter chart requires at least two labelled x/y points" if len(valid_rows) < 2 else ""
+        return "scatter chart requires at least four labelled x/y points" if len(valid_rows) < 4 else ""
     if kind in {"stacked_bar", "stacked_bars"}:
         valid_rows = [item for item in items if item.get("label") and len(item.get("segments") or []) >= 2]
-        return "stacked bars require at least two rows with two or more segments" if len(valid_rows) < 2 else ""
+        return "stacked bars require at least three rows with two or more segments" if len(valid_rows) < 3 else ""
     if kind in {"waterfall", "waterfall_chart"}:
         valid_rows = [item for item in items if item.get("label") and item.get("value") is not None]
-        return "waterfall chart requires at least two labelled values" if len(valid_rows) < 2 else ""
+        return "waterfall chart requires at least four labelled values" if len(valid_rows) < 4 else ""
     if kind == "bars":
         valid_rows = [item for item in items if item.get("label") and item.get("value") is not None]
-        return "bar chart requires at least two labelled values" if len(valid_rows) < 2 else ""
+        return "bar chart requires at least four labelled values" if len(valid_rows) < 4 else ""
     if kind == "scenario":
         valid_rows = [item for item in items if item.get("label") and (item.get("range") or item.get("value")) and item.get("body")]
         return "scenario panel requires at least three complete scenarios" if len(valid_rows) < 3 else ""
     if kind in {"milestone", "milestones"}:
         valid_rows = [item for item in items if item.get("label") and (item.get("metric") or item.get("value"))]
-        return "milestones panel requires at least three labelled milestones" if len(valid_rows) < 3 else ""
+        return "milestones panel requires at least four labelled milestones" if len(valid_rows) < 4 else ""
     if kind in {"process", "matrix", "market_map", "market_layers"}:
         valid_rows = [item for item in items if (item.get("title") or item.get("label")) and item.get("body")]
-        return f"{kind} panel requires at least three complete items" if len(valid_rows) < 3 else ""
+        return f"{kind} panel requires at least four complete items" if len(valid_rows) < 4 else ""
     return f"unsupported panel type: {kind}"
 
 
@@ -522,7 +543,7 @@ def _normalize_panel(panel: Mapping[str, Any]) -> dict[str, Any]:
         return normalized
     items = [item for item in normalized.get("items") or [] if isinstance(item, Mapping)]
     matrix_rows = [item for item in items if (item.get("title") or item.get("label")) and item.get("body")]
-    if len(matrix_rows) >= 3:
+    if len(matrix_rows) >= 4:
         normalized["type"] = "matrix"
         normalized["items"] = matrix_rows[:6]
         normalized.pop("columns", None)
@@ -543,6 +564,57 @@ def _normalize_exhibit_panels(panels: Any) -> list[dict[str, Any]]:
     return normalized[:2]
 
 
+def _panel_information_units(panel: Mapping[str, Any]) -> int:
+    kind = _clean(panel.get("type"), 40).lower()
+    if kind in {"line", "line_chart"}:
+        series = [item for item in panel.get("series") or [] if isinstance(item, Mapping)]
+        values = [len(item.get("values") or []) for item in series]
+        return max(values or [len(panel.get("items") or [])])
+    return len([item for item in panel.get("items") or [] if isinstance(item, Mapping)])
+
+
+def _exhibit_information_units(exhibit: Mapping[str, Any]) -> int:
+    metrics = [item for item in exhibit.get("metrics") or [] if isinstance(item, Mapping)]
+    panels = [item for item in exhibit.get("panels") or [] if isinstance(item, Mapping)]
+    return len(metrics) + sum(_panel_information_units(panel) for panel in panels)
+
+
+def _meta_narration_issue(value: Any) -> str:
+    text = json.dumps(value, ensure_ascii=False) if not isinstance(value, str) else value
+    for pattern in META_NARRATION_PATTERNS:
+        if match := pattern.search(text):
+            return f"meta narration remains: {match.group(0)!r}"
+    return ""
+
+
+def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
+    issues: list[str] = []
+    chapters = architecture.get("chapters") if isinstance(architecture.get("chapters"), list) else []
+    exhibits = architecture.get("exhibits") if isinstance(architecture.get("exhibits"), list) else []
+    visuals = architecture.get("visuals") if isinstance(architecture.get("visuals"), list) else []
+    if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
+        issues.append("Architecture requires four chapters, four exhibits and five visuals.")
+    if issue := _meta_narration_issue(
+        {
+            "executiveSummary": architecture.get("executiveSummary"),
+            "chapters": chapters,
+            "outlook": architecture.get("outlook"),
+        }
+    ):
+        issues.append(issue)
+    for index, exhibit in enumerate(exhibits, start=1):
+        if not isinstance(exhibit, Mapping):
+            issues.append(f"Exhibit {index} is malformed.")
+            continue
+        panels = _normalize_exhibit_panels(exhibit.get("panels"))
+        candidate = {**exhibit, "panels": panels}
+        if not panels:
+            issues.append(f"Exhibit {index} has no substantive panel.")
+        if _exhibit_information_units(candidate) < 6:
+            issues.append(f"Exhibit {index} has fewer than six evidence units.")
+    return issues
+
+
 def _editorial_issues(
     content: Mapping[str, Any],
     valid_source_ids: set[str],
@@ -557,7 +629,7 @@ def _editorial_issues(
     if len(executive.get("paragraphs") or []) != 4:
         issues.append("Executive summary must contain exactly four paragraphs.")
     executive_words = _paragraph_word_count(executive)
-    if not 300 <= executive_words <= 500:
+    if not 300 <= executive_words <= 450:
         issues.append(f"Executive summary body length is {executive_words} words.")
     if len(chapters) != 4:
         issues.append(f"Expected four chapters, found {len(chapters)}.")
@@ -585,6 +657,8 @@ def _editorial_issues(
         for panel_index, panel in enumerate(panels or [], start=1):
             if isinstance(panel, Mapping) and (issue := _panel_renderability_issue(panel)):
                 issues.append(f"Exhibit {index} panel {panel_index}: {issue}.")
+        if isinstance(exhibit, Mapping) and _exhibit_information_units(exhibit) < 6:
+            issues.append(f"Exhibit {index} has fewer than six evidence units.")
     outlook_words = _paragraph_word_count(outlook)
     if not 200 <= outlook_words <= 340:
         issues.append(f"Outlook body length is {outlook_words} words.")
@@ -611,6 +685,8 @@ def _editorial_issues(
         issues.append("Chinese text remains in the manuscript.")
     if NON_USD_CURRENCY_RE.search(full_text):
         issues.append("A non-USD currency remains in the manuscript.")
+    if issue := _meta_narration_issue(content):
+        issues.append(issue)
     return issues
 
 
@@ -634,14 +710,17 @@ def _prepare_editorial(
     fallback_ids = [str(item["id"]) for item in sources[:4]]
     source_fingerprint = hashlib.sha256(
         json.dumps(
-            [
+            {
+                "policyVersion": EDITORIAL_POLICY_VERSION,
+                "sources": [
                 {
                     "id": item.get("id"),
                     "url": item.get("url"),
                     "qualityTier": item.get("qualityTier"),
                 }
                 for item in sources
-            ],
+                ],
+            },
             ensure_ascii=False,
             sort_keys=True,
             separators=(",", ":"),
@@ -673,7 +752,7 @@ def _prepare_editorial(
     checkpoint_executive = _read_json_mapping(work_dir / "editorial-executive.json") if checkpoint_compatible else None
     if checkpoint_executive is not None and not (
         len(checkpoint_executive.get("paragraphs") or []) == 4
-        and 300 <= _paragraph_word_count(checkpoint_executive) <= 500
+        and 300 <= _paragraph_word_count(checkpoint_executive) <= 450
         and checkpoint_has_sources(checkpoint_executive)
     ):
         checkpoint_executive = None
@@ -723,7 +802,7 @@ def _prepare_editorial(
         cached_chapters = cached_architecture.get("chapters") if isinstance(cached_architecture.get("chapters"), list) else []
         cached_exhibits = cached_architecture.get("exhibits") if isinstance(cached_architecture.get("exhibits"), list) else []
         cached_visuals = cached_architecture.get("visuals") if isinstance(cached_architecture.get("visuals"), list) else []
-        if len(cached_chapters) == 4 and len(cached_exhibits) == 4 and len(cached_visuals) == 5:
+        if not _architecture_issues(cached_architecture):
             architecture = cached_architecture
 
     for attempt in range(2 if architecture is None else 0):
@@ -755,14 +834,12 @@ def _prepare_editorial(
                     max_tokens=5_500,
                 )
             )
-            chapters = architecture.get("chapters") if isinstance(architecture.get("chapters"), list) else []
-            exhibits = architecture.get("exhibits") if isinstance(architecture.get("exhibits"), list) else []
-            visuals = architecture.get("visuals") if isinstance(architecture.get("visuals"), list) else []
-            if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
-                raise GatexWhitepaperError("Architecture requires four chapters, four exhibits and five visuals.")
             if locked_checkpoint_meta is not None:
                 architecture["executiveSummary"] = locked_checkpoint_meta["executiveSummary"]
                 architecture["chapters"] = locked_checkpoint_meta["chapters"]
+            architecture_issues = _architecture_issues(architecture)
+            if architecture_issues:
+                raise GatexWhitepaperError(" | ".join(architecture_issues))
             architecture_path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2), encoding="utf-8")
             fingerprint_path.write_text(source_fingerprint + "\n", encoding="utf-8")
             break
@@ -791,7 +868,7 @@ Editorial brief: {brief}
 
 {_publication_rules()}
 
-Write exactly four paragraphs and 330-470 words. Establish the evidence-led thesis, the industrial capability, the capital-market transmission and the bounded cross-border relevance. Do not describe the report structure.
+Write exactly four paragraphs and 330-420 words. Establish the evidence-led thesis, the industrial capability, the capital-market transmission and the bounded cross-border relevance. Do not describe the report structure.
 Return only: {{"paragraphs":["paragraph 1","paragraph 2","paragraph 3","paragraph 4"]}}
 
 SOURCES
@@ -811,9 +888,9 @@ SOURCES
             }
         )
         executive_words = _paragraph_word_count(executive)
-        if len(executive.get("paragraphs") or []) == 4 and 300 <= executive_words <= 500:
+        if len(executive.get("paragraphs") or []) == 4 and 300 <= executive_words <= 450:
             break
-        executive_error = f"Need exactly four paragraphs and 330-470 body words; received {executive_words} body words."
+        executive_error = f"Need exactly four paragraphs and 330-420 body words; received {executive_words} body words."
         executive = None
     if executive is None:
         raise GatexWhitepaperError(f"Executive summary failed editorial QA: {executive_error}")
@@ -1280,12 +1357,16 @@ def _disclaimer() -> dict[str, Any]:
         "id": "disclaimer",
         "kind": "disclaimer",
         "heading": "Disclaimer",
-        "body": "This publication is prepared by GateX for general information and management discussion. It is not investment, legal, tax, accounting or other professional advice, and it is not an offer, solicitation or recommendation concerning any security, transaction or strategy.",
+        "body": "This publication is prepared by GateX, a management-consulting and strategic-intelligence firm, solely for general information and informed management discussion. It is not investment, legal, tax, accounting, regulatory or other professional advice; it is not an offer, solicitation, recommendation, valuation or assurance concerning any security, transaction, jurisdiction or strategy.",
         "items": [
-            {"heading": "Information boundary", "body": "The publication draws on public information believed to be reliable at the publication date. GateX does not warrant completeness or accuracy, and facts may change without notice."},
-            {"heading": "Forward-looking material", "body": "Forecasts, estimates and scenarios are inherently uncertain. Actual outcomes may differ materially because of market, policy, technology, financing and execution factors."},
-            {"heading": "Independent judgement", "body": "Readers should conduct their own analysis and obtain appropriate professional advice before making any commercial, investment or operating decision."},
-            {"heading": "Distribution", "body": "This member-confidential edition is intended only for authorised GateX readers. It may not be reproduced or redistributed without prior written permission."},
+            {"heading": "Information boundary", "body": "The publication draws on public and permitted third-party information believed to be reliable at the publication date. GateX has not independently audited every underlying statement and does not warrant that the material is complete, accurate or current. Facts, estimates and circumstances may change without notice."},
+            {"heading": "Forward-looking material", "body": "Forecasts, estimates, targets and scenarios are inherently uncertain and are included only to frame possible developments. Actual outcomes may differ materially because of market, policy, technology, financing, execution, geopolitical and other factors. No forecast should be read as a promise or assurance."},
+            {"heading": "Independent judgement", "body": "Readers remain responsible for their own analysis, assumptions and decisions. They should obtain appropriate legal, tax, accounting, regulatory, technical and investment advice before making any commercial, capital-allocation or operating decision."},
+            {"heading": "No offer or fiduciary duty", "body": "Nothing in this publication constitutes an offer to buy or sell, a solicitation, personal recommendation, fairness opinion or commitment to arrange a transaction. GateX does not act as fiduciary, broker, dealer, investment adviser or placement agent by providing this material."},
+            {"heading": "Third-party material", "body": "Names, marks, data and publications belonging to third parties remain the property of their respective owners. Their inclusion does not imply sponsorship, endorsement or verification. Source links are provided to identify the underlying public record and may later change or become unavailable."},
+            {"heading": "Conflicts and interests", "body": "GateX and its personnel may advise, research or maintain relationships with organisations active in sectors discussed here. The publication is prepared as general intelligence and should not be treated as independent securities research or as a complete statement of any such relationship."},
+            {"heading": "Distribution and confidentiality", "body": "This member-confidential edition is intended only for authorised GateX readers. It may not be copied, quoted, reproduced, forwarded, posted or redistributed, in whole or in part, without prior written permission from GateX, except where applicable law expressly permits."},
+            {"heading": "Limitation of responsibility", "body": "To the fullest extent permitted by law, GateX accepts no responsibility for losses arising from reliance on this publication or from errors, omissions, delays or interruptions in underlying information. References to companies, markets or jurisdictions do not constitute endorsement."},
         ],
     }
 
@@ -1482,6 +1563,25 @@ def _uniform_dark_region_issue(source: Path | Image.Image) -> str:
     return ""
 
 
+def _printable_content_overlap_issue(
+    *,
+    page_height: float,
+    y0: float,
+    y1: float,
+    text: str,
+) -> str:
+    printable_bottom = page_height - (18 / 25.4 * 72)
+    normalized = re.sub(r"\s+", " ", text).strip().upper()
+    is_footer = (
+        y0 >= printable_bottom + 8
+        or normalized in {"MEMBER CONFIDENTIAL", "GATEX.FUND"}
+        or bool(re.fullmatch(r"\d{2}\s*/\s*\d{2}", normalized))
+    )
+    if not is_footer and y0 < printable_bottom and y1 > printable_bottom + 0.5:
+        return f"text crosses the printable footer boundary ({y0:.1f}-{y1:.1f} > {printable_bottom:.1f})"
+    return ""
+
+
 def _payload_renderability_issues(payload: Mapping[str, Any]) -> list[str]:
     issues: list[str] = []
     exhibits = [
@@ -1559,11 +1659,21 @@ def _render_full_review_package(pdf_path: Path, output_dir: Path) -> dict[str, A
             bounds = page.rect
             for block in page.get_text("blocks"):
                 x0, y0, x1, y1 = block[:4]
+                block_text = str(block[4] or "")
                 if x0 < -1 or y0 < -1 or x1 > bounds.width + 1 or y1 > bounds.height + 1:
                     geometry_issues.append(
                         f"Page {index + 1}: text block extends outside the page bounds "
                         f"({x0:.1f}, {y0:.1f}, {x1:.1f}, {y1:.1f})."
                     )
+                if 0 < index < document.page_count - 1 and (
+                    issue := _printable_content_overlap_issue(
+                        page_height=bounds.height,
+                        y0=y0,
+                        y1=y1,
+                        text=block_text,
+                    )
+                ):
+                    geometry_issues.append(f"Page {index + 1}: {issue}.")
     finally:
         document.close()
     return {

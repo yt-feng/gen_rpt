@@ -1170,14 +1170,14 @@ h1, h2, h3, p, blockquote { margin-top: 0; }
 h1, h2, h3 { break-after: avoid-page; }
 p { orphans: 3; widows: 3; }
 .fixed-page { min-height: 261mm; break-after: page; overflow: hidden; }
-.eyebrow { margin-bottom: 5mm; color: #176ddc; font-size: 7pt; font-weight: 800; letter-spacing: .2em; }
+.eyebrow { margin-bottom: 4mm; color: #176ddc; font-size: 7pt; font-weight: 800; letter-spacing: .2em; }
 .executive-summary { display: flex; height: 261mm; flex-direction: column; overflow: hidden; }
-.executive-visual { margin: 0 0 6mm; }
-.executive-visual img { display: block; width: 100%; height: 61mm; object-fit: cover; }
+.executive-visual { margin: 0 0 5mm; }
+.executive-visual img { display: block; width: 100%; height: 54mm; object-fit: cover; }
 .executive-visual figcaption { margin-top: 1.5mm; color: #7b8796; font-size: 6.4pt; }
-.executive-summary h1 { margin: 0 0 3mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 26pt; font-weight: 400; line-height: 1.05; }
-.executive-deck { max-width: 158mm; margin-bottom: 5mm; color: #2777c9; font-size: 12.5pt; line-height: 1.34; }
-.executive-copy { column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; color: #334155; font-size: 7.85pt; line-height: 1.43; }
+.executive-summary h1 { margin: 0 0 2.5mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 25pt; font-weight: 400; line-height: 1.05; }
+.executive-deck { max-width: 158mm; margin-bottom: 4mm; color: #2777c9; font-size: 12.5pt; line-height: 1.34; }
+.executive-copy { column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; color: #334155; font-size: 7.75pt; line-height: 1.37; }
 .executive-copy p { margin: 0 0 3.2mm; }
 .executive-summary .whitepaper-footnotes { margin-top: 2.5mm; padding-top: 1.8mm; font-size: 5.6pt; line-height: 1.25; }
 .executive-summary .whitepaper-footnotes ol { margin-top: 1mm; }
@@ -1320,8 +1320,9 @@ p { orphans: 3; widows: 3; }
 .whitepaper-disclaimer { padding-top: 7mm; color: #687382; }
 .whitepaper-disclaimer h2 { margin: 0 0 4mm; color: #26384d; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; }
 .disclaimer-lead { max-width: 158mm; margin-bottom: 6mm; color: #596675; font-size: 8.6pt; line-height: 1.5; }
-.disclaimer-grid { column-count: 2; column-gap: 9mm; column-rule: .2mm solid #dfe3e8; }
-.disclaimer-grid article { margin: 0 0 5mm; break-inside: avoid; }
+.disclaimer-grid { display: grid; gap: 0 9mm; grid-template-columns: repeat(2, 1fr); border-top: .25mm solid #d6dde4; }
+.disclaimer-grid article { min-height: 39mm; margin: 0; padding: 5mm 0 4mm; border-bottom: .25mm solid #dfe3e8; break-inside: avoid; }
+.disclaimer-grid article:nth-child(odd) { padding-right: 4mm; border-right: .2mm solid #dfe3e8; }
 .disclaimer-grid h3 { margin: 0 0 1.5mm; color: #435268; font-size: 8pt; text-transform: uppercase; letter-spacing: .06em; }
 .disclaimer-grid p { margin: 0; color: #747f8c; font-size: 7.35pt; line-height: 1.52; }
 .disclaimer-foot { margin-top: 6mm; padding-top: 3mm; color: #85909b; border-top: .25mm solid #d6dde4; font-size: 6.7pt; }

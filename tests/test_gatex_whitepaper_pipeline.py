@@ -16,11 +16,15 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _fallback_queries,
     _FailoverEditorialClient,
     _generate_visuals,
+    _architecture_issues,
+    _exhibit_information_units,
+    _meta_narration_issue,
     _normalize_exhibit_panels,
     _normalize_panel,
     _panel_renderability_issue,
     _paragraph_word_count,
     _payload_renderability_issues,
+    _printable_content_overlap_issue,
     _source_packet,
     _uniform_dark_region_issue,
     semantic_visual_quality_issues,
@@ -232,6 +236,28 @@ def test_normal_text_page_does_not_trigger_black_rectangle_check() -> None:
     assert _uniform_dark_region_issue(image) == ""
 
 
+def test_text_crossing_printable_footer_boundary_is_rejected() -> None:
+    issue = _printable_content_overlap_issue(
+        page_height=841.92,
+        y0=788.4,
+        y1=794.7,
+        text="3. OECD Economic Outlook",
+    )
+    assert "printable footer boundary" in issue
+
+
+def test_page_furniture_below_printable_area_is_allowed() -> None:
+    assert (
+        _printable_content_overlap_issue(
+            page_height=841.92,
+            y0=809.6,
+            y1=819.0,
+            text="MEMBER CONFIDENTIAL GATEX.FUND 02 / 18",
+        )
+        == ""
+    )
+
+
 def test_author_emails_are_client_ready_and_deterministic() -> None:
     first = _authors("red-chips")
     second = _authors("red-chips")
@@ -291,12 +317,65 @@ def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
             {"tag": "Foundry", "title": "Audited operating record", "body": "Listed-company evidence."},
             {"tag": "Memory", "title": "Prospectus record", "body": "Capacity and research evidence."},
             {"tag": "Cloud", "title": "Risk architecture", "body": "Infrastructure disclosure."},
+            {"tag": "Robotics", "title": "Deployment record", "body": "Operating and order evidence."},
         ],
     }
     normalized = _normalize_panel(panel)
     assert normalized["type"] == "matrix"
-    assert len(normalized["items"]) == 3
+    assert len(normalized["items"]) == 4
     assert _panel_renderability_issue(normalized) == ""
+
+
+def test_sparse_exhibit_is_rejected_even_when_the_panel_is_structurally_valid() -> None:
+    exhibit = {
+        "metrics": [{"value": "4.3%"}, {"value": "5.4%"}],
+        "panels": [
+            {
+                "type": "comparison",
+                "columns": ["Earlier", "Latest"],
+                "items": [
+                    {"metric": "GDP", "left": "5.0%", "right": "4.3%"},
+                    {"metric": "Industry", "left": "6.1%", "right": "5.4%"},
+                ],
+            }
+        ],
+    }
+    assert _exhibit_information_units(exhibit) == 4
+    assert _panel_renderability_issue(exhibit["panels"][0])
+
+
+def test_meta_narration_is_rejected_from_editorial_copy() -> None:
+    assert "meta narration" in _meta_narration_issue("The opening chapter establishes the demand backdrop.")
+    assert "meta narration" in _meta_narration_issue("Industrial activity and investment are examined together.")
+    assert _meta_narration_issue("Industrial output remained firmer than household demand.") == ""
+
+
+def test_architecture_requires_dense_exhibits() -> None:
+    architecture = {
+        "executiveSummary": {"headline": "Macro momentum slows", "deck": "Demand trails production."},
+        "chapters": [
+            {"title": f"Chapter finding {index}", "deck": "A substantive finding", "callout": "Bounded evidence"}
+            for index in range(4)
+        ],
+        "exhibits": [
+            {
+                "metrics": [{"value": "1"}, {"value": "2"}],
+                "panels": [
+                    {
+                        "type": "matrix",
+                        "items": [
+                            {"title": f"Signal {item}", "body": "Evidence"}
+                            for item in range(4)
+                        ],
+                    }
+                ],
+            }
+            for _ in range(4)
+        ],
+        "outlook": {"title": "Outlook", "deck": "Conditions remain mixed."},
+        "visuals": [{"id": f"visual-{index}"} for index in range(5)],
+    }
+    assert _architecture_issues(architecture) == []
 
 
 def test_incomplete_optional_exhibit_panel_is_dropped() -> None:
@@ -307,6 +386,7 @@ def test_incomplete_optional_exhibit_panel_is_dropped() -> None:
                 {"title": "Demand", "body": "Household demand remains selective."},
                 {"title": "Industry", "body": "Industrial output is comparatively resilient."},
                 {"title": "Property", "body": "Property continues to weigh on confidence."},
+                {"title": "Trade", "body": "External demand remains uneven."},
             ],
         },
         {
