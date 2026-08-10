@@ -495,8 +495,9 @@ def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) ->
     visuals = content.get("visuals") if isinstance(content.get("visuals"), list) else []
     if len(executive.get("paragraphs") or []) != 4:
         issues.append("Executive summary must contain exactly four paragraphs.")
-    if not 300 <= _word_count(executive) <= 520:
-        issues.append(f"Executive summary length is {_word_count(executive)} words.")
+    executive_words = _paragraph_word_count(executive)
+    if not 300 <= executive_words <= 500:
+        issues.append(f"Executive summary body length is {executive_words} words.")
     if len(chapters) != 4:
         issues.append(f"Expected four chapters, found {len(chapters)}.")
     for index, chapter in enumerate(chapters, start=1):
@@ -575,7 +576,7 @@ def _prepare_editorial(
     checkpoint_executive = _read_json_mapping(work_dir / "editorial-executive.json")
     if checkpoint_executive is not None and not (
         len(checkpoint_executive.get("paragraphs") or []) == 4
-        and 300 <= _word_count(checkpoint_executive) <= 520
+        and 300 <= _paragraph_word_count(checkpoint_executive) <= 500
         and checkpoint_has_sources(checkpoint_executive)
     ):
         checkpoint_executive = None
@@ -677,7 +678,7 @@ def _prepare_editorial(
     executive_ids = normalized_source_ids(executive_meta.get("sourceIds"))
     executive: dict[str, Any] | None = checkpoint_executive
     executive_error = ""
-    for attempt in range(2 if executive is None else 0):
+    for attempt in range(4 if executive is None else 0):
         executive = _ascii(
             client.chat_json(
                 [
@@ -711,9 +712,10 @@ SOURCES
                 "sourceIds": executive_ids,
             }
         )
-        if len(executive.get("paragraphs") or []) == 4 and 300 <= _word_count(executive) <= 520:
+        executive_words = _paragraph_word_count(executive)
+        if len(executive.get("paragraphs") or []) == 4 and 300 <= executive_words <= 500:
             break
-        executive_error = f"Need exactly four paragraphs and 330-470 words; received {_word_count(executive)} words."
+        executive_error = f"Need exactly four paragraphs and 330-470 body words; received {executive_words} body words."
         executive = None
     if executive is None:
         raise GatexWhitepaperError(f"Executive summary failed editorial QA: {executive_error}")

@@ -144,6 +144,16 @@ def test_outlook_word_count_excludes_metadata() -> None:
     assert _paragraph_word_count(outlook) == 6
 
 
+def test_executive_word_count_excludes_headline_deck_and_sources() -> None:
+    executive = {
+        "headline": "A metadata headline with several words",
+        "deck": "A separate deck also contains words that do not occupy the body columns.",
+        "sourceIds": ["S1", "S2"],
+        "paragraphs": ["One two three.", "Four five six.", "Seven eight nine.", "Ten eleven twelve."],
+    }
+    assert _paragraph_word_count(executive) == 12
+
+
 def test_valid_cached_visual_is_reused_without_api_call() -> None:
     with TemporaryDirectory() as directory:
         target_dir = Path(directory)
