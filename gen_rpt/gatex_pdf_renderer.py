@@ -865,7 +865,11 @@ def _bar_chart_svg(panel: Mapping[str, Any]) -> str:
     high += span * 0.12
     width = 760.0
     height = max(220.0, 84.0 + len(items) * 38.0)
-    left, right, top, bottom = 172.0, 54.0, 34.0, 42.0
+    longest_label = max(len(_clean(item.get("label"), 42)) for item in items)
+    # SVG text is clipped at the viewBox edge even when CSS overflow is visible.
+    # Reserve enough room for long industry/category labels before plotting bars.
+    left = min(270.0, max(172.0, 28.0 + longest_label * 5.5))
+    right, top, bottom = 54.0, 34.0, 42.0
     plot_w, plot_h = width - left - right, height - top - bottom
     row_h = plot_h / len(items)
 

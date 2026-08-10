@@ -19,6 +19,7 @@ class DeepSeekClient:
     ) -> None:
         self.model = model
         use_apimart = _uses_apimart(model)
+        self.use_apimart = use_apimart
         default_key_name = "APIMART_API_KEY" if use_apimart else "DEEPSEEK_API_KEY"
         default_base_url = (
             os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").rstrip("/") + "/v1"
@@ -32,6 +33,16 @@ class DeepSeekClient:
             raise ValueError(
                 f"Missing {default_key_name}. Please configure it in GitHub Actions Secrets or your local environment."
             )
+
+    @property
+    def route_label(self) -> str:
+        if self.use_apimart and _bool_env("APIMART_USE_RESPONSES", False):
+            effort = os.getenv("APIMART_REASONING_EFFORT", "max").strip().lower() or "default"
+            mode = os.getenv("APIMART_REASONING_MODE", "pro").strip().lower() or "standard"
+            return f"APIMart Responses ({mode}/{effort})"
+        if self.use_apimart:
+            return "APIMart Chat Completions"
+        return "DeepSeek Chat Completions"
 
     def chat(
         self,
@@ -71,6 +82,23 @@ class DeepSeekClient:
             data = response.json()
             return data["choices"][0]["message"]["content"]
 
+        if self.use_apimart and _bool_env("APIMART_USE_RESPONSES", False):
+            try:
+                return self._responses_chat(
+                    messages,
+                    model=model,
+                    json_mode=json_mode,
+                    max_tokens=max_tokens,
+                )
+            except Exception as exc:
+                if not _bool_env("APIMART_ALLOW_CHAT_FALLBACK", False):
+                    raise
+                print(
+                    "[gatex.editorial] APIMart Responses route unavailable; "
+                    f"retrying the same model through Chat Completions: {exc}",
+                    flush=True,
+                )
+
         url = f"{self.base_url}/chat/completions"
         headers = {
             "Authorization": f"Bearer {self.api_key}",
@@ -82,7 +110,7 @@ class DeepSeekClient:
 
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
-        requested_max_tokens = max_tokens if max_tokens is not None else _int_env("DEEPSEEK_MAX_TOKENS", 0)
+        requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=self.use_apimart)
         if requested_max_tokens > 0:
             payload["max_tokens"] = requested_max_tokens
         last_error = "unknown chat-completion failure"
@@ -102,6 +130,68 @@ class DeepSeekClient:
             if attempt < 2:
                 time.sleep(2 ** attempt)
         raise RuntimeError(f"Chat completion failed after retries: {last_error}")
+
+    def _responses_chat(
+        self,
+        messages: List[Dict[str, str]],
+        *,
+        model: Optional[str],
+        json_mode: bool,
+        max_tokens: Optional[int],
+    ) -> str:
+        url = f"{self.base_url}/responses"
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            "User-Agent": "GateX-Research-Pipeline/4.0",
+        }
+        payload: Dict[str, Any] = {
+            "model": model or self.model,
+            "input": [
+                {
+                    "role": str(message.get("role") or "user"),
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": str(message.get("content") or ""),
+                        }
+                    ],
+                }
+                for message in messages
+            ],
+            "stream": False,
+            "store": False,
+        }
+        reasoning: Dict[str, str] = {}
+        effort = os.getenv("APIMART_REASONING_EFFORT", "max").strip().lower()
+        mode = os.getenv("APIMART_REASONING_MODE", "pro").strip().lower()
+        if effort:
+            reasoning["effort"] = effort
+        if mode:
+            reasoning["mode"] = mode
+        if reasoning:
+            payload["reasoning"] = reasoning
+        if json_mode and _bool_env("APIMART_RESPONSES_JSON_FORMAT", False):
+            payload["text"] = {"format": {"type": "json_object"}}
+        requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=True)
+        if requested_max_tokens > 0:
+            payload["max_output_tokens"] = requested_max_tokens
+
+        last_error = "unknown Responses API failure"
+        for attempt in range(3):
+            response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            try:
+                response.raise_for_status()
+                content = _response_content(response)
+                if content.strip():
+                    return content
+                last_error = f"HTTP {response.status_code} returned an empty response"
+            except Exception as exc:
+                last_error = str(exc)
+            if attempt < 2:
+                time.sleep(2 ** attempt)
+        raise RuntimeError(f"Responses API call failed after retries: {last_error}")
 
     def chat_json(
         self,
@@ -205,6 +295,44 @@ def _completion_content(response: requests.Response) -> str:
             return "".join(chunks)
         excerpt = response.text[:500].strip()
         raise ValueError(f"Chat endpoint returned invalid JSON: {excerpt or '<empty body>'}")
+
+
+def _response_content(response: requests.Response) -> str:
+    try:
+        payload = response.json()
+    except ValueError as exc:
+        excerpt = response.text[:500].strip()
+        raise ValueError(f"Responses endpoint returned invalid JSON: {excerpt or '<empty body>'}") from exc
+
+    data = payload.get("data") if isinstance(payload, dict) and isinstance(payload.get("data"), dict) else payload
+    if not isinstance(data, dict):
+        raise ValueError("Responses endpoint returned an unexpected payload.")
+
+    output_text = data.get("output_text")
+    if isinstance(output_text, str) and output_text.strip():
+        return output_text
+
+    choices = data.get("choices")
+    if isinstance(choices, list) and choices:
+        message = choices[0].get("message") if isinstance(choices[0], dict) else None
+        if isinstance(message, dict) and isinstance(message.get("content"), str):
+            return str(message["content"])
+
+    chunks: List[str] = []
+    for item in data.get("output") or []:
+        if not isinstance(item, dict):
+            continue
+        for content in item.get("content") or []:
+            if not isinstance(content, dict):
+                continue
+            value = content.get("text")
+            if isinstance(value, str) and value:
+                chunks.append(value)
+            elif isinstance(value, dict) and isinstance(value.get("value"), str):
+                chunks.append(str(value["value"]))
+    if chunks:
+        return "".join(chunks)
+    raise ValueError(f"Responses endpoint returned no text output: {str(data)[:500]}")
 
 
 def normalize_structured_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
@@ -511,3 +639,15 @@ def _int_env(name: str, default: int) -> int:
         return int(os.getenv(name, str(default)))
     except ValueError:
         return default
+
+
+def _bool_env(name: str, default: bool) -> bool:
+    fallback = "true" if default else "false"
+    return os.getenv(name, fallback).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _requested_output_tokens(max_tokens: Optional[int], *, use_apimart: bool) -> int:
+    requested = max_tokens if max_tokens is not None else _int_env("DEEPSEEK_MAX_TOKENS", 0)
+    if use_apimart:
+        requested = max(requested, _int_env("APIMART_MIN_OUTPUT_TOKENS", 16_000))
+    return requested

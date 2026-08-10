@@ -49,6 +49,11 @@ jobs:
     env:
       APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
       APIMART_BASE_URL: https://api.apimart.ai
+      APIMART_USE_RESPONSES: "true"
+      APIMART_REASONING_EFFORT: max
+      APIMART_REASONING_MODE: pro
+      APIMART_MIN_OUTPUT_TOKENS: "16000"
+      APIMART_ALLOW_CHAT_FALLBACK: "false"
       APIMART_IMAGE_MODEL: gpt-image-2
       QWEN_VL_API_KEY: ${{ secrets.QWEN_VL_API_KEY }}
       QWEN_VL_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
@@ -57,6 +62,8 @@ jobs:
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       DEEPSEEK_MAX_TOKENS: "16000"
+      GATEX_EDITORIAL_FALLBACK_MODEL: ""
+      GATEX_RESEARCH_MODEL: gpt-5.6-sol
       GEN_RPT_PER_QUERY: "4"
       GEN_RPT_MAX_SOURCES: "30"
       GEN_RPT_MAX_QUERIES: "18"
@@ -92,6 +99,31 @@ jobs:
             gen_rpt/gatex_pdf_renderer.py \
             gen_rpt/gatex_whitepaper_pipeline.py \
             tools/generate_gatex_whitepaper.py
+
+      - name: Verify APIMart Sol Pro route
+        run: |
+          python - <<'PY'
+          from gen_rpt.deepseek_client import DeepSeekClient
+
+          client = DeepSeekClient(model="${{ inputs.model }}", timeout=420)
+          result = client.chat_json(
+              [
+                  {
+                      "role": "system",
+                      "content": "Return valid JSON only.",
+                  },
+                  {
+                      "role": "user",
+                      "content": 'Return exactly {"status":"ready"}.',
+                  },
+              ],
+              temperature=0.0,
+              max_tokens=1_000,
+          )
+          if result.get("status") != "ready":
+              raise SystemExit(f"Unexpected APIMart editorial canary: {result}")
+          print("APIMart editorial route ready: gpt-5.6-sol / Responses / pro / max")
+          PY
 
       - name: Restore prior cloud checkpoint
         if: ${{ inputs.resume_run_id != '' }}

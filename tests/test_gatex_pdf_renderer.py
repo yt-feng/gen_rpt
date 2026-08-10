@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -8,6 +9,7 @@ import fitz
 from pypdf import PdfReader
 
 from gen_rpt.gatex_pdf_renderer import (
+    _bar_chart_svg,
     COVER_TEXTURE_PATH,
     _deduplicated_word_text,
     release_classification,
@@ -74,6 +76,22 @@ def sample_release():
             },
         ],
     }
+
+
+def test_bar_chart_reserves_space_for_long_category_labels() -> None:
+    svg = _bar_chart_svg(
+        {
+            "items": [
+                {"label": "Electricity, heat, gas and water supply", "value": 4.3},
+                {"label": "Manufacturing", "value": 6.4},
+                {"label": "Mining", "value": 6.0},
+                {"label": "Total industry", "value": 6.1},
+            ]
+        }
+    )
+    match = re.search(r"class='chart-category' x='([0-9.]+)'", svg)
+    assert match is not None
+    assert float(match.group(1)) >= 215
 
 
 class GatexPdfRendererTests(unittest.TestCase):

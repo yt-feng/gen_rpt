@@ -9,9 +9,10 @@ from unittest import mock
 
 from PIL import Image
 
-from gen_rpt.deepseek_client import DeepSeekClient, _completion_content
+from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _response_content
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
+    _chart_label_issues,
     _english_source_title,
     _fallback_queries,
     _FailoverEditorialClient,
@@ -45,6 +46,52 @@ def test_deepseek_model_keeps_deepseek_endpoint() -> None:
         client = DeepSeekClient(model="deepseek-chat")
     assert client.api_key == "test-key"
     assert client.base_url == "https://api.deepseek.com/v1"
+
+
+def test_apimart_sol_uses_responses_pro_max_with_expanded_budget() -> None:
+    response = mock.Mock()
+    response.status_code = 200
+    response.json.return_value = {
+        "output": [
+            {
+                "type": "message",
+                "content": [{"type": "output_text", "text": '{"status":"ready"}'}],
+            }
+        ]
+    }
+    response.raise_for_status.return_value = None
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_REASONING_EFFORT": "max",
+        "APIMART_REASONING_MODE": "pro",
+        "APIMART_MIN_OUTPUT_TOKENS": "16000",
+        "APIMART_ALLOW_CHAT_FALLBACK": "false",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch("gen_rpt.deepseek_client.requests.post", return_value=response) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat_json(
+                [{"role": "user", "content": "Return JSON."}],
+                max_tokens=1_000,
+            ) == {"status": "ready"}
+
+    url = post.call_args.args[0]
+    payload = post.call_args.kwargs["json"]
+    assert url == "https://api.apimart.ai/v1/responses"
+    assert payload["model"] == "gpt-5.6-sol"
+    assert payload["reasoning"] == {"effort": "max", "mode": "pro"}
+    assert payload["max_output_tokens"] == 16_000
+    assert "max_tokens" not in payload
+
+
+def test_responses_parser_accepts_apimart_wrapped_choices() -> None:
+    response = mock.Mock()
+    response.json.return_value = {
+        "code": 200,
+        "data": {"choices": [{"message": {"content": "GateX"}}]},
+    }
+    assert _response_content(response) == "GateX"
 
 
 def test_editorial_client_fails_over_once_and_keeps_using_backup() -> None:
@@ -310,6 +357,14 @@ def test_chinese_source_titles_are_rendered_as_english_citations() -> None:
     assert _english_source_title(company) == "ChangXin Memory Technologies Group Co., Ltd. Filing"
 
 
+def test_dangling_search_result_ellipsis_is_removed_from_citation_title() -> None:
+    source = {
+        "title": "China's retail sales rose in the first half of ...",
+        "domain": "english.www.gov.cn",
+    }
+    assert _english_source_title(source) == "China's retail sales rose in the first half"
+
+
 def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
     panel = {
         "type": "comparison",
@@ -360,6 +415,28 @@ def test_non_usd_currency_is_rejected_before_final_assembly() -> None:
 
 
 def test_architecture_requires_dense_exhibits() -> None:
+    panels = [
+        {
+            "type": "matrix",
+            "items": [{"title": f"Signal {item}", "body": "Evidence"} for item in range(4)],
+        },
+        {
+            "type": "bars",
+            "items": [{"label": f"Segment {item}", "value": item + 1} for item in range(4)],
+        },
+        {
+            "type": "comparison",
+            "columns": ["Earlier", "Latest"],
+            "items": [
+                {"metric": f"Measure {item}", "left": str(item), "right": str(item + 1)}
+                for item in range(4)
+            ],
+        },
+        {
+            "type": "process",
+            "items": [{"title": f"Stage {item}", "body": "Evidence"} for item in range(4)],
+        },
+    ]
     architecture = {
         "executiveSummary": {"headline": "Macro momentum slows", "deck": "Demand trails production."},
         "chapters": [
@@ -369,22 +446,53 @@ def test_architecture_requires_dense_exhibits() -> None:
         "exhibits": [
             {
                 "metrics": [{"value": "1"}, {"value": "2"}],
-                "panels": [
-                    {
-                        "type": "matrix",
-                        "items": [
-                            {"title": f"Signal {item}", "body": "Evidence"}
-                            for item in range(4)
-                        ],
-                    }
-                ],
+                "panels": [panels[index]],
             }
-            for _ in range(4)
+            for index in range(4)
         ],
         "outlook": {"title": "Outlook", "deck": "Conditions remain mixed."},
         "visuals": [{"id": f"visual-{index}"} for index in range(5)],
     }
     assert _architecture_issues(architecture) == []
+
+
+def test_architecture_rejects_repetitive_exhibit_grammar() -> None:
+    panel = {
+        "type": "matrix",
+        "items": [{"title": f"Signal {item}", "body": "Evidence"} for item in range(4)],
+    }
+    architecture = {
+        "executiveSummary": {"headline": "Macro momentum slows", "deck": "Demand trails production."},
+        "chapters": [
+            {"title": f"Finding {index}", "deck": "A substantive finding", "callout": "Bounded evidence"}
+            for index in range(4)
+        ],
+        "exhibits": [
+            {"metrics": [{"value": "1"}, {"value": "2"}], "panels": [panel]}
+            for _ in range(4)
+        ],
+        "outlook": {"title": "Outlook", "deck": "Conditions remain mixed."},
+        "visuals": [{"id": f"visual-{index}"} for index in range(5)],
+    }
+    assert any("Panel types repeated" in issue for issue in _architecture_issues(architecture))
+
+
+def test_chart_label_gate_detects_clipped_text() -> None:
+    exhibit = {
+        "panels": [
+            {
+                "type": "bars",
+                "items": [
+                    {"label": "Electricity, heat, gas and water supply", "value": 4.3},
+                    {"label": "Manufacturing", "value": 6.4},
+                    {"label": "Mining", "value": 6.0},
+                    {"label": "Total industry", "value": 6.1},
+                ],
+            }
+        ]
+    }
+    issues = _chart_label_issues(exhibit, "ctricity, heat, gas and water supply Manufacturing Mining Total industry")
+    assert issues == ["Rendered chart label is missing or clipped: Electricity, heat, gas and water supply"]
 
 
 def test_incomplete_optional_exhibit_panel_is_dropped() -> None:

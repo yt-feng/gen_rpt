@@ -36,6 +36,8 @@ class _FailoverEditorialClient:
         self.primary = primary
         self.fallback = fallback
         self.primary_disabled = False
+        self.active_model = primary.model
+        self.active_route = getattr(primary, "route_label", "primary editorial route")
 
     def chat_json(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
         if not self.primary_disabled:
@@ -45,6 +47,8 @@ class _FailoverEditorialClient:
                 if self.fallback is None:
                     raise
                 self.primary_disabled = True
+                self.active_model = self.fallback.model
+                self.active_route = getattr(self.fallback, "route_label", "fallback editorial route")
                 print(
                     "[gatex.whitepaper] primary editorial model unavailable; "
                     f"continuing this report with {self.fallback.model}: {exc}",
@@ -64,7 +68,14 @@ def _editorial_client(model: str, *, timeout: int = 420) -> _FailoverEditorialCl
             fallback = DeepSeekClient(model=fallback_model, timeout=timeout)
         except ValueError as exc:
             print(f"[gatex.whitepaper] editorial fallback is not configured: {exc}", flush=True)
-    return _FailoverEditorialClient(primary, fallback)
+    client = _FailoverEditorialClient(primary, fallback)
+    fallback_label = fallback.model if fallback is not None else "disabled"
+    print(
+        f"[gatex.whitepaper] editorial route: {primary.model} via {primary.route_label}; "
+        f"fallback={fallback_label}",
+        flush=True,
+    )
+    return client
 
 
 FORBIDDEN_TERMS = (
@@ -83,6 +94,9 @@ FORBIDDEN_TERMS = (
     "report structure",
     "four-part analysis",
     "analysis proceeds",
+    "key indicators to watch",
+    "signals to watch",
+    "what to verify and watch",
     "mineru",
     "deepseek",
     "apimart",
@@ -90,7 +104,7 @@ FORBIDDEN_TERMS = (
     "tavily",
     "gdelt",
 )
-EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v3"
+EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v4"
 META_NARRATION_PATTERNS = (
     re.compile(
         r"\b(?:this|the|an?|opening|final|first|second|third|fourth)\s+"
@@ -444,6 +458,7 @@ Architecture rules:
 - Each exhibit contains at least six evidence units across metric cards and panel rows or data points. Sparse scorecards are unacceptable.
 - Comparison panels need at least three complete rows. Matrix, process, market-map and milestone panels need at least four complete items. Quantitative charts need at least four labelled observations.
 - Use quantitative charts only for coherent source series. Otherwise use comparison, process, market map, scenario or matrix.
+- Vary the visual grammar across the four exhibits. Do not use the same panel type in more than two exhibits.
 - Each exhibit has one or two panels and no more than four metrics. With two panels, use no more than two metrics.
 - Exhibit headings never begin with Exhibit or a number. Captions contain no source attribution.
 - Produce five distinct documentary visual briefs showing actual industry, infrastructure, technology or operating context, with no text, logos, flags or abstract decoration.
@@ -613,16 +628,21 @@ def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
     if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
         issues.append("Architecture requires four chapters, four exhibits and five visuals.")
     issues.extend(_publication_copy_issues(architecture))
+    panel_types: list[str] = []
     for index, exhibit in enumerate(exhibits, start=1):
         if not isinstance(exhibit, Mapping):
             issues.append(f"Exhibit {index} is malformed.")
             continue
         panels = _normalize_exhibit_panels(exhibit.get("panels"))
+        panel_types.extend(_clean(panel.get("type"), 40).lower() for panel in panels)
         candidate = {**exhibit, "panels": panels}
         if not panels:
             issues.append(f"Exhibit {index} has no substantive panel.")
         if _exhibit_information_units(candidate) < 6:
             issues.append(f"Exhibit {index} has fewer than six evidence units.")
+    repeated_types = sorted({kind for kind in panel_types if panel_types.count(kind) > 2})
+    if repeated_types:
+        issues.append(f"Panel types repeated across more than two exhibits: {repeated_types}.")
     return issues
 
 
@@ -1334,6 +1354,8 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
 
 def _english_source_title(source: Mapping[str, str]) -> str:
     title = _clean(source.get("title"), 500)
+    title = re.sub(r"\s+(?:of|for|in)\s+\.{3}$", "", title, flags=re.IGNORECASE)
+    title = re.sub(r"\s*\.{3}$", "", title).rstrip(" .")
     if not re.search(r"[\u3400-\u9fff]", title):
         return title
     translations = (
@@ -1533,6 +1555,37 @@ def _pdf_issues(pdf_path: Path, payload: Mapping[str, Any]) -> list[str]:
         if visual_path.is_file():
             for issue in visual_quality_issues(visual_path):
                 issues.append(f"Visual {visual_path.name}: {issue}")
+        if section.get("kind") == "exhibit":
+            heading_key = re.sub(r"[^a-z0-9]", "", _clean(section.get("heading"), 500).lower())
+            page_text = next(
+                (
+                    text_by_page[index]
+                    for index in range(3, len(text_by_page) - 1)
+                    if heading_key and heading_key in re.sub(r"[^a-z0-9]", "", text_by_page[index].lower())
+                ),
+                "",
+            )
+            issues.extend(_chart_label_issues(section.get("exhibit") or {}, page_text))
+    return issues
+
+
+def _chart_label_issues(exhibit: Mapping[str, Any], page_text: str) -> list[str]:
+    page_key = re.sub(r"[^a-z0-9]", "", page_text.lower())
+    issues: list[str] = []
+    for panel in exhibit.get("panels") or []:
+        if not isinstance(panel, Mapping):
+            continue
+        kind = _clean(panel.get("type"), 40).lower()
+        labels: list[str] = []
+        if kind in {"bars", "scatter", "scatter_plot", "stacked_bar", "stacked_bars", "waterfall", "waterfall_chart", "vehicle_scale"}:
+            labels.extend(_clean(item.get("label"), 120) for item in panel.get("items") or [] if isinstance(item, Mapping))
+        elif kind in {"line", "line_chart"}:
+            labels.extend(_clean(item.get("name"), 120) for item in panel.get("series") or [] if isinstance(item, Mapping))
+            labels.extend(_clean(item, 120) for item in panel.get("xLabels") or [])
+        for label in labels:
+            label_key = re.sub(r"[^a-z0-9]", "", label.lower())
+            if len(label_key) >= 3 and label_key not in page_key:
+                issues.append(f"Rendered chart label is missing or clipped: {label}")
     return issues
 
 
@@ -1779,6 +1832,12 @@ def generate_gatex_whitepaper(
         "sha256": artifact["sha256"],
         "sourceCount": len(sources),
         "editorialWordCount": _word_count(content),
+        "editorialModel": {
+            "requested": model,
+            "used": client.active_model,
+            "route": client.active_route,
+            "fallbackUsed": client.primary_disabled,
+        },
         "pagePaths": review_package["pagePaths"],
         "contactSheetPaths": review_package["contactSheetPaths"],
         "visualIssues": [],
