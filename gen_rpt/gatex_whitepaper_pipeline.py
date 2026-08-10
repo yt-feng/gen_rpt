@@ -897,13 +897,36 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
     return results
 
 
+def _english_source_title(source: Mapping[str, str]) -> str:
+    title = _clean(source.get("title"), 500)
+    if not re.search(r"[\u3400-\u9fff]", title):
+        return title
+    translations = (
+        ("首次公开发行股票并在科创板上市招股说明书", "STAR Market Initial Public Offering Prospectus (Registration Draft)"),
+        ("长鑫科技集团股份有限公司", "ChangXin Memory Technologies Group Co., Ltd. Filing"),
+    )
+    for needle, translated in translations:
+        if needle in title:
+            return translated
+    if "招股" in title:
+        return "Initial Public Offering Prospectus"
+    if "年度报告" in title or "年报" in title:
+        return "Annual Report"
+    if "统计" in title:
+        return "Official Statistical Release"
+    if "公告" in title or "有限公司" in title:
+        return "Company Filing"
+    domain = _clean(source.get("domain"), 160)
+    return "Official Publication" if ".gov" in domain else "Primary-source Publication"
+
+
 def _citation_rows(source_ids: Iterable[Any], source_map: Mapping[str, Mapping[str, str]]) -> list[str]:
     rows: list[str] = []
     for source_id in source_ids:
         source = source_map.get(str(source_id))
         if not source:
             continue
-        rows.append(f"{source['title']}, {source['domain']}, {source['url']}")
+        rows.append(f"{_english_source_title(source)}, {source['domain']}, {source['url']}")
     return rows[:5]
 
 
