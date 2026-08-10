@@ -25,6 +25,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _paragraph_word_count,
     _payload_renderability_issues,
     _printable_content_overlap_issue,
+    _publication_copy_issues,
     _source_packet,
     _uniform_dark_region_issue,
     semantic_visual_quality_issues,
@@ -348,6 +349,14 @@ def test_meta_narration_is_rejected_from_editorial_copy() -> None:
     assert "meta narration" in _meta_narration_issue("The opening chapter establishes the demand backdrop.")
     assert "meta narration" in _meta_narration_issue("Industrial activity and investment are examined together.")
     assert _meta_narration_issue("Industrial output remained firmer than household demand.") == ""
+
+
+def test_non_usd_currency_is_rejected_before_final_assembly() -> None:
+    issues = _publication_copy_issues(
+        "Retail sales reached 60 trillion yuan (approximately $8.8 trillion) by 2030."
+    )
+    assert any("non-USD currency" in issue for issue in issues)
+    assert _publication_copy_issues("Retail sales may reach approximately $8.8 trillion by 2030.") == []
 
 
 def test_architecture_requires_dense_exhibits() -> None:

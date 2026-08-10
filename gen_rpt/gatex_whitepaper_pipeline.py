@@ -90,7 +90,7 @@ FORBIDDEN_TERMS = (
     "tavily",
     "gdelt",
 )
-EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v2"
+EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v3"
 META_NARRATION_PATTERNS = (
     re.compile(
         r"\b(?:this|the|an?|opening|final|first|second|third|fourth)\s+"
@@ -405,7 +405,7 @@ def _publication_rules() -> str:
     return """
 - GateX is the only publication brand. Never name an upstream publisher, source file, search provider, model or production tool.
 - Remain inside the supplied evidence. Do not invent facts, values, dates, quotations, companies or institutions.
-- Use USD for every monetary value. Omit other currencies unless the evidence supplies a defensible conversion and rate date.
+- Print monetary values in USD only. Never retain a non-USD amount, currency name or currency symbol beside its conversion. If the evidence supplies a defensible USD conversion and rate date, print only the converted USD value; otherwise omit the monetary figure.
 - Present Chinese technology capability and Middle Eastern market development with balanced, evidence-led language. Never reveal this editorial orientation and never force a cross-border link without evidence.
 - Write fluent, specific English without AI mannerisms, repetitive summaries, generic recommendations or reader instructions.
 - Do not expose chain-of-thought, recommendations, management instructions or process labels.
@@ -587,6 +587,24 @@ def _meta_narration_issue(value: Any) -> str:
     return ""
 
 
+def _publication_copy_issues(value: Any) -> list[str]:
+    full_text = json.dumps(value, ensure_ascii=False).lower()
+    issues: list[str] = []
+    found = [term for term in FORBIDDEN_TERMS if term in full_text]
+    if found:
+        issues.append(f"Forbidden terms remain: {found}.")
+    if re.search(r"[\u3400-\u9fff]", full_text):
+        issues.append("Chinese text remains in the manuscript.")
+    if NON_USD_CURRENCY_RE.search(full_text):
+        issues.append(
+            "A non-USD currency remains. Rewrite the copy to retain only a supplied USD equivalent; "
+            "if no defensible USD equivalent is supplied, omit the monetary figure."
+        )
+    if issue := _meta_narration_issue(value):
+        issues.append(issue)
+    return issues
+
+
 def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
     issues: list[str] = []
     chapters = architecture.get("chapters") if isinstance(architecture.get("chapters"), list) else []
@@ -594,14 +612,7 @@ def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
     visuals = architecture.get("visuals") if isinstance(architecture.get("visuals"), list) else []
     if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
         issues.append("Architecture requires four chapters, four exhibits and five visuals.")
-    if issue := _meta_narration_issue(
-        {
-            "executiveSummary": architecture.get("executiveSummary"),
-            "chapters": chapters,
-            "outlook": architecture.get("outlook"),
-        }
-    ):
-        issues.append(issue)
+    issues.extend(_publication_copy_issues(architecture))
     for index, exhibit in enumerate(exhibits, start=1):
         if not isinstance(exhibit, Mapping):
             issues.append(f"Exhibit {index} is malformed.")
@@ -677,16 +688,7 @@ def _editorial_issues(
             issues.append(f"{label} requires at least two valid source IDs.")
         if not ids & authoritative_source_ids:
             issues.append(f"{label} requires at least one primary or institutional source ID.")
-    full_text = json.dumps(content, ensure_ascii=False).lower()
-    found = [term for term in FORBIDDEN_TERMS if term in full_text]
-    if found:
-        issues.append(f"Forbidden terms remain: {found}.")
-    if re.search(r"[\u3400-\u9fff]", full_text):
-        issues.append("Chinese text remains in the manuscript.")
-    if NON_USD_CURRENCY_RE.search(full_text):
-        issues.append("A non-USD currency remains in the manuscript.")
-    if issue := _meta_narration_issue(content):
-        issues.append(issue)
+    issues.extend(_publication_copy_issues(content))
     return issues
 
 
@@ -754,6 +756,7 @@ def _prepare_editorial(
         len(checkpoint_executive.get("paragraphs") or []) == 4
         and 300 <= _paragraph_word_count(checkpoint_executive) <= 450
         and checkpoint_has_sources(checkpoint_executive)
+        and not _publication_copy_issues(checkpoint_executive)
     ):
         checkpoint_executive = None
 
@@ -767,6 +770,7 @@ def _prepare_editorial(
             and all(isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in subsections or [])
             and 560 <= _word_count(checkpoint) <= 980
             and checkpoint_has_sources(checkpoint)
+            and not _publication_copy_issues(checkpoint)
         )
         if not valid_checkpoint:
             checkpoint_chapters = []
@@ -888,9 +892,15 @@ SOURCES
             }
         )
         executive_words = _paragraph_word_count(executive)
-        if len(executive.get("paragraphs") or []) == 4 and 300 <= executive_words <= 450:
+        policy_issues = _publication_copy_issues(executive)
+        if len(executive.get("paragraphs") or []) == 4 and 300 <= executive_words <= 450 and not policy_issues:
             break
-        executive_error = f"Need exactly four paragraphs and 330-420 body words; received {executive_words} body words."
+        executive_error = " ".join(
+            [
+                f"Need exactly four paragraphs and 330-420 body words; received {executive_words} body words.",
+                *policy_issues,
+            ]
+        )
         executive = None
     if executive is None:
         raise GatexWhitepaperError(f"Executive summary failed editorial QA: {executive_error}")
@@ -902,7 +912,7 @@ SOURCES
         source_ids = normalized_source_ids(meta.get("sourceIds"))
         chapter: dict[str, Any] | None = checkpoint_chapters[index - 1] if len(checkpoint_chapters) == 4 else None
         chapter_error = ""
-        for attempt in range(2 if chapter is None else 0):
+        for attempt in range(4 if chapter is None else 0):
             chapter = _ascii(
                 client.chat_json(
                     [
@@ -943,9 +953,16 @@ SOURCES
             paragraphs_ok = len(subsections) == 4 and all(
                 isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in subsections
             )
-            if paragraphs_ok and 560 <= _word_count(chapter) <= 980:
+            policy_issues = _publication_copy_issues(chapter)
+            if paragraphs_ok and 560 <= _word_count(chapter) <= 980 and not policy_issues:
                 break
-            chapter_error = f"Need one opening, four two-paragraph subsections and 680-880 words; received {_word_count(chapter)} words."
+            chapter_error = " ".join(
+                [
+                    "Need one opening, four two-paragraph subsections and 680-880 words; "
+                    f"received {_word_count(chapter)} words.",
+                    *policy_issues,
+                ]
+            )
             chapter = None
         if chapter is None:
             raise GatexWhitepaperError(f"Chapter {index} failed editorial QA: {chapter_error}")
@@ -960,6 +977,7 @@ SOURCES
         3 <= len(outlook.get("paragraphs") or []) <= 4
         and 200 <= _paragraph_word_count(outlook) <= 340
         and checkpoint_has_sources(outlook)
+        and not _publication_copy_issues(outlook)
     ):
         outlook = None
     outlook_error = ""
@@ -999,9 +1017,15 @@ SOURCES
             }
         )
         outlook_words = _paragraph_word_count(outlook)
-        if 3 <= len(outlook.get("paragraphs") or []) <= 4 and 200 <= outlook_words <= 340:
+        policy_issues = _publication_copy_issues(outlook)
+        if 3 <= len(outlook.get("paragraphs") or []) <= 4 and 200 <= outlook_words <= 340 and not policy_issues:
             break
-        outlook_error = f"Need three or four paragraphs and 220-300 body words; received {outlook_words} body words."
+        outlook_error = " ".join(
+            [
+                f"Need three or four paragraphs and 220-300 body words; received {outlook_words} body words.",
+                *policy_issues,
+            ]
+        )
         outlook = None
     if outlook is None:
         raise GatexWhitepaperError(f"Outlook failed editorial QA: {outlook_error}")
