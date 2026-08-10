@@ -30,6 +30,42 @@ class GatexWhitepaperError(RuntimeError):
     pass
 
 
+class _FailoverEditorialClient:
+    def __init__(self, primary: DeepSeekClient, fallback: DeepSeekClient | None = None) -> None:
+        self.primary = primary
+        self.fallback = fallback
+        self.primary_disabled = False
+
+    def chat_json(self, *args: Any, **kwargs: Any) -> dict[str, Any]:
+        if not self.primary_disabled:
+            try:
+                return self.primary.chat_json(*args, **kwargs)
+            except Exception as exc:
+                if self.fallback is None:
+                    raise
+                self.primary_disabled = True
+                print(
+                    "[gatex.whitepaper] primary editorial model unavailable; "
+                    f"continuing this report with {self.fallback.model}: {exc}",
+                    flush=True,
+                )
+        if self.fallback is None:
+            raise GatexWhitepaperError("The editorial model is unavailable and no fallback is configured.")
+        return self.fallback.chat_json(*args, **kwargs)
+
+
+def _editorial_client(model: str, *, timeout: int = 420) -> _FailoverEditorialClient:
+    primary = DeepSeekClient(model=model, timeout=timeout)
+    fallback_model = os.getenv("GATEX_EDITORIAL_FALLBACK_MODEL", "deepseek-chat").strip()
+    fallback = None
+    if fallback_model and fallback_model.lower() != str(model or "").strip().lower():
+        try:
+            fallback = DeepSeekClient(model=fallback_model, timeout=timeout)
+        except ValueError as exc:
+            print(f"[gatex.whitepaper] editorial fallback is not configured: {exc}", flush=True)
+    return _FailoverEditorialClient(primary, fallback)
+
+
 FORBIDDEN_TERMS = (
     "blue ocean",
     "blueocean",
@@ -515,7 +551,7 @@ def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) ->
 
 
 def _prepare_editorial(
-    client: DeepSeekClient,
+    client: _FailoverEditorialClient,
     *,
     title: str,
     topic: str,
@@ -1352,7 +1388,7 @@ def generate_gatex_whitepaper(
     research = _collect_research(topic, brief, research_dir)
 
     _progress("synthesis", 42, "Converting the evidence base into the GateX white-paper architecture.", 10)
-    client = DeepSeekClient(model=model, timeout=420)
+    client = _editorial_client(model, timeout=420)
     sources, source_packet = _source_packet(research)
     content = _prepare_editorial(
         client,

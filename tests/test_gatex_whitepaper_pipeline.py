@@ -12,6 +12,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _english_source_title,
     _fallback_queries,
+    _FailoverEditorialClient,
     _generate_visuals,
     _normalize_panel,
     _panel_renderability_issue,
@@ -35,6 +36,29 @@ def test_deepseek_model_keeps_deepseek_endpoint() -> None:
         client = DeepSeekClient(model="deepseek-chat")
     assert client.api_key == "test-key"
     assert client.base_url == "https://api.deepseek.com/v1"
+
+
+def test_editorial_client_fails_over_once_and_keeps_using_backup() -> None:
+    class StubClient:
+        def __init__(self, model: str, responses: list[object]) -> None:
+            self.model = model
+            self.responses = list(responses)
+            self.calls = 0
+
+        def chat_json(self, *args: object, **kwargs: object) -> dict[str, object]:
+            self.calls += 1
+            response = self.responses.pop(0)
+            if isinstance(response, Exception):
+                raise response
+            return response  # type: ignore[return-value]
+
+    primary = StubClient("gpt-5.6-sol", [RuntimeError("upstream 500")])
+    fallback = StubClient("deepseek-chat", [{"stage": 1}, {"stage": 2}])
+    client = _FailoverEditorialClient(primary, fallback)  # type: ignore[arg-type]
+    assert client.chat_json([]) == {"stage": 1}
+    assert client.chat_json([]) == {"stage": 2}
+    assert primary.calls == 1
+    assert fallback.calls == 2
 
 
 def test_completion_parser_accepts_sse_fallback() -> None:
