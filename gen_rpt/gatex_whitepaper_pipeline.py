@@ -6,6 +6,7 @@ import json
 import os
 import random
 import re
+import shutil
 import time
 import urllib.parse
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -1166,21 +1167,144 @@ def _pdf_issues(pdf_path: Path, payload: Mapping[str, Any]) -> list[str]:
     return issues
 
 
-def _render_previews(pdf_path: Path, output_dir: Path) -> list[str]:
+def _uniform_dark_region_issue(source: Path | Image.Image) -> str:
+    """Detect the solid-black image failures that can survive PDF rendering."""
+
+    if isinstance(source, Image.Image):
+        image = source.copy()
+    else:
+        image = Image.open(source)
+    with image:
+        sample = image.convert("L")
+        sample.thumbnail((252, 356), Image.Resampling.LANCZOS)
+    columns = 28
+    rows = 40
+    tile_width = max(1, sample.width // columns)
+    tile_height = max(1, sample.height // rows)
+    dark: set[tuple[int, int]] = set()
+    for row in range(rows):
+        for column in range(columns):
+            left = column * tile_width
+            top = row * tile_height
+            right = sample.width if column == columns - 1 else min(sample.width, left + tile_width)
+            bottom = sample.height if row == rows - 1 else min(sample.height, top + tile_height)
+            tile = sample.crop((left, top, right, bottom))
+            stat = ImageStat.Stat(tile)
+            if float(stat.mean[0]) <= 7.0 and float(stat.stddev[0]) <= 3.0:
+                dark.add((column, row))
+
+    largest: set[tuple[int, int]] = set()
+    unseen = set(dark)
+    while unseen:
+        seed = unseen.pop()
+        component = {seed}
+        frontier = [seed]
+        while frontier:
+            column, row = frontier.pop()
+            for neighbour in ((column - 1, row), (column + 1, row), (column, row - 1), (column, row + 1)):
+                if neighbour in unseen:
+                    unseen.remove(neighbour)
+                    component.add(neighbour)
+                    frontier.append(neighbour)
+        if len(component) > len(largest):
+            largest = component
+    if not largest:
+        return ""
+    coverage = len(largest) / max(1, columns * rows)
+    width = max(column for column, _ in largest) - min(column for column, _ in largest) + 1
+    height = max(row for _, row in largest) - min(row for _, row in largest) + 1
+    if coverage >= 0.05 and width >= 6 and height >= 4:
+        return f"solid near-black rendered region covers {coverage:.1%} of the page"
+    return ""
+
+
+def _payload_renderability_issues(payload: Mapping[str, Any]) -> list[str]:
+    issues: list[str] = []
+    exhibits = [
+        section
+        for section in payload.get("contentSections") or []
+        if isinstance(section, Mapping) and section.get("kind") == "exhibit"
+    ]
+    if len(exhibits) != 4:
+        issues.append(f"Expected four rendered exhibits, found {len(exhibits)}.")
+    for exhibit_index, section in enumerate(exhibits, start=1):
+        exhibit = section.get("exhibit") if isinstance(section.get("exhibit"), Mapping) else {}
+        panels = exhibit.get("panels") if isinstance(exhibit.get("panels"), list) else []
+        metrics = exhibit.get("metrics") if isinstance(exhibit.get("metrics"), list) else []
+        if not 1 <= len(panels) <= 2:
+            issues.append(f"Exhibit {exhibit_index} has {len(panels)} panels; expected one or two.")
+        if len(panels) == 2 and len(metrics) > 2:
+            issues.append(f"Exhibit {exhibit_index} has two panels and more than two metric cards.")
+        for panel_index, panel in enumerate(panels, start=1):
+            issue = _panel_renderability_issue(panel if isinstance(panel, Mapping) else {})
+            if issue:
+                issues.append(f"Exhibit {exhibit_index} panel {panel_index}: {issue}.")
+    return issues
+
+
+def _contact_sheets(page_paths: Sequence[Path], output_dir: Path) -> list[str]:
+    contact_dir = output_dir / "review-contact-sheets"
+    if contact_dir.exists():
+        shutil.rmtree(contact_dir)
+    contact_dir.mkdir(parents=True, exist_ok=True)
+    outputs: list[str] = []
+    for start in range(0, len(page_paths), 9):
+        batch = page_paths[start : start + 9]
+        thumbnails: list[Image.Image] = []
+        for path in batch:
+            with Image.open(path) as page:
+                thumbnail = page.convert("RGB")
+                thumbnail.thumbnail((360, 510), Image.Resampling.LANCZOS)
+                thumbnails.append(thumbnail.copy())
+        cell_width = max(image.width for image in thumbnails) + 24
+        cell_height = max(image.height for image in thumbnails) + 42
+        sheet = Image.new("RGB", (cell_width * 3, cell_height * 3), "#d9dee5")
+        for offset, thumbnail in enumerate(thumbnails):
+            x = (offset % 3) * cell_width + (cell_width - thumbnail.width) // 2
+            y = (offset // 3) * cell_height + 28
+            sheet.paste(thumbnail, (x, y))
+        first_page = start + 1
+        last_page = start + len(batch)
+        target = contact_dir / f"pages-{first_page:02d}-{last_page:02d}.jpg"
+        sheet.save(target, format="JPEG", quality=88, optimize=True)
+        outputs.append(str(target))
+    return outputs
+
+
+def _render_full_review_package(pdf_path: Path, output_dir: Path) -> dict[str, Any]:
+    page_dir = output_dir / "review-pages"
+    if page_dir.exists():
+        shutil.rmtree(page_dir)
+    page_dir.mkdir(parents=True, exist_ok=True)
+    page_paths: list[Path] = []
+    visual_issues: list[str] = []
+    geometry_issues: list[str] = []
     document = fitz.open(pdf_path)
-    preview_dir = output_dir / "review-previews"
-    preview_dir.mkdir(parents=True, exist_ok=True)
-    indexes = sorted({0, 1, 2, 3, 5, 8, 11, 14, max(0, document.page_count - 2), document.page_count - 1})
-    paths: list[str] = []
-    for index in indexes:
-        if not 0 <= index < document.page_count:
-            continue
-        page = document.load_page(index)
-        target = preview_dir / f"page-{index + 1:02d}.png"
-        page.get_pixmap(matrix=fitz.Matrix(1.25, 1.25), alpha=False).save(target)
-        paths.append(str(target))
-    document.close()
-    return paths
+    try:
+        for index, page in enumerate(document):
+            target = page_dir / f"page-{index + 1:02d}.png"
+            page.get_pixmap(matrix=fitz.Matrix(1.6, 1.6), alpha=False).save(target)
+            page_paths.append(target)
+            if 0 < index < document.page_count - 1:
+                issue = _uniform_dark_region_issue(target)
+                if issue:
+                    visual_issues.append(f"Page {index + 1}: {issue}.")
+            bounds = page.rect
+            for block in page.get_text("blocks"):
+                x0, y0, x1, y1 = block[:4]
+                if x0 < -1 or y0 < -1 or x1 > bounds.width + 1 or y1 > bounds.height + 1:
+                    geometry_issues.append(
+                        f"Page {index + 1}: text block extends outside the page bounds "
+                        f"({x0:.1f}, {y0:.1f}, {x1:.1f}, {y1:.1f})."
+                    )
+    finally:
+        document.close()
+    return {
+        "pagePaths": [str(path) for path in page_paths],
+        "contactSheetPaths": _contact_sheets(page_paths, output_dir),
+        "visualIssues": visual_issues,
+        "geometryIssues": geometry_issues,
+    }
 
 
 def generate_gatex_whitepaper(
@@ -1238,10 +1362,15 @@ def generate_gatex_whitepaper(
 
     _progress("quality_assurance", 93, "Running pagination, citations, language, currency and black-image checks.", 2)
     validate_gatex_pdf(pdf_path, expected_title=title)
-    issues = _pdf_issues(pdf_path, payload)
+    review_package = _render_full_review_package(pdf_path, work_dir)
+    issues = [
+        *_pdf_issues(pdf_path, payload),
+        *_payload_renderability_issues(payload),
+        *review_package["visualIssues"],
+        *review_package["geometryIssues"],
+    ]
     if issues:
         raise GatexWhitepaperError("PDF QA failed: " + " | ".join(issues))
-    preview_paths = _render_previews(pdf_path, work_dir)
     qa = {
         "status": "passed",
         "pageCount": artifact["pageCount"],
@@ -1249,16 +1378,21 @@ def generate_gatex_whitepaper(
         "sha256": artifact["sha256"],
         "sourceCount": len(sources),
         "editorialWordCount": _word_count(content),
-        "previewPaths": preview_paths,
+        "pagePaths": review_package["pagePaths"],
+        "contactSheetPaths": review_package["contactSheetPaths"],
+        "visualIssues": [],
+        "geometryIssues": [],
         "checks": [
             "GateX-only branding",
             "English-only copy",
             "USD-only monetary units",
             "underlying public source URLs",
             "18-22 page architecture",
+            "every page rendered for review",
+            "text blocks remain within page bounds",
             "five contextual images",
-            "black-screen pixel detection",
-            "four substantive exhibits",
+            "rendered-page black-screen detection",
+            "four structurally renderable exhibits",
         ],
     }
     (work_dir / "qa-report.json").write_text(json.dumps(qa, ensure_ascii=False, indent=2), encoding="utf-8")

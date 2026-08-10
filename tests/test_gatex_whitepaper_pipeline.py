@@ -15,7 +15,9 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _normalize_panel,
     _panel_renderability_issue,
     _paragraph_word_count,
+    _payload_renderability_issues,
     _source_packet,
+    _uniform_dark_region_issue,
     visual_quality_issues,
 )
 
@@ -74,6 +76,23 @@ def test_large_black_band_is_rejected() -> None:
     assert "image contains a large solid-black band" in issues
 
 
+def test_rendered_page_black_rectangle_is_rejected() -> None:
+    image = Image.new("RGB", (840, 1188), "white")
+    for y in range(320, 620):
+        for x in range(80, 760):
+            image.putpixel((x, y), (0, 0, 0))
+    assert "solid near-black rendered region" in _uniform_dark_region_issue(image)
+
+
+def test_normal_text_page_does_not_trigger_black_rectangle_check() -> None:
+    image = Image.new("RGB", (840, 1188), "white")
+    for y in range(160, 980, 28):
+        for x in range(90, 700):
+            if (x + y) % 13 == 0:
+                image.putpixel((x, y), (20, 38, 68))
+    assert _uniform_dark_region_issue(image) == ""
+
+
 def test_author_emails_are_client_ready_and_deterministic() -> None:
     first = _authors("red-chips")
     second = _authors("red-chips")
@@ -129,3 +148,26 @@ def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
     assert normalized["type"] == "matrix"
     assert len(normalized["items"]) == 3
     assert _panel_renderability_issue(normalized) == ""
+
+
+def test_empty_exhibit_panel_fails_release_renderability_gate() -> None:
+    payload = {
+        "contentSections": [
+            {
+                "kind": "exhibit",
+                "exhibit": {
+                    "metrics": [{"value": "15.52%", "label": "R&D intensity"}],
+                    "panels": [
+                        {
+                            "type": "comparison",
+                            "columns": ["A", "B"],
+                            "items": [],
+                        }
+                    ],
+                },
+            }
+        ]
+    }
+    issues = _payload_renderability_issues(payload)
+    assert any("Expected four rendered exhibits" in issue for issue in issues)
+    assert any("comparison requires" in issue for issue in issues)
