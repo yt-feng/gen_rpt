@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 from unittest import mock
 
 from PIL import Image
@@ -13,6 +14,7 @@ from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _respon
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _chart_label_issues,
+    _collect_research,
     _english_source_title,
     _fallback_queries,
     _FailoverEditorialClient,
@@ -27,11 +29,15 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _payload_renderability_issues,
     _printable_content_overlap_issue,
     _publication_copy_issues,
+    _reporting_period_issues,
+    _sanitize_research_sources,
     _source_packet,
+    _source_tier,
     _uniform_dark_region_issue,
     semantic_visual_quality_issues,
     visual_quality_issues,
 )
+from gen_rpt.web_fetch import SourceDocument
 
 
 def test_gpt_model_uses_apimart_endpoint() -> None:
@@ -231,6 +237,137 @@ def test_source_packet_rejects_social_and_prediction_market_sources() -> None:
     )
     rows, _ = _source_packet({"sources": sources})
     assert not any("polymarket" in row["domain"] or "youtube" in row["domain"] for row in rows)
+
+
+def test_research_sources_are_sanitized_before_fact_extraction() -> None:
+    rows = _sanitize_research_sources(
+        [
+            {
+                "title": "Official capacity release",
+                "url": "https://energy.gov.example/capacity",
+                "domain": "energy.gov.example",
+                "content": "Verified official capacity evidence. " * 20,
+            },
+            {
+                "title": "Prediction market chatter",
+                "url": "https://polymarket.com/event/capacity",
+                "domain": "polymarket.com",
+                "content": "Unverified market odds. " * 20,
+            },
+            {
+                "title": "Duplicate official capacity release",
+                "url": "https://energy.gov.example/capacity?utm_source=test",
+                "domain": "energy.gov.example",
+                "content": "Duplicate official capacity evidence. " * 20,
+            },
+        ]
+    )
+    assert len(rows) == 1
+    assert rows[0].domain == "energy.gov.example"
+
+
+def test_collect_research_filters_blocked_sources_before_building_fact_pack() -> None:
+    official = [
+        SourceDocument(
+            title=f"Official release {index}",
+            url=f"https://authority{index}.gov/release",
+            query="capacity",
+            snippet="Verified evidence",
+            content="Verified official evidence " * 40,
+            domain=f"authority{index}.gov",
+        )
+        for index in range(4)
+    ]
+    secondary = [
+        SourceDocument(
+            title=f"Industry source {index}",
+            url=f"https://industry{index}.example/report",
+            query="capacity",
+            snippet="Corroborating evidence",
+            content="Corroborating industry evidence " * 40,
+            domain=f"industry{index}.example",
+        )
+        for index in range(8)
+    ]
+    blocked = SourceDocument(
+        title="Prediction market",
+        url="https://polymarket.com/event/capacity",
+        query="capacity",
+        snippet="Odds",
+        content="Unverified odds " * 40,
+        domain="polymarket.com",
+    )
+    fact_pack = SimpleNamespace(
+        authoritative_source_count=4,
+        to_dict=lambda: {"authoritative_source_count": 4},
+    )
+    planner = mock.Mock()
+    planner.chat_json.return_value = {"queries": [f"evidence query {index}" for index in range(10)]}
+    with TemporaryDirectory() as directory:
+        with (
+            mock.patch("gen_rpt.gatex_whitepaper_pipeline.DeepSeekClient", return_value=planner),
+            mock.patch("gen_rpt.gatex_whitepaper_pipeline.collect_sources", return_value=[*secondary, blocked, *official]),
+            mock.patch("gen_rpt.gatex_whitepaper_pipeline.collect_openalex_sources", return_value=[]),
+            mock.patch("gen_rpt.gatex_whitepaper_pipeline.build_research_fact_pack", return_value=fact_pack) as build,
+            mock.patch(
+                "gen_rpt.gatex_whitepaper_pipeline.build_evidence_ledger",
+                return_value=[{"id": f"E{index}"} for index in range(12)],
+            ),
+        ):
+            result = _collect_research("Data-centre infrastructure", "Evidence-led brief", Path(directory))
+    fact_sources = build.call_args.args[2]
+    assert len(fact_sources) == 12
+    assert not any("polymarket" in source.domain for source in fact_sources)
+    assert not any("polymarket" in row["domain"] for row in result["sources"])
+
+
+def test_academic_sources_are_context_not_authoritative_evidence() -> None:
+    academic = {
+        "title": "A peer-reviewed infrastructure study",
+        "url": "https://doi.org/10.1000/example",
+        "domain": "doi.org",
+        "source_type": "academic",
+        "content": "Empirical context " * 40,
+        "metadata": {"academic": True},
+    }
+    assert _source_tier(academic) == "ACADEMIC"
+
+
+def test_source_packet_does_not_let_academic_sources_replace_primary_sources() -> None:
+    sources = [
+        {
+            "title": f"Official source {index}",
+            "url": f"https://authority{index}.gov/report",
+            "domain": f"authority{index}.gov",
+            "content": "Verified public evidence " * 40,
+        }
+        for index in range(3)
+    ]
+    sources.extend(
+        {
+            "title": f"Academic study {index}",
+            "url": f"https://doi.org/10.1000/study-{index}",
+            "domain": "doi.org",
+            "source_type": "academic",
+            "content": "Academic context " * 40,
+            "metadata": {"academic": True},
+        }
+        for index in range(8)
+    )
+    sources.append(
+        {
+            "title": "Trade publication",
+            "url": "https://industry.example.com/article",
+            "domain": "industry.example.com",
+            "content": "Secondary context " * 40,
+        }
+    )
+    try:
+        _source_packet({"sources": sources})
+    except Exception as exc:
+        assert "at least four primary or institutional" in str(exc)
+    else:
+        raise AssertionError("Academic sources must not satisfy the authoritative-source gate.")
 
 
 def test_fallback_queries_follow_the_requested_topic() -> None:
@@ -469,6 +606,29 @@ def test_non_usd_currency_is_rejected_before_final_assembly() -> None:
     )
     assert any("non-USD currency" in issue for issue in issues)
     assert _publication_copy_issues("Retail sales may reach approximately $8.8 trillion by 2030.") == []
+
+
+def test_unfinished_quarter_requires_an_explicit_data_boundary() -> None:
+    issues = _reporting_period_issues(
+        "China Economics Quarterly: Q3 2026",
+        "2026-08-10",
+        {"coverSummary": "Q3 2026 grew by 4.8% as demand recovered."},
+    )
+    assert any("latest-data or outlook boundary" in issue for issue in issues)
+    assert any("finalized result" in issue for issue in issues)
+
+
+def test_unfinished_quarter_accepts_entering_quarter_language() -> None:
+    assert _reporting_period_issues(
+        "China Economics Quarterly: Q3 2026",
+        "2026-08-10",
+        {
+            "coverSummary": (
+                "Entering Q3 2026, the latest available data through H1 show mixed demand. "
+                "The Q3 outlook remains conditional."
+            )
+        },
+    ) == []
 
 
 def test_architecture_requires_dense_exhibits() -> None:

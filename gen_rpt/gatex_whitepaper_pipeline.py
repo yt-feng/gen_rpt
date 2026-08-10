@@ -10,6 +10,7 @@ import re
 import shutil
 import time
 import urllib.parse
+from collections import Counter
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import date
 from pathlib import Path
@@ -22,9 +23,10 @@ from pypdf import PdfReader
 
 from .deepseek_client import DeepSeekClient
 from .gatex_pdf_renderer import render_gatex_release_pdf, validate_gatex_pdf
+from .openalex_fetch import collect_openalex_sources
 from .research_quality import build_research_fact_pack
 from .web_evidence import build_evidence_ledger
-from .web_fetch import collect_sources
+from .web_fetch import SourceDocument, collect_sources
 
 
 class GatexWhitepaperError(RuntimeError):
@@ -104,7 +106,8 @@ FORBIDDEN_TERMS = (
     "tavily",
     "gdelt",
 )
-EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v4"
+EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v5-academic-period"
+RESEARCH_POLICY_VERSION = "gatex-whitepaper-research-2026-08-10-v2-openalex-prefilter"
 META_NARRATION_PATTERNS = (
     re.compile(
         r"\b(?:this|the|an?|opening|final|first|second|third|fourth)\s+"
@@ -159,9 +162,13 @@ BLOCKED_SOURCE_DOMAIN_TOKENS = (
     "blog.udn.com",
     "facebook.com",
     "linkedin.com",
+    "medium.com",
     "news.dayoo.com",
     "polymarket.com",
+    "reddit.com",
     "substack.com",
+    "tiktok.com",
+    "twitter.com",
     "youtube.com",
 )
 PRIMARY_SOURCE_DOMAIN_TOKENS = (
@@ -256,19 +263,111 @@ def _fallback_queries(topic: str) -> list[str]:
     ]
 
 
+def _source_document(value: SourceDocument | Mapping[str, Any]) -> SourceDocument | None:
+    if isinstance(value, SourceDocument):
+        return value
+    if not isinstance(value, Mapping):
+        return None
+    return SourceDocument(
+        title=str(value.get("title") or ""),
+        url=str(value.get("url") or ""),
+        query=str(value.get("query") or ""),
+        snippet=str(value.get("snippet") or ""),
+        content=str(value.get("content") or ""),
+        source_type=str(value.get("source_type") or "html"),
+        content_type=str(value.get("content_type") or ""),
+        domain=str(value.get("domain") or ""),
+        confidence=value.get("confidence") if isinstance(value.get("confidence"), (int, float)) else None,
+        metadata=dict(value.get("metadata") or {}) if isinstance(value.get("metadata"), Mapping) else {},
+    )
+
+
+def _blocked_source_domain(domain: str) -> bool:
+    normalized = domain.lower().split(":", 1)[0].strip(".")
+    return any(normalized == token or normalized.endswith(f".{token}") for token in BLOCKED_SOURCE_DOMAIN_TOKENS)
+
+
+def _canonical_source_url(url: str) -> str:
+    parsed = urllib.parse.urlsplit(url)
+    query = urllib.parse.parse_qsl(parsed.query, keep_blank_values=False)
+    query = [
+        (key, value)
+        for key, value in query
+        if key.lower() not in {"fbclid", "gclid", "ref", "source", "utm_campaign", "utm_content", "utm_medium", "utm_source", "utm_term"}
+    ]
+    return urllib.parse.urlunsplit(
+        (parsed.scheme.lower(), parsed.netloc.lower(), parsed.path.rstrip("/"), urllib.parse.urlencode(query), "")
+    )
+
+
+def _sanitize_research_sources(
+    values: Sequence[SourceDocument | Mapping[str, Any]],
+    *,
+    maximum_academic: int | None = None,
+) -> list[SourceDocument]:
+    """Remove blocked, empty and duplicate records before any fact extraction."""
+
+    if maximum_academic is None:
+        try:
+            maximum_academic = max(0, min(10, int(os.getenv("GATEX_OPENALEX_MAX_SOURCES", "6"))))
+        except ValueError:
+            maximum_academic = 6
+    output: list[SourceDocument] = []
+    seen_urls: set[str] = set()
+    seen_titles: set[str] = set()
+    academic_count = 0
+    prepared = [source for value in values if (source := _source_document(value)) is not None]
+    prepared.sort(key=lambda source: _source_score(source.__dict__), reverse=True)
+    for source in prepared:
+        source.url = _clean(source.url, 2_000)
+        source.title = _clean(source.title, 500)
+        source.content = _clean(source.content, 30_000)
+        source.snippet = _clean(source.snippet, 2_000)
+        source.domain = (_clean(source.domain, 200) or urllib.parse.urlparse(source.url).netloc).lower()
+        canonical_url = _canonical_source_url(source.url)
+        title_key = re.sub(r"\W+", "", source.title.lower())[:220]
+        is_academic = source.source_type == "academic" or bool(source.metadata.get("academic"))
+        if (
+            not source.url.startswith("https://")
+            or len(source.content) < 180
+            or _blocked_source_domain(source.domain)
+            or canonical_url in seen_urls
+            or (title_key and title_key in seen_titles)
+        ):
+            continue
+        if is_academic and academic_count >= maximum_academic:
+            continue
+        if is_academic:
+            academic_count += 1
+        seen_urls.add(canonical_url)
+        if title_key:
+            seen_titles.add(title_key)
+        output.append(source)
+    return output
+
+
 def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
     sources_path = work_dir / "sources.json"
     fact_pack_path = work_dir / "research-fact-pack.json"
     evidence_path = work_dir / "evidence-ledger.json"
+    policy_path = work_dir / "research-policy-version.txt"
     if os.getenv("GATEX_REUSE_RESEARCH", "true").strip().lower() not in {"0", "false", "no", "off"}:
-        if sources_path.is_file() and fact_pack_path.is_file() and evidence_path.is_file():
+        if (
+            sources_path.is_file()
+            and fact_pack_path.is_file()
+            and evidence_path.is_file()
+            and policy_path.is_file()
+            and policy_path.read_text(encoding="utf-8").strip() == RESEARCH_POLICY_VERSION
+        ):
             try:
                 source_rows = json.loads(sources_path.read_text(encoding="utf-8"))
                 fact_pack = json.loads(fact_pack_path.read_text(encoding="utf-8"))
                 evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-                if len(source_rows) >= 12 and len(evidence) >= 12:
-                    _progress("research", 30, f"Reusing {len(source_rows)} cached sources and {len(evidence)} evidence points.", 10)
-                    return {"sources": source_rows, "fact_pack": fact_pack, "approved_evidence": evidence, "evidence_ledger": evidence}
+                sanitized = _sanitize_research_sources(source_rows)
+                if len(sanitized) == len(source_rows) and len(sanitized) >= 12 and len(evidence) >= 12:
+                    clean_rows = [source.__dict__ for source in sanitized]
+                    _progress("research", 30, f"Reusing {len(clean_rows)} cached sources and {len(evidence)} evidence points.", 10)
+                    return {"sources": clean_rows, "fact_pack": fact_pack, "approved_evidence": evidence, "evidence_ledger": evidence}
             except (OSError, ValueError, TypeError):
                 pass
     fallback = _fallback_queries(topic)
@@ -307,14 +406,18 @@ Return: {{"queries":["query 1","query 2"]}}""",
         print(f"[gatex.whitepaper] query planner fallback: {exc}", flush=True)
     queries = list(dict.fromkeys(queries))[:14]
     (work_dir / "research-queries.json").write_text(json.dumps({"queries": queries}, ensure_ascii=False, indent=2), encoding="utf-8")
-    _progress("research", 16, f"Searching {len(queries)} evidence queries with Tavily and GDELT.", 13)
-    sources = collect_sources(
+    academic_enabled = bool(os.getenv("OPENALEX_API_KEY", "").strip())
+    academic_suffix = " plus a targeted academic supplement" if academic_enabled else ""
+    _progress("research", 16, f"Searching {len(queries)} public-evidence queries{academic_suffix}.", 13)
+    public_sources = collect_sources(
         queries,
         per_query=max(2, min(6, int(os.getenv("GEN_RPT_PER_QUERY", "4")))),
         max_sources=max(16, min(40, int(os.getenv("GEN_RPT_MAX_SOURCES", "30")))),
     )
+    academic_sources = collect_openalex_sources(topic, queries)
+    sources = _sanitize_research_sources([*public_sources, *academic_sources])
     if len(sources) < 12:
-        raise GatexWhitepaperError(f"Public research produced only {len(sources)} usable sources; at least 12 are required.")
+        raise GatexWhitepaperError(f"Research produced only {len(sources)} usable sources after quality filtering; at least 12 are required.")
     plan = {
         "objective": topic,
         "decision_question": f"What developments, structural drivers, execution constraints and outlook are supported by verifiable evidence for {topic}?",
@@ -325,16 +428,20 @@ Return: {{"queries":["query 1","query 2"]}}""",
     evidence = build_evidence_ledger(topic, sources, fact_pack, limit=36, plan=plan)
     if len(evidence) < 12:
         raise GatexWhitepaperError(f"Research produced only {len(evidence)} structured evidence points; at least 12 are required.")
-    if fact_pack.authoritative_source_count < 2:
-        raise GatexWhitepaperError("Research requires at least two authoritative public sources.")
+    if fact_pack.authoritative_source_count < 4:
+        raise GatexWhitepaperError("Research requires at least four authoritative public sources before academic context is added.")
     source_rows = [source.__dict__ for source in sources]
     sources_path.write_text(json.dumps(source_rows, ensure_ascii=False, indent=2), encoding="utf-8")
     fact_pack_path.write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
     evidence_path.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
+    policy_path.write_text(RESEARCH_POLICY_VERSION + "\n", encoding="utf-8")
     return {"sources": source_rows, "fact_pack": fact_pack.to_dict(), "approved_evidence": evidence, "evidence_ledger": evidence}
 
 
 def _source_tier(source: Mapping[str, Any]) -> str:
+    metadata = source.get("metadata") if isinstance(source.get("metadata"), Mapping) else {}
+    if str(source.get("source_type") or "").lower() == "academic" or bool(metadata.get("academic")):
+        return "ACADEMIC"
     domain = str(source.get("domain") or urllib.parse.urlparse(str(source.get("url") or "")).netloc).lower()
     title = str(source.get("title") or "").lower()
     if any(token in domain for token in PRIMARY_SOURCE_DOMAIN_TOKENS):
@@ -350,7 +457,7 @@ def _source_score(source: Mapping[str, Any]) -> int:
     url = str(source.get("url") or "").lower()
     domain = str(source.get("domain") or "").lower()
     title = str(source.get("title") or "").lower()
-    score = {"PRIMARY": 12, "INSTITUTIONAL": 8, "SECONDARY": 0}[_source_tier(source)]
+    score = {"PRIMARY": 12, "INSTITUTIONAL": 8, "ACADEMIC": 6, "SECONDARY": 0}[_source_tier(source)]
     if url.endswith(".pdf") or "annual report" in title or "statistics" in title:
         score += 4
     if any(token in domain for token in ("tradingeconomics", "statista", "china.org.cn", "cgtn")):
@@ -365,6 +472,7 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
     ordered = sorted(raw_sources, key=_source_score, reverse=True)
     selected: list[dict[str, str]] = []
     seen_urls: set[str] = set()
+    academic_count = 0
     for raw in ordered:
         url = _clean(raw.get("url"), 2_000)
         content = _clean(raw.get("content"), 5_000)
@@ -373,9 +481,14 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
             not url.startswith("https://")
             or not content
             or url in seen_urls
-            or any(token in domain for token in BLOCKED_SOURCE_DOMAIN_TOKENS)
+            or _blocked_source_domain(domain)
         ):
             continue
+        quality_tier = _source_tier(raw)
+        if quality_tier == "ACADEMIC" and academic_count >= 4:
+            continue
+        if quality_tier == "ACADEMIC":
+            academic_count += 1
         seen_urls.add(url)
         selected.append(
             {
@@ -384,13 +497,21 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
                 "url": url,
                 "domain": domain,
                 "content": content,
-                "qualityTier": _source_tier(raw),
+                "qualityTier": quality_tier,
             }
         )
         if len(selected) >= maximum:
             break
     if len(selected) < 8:
         raise GatexWhitepaperError(f"Research produced only {len(selected)} usable public sources; at least 8 are required.")
+    authoritative_count = sum(
+        1 for row in selected if row["qualityTier"] in {"PRIMARY", "INSTITUTIONAL"}
+    )
+    if authoritative_count < 4:
+        raise GatexWhitepaperError(
+            "The editorial source packet requires at least four primary or institutional sources; "
+            "academic and secondary material cannot replace them."
+        )
     blocks = []
     for row in selected:
         blocks.append(
@@ -419,6 +540,8 @@ def _publication_rules() -> str:
     return """
 - GateX is the only publication brand. Never name an upstream publisher, source file, search provider, model or production tool.
 - Remain inside the supplied evidence. Do not invent facts, values, dates, quotations, companies or institutions.
+- ACADEMIC sources may add empirical or conceptual context, but they never replace current government, regulatory, exchange, company or institutional evidence and never prove a live commercial event.
+- If the approved title names a quarter that is incomplete on the publication date, describe the report as an outlook, entering-quarter or through-latest-available-data edition. Never state an unfinished quarter as a final result.
 - Print monetary values in USD only. Never retain a non-USD amount, currency name or currency symbol beside its conversion. If the evidence supplies a defensible USD conversion and rate date, print only the converted USD value; otherwise omit the monetary figure.
 - Present Chinese technology capability and Middle Eastern market development with balanced, evidence-led language. Never reveal this editorial orientation and never force a cross-border link without evidence.
 - Write fluent, specific English without AI mannerisms, repetitive summaries, generic recommendations or reader instructions.
@@ -428,6 +551,57 @@ def _publication_rules() -> str:
 - Do not say what a chapter, report, paper, section or analysis examines, establishes, connects or will do.
 - Use ASCII hyphens only.
 """.strip()
+
+
+def _reporting_period_issues(title: str, publication_date: str, content: Any) -> list[str]:
+    """Prevent an unfinished quarter from being written as a completed period."""
+
+    match = re.search(r"\bQ([1-4])\s+(20\d{2})\b", str(title or ""), flags=re.IGNORECASE)
+    if not match:
+        return []
+    quarter = int(match.group(1))
+    year = int(match.group(2))
+    try:
+        published = date.fromisoformat(publication_date)
+    except ValueError:
+        return [f"Invalid publication date: {publication_date}"]
+    quarter_ends = {1: (3, 31), 2: (6, 30), 3: (9, 30), 4: (12, 31)}
+    month, day = quarter_ends[quarter]
+    if published >= date(year, month, day):
+        return []
+    text = re.sub(r"\s+", " ", json.dumps(content, ensure_ascii=False)).lower()
+    quarter_label = f"q{quarter}"
+    boundary_markers = (
+        "as of",
+        "current quarter",
+        f"entered {quarter_label}",
+        f"entering {quarter_label}",
+        "forecast",
+        "latest available",
+        "not yet complete",
+        "outlook",
+        "partial quarter",
+        "quarter to date",
+        "through h1",
+        "through the first half",
+        "to date",
+    )
+    issues: list[str] = []
+    if not any(marker in text for marker in boundary_markers):
+        issues.append(
+            f"{quarter_label.upper()} {year} is incomplete on {publication_date}; "
+            "the copy needs an explicit latest-data or outlook boundary."
+        )
+    completed_verb = r"(?:grew|rose|fell|declined|expanded|contracted|delivered|recorded|reached|was|were)"
+    finalized_patterns = (
+        rf"\b{quarter_label}\s+{year}\s+{completed_verb}\b",
+        rf"\b(?:in|during|for)\s+{quarter_label}\s+{year}\b.{{0,45}}\b{completed_verb}\b",
+    )
+    if any(re.search(pattern, text) for pattern in finalized_patterns):
+        windowed = re.findall(rf".{{0,90}}\b{quarter_label}\s+{year}\b.{{0,90}}", text)
+        if any(not re.search(r"\b(?:estimate|estimated|forecast|projected|scenario)\b", window) for window in windowed):
+            issues.append(f"Copy presents unfinished {quarter_label.upper()} {year} as a finalized result.")
+    return issues
 
 
 def _architecture_prompt(
@@ -1784,16 +1958,22 @@ def generate_gatex_whitepaper(
     _progress("synthesis", 42, "Converting the evidence base into the GateX white-paper architecture.", 10)
     client = _editorial_client(model, timeout=420)
     sources, source_packet = _source_packet(research)
+    editorial_brief = (
+        f"{brief}\nPublication date: {publication_date}. "
+        "Apply the reporting-period boundary literally: an unfinished quarter is an outlook or latest-data edition, not a completed-quarter result."
+    )
     content = _prepare_editorial(
         client,
         title=title,
         topic=topic,
-        brief=brief,
+        brief=editorial_brief,
         source_packet=source_packet,
         evidence=research.get("approved_evidence") or research.get("evidence_ledger") or [],
         sources=sources,
         work_dir=work_dir,
     )
+    if period_issues := _reporting_period_issues(title, publication_date, content):
+        raise GatexWhitepaperError("Reporting-period QA failed: " + " | ".join(period_issues))
 
     _progress("visuals", 62, "Generating and pixel-checking five contextual editorial images.", 7)
     visuals = _generate_visuals(content, work_dir / "assets")
@@ -1825,12 +2005,16 @@ def generate_gatex_whitepaper(
     ]
     if issues:
         raise GatexWhitepaperError("PDF QA failed: " + " | ".join(issues))
+    source_tier_counts = Counter(str(source.get("qualityTier") or "SECONDARY") for source in sources)
     qa = {
         "status": "passed",
         "pageCount": artifact["pageCount"],
         "byteSize": artifact["byteSize"],
         "sha256": artifact["sha256"],
         "sourceCount": len(sources),
+        "academicSourceCount": source_tier_counts.get("ACADEMIC", 0),
+        "sourceTierCounts": dict(sorted(source_tier_counts.items())),
+        "researchPolicyVersion": RESEARCH_POLICY_VERSION,
         "editorialWordCount": _word_count(content),
         "editorialModel": {
             "requested": model,
@@ -1847,6 +2031,8 @@ def generate_gatex_whitepaper(
             "English-only copy",
             "USD-only monetary units",
             "underlying public source URLs",
+            "academic context supplements rather than replaces authoritative evidence",
+            "unfinished reporting periods use an explicit latest-data or outlook boundary",
             "18-22 page architecture",
             "every page rendered for review",
             "text blocks remain within page bounds",

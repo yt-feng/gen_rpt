@@ -61,6 +61,10 @@ jobs:
       QWEN_VL_MODEL: qwen3-vl-flash
       GATEX_REQUIRE_SEMANTIC_VISUAL_QA: "true"
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
+      GATEX_OPENALEX_MAX_QUERIES: "3"
+      GATEX_OPENALEX_PER_QUERY: "8"
+      GATEX_OPENALEX_MAX_SOURCES: "6"
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       DEEPSEEK_MAX_TOKENS: "16000"
       GATEX_EDITORIAL_FALLBACK_MODEL: ""
@@ -94,8 +98,10 @@ jobs:
           test -n "$APIMART_API_KEY" || { echo "Missing APIMART_API_KEY" >&2; exit 1; }
           test -n "$TAVILY_API_KEY" || { echo "Missing TAVILY_API_KEY" >&2; exit 1; }
           test -n "$QWEN_VL_API_KEY" || { echo "Missing QWEN_VL_API_KEY" >&2; exit 1; }
+          test -n "$OPENALEX_API_KEY" || echo "OpenAlex academic supplement is not configured; continuing with primary public sources."
           python -m py_compile \
             gen_rpt/deepseek_client.py \
+            gen_rpt/openalex_fetch.py \
             gen_rpt/web_fetch.py \
             gen_rpt/gatex_pdf_renderer.py \
             gen_rpt/gatex_whitepaper_pipeline.py \
