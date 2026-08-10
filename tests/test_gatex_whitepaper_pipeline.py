@@ -16,6 +16,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _fallback_queries,
     _FailoverEditorialClient,
     _generate_visuals,
+    _normalize_exhibit_panels,
     _normalize_panel,
     _panel_renderability_issue,
     _paragraph_word_count,
@@ -296,6 +297,29 @@ def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
     assert normalized["type"] == "matrix"
     assert len(normalized["items"]) == 3
     assert _panel_renderability_issue(normalized) == ""
+
+
+def test_incomplete_optional_exhibit_panel_is_dropped() -> None:
+    panels = [
+        {
+            "type": "matrix",
+            "items": [
+                {"title": "Demand", "body": "Household demand remains selective."},
+                {"title": "Industry", "body": "Industrial output is comparatively resilient."},
+                {"title": "Property", "body": "Property continues to weigh on confidence."},
+            ],
+        },
+        {
+            "type": "scenario",
+            "items": [
+                {"label": "Base", "range": "4.5-5.0%", "body": "Gradual stabilisation."},
+                {"label": "Downside", "range": "Below 4.5%", "body": "Property drag persists."},
+            ],
+        },
+    ]
+    normalized = _normalize_exhibit_panels(panels)
+    assert len(normalized) == 1
+    assert normalized[0]["type"] == "matrix"
 
 
 def test_empty_exhibit_panel_fails_release_renderability_gate() -> None:

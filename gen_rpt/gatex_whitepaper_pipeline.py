@@ -509,6 +509,14 @@ def _panel_renderability_issue(panel: Mapping[str, Any]) -> str:
 
 def _normalize_panel(panel: Mapping[str, Any]) -> dict[str, Any]:
     normalized = dict(panel)
+    normalized["type"] = {
+        "line_chart": "line",
+        "scatter_plot": "scatter",
+        "stacked_bars": "stacked_bar",
+        "waterfall_chart": "waterfall",
+        "milestone": "milestones",
+        "market_layers": "market_map",
+    }.get(_clean(normalized.get("type"), 40).lower(), _clean(normalized.get("type"), 40).lower() or "matrix")
     issue = _panel_renderability_issue(normalized)
     if not issue:
         return normalized
@@ -522,6 +530,17 @@ def _normalize_panel(panel: Mapping[str, Any]) -> dict[str, Any]:
         normalized.pop("xLabels", None)
         normalized.pop("categories", None)
     return normalized
+
+
+def _normalize_exhibit_panels(panels: Any) -> list[dict[str, Any]]:
+    normalized: list[dict[str, Any]] = []
+    for panel in panels or []:
+        if not isinstance(panel, Mapping):
+            continue
+        candidate = _normalize_panel(panel)
+        if not _panel_renderability_issue(candidate):
+            normalized.append(candidate)
+    return normalized[:2]
 
 
 def _editorial_issues(
@@ -915,7 +934,7 @@ SOURCES
     for raw in architecture["exhibits"]:
         exhibit = dict(raw) if isinstance(raw, Mapping) else {}
         exhibit["sourceIds"] = normalized_source_ids(exhibit.get("sourceIds"))
-        exhibit["panels"] = [_normalize_panel(panel) for panel in exhibit.get("panels") or [] if isinstance(panel, Mapping)]
+        exhibit["panels"] = _normalize_exhibit_panels(exhibit.get("panels"))
         exhibits.append(_ascii(exhibit))
     visuals = [dict(item) for item in architecture["visuals"] if isinstance(item, Mapping)]
     expected_visual_ids = ["executive-summary", "chapter-1", "chapter-2", "chapter-3", "chapter-4"]
