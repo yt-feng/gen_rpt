@@ -137,17 +137,17 @@ def _fallback_queries(topic: str) -> list[str]:
     subject = _clean(topic, 500)
     return [
         f"{subject} official statistics 2025 2026 filetype:pdf",
-        "site:stats.gov.cn China 2025 research development high technology manufacturing statistics",
-        "site:miit.gov.cn China 2025 integrated circuit semiconductor robotics official statistics",
-        "site:hkex.com.hk 2025 annual market statistics China technology listings filetype:pdf",
-        "site:sse.com.cn STAR Market 2025 annual report semiconductor technology filetype:pdf",
-        "site:szse.cn ChiNext 2025 technology capital market statistics filetype:pdf",
-        "China semiconductor equipment optical modules annual report 2025 filetype:pdf",
-        "China AI infrastructure computing power data center official report 2025 filetype:pdf",
-        "China industrial robotics production 2025 official data",
-        "China technology IPO capital raising 2025 official exchange statistics",
-        "China technology Gulf investment cooperation official 2025 semiconductor AI data center",
-        "China technology companies 2025 annual report semiconductor robotics optical components filetype:pdf",
+        f"{subject} government ministry regulator release 2025 2026",
+        f"{subject} official market data capacity investment 2025 2026",
+        f"{subject} company filing annual report 2025 filetype:pdf",
+        f"{subject} central bank securities exchange statistics 2025 2026",
+        f"{subject} policy regulation official publication filetype:pdf",
+        f"{subject} infrastructure supply chain operating metrics 2025 2026",
+        f"{subject} historical development timeline primary sources",
+        f"{subject} economic impact scenario forecast authoritative report filetype:pdf",
+        f"{subject} capital expenditure financing transactions official data",
+        f"{subject} cross-border investment trade official statistics",
+        f"{subject} risks constraints implementation evidence 2025 2026",
     ]
 
 
@@ -185,8 +185,9 @@ Brief: {brief}
 
 Requirements:
 - Prioritise primary government data, securities-exchange statistics, regulator releases, company filings and downloadable PDF reports.
-- Cover semiconductors, AI infrastructure, robotics, optical components and capital-market access.
-- Include one query for evidence-backed China-Gulf technology or capital links, without assuming a link exists.
+- Infer the relevant geography, institutions, industries and time horizon from the topic and brief.
+- Cover current conditions, historical context, operating capacity, capital formation, policy, constraints and a source-grounded outlook where relevant.
+- Include cross-border links only when the topic or brief calls for them; never assume a connection exists.
 - Do not repeat the full topic in every query.
 
 Return: {{"queries":["query 1","query 2"]}}""",
@@ -211,9 +212,9 @@ Return: {{"queries":["query 1","query 2"]}}""",
         raise GatexWhitepaperError(f"Public research produced only {len(sources)} usable sources; at least 12 are required.")
     plan = {
         "objective": topic,
-        "decision_question": "Where is China's technology capability becoming commercially and financially investable, and what still constrains execution?",
+        "decision_question": f"What developments, structural drivers, execution constraints and outlook are supported by verifiable evidence for {topic}?",
         "search_queries": queries,
-        "outline": ["industrial capability", "compute and infrastructure", "capital-market access", "cross-border relevance"],
+        "outline": ["current conditions", "structural drivers", "operating and capital evidence", "constraints and outlook"],
     }
     fact_pack = build_research_fact_pack(topic, plan, sources)
     evidence = build_evidence_ledger(topic, sources, fact_pack, limit=36, plan=plan)
@@ -233,7 +234,27 @@ def _source_score(source: Mapping[str, Any]) -> int:
     domain = str(source.get("domain") or "").lower()
     title = str(source.get("title") or "").lower()
     score = 0
-    if any(token in domain for token in ("gov", "hkex", "sse", "szse", "stats", "miit", "csrc")):
+    if any(
+        token in domain
+        for token in (
+            ".gov",
+            "gov.",
+            "hkex",
+            "sse",
+            "szse",
+            "stats",
+            "miit",
+            "csrc",
+            "sec.gov",
+            "worldbank",
+            "imf.org",
+            "oecd.org",
+            "un.org",
+            "iea.org",
+            "eia.gov",
+            "centralbank",
+        )
+    ):
         score += 8
     if url.endswith(".pdf") or "annual report" in title or "statistics" in title:
         score += 4
@@ -1272,6 +1293,9 @@ def _contact_sheets(page_paths: Sequence[Path], output_dir: Path) -> list[str]:
 
 
 def _render_full_review_package(pdf_path: Path, output_dir: Path) -> dict[str, Any]:
+    legacy_preview_dir = output_dir / "review-previews"
+    if legacy_preview_dir.exists():
+        shutil.rmtree(legacy_preview_dir)
     page_dir = output_dir / "review-pages"
     if page_dir.exists():
         shutil.rmtree(page_dir)

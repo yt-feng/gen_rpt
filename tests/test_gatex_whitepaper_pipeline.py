@@ -11,6 +11,7 @@ from gen_rpt.deepseek_client import DeepSeekClient, _completion_content
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _english_source_title,
+    _fallback_queries,
     _generate_visuals,
     _normalize_panel,
     _panel_renderability_issue,
@@ -59,6 +60,13 @@ def test_source_packet_prefers_official_and_requires_https() -> None:
     assert len(rows) == 8
     assert rows[0]["id"] == "S1"
     assert "https://example0.gov/report.pdf" in packet
+
+
+def test_fallback_queries_follow_the_requested_topic() -> None:
+    queries = _fallback_queries("UAE energy ecosystem investment outlook")
+    assert len(queries) >= 10
+    assert all("UAE energy ecosystem investment outlook" in query for query in queries)
+    assert not any("STAR Market" in query or "China industrial robotics" in query for query in queries)
 
 
 def test_black_image_is_rejected() -> None:
