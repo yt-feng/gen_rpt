@@ -132,6 +132,11 @@ def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str,
             raise GatexPdfError("The PDF cover does not contain the approved report title.")
         if "FRANK FENG" not in page_text[-1].upper() or "GATEX" not in page_text[-1].upper():
             raise GatexPdfError("The GateX publication-team back cover is missing.")
+        back_text = _deduplicated_word_text(document.load_page(document.page_count - 1).get_text("words"))
+        if expected_title and _comparison_key(expected_title) not in _comparison_key(back_text):
+            raise GatexPdfError("The PDF back cover does not contain the approved report title.")
+        if len(document.load_page(document.page_count - 1).get_images(full=True)) < 2:
+            raise GatexPdfError("The PDF back cover is missing branded visual assets.")
         sparse_pages = [index + 1 for index, value in enumerate(page_text[1:], start=1) if len(value) < 20]
         if sparse_pages:
             raise GatexPdfError(f"Rendered PDF contains empty body pages: {sparse_pages}")
@@ -324,6 +329,14 @@ h1 {{ margin: 0; max-width: 156mm; color: #f7f9fb; font-family: "Noto Serif CJK 
 def _back_cover_html(report: Mapping[str, Any]) -> str:
     texture_uri = _asset_data_uri(COVER_TEXTURE_PATH, "image/jpeg")
     mark_uri = _asset_data_uri(G_MARK_PATH, "image/png")
+    cover_art_uri = _optional_cover_data_uri(report.get("coverImagePath"))
+    cover_art_html = f'<img class="cover-art" alt="" src="{cover_art_uri}">' if cover_art_uri else ""
+    title = _e(report.get("title") or "GateX Intelligence")
+    report_type = _e(report.get("reportType") or "Strategic Intelligence")
+    classification = _e(release_classification(report))
+    language = "ZH" if report.get("language") == "zh" else "EN"
+    version = int(report.get("versionNo") or 1)
+    issued = _display_date(report.get("versionSubmittedAt") or report.get("releaseDate"))
     author_rows = []
     for author in report.get("authors") or []:
         author_rows.append(
@@ -339,30 +352,43 @@ def _back_cover_html(report: Mapping[str, Any]) -> str:
 * {{ box-sizing: border-box; }}
 html, body {{ width: 210mm; height: 297mm; margin: 0; }}
 body {{ position: relative; overflow: hidden; color: #f5f8fb; font-family: Arial, "Helvetica Neue", sans-serif; background: #061426; -webkit-print-color-adjust: exact; print-color-adjust: exact; }}
-.texture {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .54; filter: saturate(.62) contrast(1.1) brightness(.54); mix-blend-mode: overlay; }}
-.wash {{ position: absolute; inset: 0; background: linear-gradient(145deg, rgba(4,15,30,.94), rgba(10,39,75,.86) 58%, rgba(5,19,37,.96)); }}
-.grid {{ position: absolute; inset: 0; opacity: .17; background-image: linear-gradient(rgba(126,174,219,.28) .25mm, transparent .25mm), linear-gradient(90deg, rgba(126,174,219,.28) .25mm, transparent .25mm); background-size: 22mm 22mm; }}
+.cover-art {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .68; filter: saturate(.56) contrast(1.08) brightness(.62); }}
+.texture {{ position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .42; filter: saturate(.62) contrast(1.1) brightness(.54); mix-blend-mode: overlay; }}
+.wash {{ position: absolute; inset: 0; background: linear-gradient(102deg, rgba(3,12,24,.97) 0%, rgba(5,23,45,.91) 58%, rgba(4,18,35,.72) 100%), linear-gradient(0deg, rgba(2,9,18,.94), transparent 54%, rgba(2,8,16,.36)); }}
+.grid {{ position: absolute; inset: 0; opacity: .10; background-image: linear-gradient(rgba(126,174,219,.28) .25mm, transparent .25mm), linear-gradient(90deg, rgba(126,174,219,.28) .25mm, transparent .25mm); background-size: 22mm 22mm; }}
 .frame {{ position: absolute; inset: 12.5mm; border: .25mm solid rgba(215,227,239,.22); }}
+.rail {{ position: absolute; left: 12.5mm; top: 12.5mm; bottom: 12.5mm; width: 2.2mm; background: linear-gradient(90deg, rgba(0,0,0,.30), rgba(177,202,228,.18) 52%, rgba(0,0,0,.28)); border-right: .2mm solid rgba(220,233,246,.13); }}
 main {{ position: relative; z-index: 2; height: 100%; padding: 19mm 22mm 17mm 26mm; display: flex; flex-direction: column; }}
 header {{ display: flex; align-items: center; justify-content: space-between; padding-bottom: 7mm; border-bottom: .25mm solid rgba(213,229,244,.26); }}
 .brand {{ display: flex; align-items: center; gap: 4mm; }}
 .brand img {{ width: 14mm; height: 14mm; object-fit: contain; }}
 .brand strong {{ font-size: 17pt; letter-spacing: .1em; }}
 header > span {{ color: rgba(210,227,243,.72); font-size: 6.5pt; font-weight: 700; letter-spacing: .15em; }}
-.copy {{ margin-top: 27mm; width: 150mm; }}
-.eyebrow {{ margin: 0 0 7mm; color: #75b7ee; font-size: 7pt; font-weight: 800; letter-spacing: .21em; }}
-h1 {{ margin: 0; max-width: 145mm; font-family: Georgia, "Times New Roman", serif; font-size: 31pt; font-weight: 400; line-height: 1.08; }}
-.copy > p:last-child {{ max-width: 132mm; margin-top: 7mm; color: rgba(223,235,246,.68); font-size: 10pt; line-height: 1.55; }}
-.team {{ margin-top: auto; border-top: .8mm solid #4d9fea; }}
-.team article {{ display: grid; align-items: baseline; grid-template-columns: 49mm 1fr 50mm; gap: 5mm; padding: 4.2mm 0; border-bottom: .25mm solid rgba(209,227,244,.18); }}
-.team strong {{ font-size: 9.5pt; }}
-.team span, .team small {{ color: rgba(220,233,245,.64); font-size: 8pt; }}
+.publication {{ margin-top: 25mm; width: 155mm; }}
+.eyebrow {{ margin: 0 0 6mm; color: #7fc1f2; font-size: 7pt; font-weight: 800; letter-spacing: .21em; }}
+h1 {{ margin: 0; max-width: 151mm; font-family: Georgia, "Times New Roman", serif; font-size: 27pt; font-weight: 400; line-height: 1.08; }}
+.statement {{ max-width: 126mm; margin: 7mm 0 0; color: rgba(228,238,247,.75); font-family: Georgia, "Times New Roman", serif; font-size: 12pt; line-height: 1.48; }}
+.rule {{ width: 42mm; height: .55mm; margin: 8mm 0 6mm; background: linear-gradient(90deg, #7fc1f2, rgba(211,232,248,.78) 48%, transparent); }}
+.meta {{ display: grid; width: 151mm; margin-top: 12mm; grid-template-columns: 1.2fr 1fr 1.35fr 1fr; border-top: .25mm solid rgba(211,229,245,.28); border-bottom: .25mm solid rgba(211,229,245,.20); }}
+.meta div {{ min-height: 18mm; padding: 4mm 4mm 3.5mm 0; border-right: .25mm solid rgba(211,229,245,.17); }}
+.meta div + div {{ padding-left: 4mm; }} .meta div:last-child {{ border-right: 0; }}
+.meta span {{ display: block; margin-bottom: 2mm; color: rgba(174,205,232,.64); font-size: 5.8pt; font-weight: 700; letter-spacing: .15em; }}
+.meta strong {{ color: #f2f7fb; font-size: 8.3pt; font-weight: 650; }}
+.desk {{ margin-top: auto; }}
+.desk-head {{ display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 4mm; padding-top: 4mm; border-top: .75mm solid #57a7e9; }}
+.desk-head strong {{ color: #eaf3fa; font-size: 7pt; letter-spacing: .17em; text-transform: uppercase; }}
+.desk-head span {{ max-width: 77mm; color: rgba(213,229,243,.60); font-size: 6.8pt; line-height: 1.4; text-align: right; }}
+.team article {{ display: grid; align-items: baseline; grid-template-columns: 49mm 1fr 50mm; gap: 5mm; padding: 3.65mm 0; border-bottom: .25mm solid rgba(209,227,244,.18); }}
+.team strong {{ font-size: 8.8pt; }}
+.team span, .team small {{ color: rgba(220,233,245,.65); font-size: 7.4pt; }}
 .team small {{ text-align: right; }}
-footer {{ display: flex; justify-content: space-between; margin-top: 10mm; color: rgba(213,229,243,.58); font-size: 6.5pt; letter-spacing: .1em; }}
-</style></head><body><img class="texture" alt="" src="{texture_uri}"><div class="wash"></div><div class="grid"></div><div class="frame"></div>
+footer {{ display: flex; justify-content: space-between; margin-top: 7mm; color: rgba(213,229,243,.58); font-size: 6.2pt; letter-spacing: .1em; }}
+</style></head><body>{cover_art_html}<img class="texture" alt="" src="{texture_uri}"><div class="wash"></div><div class="grid"></div><div class="frame"></div><div class="rail"></div>
 <main><header><div class="brand"><img alt="GateX G mark" src="{mark_uri}"><strong>GATEX</strong></div><span>MEMBER CONFIDENTIAL</span></header>
-<section class="copy"><p class="eyebrow">AUTHORS AND EDITORIAL DESK</p><h1>Intelligence prepared for consequential decisions.</h1><p>The publication team combines regional context, sector research and decision-focused editorial review for authorised GateX readers.</p></section>
-<section class="team">{''.join(author_rows)}</section><footer><span>GATEX INTELLIGENCE</span><span>GATEX.FUND</span></footer></main></body></html>"""
+<section class="publication"><p class="eyebrow">GATEX / PUBLICATION RECORD</p><h1>{title}</h1><div class="rule"></div><p class="statement">Independent, evidence-led intelligence prepared for consequential decisions.</p>
+<div class="meta"><div><span>EDITION</span><strong>{issued}</strong></div><div><span>LANGUAGE</span><strong>{language}</strong></div><div><span>PUBLICATION</span><strong>{report_type}</strong></div><div><span>VERSION</span><strong>{version:02d}</strong></div></div></section>
+<section class="desk"><div class="desk-head"><strong>Authors and editorial desk</strong><span>Regional context, sector research and editorial review for authorised GateX readers.</span></div><div class="team">{''.join(author_rows)}</div></section>
+<footer><span>{classification}</span><span>GATEX.FUND</span></footer></main></body></html>"""
 
 
 def _body_html(report: Mapping[str, Any]) -> str:

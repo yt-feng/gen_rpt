@@ -12,6 +12,8 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _english_source_title,
     _generate_visuals,
+    _normalize_panel,
+    _panel_renderability_issue,
     _paragraph_word_count,
     _source_packet,
     visual_quality_issues,
@@ -111,3 +113,19 @@ def test_chinese_source_titles_are_rendered_as_english_citations() -> None:
     company = {"title": "长鑫科技集团股份有限公司", "domain": "static.sse.com.cn"}
     assert _english_source_title(prospectus) == "STAR Market Initial Public Offering Prospectus (Registration Draft)"
     assert _english_source_title(company) == "ChangXin Memory Technologies Group Co., Ltd. Filing"
+
+
+def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
+    panel = {
+        "type": "comparison",
+        "columns": ["A", "B"],
+        "items": [
+            {"tag": "Foundry", "title": "Audited operating record", "body": "Listed-company evidence."},
+            {"tag": "Memory", "title": "Prospectus record", "body": "Capacity and research evidence."},
+            {"tag": "Cloud", "title": "Risk architecture", "body": "Infrastructure disclosure."},
+        ],
+    }
+    normalized = _normalize_panel(panel)
+    assert normalized["type"] == "matrix"
+    assert len(normalized["items"]) == 3
+    assert _panel_renderability_issue(normalized) == ""

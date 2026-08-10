@@ -149,12 +149,16 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertRegex(artifact["sha256"], r"^[0-9a-f]{64}$")
             with fitz.open(path) as document:
                 cover_text = document[0].get_text("text")
+                back_text = document[-1].get_text("text")
                 full_text = "\n".join(page.get_text("text") for page in document)
                 cover_images = document[0].get_images(full=True)
+                back_images = document[-1].get_images(full=True)
             self.assertIn(payload["summary"], cover_text)
             self.assertNotIn(payload["subtitle"], cover_text)
+            self.assertIn(payload["title"], back_text.replace("\n", " "))
             self.assertRegex(full_text, r"governance\s+control a condition")
             self.assertGreaterEqual(len(cover_images), 2)
+            self.assertGreaterEqual(len(back_images), 2)
 
             metadata = PdfReader(str(path)).metadata
             self.assertEqual(metadata.author, "GateX")

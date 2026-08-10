@@ -334,6 +334,18 @@ Architecture rules:
 
 Supported exhibit panel types: process, matrix, bars, scenario, comparison, line, stacked_bar, scatter, waterfall, market_map, milestones.
 
+Panel schema rules:
+- matrix, market_map and process: items use tag, title and body.
+- comparison: include exactly two column labels in columns; every item uses metric, left and right.
+- bars: every item uses label, numeric value and optional display.
+- line: include xLabels plus one to four series objects, each with name and at least two numeric values.
+- scatter: every item uses label plus numeric x and y; include xLabel and yLabel.
+- stacked_bar: every item uses label and segments; each segment uses label, numeric value and optional display.
+- waterfall: every item uses label, numeric value and optional type=total.
+- scenario: every item uses label, range and body.
+- milestones: every item uses label, metric and body.
+Never combine a panel type with the item schema of another type. Do not return an empty chart or placeholder columns such as A and B.
+
 Return valid JSON only in this exact shape:
 {{
   "subtitle": "short analytical subtitle",
@@ -361,6 +373,59 @@ STRUCTURED EVIDENCE LEDGER
 SELECTED PUBLIC SOURCE PACKET
 {source_packet}
 """.strip()
+
+
+def _panel_renderability_issue(panel: Mapping[str, Any]) -> str:
+    kind = _clean(panel.get("type"), 40).lower() or "matrix"
+    items = [item for item in panel.get("items") or [] if isinstance(item, Mapping)]
+    if kind == "comparison":
+        columns = panel.get("columns") if isinstance(panel.get("columns"), list) else []
+        valid_rows = [item for item in items if (item.get("metric") or item.get("label")) and item.get("left") and item.get("right")]
+        return "comparison requires two named columns and at least two complete rows" if len(columns) != 2 or len(valid_rows) < 2 else ""
+    if kind in {"line", "line_chart"}:
+        series = [item for item in panel.get("series") or [] if isinstance(item, Mapping)]
+        valid_series = [item for item in series if len(item.get("values") or []) >= 2]
+        fallback_values = [item for item in items if item.get("label") and item.get("value") is not None]
+        return "line chart requires a series with at least two values" if not valid_series and len(fallback_values) < 2 else ""
+    if kind in {"scatter", "scatter_plot"}:
+        valid_rows = [item for item in items if item.get("label") and item.get("x") is not None and item.get("y") is not None]
+        return "scatter chart requires at least two labelled x/y points" if len(valid_rows) < 2 else ""
+    if kind in {"stacked_bar", "stacked_bars"}:
+        valid_rows = [item for item in items if item.get("label") and len(item.get("segments") or []) >= 2]
+        return "stacked bars require at least two rows with two or more segments" if len(valid_rows) < 2 else ""
+    if kind in {"waterfall", "waterfall_chart"}:
+        valid_rows = [item for item in items if item.get("label") and item.get("value") is not None]
+        return "waterfall chart requires at least two labelled values" if len(valid_rows) < 2 else ""
+    if kind == "bars":
+        valid_rows = [item for item in items if item.get("label") and item.get("value") is not None]
+        return "bar chart requires at least two labelled values" if len(valid_rows) < 2 else ""
+    if kind == "scenario":
+        valid_rows = [item for item in items if item.get("label") and (item.get("range") or item.get("value")) and item.get("body")]
+        return "scenario panel requires at least three complete scenarios" if len(valid_rows) < 3 else ""
+    if kind in {"milestone", "milestones"}:
+        valid_rows = [item for item in items if item.get("label") and (item.get("metric") or item.get("value"))]
+        return "milestones panel requires at least three labelled milestones" if len(valid_rows) < 3 else ""
+    if kind in {"process", "matrix", "market_map", "market_layers"}:
+        valid_rows = [item for item in items if (item.get("title") or item.get("label")) and item.get("body")]
+        return f"{kind} panel requires at least three complete items" if len(valid_rows) < 3 else ""
+    return f"unsupported panel type: {kind}"
+
+
+def _normalize_panel(panel: Mapping[str, Any]) -> dict[str, Any]:
+    normalized = dict(panel)
+    issue = _panel_renderability_issue(normalized)
+    if not issue:
+        return normalized
+    items = [item for item in normalized.get("items") or [] if isinstance(item, Mapping)]
+    matrix_rows = [item for item in items if (item.get("title") or item.get("label")) and item.get("body")]
+    if len(matrix_rows) >= 3:
+        normalized["type"] = "matrix"
+        normalized["items"] = matrix_rows[:6]
+        normalized.pop("columns", None)
+        normalized.pop("series", None)
+        normalized.pop("xLabels", None)
+        normalized.pop("categories", None)
+    return normalized
 
 
 def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) -> list[str]:
@@ -397,6 +462,9 @@ def _editorial_issues(content: Mapping[str, Any], valid_source_ids: set[str]) ->
             issues.append(f"Exhibit {index} has too many metrics.")
         if any(_clean(panel.get("type"), 60).lower() not in SUPPORTED_PANELS for panel in panels or [] if isinstance(panel, Mapping)):
             issues.append(f"Exhibit {index} uses an unsupported panel type.")
+        for panel_index, panel in enumerate(panels or [], start=1):
+            if isinstance(panel, Mapping) and (issue := _panel_renderability_issue(panel)):
+                issues.append(f"Exhibit {index} panel {panel_index}: {issue}.")
     outlook_words = _paragraph_word_count(outlook)
     if not 200 <= outlook_words <= 340:
         issues.append(f"Outlook body length is {outlook_words} words.")
@@ -708,6 +776,7 @@ SOURCES
     for raw in architecture["exhibits"]:
         exhibit = dict(raw) if isinstance(raw, Mapping) else {}
         exhibit["sourceIds"] = normalized_source_ids(exhibit.get("sourceIds"))
+        exhibit["panels"] = [_normalize_panel(panel) for panel in exhibit.get("panels") or [] if isinstance(panel, Mapping)]
         exhibits.append(_ascii(exhibit))
     visuals = [dict(item) for item in architecture["visuals"] if isinstance(item, Mapping)]
     expected_visual_ids = ["executive-summary", "chapter-1", "chapter-2", "chapter-3", "chapter-4"]
