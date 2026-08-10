@@ -116,6 +116,41 @@ def test_responses_parser_rejects_truncated_apimart_choice() -> None:
         raise AssertionError("A length-truncated response must be rejected.")
 
 
+def test_apimart_responses_increases_exhausted_output_budget() -> None:
+    incomplete = mock.Mock()
+    incomplete.status_code = 200
+    incomplete.raise_for_status.return_value = None
+    incomplete.json.return_value = {
+        "status": "incomplete",
+        "incomplete_details": {"reason": "max_output_tokens"},
+    }
+    complete = mock.Mock()
+    complete.status_code = 200
+    complete.raise_for_status.return_value = None
+    complete.json.return_value = {"output_text": '{"status":"ready"}'}
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_REASONING_EFFORT": "xhigh",
+        "APIMART_REASONING_MODE": "pro",
+        "APIMART_MIN_OUTPUT_TOKENS": "24000",
+        "APIMART_MAX_OUTPUT_TOKENS": "64000",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            side_effect=[incomplete, complete],
+        ) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat_json(
+                [{"role": "user", "content": "Return JSON."}],
+                max_tokens=1_000,
+            ) == {"status": "ready"}
+
+    assert post.call_args_list[0].kwargs["json"]["max_tokens"] == 24_000
+    assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 48_000
+
+
 def test_editorial_client_fails_over_once_and_keeps_using_backup() -> None:
     class StubClient:
         def __init__(self, model: str, responses: list[object]) -> None:

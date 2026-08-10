@@ -50,9 +50,10 @@ jobs:
       APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
       APIMART_BASE_URL: https://api.apimart.ai
       APIMART_USE_RESPONSES: "true"
-      APIMART_REASONING_EFFORT: max
+      APIMART_REASONING_EFFORT: xhigh
       APIMART_REASONING_MODE: pro
-      APIMART_MIN_OUTPUT_TOKENS: "16000"
+      APIMART_MIN_OUTPUT_TOKENS: "24000"
+      APIMART_MAX_OUTPUT_TOKENS: "64000"
       APIMART_ALLOW_CHAT_FALLBACK: "false"
       APIMART_IMAGE_MODEL: gpt-image-2
       QWEN_VL_API_KEY: ${{ secrets.QWEN_VL_API_KEY }}
@@ -122,7 +123,7 @@ jobs:
           )
           if result.get("status") != "ready":
               raise SystemExit(f"Unexpected APIMart editorial canary: {result}")
-          print("APIMart editorial route ready: gpt-5.6-sol / Responses / pro / max")
+          print("APIMart editorial route ready: gpt-5.6-sol / Responses / pro / xhigh")
           PY
 
       - name: Restore prior cloud checkpoint

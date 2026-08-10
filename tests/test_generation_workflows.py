@@ -33,13 +33,14 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn("GATEX_GENERATION_CALLBACK_SECRET", workflow)
         self.assertIsNone(re.search(r"^  (push|pull_request):\s*$", workflow, re.MULTILINE))
 
-    def test_gatex_whitepaper_uses_sol_pro_max_without_silent_deepseek_fallback(self):
+    def test_gatex_whitepaper_uses_sol_pro_xhigh_without_silent_deepseek_fallback(self):
         workflow = (ROOT / ".github/workflows/generate_gatex_whitepaper.yml").read_text(encoding="utf-8")
 
         self.assertIn('default: "gpt-5.6-sol"', workflow)
         self.assertIn('APIMART_USE_RESPONSES: "true"', workflow)
-        self.assertIn("APIMART_REASONING_EFFORT: max", workflow)
+        self.assertIn("APIMART_REASONING_EFFORT: xhigh", workflow)
         self.assertIn("APIMART_REASONING_MODE: pro", workflow)
+        self.assertIn('APIMART_MAX_OUTPUT_TOKENS: "64000"', workflow)
         self.assertIn('GATEX_EDITORIAL_FALLBACK_MODEL: ""', workflow)
         self.assertIn("Verify APIMart Sol Pro route", workflow)
 

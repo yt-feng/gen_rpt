@@ -9,6 +9,10 @@ from typing import Any, Dict, List, Optional
 import requests
 
 
+class _ResponseBudgetExhausted(ValueError):
+    pass
+
+
 class DeepSeekClient:
     def __init__(
         self,
@@ -175,6 +179,10 @@ class DeepSeekClient:
         if json_mode and _bool_env("APIMART_RESPONSES_JSON_FORMAT", False):
             payload["text"] = {"format": {"type": "json_object"}}
         requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=True)
+        maximum_output_tokens = max(
+            requested_max_tokens,
+            _int_env("APIMART_MAX_OUTPUT_TOKENS", 64_000),
+        )
         if requested_max_tokens > 0:
             # APIMart's Responses-compatible endpoint documents max_tokens,
             # while the native OpenAI Responses API uses max_output_tokens.
@@ -185,13 +193,25 @@ class DeepSeekClient:
 
         last_error = "unknown Responses API failure"
         for attempt in range(3):
-            response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
             try:
                 response.raise_for_status()
                 content = _response_content(response)
                 if content.strip():
                     return content
                 last_error = f"HTTP {response.status_code} returned an empty response"
+            except _ResponseBudgetExhausted as exc:
+                last_error = str(exc)
+                if attempt < 2 and requested_max_tokens < maximum_output_tokens:
+                    requested_max_tokens = min(maximum_output_tokens, requested_max_tokens * 2)
+                    payload["max_tokens"] = requested_max_tokens
+                    payload["max_output_tokens"] = requested_max_tokens
+                    print(
+                        "[gatex.editorial] APIMart output budget exhausted; "
+                        f"retrying with {requested_max_tokens} tokens.",
+                        flush=True,
+                    )
+                    continue
             except Exception as exc:
                 last_error = str(exc)
             if attempt < 2:
@@ -316,6 +336,8 @@ def _response_content(response: requests.Response) -> str:
     output_text = data.get("output_text")
     if str(data.get("status") or "").lower() == "incomplete":
         details = data.get("incomplete_details") or {}
+        if str(details.get("reason") or "").lower() in {"max_output_tokens", "length"}:
+            raise _ResponseBudgetExhausted(f"Responses endpoint exhausted its output budget: {details}")
         raise ValueError(f"Responses endpoint returned an incomplete result: {details}")
     if isinstance(output_text, str) and output_text.strip():
         return output_text
@@ -325,7 +347,7 @@ def _response_content(response: requests.Response) -> str:
         finish_reason = choices[0].get("finish_reason") if isinstance(choices[0], dict) else None
         if str(finish_reason or "").lower() in {"length", "max_tokens"}:
             usage = data.get("usage") or {}
-            raise ValueError(f"Responses endpoint exhausted its output budget: {usage}")
+            raise _ResponseBudgetExhausted(f"Responses endpoint exhausted its output budget: {usage}")
         message = choices[0].get("message") if isinstance(choices[0], dict) else None
         if isinstance(message, dict) and isinstance(message.get("content"), str):
             return str(message["content"])
