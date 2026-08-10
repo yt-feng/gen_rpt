@@ -82,7 +82,7 @@ def test_apimart_sol_uses_responses_pro_max_with_expanded_budget() -> None:
     assert payload["model"] == "gpt-5.6-sol"
     assert payload["reasoning"] == {"effort": "max", "mode": "pro"}
     assert payload["max_output_tokens"] == 16_000
-    assert "max_tokens" not in payload
+    assert payload["max_tokens"] == 16_000
 
 
 def test_responses_parser_accepts_apimart_wrapped_choices() -> None:
@@ -92,6 +92,28 @@ def test_responses_parser_accepts_apimart_wrapped_choices() -> None:
         "data": {"choices": [{"message": {"content": "GateX"}}]},
     }
     assert _response_content(response) == "GateX"
+
+
+def test_responses_parser_rejects_truncated_apimart_choice() -> None:
+    response = mock.Mock()
+    response.json.return_value = {
+        "code": 200,
+        "data": {
+            "choices": [
+                {
+                    "message": {"content": '{"partial":'},
+                    "finish_reason": "length",
+                }
+            ],
+            "usage": {"completion_tokens": 16_000},
+        },
+    }
+    try:
+        _response_content(response)
+    except ValueError as exc:
+        assert "exhausted its output budget" in str(exc)
+    else:
+        raise AssertionError("A length-truncated response must be rejected.")
 
 
 def test_editorial_client_fails_over_once_and_keeps_using_backup() -> None:

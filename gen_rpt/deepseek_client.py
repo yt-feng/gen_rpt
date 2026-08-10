@@ -176,6 +176,11 @@ class DeepSeekClient:
             payload["text"] = {"format": {"type": "json_object"}}
         requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=True)
         if requested_max_tokens > 0:
+            # APIMart's Responses-compatible endpoint documents max_tokens,
+            # while the native OpenAI Responses API uses max_output_tokens.
+            # Sending both keeps the gateway limit explicit instead of falling
+            # back to its shorter default response budget.
+            payload["max_tokens"] = requested_max_tokens
             payload["max_output_tokens"] = requested_max_tokens
 
         last_error = "unknown Responses API failure"
@@ -309,11 +314,18 @@ def _response_content(response: requests.Response) -> str:
         raise ValueError("Responses endpoint returned an unexpected payload.")
 
     output_text = data.get("output_text")
+    if str(data.get("status") or "").lower() == "incomplete":
+        details = data.get("incomplete_details") or {}
+        raise ValueError(f"Responses endpoint returned an incomplete result: {details}")
     if isinstance(output_text, str) and output_text.strip():
         return output_text
 
     choices = data.get("choices")
     if isinstance(choices, list) and choices:
+        finish_reason = choices[0].get("finish_reason") if isinstance(choices[0], dict) else None
+        if str(finish_reason or "").lower() in {"length", "max_tokens"}:
+            usage = data.get("usage") or {}
+            raise ValueError(f"Responses endpoint exhausted its output budget: {usage}")
         message = choices[0].get("message") if isinstance(choices[0], dict) else None
         if isinstance(message, dict) and isinstance(message.get("content"), str):
             return str(message["content"])
