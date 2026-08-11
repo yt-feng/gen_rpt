@@ -166,12 +166,26 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertGreaterEqual(artifact["pageCount"], 4)
             self.assertTrue(artifact["qa"]["passed"])
             self.assertTrue(artifact["qa"]["fastWebView"])
+            self.assertTrue(artifact["qa"]["pdfJsCoverSafe"])
             self.assertTrue(artifact["optimization"]["linearized"])
-            self.assertGreaterEqual(artifact["optimization"]["optimizedImageCount"], 2)
+            self.assertEqual(artifact["optimization"]["optimizedImageCount"], 2)
+            self.assertEqual(artifact["optimization"]["flattenedPageCount"], 2)
+            self.assertTrue(artifact["optimization"]["pdfJsCoverSafe"])
             self.assertLess(artifact["optimization"]["finalByteSize"], artifact["optimization"]["originalByteSize"])
             self.assertRegex(artifact["sha256"], r"^[0-9a-f]{64}$")
             with pikepdf.open(path) as optimized_pdf:
                 self.assertTrue(optimized_pdf.is_linearized)
+                for page_number in (0, len(optimized_pdf.pages) - 1):
+                    resources = optimized_pdf.pages[page_number].Resources
+                    self.assertNotIn("/Shading", resources)
+                    images = [
+                        image
+                        for image in resources.get("/XObject", {}).values()
+                        if image.get("/Subtype") == pikepdf.Name("/Image")
+                    ]
+                    self.assertEqual(len(images), 1)
+                    self.assertEqual(images[0].get("/ColorSpace"), pikepdf.Name("/DeviceRGB"))
+                    self.assertNotIn("/SMask", images[0])
             with fitz.open(path) as document:
                 cover_text = document[0].get_text("text")
                 back_text = document[-1].get_text("text")
@@ -188,8 +202,10 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertNotIn(payload["subtitle"], cover_text)
             self.assertIn(payload["title"], back_text.replace("\n", " "))
             self.assertRegex(full_text, r"governance\s+control a condition")
-            self.assertGreaterEqual(len(cover_images), 2)
-            self.assertGreaterEqual(len(back_images), 2)
+            self.assertEqual(len(cover_images), 1)
+            self.assertEqual(len(back_images), 1)
+            self.assertGreaterEqual(cover_images[0][2], 2000)
+            self.assertGreaterEqual(back_images[0][2], 2000)
             self.assertEqual(oversized_lossless_cover_images, [])
 
             metadata = PdfReader(str(path)).metadata
@@ -215,8 +231,9 @@ class GatexPdfRendererTests(unittest.TestCase):
             with fitz.open(artifact["path"]) as document:
                 cover_images = document[0].get_images(full=True)
 
-        # G mark + paper grain + the approved, version-bound topic artwork.
-        self.assertGreaterEqual(len(cover_images), 3)
+        # The complete approved cover is flattened into one PDF.js-safe delivery image.
+        self.assertEqual(len(cover_images), 1)
+        self.assertGreaterEqual(cover_images[0][2], 2000)
 
     def test_renders_chinese_release_with_extractable_cjk_text(self):
         payload = sample_release()

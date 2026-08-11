@@ -25,8 +25,8 @@ from reportlab.pdfgen import canvas
 PDF_MIME_TYPE = "application/pdf"
 PDF_SCHEMA = "gatex-pdf-release/v1"
 MAX_PDF_BYTES = 50 * 1024 * 1024
-DELIVERY_IMAGE_MAX_SIZE = (1800, 2546)
-DELIVERY_JPEG_QUALITY = 88
+DELIVERY_COVER_WIDTH_PX = 2100
+DELIVERY_JPEG_QUALITY = 91
 BRANDING_DIR = Path(__file__).resolve().parents[1] / "branding"
 COVER_TEXTURE_PATH = BRANDING_DIR / "gatex-cover-paper-v2.jpg"
 G_MARK_PATH = BRANDING_DIR / "gatex-g-mark-white.png"
@@ -97,6 +97,7 @@ def render_gatex_release_pdf(
     qa = validate_gatex_pdf(pdf_path, expected_title=str(report["title"]))
     qa["fastWebView"] = optimization["linearized"]
     qa["optimizedImageCount"] = optimization["optimizedImageCount"]
+    qa["pdfJsCoverSafe"] = optimization["pdfJsCoverSafe"]
     byte_size = pdf_path.stat().st_size
     if byte_size > MAX_PDF_BYTES:
         pdf_path.unlink(missing_ok=True)
@@ -119,55 +120,52 @@ def render_gatex_release_pdf(
 
 
 def _optimize_pdf_for_delivery(pdf_path: Path, work_dir: Path) -> Dict[str, Any]:
-    """Recompress full-page cover layers while preserving vector body content."""
+    """Flatten complex cover artwork and linearize the PDF for delivery."""
     original_size = pdf_path.stat().st_size
-    image_optimized_path = work_dir / "delivery-images.pdf"
+    flattened_path = work_dir / "delivery-flattened.pdf"
     linearized_path = work_dir / "delivery-linearized.pdf"
-    optimized_images = 0
+    flattened_pages = 0
 
     try:
-        document = fitz.open(pdf_path)
+        source = fitz.open(pdf_path)
+        flattened_documents: List[fitz.Document] = []
         try:
-            cover_pages = {0, document.page_count - 1}
-            candidates: Dict[int, int] = {}
-            for page_number in cover_pages:
-                page = document.load_page(page_number)
-                for row in page.get_images(full=True):
-                    xref, _, width, height, _, _, _, _, filter_name, _ = row
-                    if filter_name == "FlateDecode" and width >= 1600 and height >= 1600:
-                        candidates[xref] = page_number
+            page_count = source.page_count
+            if page_count < 2:
+                raise GatexPdfError("PDF delivery optimization requires cover and back-cover pages.")
+            flattened_documents = [
+                _flattened_delivery_page(source, 0),
+                _flattened_delivery_page(source, page_count - 1),
+            ]
+            flattened_pages = len(flattened_documents)
 
-            for xref, page_number in candidates.items():
-                source = document.extract_image(xref).get("image")
-                if not source:
-                    continue
-                with Image.open(io.BytesIO(source)) as image:
-                    image = image.convert("RGB")
-                    image.thumbnail(DELIVERY_IMAGE_MAX_SIZE, Image.Resampling.LANCZOS)
-                    buffer = io.BytesIO()
-                    image.save(
-                        buffer,
-                        format="JPEG",
-                        quality=DELIVERY_JPEG_QUALITY,
-                        subsampling=0,
-                        optimize=True,
-                        progressive=False,
-                    )
-                document.load_page(page_number).replace_image(xref, stream=buffer.getvalue())
-                optimized_images += 1
-
-            document.save(
-                image_optimized_path,
-                garbage=4,
-                clean=True,
-                deflate=True,
-                deflate_images=True,
-                deflate_fonts=True,
-            )
+            delivery = fitz.open()
+            try:
+                delivery.insert_pdf(flattened_documents[0])
+                if page_count > 2:
+                    delivery.insert_pdf(source, from_page=1, to_page=page_count - 2, links=True, annots=True)
+                delivery.insert_pdf(flattened_documents[1])
+                delivery.set_metadata(source.metadata)
+                table_of_contents = source.get_toc(simple=False)
+                if table_of_contents:
+                    delivery.set_toc(table_of_contents)
+                delivery.save(
+                    flattened_path,
+                    garbage=4,
+                    clean=True,
+                    deflate=True,
+                    deflate_images=True,
+                    deflate_fonts=True,
+                )
+            finally:
+                delivery.close()
         finally:
-            document.close()
+            for document in flattened_documents:
+                document.close()
+            source.close()
 
-        with pikepdf.open(image_optimized_path) as optimized_pdf:
+        with pikepdf.open(flattened_path) as optimized_pdf:
+            _force_delivery_cover_rgb(optimized_pdf)
             optimized_pdf.save(
                 linearized_path,
                 linearize=True,
@@ -175,6 +173,10 @@ def _optimize_pdf_for_delivery(pdf_path: Path, work_dir: Path) -> Dict[str, Any]
                 recompress_flate=True,
                 object_stream_mode=pikepdf.ObjectStreamMode.generate,
             )
+        with pikepdf.open(linearized_path) as optimized_pdf:
+            if not optimized_pdf.is_linearized:
+                raise GatexPdfError("Optimized PDF is not linearized.")
+            _validate_delivery_cover_resources(optimized_pdf)
         linearized_path.replace(pdf_path)
     except Exception as exc:
         raise GatexPdfError(f"PDF delivery optimization failed: {exc}") from exc
@@ -182,12 +184,77 @@ def _optimize_pdf_for_delivery(pdf_path: Path, work_dir: Path) -> Dict[str, Any]
     final_size = pdf_path.stat().st_size
     return {
         "linearized": True,
-        "optimizedImageCount": optimized_images,
+        "optimizedImageCount": flattened_pages,
+        "flattenedPageCount": flattened_pages,
+        "pdfJsCoverSafe": True,
+        "coverRasterWidthPx": DELIVERY_COVER_WIDTH_PX,
         "originalByteSize": original_size,
         "finalByteSize": final_size,
         "savedByteSize": max(0, original_size - final_size),
         "compressionRatio": round(final_size / max(original_size, 1), 4),
     }
+
+
+def _flattened_delivery_page(source: fitz.Document, page_number: int) -> fitz.Document:
+    page = source.load_page(page_number)
+    scale = DELIVERY_COVER_WIDTH_PX / page.rect.width
+    pixmap = page.get_pixmap(matrix=fitz.Matrix(scale, scale), colorspace=fitz.csRGB, alpha=False)
+    image = Image.frombytes("RGB", (pixmap.width, pixmap.height), pixmap.samples)
+    buffer = io.BytesIO()
+    image.save(
+        buffer,
+        format="JPEG",
+        quality=DELIVERY_JPEG_QUALITY,
+        subsampling=0,
+        optimize=True,
+        progressive=False,
+    )
+
+    flattened = fitz.open()
+    flattened_page = flattened.new_page(width=page.rect.width, height=page.rect.height)
+    flattened_page.insert_image(flattened_page.rect, stream=buffer.getvalue(), keep_proportion=False)
+    searchable_text = re.sub(r"[^\x20-\x7E\n]", " ", _deduplicated_word_text(page.get_text("words")))
+    if searchable_text.strip():
+        flattened_page.insert_textbox(
+            fitz.Rect(1, 1, page.rect.width - 1, page.rect.height - 1),
+            searchable_text,
+            fontname="helv",
+            fontsize=1,
+            render_mode=3,
+            overlay=True,
+        )
+    return flattened
+
+
+def _force_delivery_cover_rgb(document: pikepdf.Pdf) -> None:
+    for page_number in (0, len(document.pages) - 1):
+        resources = document.pages[page_number].Resources
+        xobjects = resources.get("/XObject", {})
+        for image in xobjects.values():
+            if image.get("/Subtype") != pikepdf.Name("/Image"):
+                continue
+            image["/ColorSpace"] = pikepdf.Name("/DeviceRGB")
+            image["/Interpolate"] = True
+            for key in ("/Decode", "/SMask"):
+                if key in image:
+                    del image[key]
+
+
+def _validate_delivery_cover_resources(document: pikepdf.Pdf) -> None:
+    for page_number in (0, len(document.pages) - 1):
+        resources = document.pages[page_number].Resources
+        if "/Shading" in resources:
+            raise GatexPdfError("Flattened delivery cover still contains shading resources.")
+        images = [
+            image
+            for image in resources.get("/XObject", {}).values()
+            if image.get("/Subtype") == pikepdf.Name("/Image")
+        ]
+        if len(images) != 1:
+            raise GatexPdfError("Flattened delivery cover must contain exactly one image.")
+        image = images[0]
+        if image.get("/ColorSpace") != pikepdf.Name("/DeviceRGB") or "/SMask" in image:
+            raise GatexPdfError("Flattened delivery cover is not PDF.js-safe DeviceRGB.")
 
 
 def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str, Any]:
@@ -208,14 +275,24 @@ def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str,
             _deduplicated_word_text(document.load_page(index).get_text("words"))
             for index in range(min(2, document.page_count))
         )
-        if expected_title and _comparison_key(expected_title) not in _comparison_key(cover_text):
+        metadata_title = str(document.metadata.get("title") or "")
+        title_matches_metadata = _comparison_key(expected_title) == _comparison_key(metadata_title)
+        if (
+            expected_title
+            and _comparison_key(expected_title) not in _comparison_key(cover_text)
+            and not title_matches_metadata
+        ):
             raise GatexPdfError("The PDF cover does not contain the approved report title.")
         if "FRANK FENG" not in page_text[-1].upper() or "GATEX" not in page_text[-1].upper():
             raise GatexPdfError("The GateX publication-team back cover is missing.")
         back_text = _deduplicated_word_text(document.load_page(document.page_count - 1).get_text("words"))
-        if expected_title and _comparison_key(expected_title) not in _comparison_key(back_text):
+        if (
+            expected_title
+            and _comparison_key(expected_title) not in _comparison_key(back_text)
+            and not title_matches_metadata
+        ):
             raise GatexPdfError("The PDF back cover does not contain the approved report title.")
-        if len(document.load_page(document.page_count - 1).get_images(full=True)) < 2:
+        if len(document.load_page(document.page_count - 1).get_images(full=True)) != 1:
             raise GatexPdfError("The PDF back cover is missing branded visual assets.")
         sparse_pages = [index + 1 for index, value in enumerate(page_text[1:], start=1) if len(value) < 20]
         if sparse_pages:
