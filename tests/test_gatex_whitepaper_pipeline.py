@@ -14,6 +14,7 @@ from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _respon
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _chart_label_issues,
+    _citation_rows,
     _collect_research,
     _english_source_title,
     _fallback_queries,
@@ -237,6 +238,19 @@ def test_source_packet_rejects_social_and_prediction_market_sources() -> None:
     )
     rows, _ = _source_packet({"sources": sources})
     assert not any("polymarket" in row["domain"] or "youtube" in row["domain"] for row in rows)
+
+
+def test_citation_rows_cap_prevents_footnote_only_overflow_page() -> None:
+    source_map = {
+        f"S{index}": {
+            "title": f"Long underlying source title {index}",
+            "domain": f"authority{index}.gov",
+            "url": f"https://authority{index}.gov/long-publication-path",
+        }
+        for index in range(1, 6)
+    }
+    rows = _citation_rows(source_map, source_map)
+    assert len(rows) == 4
 
 
 def test_research_sources_are_sanitized_before_fact_extraction() -> None:

@@ -107,7 +107,7 @@ FORBIDDEN_TERMS = (
     "gdelt",
 )
 EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v5-academic-period"
-RESEARCH_POLICY_VERSION = "gatex-whitepaper-research-2026-08-10-v2-openalex-prefilter"
+RESEARCH_POLICY_VERSION = "gatex-whitepaper-research-2026-08-11-v3-openalex-focused"
 META_NARRATION_PATTERNS = (
     re.compile(
         r"\b(?:this|the|an?|opening|final|first|second|third|fourth)\s+"
@@ -161,6 +161,8 @@ BLOCKED_SOURCE_DOMAIN_TOKENS = (
     "baijiahao.baidu.com",
     "blog.udn.com",
     "facebook.com",
+    "freedomhouse.org",
+    "globaledge.msu.edu",
     "linkedin.com",
     "medium.com",
     "news.dayoo.com",
@@ -169,6 +171,7 @@ BLOCKED_SOURCE_DOMAIN_TOKENS = (
     "substack.com",
     "tiktok.com",
     "twitter.com",
+    "wikipedia.org",
     "youtube.com",
 )
 PRIMARY_SOURCE_DOMAIN_TOKENS = (
@@ -1558,7 +1561,9 @@ def _citation_rows(source_ids: Iterable[Any], source_map: Mapping[str, Mapping[s
         if not source:
             continue
         rows.append(f"{_english_source_title(source)}, {source['domain']}, {source['url']}")
-    return rows[:5]
+    # Five long citations can spill a single footnote onto an otherwise empty page.
+    # Four still provides strong triangulation while keeping the citation block intact.
+    return rows[:4]
 
 
 def _authors(slug: str) -> list[dict[str, str]]:

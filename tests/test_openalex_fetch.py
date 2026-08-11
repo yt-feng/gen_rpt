@@ -3,7 +3,14 @@ from __future__ import annotations
 import os
 from unittest import mock
 
-from gen_rpt.openalex_fetch import _work_is_relevant, collect_openalex_sources, reconstruct_abstract
+from gen_rpt.openalex_fetch import (
+    _academic_queries,
+    _dedupe_ranked,
+    _work_is_relevant,
+    collect_openalex_sources,
+    reconstruct_abstract,
+)
+from gen_rpt.web_fetch import SourceDocument
 
 
 def _inverted(text: str) -> dict[str, list[int]]:
@@ -34,6 +41,41 @@ def test_topic_anchor_rejects_generic_cooling_paper() -> None:
         ),
     }
     assert not _work_is_relevant(work, "ai data centre infrastructure power cooling network")
+
+
+def test_academic_queries_prefer_focused_planner_terms_over_geography_variants() -> None:
+    queries = _academic_queries(
+        "Data-centre infrastructure and economics across China and Gulf markets, covering power availability and cooling",
+        [
+            "site:iea.org filetype:pdf data centres electricity demand China Middle East 2024 2030",
+            "site:ewec.ae data centre generation capacity reserve margin tariffs",
+        ],
+    )
+    assert queries[0].startswith("data centre infrastructure")
+    assert "data centre electricity demand" in queries[1]
+    assert not any("site" in query or "filetype" in query for query in queries)
+
+
+def test_openalex_dedupes_versioned_dois_with_the_same_title() -> None:
+    first = SourceDocument(
+        title="A reproducible audit of data-centre electricity demand",
+        url="https://doi.org/10.1000/version-1",
+        query="data centre electricity demand",
+        snippet="",
+        content="Academic abstract " * 20,
+        source_type="academic",
+        metadata={"doi": "https://doi.org/10.1000/version-1", "academic": True},
+    )
+    second = SourceDocument(
+        title="A reproducible audit of data-centre electricity demand",
+        url="https://doi.org/10.1000/version-2",
+        query="data centre electricity demand",
+        snippet="",
+        content="Academic abstract " * 20,
+        source_type="academic",
+        metadata={"doi": "https://doi.org/10.1000/version-2", "academic": True},
+    )
+    assert _dedupe_ranked([(10.0, first), (9.0, second)], 4) == [first]
 
 
 def test_openalex_returns_ranked_academic_source_metadata() -> None:

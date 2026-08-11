@@ -21,6 +21,7 @@ _QUERY_NOISE = {
     "arabia",
     "china",
     "company",
+    "covering",
     "current",
     "east",
     "economics",
@@ -40,14 +41,19 @@ _QUERY_NOISE = {
     "of",
     "official",
     "on",
+    "operating",
     "opportunities",
     "opportunity",
+    "or",
     "outlook",
     "pdf",
+    "prioritise",
+    "prioritize",
     "regional",
     "regulator",
     "report",
     "saudi",
+    "sources",
     "statistics",
     "the",
     "to",
@@ -71,7 +77,12 @@ _ANCHOR_GROUPS = (
 
 
 def _normalized_text(value: str) -> str:
-    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", str(value or "").lower())).strip()
+    normalized = re.sub(r"\s+", " ", re.sub(r"[^a-z0-9]+", " ", str(value or "").lower())).strip()
+    return re.sub(r"\b(?:centers?|centres?)\b", "centre", normalized)
+
+
+def _canonical_term(value: str) -> str:
+    return "centre" if value.lower() in {"center", "centers", "centre", "centres"} else value.lower()
 
 
 def _anchor_group(value: str) -> tuple[str, ...]:
@@ -108,9 +119,9 @@ def _integer(name: str, default: int, minimum: int, maximum: int) -> int:
 def _query_terms(value: str) -> set[str]:
     value = re.sub(r"[-_/]", " ", str(value or ""))
     return {
-        token.lower()
+        _canonical_term(token)
         for token in _WORD_RE.findall(value)
-        if token.lower() not in _QUERY_NOISE
+        if _canonical_term(token) not in _QUERY_NOISE
     }
 
 
@@ -118,7 +129,7 @@ def _ordered_query_terms(value: str) -> list[str]:
     terms: list[str] = []
     normalized = re.sub(r"[-_/]", " ", str(value or ""))
     for token in _WORD_RE.findall(normalized):
-        token = token.lower()
+        token = _canonical_term(token)
         if token in _QUERY_NOISE or token in terms:
             continue
         terms.append(token)
@@ -129,9 +140,13 @@ def _academic_queries(topic: str, search_queries: Sequence[str]) -> list[str]:
     maximum = _integer("GATEX_OPENALEX_MAX_QUERIES", 3, 1, 5)
     core_terms = _ordered_query_terms(topic)[:9]
     candidates = [" ".join(core_terms)] if core_terms else [topic]
+    for query in search_queries:
+        query = re.sub(r"\bsite\s*:\s*\S+", "", str(query or ""), flags=re.IGNORECASE)
+        candidate_terms = _ordered_query_terms(query)[:9]
+        if candidate_terms:
+            candidates.append(" ".join(candidate_terms))
     geographies = [name for name in _GEOGRAPHY_TERMS if name.lower() in topic.lower()]
     candidates.extend(f"{' '.join(core_terms[:7])} {geography}" for geography in geographies)
-    candidates.extend(" ".join(_ordered_query_terms(query)[:9]) for query in search_queries)
     selected: list[str] = []
     seen: set[str] = set()
     topic_terms = set(core_terms)
@@ -269,13 +284,17 @@ def _work_to_source(work: Mapping[str, Any], query: str) -> SourceDocument | Non
 
 def _dedupe_ranked(rows: Iterable[tuple[float, SourceDocument]], maximum: int) -> list[SourceDocument]:
     output: list[SourceDocument] = []
-    seen: set[str] = set()
+    seen_dois: set[str] = set()
+    seen_titles: set[str] = set()
     for _, source in sorted(rows, key=lambda item: item[0], reverse=True):
         doi = str(source.metadata.get("doi") or "").lower()
-        key = doi or re.sub(r"\W+", "", source.title.lower())[:180]
-        if not key or key in seen:
+        title_key = re.sub(r"\W+", "", source.title.lower())[:180]
+        if not (doi or title_key) or (doi and doi in seen_dois) or (title_key and title_key in seen_titles):
             continue
-        seen.add(key)
+        if doi:
+            seen_dois.add(doi)
+        if title_key:
+            seen_titles.add(title_key)
         output.append(source)
         if len(output) >= maximum:
             break
