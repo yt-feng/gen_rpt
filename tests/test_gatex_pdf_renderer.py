@@ -13,6 +13,7 @@ from gen_rpt.gatex_pdf_renderer import (
     _bar_chart_svg,
     COVER_TEXTURE_PATH,
     _deduplicated_word_text,
+    _whitepaper_css,
     release_classification,
     release_pdf_filename,
     render_gatex_release_pdf,
@@ -93,6 +94,13 @@ def test_bar_chart_reserves_space_for_long_category_labels() -> None:
     match = re.search(r"class='chart-category' x='([0-9.]+)'", svg)
     assert match is not None
     assert float(match.group(1)) >= 215
+
+
+def test_exhibit_sources_use_compact_atomic_columns() -> None:
+    css = _whitepaper_css()
+    assert ".whitepaper-exhibit > .whitepaper-footnotes" in css
+    assert "column-count: 2" in css
+    assert "break-inside: avoid-page" in css
 
 
 class GatexPdfRendererTests(unittest.TestCase):

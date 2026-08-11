@@ -1473,6 +1473,9 @@ p { orphans: 3; widows: 3; }
 .whitepaper-footnotes ol { margin: 1.5mm 0 0; padding-left: 5mm; }
 .whitepaper-footnotes li { margin-bottom: 1mm; }
 .whitepaper-footnotes a { color: #4f718f; text-decoration: none; border-bottom: .15mm solid #9eb2c4; }
+.whitepaper-exhibit > .whitepaper-footnotes { font-size: 5.4pt; line-height: 1.2; break-inside: avoid-page; }
+.whitepaper-exhibit > .whitepaper-footnotes ol { margin-top: 1mm; column-count: 2; column-gap: 7mm; column-fill: balance; }
+.whitepaper-exhibit > .whitepaper-footnotes li { margin-bottom: .6mm; break-inside: avoid; }
 .whitepaper-outlook { padding-top: 8mm; }
 .whitepaper-outlook h2 { max-width: 158mm; margin: 0 0 4mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 31pt; font-weight: 400; line-height: 1.05; }
 .outlook-deck { max-width: 145mm; margin-bottom: 8mm; color: #2777c9; font-size: 12.5pt; line-height: 1.38; }
