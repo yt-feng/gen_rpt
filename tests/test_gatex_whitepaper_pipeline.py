@@ -573,6 +573,14 @@ def test_dangling_search_result_ellipsis_is_removed_from_citation_title() -> Non
     assert _english_source_title(source) == "China's retail sales rose in the first half"
 
 
+def test_source_title_dashes_are_normalized_for_pdf_typography() -> None:
+    source = {
+        "title": "Electricity Mid-Year Update 2025 \u2013 Analysis \u2014 IEA",
+        "domain": "iea.org",
+    }
+    assert _english_source_title(source) == "Electricity Mid-Year Update 2025 - Analysis - IEA"
+
+
 def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
     panel = {
         "type": "comparison",

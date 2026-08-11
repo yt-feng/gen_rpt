@@ -1531,6 +1531,14 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
 
 def _english_source_title(source: Mapping[str, str]) -> str:
     title = _clean(source.get("title"), 500)
+    title = title.translate(str.maketrans({
+        "\u2010": "-",
+        "\u2011": "-",
+        "\u2012": "-",
+        "\u2013": "-",
+        "\u2014": "-",
+        "\u2212": "-",
+    }))
     title = re.sub(r"\s+(?:of|for|in)\s+\.{3}$", "", title, flags=re.IGNORECASE)
     title = re.sub(r"\s*\.{3}$", "", title).rstrip(" .")
     if not re.search(r"[\u3400-\u9fff]", title):
