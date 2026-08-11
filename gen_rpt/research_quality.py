@@ -34,6 +34,40 @@ AUTHORITY_DOMAIN_HINTS = (
     "stats.gov.cn",
 )
 
+# First-party technical evidence is primary evidence for product capabilities,
+# standards, benchmark methods and disclosed system specifications. It still
+# requires independent corroboration elsewhere in the source pack.
+TECHNICAL_AUTHORITY_DOMAIN_HINTS = (
+    "amd.com",
+    "arm.com",
+    "ashrae.org",
+    "broadcom.com",
+    "cxlconsortium.org",
+    "deepseek.com",
+    "huawei.com",
+    "iec.ch",
+    "ieee.org",
+    "ietf.org",
+    "intel.com",
+    "iso.org",
+    "jedec.org",
+    "lenovo.com",
+    "mlcommons.org",
+    "micron.com",
+    "nvidia.com",
+    "opencompute.org",
+    "pytorch.org",
+    "qualcomm.com",
+    "semi.org",
+    "semiconductors.org",
+    "samsung.com",
+    "skhynix.com",
+    "smics.com",
+    "tsmc.com",
+    "uciexpress.org",
+    "ultraethernet.org",
+)
+
 META_LABEL_PATTERNS = (
     "future action agenda",
     "what to watch",
@@ -755,7 +789,11 @@ def _is_authoritative(url: str) -> bool:
     domain = _domain(url)
     if not domain:
         return False
-    return any(hint in domain for hint in AUTHORITY_DOMAIN_HINTS) or domain.endswith(".gov") or ".gov." in domain
+    return (
+        any(hint in domain for hint in (*AUTHORITY_DOMAIN_HINTS, *TECHNICAL_AUTHORITY_DOMAIN_HINTS))
+        or domain.endswith(".gov")
+        or ".gov." in domain
+    )
 
 
 def _domain(url: str) -> str:

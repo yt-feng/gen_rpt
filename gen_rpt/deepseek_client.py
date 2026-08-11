@@ -4,6 +4,7 @@ import json
 import os
 import re
 import time
+from collections.abc import Mapping
 from typing import Any, Dict, List, Optional
 
 import requests
@@ -118,11 +119,28 @@ class DeepSeekClient:
         if requested_max_tokens > 0:
             payload["max_tokens"] = requested_max_tokens
         last_error = "unknown chat-completion failure"
-        for attempt in range(3):
-            response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+        attempts = _retry_attempts(use_apimart=self.use_apimart)
+        for attempt in range(attempts):
+            try:
+                response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+            except requests.RequestException as exc:
+                last_error = str(exc)
+                if attempt < attempts - 1:
+                    _sleep_before_retry(None, attempt, route="Chat Completions", error=last_error)
+                    continue
+                break
             if json_mode and response.status_code in {400, 422} and "response_format" in payload:
                 payload.pop("response_format", None)
-                response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+                try:
+                    response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+                except requests.RequestException as exc:
+                    last_error = str(exc)
+                    if attempt < attempts - 1:
+                        _sleep_before_retry(None, attempt, route="Chat Completions", error=last_error)
+                        continue
+                    break
+            if response.status_code >= 400 and not _retryable_status(response.status_code):
+                response.raise_for_status()
             try:
                 response.raise_for_status()
                 content = _completion_content(response)
@@ -131,8 +149,8 @@ class DeepSeekClient:
                 last_error = f"HTTP {response.status_code} returned an empty completion"
             except Exception as exc:
                 last_error = str(exc)
-            if attempt < 2:
-                time.sleep(2 ** attempt)
+            if attempt < attempts - 1:
+                _sleep_before_retry(response, attempt, route="Chat Completions", error=last_error)
         raise RuntimeError(f"Chat completion failed after retries: {last_error}")
 
     def _responses_chat(
@@ -192,8 +210,18 @@ class DeepSeekClient:
             payload["max_output_tokens"] = requested_max_tokens
 
         last_error = "unknown Responses API failure"
-        for attempt in range(3):
-            response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
+        attempts = _retry_attempts(use_apimart=True)
+        for attempt in range(attempts):
+            try:
+                response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
+            except requests.RequestException as exc:
+                last_error = str(exc)
+                if attempt < attempts - 1:
+                    _sleep_before_retry(None, attempt, route="Responses", error=last_error)
+                    continue
+                break
+            if response.status_code >= 400 and not _retryable_status(response.status_code):
+                response.raise_for_status()
             try:
                 response.raise_for_status()
                 content = _response_content(response)
@@ -202,7 +230,7 @@ class DeepSeekClient:
                 last_error = f"HTTP {response.status_code} returned an empty response"
             except _ResponseBudgetExhausted as exc:
                 last_error = str(exc)
-                if attempt < 2 and requested_max_tokens < maximum_output_tokens:
+                if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
                     requested_max_tokens = min(maximum_output_tokens, requested_max_tokens * 2)
                     payload["max_tokens"] = requested_max_tokens
                     payload["max_output_tokens"] = requested_max_tokens
@@ -214,8 +242,8 @@ class DeepSeekClient:
                     continue
             except Exception as exc:
                 last_error = str(exc)
-            if attempt < 2:
-                time.sleep(2 ** attempt)
+            if attempt < attempts - 1:
+                _sleep_before_retry(response, attempt, route="Responses", error=last_error)
         raise RuntimeError(f"Responses API call failed after retries: {last_error}")
 
     def chat_json(
@@ -673,6 +701,53 @@ def _int_env(name: str, default: int) -> int:
         return int(os.getenv(name, str(default)))
     except ValueError:
         return default
+
+
+def _float_env(name: str, default: float) -> float:
+    try:
+        return float(os.getenv(name, str(default)))
+    except ValueError:
+        return default
+
+
+def _retry_attempts(*, use_apimart: bool) -> int:
+    default = 5 if use_apimart else 3
+    name = "APIMART_RETRY_ATTEMPTS" if use_apimart else "DEEPSEEK_RETRY_ATTEMPTS"
+    return max(1, min(8, _int_env(name, default)))
+
+
+def _retryable_status(status_code: int) -> bool:
+    return status_code in {408, 409, 425, 429, 500, 502, 503, 504}
+
+
+def _retry_delay(response: requests.Response | None, attempt: int) -> float:
+    headers = getattr(response, "headers", {}) if response is not None else {}
+    if isinstance(headers, Mapping):
+        retry_after = str(headers.get("Retry-After") or "").strip()
+        if retry_after:
+            try:
+                return max(0.0, min(120.0, float(retry_after)))
+            except ValueError:
+                pass
+    base = max(0.0, _float_env("APIMART_RETRY_BASE_SECONDS", 5.0))
+    return min(60.0, base * (2 ** max(0, attempt)))
+
+
+def _sleep_before_retry(
+    response: requests.Response | None,
+    attempt: int,
+    *,
+    route: str,
+    error: str,
+) -> None:
+    delay = _retry_delay(response, attempt)
+    status = getattr(response, "status_code", "network") if response is not None else "network"
+    print(
+        f"[gatex.editorial] {route} retryable failure ({status}); "
+        f"waiting {delay:g}s before retry {attempt + 2}: {error[:240]}",
+        flush=True,
+    )
+    time.sleep(delay)
 
 
 def _bool_env(name: str, default: bool) -> bool:

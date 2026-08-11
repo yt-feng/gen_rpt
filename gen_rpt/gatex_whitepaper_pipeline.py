@@ -24,7 +24,7 @@ from pypdf import PdfReader
 from .deepseek_client import DeepSeekClient
 from .gatex_pdf_renderer import render_gatex_release_pdf, validate_gatex_pdf
 from .openalex_fetch import collect_openalex_sources
-from .research_quality import build_research_fact_pack
+from .research_quality import TECHNICAL_AUTHORITY_DOMAIN_HINTS, build_research_fact_pack
 from .web_evidence import build_evidence_ledger
 from .web_fetch import SourceDocument, collect_sources
 
@@ -204,6 +204,24 @@ INSTITUTIONAL_SOURCE_DOMAIN_TOKENS = (
     "economy.com",
 )
 
+TECHNICAL_TOPIC_TOKENS = (
+    "ai ",
+    "artificial intelligence",
+    "data centre",
+    "data center",
+    "hardware",
+    "large language model",
+    "llm",
+    "lithography",
+    "mlcc",
+    "model optimisation",
+    "model optimization",
+    "optical",
+    "robot",
+    "semiconductor",
+    "software",
+)
+
 
 def _clean(value: Any, maximum: int = 20_000) -> str:
     return re.sub(r"\s+", " ", str(value or "")).strip()[:maximum]
@@ -250,7 +268,14 @@ def _progress(stage: str, percent: int, message: str, eta_minutes: int) -> None:
 
 def _fallback_queries(topic: str) -> list[str]:
     subject = _clean(topic, 500)
-    return [
+    technical = any(token in f"{subject.lower()} " for token in TECHNICAL_TOPIC_TOKENS)
+    technical_queries = [
+        f"{subject} official technical report benchmark methodology specification filetype:pdf",
+        f"{subject} standards body reference architecture official documentation",
+        f"{subject} first-party product documentation performance power capacity filetype:pdf",
+        f"{subject} company filing technical white paper 2025 2026 filetype:pdf",
+    ]
+    general_queries = [
         f"{subject} official statistics 2025 2026 filetype:pdf",
         f"{subject} government ministry regulator release 2025 2026",
         f"{subject} official market data capacity investment 2025 2026",
@@ -264,6 +289,7 @@ def _fallback_queries(topic: str) -> list[str]:
         f"{subject} cross-border investment trade official statistics",
         f"{subject} risks constraints implementation evidence 2025 2026",
     ]
+    return [*technical_queries, *general_queries] if technical else general_queries
 
 
 def _source_document(value: SourceDocument | Mapping[str, Any]) -> SourceDocument | None:
@@ -392,6 +418,7 @@ Brief: {brief}
 
 Requirements:
 - Prioritise primary government data, securities-exchange statistics, regulator releases, company filings and downloadable PDF reports.
+- For technology topics, prioritise standards bodies, benchmark methodologies, official technical reports and first-party product documentation; do not substitute generic market-research aggregators.
 - Infer the relevant geography, institutions, industries and time horizon from the topic and brief.
 - Cover current conditions, historical context, operating capacity, capital formation, policy, constraints and a source-grounded outlook where relevant.
 - Include cross-border links only when the topic or brief calls for them; never assume a connection exists.
@@ -404,7 +431,7 @@ Return: {{"queries":["query 1","query 2"]}}""",
         )
         generated = [_clean(item, 320) for item in planned.get("queries") or [] if _clean(item, 320)]
         if len(generated) >= 8:
-            queries = generated[:10] + fallback[:4]
+            queries = fallback[:4] + generated[:10]
     except Exception as exc:
         print(f"[gatex.whitepaper] query planner fallback: {exc}", flush=True)
     queries = list(dict.fromkeys(queries))[:14]
@@ -447,7 +474,7 @@ def _source_tier(source: Mapping[str, Any]) -> str:
         return "ACADEMIC"
     domain = str(source.get("domain") or urllib.parse.urlparse(str(source.get("url") or "")).netloc).lower()
     title = str(source.get("title") or "").lower()
-    if any(token in domain for token in PRIMARY_SOURCE_DOMAIN_TOKENS):
+    if any(token in domain for token in (*PRIMARY_SOURCE_DOMAIN_TOKENS, *TECHNICAL_AUTHORITY_DOMAIN_HINTS)):
         return "PRIMARY"
     if any(token in domain for token in INSTITUTIONAL_SOURCE_DOMAIN_TOKENS):
         return "INSTITUTIONAL"

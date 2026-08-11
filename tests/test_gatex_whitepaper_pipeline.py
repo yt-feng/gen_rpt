@@ -11,6 +11,7 @@ from unittest import mock
 from PIL import Image
 
 from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _response_content
+from gen_rpt.research_quality import build_research_fact_pack
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _chart_label_issues,
@@ -156,6 +157,84 @@ def test_apimart_responses_increases_exhausted_output_budget() -> None:
 
     assert post.call_args_list[0].kwargs["json"]["max_tokens"] == 24_000
     assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 48_000
+
+
+def test_apimart_responses_retries_transient_500() -> None:
+    failed = mock.Mock()
+    failed.status_code = 500
+    failed.headers = {}
+    failed.raise_for_status.side_effect = RuntimeError("upstream 500")
+    complete = mock.Mock()
+    complete.status_code = 200
+    complete.headers = {}
+    complete.raise_for_status.return_value = None
+    complete.json.return_value = {"output_text": '{"status":"ready"}'}
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_RETRY_ATTEMPTS": "3",
+        "APIMART_RETRY_BASE_SECONDS": "0",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with (
+            mock.patch("gen_rpt.deepseek_client.requests.post", side_effect=[failed, failed, complete]) as post,
+            mock.patch("gen_rpt.deepseek_client.time.sleep") as sleep,
+        ):
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat_json([{"role": "user", "content": "Return JSON."}]) == {"status": "ready"}
+    assert post.call_count == 3
+    assert sleep.call_count == 2
+
+
+def test_apimart_responses_honours_retry_after_on_429() -> None:
+    limited = mock.Mock()
+    limited.status_code = 429
+    limited.headers = {"Retry-After": "7"}
+    limited.raise_for_status.side_effect = RuntimeError("rate limited")
+    complete = mock.Mock()
+    complete.status_code = 200
+    complete.headers = {}
+    complete.raise_for_status.return_value = None
+    complete.json.return_value = {"output_text": '{"status":"ready"}'}
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_RETRY_ATTEMPTS": "2",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with (
+            mock.patch("gen_rpt.deepseek_client.requests.post", side_effect=[limited, complete]),
+            mock.patch("gen_rpt.deepseek_client.time.sleep") as sleep,
+        ):
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat_json([{"role": "user", "content": "Return JSON."}]) == {"status": "ready"}
+    sleep.assert_called_once_with(7.0)
+
+
+def test_apimart_responses_does_not_retry_authentication_error() -> None:
+    denied = mock.Mock()
+    denied.status_code = 401
+    denied.headers = {}
+    denied.raise_for_status.side_effect = RuntimeError("unauthorised")
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_RETRY_ATTEMPTS": "5",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with (
+            mock.patch("gen_rpt.deepseek_client.requests.post", return_value=denied) as post,
+            mock.patch("gen_rpt.deepseek_client.time.sleep") as sleep,
+        ):
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            try:
+                client.chat_json([{"role": "user", "content": "Return JSON."}])
+            except RuntimeError as exc:
+                assert "unauthorised" in str(exc)
+            else:
+                raise AssertionError("Authentication failures must stop immediately.")
+    assert post.call_count == 1
+    sleep.assert_not_called()
 
 
 def test_editorial_client_fails_over_once_and_keeps_using_backup() -> None:
@@ -347,6 +426,29 @@ def test_academic_sources_are_context_not_authoritative_evidence() -> None:
     assert _source_tier(academic) == "ACADEMIC"
 
 
+def test_first_party_technical_sources_are_primary_evidence() -> None:
+    domains = ("ultraethernet.org", "ashrae.org", "nvidia.com", "intel.com")
+    sources = [
+        SourceDocument(
+            title=f"Official technical specification {index}",
+            url=f"https://{domain}/technical-report-{index}.pdf",
+            query="official technical specification",
+            snippet="Documented performance, power and operating specifications.",
+            content="Documented performance, power and operating specifications. " * 20,
+            source_type="pdf",
+            domain=domain,
+        )
+        for index, domain in enumerate(domains, start=1)
+    ]
+    fact_pack = build_research_fact_pack(
+        "AI hardware systems",
+        {"objective": "AI hardware systems", "decision_question": "What is documented?"},
+        sources,
+    )
+    assert fact_pack.authoritative_source_count == 4
+    assert all(_source_tier(source.__dict__) == "PRIMARY" for source in sources)
+
+
 def test_source_packet_does_not_let_academic_sources_replace_primary_sources() -> None:
     sources = [
         {
@@ -389,6 +491,12 @@ def test_fallback_queries_follow_the_requested_topic() -> None:
     assert len(queries) >= 10
     assert all("UAE energy ecosystem investment outlook" in query for query in queries)
     assert not any("STAR Market" in query or "China industrial robotics" in query for query in queries)
+
+
+def test_technical_fallback_queries_start_with_primary_technical_evidence() -> None:
+    queries = _fallback_queries("AI hardware systems and optical interconnects")
+    assert "official technical report" in queries[0]
+    assert "standards body" in queries[1]
 
 
 def test_black_image_is_rejected() -> None:
