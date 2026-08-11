@@ -6,6 +6,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import fitz
+import pikepdf
 from pypdf import PdfReader
 
 from gen_rpt.gatex_pdf_renderer import (
@@ -164,19 +165,32 @@ class GatexPdfRendererTests(unittest.TestCase):
             self.assertEqual(artifact["contentType"], "application/pdf")
             self.assertGreaterEqual(artifact["pageCount"], 4)
             self.assertTrue(artifact["qa"]["passed"])
+            self.assertTrue(artifact["qa"]["fastWebView"])
+            self.assertTrue(artifact["optimization"]["linearized"])
+            self.assertGreaterEqual(artifact["optimization"]["optimizedImageCount"], 2)
+            self.assertLess(artifact["optimization"]["finalByteSize"], artifact["optimization"]["originalByteSize"])
             self.assertRegex(artifact["sha256"], r"^[0-9a-f]{64}$")
+            with pikepdf.open(path) as optimized_pdf:
+                self.assertTrue(optimized_pdf.is_linearized)
             with fitz.open(path) as document:
                 cover_text = document[0].get_text("text")
                 back_text = document[-1].get_text("text")
                 full_text = "\n".join(page.get_text("text") for page in document)
                 cover_images = document[0].get_images(full=True)
                 back_images = document[-1].get_images(full=True)
+                oversized_lossless_cover_images = [
+                    row
+                    for page in (document[0], document[-1])
+                    for row in page.get_images(full=True)
+                    if row[8] == "FlateDecode" and row[2] >= 1600 and row[3] >= 1600
+                ]
             self.assertIn(payload["summary"], cover_text)
             self.assertNotIn(payload["subtitle"], cover_text)
             self.assertIn(payload["title"], back_text.replace("\n", " "))
             self.assertRegex(full_text, r"governance\s+control a condition")
             self.assertGreaterEqual(len(cover_images), 2)
             self.assertGreaterEqual(len(back_images), 2)
+            self.assertEqual(oversized_lossless_cover_images, [])
 
             metadata = PdfReader(str(path)).metadata
             self.assertEqual(metadata.author, "GateX")

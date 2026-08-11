@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Mapping, Sequence
 
 import fitz
+import pikepdf
+from PIL import Image
 from playwright.sync_api import sync_playwright
 from pypdf import PdfReader, PdfWriter
 from reportlab.lib.colors import HexColor
@@ -23,6 +25,8 @@ from reportlab.pdfgen import canvas
 PDF_MIME_TYPE = "application/pdf"
 PDF_SCHEMA = "gatex-pdf-release/v1"
 MAX_PDF_BYTES = 50 * 1024 * 1024
+DELIVERY_IMAGE_MAX_SIZE = (1800, 2546)
+DELIVERY_JPEG_QUALITY = 88
 BRANDING_DIR = Path(__file__).resolve().parents[1] / "branding"
 COVER_TEXTURE_PATH = BRANDING_DIR / "gatex-cover-paper-v2.jpg"
 G_MARK_PATH = BRANDING_DIR / "gatex-g-mark-white.png"
@@ -88,8 +92,11 @@ def render_gatex_release_pdf(
         _render_html(body_html, body_pdf, browser_executable=browser_executable)
         _render_html(back_html, back_pdf, browser_executable=browser_executable)
         _assemble_pdf(cover_pdf, body_pdf, back_pdf, pdf_path, report)
+        optimization = _optimize_pdf_for_delivery(pdf_path, work_dir)
 
     qa = validate_gatex_pdf(pdf_path, expected_title=str(report["title"]))
+    qa["fastWebView"] = optimization["linearized"]
+    qa["optimizedImageCount"] = optimization["optimizedImageCount"]
     byte_size = pdf_path.stat().st_size
     if byte_size > MAX_PDF_BYTES:
         pdf_path.unlink(missing_ok=True)
@@ -106,7 +113,80 @@ def render_gatex_release_pdf(
         "title": report["title"],
         "versionId": report.get("versionId"),
         "versionNo": report.get("versionNo"),
+        "optimization": optimization,
         "qa": qa,
+    }
+
+
+def _optimize_pdf_for_delivery(pdf_path: Path, work_dir: Path) -> Dict[str, Any]:
+    """Recompress full-page cover layers while preserving vector body content."""
+    original_size = pdf_path.stat().st_size
+    image_optimized_path = work_dir / "delivery-images.pdf"
+    linearized_path = work_dir / "delivery-linearized.pdf"
+    optimized_images = 0
+
+    try:
+        document = fitz.open(pdf_path)
+        try:
+            cover_pages = {0, document.page_count - 1}
+            candidates: Dict[int, int] = {}
+            for page_number in cover_pages:
+                page = document.load_page(page_number)
+                for row in page.get_images(full=True):
+                    xref, _, width, height, _, _, _, _, filter_name, _ = row
+                    if filter_name == "FlateDecode" and width >= 1600 and height >= 1600:
+                        candidates[xref] = page_number
+
+            for xref, page_number in candidates.items():
+                source = document.extract_image(xref).get("image")
+                if not source:
+                    continue
+                with Image.open(io.BytesIO(source)) as image:
+                    image = image.convert("RGB")
+                    image.thumbnail(DELIVERY_IMAGE_MAX_SIZE, Image.Resampling.LANCZOS)
+                    buffer = io.BytesIO()
+                    image.save(
+                        buffer,
+                        format="JPEG",
+                        quality=DELIVERY_JPEG_QUALITY,
+                        subsampling=0,
+                        optimize=True,
+                        progressive=False,
+                    )
+                document.load_page(page_number).replace_image(xref, stream=buffer.getvalue())
+                optimized_images += 1
+
+            document.save(
+                image_optimized_path,
+                garbage=4,
+                clean=True,
+                deflate=True,
+                deflate_images=True,
+                deflate_fonts=True,
+            )
+        finally:
+            document.close()
+
+        with pikepdf.open(image_optimized_path) as optimized_pdf:
+            optimized_pdf.save(
+                linearized_path,
+                linearize=True,
+                compress_streams=True,
+                recompress_flate=True,
+                object_stream_mode=pikepdf.ObjectStreamMode.generate,
+            )
+        linearized_path.replace(pdf_path)
+    except Exception as exc:
+        raise GatexPdfError(f"PDF delivery optimization failed: {exc}") from exc
+
+    final_size = pdf_path.stat().st_size
+    return {
+        "linearized": True,
+        "optimizedImageCount": optimized_images,
+        "originalByteSize": original_size,
+        "finalByteSize": final_size,
+        "savedByteSize": max(0, original_size - final_size),
+        "compressionRatio": round(final_size / max(original_size, 1), 4),
     }
 
 
