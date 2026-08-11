@@ -756,7 +756,18 @@ def _bool_env(name: str, default: bool) -> bool:
 
 
 def _requested_output_tokens(max_tokens: Optional[int], *, use_apimart: bool) -> int:
-    requested = max_tokens if max_tokens is not None else _int_env("DEEPSEEK_MAX_TOKENS", 0)
+    if max_tokens is not None:
+        requested = max(0, int(max_tokens))
+        if use_apimart:
+            # Responses budgets include hidden reasoning tokens. Scale the
+            # requested visible JSON budget without forcing every call to the
+            # global 24k floor, which can overflow the gateway context window
+            # when the evidence packet is large.
+            multiplier = max(1.0, min(8.0, _float_env("APIMART_EXPLICIT_TOKEN_MULTIPLIER", 3.0)))
+            explicit_floor = max(0, _int_env("APIMART_EXPLICIT_MIN_OUTPUT_TOKENS", 0))
+            requested = max(explicit_floor, int(requested * multiplier))
+        return requested
+    requested = _int_env("DEEPSEEK_MAX_TOKENS", 0)
     if use_apimart:
         requested = max(requested, _int_env("APIMART_MIN_OUTPUT_TOKENS", 16_000))
     return requested

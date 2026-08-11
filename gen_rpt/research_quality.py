@@ -43,7 +43,13 @@ TECHNICAL_AUTHORITY_DOMAIN_HINTS = (
     "ashrae.org",
     "broadcom.com",
     "cxlconsortium.org",
+    "cloud.baidu.com",
+    "cloud.google.com",
     "deepseek.com",
+    "developer.baidu.com",
+    "developers.google.com",
+    "ernie.baidu.com",
+    "huggingface.co",
     "huawei.com",
     "iec.ch",
     "ieee.org",
@@ -54,8 +60,11 @@ TECHNICAL_AUTHORITY_DOMAIN_HINTS = (
     "lenovo.com",
     "mlcommons.org",
     "micron.com",
+    "microsoft.com",
     "nvidia.com",
+    "onnx.ai",
     "opencompute.org",
+    "openai.com",
     "pytorch.org",
     "qualcomm.com",
     "semi.org",
@@ -66,6 +75,7 @@ TECHNICAL_AUTHORITY_DOMAIN_HINTS = (
     "tsmc.com",
     "uciexpress.org",
     "ultraethernet.org",
+    "vllm.ai",
 )
 
 META_LABEL_PATTERNS = (

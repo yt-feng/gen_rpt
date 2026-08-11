@@ -267,7 +267,7 @@ def _progress(stage: str, percent: int, message: str, eta_minutes: int) -> None:
 
 
 def _fallback_queries(topic: str) -> list[str]:
-    subject = _clean(topic, 500)
+    subject = _fallback_query_subject(topic)
     technical = any(token in f"{subject.lower()} " for token in TECHNICAL_TOPIC_TOKENS)
     technical_queries = [
         f"{subject} official technical report benchmark methodology specification filetype:pdf",
@@ -290,6 +290,19 @@ def _fallback_queries(topic: str) -> list[str]:
         f"{subject} risks constraints implementation evidence 2025 2026",
     ]
     return [*technical_queries, *general_queries] if technical else general_queries
+
+
+def _fallback_query_subject(topic: str) -> str:
+    subject = _clean(topic, 500)
+    concise = re.split(
+        r"\b(?:through|covering|focusing on|with emphasis on|prioritise|prioritize)\b",
+        subject,
+        maxsplit=1,
+        flags=re.IGNORECASE,
+    )[0].strip(" ,.;:-")
+    if 12 <= len(concise) <= 180:
+        return concise
+    return subject[:180].rsplit(" ", 1)[0].strip(" ,.;:-") or subject[:180]
 
 
 def _source_document(value: SourceDocument | Mapping[str, Any]) -> SourceDocument | None:
@@ -428,6 +441,7 @@ Return: {{"queries":["query 1","query 2"]}}""",
                 },
             ],
             temperature=0.05,
+            max_tokens=2_000,
         )
         generated = [_clean(item, 320) for item in planned.get("queries") or [] if _clean(item, 320)]
         if len(generated) >= 8:
@@ -642,8 +656,8 @@ def _architecture_prompt(
     sources: Sequence[Mapping[str, str]],
     evidence: Sequence[Mapping[str, Any]],
 ) -> str:
-    source_packet = _compact_source_packet(sources=sources, excerpt_chars=1_200, maximum_chars=24_000)
-    evidence_packet = json.dumps(list(evidence)[:20], ensure_ascii=False)[:14_000]
+    source_packet = _compact_source_packet(sources=sources, excerpt_chars=900, maximum_chars=16_000)
+    evidence_packet = json.dumps(list(evidence)[:18], ensure_ascii=False)[:10_000]
     return f"""
 Design the publication architecture and exhibits for a client-ready English GateX white paper. Do not write the long-form chapter prose yet.
 

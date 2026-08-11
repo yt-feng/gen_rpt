@@ -56,7 +56,7 @@ def test_deepseek_model_keeps_deepseek_endpoint() -> None:
     assert client.base_url == "https://api.deepseek.com/v1"
 
 
-def test_apimart_sol_uses_responses_pro_max_with_expanded_budget() -> None:
+def test_apimart_sol_uses_responses_pro_max_with_step_sized_budget() -> None:
     response = mock.Mock()
     response.status_code = 200
     response.json.return_value = {
@@ -74,6 +74,7 @@ def test_apimart_sol_uses_responses_pro_max_with_expanded_budget() -> None:
         "APIMART_REASONING_EFFORT": "max",
         "APIMART_REASONING_MODE": "pro",
         "APIMART_MIN_OUTPUT_TOKENS": "16000",
+        "APIMART_EXPLICIT_TOKEN_MULTIPLIER": "3",
         "APIMART_ALLOW_CHAT_FALLBACK": "false",
     }
     with mock.patch.dict(os.environ, environment, clear=False):
@@ -89,8 +90,25 @@ def test_apimart_sol_uses_responses_pro_max_with_expanded_budget() -> None:
     assert url == "https://api.apimart.ai/v1/responses"
     assert payload["model"] == "gpt-5.6-sol"
     assert payload["reasoning"] == {"effort": "max", "mode": "pro"}
-    assert payload["max_output_tokens"] == 16_000
-    assert payload["max_tokens"] == 16_000
+    assert payload["max_output_tokens"] == 3_000
+    assert payload["max_tokens"] == 3_000
+
+
+def test_apimart_uses_global_floor_when_call_has_no_explicit_budget() -> None:
+    response = mock.Mock()
+    response.status_code = 200
+    response.json.return_value = {"output_text": "ready"}
+    response.raise_for_status.return_value = None
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_MIN_OUTPUT_TOKENS": "16000",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch("gen_rpt.deepseek_client.requests.post", return_value=response) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat([{"role": "user", "content": "Return text."}]) == "ready"
+    assert post.call_args.kwargs["json"]["max_tokens"] == 16_000
 
 
 def test_responses_parser_accepts_apimart_wrapped_choices() -> None:
@@ -143,6 +161,7 @@ def test_apimart_responses_increases_exhausted_output_budget() -> None:
         "APIMART_REASONING_MODE": "pro",
         "APIMART_MIN_OUTPUT_TOKENS": "24000",
         "APIMART_MAX_OUTPUT_TOKENS": "64000",
+        "APIMART_EXPLICIT_TOKEN_MULTIPLIER": "3",
     }
     with mock.patch.dict(os.environ, environment, clear=False):
         with mock.patch(
@@ -155,8 +174,8 @@ def test_apimart_responses_increases_exhausted_output_budget() -> None:
                 max_tokens=1_000,
             ) == {"status": "ready"}
 
-    assert post.call_args_list[0].kwargs["json"]["max_tokens"] == 24_000
-    assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 48_000
+    assert post.call_args_list[0].kwargs["json"]["max_tokens"] == 3_000
+    assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 6_000
 
 
 def test_apimart_responses_retries_transient_500() -> None:
@@ -497,6 +516,16 @@ def test_technical_fallback_queries_start_with_primary_technical_evidence() -> N
     queries = _fallback_queries("AI hardware systems and optical interconnects")
     assert "official technical report" in queries[0]
     assert "standards body" in queries[1]
+
+
+def test_long_technical_topic_is_condensed_before_search() -> None:
+    topic = (
+        "AI software and model optimisation through 11 August 2026, covering quantisation, distillation, sparsity, "
+        "mixture-of-experts routing, inference serving, compilers, memory management and workload economics."
+    )
+    queries = _fallback_queries(topic)
+    assert all("through 11 August" not in query for query in queries)
+    assert all(len(query) < 260 for query in queries)
 
 
 def test_black_image_is_rejected() -> None:
