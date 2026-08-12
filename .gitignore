@@ -5,6 +5,7 @@ venv/
 r2_validation.py
 r2_validation_report.md
 worklog.md
+worklog_audit_and_commit_crosscheck.md
 .env
 .DS_Store
 .tmp_*/
