@@ -96,6 +96,28 @@ def test_bar_chart_reserves_space_for_long_category_labels() -> None:
     assert float(match.group(1)) >= 215
 
 
+def test_bar_chart_keeps_ten_row_period_comparisons() -> None:
+    labels = [
+        "AI-chip total, 2022-2024",
+        "GPGPU, 2022-2024",
+        "ASIC total, 2022-2024",
+        "NPU, 2022-2024",
+        "Other ASIC, 2022-2024",
+        "AI-chip total, 2025E-2029E",
+        "GPGPU, 2025E-2029E",
+        "ASIC total, 2025E-2029E",
+        "NPU, 2025E-2029E",
+        "Other ASIC, 2025E-2029E",
+    ]
+    svg = _bar_chart_svg(
+        {"items": [{"label": label, "value": index + 1} for index, label in enumerate(labels)]}
+    )
+
+    assert all(label in svg for label in labels)
+    assert svg.count("class='chart-category'") == 10
+    assert "viewBox='0 0 760 464'" in svg
+
+
 def test_exhibit_sources_use_compact_atomic_columns() -> None:
     css = _whitepaper_css()
     assert ".whitepaper-exhibit > .whitepaper-footnotes" in css

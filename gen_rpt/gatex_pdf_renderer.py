@@ -1009,7 +1009,9 @@ def _waterfall_chart_svg(panel: Mapping[str, Any]) -> str:
 
 
 def _bar_chart_svg(panel: Mapping[str, Any]) -> str:
-    items = [item for item in _list(panel.get("items")) if isinstance(item, Mapping)][:9]
+    # Editorial exhibits may compare two five-category periods. Keep the full
+    # comparison and let the viewBox grow with the number of rows.
+    items = [item for item in _list(panel.get("items")) if isinstance(item, Mapping)][:12]
     if not items:
         return ""
     values = [_number(item.get("value")) for item in items]
