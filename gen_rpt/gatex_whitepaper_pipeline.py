@@ -743,20 +743,20 @@ def _panel_renderability_issue(panel: Mapping[str, Any]) -> str:
         series = [item for item in panel.get("series") or [] if isinstance(item, Mapping)]
         valid_series = [item for item in series if len(item.get("values") or []) >= 2]
         fallback_values = [item for item in items if item.get("label") and item.get("value") is not None]
-        has_depth = any(len(item.get("values") or []) >= 4 for item in valid_series)
-        return "line chart requires at least four labelled observations" if not has_depth and len(fallback_values) < 4 else ""
+        has_depth = any(len(item.get("values") or []) >= 3 for item in valid_series)
+        return "line chart requires at least three labelled observations" if not has_depth and len(fallback_values) < 3 else ""
     if kind in {"scatter", "scatter_plot"}:
         valid_rows = [item for item in items if item.get("label") and item.get("x") is not None and item.get("y") is not None]
         return "scatter chart requires at least four labelled x/y points" if len(valid_rows) < 4 else ""
     if kind in {"stacked_bar", "stacked_bars"}:
         valid_rows = [item for item in items if item.get("label") and len(item.get("segments") or []) >= 2]
-        return "stacked bars require at least three rows with two or more segments" if len(valid_rows) < 3 else ""
+        return "stacked bars require at least one complete composition row" if not valid_rows else ""
     if kind in {"waterfall", "waterfall_chart"}:
         valid_rows = [item for item in items if item.get("label") and item.get("value") is not None]
         return "waterfall chart requires at least four labelled values" if len(valid_rows) < 4 else ""
     if kind == "bars":
         valid_rows = [item for item in items if item.get("label") and item.get("value") is not None]
-        return "bar chart requires at least four labelled values" if len(valid_rows) < 4 else ""
+        return "bar chart requires at least three labelled values" if len(valid_rows) < 3 else ""
     if kind == "scenario":
         valid_rows = [item for item in items if item.get("label") and (item.get("range") or item.get("value")) and item.get("body")]
         return "scenario panel requires at least three complete scenarios" if len(valid_rows) < 3 else ""
@@ -766,6 +766,13 @@ def _panel_renderability_issue(panel: Mapping[str, Any]) -> str:
     if kind in {"process", "matrix", "market_map", "market_layers"}:
         valid_rows = [item for item in items if (item.get("title") or item.get("label")) and item.get("body")]
         return f"{kind} panel requires at least four complete items" if len(valid_rows) < 4 else ""
+    if kind == "vehicle_scale":
+        valid_rows = [
+            item
+            for item in items
+            if item.get("label") and item.get("height") is not None and item.get("diameter") is not None and item.get("payload")
+        ]
+        return "vehicle scale requires at least three complete systems" if len(valid_rows) < 3 else ""
     return f"unsupported panel type: {kind}"
 
 

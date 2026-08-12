@@ -737,6 +737,50 @@ def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
     assert _panel_renderability_issue(normalized) == ""
 
 
+def test_complete_compact_charts_are_renderable() -> None:
+    assert _panel_renderability_issue(
+        {
+            "type": "line",
+            "xLabels": ["2024", "2025E", "2026E"],
+            "series": [{"name": "Real GDP", "values": [2.0, 3.6, 3.9]}],
+        }
+    ) == ""
+    assert _panel_renderability_issue(
+        {
+            "type": "bars",
+            "items": [
+                {"label": "Revenue", "value": 305.9},
+                {"label": "Expenditure", "value": 350.1},
+                {"label": "Deficit", "value": 44.0},
+            ],
+        }
+    ) == ""
+    assert _panel_renderability_issue(
+        {
+            "type": "stacked_bar",
+            "items": [
+                {
+                    "label": "Sales mix",
+                    "segments": [
+                        {"label": "Battery electric", "value": 67},
+                        {"label": "Other", "value": 33},
+                    ],
+                }
+            ],
+        }
+    ) == ""
+    assert _panel_renderability_issue(
+        {
+            "type": "vehicle_scale",
+            "items": [
+                {"label": "A", "height": 70, "diameter": 3.7, "payload": "22.8 t"},
+                {"label": "B", "height": 124.4, "diameter": 9, "payload": ">100 t"},
+                {"label": "C", "height": 114, "diameter": 10.6, "payload": "50 t"},
+            ],
+        }
+    ) == ""
+
+
 def test_sparse_exhibit_is_rejected_even_when_the_panel_is_structurally_valid() -> None:
     exhibit = {
         "metrics": [{"value": "4.3%"}, {"value": "5.4%"}],
