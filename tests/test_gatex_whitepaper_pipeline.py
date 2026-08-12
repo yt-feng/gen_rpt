@@ -302,6 +302,52 @@ def test_completion_parser_accepts_sse_fallback() -> None:
     assert _completion_content(response) == "GateX"
 
 
+def test_deepseek_retries_reasoning_only_completion_with_larger_budget() -> None:
+    exhausted = mock.Mock()
+    exhausted.status_code = 200
+    exhausted.headers = {}
+    exhausted.raise_for_status.return_value = None
+    exhausted.json.return_value = {
+        "choices": [
+            {
+                "finish_reason": "length",
+                "message": {"content": "", "reasoning_content": "private reasoning"},
+            }
+        ],
+        "usage": {
+            "completion_tokens": 5_500,
+            "completion_tokens_details": {"reasoning_tokens": 5_500},
+        },
+    }
+    complete = mock.Mock()
+    complete.status_code = 200
+    complete.headers = {}
+    complete.raise_for_status.return_value = None
+    complete.json.return_value = {
+        "choices": [{"finish_reason": "stop", "message": {"content": '{"status":"ready"}'}}],
+        "usage": {"completion_tokens": 12},
+    }
+    environment = {
+        "DEEPSEEK_API_KEY": "test-key",
+        "DEEPSEEK_MAX_TOKENS": "16000",
+        "DEEPSEEK_RETRY_ATTEMPTS": "3",
+        "APIMART_RETRY_BASE_SECONDS": "0",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            side_effect=[exhausted, complete],
+        ) as post:
+            client = DeepSeekClient(model="deepseek-v4-pro")
+            assert client.chat_json(
+                [{"role": "user", "content": "Return JSON."}],
+                max_tokens=5_500,
+            ) == {"status": "ready"}
+
+    assert post.call_args_list[0].kwargs["json"]["max_tokens"] == 5_500
+    assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 11_000
+
+
 def test_source_packet_prefers_official_and_requires_https() -> None:
     sources = []
     for index in range(8):

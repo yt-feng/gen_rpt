@@ -118,11 +118,17 @@ class DeepSeekClient:
         requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=self.use_apimart)
         if requested_max_tokens > 0:
             payload["max_tokens"] = requested_max_tokens
+        maximum_output_tokens = requested_max_tokens
+        if not self.use_apimart and requested_max_tokens > 0:
+            maximum_output_tokens = max(
+                requested_max_tokens,
+                _int_env("DEEPSEEK_MAX_TOKENS", requested_max_tokens),
+            )
         last_error = "unknown chat-completion failure"
         attempts = _retry_attempts(use_apimart=self.use_apimart)
         for attempt in range(attempts):
             try:
-                response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+                response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
             except requests.RequestException as exc:
                 last_error = str(exc)
                 if attempt < attempts - 1:
@@ -132,7 +138,7 @@ class DeepSeekClient:
             if json_mode and response.status_code in {400, 422} and "response_format" in payload:
                 payload.pop("response_format", None)
                 try:
-                    response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
+                    response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
                 except requests.RequestException as exc:
                     last_error = str(exc)
                     if attempt < attempts - 1:
@@ -146,7 +152,21 @@ class DeepSeekClient:
                 content = _completion_content(response)
                 if content.strip():
                     return content
-                last_error = f"HTTP {response.status_code} returned an empty completion"
+                last_error = _empty_completion_diagnostic(response)
+            except _ResponseBudgetExhausted as exc:
+                last_error = str(exc)
+                if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
+                    requested_max_tokens = min(
+                        maximum_output_tokens,
+                        max(requested_max_tokens + 2_000, requested_max_tokens * 2),
+                    )
+                    payload["max_tokens"] = requested_max_tokens
+                    print(
+                        "[gatex.editorial] DeepSeek spent the response budget before emitting the final answer; "
+                        f"retrying with {requested_max_tokens} output tokens. {last_error[:240]}",
+                        flush=True,
+                    )
+                    continue
             except Exception as exc:
                 last_error = str(exc)
             if attempt < attempts - 1:
@@ -325,7 +345,18 @@ def _uses_apimart(model: str) -> bool:
 def _completion_content(response: requests.Response) -> str:
     try:
         data = response.json()
-        return str(data["choices"][0]["message"]["content"] or "")
+        choice = data["choices"][0]
+        message = choice["message"]
+        content = str(message.get("content") or "")
+        if content.strip():
+            return content
+        finish_reason = str(choice.get("finish_reason") or "").lower()
+        reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
+        if finish_reason in {"length", "max_tokens"} or str(reasoning).strip():
+            raise _ResponseBudgetExhausted(_empty_completion_diagnostic(response))
+        return ""
+    except _ResponseBudgetExhausted:
+        raise
     except (ValueError, KeyError, IndexError, TypeError):
         chunks: List[str] = []
         for line in response.text.splitlines():
@@ -348,6 +379,33 @@ def _completion_content(response: requests.Response) -> str:
             return "".join(chunks)
         excerpt = response.text[:500].strip()
         raise ValueError(f"Chat endpoint returned invalid JSON: {excerpt or '<empty body>'}")
+
+
+def _empty_completion_diagnostic(response: requests.Response) -> str:
+    """Describe an empty completion without logging prompt or reasoning text."""
+
+    try:
+        data = response.json()
+    except ValueError:
+        return f"HTTP {response.status_code} returned an empty completion"
+    try:
+        choice = (data.get("choices") or [{}])[0]
+        message = choice.get("message") if isinstance(choice, dict) else {}
+        message = message if isinstance(message, dict) else {}
+        reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
+        usage = data.get("usage") if isinstance(data.get("usage"), dict) else {}
+        details = usage.get("completion_tokens_details")
+        details = details if isinstance(details, dict) else {}
+        finish_reason = str(choice.get("finish_reason") or "unknown")
+        completion_tokens = usage.get("completion_tokens", "unknown")
+        reasoning_tokens = usage.get("reasoning_tokens") or details.get("reasoning_tokens") or "unknown"
+        return (
+            f"HTTP {response.status_code} returned an empty completion "
+            f"(finish_reason={finish_reason}, completion_tokens={completion_tokens}, "
+            f"reasoning_tokens={reasoning_tokens}, reasoning_chars={len(str(reasoning))})"
+        )
+    except (AttributeError, IndexError, TypeError):
+        return f"HTTP {response.status_code} returned an empty completion"
 
 
 def _response_content(response: requests.Response) -> str:
