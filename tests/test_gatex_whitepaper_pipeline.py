@@ -39,6 +39,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _publication_copy_projection,
     _sanitize_architecture_copy,
     _sanitize_chapter_copy,
+    _sanitize_visual_brief,
     _reporting_period_issues,
     _sanitize_research_sources,
     _source_packet,
@@ -752,6 +753,19 @@ def test_valid_cached_visual_is_reused_without_api_call() -> None:
             result = _generate_visuals(content, target_dir)
         download.assert_not_called()
         assert result["chapter-1"]["path"].endswith("chapter-1.jpg")
+
+
+def test_visual_brief_removes_text_bearing_display_instructions() -> None:
+    brief = _sanitize_visual_brief(
+        "A photograph of the King Abdullah Financial District in Riyadh, with modern skyscrapers, "
+        "a digital billboard displaying Arabic script, no text.",
+        fallback="King Abdullah Financial District skyline in Riyadh.",
+    )
+
+    assert "King Abdullah Financial District" in brief
+    assert "modern skyscrapers" in brief
+    assert "billboard" not in brief.lower()
+    assert "script" not in brief.lower()
 
 
 def test_chinese_source_titles_are_rendered_as_english_citations() -> None:

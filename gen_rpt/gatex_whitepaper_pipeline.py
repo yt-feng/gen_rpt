@@ -1753,6 +1753,31 @@ def _save_visual(blob: bytes, target: Path, *, brief: str, alt: str) -> None:
         image.save(target, format="JPEG", quality=88, optimize=True)
 
 
+def _sanitize_visual_brief(value: Any, *, fallback: Any = "") -> str:
+    """Remove positive instructions that conflict with the no-text image contract."""
+
+    text = _clean(value, 3_500)
+    blocked = re.compile(
+        r"\b(?:billboard|caption|dashboard|display|displaying|flag|insignia|interface|lettering|logo|"
+        r"screen|script|signage|watermark|wordmark|written text)\b",
+        re.IGNORECASE,
+    )
+    clauses = [item.strip(" ,;.") for item in re.split(r"[,;]", text) if item.strip(" ,;.")]
+    safe_clauses = [item for item in clauses if not blocked.search(item)]
+    sanitized = ", ".join(safe_clauses)
+    if len(sanitized.split()) < 6:
+        fallback_text = _clean(fallback, 500)
+        fallback_clauses = [
+            item.strip(" ,;.")
+            for item in re.split(r"[,;]", fallback_text)
+            if item.strip(" ,;.") and not blocked.search(item)
+        ]
+        sanitized = ", ".join(fallback_clauses)
+    if len(sanitized.split()) < 6:
+        sanitized = "Documentary photograph of the specified industrial operating environment"
+    return sanitized
+
+
 def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str, dict[str, str]]:
     rows = {str(item.get("id")): item for item in content.get("visuals") or [] if isinstance(item, Mapping)}
     shared = (
@@ -1764,8 +1789,8 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
 
     def generate(identifier: str, row: Mapping[str, Any]) -> tuple[str, dict[str, str]]:
         target = target_dir / f"{identifier}.jpg"
-        prompt = _clean(row.get("prompt"), 3_500) + shared
         alt = _clean(row.get("alt"), 500)
+        prompt = _sanitize_visual_brief(row.get("prompt"), fallback=alt) + shared
         if target.is_file():
             issues = visual_quality_issues(target)
             issues.extend(semantic_visual_quality_issues(target, brief=prompt, alt=alt))
