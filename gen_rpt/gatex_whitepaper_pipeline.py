@@ -1082,7 +1082,11 @@ def _prepare_editorial(
                         },
                     ],
                     temperature=0.12,
-                    max_tokens=4_000 if attempt > 0 else 5_500,
+                    # The architecture JSON is typically 3k-5k tokens. APIMart
+                    # also counts hidden reasoning against the requested budget,
+                    # so the previous 12k-16.5k scaled allowance could push a
+                    # large evidence packet beyond the upstream context window.
+                    max_tokens=2_000 if attempt > 0 else 2_200,
                 )
             )
             if locked_checkpoint_meta is not None:

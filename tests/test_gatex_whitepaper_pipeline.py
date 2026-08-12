@@ -929,6 +929,13 @@ def test_compact_architecture_retry_reduces_evidence_payload() -> None:
     assert len(compact) < len(regular) * 0.8
 
 
+def test_architecture_output_budget_stays_within_apimart_context_window() -> None:
+    source = Path("gen_rpt/gatex_whitepaper_pipeline.py").read_text(encoding="utf-8")
+
+    assert "max_tokens=2_000 if attempt > 0 else 2_200" in source
+    assert "max_tokens=4_000 if attempt > 0 else 5_500" not in source
+
+
 def test_incomplete_optional_exhibit_panel_is_dropped() -> None:
     panels = [
         {
