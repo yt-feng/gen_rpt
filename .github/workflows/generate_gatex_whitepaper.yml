@@ -24,9 +24,9 @@ on:
         default: "Build an evidence-led China technology watch for senior investors and operators. Distinguish industrial capability, capital-market access and execution constraints. Use Gulf relevance only where the evidence supports it."
         type: string
       model:
-        description: APIMart-compatible editorial model
+        description: DeepSeek editorial model
         required: false
-        default: "gpt-5.6-sol"
+        default: "deepseek-chat"
         type: string
       resume_run_id:
         description: Optional prior workflow run ID whose review artifact should be resumed
@@ -47,18 +47,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 70
     env:
-      APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
-      APIMART_BASE_URL: https://api.apimart.ai
-      APIMART_USE_RESPONSES: "true"
-      APIMART_REASONING_EFFORT: xhigh
-      APIMART_REASONING_MODE: pro
-      APIMART_MIN_OUTPUT_TOKENS: "24000"
-      APIMART_MAX_OUTPUT_TOKENS: "64000"
-      APIMART_RETRY_ATTEMPTS: "3"
-      APIMART_RETRY_BASE_SECONDS: "4"
-      APIMART_EXPLICIT_TOKEN_MULTIPLIER: "3"
-      APIMART_ALLOW_CHAT_FALLBACK: "true"
-      APIMART_IMAGE_MODEL: gpt-image-2
       QWEN_VL_API_KEY: ${{ secrets.QWEN_VL_API_KEY }}
       QWEN_VL_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
       QWEN_VL_MODEL: qwen3-vl-flash
@@ -71,7 +59,7 @@ jobs:
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       DEEPSEEK_MAX_TOKENS: "16000"
       GATEX_EDITORIAL_FALLBACK_MODEL: ""
-      GATEX_RESEARCH_MODEL: gpt-5.6-sol
+      GATEX_RESEARCH_MODEL: deepseek-chat
       GEN_RPT_PER_QUERY: "4"
       GEN_RPT_MAX_SOURCES: "30"
       GEN_RPT_MAX_QUERIES: "18"
@@ -79,7 +67,7 @@ jobs:
       GEN_RPT_GDELT_TIMESPAN: "36months"
       GEN_RPT_FETCH_TIMEOUT: "24"
       GATEX_IMAGE_WORKERS: "3"
-      DISABLE_AI_IMAGES: "true"
+      GATEX_IMAGE_PROVIDER: pollinations
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -98,7 +86,7 @@ jobs:
 
       - name: Validate cloud configuration
         run: |
-          test -n "$APIMART_API_KEY" || { echo "Missing APIMART_API_KEY" >&2; exit 1; }
+          test -n "$DEEPSEEK_API_KEY" || { echo "Missing DEEPSEEK_API_KEY" >&2; exit 1; }
           test -n "$TAVILY_API_KEY" || { echo "Missing TAVILY_API_KEY" >&2; exit 1; }
           test -n "$QWEN_VL_API_KEY" || { echo "Missing QWEN_VL_API_KEY" >&2; exit 1; }
           test -n "$OPENALEX_API_KEY" || echo "OpenAlex academic supplement is not configured; continuing with primary public sources."
@@ -110,7 +98,7 @@ jobs:
             gen_rpt/gatex_whitepaper_pipeline.py \
             tools/generate_gatex_whitepaper.py
 
-      - name: Verify APIMart Sol Pro route
+      - name: Verify DeepSeek editorial route
         run: |
           python - <<'PY'
           from gen_rpt.deepseek_client import DeepSeekClient
@@ -132,7 +120,7 @@ jobs:
           )
           if result.get("status") != "ready":
               raise SystemExit(f"Unexpected APIMart editorial canary: {result}")
-          print("APIMart editorial route ready: gpt-5.6-sol / Responses / pro / xhigh")
+          print("DeepSeek editorial route ready: deepseek-chat")
           PY
 
       - name: Restore prior cloud checkpoint

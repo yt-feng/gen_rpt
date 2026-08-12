@@ -63,6 +63,7 @@ TECHNICAL_AUTHORITY_DOMAIN_HINTS = (
     "microsoft.com",
     "nvidia.com",
     "onnx.ai",
+    "oiforum.com",
     "opencompute.org",
     "openai.com",
     "pytorch.org",
@@ -72,10 +73,14 @@ TECHNICAL_AUTHORITY_DOMAIN_HINTS = (
     "samsung.com",
     "skhynix.com",
     "smics.com",
+    "iowngf.org",
     "tsmc.com",
     "uciexpress.org",
     "ultraethernet.org",
     "vllm.ai",
+    "zte.com.cn",
+    "commscope.com",
+    "cisco.com",
 )
 
 META_LABEL_PATTERNS = (

@@ -17,8 +17,10 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _architecture_prompt,
     _chart_label_issues,
     _citation_rows,
+    _clean_editorial_evidence,
     _collect_research,
     _english_source_title,
+    _editorial_source_excerpt,
     _fallback_queries,
     _FailoverEditorialClient,
     _generate_visuals,
@@ -33,6 +35,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _payload_renderability_issues,
     _printable_content_overlap_issue,
     _publication_copy_issues,
+    _publication_copy_projection,
     _reporting_period_issues,
     _sanitize_research_sources,
     _source_packet,
@@ -813,6 +816,53 @@ def test_non_usd_currency_is_rejected_before_final_assembly() -> None:
     assert _publication_copy_issues("Retail sales may reach approximately $8.8 trillion by 2030.") == []
 
 
+def test_model_names_are_allowed_as_subjects_but_not_as_production_disclosure() -> None:
+    assert _publication_copy_issues("DeepSeek and Qwen expanded their model families.") == []
+    assert any(
+        "Production-tool disclosure" in issue
+        for issue in _publication_copy_issues("This publication was generated using DeepSeek.")
+    )
+
+
+def test_internal_visual_prompt_is_not_treated_as_publication_copy() -> None:
+    projected = _publication_copy_projection(
+        {
+            "coverSummary": "Capacity expanded with operating demand.",
+            "visuals": [
+                {"id": "chapter-1", "prompt": "Photograph for this report", "alt": "Operating facility"}
+            ],
+        }
+    )
+
+    assert "prompt" not in projected["visuals"][0]
+    assert _publication_copy_issues(projected) == []
+
+
+def test_editorial_source_excerpt_hides_non_usd_amounts_but_keeps_operating_metrics() -> None:
+    excerpt = _editorial_source_excerpt(
+        "Revenue declined 25.2% to RMB1,464.3 million while exports reached US$79 million.",
+        500,
+    )
+
+    assert "25.2%" in excerpt
+    assert "RMB" not in excerpt
+    assert "US$79 million" in excerpt
+
+
+def test_editorial_evidence_removes_addresses_table_headers_and_non_usd_money() -> None:
+    rows = [
+        {"fact": "PRINCIPAL PLACE OF BUSINESS Room 1917, 19/F Lee Garden One", "value": 2022, "unit": "$", "display_value": "$2022"},
+        {"fact": "Revenue 2025 2024 USD'000 USD'000", "value": 2024, "unit": "$", "display_value": "$2024"},
+        {"fact": "Revenue reached RMB1,198 million in 2025.", "value": 1198, "unit": "$M", "display_value": "$1198M"},
+        {"fact": "International revenue exceeded 70 percent in 2025.", "value": 70, "unit": "%", "display_value": "70%"},
+        {"fact": "Revenue reached US$79 million in 2025.", "value": 79, "unit": "$M", "display_value": "$79M"},
+    ]
+
+    cleaned = _clean_editorial_evidence(rows)
+
+    assert [row["display_value"] for row in cleaned] == ["70%", "$79M"]
+
+
 def test_unfinished_quarter_requires_an_explicit_data_boundary() -> None:
     issues = _reporting_period_issues(
         "China Economics Quarterly: Q3 2026",
@@ -976,8 +1026,8 @@ def test_compact_architecture_retry_reduces_evidence_payload() -> None:
 def test_architecture_output_budget_stays_within_apimart_context_window() -> None:
     source = Path("gen_rpt/gatex_whitepaper_pipeline.py").read_text(encoding="utf-8")
 
-    assert "max_tokens=2_000 if attempt > 0 else 2_200" in source
-    assert "max_tokens=4_000 if attempt > 0 else 5_500" not in source
+    assert "(2_000 if attempt > 0 else 2_200)" in source
+    assert "(4_000 if attempt > 0 else 5_500)" in source
 
 
 def test_incomplete_optional_exhibit_panel_is_dropped() -> None:

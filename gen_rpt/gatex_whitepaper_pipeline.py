@@ -100,11 +100,14 @@ FORBIDDEN_TERMS = (
     "signals to watch",
     "what to verify and watch",
     "mineru",
-    "deepseek",
     "apimart",
-    "qwen",
     "tavily",
     "gdelt",
+)
+PRODUCTION_DISCLOSURE_RE = re.compile(
+    r"\b(?:generated|produced|written|translated|parsed|analysed|analyzed|created|prepared)\s+"
+    r"(?:by|with|using)\s+(?:deepseek|qwen|mineru|apimart|tavily|gdelt)\b",
+    re.IGNORECASE,
 )
 EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v5-academic-period"
 RESEARCH_POLICY_VERSION = "gatex-whitepaper-research-2026-08-11-v3-openalex-focused"
@@ -125,6 +128,44 @@ NON_USD_CURRENCY_RE = re.compile(
     r"(?:\bRMB\b|\bCNY\b|\bAED\b|\bSAR\b|\bHKD\b|\bEUR\b|\bGBP\b|\byuan\b|\bdirham(?:s)?\b|\briyal(?:s)?\b|\u00a5)",
     re.IGNORECASE,
 )
+
+
+def _clean_editorial_evidence(rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Keep only evidence that is safe to expose to editorial/chart prompts."""
+
+    cleaned: list[dict[str, Any]] = []
+    address_noise = re.compile(
+        r"\b(?:principal place of business|share registrar|registered office|room\s+\d+|floor|avenue|road|district|postal|po box)\b",
+        re.IGNORECASE,
+    )
+    table_header_noise = re.compile(r"\bUSD[\u2018\u2019']?000\b", re.IGNORECASE)
+    non_usd_money = re.compile(
+        r"(?:\bRMB|\bCNY|\bAED|\bSAR|\bHKD|\bEUR|\bGBP|\byuan|\bdirham(?:s)?|\briyal(?:s)?|\u00a5)\s*[\d,.]",
+        re.IGNORECASE,
+    )
+    for raw in rows:
+        row = dict(raw)
+        fact = _clean(row.get("fact"), 1_000)
+        display = _clean(row.get("display_value"), 120)
+        unit = _clean(row.get("unit"), 40)
+        if not fact or address_noise.search(fact):
+            continue
+        if NON_USD_CURRENCY_RE.search(fact) or non_usd_money.search(fact):
+            # Percentages and physical measures remain usable; monetary rows
+            # expressed in a non-USD source currency do not.
+            if unit in {"$", "$M", "$B"} or display.startswith("$"):
+                continue
+        if unit in {"$", "$M", "$B"} or display.startswith("$"):
+            try:
+                value = float(row.get("value"))
+            except (TypeError, ValueError):
+                continue
+            if table_header_noise.search(fact) and (value in {0, 2022, 2023, 2024, 2025, 2026}):
+                continue
+            if display in {"$000", "$2022", "$2023", "$2024", "$2025", "$2026"}:
+                continue
+        cleaned.append(row)
+    return cleaned
 SUPPORTED_PANELS = {
     "process",
     "matrix",
@@ -574,10 +615,21 @@ def _compact_source_packet(
     allowed = {str(item) for item in source_ids or []}
     rows = [row for row in sources if not allowed or str(row.get("id")) in allowed]
     blocks = [
-        f"[{row['id']}] [{row.get('qualityTier', 'SECONDARY')}] {row['title']}\nURL: {row['url']}\nEXTRACT: {_clean(row.get('content'), excerpt_chars)}"
+        f"[{row['id']}] [{row.get('qualityTier', 'SECONDARY')}] {row['title']}\nURL: {row['url']}\nEXTRACT: {_editorial_source_excerpt(row.get('content'), excerpt_chars)}"
         for row in rows
     ]
     return "\n\n".join(blocks)[:maximum_chars]
+
+
+def _editorial_source_excerpt(value: Any, maximum: int) -> str:
+    text = _clean(value, maximum)
+    non_usd_amount = re.compile(
+        r"(?:\b(?:RMB|CNY|AED|SAR|HKD|EUR|GBP)\s*[\d,.]+(?:\s*(?:trillion|billion|million|bn|mn))?"
+        r"|\u00a5\s*[\d,.]+(?:\s*(?:trillion|billion|million|bn|mn))?"
+        r"|[\d,.]+(?:\s*(?:trillion|billion|million|bn|mn))?\s*(?:yuan|dirham(?:s)?|riyal(?:s)?))",
+        re.IGNORECASE,
+    )
+    return non_usd_amount.sub("an undisclosed local-currency amount", text)
 
 
 def _publication_rules() -> str:
@@ -848,9 +900,25 @@ def _publication_copy_issues(value: Any) -> list[str]:
             "A non-USD currency remains. Rewrite the copy to retain only a supplied USD equivalent; "
             "if no defensible USD equivalent is supplied, omit the monetary figure."
         )
+    if PRODUCTION_DISCLOSURE_RE.search(full_text):
+        issues.append("Production-tool disclosure remains in publication copy.")
     if issue := _meta_narration_issue(value):
         issues.append(issue)
     return issues
+
+
+def _publication_copy_projection(value: Any) -> Any:
+    """Remove internal production fields that are never rendered into the PDF."""
+
+    if isinstance(value, Mapping):
+        return {
+            key: _publication_copy_projection(item)
+            for key, item in value.items()
+            if str(key) not in {"prompt", "productionNotes", "internalNotes"}
+        }
+    if isinstance(value, list):
+        return [_publication_copy_projection(item) for item in value]
+    return value
 
 
 def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
@@ -860,7 +928,7 @@ def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
     visuals = architecture.get("visuals") if isinstance(architecture.get("visuals"), list) else []
     if len(chapters) != 4 or len(exhibits) != 4 or len(visuals) != 5:
         issues.append("Architecture requires four chapters, four exhibits and five visuals.")
-    issues.extend(_publication_copy_issues(architecture))
+    issues.extend(_publication_copy_issues(_publication_copy_projection(architecture)))
     panel_types: list[str] = []
     for index, exhibit in enumerate(exhibits, start=1):
         if not isinstance(exhibit, Mapping):
@@ -941,7 +1009,7 @@ def _editorial_issues(
             issues.append(f"{label} requires at least two valid source IDs.")
         if not ids & authoritative_source_ids:
             issues.append(f"{label} requires at least one primary or institutional source ID.")
-    issues.extend(_publication_copy_issues(content))
+    issues.extend(_publication_copy_issues(_publication_copy_projection(content)))
     return issues
 
 
@@ -1052,6 +1120,7 @@ def _prepare_editorial(
         _progress("synthesis", 48, "Resuming from the saved executive brief and four chapter checkpoints.", 7)
 
     architecture: dict[str, Any] | None = None
+    previous_architecture: dict[str, Any] | None = None
     architecture_error = ""
     architecture_path = work_dir / "editorial-architecture.json"
     cached_architecture = _read_json_mapping(architecture_path) if checkpoint_compatible else None
@@ -1062,7 +1131,7 @@ def _prepare_editorial(
         if not _architecture_issues(cached_architecture):
             architecture = cached_architecture
 
-    for attempt in range(2 if architecture is None else 0):
+    for attempt in range(4 if architecture is None else 0):
         try:
             prompt = _architecture_prompt(
                 title=title,
@@ -1079,6 +1148,14 @@ def _prepare_editorial(
                     "callouts and source IDs. Design each exhibit and visual for its corresponding locked chapter.\n"
                     + json.dumps(locked_checkpoint_meta, ensure_ascii=False)
                 )
+            if previous_architecture is not None:
+                prompt += (
+                    "\n\nREPAIR THE PREVIOUS JSON\n"
+                    "Return the complete JSON object. Preserve every valid source ID, factual value, exhibit row and visual brief. "
+                    "Rewrite only the fields needed to resolve the stated QA issues; replace meta narration with the substantive "
+                    "finding itself and keep all monetary copy USD-only.\n"
+                    + json.dumps(previous_architecture, ensure_ascii=False)
+                )
             architecture = _ascii(
                 client.chat_json(
                     [
@@ -1089,16 +1166,24 @@ def _prepare_editorial(
                         },
                     ],
                     temperature=0.12,
-                    # The architecture JSON is typically 3k-5k tokens. APIMart
-                    # also counts hidden reasoning against the requested budget,
-                    # so the previous 12k-16.5k scaled allowance could push a
-                    # large evidence packet beyond the upstream context window.
-                    max_tokens=2_000 if attempt > 0 else 2_200,
+                    # DeepSeek returns the architecture directly, so retain enough
+                    # room for four exhibits and five visual briefs. APIMart routes
+                    # previously needed a smaller allowance because hidden reasoning
+                    # counted against their upstream context window.
+                    max_tokens=(
+                        (2_000 if attempt > 0 else 2_200)
+                        if str(client.active_model).lower() not in {"deepseek-chat", "deepseek-reasoner"}
+                        else (4_000 if attempt > 0 else 5_500)
+                    ),
                 )
             )
             if locked_checkpoint_meta is not None:
                 architecture["executiveSummary"] = locked_checkpoint_meta["executiveSummary"]
                 architecture["chapters"] = locked_checkpoint_meta["chapters"]
+            (work_dir / f"editorial-architecture-attempt-{attempt + 1}.json").write_text(
+                json.dumps(architecture, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
             architecture_issues = _architecture_issues(architecture)
             if architecture_issues:
                 raise GatexWhitepaperError(" | ".join(architecture_issues))
@@ -1106,6 +1191,8 @@ def _prepare_editorial(
             fingerprint_path.write_text(source_fingerprint + "\n", encoding="utf-8")
             break
         except Exception as exc:
+            if isinstance(architecture, Mapping):
+                previous_architecture = dict(architecture)
             architecture = None
             architecture_error = str(exc)
     if architecture is None:
@@ -1564,19 +1651,28 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
                 return identifier, {"path": str(target), "alt": alt}
             print(f"[gatex.whitepaper] cached visual rejected for {identifier}: {'; '.join(issues)}", flush=True)
         errors: list[str] = []
+        provider = os.getenv("GATEX_IMAGE_PROVIDER", "pollinations").strip().lower()
+        if provider not in {"pollinations", "apimart", "auto"}:
+            raise GatexWhitepaperError(f"Unsupported GATEX_IMAGE_PROVIDER: {provider}")
+        if provider in {"apimart", "auto"} and os.getenv("APIMART_API_KEY", "").strip():
+            for attempt in range(3):
+                try:
+                    blob = _download_apimart_image(prompt + (f" Alternate documentary camera composition {attempt + 1}." if attempt else ""))
+                    _save_visual(blob, target, brief=prompt, alt=alt)
+                    return identifier, {"path": str(target), "alt": alt}
+                except Exception as exc:
+                    errors.append(str(exc))
+        elif provider == "apimart":
+            raise GatexWhitepaperError("GATEX_IMAGE_PROVIDER=apimart requires APIMART_API_KEY.")
         for attempt in range(3):
             try:
-                blob = _download_apimart_image(prompt + (f" Alternate documentary camera composition {attempt + 1}." if attempt else ""))
+                seed = hashlib.sha256(f"{identifier}:{attempt}".encode("utf-8")).hexdigest()[:10]
+                alternate = prompt + (f" Alternate documentary camera composition {attempt + 1}." if attempt else "")
+                blob = _pollinations_image(alternate, seed)
                 _save_visual(blob, target, brief=prompt, alt=alt)
                 return identifier, {"path": str(target), "alt": alt}
             except Exception as exc:
                 errors.append(str(exc))
-        try:
-            blob = _pollinations_image(prompt, hashlib.sha256(identifier.encode("utf-8")).hexdigest()[:10])
-            _save_visual(blob, target, brief=prompt, alt=alt)
-            return identifier, {"path": str(target), "alt": alt}
-        except Exception as exc:
-            errors.append(str(exc))
         raise GatexWhitepaperError(f"Visual generation failed for {identifier}: {' | '.join(errors)}")
 
     results: dict[str, dict[str, str]] = {}
@@ -2033,7 +2129,7 @@ def generate_gatex_whitepaper(
     slug: str,
     brief: str,
     output_root: Path,
-    model: str = "gpt-5.6-sol",
+    model: str = "deepseek-chat",
     publication_date: str | None = None,
 ) -> dict[str, Any]:
     output_root = Path(output_root).resolve()
@@ -2053,13 +2149,16 @@ def generate_gatex_whitepaper(
         f"{brief}\nPublication date: {publication_date}. "
         "Apply the reporting-period boundary literally: an unfinished quarter is an outlook or latest-data edition, not a completed-quarter result."
     )
+    editorial_evidence = _clean_editorial_evidence(
+        research.get("approved_evidence") or research.get("evidence_ledger") or []
+    )
     content = _prepare_editorial(
         client,
         title=title,
         topic=topic,
         brief=editorial_brief,
         source_packet=source_packet,
-        evidence=research.get("approved_evidence") or research.get("evidence_ledger") or [],
+        evidence=editorial_evidence,
         sources=sources,
         work_dir=work_dir,
     )
