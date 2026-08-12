@@ -125,6 +125,11 @@ def test_exhibit_sources_use_compact_atomic_columns() -> None:
     assert "break-inside: avoid-page" in css
 
 
+def test_four_exhibit_metrics_render_in_one_row() -> None:
+    css = _whitepaper_css()
+    assert ".whitepaper-metrics.metrics-4 { grid-template-columns: repeat(4, 1fr); }" in css
+
+
 class GatexPdfRendererTests(unittest.TestCase):
     def test_gatex_branding_assets_are_versioned_and_legacy_free(self):
         branding_dir = Path(__file__).resolve().parents[1] / "branding"

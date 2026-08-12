@@ -25,6 +25,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _exhibit_information_units,
     _meta_narration_issue,
     _normalize_exhibit_panels,
+    _page_composition_issues,
     _normalize_panel,
     _panel_renderability_issue,
     _paragraph_word_count,
@@ -869,6 +870,29 @@ def test_chart_label_gate_detects_clipped_text() -> None:
     }
     issues = _chart_label_issues(exhibit, "ctricity, heat, gas and water supply Manufacturing Mining Total industry")
     assert issues == ["Rendered chart label is missing or clipped: Electricity, heat, gas and water supply"]
+
+
+def test_page_composition_gate_rejects_orphaned_source_notes() -> None:
+    text = (
+        "GATEX | EXECUTIVE INTELLIGENCE\nSOURCES AND NOTES\n"
+        "1. Red Sea attacks increased shipping times and freight rates. https://eia.gov\n"
+        "2. IMF Direction of Trade Statistics. https://data.imf.org\n"
+    )
+
+    assert _page_composition_issues(text, 10) == [
+        "Page 10 is unexpectedly sparse.",
+        "Page 10 contains orphaned source notes.",
+    ]
+
+
+def test_page_composition_gate_allows_sources_on_an_exhibit_page() -> None:
+    text = (
+        "EXHIBIT 2\nTrade Scale Meets Route Exposure\n"
+        + "Documented bilateral trade and freight evidence. " * 25
+        + "\nSOURCES AND NOTES\n1. IMF Direction of Trade Statistics. https://data.imf.org"
+    )
+
+    assert _page_composition_issues(text, 9) == []
 
 
 def test_incomplete_optional_exhibit_panel_is_dropped() -> None:

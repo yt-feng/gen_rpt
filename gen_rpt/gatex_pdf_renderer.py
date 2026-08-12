@@ -1388,10 +1388,13 @@ p { orphans: 3; widows: 3; }
 .whitepaper-metrics.metrics-1 { grid-template-columns: 1fr; }
 .whitepaper-metrics.metrics-2 { grid-template-columns: repeat(2, 1fr); }
 .whitepaper-metrics.metrics-3 { grid-template-columns: repeat(3, 1fr); }
-.whitepaper-metrics.metrics-4, .whitepaper-metrics.metrics-5, .whitepaper-metrics.metrics-6 { grid-template-columns: repeat(3, 1fr); }
+.whitepaper-metrics.metrics-4 { grid-template-columns: repeat(4, 1fr); }
+.whitepaper-metrics.metrics-5, .whitepaper-metrics.metrics-6 { grid-template-columns: repeat(3, 1fr); }
 .whitepaper-metrics article { min-height: 23mm; padding: 3.5mm 4mm 3mm 0; background: #fff; border-right: .25mm solid #d3dce4; }
 .whitepaper-metrics article + article { padding-left: 4mm; }
 .whitepaper-metrics article:nth-child(3n), .whitepaper-metrics article:last-child { border-right: 0; }
+.whitepaper-metrics.metrics-4 article:nth-child(3n) { border-right: .25mm solid #d3dce4; }
+.whitepaper-metrics.metrics-4 article:nth-child(4n) { border-right: 0; }
 .whitepaper-metrics strong { display: block; color: #0b3763; font-family: Georgia, "Times New Roman", serif; font-size: 17pt; font-weight: 400; }
 .whitepaper-metrics span { display: block; margin-top: 1.5mm; color: #44566c; font-size: 8pt; }
 .whitepaper-metrics small { display: block; margin-top: 2mm; color: #7b8796; font-size: 6.6pt; }

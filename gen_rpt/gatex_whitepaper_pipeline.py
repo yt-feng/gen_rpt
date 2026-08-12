@@ -1748,6 +1748,24 @@ def _inject_toc(pdf_path: Path, payload: dict[str, Any]) -> None:
         section["tocPage"] = str(page_number)
 
 
+def _page_composition_issues(page_text: str, page_number: int) -> list[str]:
+    word_count = len(re.findall(r"\b[A-Za-z0-9][A-Za-z0-9'-]*\b", page_text))
+    issues: list[str] = []
+    if word_count < 35:
+        issues.append(f"Page {page_number} is unexpectedly sparse.")
+    page_lower = page_text.lower()
+    if (
+        "sources and notes" in page_lower
+        and word_count < 120
+        and not any(
+            marker in page_lower
+            for marker in ("executive summary", "chapter ", "exhibit ", "outlook", "disclaimer")
+        )
+    ):
+        issues.append(f"Page {page_number} contains orphaned source notes.")
+    return issues
+
+
 def _pdf_issues(pdf_path: Path, payload: Mapping[str, Any]) -> list[str]:
     reader = PdfReader(str(pdf_path))
     text_by_page = [page.extract_text() or "" for page in reader.pages]
@@ -1766,8 +1784,7 @@ def _pdf_issues(pdf_path: Path, payload: Mapping[str, Any]) -> list[str]:
         if f"chapter {chapter:02d} / continued" not in lowered:
             issues.append(f"Chapter {chapter:02d} continuation page is missing.")
     for page_number, page_text in enumerate(text_by_page[1:-1], start=2):
-        if len(re.findall(r"\b[A-Za-z0-9][A-Za-z0-9'-]*\b", page_text)) < 35:
-            issues.append(f"Page {page_number} is unexpectedly sparse.")
+        issues.extend(_page_composition_issues(page_text, page_number))
     if re.search(r"[\u3400-\u9fff]", full):
         issues.append("Chinese text remains in the PDF.")
     if NON_USD_CURRENCY_RE.search(full):
