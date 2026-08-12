@@ -302,6 +302,47 @@ class GateXClient:
                 logger.info(f"Upload retry succeeded: key={presign.key}")
 
     # -----------------------------------------------------------------------
+    def validate_payload(self, payload: GateXReportPayload) -> List[str]:
+        """
+        Pre-validates a GateX report payload against contract rules:
+          - Title: non-empty, max 255 chars
+          - File name: must end with .pdf
+          - MIME type: must be application/pdf
+          - Object keys: required non-empty originalObjectKey and topImage
+          - Category ID: positive integer required
+          - Tag IDs: 1 to 5 unique IDs required
+          - Price: minimum 5800.0 (GateX minimum price rule)
+        """
+        errors = []
+        if not payload.title or not payload.title.strip():
+            errors.append("Title is required and cannot be empty")
+        elif len(payload.title) > 255:
+            errors.append("Title exceeds maximum length of 255 characters")
+
+        if not payload.original_file_name or not payload.original_file_name.lower().endswith(".pdf"):
+            errors.append("Original file name must end with .pdf")
+
+        if payload.mime_type != "application/pdf":
+            errors.append("MIME type must be application/pdf")
+
+        if not payload.original_object_key or not payload.original_object_key.strip():
+            errors.append("originalObjectKey is required")
+
+        if not payload.top_image or not payload.top_image.strip():
+            errors.append("topImage object key is required")
+
+        if not payload.category_id or payload.category_id <= 0:
+            errors.append("Valid categoryId is required")
+
+        if not payload.tag_ids or len(payload.tag_ids) == 0 or len(payload.tag_ids) > 5:
+            errors.append("tag_ids must contain between 1 and 5 tags")
+
+        if payload.price < 5800.0:
+            errors.append(f"Price {payload.price} is below GateX minimum requirement of 5800.0")
+
+        return errors
+
+    # -----------------------------------------------------------------------
     # Step 6: Submit bulk report metadata
     # -----------------------------------------------------------------------
     async def submit_bulk_report(self, payload: GateXReportPayload) -> GateXSubmitResult:
@@ -311,6 +352,13 @@ class GateXClient:
         Handles 201 (all success) and 207 (partial/full failure).
         """
         self._assert_enabled()
+
+        validation_errors = self.validate_payload(payload)
+        if validation_errors:
+            error_str = "; ".join(validation_errors)
+            logger.error(f"GateX payload pre-validation failed: {error_str}")
+            raise GateXValidationError(f"Payload validation failed: {error_str}", detail={"errors": validation_errors})
+
 
         body = {
             "reports": [

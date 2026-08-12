@@ -222,6 +222,42 @@ class GateXBulkPushAndBlockTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(captured_request["url"], "https://dev.gatex.ae/api/reports/9999/block/by-api-key")
             self.assertEqual(captured_request["api_key_header"], "secret-test-key")
 
+    def test_gatex_payload_validation_guardrails(self):
+        """
+        Tests pre-validation of GateXReportPayload fields (title, price, extensions, object keys).
+        """
+        client = GateXClient()
+
+        # Valid payload — no validation errors
+        valid_payload = GateXReportPayload(
+            title="Valid Research Report",
+            original_file_name="report.pdf",
+            mime_type="application/pdf",
+            file_size=1024,
+            original_object_key="key-pdf",
+            top_image="key-img",
+            category_id=6,
+            tag_ids=[1],
+            price=5800.0,
+        )
+        self.assertEqual(len(client.validate_payload(valid_payload)), 0)
+
+        # Invalid payload — price below 5800 and invalid file extension
+        invalid_payload = GateXReportPayload(
+            title="",
+            original_file_name="report.docx",
+            mime_type="application/msword",
+            file_size=1024,
+            original_object_key="",
+            top_image="",
+            category_id=0,
+            tag_ids=[],
+            price=100.0,
+        )
+        errors = client.validate_payload(invalid_payload)
+        self.assertGreater(len(errors), 0)
+        self.assertTrue(any("5800.0" in e for e in errors))
+        self.assertTrue(any(".pdf" in e for e in errors))
 
 
 if __name__ == "__main__":
