@@ -157,6 +157,8 @@ def test_information_heavy_exhibit_uses_compact_page_budget() -> None:
     )
 
     assert "class='whitepaper-exhibit exhibit-dense'" in html
+    css = _whitepaper_css()
+    assert ".whitepaper-exhibit.exhibit-dense .market-layer { min-height: 44mm;" in css
 
 
 class GatexPdfRendererTests(unittest.TestCase):

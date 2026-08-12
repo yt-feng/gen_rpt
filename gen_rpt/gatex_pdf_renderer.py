@@ -796,7 +796,7 @@ def _render_whitepaper_exhibit(section: Mapping[str, Any]) -> str:
         for panel in panels
         if isinstance(panel, Mapping)
     )
-    density_class = " exhibit-dense" if len(panels) > 1 or information_units >= 8 else ""
+    density_class = " exhibit-dense" if len(panels) > 1 or information_units >= 6 else ""
     parts = [
         f"<section class='whitepaper-exhibit{density_class}'>",
         "<header class='whitepaper-exhibit-head'>",
@@ -1502,6 +1502,11 @@ p { orphans: 3; widows: 3; }
 .whitepaper-exhibit.exhibit-dense .milestone-item { min-height: 35mm; padding-top: 5mm; }
 .whitepaper-exhibit.exhibit-dense .milestone-item strong { font-size: 15pt; line-height: 1.08; }
 .whitepaper-exhibit.exhibit-dense .milestone-item p { font-size: 6.7pt; line-height: 1.32; }
+.whitepaper-exhibit.exhibit-dense .market-layer-map { margin-top: 4mm; padding-top: 8mm; padding-bottom: 3mm; }
+.whitepaper-exhibit.exhibit-dense .market-layer { min-height: 44mm; padding-right: 3mm; padding-left: 3mm; }
+.whitepaper-exhibit.exhibit-dense .market-layer > span { margin-bottom: 4mm; }
+.whitepaper-exhibit.exhibit-dense .market-layer strong { min-height: 14mm; font-size: 12pt; }
+.whitepaper-exhibit.exhibit-dense .market-layer p { margin-top: 2mm; font-size: 6.7pt; line-height: 1.3; }
 .whitepaper-exhibit.exhibit-dense > .whitepaper-footnotes { margin-top: 1.5mm; padding-top: 1.2mm; }
 .whitepaper-outlook { padding-top: 8mm; }
 .whitepaper-outlook h2 { max-width: 158mm; margin: 0 0 4mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 31pt; font-weight: 400; line-height: 1.05; }
