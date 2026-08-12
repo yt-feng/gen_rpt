@@ -27,6 +27,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _architecture_issues,
     _exhibit_information_units,
     _meta_narration_issue,
+    _normalize_exhibit_layout,
     _normalize_exhibit_panels,
     _page_composition_issues,
     _normalize_panel,
@@ -36,6 +37,8 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _printable_content_overlap_issue,
     _publication_copy_issues,
     _publication_copy_projection,
+    _sanitize_architecture_copy,
+    _sanitize_chapter_copy,
     _reporting_period_issues,
     _sanitize_research_sources,
     _source_packet,
@@ -59,6 +62,14 @@ def test_deepseek_model_keeps_deepseek_endpoint() -> None:
         client = DeepSeekClient(model="deepseek-chat")
     assert client.api_key == "test-key"
     assert client.base_url == "https://api.deepseek.com/v1"
+
+
+def test_deepseek_v4_pro_keeps_deepseek_endpoint() -> None:
+    with mock.patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}, clear=False):
+        client = DeepSeekClient(model="deepseek-v4-pro")
+    assert client.api_key == "test-key"
+    assert client.base_url == "https://api.deepseek.com/v1"
+    assert not client.use_apimart
 
 
 def test_apimart_sol_uses_responses_pro_max_with_step_sized_budget() -> None:
@@ -784,7 +795,7 @@ def test_complete_compact_charts_are_renderable() -> None:
     ) == ""
 
 
-def test_sparse_exhibit_is_rejected_even_when_the_panel_is_structurally_valid() -> None:
+def test_two_by_two_comparison_counts_four_observations() -> None:
     exhibit = {
         "metrics": [{"value": "4.3%"}, {"value": "5.4%"}],
         "panels": [
@@ -798,8 +809,35 @@ def test_sparse_exhibit_is_rejected_even_when_the_panel_is_structurally_valid() 
             }
         ],
     }
-    assert _exhibit_information_units(exhibit) == 4
-    assert _panel_renderability_issue(exhibit["panels"][0])
+    assert _exhibit_information_units(exhibit) == 6
+    assert _panel_renderability_issue(exhibit["panels"][0]) == ""
+
+
+def test_two_panel_exhibit_is_trimmed_to_two_metric_cards() -> None:
+    exhibit = {
+        "metrics": [{"value": str(index), "label": f"Metric {index}"} for index in range(4)],
+        "panels": [
+            {
+                "type": "matrix",
+                "items": [
+                    {"tag": str(index), "title": f"Layer {index}", "body": "Grounded operating evidence."}
+                    for index in range(4)
+                ],
+            },
+            {
+                "type": "scenario",
+                "items": [
+                    {"label": f"Case {index}", "range": "Bounded", "body": "Documented condition."}
+                    for index in range(3)
+                ],
+            },
+        ],
+    }
+
+    normalized = _normalize_exhibit_layout(exhibit)
+
+    assert len(normalized["panels"]) == 2
+    assert len(normalized["metrics"]) == 2
 
 
 def test_meta_narration_is_rejected_from_editorial_copy() -> None:
@@ -836,6 +874,58 @@ def test_internal_visual_prompt_is_not_treated_as_publication_copy() -> None:
 
     assert "prompt" not in projected["visuals"][0]
     assert _publication_copy_issues(projected) == []
+
+
+def test_architecture_sanitizer_replaces_cover_meta_narration_with_substantive_decks() -> None:
+    architecture = {
+        "coverSummary": (
+            "Verified capacity expanded across the supply chain. "
+            "This report examines the operating evidence and market outlook."
+        ),
+        "executiveSummary": {
+            "headline": "Deployment economics set the pace",
+            "deck": "Power, integration and customer adoption determine whether technical capacity becomes productive output.",
+        },
+        "chapters": [
+            {
+                "deck": "Supplier depth improves delivery resilience across multiple operating environments.",
+                "callout": "Documented demand remains concentrated in projects with funded infrastructure.",
+            },
+            {
+                "deck": "Commercial execution depends on qualified talent, stable utilities and repeat customer demand.",
+                "callout": "Operating proof matters more than announced capacity or broad market ambition.",
+            },
+        ],
+    }
+
+    cleaned = _sanitize_architecture_copy(architecture)
+
+    assert "This report" not in cleaned["coverSummary"]
+    assert 55 <= len(cleaned["coverSummary"].split()) <= 80
+    assert "productive output" in cleaned["coverSummary"]
+
+
+def test_chapter_sanitizer_removes_meta_narration_and_trims_complete_sentences() -> None:
+    paragraph = " ".join(
+        [
+            "This chapter explains the production system in broad terms.",
+            *[f"Operating sentence {index} contains specific evidence about capacity and delivery." for index in range(1, 15)],
+        ]
+    )
+    chapter = {
+        "opening": paragraph,
+        "subsections": [
+            {"heading": f"Layer {index}", "paragraphs": [paragraph, paragraph]}
+            for index in range(1, 5)
+        ],
+    }
+
+    cleaned = _sanitize_chapter_copy(chapter)
+
+    assert "This chapter" not in cleaned["opening"]
+    assert len(cleaned["opening"].split()) <= 120
+    assert all(len(text.split()) <= 88 for section in cleaned["subsections"] for text in section["paragraphs"])
+    assert all(text.endswith(".") for section in cleaned["subsections"] for text in section["paragraphs"])
 
 
 def test_editorial_source_excerpt_hides_non_usd_amounts_but_keeps_operating_metrics() -> None:

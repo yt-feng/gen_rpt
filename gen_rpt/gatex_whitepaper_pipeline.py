@@ -63,7 +63,7 @@ class _FailoverEditorialClient:
 
 def _editorial_client(model: str, *, timeout: int = 420) -> _FailoverEditorialClient:
     primary = DeepSeekClient(model=model, timeout=timeout)
-    fallback_model = os.getenv("GATEX_EDITORIAL_FALLBACK_MODEL", "deepseek-chat").strip()
+    fallback_model = os.getenv("GATEX_EDITORIAL_FALLBACK_MODEL", "").strip()
     fallback = None
     if fallback_model and fallback_model.lower() != str(model or "").strip().lower():
         try:
@@ -453,10 +453,18 @@ def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
                     return {"sources": clean_rows, "fact_pack": fact_pack, "approved_evidence": evidence, "evidence_ledger": evidence}
             except (OSError, ValueError, TypeError):
                 pass
+    cached_sources: list[SourceDocument] = []
+    if sources_path.is_file():
+        try:
+            cached_rows = json.loads(sources_path.read_text(encoding="utf-8"))
+            cached_sources = _sanitize_research_sources(cached_rows)
+        except (OSError, ValueError, TypeError):
+            cached_sources = []
+
     fallback = _fallback_queries(topic)
     queries = list(fallback)
     try:
-        planner = DeepSeekClient(model=os.getenv("GATEX_RESEARCH_MODEL", "deepseek-chat"), timeout=240)
+        planner = DeepSeekClient(model=os.getenv("GATEX_RESEARCH_MODEL", "deepseek-v4-pro"), timeout=240)
         planned = planner.chat_json(
             [
                 {
@@ -494,15 +502,23 @@ Return: {{"queries":["query 1","query 2"]}}""",
     academic_enabled = bool(os.getenv("OPENALEX_API_KEY", "").strip())
     academic_suffix = " plus a targeted academic supplement" if academic_enabled else ""
     _progress("research", 16, f"Searching {len(queries)} public-evidence queries{academic_suffix}.", 13)
-    public_sources = collect_sources(
-        queries,
-        per_query=max(2, min(6, int(os.getenv("GEN_RPT_PER_QUERY", "4")))),
-        max_sources=max(16, min(40, int(os.getenv("GEN_RPT_MAX_SOURCES", "30")))),
-    )
-    academic_sources = collect_openalex_sources(topic, queries)
-    sources = _sanitize_research_sources([*public_sources, *academic_sources])
+    if len(cached_sources) >= 12:
+        sources = cached_sources
+        _progress("research", 24, f"Reusing {len(sources)} cached source documents.", 11)
+    else:
+        public_sources = collect_sources(
+            queries,
+            per_query=max(2, min(6, int(os.getenv("GEN_RPT_PER_QUERY", "4")))),
+            max_sources=max(16, min(40, int(os.getenv("GEN_RPT_MAX_SOURCES", "30")))),
+        )
+        academic_sources = collect_openalex_sources(topic, queries)
+        sources = _sanitize_research_sources([*public_sources, *academic_sources])
     if len(sources) < 12:
         raise GatexWhitepaperError(f"Research produced only {len(sources)} usable sources after quality filtering; at least 12 are required.")
+    source_rows = [source.__dict__ for source in sources]
+    # Persist source retrieval before fact-pack validation so an interrupted or
+    # under-qualified research pass can be repaired without repeating the web crawl.
+    sources_path.write_text(json.dumps(source_rows, ensure_ascii=False, indent=2), encoding="utf-8")
     plan = {
         "objective": topic,
         "decision_question": f"What developments, structural drivers, execution constraints and outlook are supported by verifiable evidence for {topic}?",
@@ -515,8 +531,6 @@ Return: {{"queries":["query 1","query 2"]}}""",
         raise GatexWhitepaperError(f"Research produced only {len(evidence)} structured evidence points; at least 12 are required.")
     if fact_pack.authoritative_source_count < 4:
         raise GatexWhitepaperError("Research requires at least four authoritative public sources before academic context is added.")
-    source_rows = [source.__dict__ for source in sources]
-    sources_path.write_text(json.dumps(source_rows, ensure_ascii=False, indent=2), encoding="utf-8")
     fact_pack_path.write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
     evidence_path.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
     policy_path.write_text(RESEARCH_POLICY_VERSION + "\n", encoding="utf-8")
@@ -790,7 +804,7 @@ def _panel_renderability_issue(panel: Mapping[str, Any]) -> str:
     if kind == "comparison":
         columns = panel.get("columns") if isinstance(panel.get("columns"), list) else []
         valid_rows = [item for item in items if (item.get("metric") or item.get("label")) and item.get("left") and item.get("right")]
-        return "comparison requires two named columns and at least three complete rows" if len(columns) != 2 or len(valid_rows) < 3 else ""
+        return "comparison requires two named columns and at least two complete rows" if len(columns) != 2 or len(valid_rows) < 2 else ""
     if kind in {"line", "line_chart"}:
         series = [item for item in panel.get("series") or [] if isinstance(item, Mapping)]
         valid_series = [item for item in series if len(item.get("values") or []) >= 2]
@@ -864,8 +878,26 @@ def _normalize_exhibit_panels(panels: Any) -> list[dict[str, Any]]:
     return normalized[:2]
 
 
+def _normalize_exhibit_layout(exhibit: Mapping[str, Any]) -> dict[str, Any]:
+    """Apply deterministic page-density limits before manuscript QA."""
+
+    normalized = dict(exhibit)
+    panels = _normalize_exhibit_panels(normalized.get("panels"))
+    metrics = [item for item in normalized.get("metrics") or [] if isinstance(item, Mapping)]
+    normalized["panels"] = panels
+    normalized["metrics"] = metrics[: (2 if len(panels) == 2 else 4)]
+    return normalized
+
+
 def _panel_information_units(panel: Mapping[str, Any]) -> int:
     kind = _clean(panel.get("type"), 40).lower()
+    if kind == "comparison":
+        rows = [
+            item
+            for item in panel.get("items") or []
+            if isinstance(item, Mapping) and (item.get("metric") or item.get("label")) and item.get("left") and item.get("right")
+        ]
+        return len(rows) * 2
     if kind in {"line", "line_chart"}:
         series = [item for item in panel.get("series") or [] if isinstance(item, Mapping)]
         values = [len(item.get("values") or []) for item in series]
@@ -919,6 +951,70 @@ def _publication_copy_projection(value: Any) -> Any:
     if isinstance(value, list):
         return [_publication_copy_projection(item) for item in value]
     return value
+
+
+def _without_meta_sentences(value: Any) -> str:
+    text = _clean(value, 2_000)
+    if not text or not _meta_narration_issue(text):
+        return text
+    sentences = re.split(r"(?<=[.!?])\s+", text)
+    kept = [sentence.strip() for sentence in sentences if sentence.strip() and not _meta_narration_issue(sentence)]
+    return " ".join(kept).strip()
+
+
+def _sanitize_architecture_copy(architecture: Mapping[str, Any]) -> dict[str, Any]:
+    """Remove cover-level process narration without rewriting evidence structures."""
+
+    cleaned = json.loads(json.dumps(architecture, ensure_ascii=False))
+    summary = _without_meta_sentences(cleaned.get("coverSummary"))
+    candidates: list[str] = []
+    executive = cleaned.get("executiveSummary") if isinstance(cleaned.get("executiveSummary"), Mapping) else {}
+    candidates.extend([_without_meta_sentences(executive.get("deck")), _without_meta_sentences(executive.get("headline"))])
+    for chapter in cleaned.get("chapters") or []:
+        if isinstance(chapter, Mapping):
+            candidates.extend([_without_meta_sentences(chapter.get("deck")), _without_meta_sentences(chapter.get("callout"))])
+    for candidate in candidates:
+        if not candidate or candidate.lower() in summary.lower():
+            continue
+        prospective = f"{summary} {candidate}".strip()
+        if len(prospective.split()) <= 80:
+            summary = prospective
+        if len(summary.split()) >= 55:
+            break
+    cleaned["coverSummary"] = summary
+    return cleaned
+
+
+def _trim_complete_sentences(value: Any, maximum_words: int) -> str:
+    text = _without_meta_sentences(value)
+    if len(text.split()) <= maximum_words:
+        return text
+    sentences = [item.strip() for item in re.split(r"(?<=[.!?])\s+", text) if item.strip()]
+    kept: list[str] = []
+    count = 0
+    for sentence in sentences:
+        sentence_words = len(sentence.split())
+        if kept and count + sentence_words > maximum_words:
+            break
+        kept.append(sentence)
+        count += sentence_words
+        if count >= maximum_words:
+            break
+    return " ".join(kept).strip() or text
+
+
+def _sanitize_chapter_copy(chapter: Mapping[str, Any]) -> dict[str, Any]:
+    cleaned = json.loads(json.dumps(chapter, ensure_ascii=False))
+    cleaned["opening"] = _trim_complete_sentences(cleaned.get("opening"), 120)
+    for subsection in cleaned.get("subsections") or []:
+        if not isinstance(subsection, dict):
+            continue
+        subsection["heading"] = _without_meta_sentences(subsection.get("heading"))
+        subsection["paragraphs"] = [
+            _trim_complete_sentences(paragraph, 88)
+            for paragraph in subsection.get("paragraphs") or []
+        ]
+    return cleaned
 
 
 def _architecture_issues(architecture: Mapping[str, Any]) -> list[str]:
@@ -1081,9 +1177,26 @@ def _prepare_editorial(
     ):
         checkpoint_executive = None
 
-    checkpoint_chapters: list[dict[str, Any]] = []
+    checkpoint_chapters: list[dict[str, Any] | None] = []
     for index in range(1, 5):
         checkpoint = _read_json_mapping(work_dir / f"editorial-chapter-{index}.json") if checkpoint_compatible else None
+        if checkpoint is None and checkpoint_compatible:
+            for attempt_path in sorted(work_dir.glob(f"editorial-chapter-{index}-attempt-*.json"), reverse=True):
+                candidate = _read_json_mapping(attempt_path)
+                if candidate is None:
+                    continue
+                candidate = _sanitize_chapter_copy(candidate)
+                candidate.update({"number": f"{index:02d}"})
+                candidate_subsections = candidate.get("subsections") if isinstance(candidate.get("subsections"), list) else []
+                if (
+                    len(candidate_subsections) == 4
+                    and all(isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in candidate_subsections)
+                    and 560 <= _word_count(candidate) <= 980
+                    and checkpoint_has_sources(candidate)
+                    and not _publication_copy_issues(candidate)
+                ):
+                    checkpoint = candidate
+                    break
         subsections = checkpoint.get("subsections") if checkpoint is not None else []
         valid_checkpoint = bool(
             checkpoint is not None
@@ -1093,13 +1206,10 @@ def _prepare_editorial(
             and checkpoint_has_sources(checkpoint)
             and not _publication_copy_issues(checkpoint)
         )
-        if not valid_checkpoint:
-            checkpoint_chapters = []
-            break
-        checkpoint_chapters.append(checkpoint)
+        checkpoint_chapters.append(checkpoint if valid_checkpoint else None)
 
     locked_checkpoint_meta: dict[str, Any] | None = None
-    if checkpoint_executive is not None and len(checkpoint_chapters) == 4:
+    if checkpoint_executive is not None and all(isinstance(chapter, Mapping) for chapter in checkpoint_chapters):
         locked_checkpoint_meta = {
             "executiveSummary": {
                 "headline": checkpoint_executive.get("headline"),
@@ -1115,6 +1225,7 @@ def _prepare_editorial(
                     "sourceIds": chapter.get("sourceIds"),
                 }
                 for index, chapter in enumerate(checkpoint_chapters, start=1)
+                if isinstance(chapter, Mapping)
             ],
         }
         _progress("synthesis", 48, "Resuming from the saved executive brief and four chapter checkpoints.", 7)
@@ -1171,15 +1282,21 @@ def _prepare_editorial(
                     # previously needed a smaller allowance because hidden reasoning
                     # counted against their upstream context window.
                     max_tokens=(
-                        (2_000 if attempt > 0 else 2_200)
-                        if str(client.active_model).lower() not in {"deepseek-chat", "deepseek-reasoner"}
-                        else (4_000 if attempt > 0 else 5_500)
+                        (4_000 if attempt > 0 else 5_500)
+                        if str(client.active_model).lower().startswith("deepseek-")
+                        else (2_000 if attempt > 0 else 2_200)
                     ),
                 )
             )
             if locked_checkpoint_meta is not None:
                 architecture["executiveSummary"] = locked_checkpoint_meta["executiveSummary"]
                 architecture["chapters"] = locked_checkpoint_meta["chapters"]
+            architecture = _sanitize_architecture_copy(architecture)
+            architecture["exhibits"] = [
+                _normalize_exhibit_layout(exhibit)
+                for exhibit in architecture.get("exhibits") or []
+                if isinstance(exhibit, Mapping)
+            ]
             (work_dir / f"editorial-architecture-attempt-{attempt + 1}.json").write_text(
                 json.dumps(architecture, ensure_ascii=False, indent=2),
                 encoding="utf-8",
@@ -1255,7 +1372,8 @@ SOURCES
     for index, raw_meta in enumerate(architecture["chapters"], start=1):
         meta = raw_meta if isinstance(raw_meta, Mapping) else {}
         source_ids = normalized_source_ids(meta.get("sourceIds"))
-        chapter: dict[str, Any] | None = checkpoint_chapters[index - 1] if len(checkpoint_chapters) == 4 else None
+        saved_chapter = checkpoint_chapters[index - 1] if index <= len(checkpoint_chapters) else None
+        chapter: dict[str, Any] | None = dict(saved_chapter) if isinstance(saved_chapter, Mapping) else None
         chapter_error = ""
         for attempt in range(4 if chapter is None else 0):
             chapter = _ascii(
@@ -1273,7 +1391,7 @@ Editorial brief: {brief}
 
 {_publication_rules()}
 
-Write 680-880 words in total. Start with one opening paragraph, followed by exactly four progressive subsections. Every subsection has exactly two concise paragraphs. Use evidence-specific mechanisms and comparisons; do not repeat the executive summary.
+Write 600-780 words in total. Start with one opening paragraph, followed by exactly four progressive subsections. Every subsection has exactly two concise paragraphs. Use evidence-specific mechanisms and comparisons; do not repeat the executive summary. Never refer to this chapter, report, paper, section or analysis.
 Return only: {{"opening":"...","subsections":[{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}}]}}
 
 SOURCES
@@ -1282,7 +1400,7 @@ SOURCES
                         },
                     ],
                     temperature=0.15,
-                    max_tokens=2_700,
+                    max_tokens=2_300,
                 )
             )
             chapter.update(
@@ -1294,6 +1412,11 @@ SOURCES
                     "sourceIds": source_ids,
                 }
             )
+            chapter = _sanitize_chapter_copy(chapter)
+            (work_dir / f"editorial-chapter-{index}-attempt-{attempt + 1}.json").write_text(
+                json.dumps(chapter, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
             subsections = chapter.get("subsections") if isinstance(chapter.get("subsections"), list) else []
             paragraphs_ok = len(subsections) == 4 and all(
                 isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in subsections
@@ -1303,7 +1426,7 @@ SOURCES
                 break
             chapter_error = " ".join(
                 [
-                    "Need one opening, four two-paragraph subsections and 680-880 words; "
+                    "Need one opening, four two-paragraph subsections and 560-980 words; "
                     f"received {_word_count(chapter)} words.",
                     *policy_issues,
                 ]
@@ -1378,9 +1501,8 @@ SOURCES
 
     exhibits: list[dict[str, Any]] = []
     for raw in architecture["exhibits"]:
-        exhibit = dict(raw) if isinstance(raw, Mapping) else {}
+        exhibit = _normalize_exhibit_layout(raw) if isinstance(raw, Mapping) else {}
         exhibit["sourceIds"] = normalized_source_ids(exhibit.get("sourceIds"))
-        exhibit["panels"] = _normalize_exhibit_panels(exhibit.get("panels"))
         exhibits.append(_ascii(exhibit))
     visuals = [dict(item) for item in architecture["visuals"] if isinstance(item, Mapping)]
     expected_visual_ids = ["executive-summary", "chapter-1", "chapter-2", "chapter-3", "chapter-4"]
@@ -2129,7 +2251,7 @@ def generate_gatex_whitepaper(
     slug: str,
     brief: str,
     output_root: Path,
-    model: str = "deepseek-chat",
+    model: str = "deepseek-v4-pro",
     publication_date: str | None = None,
 ) -> dict[str, Any]:
     output_root = Path(output_root).resolve()

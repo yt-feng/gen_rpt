@@ -19,7 +19,7 @@ def main() -> None:
     parser.add_argument("--title", required=True)
     parser.add_argument("--slug", required=True)
     parser.add_argument("--brief", default="")
-    parser.add_argument("--model", default="deepseek-chat")
+    parser.add_argument("--model", default="deepseek-v4-pro")
     parser.add_argument("--publication-date", default="")
     parser.add_argument("--out-root", type=Path, default=Path("output/gatex-whitepapers"))
     args = parser.parse_args()

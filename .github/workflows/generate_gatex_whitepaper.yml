@@ -26,7 +26,7 @@ on:
       model:
         description: DeepSeek editorial model
         required: false
-        default: "deepseek-chat"
+        default: "deepseek-v4-pro"
         type: string
       resume_run_id:
         description: Optional prior workflow run ID whose review artifact should be resumed
@@ -59,7 +59,9 @@ jobs:
       DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
       DEEPSEEK_MAX_TOKENS: "16000"
       GATEX_EDITORIAL_FALLBACK_MODEL: ""
-      GATEX_RESEARCH_MODEL: deepseek-chat
+      GATEX_RESEARCH_MODEL: deepseek-v4-pro
+      APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
+      APIMART_IMAGE_MODEL: gpt-image-2
       GEN_RPT_PER_QUERY: "4"
       GEN_RPT_MAX_SOURCES: "30"
       GEN_RPT_MAX_QUERIES: "18"
@@ -67,7 +69,7 @@ jobs:
       GEN_RPT_GDELT_TIMESPAN: "36months"
       GEN_RPT_FETCH_TIMEOUT: "24"
       GATEX_IMAGE_WORKERS: "3"
-      GATEX_IMAGE_PROVIDER: pollinations
+      GATEX_IMAGE_PROVIDER: apimart
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -87,6 +89,7 @@ jobs:
       - name: Validate cloud configuration
         run: |
           test -n "$DEEPSEEK_API_KEY" || { echo "Missing DEEPSEEK_API_KEY" >&2; exit 1; }
+          test -n "$APIMART_API_KEY" || { echo "Missing APIMART_API_KEY for image generation" >&2; exit 1; }
           test -n "$TAVILY_API_KEY" || { echo "Missing TAVILY_API_KEY" >&2; exit 1; }
           test -n "$QWEN_VL_API_KEY" || { echo "Missing QWEN_VL_API_KEY" >&2; exit 1; }
           test -n "$OPENALEX_API_KEY" || echo "OpenAlex academic supplement is not configured; continuing with primary public sources."
@@ -119,8 +122,8 @@ jobs:
               max_tokens=1_000,
           )
           if result.get("status") != "ready":
-              raise SystemExit(f"Unexpected APIMart editorial canary: {result}")
-          print("DeepSeek editorial route ready: deepseek-chat")
+              raise SystemExit(f"Unexpected DeepSeek editorial canary: {result}")
+          print("DeepSeek editorial route ready: ${{ inputs.model }}")
           PY
 
       - name: Restore prior cloud checkpoint
