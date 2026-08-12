@@ -73,6 +73,62 @@ def test_deepseek_v4_pro_keeps_deepseek_endpoint() -> None:
     assert not client.use_apimart
 
 
+def test_deepseek_v4_structured_writing_disables_hidden_thinking() -> None:
+    response = mock.Mock()
+    response.status_code = 200
+    response.headers = {}
+    response.raise_for_status.return_value = None
+    response.json.return_value = {
+        "choices": [{"finish_reason": "stop", "message": {"content": '{"status":"ready"}'}}]
+    }
+    with mock.patch.dict(
+        os.environ,
+        {"DEEPSEEK_API_KEY": "test-key", "DEEPSEEK_THINKING": "disabled"},
+        clear=False,
+    ):
+        with mock.patch("gen_rpt.deepseek_client.requests.post", return_value=response) as post:
+            client = DeepSeekClient(model="deepseek-v4-pro")
+            assert client.chat_json([{"role": "user", "content": "Return JSON."}]) == {"status": "ready"}
+
+    payload = post.call_args.kwargs["json"]
+    assert payload["model"] == "deepseek-v4-pro"
+    assert payload["thinking"] == {"type": "disabled"}
+
+
+def test_deepseek_retries_empty_json_mode_without_response_format() -> None:
+    empty = mock.Mock()
+    empty.status_code = 200
+    empty.headers = {}
+    empty.raise_for_status.return_value = None
+    empty.json.return_value = {
+        "choices": [{"finish_reason": "stop", "message": {"content": ""}}],
+        "usage": {"completion_tokens": 0},
+    }
+    complete = mock.Mock()
+    complete.status_code = 200
+    complete.headers = {}
+    complete.raise_for_status.return_value = None
+    complete.json.return_value = {
+        "choices": [{"finish_reason": "stop", "message": {"content": '{"status":"ready"}'}}]
+    }
+    environment = {
+        "DEEPSEEK_API_KEY": "test-key",
+        "DEEPSEEK_THINKING": "disabled",
+        "DEEPSEEK_RETRY_ATTEMPTS": "2",
+        "APIMART_RETRY_BASE_SECONDS": "0",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            side_effect=[empty, complete],
+        ) as post:
+            client = DeepSeekClient(model="deepseek-v4-pro")
+            assert client.chat_json([{"role": "user", "content": "Return JSON."}]) == {"status": "ready"}
+
+    assert post.call_args_list[0].kwargs["json"]["response_format"] == {"type": "json_object"}
+    assert "response_format" not in post.call_args_list[1].kwargs["json"]
+
+
 def test_apimart_sol_uses_responses_pro_max_with_step_sized_budget() -> None:
     response = mock.Mock()
     response.status_code = 200

@@ -111,7 +111,18 @@ class DeepSeekClient:
             "Content-Type": "application/json",
             "User-Agent": "GateX-Research-Pipeline/4.0",
         }
-        payload = {"model": model or self.model, "messages": messages, "temperature": temperature, "stream": False}
+        active_model = str(model or self.model)
+        payload = {"model": active_model, "messages": messages, "temperature": temperature, "stream": False}
+
+        if not self.use_apimart and active_model.lower().startswith("deepseek-v4"):
+            thinking_mode = os.getenv("DEEPSEEK_THINKING", "disabled").strip().lower()
+            if thinking_mode not in {"enabled", "disabled"}:
+                raise ValueError("DEEPSEEK_THINKING must be 'enabled' or 'disabled'.")
+            payload["thinking"] = {"type": thinking_mode}
+            if thinking_mode == "enabled":
+                effort = os.getenv("DEEPSEEK_REASONING_EFFORT", "high").strip().lower()
+                if effort in {"high", "max"}:
+                    payload["reasoning_effort"] = effort
 
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
@@ -153,8 +164,17 @@ class DeepSeekClient:
                 if content.strip():
                     return content
                 last_error = _empty_completion_diagnostic(response)
+                if json_mode and "response_format" in payload:
+                    payload.pop("response_format", None)
+                    print(
+                        "[gatex.editorial] DeepSeek JSON mode returned no final content; "
+                        "retrying with the prompt-enforced JSON contract.",
+                        flush=True,
+                    )
             except _ResponseBudgetExhausted as exc:
                 last_error = str(exc)
+                if json_mode and "response_format" in payload:
+                    payload.pop("response_format", None)
                 if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
                     requested_max_tokens = min(
                         maximum_output_tokens,
