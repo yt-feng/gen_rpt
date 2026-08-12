@@ -14,6 +14,7 @@ from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _respon
 from gen_rpt.research_quality import build_research_fact_pack
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
+    _architecture_prompt,
     _chart_label_issues,
     _citation_rows,
     _collect_research,
@@ -893,6 +894,39 @@ def test_page_composition_gate_allows_sources_on_an_exhibit_page() -> None:
     )
 
     assert _page_composition_issues(text, 9) == []
+
+
+def test_compact_architecture_retry_reduces_evidence_payload() -> None:
+    sources = [
+        {
+            "id": f"S{index}",
+            "title": f"Technical source {index}",
+            "url": f"https://example.com/{index}",
+            "excerpt": "Documented model, benchmark and deployment evidence. " * 80,
+        }
+        for index in range(20)
+    ]
+    evidence = [
+        {"claim": "Documented model and deployment evidence. " * 30, "sourceIds": [f"S{index + 1}"]}
+        for index in range(18)
+    ]
+    regular = _architecture_prompt(
+        title="AI and Large Language Models",
+        topic="China capability and Gulf deployment economics",
+        brief="Evidence-led GateX report.",
+        sources=sources,
+        evidence=evidence,
+    )
+    compact = _architecture_prompt(
+        title="AI and Large Language Models",
+        topic="China capability and Gulf deployment economics",
+        brief="Evidence-led GateX report.",
+        sources=sources,
+        evidence=evidence,
+        compact=True,
+    )
+
+    assert len(compact) < len(regular) * 0.8
 
 
 def test_incomplete_optional_exhibit_panel_is_dropped() -> None:

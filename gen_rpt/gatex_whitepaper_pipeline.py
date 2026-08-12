@@ -655,9 +655,17 @@ def _architecture_prompt(
     brief: str,
     sources: Sequence[Mapping[str, str]],
     evidence: Sequence[Mapping[str, Any]],
+    compact: bool = False,
 ) -> str:
-    source_packet = _compact_source_packet(sources=sources, excerpt_chars=900, maximum_chars=16_000)
-    evidence_packet = json.dumps(list(evidence)[:18], ensure_ascii=False)[:10_000]
+    source_packet = _compact_source_packet(
+        sources=sources,
+        excerpt_chars=550 if compact else 900,
+        maximum_chars=9_000 if compact else 16_000,
+    )
+    evidence_packet = json.dumps(
+        list(evidence)[:12 if compact else 18],
+        ensure_ascii=False,
+    )[:6_000 if compact else 10_000]
     return f"""
 Design the publication architecture and exhibits for a client-ready English GateX white paper. Do not write the long-form chapter prose yet.
 
@@ -1055,6 +1063,7 @@ def _prepare_editorial(
                 brief=brief,
                 sources=sources,
                 evidence=evidence,
+                compact=attempt > 0,
             )
             if locked_checkpoint_meta is not None:
                 prompt += (
@@ -1073,7 +1082,7 @@ def _prepare_editorial(
                         },
                     ],
                     temperature=0.12,
-                    max_tokens=5_500,
+                    max_tokens=4_000 if attempt > 0 else 5_500,
                 )
             )
             if locked_checkpoint_meta is not None:

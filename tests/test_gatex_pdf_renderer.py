@@ -13,6 +13,7 @@ from gen_rpt.gatex_pdf_renderer import (
     _bar_chart_svg,
     COVER_TEXTURE_PATH,
     _deduplicated_word_text,
+    _render_whitepaper_exhibit,
     _whitepaper_css,
     release_classification,
     release_pdf_filename,
@@ -128,6 +129,34 @@ def test_exhibit_sources_use_compact_atomic_columns() -> None:
 def test_four_exhibit_metrics_render_in_one_row() -> None:
     css = _whitepaper_css()
     assert ".whitepaper-metrics.metrics-4 { grid-template-columns: repeat(4, 1fr); }" in css
+
+
+def test_information_heavy_exhibit_uses_compact_page_budget() -> None:
+    html = _render_whitepaper_exhibit(
+        {
+            "heading": "Deployment economics change with the operating envelope",
+            "exhibit": {
+                "panels": [
+                    {
+                        "type": "scenario",
+                        "items": [
+                            {"label": f"Scenario {index}", "range": "Observed", "body": "Evidence."}
+                            for index in range(4)
+                        ],
+                    },
+                    {
+                        "type": "milestones",
+                        "items": [
+                            {"label": f"Stage {index}", "metric": "Measured", "body": "Evidence."}
+                            for index in range(4)
+                        ],
+                    },
+                ]
+            },
+        }
+    )
+
+    assert "class='whitepaper-exhibit exhibit-dense'" in html
 
 
 class GatexPdfRendererTests(unittest.TestCase):

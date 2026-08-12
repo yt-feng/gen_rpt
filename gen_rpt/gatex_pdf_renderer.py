@@ -790,8 +790,15 @@ def _render_whitepaper_chapter(section: Mapping[str, Any]) -> str:
 
 def _render_whitepaper_exhibit(section: Mapping[str, Any]) -> str:
     exhibit = section.get("exhibit") if isinstance(section.get("exhibit"), Mapping) else {}
+    panels = exhibit.get("panels") if isinstance(exhibit.get("panels"), list) else []
+    information_units = sum(
+        len(panel.get("items") or [])
+        for panel in panels
+        if isinstance(panel, Mapping)
+    )
+    density_class = " exhibit-dense" if len(panels) > 1 or information_units >= 8 else ""
     parts = [
-        "<section class='whitepaper-exhibit'>",
+        f"<section class='whitepaper-exhibit{density_class}'>",
         "<header class='whitepaper-exhibit-head'>",
         f"<span>{_e(exhibit.get('label') or 'EXHIBIT')}</span>",
         f"<h2>{_e(section.get('heading'))}</h2>",
@@ -811,7 +818,6 @@ def _render_whitepaper_exhibit(section: Mapping[str, Any]) -> str:
                 + "</article>"
             )
         parts.append("</div>")
-    panels = exhibit.get("panels") if isinstance(exhibit.get("panels"), list) else []
     if panels:
         parts.append("<div class='exhibit-panels'>")
         for panel_index, raw in enumerate(panels, start=1):
@@ -1481,6 +1487,22 @@ p { orphans: 3; widows: 3; }
 .whitepaper-exhibit > .whitepaper-footnotes { font-size: 5.4pt; line-height: 1.2; break-inside: avoid-page; }
 .whitepaper-exhibit > .whitepaper-footnotes ol { margin-top: 1mm; column-count: 2; column-gap: 7mm; column-fill: balance; }
 .whitepaper-exhibit > .whitepaper-footnotes li { margin-bottom: .6mm; break-inside: avoid; }
+.whitepaper-exhibit.exhibit-dense .whitepaper-exhibit-head { margin-bottom: 3.5mm; }
+.whitepaper-exhibit.exhibit-dense .whitepaper-exhibit-head h2 { font-size: 20.5pt; }
+.whitepaper-exhibit.exhibit-dense .whitepaper-exhibit-head p { font-size: 10pt; }
+.whitepaper-exhibit.exhibit-dense .whitepaper-metrics { margin: 3.5mm 0 4mm; }
+.whitepaper-exhibit.exhibit-dense .whitepaper-metrics article { min-height: 18mm; padding-top: 2mm; padding-bottom: 1.5mm; }
+.whitepaper-exhibit.exhibit-dense .exhibit-panels { gap: 3.5mm; margin: 3mm 0; }
+.whitepaper-exhibit.exhibit-dense .exhibit-panel { padding-top: 3mm; padding-bottom: 2mm; }
+.whitepaper-exhibit.exhibit-dense .scenario-grid,
+.whitepaper-exhibit.exhibit-dense .matrix-grid { gap: 2.2mm; margin-top: 3mm; }
+.whitepaper-exhibit.exhibit-dense .scenario-grid > div,
+.whitepaper-exhibit.exhibit-dense .matrix-grid > div { min-height: 21mm; padding: 2.5mm 3mm; }
+.whitepaper-exhibit.exhibit-dense .milestone-track { margin-top: 5.5mm; padding-top: 7mm; }
+.whitepaper-exhibit.exhibit-dense .milestone-item { min-height: 35mm; padding-top: 5mm; }
+.whitepaper-exhibit.exhibit-dense .milestone-item strong { font-size: 15pt; line-height: 1.08; }
+.whitepaper-exhibit.exhibit-dense .milestone-item p { font-size: 6.7pt; line-height: 1.32; }
+.whitepaper-exhibit.exhibit-dense > .whitepaper-footnotes { margin-top: 1.5mm; padding-top: 1.2mm; }
 .whitepaper-outlook { padding-top: 8mm; }
 .whitepaper-outlook h2 { max-width: 158mm; margin: 0 0 4mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 31pt; font-weight: 400; line-height: 1.05; }
 .outlook-deck { max-width: 145mm; margin-bottom: 8mm; color: #2777c9; font-size: 12.5pt; line-height: 1.38; }
