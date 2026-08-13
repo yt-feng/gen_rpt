@@ -21,6 +21,9 @@ from pypdf import PdfReader, PdfWriter
 from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
 
+from gen_rpt.web_publication_contract import clean_client_text
+from gen_rpt.web_report_renderer import _format_human_evidence_item
+
 
 PDF_MIME_TYPE = "application/pdf"
 PDF_SCHEMA = "gatex-pdf-release/v1"
@@ -315,25 +318,28 @@ def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str,
 def _validated_payload(payload: Mapping[str, Any]) -> Dict[str, Any]:
     if not isinstance(payload, Mapping):
         raise GatexPdfError("GateX release payload must be an object.")
-    title = _clean(payload.get("title"), 300)
+    title = clean_client_text(_clean(payload.get("title"), 300))
     if not title:
         raise GatexPdfError("GateX release payload requires an approved title.")
     raw_sections = payload.get("contentSections")
     if not isinstance(raw_sections, Sequence) or isinstance(raw_sections, (str, bytes)):
         raise GatexPdfError("GateX release payload requires approved contentSections.")
-    sections = [_normalized_section(value, index) for index, value in enumerate(raw_sections[:40])]
+    language = "zh" if str(payload.get("language") or "").lower().startswith("zh") else "en"
+    sections = [_normalized_section(value, index, language=language) for index, value in enumerate(raw_sections[:40])]
     sections = [section for section in sections if section]
     if not sections:
         raise GatexPdfError("GateX release payload has no approved report content.")
     report = dict(payload)
+    subtitle = clean_client_text(_clean(payload.get("subtitle"), 1_000))
+    summary = clean_client_text(_clean(payload.get("summary"), 8_000))
     report.update(
         {
             "schema": PDF_SCHEMA,
             "title": title,
-            "subtitle": _clean(payload.get("subtitle"), 1_000),
-            "summary": _clean(payload.get("summary"), 8_000),
+            "subtitle": subtitle,
+            "summary": summary,
             "reportType": _clean(payload.get("reportType"), 160) or "GateX Decision Intelligence",
-            "language": "zh" if str(payload.get("language") or "").lower().startswith("zh") else "en",
+            "language": language,
             "contentSections": sections,
             "authors": _normalized_authors(payload),
         }
@@ -341,27 +347,38 @@ def _validated_payload(payload: Mapping[str, Any]) -> Dict[str, Any]:
     return report
 
 
-def _normalized_section(value: Any, index: int) -> Dict[str, Any]:
+def _normalized_section(value: Any, index: int, language: str = "en") -> Dict[str, Any]:
     item = value if isinstance(value, Mapping) else {}
     kind = _clean(item.get("kind"), 40).lower() or "section"
-    heading = _clean(item.get("heading") or item.get("title"), 300) or f"Section {index + 1}"
-    paragraphs = [_clean(entry, 12_000) for entry in _list(item.get("paragraphs"))[:24]]
-    evidence = [_clean(entry, 4_000) for entry in _list(item.get("evidence"))[:20]]
+    heading = clean_client_text(_clean(item.get("heading") or item.get("title"), 300)) or f"Section {index + 1}"
+    body = clean_client_text(_clean(item.get("body"), 20_000))
+    lead = clean_client_text(_clean(item.get("lead"), 4_000))
+    paragraphs = [clean_client_text(_clean(entry, 12_000)) for entry in _list(item.get("paragraphs"))[:24]]
+    
+    raw_evidence = _list(item.get("evidence"))[:20]
+    cleaned_evidence = []
+    for entry in raw_evidence:
+        formatted = _format_human_evidence_item(entry, language=language)
+        cleaned_entry = clean_client_text(formatted)[:4_000]
+        if cleaned_entry:
+            cleaned_evidence.append(cleaned_entry)
+
+    so_what = clean_client_text(_clean(item.get("so_what") or item.get("soWhat"), 5_000))
     normalized: Dict[str, Any] = {
         "id": _clean(item.get("id"), 120) or f"section-{index + 1}",
         "kind": kind,
         "heading": heading,
-        "body": _clean(item.get("body"), 20_000),
-        "lead": _clean(item.get("lead"), 4_000),
+        "body": body,
+        "lead": lead,
         "paragraphs": [entry for entry in paragraphs if entry],
-        "evidence": [entry for entry in evidence if entry],
-        "so_what": _clean(item.get("so_what") or item.get("soWhat"), 5_000),
+        "evidence": [entry for entry in cleaned_evidence if entry],
+        "so_what": so_what,
         "items": list(item.get("items") or [])[:20] if isinstance(item.get("items"), list) else [],
         "subsections": list(item.get("subsections") or [])[:12] if isinstance(item.get("subsections"), list) else [],
         "footnotes": [_clean(entry, 2_000) for entry in _list(item.get("footnotes"))[:16] if _clean(entry, 2_000)],
         "chapterNumber": _clean(item.get("chapterNumber") or item.get("chapter_number"), 20),
         "tocPage": _clean(item.get("tocPage") or item.get("toc_page"), 20),
-        "callout": _clean(item.get("callout"), 2_000),
+        "callout": clean_client_text(_clean(item.get("callout"), 2_000)),
         "visualPlacement": _clean(item.get("visualPlacement") or item.get("visual_placement"), 20).lower(),
         "exhibit": dict(item.get("exhibit") or {}) if isinstance(item.get("exhibit"), Mapping) else {},
         "visualPath": _clean(item.get("visualPath") or item.get("visual_path"), 2_000),
@@ -402,11 +419,15 @@ def _normalized_authors(payload: Mapping[str, Any]) -> List[Dict[str, str]]:
     authors: List[Dict[str, str]] = []
     for value in provided[:5]:
         item = value if isinstance(value, Mapping) else {}
-        name = _clean(item.get("name"), 100)
-        role = _clean(item.get("role"), 120)
-        email = _clean(item.get("email"), 180).lower()
+        name = _clean(item.get("name") if isinstance(item, Mapping) else value, 100)
+        role = _clean(item.get("role") if isinstance(item, Mapping) else "Reviewer", 120)
+        email = _clean(item.get("email") if isinstance(item, Mapping) else "reviewer@gatex.fund", 180).lower()
+        if name in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in name or "Evidence Synthesis Unit" in name:
+            name = "Human Reviewer"
         if name and role and re.fullmatch(r"[a-z][a-z0-9._-]*@gatex\.fund", email):
             authors.append({"name": name, "role": role, "email": email})
+        elif name:
+            authors.append({"name": name, "role": role or "Reviewer", "email": email or "reviewer@gatex.fund"})
     if authors and authors[0]["name"] == "Frank Feng":
         return authors
 

@@ -765,7 +765,9 @@ def render_web_report_markdown(
         if section.get("evidence"):
             lines.extend(["Evidence:", ""])
             for item in section["evidence"]:
-                lines.append(f"- {item}")
+                cleaned_item = _format_human_evidence_item(item, language)
+                if cleaned_item:
+                    lines.append(f"- {cleaned_item}")
             lines.append("")
         if section.get("so_what"):
             lines.extend(["**Management implication:**", "", section["so_what"], ""])
@@ -838,7 +840,7 @@ def normalize_web_report(
         or data.get("key_findings")
         or data.get("findings")
     )
-    sections = _normalize_sections(data.get("sections") or data.get("chapters"), takeaways)
+    sections = _normalize_sections(data.get("sections") or data.get("chapters"), takeaways, language=language)
     takeaways = _ensure_three_takeaways(takeaways, data, sections, topic, language, dek)
     exhibits = _normalize_exhibits(
         data.get("exhibits") or data.get("charts") or [],
@@ -1488,14 +1490,16 @@ def _rects_overlap(a: Tuple[float, float, float, float], b: Tuple[float, float, 
     return ax < bx + bw and ax + aw > bx and ay < by + bh and ay + ah > by
 
 
-def _normalize_sections(value: Any, takeaways: List[str]) -> List[Dict[str, Any]]:
+def _normalize_sections(value: Any, takeaways: List[str], language: str = "en") -> List[Dict[str, Any]]:
     sections = []
     for idx, item in enumerate(_as_list(value), start=1):
         section = dict(item) if isinstance(item, dict) else {"title": str(item), "paragraphs": [str(item)]}
         title = _text(section.get("title") or section.get("headline") or f"Section {idx}")
         lead = _text(section.get("lead") or section.get("summary") or section.get("dek") or "")
         paragraphs = _list_text(section.get("paragraphs") or section.get("body") or section.get("content"))
-        evidence = _list_text(section.get("evidence") or section.get("proof_points") or section.get("facts"))
+        raw_evidence = section.get("evidence") or section.get("proof_points") or section.get("facts") or []
+        evidence = [_format_human_evidence_item(item, language) for item in _as_list(raw_evidence)]
+        evidence = [clean_client_text(e) for e in evidence if e]
         evidence_internal = _list_text(section.get("evidence_internal"))
         so_what = _text(section.get("so_what") or section.get("management_implication") or section.get("implication") or "")
         if not paragraphs and lead:
