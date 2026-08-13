@@ -1,0 +1,312 @@
+{
+  "objective": "Assess the viability and strategic approach for exporting China's flood-resilience technology systems (urban drainage, slope monitoring, mobile pumping, satellite communication, insurance risk models) to the UAE, leveraging the technical upgrades and case studies from China's 2026 flood season, to help Gulf cities address escalating flood risks.",
+  "audience": "Senior management of a China-UAE business development team, including investment and partnership decision-makers.",
+  "decision_question": "Should we invest in developing and marketing an integrated flood-resilience solution package for UAE municipal, real estate, industrial, airport, and free zone clients, and if so, what is the optimal market entry strategy and product focus?",
+  "issue_tree": {
+    "Market Demand": {
+      "UAE Flood Risk": "What is the current and projected flood risk in UAE cities, and what regulatory or investment drivers exist for climate resilience?",
+      "Government Initiatives": "What are UAE government programs or mandates for climate adaptation and infrastructure resilience?",
+      "Competitive Landscape": "Who are the existing providers of flood resilience solutions in the UAE, and what gaps exist?"
+    },
+    "Solution Fit": {
+      "Technology Transferability": "How adaptable are China's flood resilience technologies (urban drainage, slope monitoring, mobile pumping, satellite communication, insurance models) to UAE conditions (e.g., desert climate, flash floods, infrastructure)?",
+      "Integration Complexity": "What are the technical and operational challenges of integrating these systems into a single solution package?",
+      "Localization Needs": "What customization is required for UAE regulations, language, and cultural context?"
+    },
+    "Business Case": {
+      "Revenue Potential": "What is the estimated market size and revenue potential for flood resilience solutions in the UAE?",
+      "Cost Structure": "What are the costs of developing, marketing, and deploying the solution package?",
+      "Partnership Opportunities": "What local partnerships (e.g., with UAE construction firms, government entities) could facilitate market entry?"
+    },
+    "Risk and Mitigation": {
+      "Regulatory and Legal": "What are the import/export regulations, intellectual property protections, and liability issues?",
+      "Political and Economic": "How stable is the UAE market for foreign investment, and what are the economic conditions?",
+      "Technical Performance": "What are the risks of technology failure in UAE conditions, and how can they be mitigated?"
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The UAE faces significant flood risk due to rapid urbanization and climate change, creating a strong demand for advanced flood resilience solutions.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: China's flood resilience technologies, proven in the 2026 flood season, are transferable to the UAE with minimal adaptation, offering a competitive advantage.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The UAE government is actively investing in climate resilience infrastructure, providing a favorable policy and funding environment for such solutions.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: An integrated solution package (combining drainage, monitoring, pumping, communication, and insurance) will be more attractive to UAE clients than standalone products.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: Local partnerships with UAE construction and infrastructure firms are essential for successful market entry and long-term operations.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "UAE flood risk assessments and historical flood events",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "UAE government climate adaptation plans and infrastructure investment budgets",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Market size and growth projections for climate resilience technologies in the Gulf region",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Competitor analysis of existing flood resilience providers in the UAE",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Regulatory requirements for importing and deploying such technologies in the UAE",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Case studies of successful technology transfer from China to the UAE",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Cost-benefit analysis of integrated vs. standalone solutions",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Potential local partners and their capabilities",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "UAE flood risk assessment climate change urban flooding",
+    "UAE government climate adaptation infrastructure investment 2025 2026",
+    "Gulf region flood resilience technology market size",
+    "flood resilience solutions providers UAE Dubai Abu Dhabi",
+    "UAE import regulations technology equipment standards",
+    "China UAE technology transfer partnership opportunities",
+    "smart city flood management systems Middle East",
+    "climate resilience infrastructure spending UAE 2026"
+  ],
+  "source_strategy": "Prioritize official UAE government sources (e.g., Ministry of Climate Change and Environment, Dubai Municipality), international organizations (World Bank, UN), industry reports (Mordor Intelligence, Frost & Sullivan), and reputable news outlets (Gulf News, Khaleej Times). Cross-reference data from multiple sources to ensure reliability.",
+  "outline": [
+    "1. China's 2026 Flood Season: A Catalyst for Advanced Flood-Resilience Technologies",
+    "2. UAE's Escalating Flood Risk: A Market Opportunity for Proven Solutions",
+    "3. Transferability of Chinese Technologies: Adapting to Gulf Conditions",
+    "4. Integrated Solution Package: Value Proposition and Competitive Advantage",
+    "5. Market Entry Strategy: Partnerships, Regulatory Navigation, and Localization",
+    "6. Financial Projections and Risk Mitigation: Building a Sustainable Business Case"
+  ],
+  "exhibit_ideas": [
+    "Map of China's 2026 flood events and corresponding technology applications",
+    "Chart of UAE flood risk indicators and infrastructure investment trends",
+    "Comparison table of Chinese technologies vs. existing UAE solutions",
+    "Diagram of the integrated solution package architecture",
+    "Timeline for market entry and key milestones",
+    "Sensitivity analysis of revenue projections under different scenarios"
+  ],
+  "risks": [
+    "Political and regulatory changes in UAE affecting foreign investment",
+    "Intellectual property theft or lack of enforcement",
+    "Technical failures due to environmental differences (e.g., sand, heat)",
+    "Cultural and language barriers in business negotiations",
+    "Competition from established Western or local firms",
+    "Economic downturn in UAE reducing infrastructure spending",
+    "Delays in certification or approval processes"
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating total market size segment share",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating customer count price ARPU",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating pilot customer conversion",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating ROI cost savings case study",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating capacity utilization unit price",
+          "China-UAE Climate Technology Transfer: Exporting Flood-Resilience Systems as Gulf Cities Face Escalating project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "critical_evidence_required": [
+    {
+      "id": "BASE-1",
+      "description": "Product-specific demand: procurement records, tenders, RFPs, orders, or contracts for the specific product category in the target market",
+      "type": "demand_signal",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-2",
+      "description": "Identifiable customer or procurement route: named buyer, procurement channel, or comparable contract in the target geography",
+      "type": "customer",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-3",
+      "description": "Competitive alternatives: named competing products, services, or suppliers with at least one comparable data point",
+      "type": "competition",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-4",
+      "description": "Indicative commercial economics: pricing, contract value, margin, or cost benchmark from a comparable transaction or product",
+      "type": "financial",
+      "required_for": "invest"
+    },
+    {
+      "id": "BASE-5",
+      "description": "Regulatory pathway: relevant approvals, certifications, standards, or licences required for the product in the target market",
+      "type": "regulation",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-6",
+      "description": "Technical feasibility: performance specification, integration requirement, or comparable deployment evidence",
+      "type": "technical",
+      "required_for": "conditional_pilot"
+    }
+  ]
+}

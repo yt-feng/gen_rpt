@@ -1,0 +1,215 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "UAE Annual Precipitation and Flood Event Frequency (2015-2025)",
+    "chart_type": "line",
+    "executive_question": "How has the frequency and intensity of flood events in the UAE evolved over the past decade?",
+    "required_metrics": [
+      "Annual total precipitation (mm) for UAE (2015-2025)",
+      "Annual number of flood events in UAE (2015-2025)",
+      "Annual economic losses due to floods (USD) (2015-2025)"
+    ],
+    "comparison_set": [
+      "UAE (national level) over time"
+    ],
+    "preferred_sources": [
+      "UAE National Center of Meteorology",
+      "EM-DAT (Emergency Events Database)",
+      "World Bank Climate Change Knowledge Portal"
+    ],
+    "search_queries": [
+      "UAE annual precipitation data 2015 2025",
+      "UAE flood events frequency 2015 2025",
+      "UAE flood economic losses 2015 2025"
+    ],
+    "data_quality_rule": "Use official meteorological and disaster databases. If annual data is incomplete, use at least 4 data points and clearly mark interpolated values as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the escalating flood risk in the UAE, justifying the market opportunity.",
+    "pre_exhibit_context": "The report argues that UAE cities face escalating flood risks due to climate change and urbanization.",
+    "post_exhibit_takeaway": "The data shows a clear upward trend in flood events and precipitation, supporting the need for advanced flood resilience solutions."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "UAE Government Climate Resilience Infrastructure Investment (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "How is UAE government investment in climate resilience infrastructure expected to grow?",
+    "required_metrics": [
+      "Annual government expenditure on climate resilience infrastructure (USD) (2020-2030)",
+      "Annual budget allocation for flood management (USD) (2020-2030)",
+      "Number of climate resilience projects initiated (2020-2030)"
+    ],
+    "comparison_set": [
+      "UAE federal and emirate-level budgets over time"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Finance",
+      "UAE Ministry of Climate Change and Environment",
+      "World Bank Public Expenditure Reviews"
+    ],
+    "search_queries": [
+      "UAE climate resilience infrastructure investment 2020 2030",
+      "UAE flood management budget 2025",
+      "UAE climate adaptation projects 2025"
+    ],
+    "data_quality_rule": "Use official budget documents and project announcements. If future years are projections, clearly label as estimates and cite the source of the forecast.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates a favorable policy and funding environment for flood resilience solutions.",
+    "pre_exhibit_context": "The report claims that UAE government initiatives and budgets support climate adaptation.",
+    "post_exhibit_takeaway": "The upward trend in government investment signals a growing market and willingness to fund resilience projects."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Market Size for Flood Resilience Technologies in the Gulf Region (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the projected market size for flood resilience technologies in the Gulf region?",
+    "required_metrics": [
+      "Market size (USD) for flood resilience technologies in GCC (2020-2030)",
+      "Market size (USD) for smart water management systems in GCC (2020-2030)",
+      "Market size (USD) for climate adaptation technologies in GCC (2020-2030)"
+    ],
+    "comparison_set": [
+      "GCC countries (UAE, Saudi Arabia, Qatar, etc.) over time"
+    ],
+    "preferred_sources": [
+      "Mordor Intelligence",
+      "Frost & Sullivan",
+      "Grand View Research"
+    ],
+    "search_queries": [
+      "GCC flood resilience technology market size 2025",
+      "GCC smart water management market forecast 2030",
+      "Middle East climate adaptation technology market"
+    ],
+    "data_quality_rule": "Use market research reports with clear methodology. If only a few data points are available, use CAGR to interpolate and clearly mark estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the revenue potential for the solution package.",
+    "pre_exhibit_context": "The report argues that there is a significant market opportunity for flood resilience solutions in the Gulf.",
+    "post_exhibit_takeaway": "The market is growing at a healthy CAGR, indicating a substantial and expanding opportunity."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Competitive Landscape: Flood Resilience Solution Providers in the UAE",
+    "chart_type": "bubble",
+    "executive_question": "Who are the key competitors in the UAE flood resilience market, and how do they compare?",
+    "required_metrics": [
+      "Company name",
+      "Market share (%) in UAE flood resilience",
+      "Number of projects completed in UAE",
+      "Revenue from flood resilience solutions (USD) (latest year)",
+      "Technology focus (e.g., drainage, monitoring, pumping)"
+    ],
+    "comparison_set": [
+      "Key competitors (e.g., Veolia, AECOM, local UAE firms)"
+    ],
+    "preferred_sources": [
+      "Company annual reports",
+      "Industry reports",
+      "Project announcements"
+    ],
+    "search_queries": [
+      "flood resilience solution providers UAE",
+      "UAE flood management companies market share",
+      "smart drainage systems UAE competitors"
+    ],
+    "data_quality_rule": "Use publicly available company data. If market share is not available, use project counts or revenue as proxies and clearly state the basis.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies gaps in the market that the integrated solution can fill.",
+    "pre_exhibit_context": "The report argues that existing solutions are fragmented and lack integration.",
+    "post_exhibit_takeaway": "The competitive landscape shows a gap for integrated solutions, positioning our offering as unique."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "UAE Flood Resilience Technology Adoption by Segment (2025)",
+    "chart_type": "bar",
+    "executive_question": "Which customer segments (municipal, real estate, industrial, airports, free zones) are most likely to adopt flood resilience solutions?",
+    "required_metrics": [
+      "Number of flood resilience projects by segment (2025)",
+      "Investment in flood resilience by segment (USD) (2025)",
+      "Regulatory requirements for flood resilience by segment (e.g., building codes)"
+    ],
+    "comparison_set": [
+      "Segments: municipal, real estate, industrial, airports, free zones"
+    ],
+    "preferred_sources": [
+      "UAE government tenders",
+      "Industry association reports",
+      "Construction project databases"
+    ],
+    "search_queries": [
+      "UAE flood resilience projects by sector 2025",
+      "UAE municipal flood management investment",
+      "UAE real estate flood resilience requirements"
+    ],
+    "data_quality_rule": "Use project data from official tender portals and industry reports. If segment-level data is scarce, use qualitative indicators and clearly state limitations.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies the most promising target segments for market entry.",
+    "pre_exhibit_context": "The report argues that different segments have varying needs and willingness to invest.",
+    "post_exhibit_takeaway": "Municipal and real estate segments show the highest adoption potential, guiding initial marketing efforts."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Regulatory and Policy Milestones for Climate Resilience in the UAE (2015-2030)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key regulatory and policy milestones that shape the market for flood resilience solutions?",
+    "required_metrics": [
+      "Year of policy/regulation enactment",
+      "Policy/regulation name",
+      "Description of impact on flood resilience"
+    ],
+    "comparison_set": [
+      "Chronological milestones"
+    ],
+    "preferred_sources": [
+      "UAE government websites",
+      "Legal databases",
+      "News articles"
+    ],
+    "search_queries": [
+      "UAE climate resilience policy timeline",
+      "UAE flood management regulations 2025",
+      "UAE sustainable infrastructure policy 2030"
+    ],
+    "data_quality_rule": "Use official government sources for policy dates and descriptions. Cross-reference with news for accuracy.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the regulatory drivers and adoption gates for the solution.",
+    "pre_exhibit_context": "The report argues that government policies are creating a favorable environment.",
+    "post_exhibit_takeaway": "The timeline shows a clear regulatory push towards climate resilience, creating a window of opportunity."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Cost-Benefit Analysis: Integrated vs. Standalone Flood Resilience Solutions",
+    "chart_type": "bar",
+    "executive_question": "What is the cost-benefit comparison between an integrated solution package and standalone products?",
+    "required_metrics": [
+      "Total cost of ownership (TCO) for integrated solution (USD) over 10 years",
+      "Total cost of ownership (TCO) for standalone solutions (USD) over 10 years",
+      "Expected annual savings from reduced flood damage (USD)",
+      "Implementation time (months) for integrated vs. standalone"
+    ],
+    "comparison_set": [
+      "Integrated solution vs. sum of standalone components"
+    ],
+    "preferred_sources": [
+      "Industry cost benchmarks",
+      "Case studies from China",
+      "Engineering estimates"
+    ],
+    "search_queries": [
+      "integrated flood management system cost benefit analysis",
+      "flood resilience solution ROI case study",
+      "smart drainage system cost savings"
+    ],
+    "data_quality_rule": "Use real cost data from case studies or industry benchmarks. If data is not available, clearly state assumptions and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Justifies the value proposition of the integrated solution.",
+    "pre_exhibit_context": "The report argues that an integrated package offers superior value.",
+    "post_exhibit_takeaway": "The integrated solution shows a higher ROI and lower total cost of ownership, making it more attractive to clients."
+  }
+]

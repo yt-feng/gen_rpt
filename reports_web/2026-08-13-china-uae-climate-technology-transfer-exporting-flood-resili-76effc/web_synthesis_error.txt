@@ -1,0 +1,1 @@
+WebReportPipeline._synthesize_web_report() got an unexpected keyword argument 'stance'
