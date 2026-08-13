@@ -224,7 +224,7 @@ def rag_report_quality_issues(
             continue
         grounded_ids = {
             match.group(1).strip()
-            for item in section.get("evidence", []) or []
+            for item in (section.get("evidence_internal") or section.get("evidence") or [])
             if (match := _matching_chunk_citation(str(item or ""), source_chunks))
         }
         if len(grounded_ids) < target_citations:
@@ -562,7 +562,8 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
-        evidence = [str(item).strip() for item in section.get("evidence", []) or [] if str(item).strip()]
+        evidence_key = "evidence_internal" if section.get("evidence_internal") else "evidence"
+        evidence = [str(item).strip() for item in section.get(evidence_key, []) or [] if str(item).strip()]
         grounded_ids = {
             match.group(1).strip()
             for item in evidence
@@ -597,13 +598,13 @@ def ground_rag_section_evidence(report: Any, source_chunks: dict[str, str]) -> A
         quote = quote.replace('"', "'").replace("“", "'").replace("”", "'")
         if quote:
             evidence.append(f'[Chunk: {chunk_id}] "{quote}" — Supporting document evidence.')
-            section["evidence"] = evidence
+            section[evidence_key] = evidence
             added_any = True
     if added_any and any(
         len(
             {
                 match.group(1).strip()
-                for item in section.get("evidence", []) or []
+                for item in (section.get("evidence_internal") or section.get("evidence") or [])
                 if (match := _matching_chunk_citation(str(item or ""), source_chunks))
             }
         ) < target_citations

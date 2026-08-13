@@ -1041,6 +1041,51 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(pipeline._revise_report_draft.call_count, 2)
         self.assertEqual(quality_issues.call_count, 2)
 
+    def test_normalization_preserves_exact_rag_citations_for_internal_validation(self):
+        citation = '[Chunk: chunk-1] "Validated flood-resilience evidence." — Governing evidence.'
+        report = normalize_web_report(
+            {
+                "title": "Phased market entry protects capital while validating demand",
+                "key_takeaways": ["One.", "Two.", "Three."],
+                "sections": [{"title": "Evidence supports phased entry", "evidence": [citation]}],
+            },
+            topic="Flood-resilience technology transfer",
+            allow_synthetic_fallbacks=False,
+        )
+
+        issues = rag_report_quality_issues(
+            report,
+            topic="Flood-resilience technology transfer",
+            context_text="Validated flood-resilience evidence.",
+            source_count=1,
+            source_chunks={"chunk-1": "Validated flood-resilience evidence."},
+        )
+
+        self.assertEqual(report["sections"][0]["evidence_internal"], [citation])
+        self.assertNotIn("[Chunk:", report["sections"][0]["evidence"][0])
+        self.assertFalse(any("distinct exact private-document citations" in issue for issue in issues))
+
+    def test_grounding_adds_missing_citations_to_internal_evidence_after_normalization(self):
+        first = '[Chunk: chunk-1] "Validated flood-resilience evidence." — Governing evidence.'
+        report = {"sections": [{
+            "title": "Evidence supports phased entry",
+            "paragraphs": ["Flood resilience shapes the entry decision."],
+            "evidence": ["Reader-facing citation."],
+            "evidence_internal": [first],
+        }]}
+
+        ground_rag_section_evidence(
+            report,
+            {
+                "chunk-1": "Validated flood-resilience evidence.",
+                "chunk-2": "Technology transfer requires local implementation capacity.",
+            },
+        )
+
+        self.assertEqual(report["sections"][0]["evidence"], ["Reader-facing citation."])
+        self.assertEqual(len(report["sections"][0]["evidence_internal"]), 2)
+        self.assertIn("[Chunk: chunk-2]", report["sections"][0]["evidence_internal"][1])
+
     def test_action_normalization_uses_a_non_numeric_default_horizon(self):
         report = normalize_web_report(
             {

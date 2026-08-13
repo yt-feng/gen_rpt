@@ -1493,7 +1493,7 @@ def _normalize_sections(value: Any, takeaways: List[str], language: str = "en") 
         raw_evidence = section.get("evidence") or section.get("proof_points") or section.get("facts") or []
         evidence = [_format_human_evidence_item(item, language) for item in _as_list(raw_evidence)]
         evidence = [clean_client_text(e) for e in evidence if e]
-        evidence_internal = _list_text(section.get("evidence_internal"))
+        evidence_internal = list(_as_list(section.get("evidence_internal") or raw_evidence))
         so_what = _text(section.get("so_what") or section.get("management_implication") or section.get("implication") or "")
         if not paragraphs and lead:
             paragraphs = [lead]
