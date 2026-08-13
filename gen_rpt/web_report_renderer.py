@@ -847,7 +847,16 @@ def normalize_web_report(
     action_steps = _normalize_actions(data.get("action_steps") or data.get("action_plan") or [])
     references = _normalize_references(data.get("references") or data.get("sources") or [])
     conflicts = _normalize_conflicts(data.get("conflicts") or data.get("evidence_conflicts") or [])
-    authors = _list_text(data.get("authors") or data.get("author_credentials") or [BRAND_NAME])
+    raw_authors = _list_text(data.get("authors") or data.get("author_credentials") or ["Human Reviewer"])
+    authors = []
+    for a in raw_authors:
+        name = str(a or "").strip()
+        if name in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in name or "Evidence Synthesis Unit" in name:
+            authors.append("Human Reviewer")
+        else:
+            authors.append(name)
+    if not authors:
+        authors = ["Human Reviewer"]
     methodology = _text(data.get("methodology") or data.get("methodology_note") or "")
     source_count = int(_number(data.get("source_count"), 0))
 
@@ -863,7 +872,7 @@ def normalize_web_report(
         "dek": _compact(dek, 320),
         "category": _text(data.get("category") or data.get("topic_label") or "Deep research"),
         "published_date": _text(data.get("published_date") or date.today().isoformat()),
-        "authors": authors[:6] or [BRAND_NAME],
+        "authors": authors[:6] or ["Human Reviewer"],
         "read_time_minutes": data.get("read_time_minutes") or 0,
         "intro": intro[:3],
         "key_takeaways": [_compact(x, 260) for x in takeaways[:3]],
@@ -878,6 +887,47 @@ def normalize_web_report(
         "disclaimer": _text(data.get("disclaimer") or ""),
         "content_quality_audit": data.get("content_quality_audit") or {},
     }
+
+
+def _format_human_evidence_item(item: Any, language: str = "en") -> str:
+    parsed: Dict[str, Any] | None = None
+    if isinstance(item, dict):
+        parsed = item
+    else:
+        text_item = str(item or "").strip()
+        if ("{" in text_item and "}" in text_item) or ("chunk_id" in text_item or "excerpt" in text_item or "why_it_matters" in text_item):
+            try:
+                parsed = json.loads(text_item)
+            except Exception:
+                try:
+                    parsed = ast.literal_eval(text_item)
+                except Exception:
+                    pass
+
+    if isinstance(parsed, dict):
+        excerpt = str(parsed.get("excerpt") or parsed.get("fact") or parsed.get("quote") or parsed.get("claim") or "").strip()
+        why_it_matters = str(parsed.get("why_it_matters") or parsed.get("implication") or parsed.get("so_what") or "").strip()
+        if why_it_matters and excerpt:
+            if str(language).lower().startswith("en") and re.search(r"[\u3400-\u9fff]", excerpt) and not re.search(r"[\u3400-\u9fff]", why_it_matters):
+                text = f"{why_it_matters} — Source Quote: {excerpt}"
+            else:
+                text = f"{why_it_matters} — {excerpt}"
+        else:
+            text = why_it_matters or excerpt or str(item)
+    else:
+        text = str(item or "").strip()
+
+    text = re.sub(r"^\{['\"]chunk_id['\"]:\s*['\"][^'\"]+['\"],\s*", "", text)
+    text = re.sub(r"['\"]why_it_matters['\"]:\s*", "", text)
+    text = re.sub(r"['\"]excerpt['\"]:\s*", "", text)
+    text = text.strip("{ } ' \"")
+
+    text = re.sub(r"\ba RAG-first\b", "an evidence-led", text, flags=re.I)
+    text = re.sub(r"\bA RAG-first\b", "An evidence-led", text, flags=re.I)
+    text = re.sub(r"\bRAG-first\b", "evidence-led", text, flags=re.I)
+    text = re.sub(r"\[Chunk:\s*[^\]]+\]", "", text, flags=re.I)
+    text = re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", "", text)
+    return re.sub(r"\s+", " ", text).strip()
 
 
 def _render_takeaways(parts: List[str], takeaways: List[str], labels: Dict[str, str]) -> None:
@@ -911,8 +961,13 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
     if section.get("evidence"):
         parts.append("<ul class='evidence-list'>")
         for item in section["evidence"][:4]:
-            parts.append(f"<li>{_e(item)}</li>")
+            cleaned_item = _format_human_evidence_item(item)
+            if cleaned_item:
+                parts.append(f"<li>{_e(cleaned_item)}</li>")
         parts.append("</ul>")
+    if section.get("so_what"):
+        parts.append(f"<div class='so-what'>{_e(section['so_what'])}</div>")
+    parts.append("</section>")
     if section.get("so_what"):
         parts.append(f"<div class='so-what'>{_e(section['so_what'])}</div>")
     parts.append("</section>")

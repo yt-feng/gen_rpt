@@ -203,8 +203,50 @@ class TestReportPublicationContract(unittest.TestCase):
             self.assertTrue(bool(act.get("success_metric")))
             self.assertGreaterEqual(_word_count(act.get("rationale")), 12)
 
+    def test_rag_first_terminology_and_author_byline_normalization(self):
+        from gen_rpt.web_publication_contract import clean_client_text
+        self.assertEqual(clean_client_text("A RAG-first market investment report"), "An evidence-led market investment report")
+        self.assertEqual(clean_client_text("Report prepared by Evidence Synthesis Unit"), "Report prepared by Human Reviewer")
+
+        report = {
+            "title": "A RAG-first investment thesis",
+            "dek": "A RAG-first market assessment",
+            "authors": ["Evidence Synthesis Unit", "RAG-First Analyst"],
+            "sections": [
+                {
+                    "title": "Market Scope",
+                    "evidence": ["Doc.pdf — Sample fact"],
+                }
+            ],
+        }
+        cleaned = convert_evidence_to_human_readable(report, {}, {}, [])
+        self.assertEqual(cleaned["authors"], ["Human Reviewer", "Human Reviewer"])
+        self.assertEqual(cleaned["dek"], "An evidence-led market assessment")
+
+    def test_raw_dict_and_json_evidence_sanitization(self):
+        report = {
+            "sections": [
+                {
+                    "title": "Flood Resilience Evidence",
+                    "evidence": [
+                        "{'chunk_id': '9fc0f0c7-3f26-4ef4-a7ac-d5e4018b1f5f', 'excerpt': '101 casualties recorded in Guangxi', 'why_it_matters': 'Establishes flood severity'}",
+                        {"chunk_id": "abc12345", "excerpt": "Infrastructure investments expanded", "why_it_matters": "Shows capital allocation"},
+                    ],
+                }
+            ]
+        }
+        cleaned = convert_evidence_to_human_readable(report, {}, {}, [])
+        evidence_items = cleaned["sections"][0]["evidence"]
+        self.assertEqual(len(evidence_items), 2)
+        for item in evidence_items:
+            self.assertNotIn("{", item)
+            self.assertNotIn("chunk_id", item)
+            self.assertNotIn("why_it_matters':", item)
+            self.assertTrue("Establishes flood severity" in item or "Shows capital allocation" in item)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 
 

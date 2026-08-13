@@ -91,6 +91,15 @@ CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bnot\s+(?:included\s+)?in\s+(?:the\s+)?fact\s*[- ]?\s*pack\b", "not validated in the retained source set"),
     (r"\bwidely\s+cited\b", "commonly referenced"),
     (r"\bmanagement\s+agenda\b", "leadership priorities"),
+    (r"\ba RAG-first\b", "an evidence-led"),
+    (r"\bA RAG-first\b", "An evidence-led"),
+    (r"\bRAG-first\b", "evidence-led"),
+    (r"\bRAG-First\b", "evidence-led"),
+    (r"\brag-first\b", "evidence-led"),
+    (r"\bEvidence Synthesis Unit\b", "Human Reviewer"),
+    (r"\bRAG-First Analyst\b", "Human Reviewer"),
+    (r"\bRAG-First Evidence Analyst\b", "Human Reviewer"),
+    (r"\bRAG-First Author\b", "Human Reviewer"),
 )
 
 
@@ -108,6 +117,13 @@ DeepSeek role contract:
 
 def clean_client_text(text: Any) -> str:
     cleaned = re.sub(r"\s+", " ", str(text or "").strip())
+    cleaned = re.sub(r"\bA RAG-first\b", "An evidence-led", cleaned)
+    cleaned = re.sub(r"\ba RAG-first\b", "an evidence-led", cleaned)
+    cleaned = re.sub(r"\bRAG-first\b", "evidence-led", cleaned, flags=re.I)
+    cleaned = re.sub(r"\bEvidence Synthesis Unit\b", "Human Reviewer", cleaned, flags=re.I)
+    cleaned = re.sub(r"\bRAG-First Analyst\b", "Human Reviewer", cleaned, flags=re.I)
+    cleaned = re.sub(r"\bRAG-First Evidence Analyst\b", "Human Reviewer", cleaned, flags=re.I)
+    cleaned = re.sub(r"\bRAG-First Author\b", "Human Reviewer", cleaned, flags=re.I)
     for pattern, replacement in CLIENT_TEXT_REPLACEMENTS:
         cleaned = re.sub(pattern, replacement, cleaned, flags=re.I)
     return re.sub(r"\s+", " ", cleaned).strip()
@@ -710,7 +726,8 @@ def convert_evidence_to_human_readable(
     def _clean_prose_internal_ids(text: Any) -> str:
         if not isinstance(text, str) or not text.strip():
             return str(text or "")
-        cleaned = re.sub(r"\[Chunk:\s*[^\]]+\]", "", text, flags=re.I)
+        cleaned = clean_client_text(text)
+        cleaned = re.sub(r"\[Chunk:\s*[^\]]+\]", "", cleaned, flags=re.I)
         cleaned = re.sub(r"\((?:WEB-E|RAG-E|E)\d+\)", "", cleaned)
         def _replace_id(match: re.Match) -> str:
             eid = match.group(0)
@@ -745,7 +762,9 @@ def convert_evidence_to_human_readable(
                 continue
 
             parsed_dict = None
-            if text_item.startswith("{") and ("chunk_id" in text_item or "excerpt" in text_item or "id" in text_item):
+            if isinstance(item, dict):
+                parsed_dict = item
+            elif ("{" in text_item and "}" in text_item) or ("chunk_id" in text_item or "excerpt" in text_item or "why_it_matters" in text_item):
                 try:
                     parsed_dict = json.loads(text_item)
                 except Exception:
@@ -755,10 +774,24 @@ def convert_evidence_to_human_readable(
                         pass
             if isinstance(parsed_dict, dict):
                 cid = str(parsed_dict.get("chunk_id") or parsed_dict.get("id") or "").strip()
-                excerpt = str(parsed_dict.get("excerpt") or parsed_dict.get("fact") or "").strip()
-                title = rag_source_titles.get(cid) or f"Document_{cid[:8]}"
-                human_readable.append(f"{title} — {excerpt}" if excerpt else title)
-                continue
+                excerpt = str(parsed_dict.get("excerpt") or parsed_dict.get("fact") or parsed_dict.get("quote") or parsed_dict.get("claim") or "").strip()
+                why_it_matters = str(parsed_dict.get("why_it_matters") or parsed_dict.get("implication") or parsed_dict.get("so_what") or "").strip()
+                title = rag_source_titles.get(cid) or ""
+                
+                parts_item = []
+                if why_it_matters and excerpt:
+                    parts_item.append(f"{why_it_matters} — {excerpt}")
+                elif why_it_matters:
+                    parts_item.append(why_it_matters)
+                elif excerpt:
+                    parts_item.append(f"{title} — {excerpt}" if title else excerpt)
+                elif title:
+                    parts_item.append(title)
+                
+                human_text = " ".join(parts_item).strip()
+                if human_text:
+                    human_readable.append(_clean_prose_internal_ids(human_text))
+                    continue
 
             id_match = re.search(r"\b((?:WEB-E|RAG-E|E)\d+)\b", text_item)
             if id_match:
@@ -787,7 +820,25 @@ def convert_evidence_to_human_readable(
         if "paragraphs" in section and isinstance(section["paragraphs"], list):
             section["paragraphs"] = [_clean_prose_internal_ids(p) for p in section["paragraphs"]]
 
+    for key in ("title", "dek", "methodology", "disclaimer"):
+        if key in report and isinstance(report[key], str):
+            report[key] = _clean_prose_internal_ids(report[key])
+
     for key in ("intro", "key_takeaways"):
+        if key in report and isinstance(report[key], list):
+            report[key] = [_clean_prose_internal_ids(item) for item in report[key]]
+
+    if "authors" in report:
+        if isinstance(report["authors"], list):
+            report["authors"] = [
+                "Human Reviewer" if str(a).strip() in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in str(a) or "Evidence Synthesis Unit" in str(a) else _clean_prose_internal_ids(str(a))
+                for a in report["authors"]
+            ]
+        elif isinstance(report["authors"], str):
+            if report["authors"].strip() in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in report["authors"] or "Evidence Synthesis Unit" in report["authors"]:
+                report["authors"] = "Human Reviewer"
+            else:
+                report["authors"] = _clean_prose_internal_ids(report["authors"])
         if key in report and isinstance(report[key], list):
             report[key] = [_clean_prose_internal_ids(item) for item in report[key]]
 

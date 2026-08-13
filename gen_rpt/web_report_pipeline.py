@@ -1262,12 +1262,12 @@ Writing rules:
 """
         if self.rag_context:
             system = (
-                "You are a precise RAG-first evidence analyst. Private documents are the primary source of truth. "
+                "You are an elite evidence-led strategy research team. Private documents are the primary source of truth. "
                 "Use only approved supplementary web evidence for documented gaps, never to override private evidence. "
                 "You MUST NOT invent, extrapolate, or assume unsupported facts or figures. "
                 "Return one valid JSON object only. No markdown."
             )
-            user = f"""Generate a factual RAG-first report with bounded supplementary web evidence and return JSON.
+            user = f"""Generate a factual evidence-led market investment report with bounded supplementary web evidence and return JSON.
 
 Topic: {topic}
 
@@ -1972,7 +1972,7 @@ CRITICAL RULES (violation = failure):
             "title": topic,
             "dek": takeaways[0],
             "category": "Deep research" if self.language == "en" else "深度研究",
-            "authors": ["GateX Research"],
+            "authors": ["Human Reviewer"],
             "intro": [takeaways[0]],
             "key_takeaways": takeaways,
             "sections": sections,
