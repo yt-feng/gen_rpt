@@ -2,6 +2,7 @@ import unittest
 import re
 import sys
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
@@ -10,9 +11,11 @@ if str(ROOT) not in sys.path:
 from gen_rpt.web_publication_contract import (
     validate_takeaway_completeness,
     convert_evidence_to_human_readable,
+    output_leak_hits,
     rag_rendered_output_issues,
 )
 from gen_rpt.web_report_pipeline import WebReportPipeline
+from gen_rpt.web_report_renderer import render_web_report_html
 
 
 class TestReportPublicationContract(unittest.TestCase):
@@ -223,6 +226,10 @@ class TestReportPublicationContract(unittest.TestCase):
         self.assertEqual(cleaned["authors"], ["Human Reviewer", "Human Reviewer"])
         self.assertEqual(cleaned["dek"], "An evidence-led market assessment")
 
+        legitimate = {"authors": [{"name": "Aisha Rahman", "role": "Human reviewer"}], "sections": []}
+        convert_evidence_to_human_readable(legitimate, {}, {}, [])
+        self.assertEqual(legitimate["authors"][0]["name"], "Aisha Rahman")
+
     def test_raw_dict_and_json_evidence_sanitization(self):
         report = {
             "sections": [
@@ -243,6 +250,63 @@ class TestReportPublicationContract(unittest.TestCase):
             self.assertNotIn("chunk_id", item)
             self.assertNotIn("why_it_matters':", item)
             self.assertTrue("Establishes flood severity" in item or "Shows capital allocation" in item)
+
+    def test_english_html_sanitizes_internal_metadata_and_preserves_report_content(self):
+        report = {
+            "title": "A RAG-first UAE property outlook",
+            "dek": "A RAG-first market investment report for decision makers.",
+            "authors": ["Evidence Synthesis Unit"],
+            "key_takeaways": [
+                "Prime residential demand remains resilient.",
+                "Supply timing will determine near-term pricing power.",
+                "Investors should stage commitments against delivery milestones.",
+            ],
+            "sections": [
+                {
+                    "id": "section-1",
+                    "title": "Demand and supply",
+                    "paragraphs": ["Normal report prose remains visible to the reader."],
+                    "evidence": [
+                        {
+                            "chunk_id": "chunk-internal-42",
+                            "source_title": "Municipal flood review",
+                            "excerpt": "洪水造成了严重基础设施损失。",
+                            "why_it_matters": "Infrastructure resilience affects underwriting assumptions.",
+                            "retrieval_score": 0.97,
+                        }
+                    ],
+                    "so_what": "Use resilience standards in asset screening.",
+                }
+            ],
+            "action_steps": [
+                {
+                    "horizon": "0-90 days",
+                    "action": "Validate project delivery schedules.",
+                    "success_metric": "Independent milestones are confirmed.",
+                    "rationale": "Delivery timing drives the near-term risk profile.",
+                }
+            ],
+            "references": [{"title": "Municipal flood review", "url": "https://example.com/source"}],
+        }
+        cleaned = convert_evidence_to_human_readable(report, {}, {}, [], language="en")
+        with TemporaryDirectory() as directory:
+            path = render_web_report_html(
+                cleaned,
+                {},
+                Path(directory) / "report.html",
+                "UAE property outlook",
+                "en",
+                allow_synthetic_fallbacks=False,
+            )
+            html = path.read_text(encoding="utf-8")
+
+        self.assertEqual(output_leak_hits(html), [])
+        self.assertEqual(rag_rendered_output_issues(html), [])
+        self.assertIn("Normal report prose remains visible to the reader.", html)
+        self.assertIn("Municipal flood review", html)
+        self.assertIn("Infrastructure resilience affects underwriting assumptions.", html)
+        self.assertIn("Prepared by: Human Reviewer", html)
+        self.assertNotIn("洪水造成了严重基础设施损失", html)
 
 
 if __name__ == "__main__":

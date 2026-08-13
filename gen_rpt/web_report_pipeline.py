@@ -22,11 +22,11 @@ from .web_evidence import (
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
-    client_visible_internal_hits,
     combined_evidence_quality_issues,
     convert_evidence_to_human_readable,
     ground_rag_section_evidence,
     normalize_report_section_prose,
+    output_leak_hits,
     publication_contract_prompt,
     prune_unsupported_numeric_claims,
     rag_exhibit_is_grounded,
@@ -461,17 +461,19 @@ class WebReportPipeline:
 
         # Step 12: Deterministic Stance Enforcement & Humanization
         report["recommendation_stance"] = computed_stance
+        report["authors"] = ["Human Reviewer"]
         self._enforce_stance_intro_sentence(report, computed_stance, display_topic)
         convert_evidence_to_human_readable(
             report,
             rag_source_chunks,
             rag_source_titles,
             approved_evidence,
+            language=self.language,
         )
 
-        visible_hits = client_visible_internal_hits(self._client_visible_text(report))
+        visible_hits = output_leak_hits(self._client_visible_text(report))
         if visible_hits:
-            self._log("PHASE publication_contract warning | visible_internal_language=" + ",".join(visible_hits[:6]))
+            raise ReportQualityError("Client-visible report contains internal metadata: " + ", ".join(visible_hits[:6]))
         self._log(
             "PHASE normalize_and_validate_schema completed "
             f"| elapsed={self._elapsed(phase_start)} | takeaways={len(report.get('key_takeaways', []) or [])} "
@@ -528,14 +530,13 @@ class WebReportPipeline:
             "conflicts": evidence_conflicts,
         }
         report = convert_evidence_to_human_readable(
-
             report,
             rag_source_chunks if self.rag_context else {},
-            getattr(self, "rag_source_titles", {}),
+            rag_source_titles,
             approved_evidence,
+            language=self.language,
         )
         html_path = render_web_report_html(
-
             report,
             assets,
             output_dir / "index.html",
@@ -1187,7 +1188,7 @@ Requirements:
 {contract_text}
 
 必须包含字段：
-title、dek、category、authors、intro、key_takeaways、sections、exhibits、action_steps、methodology、evidence_quality、references、disclaimer。
+title、dek、category、intro、key_takeaways、sections、exhibits、action_steps、methodology、evidence_quality、references、disclaimer。
 
 写作要求：
 - 全程中文，面向 CEO/董事会/战略团队。
@@ -1234,7 +1235,7 @@ Client-visible publication contract:
 {contract_text}
 
 Required fields:
-title, dek, category, authors, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
+title, dek, category, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
 
 Writing rules:
 - English only. Write for a CEO, board and strategy team audience.
@@ -1284,7 +1285,7 @@ CONFLICT REGISTER (human review only; do not use web-conflicting claims in concl
 {conflict_text}
 
 Required fields:
-title, dek, category, authors, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
+title, dek, category, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
 
 CRITICAL RULES (violation = failure):
 1. Use private-document facts first. Use an approved web fact only when it fills a gap or corroborates RAG, and label it as supplementary web evidence.
@@ -1778,9 +1779,21 @@ CRITICAL RULES (violation = failure):
         visible = {
             "title": report.get("title"),
             "dek": report.get("dek"),
+            "category": report.get("category"),
+            "authors": report.get("authors"),
             "intro": report.get("intro"),
             "key_takeaways": report.get("key_takeaways"),
-            "sections": report.get("sections"),
+            "sections": [
+                {
+                    "title": section.get("title"),
+                    "lead": section.get("lead"),
+                    "paragraphs": section.get("paragraphs"),
+                    "evidence": section.get("evidence"),
+                    "so_what": section.get("so_what"),
+                }
+                for section in report.get("sections", []) or []
+                if isinstance(section, dict)
+            ],
             "exhibits": [
                 {
                     "title": exhibit.get("title"),
@@ -1799,6 +1812,8 @@ CRITICAL RULES (violation = failure):
             ],
             "action_steps": report.get("action_steps"),
             "methodology": report.get("methodology"),
+            "references": report.get("references"),
+            "disclaimer": report.get("disclaimer"),
         }
         return json.dumps(visible, ensure_ascii=False)
 

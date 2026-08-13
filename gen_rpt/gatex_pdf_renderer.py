@@ -6,7 +6,6 @@ import html
 import io
 import json
 import math
-import random
 import re
 import tempfile
 from datetime import date
@@ -21,7 +20,7 @@ from pypdf import PdfReader, PdfWriter
 from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
 
-from gen_rpt.web_publication_contract import clean_client_text
+from gen_rpt.web_publication_contract import clean_client_text, is_internal_author_name, output_leak_hits
 from gen_rpt.web_report_renderer import _format_human_evidence_item
 
 
@@ -286,7 +285,7 @@ def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str,
             and not title_matches_metadata
         ):
             raise GatexPdfError("The PDF cover does not contain the approved report title.")
-        if "FRANK FENG" not in page_text[-1].upper() or "GATEX" not in page_text[-1].upper():
+        if "GATEX" not in page_text[-1].upper():
             raise GatexPdfError("The GateX publication-team back cover is missing.")
         back_text = _deduplicated_word_text(document.load_page(document.page_count - 1).get_text("words"))
         if (
@@ -300,6 +299,9 @@ def validate_gatex_pdf(pdf_path: Path, *, expected_title: str = "") -> Dict[str,
         sparse_pages = [index + 1 for index, value in enumerate(page_text[1:], start=1) if len(value) < 20]
         if sparse_pages:
             raise GatexPdfError(f"Rendered PDF contains empty body pages: {sparse_pages}")
+        leaks = output_leak_hits("\n".join(page_text))
+        if leaks:
+            raise GatexPdfError("Rendered PDF contains internal metadata: " + ", ".join(leaks))
         for index in range(document.page_count):
             rect = document.load_page(index).rect
             ratio = rect.width / max(rect.height, 1)
@@ -387,60 +389,23 @@ def _normalized_section(value: Any, index: int, language: str = "en") -> Dict[st
     return normalized
 
 
-AUTHOR_POOL = [
-    "Amelia Rhodes",
-    "Marcus Bell",
-    "Sofia Alvarez",
-    "Julian Hart",
-    "Eleanor Hayes",
-    "Daniel Mercer",
-    "Clara Bennett",
-    "Nathaniel Brooks",
-    "Isabelle Laurent",
-    "Thomas Reid",
-    "Maya Sullivan",
-    "Oliver Grant",
-    "Helena Ward",
-    "Samuel Price",
-    "Victoria Cole",
-    "Adrian Foster",
-]
-
-SERIES_ROLES = {
-    "Strategic Intelligence": ["Geopolitical Research", "Senior Research Associate", "Industry Strategy", "Research Operations"],
-    "Digital Assets": ["Digital Asset Policy", "Market Structure Research", "Blockchain Intelligence", "Research Operations"],
-    "Transactions & M&A": ["Transaction Strategy", "Deal Research", "Post-Merger Integration", "Research Operations"],
-    "Daily Market Views": ["Macro Strategy", "Market Intelligence", "Cross-Asset Research", "Research Operations"],
-}
-
-
 def _normalized_authors(payload: Mapping[str, Any]) -> List[Dict[str, str]]:
     provided = payload.get("authors") if isinstance(payload.get("authors"), list) else []
     authors: List[Dict[str, str]] = []
     for value in provided[:5]:
-        item = value if isinstance(value, Mapping) else {}
-        name = _clean(item.get("name") if isinstance(item, Mapping) else value, 100)
-        role = _clean(item.get("role") if isinstance(item, Mapping) else "Reviewer", 120)
-        email = _clean(item.get("email") if isinstance(item, Mapping) else "reviewer@gatex.fund", 180).lower()
-        if name in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in name or "Evidence Synthesis Unit" in name:
+        if isinstance(value, Mapping):
+            name = _clean(value.get("name"), 100)
+            role = _clean(value.get("role") or "Reviewer", 120)
+            email = _clean(value.get("email"), 180).lower()
+        else:
+            name, role, email = _clean(value, 100), "Reviewer", ""
+        if is_internal_author_name(name):
             name = "Human Reviewer"
         if name and role and re.fullmatch(r"[a-z][a-z0-9._-]*@gatex\.fund", email):
             authors.append({"name": name, "role": role, "email": email})
         elif name:
             authors.append({"name": name, "role": role or "Reviewer", "email": email or "reviewer@gatex.fund"})
-    if authors and authors[0]["name"] == "Frank Feng":
-        return authors
-
-    slug = _clean(payload.get("contentKey") or payload.get("slug") or payload.get("title"), 300)
-    seed = int(hashlib.sha256(slug.encode("utf-8")).hexdigest()[:16], 16)
-    rng = random.Random(seed)
-    names = rng.sample(AUTHOR_POOL, 4)
-    roles = SERIES_ROLES.get(str(payload.get("reportType") or ""), SERIES_ROLES["Strategic Intelligence"])
-    generated = [{"name": "Frank Feng", "role": "Managing Partner", "email": "frank@gatex.fund"}]
-    for name, role in zip(names, roles):
-        first_name = re.sub(r"[^a-z]", "", name.split()[0].lower())
-        generated.append({"name": name, "role": role, "email": f"{first_name}@gatex.fund"})
-    return generated
+    return authors or [{"name": "Human Reviewer", "role": "Reviewer", "email": "reviewer@gatex.fund"}]
 
 
 def _cover_html(report: Mapping[str, Any]) -> str:
@@ -1775,8 +1740,8 @@ def _assemble_pdf(cover_pdf: Path, body_pdf: Path, back_pdf: Path, output_pdf: P
             "/Author": "GateX",
             "/Subject": str(report.get("reportType") or "Executive decision intelligence"),
             "/Keywords": "GateX, executive intelligence, strategic research, decision brief",
-            "/Creator": "GateX PDF Release Pipeline",
-            "/Producer": "GateX / Chromium / pypdf",
+            "/Creator": "GateX",
+            "/Producer": "GateX",
         }
     )
     with output_pdf.open("wb") as stream:

@@ -276,9 +276,41 @@ class GatexPdfRendererTests(unittest.TestCase):
 
             metadata = PdfReader(str(path)).metadata
             self.assertEqual(metadata.author, "GateX")
-            self.assertEqual(metadata.creator, "GateX PDF Release Pipeline")
+            self.assertEqual(metadata.creator, "GateX")
             visible_brand = " ".join([cover_text, *(str(value or "") for value in metadata.values())]).lower()
             self.assertNotRegex(visible_brand, r"blue[ -]?ocean|\bbo\b")
+
+    def test_pdf_sanitizes_internal_metadata_and_raw_evidence(self):
+        payload = sample_release()
+        payload.update(
+            {
+                "title": "A RAG-first UAE property outlook",
+                "summary": "A RAG-first market investment report.",
+                "authors": ["Evidence Synthesis Unit"],
+            }
+        )
+        payload["contentSections"][1]["evidence"] = [
+            {
+                "chunk_id": "chunk-internal-42",
+                "source_title": "Municipal flood review",
+                "excerpt": "洪水造成了严重基础设施损失。",
+                "why_it_matters": "Infrastructure resilience affects underwriting assumptions.",
+                "retrieval_score": 0.97,
+            }
+        ]
+
+        with TemporaryDirectory() as directory:
+            artifact = render_gatex_release_pdf(payload, Path(directory))
+            with fitz.open(artifact["path"]) as document:
+                text = "\n".join(page.get_text("text") for page in document)
+
+        self.assertTrue(artifact["qa"]["passed"])
+        self.assertIn("The investable edge emerges", text)
+        self.assertIn("Infrastructure resilience affects underwriting assumptions.", text)
+        self.assertIn("Human Reviewer", text)
+        self.assertNotIn("洪水造成了严重基础设施损失", text)
+        for forbidden in ("RAG-first", "Evidence Synthesis Unit", "chunk_id", "why_it_matters", "chunk-internal-42"):
+            self.assertNotIn(forbidden, text)
 
     def test_renders_and_validates_a_multiline_cover_title(self):
         payload = {

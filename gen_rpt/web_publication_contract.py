@@ -4,7 +4,19 @@ import ast
 import json
 import re
 from decimal import Decimal, InvalidOperation
+from html import unescape
 from typing import Any, Dict, List, Tuple
+
+
+OUTPUT_LEAK_PATTERNS: Tuple[str, ...] = (
+    r"\bRAG[- ]first\b",
+    r"\bEvidence Synthesis (?:Unit|Team)\b",
+    r"\bRAG-First (?:Analyst|Evidence Analyst|Author)\b",
+    r"\[Chunk:\s*[^\]]+\]",
+    r"\b(?:WEB-E|RAG-E|E)\d+\b",
+    r"['\"](?:chunk_id|why_it_matters|retrieval_score|embedding_metadata)['\"]\s*:",
+    r"\b(?:evidenceAudit|content_quality_audit)\b",
+)
 
 
 CLIENT_VISIBLE_INTERNAL_PATTERNS: Tuple[str, ...] = (
@@ -32,6 +44,8 @@ CLIENT_VISIBLE_INTERNAL_PATTERNS: Tuple[str, ...] = (
     r"\b(?:WEB-E|RAG-E|E)\d+\b",
     r"\bwhy_it_matters\b",
     r"\bchunk_id\b",
+    r"\bRAG[- ]first\b",
+    r"\bEvidence Synthesis (?:Unit|Team)\b",
 )
 
 WORKBENCH_EXHIBIT_QUALITIES = {
@@ -100,6 +114,10 @@ CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bRAG-First Analyst\b", "Human Reviewer"),
     (r"\bRAG-First Evidence Analyst\b", "Human Reviewer"),
     (r"\bRAG-First Author\b", "Human Reviewer"),
+    (r"\bEvidence Synthesis Team\b", "Human Reviewer"),
+    (r"\bRetrieval[- ]Augmented Generation\b", "evidence-supported research"),
+    (r"\bRAG (?:architecture|pipeline|workflow|system)\b", "evidence process"),
+    (r"\bKnowledge Intelligence\b", "research"),
 )
 
 
@@ -124,6 +142,7 @@ def clean_client_text(text: Any) -> str:
     cleaned = re.sub(r"\bRAG-First Analyst\b", "Human Reviewer", cleaned, flags=re.I)
     cleaned = re.sub(r"\bRAG-First Evidence Analyst\b", "Human Reviewer", cleaned, flags=re.I)
     cleaned = re.sub(r"\bRAG-First Author\b", "Human Reviewer", cleaned, flags=re.I)
+    cleaned = re.sub(r"\bEvidence Synthesis Team\b", "Human Reviewer", cleaned, flags=re.I)
     for pattern, replacement in CLIENT_TEXT_REPLACEMENTS:
         cleaned = re.sub(pattern, replacement, cleaned, flags=re.I)
     return re.sub(r"\s+", " ", cleaned).strip()
@@ -146,6 +165,22 @@ def client_visible_internal_hits(text: Any) -> List[str]:
         if re.search(pattern, body, re.I):
             hits.append(pattern)
     return hits
+
+
+def output_leak_hits(text: Any) -> List[str]:
+    body = unescape(str(text or ""))
+    return [pattern for pattern in OUTPUT_LEAK_PATTERNS if re.search(pattern, body, re.I)]
+
+
+def is_internal_author_name(value: Any) -> bool:
+    name = str(value or "").strip()
+    return bool(
+        re.search(
+            r"(?:Evidence Synthesis (?:Unit|Team)|RAG-First|DeepSeek|Knowledge Intelligence|Retrieval (?:Engine|Service)|AI (?:Assistant|System))",
+            name,
+            re.I,
+        )
+    )
 
 
 def is_internal_workbench_exhibit(exhibit: Any) -> bool:
@@ -716,6 +751,8 @@ def convert_evidence_to_human_readable(
     rag_source_chunks: Dict[str, str],
     rag_source_titles: Dict[str, str],
     approved_evidence: List[Dict[str, Any]],
+    *,
+    language: str = "en",
 ) -> Dict[str, Any]:
     evidence_id_map = {
         str(item.get("id") or ""): item
@@ -740,6 +777,18 @@ def convert_evidence_to_human_readable(
         cleaned = re.sub(r"\b(?:WEB-E|RAG-E|E)\d+\b", _replace_id, cleaned)
         return re.sub(r"\s+", " ", cleaned).strip()
 
+    def _matches_report_language(text: str) -> bool:
+        if not text:
+            return False
+        has_cjk = bool(re.search(r"[\u3400-\u9fff]", text))
+        return has_cjk if str(language).lower().startswith("zh") else not has_cjk
+
+    def _citation(title: str, excerpt: str, implication: str = "") -> str:
+        display_text = implication if _matches_report_language(implication) else excerpt if _matches_report_language(excerpt) else ""
+        if title and display_text:
+            return f"{title} — {display_text}"
+        return title or display_text
+
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
@@ -757,8 +806,10 @@ def convert_evidence_to_human_readable(
             if chunk_match:
                 cid = chunk_match.group(1).strip()
                 excerpt = chunk_match.group(2) or chunk_match.group(3) or chunk_match.group(4) or ""
-                title = rag_source_titles.get(cid) or f"Document_{cid[:8]}"
-                human_readable.append(f"{title} — {excerpt.strip()}" if excerpt.strip() else title)
+                implication = text_item[chunk_match.end():].lstrip(" —-").strip()
+                title = str(rag_source_titles.get(cid) or "").strip()
+                if citation := _citation(title, excerpt.strip(), implication):
+                    human_readable.append(_clean_prose_internal_ids(citation))
                 continue
 
             parsed_dict = None
@@ -776,22 +827,15 @@ def convert_evidence_to_human_readable(
                 cid = str(parsed_dict.get("chunk_id") or parsed_dict.get("id") or "").strip()
                 excerpt = str(parsed_dict.get("excerpt") or parsed_dict.get("fact") or parsed_dict.get("quote") or parsed_dict.get("claim") or "").strip()
                 why_it_matters = str(parsed_dict.get("why_it_matters") or parsed_dict.get("implication") or parsed_dict.get("so_what") or "").strip()
-                title = rag_source_titles.get(cid) or ""
-                
-                parts_item = []
-                if why_it_matters and excerpt:
-                    parts_item.append(f"{why_it_matters} — {excerpt}")
-                elif why_it_matters:
-                    parts_item.append(why_it_matters)
-                elif excerpt:
-                    parts_item.append(f"{title} — {excerpt}" if title else excerpt)
-                elif title:
-                    parts_item.append(title)
-                
-                human_text = " ".join(parts_item).strip()
-                if human_text:
-                    human_readable.append(_clean_prose_internal_ids(human_text))
-                    continue
+                title = str(
+                    rag_source_titles.get(cid)
+                    or parsed_dict.get("source_title")
+                    or parsed_dict.get("title")
+                    or ""
+                ).strip()
+                if citation := _citation(title, excerpt, why_it_matters):
+                    human_readable.append(_clean_prose_internal_ids(citation))
+                continue
 
             id_match = re.search(r"\b((?:WEB-E|RAG-E|E)\d+)\b", text_item)
             if id_match:
@@ -802,7 +846,8 @@ def convert_evidence_to_human_readable(
                     if re.search(r"\b(?:WEB-E|RAG-E|E)\d+\b", str(stitle)):
                         stitle = info.get("domain") or info.get("source_url") or "Validated Source"
                     sfact = info.get("fact") or info.get("value") or ""
-                    human_readable.append(f"{stitle} — {sfact}".strip(" —"))
+                    if citation := _citation(str(stitle), str(sfact)):
+                        human_readable.append(citation)
                     continue
                 else:
                     cleaned_item = _clean_prose_internal_ids(text_item)
@@ -830,17 +875,22 @@ def convert_evidence_to_human_readable(
 
     if "authors" in report:
         if isinstance(report["authors"], list):
-            report["authors"] = [
-                "Human Reviewer" if str(a).strip() in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in str(a) or "Evidence Synthesis Unit" in str(a) else _clean_prose_internal_ids(str(a))
-                for a in report["authors"]
-            ]
+            authors = []
+            for author in report["authors"]:
+                if isinstance(author, dict):
+                    cleaned_author = dict(author)
+                    name = str(cleaned_author.get("name") or "").strip()
+                    cleaned_author["name"] = "Human Reviewer" if is_internal_author_name(name) else _clean_prose_internal_ids(name)
+                    if cleaned_author["name"]:
+                        authors.append(cleaned_author)
+                else:
+                    authors.append("Human Reviewer" if is_internal_author_name(author) else _clean_prose_internal_ids(str(author)))
+            report["authors"] = authors
         elif isinstance(report["authors"], str):
-            if report["authors"].strip() in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in report["authors"] or "Evidence Synthesis Unit" in report["authors"]:
+            if is_internal_author_name(report["authors"]):
                 report["authors"] = "Human Reviewer"
             else:
                 report["authors"] = _clean_prose_internal_ids(report["authors"])
-        if key in report and isinstance(report[key], list):
-            report[key] = [_clean_prose_internal_ids(item) for item in report[key]]
 
     for action in report.get("action_steps", []) or []:
         if isinstance(action, dict):
@@ -898,7 +948,7 @@ def rag_rendered_output_issues(html_text: str, *, conflict_count: int = 0) -> Li
         issues.append("Rendered HTML omitted the conflicts requiring human review section.")
 
     body_text = re.sub(r"<(script|style)[^>]*>.*?</\1>", "", html_value, flags=re.DOTALL | re.I)
-    body_text = re.sub(r"<[^>]+>", " ", body_text)
+    body_text = unescape(re.sub(r"<[^>]+>", " ", body_text))
 
     # 1. 2% Mojibake scan
     replacement_count = body_text.count("\ufffd")
@@ -912,6 +962,13 @@ def rag_rendered_output_issues(html_text: str, *, conflict_count: int = 0) -> Li
         issues.append("Rendered HTML contains un-humanized raw [Chunk: ...] citations.")
     if re.search(r"\b(?:WEB-E|RAG-E|E)\d+\b", body_text):
         issues.append("Rendered HTML contains un-humanized internal evidence IDs (WEB-E/RAG-E/E).")
+    additional_leaks = [
+        pattern
+        for pattern in output_leak_hits(body_text)
+        if pattern not in (r"\[Chunk:\s*[^\]]+\]", r"\b(?:WEB-E|RAG-E|E)\d+\b")
+    ]
+    if additional_leaks:
+        issues.append("Rendered HTML contains internal generation metadata or serialized evidence fields.")
 
     return issues
 

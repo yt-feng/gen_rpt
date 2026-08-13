@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Tuple
 from urllib.parse import urlparse
 
 from .theme import load_theme
-from .web_publication_contract import clean_client_text, clean_client_value, is_internal_workbench_exhibit
+from .web_publication_contract import clean_client_text, clean_client_value, is_internal_author_name, is_internal_workbench_exhibit
 
 
 THEME = load_theme()
@@ -665,7 +665,8 @@ def render_web_report_html(
     dek = normalized["dek"]
     hero = _asset(assets, "cover-background") or _asset(assets, "cover-ai")
     published = normalized.get("published_date") or date.today().isoformat()
-    authors = ", ".join(normalized.get("authors", [])) or BRAND_NAME
+    authors = ", ".join(normalized.get("authors", []))
+    author_meta = f"<span>{_e(labels['prepared'])}: {_e(authors)}</span>" if authors else ""
     read_time = str(normalized.get("read_time_minutes") or _estimate_read_time(normalized))
     sections = normalized["sections"]
     exhibits = normalized["exhibits"]
@@ -693,8 +694,8 @@ def render_web_report_html(
         f"<h1>{_e(title)}</h1>",
         f"<p class='dek'>{_e(dek)}</p>",
         "<div class='meta'>",
-        f"<span>{_e(labels['prepared'])}: {_e(authors)}</span>",
         f"<span>{_e(published)}</span>",
+        author_meta,
         f"<span>{_e(read_time)} {_e(labels['read_time'])}</span>",
         "</div>",
         "</div>",
@@ -715,7 +716,7 @@ def render_web_report_html(
     last_output_was_exhibit = False
     previous_exhibit: Dict[str, Any] | None = None
     for idx, section in enumerate(sections, start=1):
-        _render_section(parts, section, idx, labels, assets)
+        _render_section(parts, section, idx, labels, assets, language=language)
         last_output_was_exhibit = False
         section_exhibits = exhibit_by_after.get(section.get("id") or f"section-{idx}", [])
         previous_exhibit = _render_exhibit_group(parts, section_exhibits, labels)
@@ -853,12 +854,10 @@ def normalize_web_report(
     authors = []
     for a in raw_authors:
         name = str(a or "").strip()
-        if name in ("Evidence Synthesis Unit", "RAG-First Analyst", "RAG-First Evidence Analyst", "RAG-First Author", "RAG-First") or "RAG-First" in name or "Evidence Synthesis Unit" in name:
+        if is_internal_author_name(name):
             authors.append("Human Reviewer")
         else:
             authors.append(name)
-    if not authors:
-        authors = ["Human Reviewer"]
     methodology = _text(data.get("methodology") or data.get("methodology_note") or "")
     source_count = int(_number(data.get("source_count"), 0))
 
@@ -909,13 +908,10 @@ def _format_human_evidence_item(item: Any, language: str = "en") -> str:
     if isinstance(parsed, dict):
         excerpt = str(parsed.get("excerpt") or parsed.get("fact") or parsed.get("quote") or parsed.get("claim") or "").strip()
         why_it_matters = str(parsed.get("why_it_matters") or parsed.get("implication") or parsed.get("so_what") or "").strip()
-        if why_it_matters and excerpt:
-            if str(language).lower().startswith("en") and re.search(r"[\u3400-\u9fff]", excerpt) and not re.search(r"[\u3400-\u9fff]", why_it_matters):
-                text = f"{why_it_matters} — Source Quote: {excerpt}"
-            else:
-                text = f"{why_it_matters} — {excerpt}"
-        else:
-            text = why_it_matters or excerpt or str(item)
+        title = str(parsed.get("source_title") or parsed.get("title") or parsed.get("file_name") or "").strip()
+        zh = str(language).lower().startswith("zh")
+        visible = why_it_matters if why_it_matters and bool(re.search(r"[\u3400-\u9fff]", why_it_matters)) == zh else excerpt if excerpt and bool(re.search(r"[\u3400-\u9fff]", excerpt)) == zh else ""
+        text = f"{title} — {visible}" if title and visible else title or visible
     else:
         text = str(item or "").strip()
 
@@ -949,7 +945,7 @@ def _render_toc(parts: List[str], sections: List[Dict[str, Any]], labels: Dict[s
     parts.append("</aside>")
 
 
-def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels: Dict[str, str], assets: Dict[str, str] | None = None) -> None:
+def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels: Dict[str, str], assets: Dict[str, str] | None = None, language: str = "en") -> None:
     parts.append(f"<section id='{_e(section['id'])}' class='section-block'>")
     parts.append(f"<div class='section-kicker'>{_e(labels.get('part') or 'Part')} {idx}</div>")
     parts.append(f"<h2>{_e(section['title'])}</h2>")
@@ -963,13 +959,10 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
     if section.get("evidence"):
         parts.append("<ul class='evidence-list'>")
         for item in section["evidence"][:4]:
-            cleaned_item = _format_human_evidence_item(item)
+            cleaned_item = _format_human_evidence_item(item, language=language)
             if cleaned_item:
                 parts.append(f"<li>{_e(cleaned_item)}</li>")
         parts.append("</ul>")
-    if section.get("so_what"):
-        parts.append(f"<div class='so-what'>{_e(section['so_what'])}</div>")
-    parts.append("</section>")
     if section.get("so_what"):
         parts.append(f"<div class='so-what'>{_e(section['so_what'])}</div>")
     parts.append("</section>")
@@ -1955,6 +1948,7 @@ def _list_text(value: Any) -> List[str]:
         if isinstance(item, dict):
             text = (
                 item.get("text")
+                or item.get("name")
                 or item.get("title")
                 or item.get("description")
                 or item.get("finding")
