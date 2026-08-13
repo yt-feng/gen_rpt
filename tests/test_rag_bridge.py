@@ -1000,6 +1000,23 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(revised["sections"][0]["paragraphs"], ["Corrected developed paragraph."])
         self.assertEqual(revised["sections"][0]["evidence"], ["Grounded evidence."])
 
+    def test_report_revision_rejects_structurally_incomplete_rescue(self):
+        client = Mock()
+        client.chat_json.return_value = {
+            "sections": [{"title": f"Shortened section {index}"} for index in range(4)],
+            "action_steps": [{"action": f"Shortened action {index}"} for index in range(3)],
+        }
+        pipeline = WebReportPipeline(client)
+        rejected = {
+            "sections": [{"title": f"Grounded section {index}"} for index in range(5)],
+            "action_steps": [{"action": f"Grounded action {index}"} for index in range(4)],
+        }
+
+        revised = pipeline._revise_report_draft(rejected, ["Improve the report."], {})
+
+        self.assertEqual(revised["sections"], rejected["sections"])
+        self.assertEqual(revised["action_steps"], rejected["action_steps"])
+
     def test_action_normalization_uses_a_non_numeric_default_horizon(self):
         report = normalize_web_report(
             {

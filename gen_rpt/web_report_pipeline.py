@@ -756,6 +756,9 @@ Revision contract:
             if value not in (None, "", [], {}):
                 if key in {"action_steps", "sections"} and isinstance(value, list) and isinstance(merged.get(key), list):
                     original_items = merged[key]
+                    required_range = range(4, 7) if key == "action_steps" else range(5, 7)
+                    if len(original_items) in required_range and len(value) not in required_range:
+                        continue
                     value = [
                         {
                             **(original_items[index] if index < len(original_items) and isinstance(original_items[index], dict) else {}),
