@@ -1017,6 +1017,30 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(revised["sections"], rejected["sections"])
         self.assertEqual(revised["action_steps"], rejected["action_steps"])
 
+    @patch("gen_rpt.web_report_pipeline.report_content_quality_issues")
+    @patch("gen_rpt.web_report_pipeline.normalize_web_report")
+    def test_final_quality_rescue_continues_until_the_revised_report_passes(self, normalize, quality_issues):
+        pipeline = WebReportPipeline(Mock())
+        pipeline._revise_report_draft = Mock(side_effect=lambda report, _issues, _plan: report)
+        pipeline._prepare_report_draft = Mock(side_effect=lambda report, **_kwargs: (report, []))
+        normalize.side_effect = lambda report, **_kwargs: report
+        quality_issues.side_effect = [["Sections still need development."], []]
+
+        report, remaining = pipeline._rescue_final_report(
+            {"sections": [], "action_steps": []},
+            ["The report requires 5-6 substantive sections; found 4."],
+            storyline_plan={},
+            topic="Flood-resilience technology transfer",
+            grounding_text="Validated evidence",
+            source_count=1,
+            source_chunks={},
+            approved_evidence=[],
+        )
+
+        self.assertEqual(remaining, [])
+        self.assertEqual(pipeline._revise_report_draft.call_count, 2)
+        self.assertEqual(quality_issues.call_count, 2)
+
     def test_action_normalization_uses_a_non_numeric_default_horizon(self):
         report = normalize_web_report(
             {

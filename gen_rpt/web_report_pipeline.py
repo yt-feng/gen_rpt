@@ -411,42 +411,20 @@ class WebReportPipeline:
                 context_text=grounding_text,
                 source_count=len(sources),
             )
+        report, final_quality_issues = self._rescue_final_report(
+            report,
+            final_quality_issues,
+            storyline_plan=storyline_plan,
+            topic=display_topic,
+            grounding_text=grounding_text,
+            source_count=len(sources),
+            source_chunks=rag_source_chunks,
+            approved_evidence=approved_evidence,
+        )
         if final_quality_issues:
-            self._log("PHASE final_quality_rescue started | issues=" + " | ".join(final_quality_issues[:6]))
-            report = self._revise_report_draft(report, final_quality_issues, storyline_plan)
-            report, _rescue_draft_issues = self._prepare_report_draft(
-                report,
-                topic=display_topic,
-                grounding_text=grounding_text,
-                source_count=len(sources),
-                source_chunks=rag_source_chunks,
-                approved_evidence=approved_evidence,
-            )
-            report = normalize_web_report(
-                report,
-                topic=display_topic,
-                language=self.language,
-                allow_synthetic_fallbacks=not bool(self.rag_context),
-            )
-            if self.rag_context:
-                final_quality_issues = rag_report_quality_issues(
-                    report,
-                    topic=display_topic,
-                    context_text=grounding_text,
-                    source_count=len(sources),
-                    source_chunks=rag_source_chunks,
-                )
-            else:
-                final_quality_issues = report_content_quality_issues(
-                    report,
-                    topic=display_topic,
-                    context_text=grounding_text,
-                    source_count=len(sources),
-                )
-            if final_quality_issues:
-                message = "Final report content quality gate failed: " + " | ".join(final_quality_issues)
-                (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
-                raise ReportQualityError(message)
+            message = "Final report content quality gate failed: " + " | ".join(final_quality_issues)
+            (output_dir / "web_report_quality_error.txt").write_text(message, encoding="utf-8")
+            raise ReportQualityError(message)
         if self.rag_context:
             evidence_issues = combined_evidence_quality_issues(
                 report,
@@ -705,6 +683,55 @@ class WebReportPipeline:
                 topic=topic,
                 context_text=grounding_text,
                 source_count=source_count,
+            )
+        return report, issues
+
+    def _rescue_final_report(
+        self,
+        report: Dict[str, Any],
+        issues: List[str],
+        *,
+        storyline_plan: Dict[str, Any],
+        topic: str,
+        grounding_text: str,
+        source_count: int,
+        source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]],
+    ) -> tuple[Dict[str, Any], List[str]]:
+        for attempt in range(1, 4):
+            if not issues:
+                break
+            self._log(f"PHASE final_quality_rescue {attempt}/3 | issues=" + " | ".join(issues[:6]))
+            report = self._revise_report_draft(report, issues, storyline_plan)
+            report, _ = self._prepare_report_draft(
+                report,
+                topic=topic,
+                grounding_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+                approved_evidence=approved_evidence,
+            )
+            report = normalize_web_report(
+                report,
+                topic=topic,
+                language=self.language,
+                allow_synthetic_fallbacks=not bool(self.rag_context),
+            )
+            issues = (
+                rag_report_quality_issues(
+                    report,
+                    topic=topic,
+                    context_text=grounding_text,
+                    source_count=source_count,
+                    source_chunks=source_chunks,
+                )
+                if self.rag_context
+                else report_content_quality_issues(
+                    report,
+                    topic=topic,
+                    context_text=grounding_text,
+                    source_count=source_count,
+                )
             )
         return report, issues
 
