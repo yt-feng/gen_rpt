@@ -1,0 +1,218 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "UAE Flood Resilience Spending by Emirate (2020-2025)",
+    "chart_type": "bar",
+    "executive_question": "Where is the money going?",
+    "required_metrics": [
+      "Annual flood resilience budget (AED or USD) for Dubai, Abu Dhabi, and other emirates, 2020-2025",
+      "Year-over-year growth rate (%)",
+      "Source: government budget documents, municipal announcements"
+    ],
+    "comparison_set": [
+      "By emirate (Dubai, Abu Dhabi, Sharjah, etc.) and year"
+    ],
+    "preferred_sources": [
+      "Dubai Municipality budget releases",
+      "Abu Dhabi Department of Municipalities and Transport",
+      "UAE Ministry of Finance",
+      "MEED Projects"
+    ],
+    "search_queries": [
+      "Dubai flood resilience budget 2024",
+      "Abu Dhabi climate adaptation spending 2024",
+      "UAE flood management budget by emirate"
+    ],
+    "data_quality_rule": "Use official budget figures where available; if only total infrastructure spending is found, apply a documented climate adaptation share and mark as estimate.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the market size and growth trajectory of UAE flood resilience investments, segmented by emirate, to justify the opportunity.",
+    "pre_exhibit_context": "The report claims that UAE municipal budgets for flood resilience are growing at a double-digit rate due to recent storm events.",
+    "post_exhibit_takeaway": "Dubai and Abu Dhabi dominate spending, with a clear upward trend, validating the near-term procurement window."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Annual Flood Damage Costs in UAE (2015-2024)",
+    "chart_type": "line",
+    "executive_question": "How severe is the storm impact driving demand?",
+    "required_metrics": [
+      "Annual flood damage cost (USD) in UAE, 2015-2024",
+      "Number of flood events per year",
+      "Affected population or properties"
+    ],
+    "comparison_set": [
+      "Yearly data points"
+    ],
+    "preferred_sources": [
+      "Insurance industry reports (e.g., Swiss Re, Munich Re)",
+      "UAE government damage assessments",
+      "World Bank disaster loss databases"
+    ],
+    "search_queries": [
+      "UAE flood damage cost 2024",
+      "UAE flood losses insurance claims",
+      "UAE storm damage statistics 2020-2024"
+    ],
+    "data_quality_rule": "Seek at least 4 annual observations; if only two endpoints are found, use CAGR to interpolate and clearly mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the escalating storm impact, providing the urgency for flood-resilience investments.",
+    "pre_exhibit_context": "The report asserts that Gulf cities face escalating storm impact, creating demand for flood-resilience systems.",
+    "post_exhibit_takeaway": "Flood damage costs have risen sharply, especially in 2024, underscoring the need for investment."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Cost Comparison: Chinese vs. Western Flood Barrier Systems",
+    "chart_type": "bar",
+    "executive_question": "What is the price advantage?",
+    "required_metrics": [
+      "Unit cost (USD per meter or per system) for Chinese and Western flood barriers",
+      "Installation and maintenance costs",
+      "Specifications (e.g., height, material)"
+    ],
+    "comparison_set": [
+      "Chinese vs. Western suppliers (e.g., Fibertex, Flood Control International, local UAE firms)"
+    ],
+    "preferred_sources": [
+      "Supplier price lists and quotes",
+      "Industry reports (e.g., Frost & Sullivan)",
+      "Case studies of UAE projects"
+    ],
+    "search_queries": [
+      "flood barrier cost comparison China vs Western",
+      "flood barrier price UAE",
+      "Chinese flood control system cost"
+    ],
+    "data_quality_rule": "Use comparable specifications; if exact prices are not public, use indicative ranges from industry reports and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the cost competitiveness of Chinese technologies, a key driver for adoption.",
+    "pre_exhibit_context": "The report hypothesizes that Chinese flood-resilience technologies are cost-competitive by 30-50% compared to Western alternatives.",
+    "post_exhibit_takeaway": "Chinese systems offer a significant cost advantage, making them attractive to budget-conscious UAE buyers."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Major Flood Resilience Projects in UAE: Budget and Timeline",
+    "chart_type": "timeline",
+    "executive_question": "Which projects are the best entry points?",
+    "required_metrics": [
+      "Project name",
+      "Budget (USD)",
+      "Timeline (start and end dates)",
+      "Status (planned, tendered, under construction)"
+    ],
+    "comparison_set": [
+      "List of projects sorted by budget"
+    ],
+    "preferred_sources": [
+      "MEED Projects",
+      "Zawya Projects",
+      "Dubai Municipality announcements",
+      "Abu Dhabi government press releases"
+    ],
+    "search_queries": [
+      "Dubai stormwater tunnel project budget",
+      "Abu Dhabi coastal protection project timeline",
+      "UAE flood resilience projects 2024"
+    ],
+    "data_quality_rule": "Include only publicly announced projects with confirmed budgets; if budget is undisclosed, mark as 'not disclosed'.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies specific high-value projects that represent the primary market opportunities.",
+    "pre_exhibit_context": "The report argues that the market is concentrated in a few high-value projects, not a broad base of customers.",
+    "post_exhibit_takeaway": "A handful of mega-projects (e.g., Dubai stormwater tunnel, Abu Dhabi coastal protection) dominate the pipeline, offering clear entry points."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "UAE Flood Resilience Market Size Forecast (2024-2030)",
+    "chart_type": "line",
+    "executive_question": "How large is the opportunity over time?",
+    "required_metrics": [
+      "Market size (USD) for 2024, 2025, 2026, 2027, 2028, 2029, 2030",
+      "Growth rate (%)",
+      "Segmentation by product type (e.g., barriers, drainage systems)"
+    ],
+    "comparison_set": [
+      "Annual forecast points"
+    ],
+    "preferred_sources": [
+      "Market research reports (e.g., Frost & Sullivan, MarketsandMarkets)",
+      "Government spending plans",
+      "Industry association forecasts"
+    ],
+    "search_queries": [
+      "UAE flood resilience market size forecast",
+      "UAE climate adaptation infrastructure spending forecast",
+      "Gulf flood management market forecast"
+    ],
+    "data_quality_rule": "Use at least 4 annual data points; if only a base year and CAGR are available, interpolate and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a forward-looking market size estimate to support investment decisions.",
+    "pre_exhibit_context": "The report claims the total addressable market is at least $500 million over the next five years.",
+    "post_exhibit_takeaway": "The market is projected to grow steadily, reaching $X million by 2030, confirming the long-term opportunity."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Market Entry Scenarios: Direct Sales vs. Joint Venture vs. Project-Based Partnership",
+    "chart_type": "bubble",
+    "executive_question": "Which entry model maximizes ROI?",
+    "required_metrics": [
+      "Initial investment (USD)",
+      "Time to first revenue (months)",
+      "Expected market share (%) or revenue potential (USD)",
+      "Risk level (qualitative, but based on evidence)"
+    ],
+    "comparison_set": [
+      "Three entry models: Direct Sales, Joint Venture, Project-Based Partnership"
+    ],
+    "preferred_sources": [
+      "Case studies of foreign firms entering UAE infrastructure",
+      "Industry reports on market entry strategies",
+      "Expert interviews (if available)"
+    ],
+    "search_queries": [
+      "China UAE joint venture infrastructure success",
+      "UAE market entry strategy foreign firms",
+      "project-based partnership UAE construction"
+    ],
+    "data_quality_rule": "Use quantitative data from comparable projects; if risk is qualitative, base on documented regulatory and competitive factors.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Compares entry models on key dimensions (e.g., investment, speed, risk) to guide strategic choice.",
+    "pre_exhibit_context": "The report must decide on the optimal market entry model for GateX.",
+    "post_exhibit_takeaway": "Joint ventures offer a balanced profile, with moderate investment and high speed, making them the recommended approach."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Regulatory and Certification Requirements for Foreign Suppliers",
+    "chart_type": "matrix",
+    "executive_question": "What are the barriers to entry?",
+    "required_metrics": [
+      "List of required certifications (e.g., ISO, UAE standards)",
+      "Local content percentage requirement",
+      "Time to obtain certification (months)",
+      "Cost of certification (USD)"
+    ],
+    "comparison_set": [
+      "Requirements by type (certification, local content, IP protection)"
+    ],
+    "preferred_sources": [
+      "UAE standardization bodies (e.g., ESMA)",
+      "Dubai Municipality regulations",
+      "Abu Dhabi Department of Economic Development",
+      "Trade associations"
+    ],
+    "search_queries": [
+      "UAE flood resilience standards certification",
+      "UAE local content requirements infrastructure",
+      "UAE technology transfer policy climate"
+    ],
+    "data_quality_rule": "Use official regulatory documents; if specific costs are not public, provide ranges from industry sources.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Maps the regulatory landscape to identify hurdles and mitigation strategies.",
+    "pre_exhibit_context": "The report hypothesizes that regulatory standards and local content requirements are primary barriers.",
+    "post_exhibit_takeaway": "Certification and local content rules are significant, but recent policy shifts favor technology transfer, easing entry."
+  }
+]
