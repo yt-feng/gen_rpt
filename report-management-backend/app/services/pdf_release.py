@@ -15,6 +15,7 @@ This service does NOT publish. Publishing remains entirely in publish_orchestrat
 
 import hashlib
 import io
+import re
 import time
 import uuid
 from dataclasses import dataclass
@@ -27,6 +28,10 @@ from sqlalchemy import select, update
 from app.models.pdf_release import PdfRelease
 from app.storage.provider import storage_provider
 from app.logging.logger import logger
+from gen_rpt.web_publication_contract import clean_client_text, output_leak_hits
+
+
+PDF_RENDERER_REVISION = "pdf-release-preview-v2"
 
 
 # ---------------------------------------------------------------------------
@@ -184,6 +189,79 @@ def _checksum(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def _render_checksum(html_content: str) -> str:
+    """Invalidate previews when output-safety behavior changes."""
+    return _checksum(f"{PDF_RENDERER_REVISION}\0{html_content}".encode("utf-8"))
+
+
+def _release_leak_hits(text: str) -> list[str]:
+    value = str(text or "")
+    hits = list(output_leak_hits(value))
+    for pattern in (
+        r"\b(?:chunk_id|why_it_matters|retrieval_score|embedding_metadata)\b",
+        r"\bSupporting document evidence\b",
+        r"[\{\[]\s*['\"][A-Za-z_][^'\"]*['\"]\s*:",
+    ):
+        if re.search(pattern, value, re.I):
+            hits.append(pattern)
+    return list(dict.fromkeys(hits))
+
+
+def _sanitize_release_html(html_content: str, *, language: str = "en") -> str:
+    """Remove internal evidence records from the user-facing preview HTML."""
+    from bs4 import BeautifulSoup
+
+    soup = BeautifulSoup(str(html_content or ""), "html.parser")
+    english_report = not str(language or "en").lower().startswith("zh")
+    evidence_selector = ".evidence-list li, .evidence li, [class*='evidence'] li"
+
+    for node in list(soup.select(evidence_selector)):
+        text = node.get_text(" ", strip=True)
+        source_language_mismatch = english_report and bool(re.search(r"[\u3400-\u9fff]{4,}", text))
+        if _release_leak_hits(text) or source_language_mismatch:
+            node.decompose()
+
+    # Catch a serialized object that entered an ordinary paragraph or table cell.
+    for node in list(soup.find_all(["p", "li", "blockquote", "pre", "code", "td", "dd"])):
+        if node.parent is None:
+            continue
+        if _release_leak_hits(node.get_text(" ", strip=True)):
+            node.decompose()
+
+    for container in list(soup.select(".evidence-list, .evidence")):
+        if not container.get_text(" ", strip=True):
+            container.decompose()
+
+    for node in soup.find_all(string=True):
+        if node.parent and node.parent.name not in {"script", "style"}:
+            raw = str(node)
+            cleaned = clean_client_text(raw)
+            if cleaned != raw.strip() and raw.strip():
+                leading = raw[: len(raw) - len(raw.lstrip())]
+                trailing = raw[len(raw.rstrip()) :]
+                node.replace_with(f"{leading}{cleaned}{trailing}")
+
+    visible = soup.get_text(" ", strip=True)
+    leaks = _release_leak_hits(visible)
+    if leaks:
+        raise RuntimeError("PDF release HTML contains internal metadata: " + ", ".join(leaks))
+    return str(soup)
+
+
+def _validate_pdf_bytes(pdf_bytes: bytes) -> None:
+    """Reject a PDF before upload if internal evidence is extractable from it."""
+    from pypdf import PdfReader
+
+    try:
+        reader = PdfReader(io.BytesIO(pdf_bytes))
+        text = "\n".join(page.extract_text() or "" for page in reader.pages)
+    except Exception as exc:
+        raise RuntimeError(f"Generated PDF could not be inspected: {exc}") from exc
+    leaks = _release_leak_hits(text)
+    if leaks:
+        raise RuntimeError("Generated PDF contains internal metadata: " + ", ".join(leaks))
+
+
 def _r2_pdf_path(document_id: str, version_number: int) -> str:
     """
     Immutable versioned R2 path.
@@ -221,8 +299,9 @@ class PdfReleaseService:
 
         # Step 1: Resolve HTML
         html_content = await self._resolve_html(report_id, report)
-        html_bytes = html_content.encode("utf-8")
-        html_cs = _checksum(html_bytes)
+        language = report.get("language") or report.get("reportContent", {}).get("language") or "en"
+        html_content = _sanitize_release_html(html_content, language=language)
+        html_cs = _render_checksum(html_content)
 
         # Step 2: Resolve document UUID
         doc_uuid = self._to_uuid(report_id)
@@ -252,6 +331,7 @@ class PdfReleaseService:
 
         # Generate
         pdf_bytes = await self._generate_pdf(html_content)
+        _validate_pdf_bytes(pdf_bytes)
         render_ms = int((time.monotonic() - start) * 1000)
 
         # Store in R2

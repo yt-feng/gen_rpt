@@ -808,8 +808,11 @@ def convert_evidence_to_human_readable(
                 cid = chunk_match.group(1).strip()
                 excerpt = chunk_match.group(2) or chunk_match.group(3) or chunk_match.group(4) or ""
                 implication = text_item[chunk_match.end():].lstrip(" —-").strip()
+                implication = re.sub(r"^[\s\u2013\u2014-]+", "", implication)
+                if re.fullmatch(r"Supporting document evidence\.?", implication, re.I):
+                    implication = ""
                 title = str(rag_source_titles.get(cid) or "").strip()
-                if citation := _citation(title, excerpt.strip(), implication):
+                if (citation := _citation(title, excerpt.strip(), implication)) and citation != title:
                     human_readable.append(_clean_prose_internal_ids(citation))
                 continue
 
@@ -824,6 +827,12 @@ def convert_evidence_to_human_readable(
                         parsed_dict = ast.literal_eval(text_item)
                     except Exception:
                         pass
+            if parsed_dict is None and re.search(
+                r"\b(?:chunk_id|excerpt|why_it_matters|retrieval_score|embedding_metadata)\b",
+                text_item,
+                re.I,
+            ):
+                continue
             if isinstance(parsed_dict, dict):
                 cid = str(parsed_dict.get("chunk_id") or parsed_dict.get("id") or "").strip()
                 excerpt = str(parsed_dict.get("excerpt") or parsed_dict.get("fact") or parsed_dict.get("quote") or parsed_dict.get("claim") or "").strip()

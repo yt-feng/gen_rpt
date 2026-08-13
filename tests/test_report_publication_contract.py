@@ -15,10 +15,42 @@ from gen_rpt.web_publication_contract import (
     rag_rendered_output_issues,
 )
 from gen_rpt.web_report_pipeline import WebReportPipeline
-from gen_rpt.web_report_renderer import render_web_report_html
+from gen_rpt.web_report_renderer import _format_human_evidence_item, render_web_report_html
 
 
 class TestReportPublicationContract(unittest.TestCase):
+    def test_malformed_internal_evidence_is_omitted(self):
+        malformed = (
+            "{'chunk_id': '9fc0f0c7-3f26-4ef4-a7ac-d5e4018b1f5f', "
+            "'excerpt': '城市排水与防内涝', 'why_it_matters': 'This identifies the"
+        )
+        self.assertEqual(_format_human_evidence_item(malformed, "en"), "")
+        self.assertEqual(
+            _format_human_evidence_item(
+                '[Chunk: internal-42] "城市排水与防内涝" — Supporting document evidence.',
+                "en",
+            ),
+            "",
+        )
+        report = {
+            "sections": [
+                {
+                    "evidence": [
+                        malformed,
+                        '[Chunk: internal-42] "城市排水与防内涝" — Supporting document evidence.',
+                    ]
+                }
+            ]
+        }
+        convert_evidence_to_human_readable(
+            report,
+            {},
+            {"internal-42": "Internal document"},
+            [],
+            language="en",
+        )
+        self.assertEqual(report["sections"][0]["evidence"], [])
+
     def test_internal_evidence_id_regex(self):
         regex = r"\b(?:WEB-E|RAG-E|E)\d+\b"
         self.assertTrue(re.search(regex, "Based on WEB-E1 summary."))

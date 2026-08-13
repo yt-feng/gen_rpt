@@ -892,11 +892,17 @@ def normalize_web_report(
 
 def _format_human_evidence_item(item: Any, language: str = "en") -> str:
     parsed: Dict[str, Any] | None = None
+    internal_serialized = False
     if isinstance(item, dict):
         parsed = item
     else:
         text_item = str(item or "").strip()
-        if ("{" in text_item and "}" in text_item) or ("chunk_id" in text_item or "excerpt" in text_item or "why_it_matters" in text_item):
+        internal_serialized = bool(
+            re.search(r"\b(?:chunk_id|why_it_matters|retrieval_score|embedding_metadata)\b", text_item, re.I)
+            or re.search(r"\[Chunk:\s*[^\]]+\]", text_item, re.I)
+            or re.search(r"\bSupporting document evidence\b", text_item, re.I)
+        )
+        if ("{" in text_item and "}" in text_item) or internal_serialized:
             try:
                 parsed = json.loads(text_item)
             except Exception:
@@ -904,6 +910,12 @@ def _format_human_evidence_item(item: Any, language: str = "en") -> str:
                     parsed = ast.literal_eval(text_item)
                 except Exception:
                     pass
+
+        # Truncated dictionaries and raw chunk citations are internal traceability
+        # records, not presentation-ready evidence.  Partial regex cleanup would
+        # expose their remaining keys or source-language excerpts.
+        if parsed is None and internal_serialized:
+            return ""
 
     if isinstance(parsed, dict):
         excerpt = str(parsed.get("excerpt") or parsed.get("fact") or parsed.get("quote") or parsed.get("claim") or "").strip()
