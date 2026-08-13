@@ -7,12 +7,16 @@ import os
 import re
 import subprocess
 import time
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-from urllib.parse import quote, urlencode
+from urllib.parse import quote, urlencode, urljoin, urlparse
+from urllib.robotparser import RobotFileParser
 
 import requests
-from PIL import Image, ImageDraw, ImageFilter, ImageStat
+from bs4 import BeautifulSoup
+from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageStat
 
 from .deepseek_client import DeepSeekClient
 from .theme import load_theme
@@ -43,17 +47,14 @@ def generate_ai_image_assets(
     backup_dir: Path,
     *,
     language: str = "en",
+    sources: List[Dict[str, Any]] | None = None,
 ) -> Dict[str, str]:
-    """Generate editorial visuals for the report.
+    """Select web-sourced editorial visuals, with AI as the final fallback.
 
     Important: the AI cover is written to cover-ai.png instead of the brand
     fallback cover-background.png. Earlier versions reused the already-created
     brand cover as a cache hit, which prevented Pollinations from being called.
     """
-    if os.getenv("DISABLE_AI_IMAGES", "").lower() in {"1", "true", "yes"}:
-        _log("AI image generation disabled by DISABLE_AI_IMAGES")
-        return {}
-
     max_section_images = _int_env("MAX_AI_SECTION_IMAGES", DEFAULT_MAX_SECTION_IMAGES)
     timeout_seconds = _int_env("AI_IMAGE_TIMEOUT", DEFAULT_IMAGE_TIMEOUT)
     retries = _int_env("AI_IMAGE_RETRIES", DEFAULT_IMAGE_RETRIES)
@@ -67,7 +68,10 @@ def generate_ai_image_assets(
     assets_dir.mkdir(parents=True, exist_ok=True)
     backup_dir.mkdir(parents=True, exist_ok=True)
     prompt_records: List[Dict[str, str]] = []
+    source_records: List[Dict[str, Any]] = []
     result: Dict[str, str] = {}
+    used_hashes: set[str] = set()
+    web_candidates = _discover_source_image_candidates(sources or [], timeout_seconds=min(10, timeout_seconds))
 
     cover_keywords = (
         f"{topic}; full-page premium GateX executive intelligence report cover background; topic-specific editorial visual; "
@@ -76,15 +80,23 @@ def generate_ai_image_assets(
         "executive publication quality; restrained blue, white and electric-blue accents; no readable words; no logo; "
         "leave calm negative space for title placement; avoid generic ocean waves, abstract blue filler and unrelated decorative gradients"
     )
-    _log("AI image cover prompt polishing started | expected 5-30s")
-    cover_prompt = _polish_prompt(client, cover_keywords)
     cover_path = assets_dir / "cover-ai.png"
-    if cover_path.exists():
-        cover_path.unlink(missing_ok=True)
-    _log("AI image cover download started | expected 10-60s")
-    status, reason = _download_or_fallback(cover_prompt, cover_path, kind="cover", timeout_seconds=timeout_seconds, retries=retries, allow_fallback=True)
+    cover_prompt = cover_keywords
+    status, reason, source_record = _source_first_image(
+        cover_keywords,
+        cover_path,
+        web_candidates,
+        used_hashes,
+        kind="cover",
+        timeout_seconds=timeout_seconds,
+        retries=retries,
+        allow_fallback=True,
+        client=client,
+    )
     result["cover-background"] = f"assets/{cover_path.name}"
     prompt_records.append({"id": "cover-background", "keywords": cover_keywords, "prompt": cover_prompt, "url": _url(cover_prompt), "status": status, "reason": reason})
+    if source_record:
+        source_records.append(_image_source_record(source_record, cover_path, assets_dir, "cover-background", "Cover", status, report))
     _log(f"AI image cover completed | status={status} | reason={reason[:180] if reason else ''}")
 
     sections = report.get("sections", []) or []
@@ -98,13 +110,26 @@ def generate_ai_image_assets(
             "human-scale context; cinematic but natural lighting; restrained blue and white accents; clean composition; no readable text; no logo; "
             "avoid generic abstract filler, stock-photo cliches and purely decorative gradients"
         )
-        _log(f"AI image section {idx}/{min(len(sections), max_section_images)} prompt polishing started | title={title[:90]!r}")
-        prompt = _polish_prompt(client, keywords)
+        prompt = keywords
         target = assets_dir / f"image-{idx}.png"
-        _log(f"AI image section {idx}/{min(len(sections), max_section_images)} download started | expected 10-60s")
-        status, reason = _download_or_fallback(prompt, target, kind="section", timeout_seconds=timeout_seconds, retries=retries, allow_fallback=allow_section_fallback)
+        status, reason, source_record = _source_first_image(
+            keywords,
+            target,
+            web_candidates,
+            used_hashes,
+            kind="section",
+            timeout_seconds=timeout_seconds,
+            retries=retries,
+            allow_fallback=allow_section_fallback,
+            client=client,
+        )
         if target.exists() and target.stat().st_size > 0:
             result[f"image-{idx}"] = f"assets/{target.name}"
+        if source_record:
+            record = _image_source_record(source_record, target, assets_dir, f"image-{idx}", title, status, report)
+            source_records.append(record)
+            section["image_caption"] = record.get("caption") or title
+            section["image_source"] = record.get("attribution") or record.get("source_publication") or record.get("source_domain")
         prompt_records.append({"id": f"image-{idx}", "keywords": keywords, "prompt": prompt, "url": _url(prompt), "status": status, "reason": reason})
         _log(f"AI image section {idx}/{min(len(sections), max_section_images)} completed | status={status} | reason={reason[:180] if reason else ''}")
         time.sleep(0.25)
@@ -113,6 +138,8 @@ def generate_ai_image_assets(
     _ensure_section_image_diversity(assets_dir, prompt_records, max_section_images)
 
     (backup_dir / "image_prompts.json").write_text(json.dumps(prompt_records, ensure_ascii=False, indent=2), encoding="utf-8")
+    report["image_assets"] = source_records
+    (backup_dir / "image_sources.json").write_text(json.dumps(source_records, ensure_ascii=False, indent=2), encoding="utf-8")
     _log(f"AI image generation completed | generated_assets={len(result)} | prompt_records={len(prompt_records)}")
     return result
 
@@ -151,6 +178,262 @@ Rules:
     return _sanitize(f"Premium GateX topic-specific executive intelligence report visual, photorealistic, crisp detail, natural lighting, restrained navy and cool-blue accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
 
 
+def _source_first_image(
+    keywords: str,
+    output_path: Path,
+    candidates: List[Dict[str, Any]],
+    used_hashes: set[str],
+    *,
+    kind: str,
+    timeout_seconds: int,
+    retries: int,
+    allow_fallback: bool,
+    client: DeepSeekClient,
+) -> Tuple[str, str, Dict[str, Any] | None]:
+    for candidate in sorted(candidates, key=lambda item: _candidate_score(item, keywords), reverse=True):
+        score = _candidate_score(candidate, keywords)
+        if score < 3:
+            continue
+        digest, reason = _download_source_candidate(candidate, output_path, timeout_seconds=min(18, timeout_seconds))
+        if not digest:
+            continue
+        if digest in used_hashes:
+            output_path.unlink(missing_ok=True)
+            continue
+        used_hashes.add(digest)
+        selected = dict(candidate)
+        selected["image_sha256"] = digest
+        return "web_source", f"relevance={score}", selected
+
+    wiki_status, wiki_reason, wiki_source = _download_wikimedia_source(
+        keywords,
+        output_path,
+        timeout_seconds=min(18, timeout_seconds),
+        used_hashes=used_hashes,
+    )
+    if wiki_status and wiki_source:
+        used_hashes.add(str(wiki_source.get("image_sha256") or ""))
+        return wiki_status, wiki_reason, wiki_source
+
+    if output_path.exists() and output_path.stat().st_size > 0:
+        try:
+            with Image.open(output_path) as cached:
+                cached.verify()
+            digest = hashlib.sha256(output_path.read_bytes()).hexdigest()
+            if digest not in used_hashes:
+                used_hashes.add(digest)
+                return "cached", "existing approved asset", None
+        except Exception:
+            output_path.unlink(missing_ok=True)
+
+    prompt = _polish_prompt(client, keywords)
+    status, reason = _download_pollinations_or_fallback(
+        prompt,
+        output_path,
+        kind=kind,
+        timeout_seconds=timeout_seconds,
+        retries=retries,
+        allow_fallback=allow_fallback,
+    )
+    if output_path.exists():
+        used_hashes.add(hashlib.sha256(output_path.read_bytes()).hexdigest())
+    return status, reason or wiki_reason, None
+
+
+def _discover_source_image_candidates(sources: List[Dict[str, Any]], *, timeout_seconds: int) -> List[Dict[str, Any]]:
+    eligible = []
+    seen_urls = set()
+    for source in sources:
+        page_url = str(source.get("url") or "").strip()
+        if not page_url.startswith(("http://", "https://")) or page_url in seen_urls:
+            continue
+        if str(source.get("source_type") or "html").lower() not in {"", "html"}:
+            continue
+        seen_urls.add(page_url)
+        eligible.append(source)
+        if len(eligible) >= 10:
+            break
+    if not eligible:
+        return []
+    with ThreadPoolExecutor(max_workers=min(4, len(eligible))) as pool:
+        batches = list(pool.map(lambda item: _images_from_source_page(item, timeout_seconds), eligible))
+    return [candidate for batch in batches for candidate in batch]
+
+
+def _images_from_source_page(source: Dict[str, Any], timeout_seconds: int) -> List[Dict[str, Any]]:
+    page_url = str(source.get("url") or "")
+    if not _robots_allows(page_url, timeout_seconds):
+        return []
+    try:
+        response = requests.get(page_url, timeout=timeout_seconds, headers={"User-Agent": "GateXReportGenerator/1.0"})
+        response.raise_for_status()
+        if "html" not in str(response.headers.get("Content-Type") or "").lower():
+            return []
+        soup = BeautifulSoup(response.text, "html.parser")
+    except Exception:
+        return []
+
+    hostname = (urlparse(page_url).hostname or "").lower()
+    footer_text = " ".join(node.get_text(" ", strip=True) for node in soup.select("footer, .license, #license"))
+    license_name, license_url = _page_license(hostname, soup, footer_text)
+    if not license_name:
+        return []
+    site_name = _meta_content(soup, "property", "og:site_name") or hostname
+    page_title = _meta_content(soup, "property", "og:title") or str(source.get("title") or "")
+    candidates: List[Dict[str, Any]] = []
+    seen = set()
+    image_nodes = []
+    for attr, key in (("property", "og:image"), ("name", "twitter:image")):
+        url = _meta_content(soup, attr, key)
+        if url:
+            image_nodes.append((url, "", ""))
+    for image in soup.select("figure img, article img")[:20]:
+        src = image.get("src") or image.get("data-src") or image.get("data-lazy-src")
+        figure = image.find_parent("figure")
+        caption_node = figure.find("figcaption") if figure else None
+        image_nodes.append((src, image.get("alt") or "", caption_node.get_text(" ", strip=True) if caption_node else ""))
+
+    for raw_url, alt, caption in image_nodes:
+        image_url = urljoin(page_url, str(raw_url or "").strip())
+        if not image_url.startswith(("http://", "https://")) or image_url in seen:
+            continue
+        if _bad_image_text(" ".join((image_url, alt, caption))):
+            continue
+        seen.add(image_url)
+        candidates.append(
+            {
+                "original_image_url": image_url,
+                "source_page_url": page_url,
+                "source_domain": hostname,
+                "source_publication": site_name,
+                "source_title": page_title,
+                "source_query": str(source.get("query") or ""),
+                "source_snippet": str(source.get("snippet") or ""),
+                "caption": _shorten(caption or alt or page_title, 240),
+                "alt_text": _shorten(alt, 240),
+                "attribution": site_name,
+                "license": license_name,
+                "license_url": license_url,
+            }
+        )
+    return candidates
+
+
+def _robots_allows(url: str, timeout_seconds: int) -> bool:
+    parsed = urlparse(url)
+    robots_url = f"{parsed.scheme}://{parsed.netloc}/robots.txt"
+    try:
+        response = requests.get(robots_url, timeout=min(5, timeout_seconds), headers={"User-Agent": "GateXReportGenerator/1.0"})
+        if response.status_code >= 400:
+            return True
+        parser = RobotFileParser()
+        parser.set_url(robots_url)
+        parser.parse(response.text.splitlines())
+        return parser.can_fetch("GateXReportGenerator/1.0", url)
+    except Exception:
+        return True
+
+
+def _page_license(hostname: str, soup: BeautifulSoup, page_text: str) -> Tuple[str, str]:
+    if hostname == "gov" or hostname.endswith(".gov"):
+        return "U.S. Government work / public domain unless otherwise noted", "https://www.usa.gov/government-copyright"
+    license_link = soup.find("a", rel=lambda value: value and "license" in str(value).lower())
+    license_text = " ".join((license_link.get_text(" ", strip=True), license_link.get("href") or "")) if license_link else ""
+    haystack = f"{license_text} {page_text[-4000:]}".lower()
+    for label, tokens in (
+        ("CC0", ("creativecommons.org/publicdomain/zero", "cc0")),
+        ("Public domain", ("public domain",)),
+        ("CC BY-SA", ("creativecommons.org/licenses/by-sa", "cc by-sa")),
+        ("CC BY", ("creativecommons.org/licenses/by/", "cc by ")),
+    ):
+        if any(token in haystack for token in tokens):
+            return label, urljoin("https://" + hostname, license_link.get("href")) if license_link else ""
+    return "", ""
+
+
+def _meta_content(soup: BeautifulSoup, attr: str, value: str) -> str:
+    node = soup.find("meta", attrs={attr: value})
+    return str(node.get("content") or "").strip() if node else ""
+
+
+def _candidate_score(candidate: Dict[str, Any], keywords: str) -> int:
+    wanted = _meaningful_tokens(keywords)
+    source_text = " ".join(str(candidate.get(key) or "") for key in ("source_title", "source_query", "source_snippet"))
+    image_text = " ".join(str(candidate.get(key) or "") for key in ("caption", "alt_text", "original_image_url"))
+    source_hits = len(wanted & _meaningful_tokens(source_text))
+    image_hits = len(wanted & _meaningful_tokens(image_text))
+    return min(source_hits, 6) + min(image_hits * 2, 8)
+
+
+def _meaningful_tokens(value: Any) -> set[str]:
+    stop = {"about", "after", "before", "business", "clean", "executive", "image", "market", "premium", "report", "section", "show", "technology", "visual", "with"}
+    return {token for token in re.findall(r"[a-z0-9]{4,}", str(value or "").lower()) if token not in stop}
+
+
+def _bad_image_text(value: str) -> bool:
+    lower = str(value or "").lower()
+    return any(token in lower for token in ("logo", "seal", "icon", "avatar", "banner", "advert", "tracking", "pixel", "sprite", "favicon", "profile", "getty", "shutterstock", "reuters", "associated press"))
+
+
+def _download_source_candidate(candidate: Dict[str, Any], output_path: Path, *, timeout_seconds: int) -> Tuple[str, str]:
+    try:
+        response = requests.get(
+            str(candidate["original_image_url"]),
+            timeout=timeout_seconds,
+            headers={"User-Agent": "GateXReportGenerator/1.0", "Referer": str(candidate.get("source_page_url") or "")},
+            stream=True,
+        )
+        response.raise_for_status()
+        content_type = str(response.headers.get("Content-Type") or "").lower()
+        if not content_type.startswith("image/") or "svg" in content_type:
+            return "", "unsupported content type"
+        content = response.raw.read(15 * 1024 * 1024 + 1)
+        if len(content) > 15 * 1024 * 1024:
+            return "", "image too large"
+        digest = hashlib.sha256(content).hexdigest()
+        tmp = output_path.with_suffix(".source")
+        tmp.write_bytes(content)
+        with Image.open(tmp) as image:
+            image.verify()
+        with Image.open(tmp) as image:
+            image = ImageOps.exif_transpose(image).convert("RGB")
+            width, height = image.size
+            if width < 800 or height < 450 or not 0.75 <= width / max(1, height) <= 3.2:
+                tmp.unlink(missing_ok=True)
+                return "", "low resolution or unsuitable aspect ratio"
+            image = _cover_crop(image, 1536, 1024)
+            image.save(output_path, format="PNG")
+        tmp.unlink(missing_ok=True)
+        return digest, ""
+    except Exception as exc:
+        output_path.with_suffix(".source").unlink(missing_ok=True)
+        return "", str(exc)[:180]
+
+
+def _image_source_record(
+    source: Dict[str, Any],
+    path: Path,
+    assets_dir: Path,
+    asset_id: str,
+    section_title: str,
+    status: str,
+    report: Dict[str, Any],
+) -> Dict[str, Any]:
+    report_id = assets_dir.parent.name
+    return {
+        **source,
+        "provider": status,
+        "retrieved_at": datetime.now(timezone.utc).isoformat(),
+        "image_sha256": source.get("image_sha256") or hashlib.sha256(path.read_bytes()).hexdigest(),
+        "local_asset_path": f"assets/{path.name}",
+        "r2_object_path": f"reports/{report_id}/current/assets/{path.name}",
+        "report_id": report_id,
+        "report_version": str(report.get("version") or report.get("report_version") or "1.0"),
+        "exhibit": asset_id,
+        "section": section_title,
+    }
+
+
 def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, retries: int, allow_fallback: bool) -> Tuple[str, str]:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     if output_path.exists() and output_path.stat().st_size > 0:
@@ -161,8 +444,23 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
         except Exception:
             output_path.unlink(missing_ok=True)
 
+    wiki_status, wiki_reason, _wiki_source = _download_wikimedia_source(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
+    if wiki_status:
+        return wiki_status, wiki_reason
+    return _download_pollinations_or_fallback(
+        prompt,
+        output_path,
+        kind=kind,
+        timeout_seconds=timeout_seconds,
+        retries=retries,
+        allow_fallback=allow_fallback,
+    )
+
+
+def _download_pollinations_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, retries: int, allow_fallback: bool) -> Tuple[str, str]:
     last_error = ""
-    for attempt in range(max(1, retries)):
+    ai_disabled = os.getenv("DISABLE_AI_IMAGES", "").lower() in {"1", "true", "yes"}
+    for attempt in range(0 if ai_disabled else max(1, retries)):
         try:
             response = requests.get(_url(prompt), timeout=timeout_seconds, headers={"User-Agent": "GateXReportGenerator/1.0"})
             response.raise_for_status()
@@ -177,14 +475,10 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
             last_error = str(exc)[:300]
             time.sleep(min(2.5 * (attempt + 1), 8.0))
 
-    wiki_status, wiki_reason = _download_wikimedia_fallback(prompt, output_path, timeout_seconds=min(18, timeout_seconds))
-    if wiki_status:
-        return "wikimedia", wiki_reason or last_error
-
     if allow_fallback:
         _fallback_image(output_path, kind=kind, prompt=prompt)
-        return "fallback", last_error
-    return "skipped_no_fallback", last_error
+        return "fallback", last_error or ("AI disabled" if ai_disabled else "")
+    return "skipped_no_fallback", last_error or ("AI disabled" if ai_disabled else "")
 
 
 def _ensure_section_image_diversity(assets_dir: Path, prompt_records: List[Dict[str, str]], max_section_images: int) -> None:
@@ -198,6 +492,9 @@ def _ensure_section_image_diversity(assets_dir: Path, prompt_records: List[Dict[
             continue
         if any(_hamming(digest, prior) <= 3 for prior in seen_hashes):
             record = next((item for item in prompt_records if item.get("id") == f"image-{idx}"), {})
+            if record.get("status") in {"web_source", "wikimedia"}:
+                seen_hashes.append(digest)
+                continue
             prompt = str(record.get("prompt") or record.get("keywords") or f"section image {idx}")
             digest = _replace_with_distinct_fallback(path, prompt, idx, seen_hashes) or digest
             if record:
@@ -268,9 +565,20 @@ def _sanitize(prompt: str) -> str:
 
 
 def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seconds: int) -> Tuple[str, str]:
+    status, reason, _source = _download_wikimedia_source(prompt, output_path, timeout_seconds=timeout_seconds)
+    return status, reason
+
+
+def _download_wikimedia_source(
+    prompt: str,
+    output_path: Path,
+    *,
+    timeout_seconds: int,
+    used_hashes: set[str] | None = None,
+) -> Tuple[str, str, Dict[str, Any] | None]:
     query = _wikimedia_query(prompt)
     if not query:
-        return "", "no wikimedia query"
+        return "", "no wikimedia query", None
     api = "https://commons.wikimedia.org/w/api.php"
     params = {
         "action": "query",
@@ -279,7 +587,7 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
         "gsrsearch": query,
         "gsrlimit": "20",
         "prop": "imageinfo",
-        "iiprop": "url|mime|size",
+        "iiprop": "url|mime|size|extmetadata",
         "iiurlwidth": "1536",
         "format": "json",
         "origin": "*",
@@ -293,8 +601,8 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
             raw = _curl_bytes(api + "?" + urlencode(params), timeout_seconds)
             pages = list((json.loads(raw.decode("utf-8")).get("query", {}).get("pages", {}) or {}).values())
         except Exception as curl_exc:
-            return "", f"wikimedia search failed: {str(exc)[:120]}; curl: {str(curl_exc)[:120]}"
-    candidates: List[tuple[int, str, str]] = []
+            return "", f"wikimedia search failed: {str(exc)[:120]}; curl: {str(curl_exc)[:120]}", None
+    candidates: List[tuple[int, str, str, Dict[str, Any]]] = []
     for page in pages:
         info = (page.get("imageinfo") or [{}])[0]
         url = info.get("thumburl") or info.get("url")
@@ -308,13 +616,15 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
             continue
         if _bad_wikimedia_title(title):
             continue
-        candidates.append((_wikimedia_title_score(title, query), url, title))
+        metadata = info.get("extmetadata") or {}
+        license_name = _wiki_meta(metadata, "LicenseShortName")
+        if not _allowed_commons_license(license_name):
+            continue
+        candidates.append((_wikimedia_title_score(title, query), url, title, metadata))
     if not candidates:
-        return "", "no suitable wikimedia image"
+        return "", "no suitable licensed wikimedia image", None
     candidates.sort(reverse=True, key=lambda item: item[0])
-    start = int(hashlib.sha1(prompt.encode("utf-8", errors="ignore")).hexdigest()[:6], 16) % len(candidates)
-    ordered = candidates[start:] + candidates[:start]
-    for _score, url, title in ordered:
+    for _score, url, title, metadata in candidates:
         try:
             image_response = requests.get(url, timeout=timeout_seconds, headers={"User-Agent": "GateXReportGenerator/1.0"})
             image_response.raise_for_status()
@@ -325,10 +635,13 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
             except Exception:
                 continue
         try:
+            digest = hashlib.sha256(content).hexdigest()
+            if digest in (used_hashes or set()):
+                continue
             tmp = output_path.with_suffix(".wiki")
             tmp.write_bytes(content)
             with Image.open(tmp) as image:
-                image = image.convert("RGB")
+                image = ImageOps.exif_transpose(image).convert("RGB")
                 quality_reason = _wikimedia_image_reject_reason(image, title)
                 if quality_reason:
                     tmp.unlink(missing_ok=True)
@@ -336,10 +649,39 @@ def _download_wikimedia_fallback(prompt: str, output_path: Path, *, timeout_seco
                 image = _cover_crop(image, 1536, 1024)
                 image.save(output_path, format="PNG")
             tmp.unlink(missing_ok=True)
-            return "wikimedia", query
+            source_page = _wiki_meta(metadata, "ImageDescription")
+            return "wikimedia", query, {
+                "original_image_url": url,
+                "source_page_url": f"https://commons.wikimedia.org/wiki/{quote(title.replace(' ', '_'))}",
+                "source_domain": "commons.wikimedia.org",
+                "source_publication": "Wikimedia Commons",
+                "source_title": title.removeprefix("File:"),
+                "source_query": query,
+                "source_snippet": "",
+                "caption": _shorten(_strip_html(source_page) or title.removeprefix("File:"), 240),
+                "alt_text": title.removeprefix("File:"),
+                "attribution": _shorten(_strip_html(_wiki_meta(metadata, "Artist") or _wiki_meta(metadata, "Credit")) or "Wikimedia Commons", 180),
+                "license": _wiki_meta(metadata, "LicenseShortName"),
+                "license_url": _wiki_meta(metadata, "LicenseUrl"),
+                "image_sha256": digest,
+            }
         except Exception:
             continue
-    return "", "wikimedia downloads failed"
+    return "", "wikimedia downloads failed", None
+
+
+def _wiki_meta(metadata: Dict[str, Any], key: str) -> str:
+    value = metadata.get(key) or {}
+    return str(value.get("value") or "") if isinstance(value, dict) else str(value or "")
+
+
+def _allowed_commons_license(value: str) -> bool:
+    normalized = str(value or "").lower().replace("-", " ")
+    return any(token in normalized for token in ("public domain", "cc0", "cc by", "creative commons"))
+
+
+def _strip_html(value: str) -> str:
+    return BeautifulSoup(str(value or ""), "html.parser").get_text(" ", strip=True)
 
 
 def _bad_wikimedia_title(title: str) -> bool:
@@ -397,7 +739,7 @@ def _wikimedia_title_score(title: str, query: str) -> int:
 
 def _wikimedia_image_reject_reason(image: Image.Image, title: str) -> str:
     width, height = image.size
-    if width < 500 or height < 350:
+    if width < 800 or height < 450:
         return "too small"
     stat = ImageStat.Stat(image)
     mean = sum(float(x) for x in stat.mean) / 3
@@ -444,9 +786,14 @@ def _wikimedia_query(prompt: str) -> str:
         return "energy storage power grid"
     if _has_prompt_any(lower, ["rail", "railway", "train", "logistics"]):
         return "railway logistics terminal"
+    if _has_prompt_any(lower, ["flood", "storm", "drainage", "resilience"]):
+        return "flood resilience drainage infrastructure"
+    if _has_prompt_any(lower, ["renminbi", "rmb", "yuan", "currency"]):
+        return "Chinese renminbi currency banking"
     if _has_prompt_any(lower, ["manufacturing", "factory", "industrial", "supply chain"]):
         return "industrial manufacturing facility"
-    return "business meeting technology"
+    first_clause = str(prompt or "").split(";", 1)[0]
+    return " ".join(sorted(_meaningful_tokens(first_clause))[:5]) or "business technology"
 
 
 def _has_prompt_any(lower_prompt: str, tokens: List[str]) -> bool:

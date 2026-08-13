@@ -471,6 +471,7 @@ class WebReportPipeline:
                 assets_dir,
                 Path(backup_dir),
                 language=self.language,
+                sources=source_dicts,
             )
         )
         self._log(

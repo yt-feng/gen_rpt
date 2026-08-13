@@ -242,6 +242,12 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   object-fit: cover;
   display: block;
 }
+.section-media figcaption {
+  padding: 10px 14px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1.35;
+}
 .section-block p {
   margin: 0 0 20px;
 }
@@ -965,7 +971,13 @@ def _render_section(parts: List[str], section: Dict[str, Any], idx: int, labels:
         parts.append(f"<p class='section-lead'>{_e(section['lead'])}</p>")
     image = _section_image(assets or {}, idx)
     if image:
-        parts.append(f"<figure class='section-media'><img src='{_e(image)}' alt='' /></figure>")
+        caption = _text(section.get("image_caption") or "")
+        source = _text(section.get("image_source") or "")
+        credit = " · ".join(item for item in (caption, source) if item)
+        parts.append(f"<figure class='section-media'><img src='{_e(image)}' alt='{_e(caption)}' />")
+        if credit:
+            parts.append(f"<figcaption>{_e(credit)}</figcaption>")
+        parts.append("</figure>")
     for paragraph in section.get("paragraphs", []):
         parts.append(f"<p>{_e(paragraph)}</p>")
     if section.get("evidence"):
@@ -1518,6 +1530,8 @@ def _normalize_sections(value: Any, takeaways: List[str], language: str = "en") 
                 "evidence": evidence[:5],
                 "evidence_internal": evidence_internal,
                 "so_what": so_what,
+                "image_caption": _text(section.get("image_caption") or ""),
+                "image_source": _text(section.get("image_source") or ""),
             }
         )
     return [s for s in sections if s["title"] or s["paragraphs"]]
