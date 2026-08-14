@@ -1,0 +1,218 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "UAE Flood Damage Costs and Frequency (2015-2024)",
+    "chart_type": "line",
+    "executive_question": "How have flood damage costs and frequency evolved in the UAE over the past decade?",
+    "required_metrics": [
+      "Annual flood damage cost in USD (2015-2024)",
+      "Annual number of flood events (2015-2024)",
+      "Annual rainfall in mm (2015-2024)"
+    ],
+    "comparison_set": [
+      "Yearly data points for each metric"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Climate Change and Environment",
+      "Dubai Municipality",
+      "National Center of Meteorology (UAE)",
+      "Insurance industry reports (e.g., Swiss Re, Munich Re)"
+    ],
+    "search_queries": [
+      "UAE flood damage cost 2015 2024 annual",
+      "UAE flood events frequency 2015 2024",
+      "UAE annual rainfall data 2015 2024"
+    ],
+    "data_quality_rule": "Use official government or insurance data. If annual data is incomplete, use at least 4 data points and mark missing years as estimates based on linear interpolation or CAGR.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the urgency and escalating trend of flood risk in the UAE, supporting the thesis that smart drainage is no longer optional.",
+    "pre_exhibit_context": "The report claims that the UAE's flood risk is escalating due to climate change and urbanization, but needs data to prove it.",
+    "post_exhibit_takeaway": "The upward trend in flood damage costs and frequency confirms the growing threat, justifying investment in smart drainage."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "UAE Government Budget Allocations for Flood Resilience (2020-2025)",
+    "chart_type": "line",
+    "executive_question": "How have UAE government budget allocations for flood resilience and drainage infrastructure changed over time?",
+    "required_metrics": [
+      "Annual government budget allocation for flood resilience in USD (2020-2025)",
+      "Annual budget for drainage infrastructure in USD (2020-2025)",
+      "Percentage of total infrastructure budget allocated to flood resilience (2020-2025)"
+    ],
+    "comparison_set": [
+      "Yearly budget figures"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Finance",
+      "Dubai Municipality budget documents",
+      "Abu Dhabi Department of Municipalities and Transport",
+      "Federal budget announcements"
+    ],
+    "search_queries": [
+      "UAE flood resilience budget 2020 2025",
+      "UAE drainage infrastructure budget 2020 2025",
+      "UAE infrastructure budget allocation flood 2024"
+    ],
+    "data_quality_rule": "Use official budget documents. If annual data is not available, use at least 4 data points and mark missing years as estimates based on CAGR or public announcements.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates policy tailwinds and government commitment to flood resilience, supporting the case for market entry.",
+    "pre_exhibit_context": "The report claims that UAE policies and budgets are increasingly prioritizing flood resilience, but needs evidence of budget trends.",
+    "post_exhibit_takeaway": "The increasing budget allocations signal a favorable funding environment for smart drainage technology adoption."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Market Size Estimates for UAE Smart Drainage (2024-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the projected market size for smart drainage systems in the UAE, and how is it expected to grow?",
+    "required_metrics": [
+      "Market size in USD (2024-2030)",
+      "CAGR (2024-2030)",
+      "Number of smart drainage projects (2024-2030)"
+    ],
+    "comparison_set": [
+      "Annual market size projections"
+    ],
+    "preferred_sources": [
+      "Frost & Sullivan",
+      "Bluefield Research",
+      "GWI (Global Water Intelligence)",
+      "MEED Projects"
+    ],
+    "search_queries": [
+      "UAE smart drainage market size forecast 2024 2030",
+      "UAE water infrastructure market forecast 2025",
+      "UAE smart water technology market growth"
+    ],
+    "data_quality_rule": "Use market research reports. If only two endpoints are available, use CAGR to interpolate intermediate values and mark them as estimates. Clearly state the source and methodology.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the market opportunity and growth trajectory, supporting investment decisions.",
+    "pre_exhibit_context": "The report claims the market is substantial and growing, but needs a credible market sizing forecast.",
+    "post_exhibit_takeaway": "The market is projected to grow at a double-digit CAGR, presenting a significant opportunity for early movers."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Cost Comparison: Chinese vs. Western Smart Drainage Systems",
+    "chart_type": "bar",
+    "executive_question": "How do the costs of Chinese smart drainage systems compare to Western alternatives?",
+    "required_metrics": [
+      "Upfront cost per project in USD (Chinese vs. Western)",
+      "Lifecycle cost per project in USD (Chinese vs. Western)",
+      "Cost per kilometer of drainage pipe in USD (Chinese vs. Western)"
+    ],
+    "comparison_set": [
+      "Chinese vs. Western providers"
+    ],
+    "preferred_sources": [
+      "Company announcements (e.g., Huawei, Beijing Enterprises Water Group)",
+      "Industry reports (e.g., Frost & Sullivan)",
+      "Case studies from similar Gulf projects"
+    ],
+    "search_queries": [
+      "Chinese smart drainage system cost UAE",
+      "smart drainage system price comparison China vs Europe",
+      "UAE drainage project cost per km"
+    ],
+    "data_quality_rule": "Use actual project costs or published price lists. If exact costs are unavailable, use estimates from industry reports and clearly label as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the cost advantage of Chinese technology, supporting competitive positioning.",
+    "pre_exhibit_context": "The report claims Chinese providers offer cost advantages, but needs comparative pricing data.",
+    "post_exhibit_takeaway": "Chinese systems are significantly cheaper, making them an attractive option for cost-conscious UAE municipalities."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Competitive Landscape: Market Share of Smart Drainage Providers in UAE",
+    "chart_type": "bar",
+    "executive_question": "Who are the key players in the UAE smart drainage market, and what is their market share?",
+    "required_metrics": [
+      "Market share percentage of each provider (e.g., local, European, Chinese)",
+      "Number of projects completed by each provider",
+      "Revenue of each provider in UAE (USD)"
+    ],
+    "comparison_set": [
+      "Competing providers"
+    ],
+    "preferred_sources": [
+      "Company annual reports",
+      "MEED Projects",
+      "Industry association reports (e.g., UAE Water and Electricity Association)"
+    ],
+    "search_queries": [
+      "UAE smart drainage market share competitors",
+      "UAE flood resilience technology providers market share",
+      "UAE water management companies revenue"
+    ],
+    "data_quality_rule": "Use company reports and project databases. If market share data is not available, use project counts as a proxy and clearly state the limitation.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Assesses competitive intensity and identifies gaps for early movers.",
+    "pre_exhibit_context": "The report claims the market is underserved, but needs data on existing competitors and their market share.",
+    "post_exhibit_takeaway": "The market is fragmented with no dominant player, indicating an opportunity for a new entrant to capture significant share."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Investment and Funding in UAE Flood Resilience (2015-2024)",
+    "chart_type": "bubble",
+    "executive_question": "How has investment and funding in UAE flood resilience evolved, and what is the scale of recent projects?",
+    "required_metrics": [
+      "Total investment in flood resilience projects in USD (2015-2024)",
+      "Number of projects funded (2015-2024)",
+      "Average project size in USD (2015-2024)",
+      "Funding source (government, private, multilateral)"
+    ],
+    "comparison_set": [
+      "Yearly investment data"
+    ],
+    "preferred_sources": [
+      "MEED Projects",
+      "Zawya",
+      "World Bank",
+      "Asian Infrastructure Investment Bank"
+    ],
+    "search_queries": [
+      "UAE flood resilience investment 2015 2024",
+      "UAE drainage projects funding 2024",
+      "UAE infrastructure investment flood protection"
+    ],
+    "data_quality_rule": "Use project databases and official funding announcements. If annual data is incomplete, use at least 4 data points and mark missing years as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the scale of investment and funding sources, supporting financial viability.",
+    "pre_exhibit_context": "The report claims there is substantial funding for flood resilience, but needs evidence of investment trends and sources.",
+    "post_exhibit_takeaway": "Investment has been growing, with significant government and private funding, indicating a healthy market for smart drainage."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Regulatory Milestones for Smart Drainage Adoption in UAE (2015-2024)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key regulatory milestones and policy changes affecting smart drainage adoption in the UAE?",
+    "required_metrics": [
+      "Date of each regulatory milestone (year)",
+      "Description of the regulation or policy",
+      "Impact on smart drainage adoption (positive/negative)"
+    ],
+    "comparison_set": [
+      "Chronological list of milestones"
+    ],
+    "preferred_sources": [
+      "UAE government announcements",
+      "Dubai Municipality regulations",
+      "Federal laws on technology imports",
+      "Industry association reports"
+    ],
+    "search_queries": [
+      "UAE smart drainage regulation timeline",
+      "UAE flood resilience policy 2015 2024",
+      "UAE technology import regulations China"
+    ],
+    "data_quality_rule": "Use official government sources. Each milestone must have a date and description. If exact dates are unavailable, use year and note the uncertainty.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies regulatory drivers and barriers, informing entry strategy.",
+    "pre_exhibit_context": "The report claims regulatory hurdles exist, but needs a timeline of relevant policies and standards.",
+    "post_exhibit_takeaway": "Regulatory support is increasing, but certification and data security requirements remain key barriers to address."
+  }
+]

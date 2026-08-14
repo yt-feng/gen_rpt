@@ -1,0 +1,40 @@
+Title: [Quick Report] Monitoring extreme heavy rainfall in UAE by Global ...
+URL: https://earth.jaxa.jp/en/earthview/2024/04/19/8032/index.html
+Source Type: html
+Domain: earth.jaxa.jp
+Content Type: text/html
+Search Query: UAE annual rainfall data 2015 2024
+
+[Quick Report] Monitoring extreme heavy rainfall in UAE by Global Satellite Mapping of Precipitation (GSMaP) – JAXA Earth-graphy / Space Technology Directorate I
+
+[Quick Report] Monitoring extreme heavy rainfall in UAE by Global Satellite Mapping of Precipitation (GSMaP)
+The United Arab Emirates (UAE) experienced record rainfall on April 16, 2024. In the country where the majority of the land is desert, the precipitation levels were reported to be more than twice the annual average, resulting in flood damage in many regions. JAXA is monitoring the precipitation from space through the Global Satellite Mapping of Precipitation (GSMaP) . The present report is an analysis of precipitation in the UAE.
+Figure 2 left shows the daily mean precipitation for April 16, 2024, calculated from GSMaP statistical data. It captures more than 100 mm of rainfall in a single day over a wide area of the UAE. Figure 2 right shows the extreme heavy rainfall index for the same time period. The extreme heavy rainfall index shows areas where precipitation was equal to or greater than the top several percent of rainfall intensity compared to the average rainfall over the same 24-hour in the previous 22 years. Large areas of the UAE have dark pink areas, indicating extremely heavy rainfall with a frequency that is rare compared to historical statistics.
+JAXA Global Rainfall Watch JAXA Climate Rainfall Watch JAXA GPM Website
+© 2003 Japan Aerospace Exploration Agency
+About Us About Us top Greetings from Leadership Greetings from Advisor of EORC Organization
+Updates on Earth Topics Latest Observation Disaster Meteorology and the Environment Research and Development Applications
+Earth Observation Research Earth Observation Research Research Project Research Fields Research Cooperation
+Satellite Applications Satellite Applications Disaster Managements Cartography Agriculture, forestry and fisheries Civil Infrastructure Maritime Domain Awareness (MDA) International Effort
+Access JAXA Satellite Data Access JAXA Satellite Data Product List Flow of data usage, Usage support Terms of Use of Research Data
+About Remote Sensing About Remote Sensing Remote sensing and radiative transfer Types of Earth observation satellites Flow of satellite data analysis Introduction of file formats Introduction of data download websites Introduction of Analysis tools/websites
+Contact JAXA For Media For Researchers For data users Data/Image Materials Visitors Guide
+[Quick Report] Monitoring extreme heavy rainfall in UAE by Global Satellite Mapping of Precipitation (GSMaP)
+Latest Observation 2026.06.05 Fri [Quick Report] Typhoon No. 6, “JANGMI”, brought heavy rain to Japan. – Results of satellite data analysis –
+Latest Observation 2026.04.16 Thu [Quick Report] EarthCARE Captured the Eye of Typhoon Sinlaku
+Latest Observation 2025.12.03 Wed [Quick Report] Analysis results from satellite precipitation data on the record-breaking heavy rainfall occurring in Southeast Asia in late November 2025
+Latest Observation 2025.10.01 Wed [Quick Report] Hurricane Humberto “Eye” captured by EarthCARE satellite (Hakuryu)
+About Us Greetings from Leadership Greetings from Advisor of EORC Organization
+Updates on Earth Latest Observation Disaster Meteorology and the Environment Research and Development Applications
+Earth Observation Research Research Project Research Fields Research Cooperation
+Satellite Applications Disaster Managements Cartography Agriculture, forestry and fisheries Civil Infrastructure Maritime Domain Awareness (MDA) International Effort
+Access JAXA Satellite Data Product List Flow of data usage, Usage support Terms of Use of Research Data
+About Remote Sensing Remote sensing and radiative transfer Types of Earth observation satellites Flow of satellite data analysis Introduction of file formats Introduction of data download websites Introduction of Analysis tools/websites
+Contact JAXA For Media For Researchers For data users Data/Image Materials Visitors Guide
+About Us About Us top Greetings from Leadership Greetings from Advisor of EORC Organization
+Updates on Earth Topics Latest Observation Disaster Meteorology and the Environment Research and Development Applications
+Earth Observation Research Earth Observation Research Research Project Research Fields Research Cooperation
+Satellite Applications Satellite Applications Disaster Managements Cartography Agriculture, forestry and fisheries Civil Infrastructure Maritime Domain Awareness (MDA) International Effort
+Access JAXA Satellite Data Access JAXA Satellite Data Product List Flow of data usage, Usage support Terms of Use of Research Data
+About Remote Sensing About Remote Sensing Remote sensing and radiative transfer Types of Earth observation satellites Flow of satellite data analysis Introduction of file formats Introduction of data download websites Introduction of Analysis tools/websites
+Contact JAXA For Media For Researchers For data users Data/Image Materials Visitors Guide

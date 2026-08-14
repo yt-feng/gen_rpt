@@ -1,0 +1,142 @@
+{
+  "report_archetype": "market_investment",
+  "selected_modules": [
+    "source and forecast comparison",
+    "base, upside and downside scenarios",
+    "sensitivity drivers",
+    "segment and micro-market implications",
+    "investment recommendations"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "Should a Chinese smart drainage technology provider (or an investor) enter the UAE market now, and if so, through which segment (e.g., municipal drainage, urban infrastructure, real estate) and partnership model (e.g., direct sales, JV, technology licensing) to maximize ROI and mitigate risks?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, market, other, pricing",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "Urban Landscape Recovery and LULC Analysis: A Deep Learning Approach to Post- Extreme Rainfall Impacts in Dubai Xin Hong 1 1 Department of Environmental Sciences and Sustainability, College of Natural and Health Sciences, Zayed University, Abu Dhabi, the United Arab Emirates – xin.hong@zu.ac.ae Keywords: LULC classification, U-Net, PlanetScope, urban resilie",
+    "In Dubai, most of the rain fell on Monday the 15th of April 2024 and exceeded all previous records of daily rainfall in the last 75 years when records began, with some areas recording more than 250 mm in less than 24h (UAE government, 2024).",
+    "From April 14 to 18, 2024, the United Arab Emirates (UAE) experienced its heaviest rainfall in 75 years, resulting in widespread flooding across multiple ...",
+    "Introduction The Gulf region experienced its most intense rainfall event in 75 years between April 14 and 18, 2024, severely affecting United Arab Emirates, Bahrain, Qatar, Saudi Arabia and Oman.",
+    "+45 33367100 Website: https://climate-advisory-board.europa.eu Enquiries: https://climate-advisory-board.europa.eu/contact Manuscript completed in February 2026 First edition Neither the European Scientific Advisory Board on Climate Change nor any person acting on behalf of the Advisory Board is responsible for the use that might be made of the following inf",
+    "3 Source: WWF Water Risk Filter, World Resources Institute Aqueduct Floods · \u0007 Flood risk category considers: ‑ Historical flood patterns since 1985 ‑ \u0007Future trends, assessed using projections from global climate and hydrological models · \u0007 \u0007Occurs due to heavy rainfall, rapid snowmelt, dams/levees break, or storm surge · \u0007 \u0007Water scarcity risks integrates "
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "The UAE's flood risk is escalating due to climate change, creating a urgent need for smart drainage solutions, but current infrastructure is outdated and underfunded.",
+      "decision_relevance": "Confirms market demand and urgency, justifying early entry.",
+      "needed_evidence": [
+        "Historical flood frequency and damage data, climate projections, infrastructure age and capacity reports."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "UAE government policies and budgets are increasingly prioritizing flood resilience, creating a favorable regulatory and funding environment for new technology adoption.",
+      "decision_relevance": "Indicates policy tailwinds and potential for government contracts or subsidies.",
+      "needed_evidence": [
+        "Government announcements, budget allocations, national adaptation plans, and tender documents."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Chinese smart drainage technology providers offer cost and technology advantages over Western competitors, but face barriers in certification, data security, and local partnerships.",
+      "decision_relevance": "Identifies competitive positioning and entry barriers that need to be addressed.",
+      "needed_evidence": [
+        "Comparative pricing, technology features, case studies of Chinese tech in other Gulf countries, and regulatory requirements."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "The most viable entry point is through public-private partnerships (PPPs) or joint ventures with local construction or utility companies, rather than direct sales.",
+      "decision_relevance": "Guides market entry strategy and partnership selection.",
+      "needed_evidence": [
+        "Examples of successful PPPs in UAE infrastructure, local partner capabilities, and legal frameworks."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The market size for smart drainage in the UAE is substantial (e.g., $X million annually) and growing at a double-digit rate, driven by new urban developments and retrofits.",
+      "decision_relevance": "Quantifies the opportunity and supports investment decisions.",
+      "needed_evidence": [
+        "Market research reports, construction pipeline data, and government spending forecasts."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The UAE's flood resilience market is currently underserved, with few local or international players offering integrated smart drainage solutions, leaving a gap for early movers.",
+      "decision_relevance": "Assesses competitive intensity and first-mover advantage.",
+      "needed_evidence": [
+        "Competitor analysis, market share data, and expert interviews."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The return on investment for smart drainage systems in the UAE is positive, with payback periods under 5 years, due to reduced flood damage and operational efficiencies.",
+      "decision_relevance": "Supports financial viability and pricing strategy.",
+      "needed_evidence": [
+        "Cost-benefit analyses, case studies of similar projects, and insurance data."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down",
+      "formula": "Market Size = Total UAE infrastructure spending on water/drainage × % allocated to smart technology",
+      "variables": [
+        "Total infrastructure spending (from government budgets), % smart technology (from industry reports or expert estimates)"
+      ],
+      "known_limitations": [
+        "May overestimate if smart tech penetration is low; relies on assumptions."
+      ]
+    },
+    {
+      "method": "Bottom-up",
+      "formula": "Market Size = Σ (Number of projects × Average project value for smart drainage)",
+      "variables": [
+        "Number of new and retrofit drainage projects (from construction pipelines), average project value (from tenders or case studies)"
+      ],
+      "known_limitations": [
+        "Requires detailed project data; may miss smaller projects."
+      ]
+    },
+    {
+      "method": "Adoption funnel",
+      "formula": "Market Size = Total addressable market (TAM) × Adoption rate at each stage (awareness, interest, trial, adoption)",
+      "variables": [
+        "TAM (from top-down or bottom-up), adoption rates (from surveys or analogous markets)"
+      ],
+      "known_limitations": [
+        "Adoption rates are uncertain; requires assumptions."
+      ]
+    },
+    {
+      "method": "Value pool",
+      "formula": "Market Size = Value created (e.g., avoided flood damage + operational savings) × Willingness to pay (or share captured)",
+      "variables": [
+        "Flood damage costs (from insurance data), operational savings (from case studies), willingness to pay (from government budgets)"
+      ],
+      "known_limitations": [
+        "Value creation is hard to quantify; willingness to pay may be low."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Market Size = Capacity of existing and planned smart drainage providers × Utilization rate",
+      "variables": [
+        "Number of providers, their project capacity, utilization rates (from company reports or industry data)"
+      ],
+      "known_limitations": [
+        "Limited public data on provider capacity; may not reflect demand."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
