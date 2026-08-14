@@ -5,7 +5,11 @@ venv/
 r2_validation.py
 r2_validation_report.md
 worklog.md
+new_worklog.md
+task_changelog.md
 worklog_audit_and_commit_crosscheck.md
+.agents/
+AGENTS.md
 .env
 .DS_Store
 .tmp_*/
