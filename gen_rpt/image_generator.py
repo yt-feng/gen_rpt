@@ -700,7 +700,11 @@ def _bad_wikimedia_title(title: str) -> bool:
         "report",
         "serial",
         "committee",
+        "controversy",
         "document",
+        "lawmakers",
+        "politician",
+        "representative",
         "cover",
         "pdf",
         "book",
@@ -787,13 +791,17 @@ def _wikimedia_query(prompt: str) -> str:
     if _has_prompt_any(lower, ["rail", "railway", "train", "logistics"]):
         return "railway logistics terminal"
     if _has_prompt_any(lower, ["flood", "storm", "drainage", "resilience"]):
-        return "flood resilience drainage infrastructure"
+        if _has_prompt_any(lower, ["cities", "city", "segment", "urban"]):
+            return "flood gate"
+        if _has_prompt_any(lower, ["adoption", "construction", "implementation", "investment", "milestone"]):
+            return "flood control construction"
+        return "flood protection infrastructure"
     if _has_prompt_any(lower, ["renminbi", "rmb", "yuan", "currency"]):
         return "Chinese renminbi currency banking"
     if _has_prompt_any(lower, ["manufacturing", "factory", "industrial", "supply chain"]):
         return "industrial manufacturing facility"
     first_clause = str(prompt or "").split(";", 1)[0]
-    return " ".join(sorted(_meaningful_tokens(first_clause))[:5]) or "business technology"
+    return " ".join(sorted(_meaningful_tokens(first_clause))[:3]) or "business technology"
 
 
 def _has_prompt_any(lower_prompt: str, tokens: List[str]) -> bool:
