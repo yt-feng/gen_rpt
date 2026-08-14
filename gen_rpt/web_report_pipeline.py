@@ -378,7 +378,7 @@ class WebReportPipeline:
             evidence_exhibits,
             preserve_existing=bool(self.rag_context),
         )
-        report = self._filter_post_merge_exhibits(report, approved_evidence)
+        report = self._filter_post_merge_exhibits(report, approved_evidence, grounding_text)
         if self.rag_context:
             self._label_exhibit_origins(report, rag_source_chunks, approved_evidence)
             self._apply_source_aware_exhibit_text(report)
@@ -667,6 +667,12 @@ class WebReportPipeline:
         if self.rag_context:
             report = ground_rag_section_evidence(report, source_chunks)
             self._filter_rag_exhibits(report, source_chunks, approved_evidence, grounding_text)
+        else:
+            report["exhibits"] = [
+                exhibit
+                for exhibit in report.get("exhibits", []) or []
+                if rag_visible_numbers_supported(exhibit, grounding_text)
+            ]
         removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
         if removed_numbers:
             self._log("PHASE synthesis removed unsupported numeric claims | " + ", ".join(removed_numbers))
@@ -1629,6 +1635,7 @@ CRITICAL RULES (violation = failure):
         self,
         report: Dict[str, Any],
         evidence_ledger: List[Dict[str, Any]],
+        grounding_text: str = "",
     ) -> Dict[str, Any]:
         ledger_map = {
             str(item.get("id") or ""): item
@@ -1641,6 +1648,8 @@ CRITICAL RULES (violation = failure):
 
         for exhibit in exhibits:
             if not isinstance(exhibit, dict):
+                continue
+            if grounding_text and not rag_visible_numbers_supported(exhibit, grounding_text):
                 continue
             data_basis = exhibit.get("data_basis", []) or []
             basis_types = set()

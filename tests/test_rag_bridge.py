@@ -960,6 +960,36 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertTrue(rag_visible_numbers_supported(exhibit, "In 2024, funding reached $0.302 billion."))
 
+    def test_web_draft_drops_only_exhibits_with_unsupported_numbers(self):
+        pipeline = WebReportPipeline(Mock())
+        report = {
+            "exhibits": [
+                {"type": "bar", "title": "Supported", "values": [302]},
+                {"type": "line", "title": "Unsupported", "values": [0.08, 0.11], "labels": [2036]},
+            ]
+        }
+
+        report, issues = pipeline._prepare_report_draft(
+            report,
+            topic="Flood resilience",
+            grounding_text="Validated funding index reached 302.",
+            source_count=1,
+            source_chunks={},
+            approved_evidence=[],
+        )
+
+        self.assertEqual([item["title"] for item in report["exhibits"]], ["Supported"])
+        self.assertFalse(any("Numeric claims not found" in issue for issue in issues))
+
+        merged = {
+            "exhibits": [
+                {"type": "bar", "title": "Supported", "values": [302]},
+                {"type": "line", "title": "Unsupported", "values": [0.5, 0.8], "labels": [2036]},
+            ]
+        }
+        pipeline._filter_post_merge_exhibits(merged, [], "Validated funding index reached 302.")
+        self.assertEqual([item["title"] for item in merged["exhibits"]], ["Supported"])
+
     def test_report_revision_receives_the_rejected_draft_and_quality_corrections(self):
         client = Mock()
         client.chat_json.return_value = {"title": "Revised report"}
