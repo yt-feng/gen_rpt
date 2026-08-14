@@ -1007,13 +1007,15 @@ def _bar_chart_svg(panel: Mapping[str, Any]) -> str:
     if not items:
         return ""
     values = [_number(item.get("value")) for item in items]
-    low = min([0.0] + values)
-    high = max([0.0] + values)
-    if math.isclose(low, high):
-        high = low + 1.0
-    span = high - low
-    low -= span * 0.04 if low < 0 else 0.0
-    high += span * 0.12
+    raw_low = min([0.0] + values)
+    raw_high = max([0.0] + values)
+    if math.isclose(raw_low, raw_high):
+        raw_high = raw_low + 1.0
+    target_step = (raw_high - raw_low) / 5.0
+    magnitude = 10 ** math.floor(math.log10(max(target_step, 1e-9)))
+    step = next(multiplier * magnitude for multiplier in (1.0, 2.0, 2.5, 5.0, 10.0) if target_step <= multiplier * magnitude)
+    low = math.floor(raw_low / step) * step
+    high = math.ceil(raw_high / step) * step
     width = 760.0
     height = max(220.0, 84.0 + len(items) * 38.0)
     longest_label = max(len(_clean(item.get("label"), 42)) for item in items)
@@ -1030,8 +1032,9 @@ def _bar_chart_svg(panel: Mapping[str, Any]) -> str:
     zero_x = x(0.0)
     highlight = max(range(len(values)), key=lambda index: abs(values[index]))
     parts = [f"<svg class='whitepaper-chart-svg' viewBox='0 0 {width:.0f} {height:.0f}' role='img'>"]
-    for tick in range(5):
-        value = low + (high - low) * tick / 4
+    tick_count = max(1, int(round((high - low) / step)))
+    for tick in range(tick_count + 1):
+        value = low + step * tick
         line_x = x(value)
         parts.append(f"<line class='chart-grid' x1='{line_x:.2f}' y1='{top}' x2='{line_x:.2f}' y2='{height-bottom}'/>")
         parts.append(f"<text class='chart-tick' x='{line_x:.2f}' y='{height-19}' text-anchor='middle'>{_e(_format_number(value))}</text>")
@@ -1047,9 +1050,18 @@ def _bar_chart_svg(panel: Mapping[str, Any]) -> str:
         parts.append(f"<text class='chart-category' x='{left-12}' y='{center_y+4:.2f}' text-anchor='end'>{_e(_clean(item.get('label'), 42))}</text>")
         parts.append(f"<rect x='{start_x:.2f}' y='{bar_y:.2f}' width='{bar_w:.2f}' height='{min(20.0, row_h * 0.56):.2f}' fill='{color}'/>")
         display = item.get("display") or _format_number(value)
-        anchor = "start" if value >= 0 else "end"
-        label_x = value_x + (8 if value >= 0 else -8)
-        parts.append(f"<text class='chart-value chart-value-strong' x='{label_x:.2f}' y='{center_y+4:.2f}' text-anchor='{anchor}'>{_e(display)}</text>")
+        if bar_w >= 46.0:
+            anchor = "end" if value >= 0 else "start"
+            label_x = value_x - 8 if value >= 0 else value_x + 8
+            label_fill = "#ffffff"
+        else:
+            anchor = "start" if value >= 0 else "end"
+            label_x = value_x + 8 if value >= 0 else value_x - 8
+            label_fill = "#082b59"
+        parts.append(
+            f"<text class='chart-value chart-value-strong' x='{label_x:.2f}' y='{center_y+4:.2f}' "
+            f"text-anchor='{anchor}' style='fill:{label_fill}'>{_e(display)}</text>"
+        )
     if panel.get("axisLabel"):
         parts.append(f"<text class='chart-axis-label' x='{left + plot_w/2:.2f}' y='{height-3}' text-anchor='middle'>{_e(panel.get('axisLabel'))}</text>")
     parts.append("</svg>")
@@ -1256,8 +1268,26 @@ def _render_whitepaper_panel(panel: Mapping[str, Any], panel_index: int) -> str:
 
 
 def _render_whitepaper_outlook(section: Mapping[str, Any]) -> str:
+    outlook_words = len(
+        re.findall(
+            r"\b[A-Za-z0-9][A-Za-z0-9'-]*\b",
+            " ".join(
+                [
+                    str(section.get("heading") or ""),
+                    str(section.get("lead") or ""),
+                    str(section.get("callout") or ""),
+                    str(section.get("body") or ""),
+                    *(str(item) for item in section.get("paragraphs") or []),
+                ]
+            ),
+        )
+    )
+    footnote_count = len([entry for entry in section.get("footnotes") or [] if entry])
+    class_name = "whitepaper-outlook fixed-page"
+    if outlook_words >= 300 or (outlook_words >= 250 and footnote_count >= 3):
+        class_name += " outlook-dense"
     parts = [
-        "<section class='whitepaper-outlook fixed-page'>",
+        f"<section class='{class_name}'>",
         "<div class='eyebrow'>OUTLOOK</div>",
         f"<h2>{_e(section.get('heading'))}</h2>",
         (f"<p class='outlook-deck'>{_e(section.get('lead'))}</p>" if section.get("lead") else ""),
@@ -1336,14 +1366,14 @@ p { orphans: 3; widows: 3; }
 .executive-copy p { margin: 0 0 3.2mm; }
 .executive-summary .whitepaper-footnotes { margin-top: 2.5mm; padding-top: 1.8mm; font-size: 5.6pt; line-height: 1.25; }
 .executive-summary .whitepaper-footnotes ol { margin-top: 1mm; }
-.whitepaper-contents { padding-top: 8mm; }
-.whitepaper-contents h2 { margin: 0 0 4mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 31pt; font-weight: 400; }
+.whitepaper-contents { padding-top: 4mm; }
+.whitepaper-contents h2 { margin: 0 0 3mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; }
 .contents-deck { max-width: 132mm; margin-bottom: 13mm; color: #5c6b7c; font-size: 11pt; line-height: 1.5; }
 .whitepaper-contents ol { margin: 0; padding: 0; list-style: none; border-top: .8mm solid #0a4e91; }
-.whitepaper-contents li { display: grid; align-items: start; gap: 6mm; padding: 6mm 0; grid-template-columns: 18mm 1fr 12mm; border-bottom: .3mm solid #d2dce7; }
-.contents-number { color: #1587a6; font-family: Georgia, "Times New Roman", serif; font-size: 21pt; line-height: 1; }
-.whitepaper-contents strong { color: #10264a; font-family: Georgia, "Times New Roman", serif; font-size: 15pt; font-weight: 400; }
-.whitepaper-contents li p { max-width: 120mm; margin: 2mm 0 0; color: #68778a; font-size: 8.5pt; }
+.whitepaper-contents li { display: grid; align-items: start; gap: 4mm; padding: 4mm 0; grid-template-columns: 15mm 1fr 10mm; border-bottom: .3mm solid #d2dce7; break-inside: avoid; }
+.contents-number { color: #1587a6; font-family: Georgia, "Times New Roman", serif; font-size: 18pt; line-height: 1; }
+.whitepaper-contents strong { color: #10264a; font-family: Georgia, "Times New Roman", serif; font-size: 13.5pt; font-weight: 400; line-height: 1.12; }
+.whitepaper-contents li p { max-width: 142mm; margin: 1.2mm 0 0; color: #68778a; font-size: 7.4pt; line-height: 1.28; }
 .contents-page { color: #176ddc; font-size: 9pt; font-weight: 700; text-align: right; }
 .whitepaper-chapter, .whitepaper-chapter-continuation, .whitepaper-exhibit, .whitepaper-outlook, .whitepaper-disclaimer { break-before: page; }
 .chapter-opening-page { display: flex; flex-direction: column; }
@@ -1499,6 +1529,16 @@ p { orphans: 3; widows: 3; }
 .outlook-deck { max-width: 145mm; margin-bottom: 8mm; color: #2777c9; font-size: 12.5pt; line-height: 1.38; }
 .outlook-copy { column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; }
 .outlook-copy p { margin: 0 0 3.5mm; color: #3b4a5e; }
+.whitepaper-outlook.outlook-dense { padding-top: 4mm; }
+.whitepaper-outlook.outlook-dense .eyebrow { margin-bottom: 2.5mm; }
+.whitepaper-outlook.outlook-dense h2 { margin-bottom: 2.5mm; font-size: 27pt; line-height: 1.02; }
+.whitepaper-outlook.outlook-dense .outlook-deck { margin-bottom: 4mm; font-size: 10.8pt; line-height: 1.31; }
+.whitepaper-outlook.outlook-dense blockquote { margin-bottom: 3mm; padding-top: 2mm; padding-bottom: 2mm; font-size: 12pt; line-height: 1.22; }
+.whitepaper-outlook.outlook-dense .outlook-copy { font-size: 8.25pt; line-height: 1.42; }
+.whitepaper-outlook.outlook-dense .outlook-copy p { margin-bottom: 2.6mm; }
+.whitepaper-outlook.outlook-dense > .whitepaper-footnotes { margin-top: 1.5mm; padding-top: 1.2mm; font-size: 5.3pt; line-height: 1.2; break-inside: avoid-page; }
+.whitepaper-outlook.outlook-dense > .whitepaper-footnotes ol { margin-top: .8mm; column-count: 2; column-gap: 7mm; column-fill: balance; }
+.whitepaper-outlook.outlook-dense > .whitepaper-footnotes li { margin-bottom: .5mm; break-inside: avoid; }
 .whitepaper-disclaimer { padding-top: 7mm; color: #687382; }
 .whitepaper-disclaimer h2 { margin: 0 0 4mm; color: #26384d; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; }
 .disclaimer-lead { max-width: 158mm; margin-bottom: 6mm; color: #596675; font-size: 8.6pt; line-height: 1.5; }

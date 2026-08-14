@@ -14,6 +14,7 @@ from gen_rpt.gatex_pdf_renderer import (
     COVER_TEXTURE_PATH,
     _deduplicated_word_text,
     _render_whitepaper_exhibit,
+    _render_whitepaper_outlook,
     _whitepaper_css,
     release_classification,
     release_pdf_filename,
@@ -131,6 +132,15 @@ def test_four_exhibit_metrics_render_in_one_row() -> None:
     assert ".whitepaper-metrics.metrics-4 { grid-template-columns: repeat(4, 1fr); }" in css
 
 
+def test_five_entry_contents_page_uses_compact_nonbreaking_rows() -> None:
+    css = _whitepaper_css()
+    assert ".whitepaper-contents li" in css
+    assert "padding: 4mm 0" in css
+    assert "break-inside: avoid" in css
+    assert ".whitepaper-contents li p" in css
+    assert "font-size: 7.4pt" in css
+
+
 def test_information_heavy_exhibit_uses_compact_page_budget() -> None:
     html = _render_whitepaper_exhibit(
         {
@@ -159,6 +169,23 @@ def test_information_heavy_exhibit_uses_compact_page_budget() -> None:
     assert "class='whitepaper-exhibit exhibit-dense'" in html
     css = _whitepaper_css()
     assert ".whitepaper-exhibit.exhibit-dense .market-layer { min-height: 44mm;" in css
+
+
+def test_long_outlook_with_multiple_sources_uses_compact_page_budget() -> None:
+    html = _render_whitepaper_outlook(
+        {
+            "heading": "Through-latest-available-data outlook",
+            "lead": "Evidence-led conditions remain in motion.",
+            "callout": "The operating environment is still developing.",
+            "paragraphs": ["Documented operating evidence. " * 90] * 3,
+            "footnotes": [f"Primary source {index}, https://example.com/{index}" for index in range(4)],
+        }
+    )
+
+    assert "class='whitepaper-outlook fixed-page outlook-dense'" in html
+    css = _whitepaper_css()
+    assert ".whitepaper-outlook.outlook-dense > .whitepaper-footnotes" in css
+    assert "column-count: 2" in css
 
 
 class GatexPdfRendererTests(unittest.TestCase):

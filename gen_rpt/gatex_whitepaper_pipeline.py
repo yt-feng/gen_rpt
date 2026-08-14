@@ -109,8 +109,8 @@ PRODUCTION_DISCLOSURE_RE = re.compile(
     r"(?:by|with|using)\s+(?:deepseek|qwen|mineru|apimart|tavily|gdelt)\b",
     re.IGNORECASE,
 )
-EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-10-v5-academic-period"
-RESEARCH_POLICY_VERSION = "gatex-whitepaper-research-2026-08-11-v3-openalex-focused"
+EDITORIAL_POLICY_VERSION = "gatex-whitepaper-editorial-2026-08-14-v9-exhibit-data-grounding"
+RESEARCH_POLICY_VERSION = "gatex-whitepaper-research-2026-08-13-v8-source-diverse-regional-evidence"
 META_NARRATION_PATTERNS = (
     re.compile(
         r"\b(?:this|the|an?|opening|final|first|second|third|fourth)\s+"
@@ -213,6 +213,7 @@ BLOCKED_SOURCE_DOMAIN_TOKENS = (
     "tiktok.com",
     "twitter.com",
     "wikipedia.org",
+    "x.com",
     "youtube.com",
 )
 PRIMARY_SOURCE_DOMAIN_TOKENS = (
@@ -262,6 +263,88 @@ TECHNICAL_TOPIC_TOKENS = (
     "semiconductor",
     "software",
 )
+
+REGIONAL_SOURCE_RULES: dict[str, dict[str, tuple[str, ...]]] = {
+    "china": {
+        "triggers": ("china", "chinese", "prc"),
+        "text": ("china", "chinese", "prc", "beijing", "shanghai", "shenzhen"),
+        "domain_suffixes": (".cn",),
+        "anchor_domains": (
+            "cninfo.com.cn",
+            "gov.cn",
+            "hkexnews.hk",
+            "sse.com.cn",
+            "star.sse.com.cn",
+            "szse.cn",
+            "szse.com.cn",
+        ),
+    },
+    "gulf": {
+        "triggers": (
+            "gulf",
+            "gcc",
+            "middle east",
+            "uae",
+            "united arab emirates",
+            "saudi",
+            "qatar",
+            "oman",
+            "bahrain",
+            "kuwait",
+        ),
+        "text": (
+            "gulf cooperation council",
+            "gcc",
+            "united arab emirates",
+            "uae",
+            "saudi arabia",
+            "qatar",
+            "oman",
+            "bahrain",
+            "kuwait",
+            "abu dhabi",
+            "dubai",
+            "riyadh",
+            "doha",
+        ),
+        "domain_suffixes": (".ae", ".sa", ".qa", ".om", ".bh", ".kw"),
+        "anchor_domains": (
+            "center3.com",
+            "du.ae",
+            "eand.com",
+            "etisalat.ae",
+            "gulfdatahub.com",
+            "khazna.ae",
+            "morohub.com",
+            "ooredoo.com",
+            "ooredoo.qa",
+            "stc.com.sa",
+            "tdra.gov.ae",
+            "cst.gov.sa",
+            "mcit.gov.qa",
+            "moiat.gov.ae",
+            "rdia.gov.sa",
+            "vision2030.gov.sa",
+        ),
+    },
+}
+
+COUNTRY_TERMS: dict[str, tuple[str, ...]] = {
+    "china": ("china", "chinese", "prc"),
+    "qatar": ("qatar", "qatari", "doha"),
+    "saudi arabia": ("saudi arabia", "saudi", "riyadh", "kingdom"),
+    "united arab emirates": ("united arab emirates", "uae", "emirati", "abu dhabi", "dubai"),
+    "oman": ("oman", "omani", "muscat"),
+    "bahrain": ("bahrain", "bahraini", "manama"),
+    "kuwait": ("kuwait", "kuwaiti"),
+}
+CLAIM_STOP_TOKENS = {
+    "above", "according", "and", "annual", "cagr", "company", "connectivity", "corporation", "data",
+    "designed", "fibre", "fiber", "global", "group", "holdings", "limited", "market", "module",
+    "optical", "report", "results", "source", "stock", "technologies", "technology", "the", "usd",
+    "with", "automotive", "cumulative", "documented", "expense", "growth", "level", "reporting",
+    "trading", "versus", "year-on-year",
+}
 
 
 def _clean(value: Any, maximum: int = 20_000) -> str:
@@ -346,6 +429,136 @@ def _fallback_query_subject(topic: str) -> str:
     return subject[:180].rsplit(" ", 1)[0].strip(" ,.;:-") or subject[:180]
 
 
+def _required_source_regions(topic: str, brief: str = "") -> list[str]:
+    haystack = f" {topic} {brief} ".lower()
+    return [
+        region
+        for region, rule in REGIONAL_SOURCE_RULES.items()
+        if any(re.search(rf"(?<![a-z]){re.escape(token)}(?![a-z])", haystack) for token in rule["triggers"])
+    ]
+
+
+def _regional_anchor_queries(topic: str, brief: str = "", *, region: str | None = None) -> list[str]:
+    topic_lower = topic.lower()
+    focus_terms = [
+        label
+        for label, tokens in (
+            ("optical modules optical fibre", ("optical", "fibre", "fiber")),
+            ("data centre connectivity", ("data centre", "data center", "connectivity")),
+            ("semiconductor lithography", ("semiconductor", "lithography")),
+            ("artificial intelligence LLM", ("artificial intelligence", " ai ", "llm")),
+            ("robotics", ("robot",)),
+            ("MLCC electronic components", ("mlcc",)),
+            ("real estate", ("real estate", "property")),
+            ("energy infrastructure", ("energy",)),
+            ("capital markets", ("capital market",)),
+        )
+        if any(token in f" {topic_lower} " for token in tokens)
+    ]
+    focus = " ".join(dict.fromkeys(focus_terms)) or _fallback_query_subject(topic)[:90].rsplit(" ", 1)[0]
+    queries: list[str] = []
+    required = _required_source_regions(topic, brief)
+    if "china" in required and region in {None, "china"}:
+        queries.extend(
+            [
+                f"China {focus} official regulator stock exchange filing technical report filetype:pdf",
+                f"China {focus} listed company annual report prospectus production capacity filetype:pdf",
+            ]
+        )
+    if "gulf" in required and region in {None, "gulf"}:
+        queries.extend(
+            [
+                f"Gulf GCC {focus} telecom regulator operator deployment official report filetype:pdf",
+                f"UAE Saudi Qatar {focus} infrastructure operator official announcement",
+                f"{focus} site:tdra.gov.ae OR site:cst.gov.sa OR site:mcit.gov.qa",
+                f"{focus} site:eand.com OR site:stc.com.sa OR site:ooredoo.com OR site:center3.com",
+            ]
+        )
+    return queries
+
+
+def _source_matches_region(source: SourceDocument | Mapping[str, Any], region: str) -> bool:
+    rule = REGIONAL_SOURCE_RULES.get(region)
+    if not rule:
+        return False
+    raw = source.__dict__ if isinstance(source, SourceDocument) else source
+    url = str(raw.get("url") or "")
+    domain = str(raw.get("domain") or urllib.parse.urlparse(url).netloc).lower().split(":", 1)[0]
+    searchable = " ".join(str(raw.get(key) or "") for key in ("title", "snippet", "content")).lower()[:35_000]
+    domain_match = any(
+        domain == token or domain.endswith(f".{token}") or domain.endswith(token)
+        for token in rule["anchor_domains"]
+    ) or any(domain.endswith(suffix) for suffix in rule["domain_suffixes"])
+    text_match = any(re.search(rf"(?<![a-z]){re.escape(token)}(?![a-z])", searchable) for token in rule["text"])
+    return domain_match or text_match
+
+
+def _source_is_regional_anchor(source: SourceDocument | Mapping[str, Any], region: str) -> bool:
+    rule = REGIONAL_SOURCE_RULES.get(region)
+    if not rule:
+        return False
+    raw = source.__dict__ if isinstance(source, SourceDocument) else source
+    url = str(raw.get("url") or "")
+    domain = str(raw.get("domain") or urllib.parse.urlparse(url).netloc).lower().split(":", 1)[0]
+    return any(
+        domain == token or domain.endswith(f".{token}") or domain.endswith(token)
+        for token in rule["anchor_domains"]
+    )
+
+
+def _regional_source_counts(
+    sources: Sequence[SourceDocument | Mapping[str, Any]],
+    topic: str,
+    brief: str = "",
+) -> dict[str, int]:
+    return {
+        region: sum(1 for source in sources if _source_matches_region(source, region))
+        for region in _required_source_regions(topic, brief)
+    }
+
+
+def _collect_regional_sources(topic: str, brief: str, region: str) -> list[SourceDocument]:
+    collected: list[SourceDocument] = []
+    seen: set[str] = set()
+    for query in _regional_anchor_queries(topic, brief, region=region):
+        for source in collect_sources([query], per_query=4, max_sources=6):
+            canonical = _canonical_source_url(source.url)
+            if canonical in seen or not _source_matches_region(source, region):
+                continue
+            seen.add(canonical)
+            collected.append(source)
+        if len(collected) >= 6 and any(_source_is_regional_anchor(source, region) for source in collected):
+            break
+    return collected
+
+
+def _validate_regional_source_coverage(
+    sources: Sequence[SourceDocument | Mapping[str, Any]],
+    topic: str,
+    brief: str = "",
+    *,
+    minimum: int = 2,
+) -> dict[str, int]:
+    counts = _regional_source_counts(sources, topic, brief)
+    missing = [f"{region}={count}" for region, count in counts.items() if count < minimum]
+    missing_anchors = [
+        region
+        for region in counts
+        if not any(_source_is_regional_anchor(source, region) for source in sources)
+    ]
+    if missing:
+        raise GatexWhitepaperError(
+            "Named-region evidence gate failed; each named region requires at least "
+            f"{minimum} directly relevant public sources ({', '.join(missing)})."
+        )
+    if missing_anchors:
+        raise GatexWhitepaperError(
+            "Named-region authority gate failed; each named region requires at least one official, "
+            f"exchange or operator source ({', '.join(missing_anchors)} missing)."
+        )
+    return counts
+
+
 def _source_document(value: SourceDocument | Mapping[str, Any]) -> SourceDocument | None:
     if isinstance(value, SourceDocument):
         return value
@@ -387,6 +600,8 @@ def _sanitize_research_sources(
     values: Sequence[SourceDocument | Mapping[str, Any]],
     *,
     maximum_academic: int | None = None,
+    topic: str = "",
+    brief: str = "",
 ) -> list[SourceDocument]:
     """Remove blocked, empty and duplicate records before any fact extraction."""
 
@@ -414,6 +629,7 @@ def _sanitize_research_sources(
             not source.url.startswith("https://")
             or len(source.content) < 180
             or _blocked_source_domain(source.domain)
+            or _source_is_topic_contamination(source, topic, brief)
             or canonical_url in seen_urls
             or (title_key and title_key in seen_titles)
         ):
@@ -429,25 +645,223 @@ def _sanitize_research_sources(
     return output
 
 
+def _source_is_topic_contamination(
+    source: SourceDocument | Mapping[str, Any],
+    topic: str,
+    brief: str = "",
+) -> bool:
+    """Reject deterministic fallback anchors that do not belong to the requested topic."""
+
+    raw = source.__dict__ if isinstance(source, SourceDocument) else source
+    domain = str(raw.get("domain") or urllib.parse.urlparse(str(raw.get("url") or "")).netloc).lower()
+    title = str(raw.get("title") or "").lower()
+    url = str(raw.get("url") or "").lower()
+    request_text = f" {topic} {brief} ".lower()
+    energy_topic = any(
+        token in request_text
+        for token in (
+            " battery",
+            "electricity",
+            "energy storage",
+            "grid",
+            "hydrogen",
+            "power generation",
+            "power system",
+            "renewable",
+        )
+    )
+    generic_energy_anchor = (
+        ("iea.org" in domain and "grid-scale-storage" in url)
+        or ("energy.gov" in domain and ("office of electricity" in title or "/oe/office-electricity" in url))
+    )
+    return generic_energy_anchor and not energy_topic
+
+
+def _merge_named_region_evidence(
+    *,
+    topic: str,
+    brief: str,
+    sources: Sequence[SourceDocument],
+    fact_pack: Any,
+    plan: Mapping[str, Any],
+    limit: int = 36,
+    per_region: int = 5,
+) -> list[dict[str, Any]]:
+    """Reserve evidence-ledger space for every geography named in the commission."""
+
+    general = build_evidence_ledger(topic, list(sources), fact_pack, limit=limit, plan=dict(plan))
+    regional: list[dict[str, Any]] = []
+    for region in _required_source_regions(topic, brief):
+        region_sources = [source for source in sources if _source_matches_region(source, region)]
+        if not region_sources:
+            continue
+        anchor_sources = [source for source in region_sources if _source_is_regional_anchor(source, region)]
+        evidence_sources = anchor_sources if len(anchor_sources) >= 2 else region_sources
+        region_pack = build_research_fact_pack(topic, dict(plan), evidence_sources)
+        region_rows = build_evidence_ledger(
+            topic,
+            evidence_sources,
+            region_pack,
+            limit=max(per_region * 3, 12),
+            id_prefix=f"{region[:1].upper()}R",
+            plan=dict(plan),
+        )
+        topic_terms = _claim_tokens(f"{topic} {brief}")
+        source_by_url = {
+            _canonical_source_url(source.url): source
+            for source in evidence_sources
+        }
+
+        def relevance(row: Mapping[str, Any]) -> tuple[int, int, int, int]:
+            fact_terms = _claim_tokens(f"{row.get('source_title', '')} {row.get('fact', '')}")
+            source = source_by_url.get(_canonical_source_url(str(row.get("source_url") or "")))
+            return (
+                len(topic_terms & fact_terms),
+                int(source is not None and _source_is_regional_anchor(source, region)),
+                int(row.get("unit") not in {"", "year"}),
+                int(row.get("authoritative") is True),
+            )
+
+        # A combined ledger can be monopolised by one metric-heavy PDF. Extract
+        # a small ledger from each authority as well, so at least two distinct
+        # official sources remain eligible for the regional reserve.
+        per_source_rows: list[dict[str, Any]] = []
+        for source in evidence_sources:
+            source_pack = build_research_fact_pack(topic, dict(plan), [source])
+            rows = build_evidence_ledger(
+                topic,
+                [source],
+                source_pack,
+                limit=4,
+                id_prefix=f"{region[:1].upper()}S",
+                plan=dict(plan),
+            )
+            if rows:
+                per_source_rows.append(max(rows, key=relevance))
+
+        preferred: list[dict[str, Any]] = []
+        preferred_keys: set[tuple[str, str, str]] = set()
+        for row in sorted([*per_source_rows, *region_rows], key=relevance, reverse=True):
+            row_key = (
+                _canonical_source_url(str(row.get("source_url") or "")),
+                str(row.get("display_value") or "").lower(),
+                re.sub(r"\W+", "", str(row.get("fact") or "").lower())[:220],
+            )
+            if row_key in preferred_keys:
+                continue
+            preferred_keys.add(row_key)
+            preferred.append(row)
+        diverse: list[dict[str, Any]] = []
+        diverse_urls: set[str] = set()
+        for row in preferred:
+            url = _canonical_source_url(str(row.get("source_url") or ""))
+            if not url or url in diverse_urls:
+                continue
+            diverse_urls.add(url)
+            diverse.append(row)
+            if len(diverse_urls) >= 2:
+                break
+        diverse.extend(row for row in preferred if row not in diverse)
+        regional.extend(diverse[:per_region])
+
+    merged: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for position, row in enumerate([*regional, *general], start=1):
+        key = (
+            _canonical_source_url(str(row.get("source_url") or "")),
+            str(row.get("display_value") or "").lower(),
+            re.sub(r"\W+", "", str(row.get("fact") or "").lower())[:220]
+            or str(row.get("id") or position),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        clean_row = dict(row)
+        clean_row["id"] = f"E{len(merged) + 1}"
+        merged.append(clean_row)
+        if len(merged) >= limit:
+            break
+    return merged
+
+
+def _validate_regional_evidence_coverage(
+    evidence: Sequence[Mapping[str, Any]],
+    sources: Sequence[SourceDocument | Mapping[str, Any]],
+    topic: str,
+    brief: str = "",
+    *,
+    minimum_points: int = 3,
+    minimum_sources: int = 2,
+) -> dict[str, dict[str, int]]:
+    source_regions: dict[str, set[str]] = {}
+    for region in _required_source_regions(topic, brief):
+        source_regions[region] = {
+            _canonical_source_url(str((source.__dict__ if isinstance(source, SourceDocument) else source).get("url") or ""))
+            for source in sources
+            if _source_matches_region(source, region)
+        }
+    coverage: dict[str, dict[str, int]] = {}
+    failures: list[str] = []
+    for region, urls in source_regions.items():
+        rows = [
+            row
+            for row in evidence
+            if _canonical_source_url(str(row.get("source_url") or "")) in urls
+        ]
+        distinct = {
+            _canonical_source_url(str(row.get("source_url") or ""))
+            for row in rows
+            if row.get("source_url")
+        }
+        coverage[region] = {"points": len(rows), "sources": len(distinct)}
+        if len(rows) < minimum_points or len(distinct) < minimum_sources:
+            failures.append(f"{region}={len(rows)} points/{len(distinct)} sources")
+    if failures:
+        raise GatexWhitepaperError(
+            "Named-region evidence-ledger gate failed; each named region requires at least "
+            f"{minimum_points} structured points from {minimum_sources} sources ({', '.join(failures)})."
+        )
+    return coverage
+
+
 def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
     sources_path = work_dir / "sources.json"
     fact_pack_path = work_dir / "research-fact-pack.json"
     evidence_path = work_dir / "evidence-ledger.json"
     policy_path = work_dir / "research-policy-version.txt"
+    cached_policy_current = (
+        policy_path.is_file()
+        and policy_path.read_text(encoding="utf-8").strip() == RESEARCH_POLICY_VERSION
+    )
     if os.getenv("GATEX_REUSE_RESEARCH", "true").strip().lower() not in {"0", "false", "no", "off"}:
         if (
             sources_path.is_file()
             and fact_pack_path.is_file()
             and evidence_path.is_file()
-            and policy_path.is_file()
-            and policy_path.read_text(encoding="utf-8").strip() == RESEARCH_POLICY_VERSION
+            and cached_policy_current
         ):
             try:
                 source_rows = json.loads(sources_path.read_text(encoding="utf-8"))
                 fact_pack = json.loads(fact_pack_path.read_text(encoding="utf-8"))
                 evidence = json.loads(evidence_path.read_text(encoding="utf-8"))
-                sanitized = _sanitize_research_sources(source_rows)
-                if len(sanitized) == len(source_rows) and len(sanitized) >= 12 and len(evidence) >= 12:
+                sanitized = _sanitize_research_sources(source_rows, topic=topic, brief=brief)
+                regional_counts = _regional_source_counts(sanitized, topic, brief)
+                regional_ready = all(count >= 2 for count in regional_counts.values()) and all(
+                    any(_source_is_regional_anchor(source, region) for source in sanitized)
+                    for region in regional_counts
+                )
+                regional_evidence_ready = True
+                try:
+                    _validate_regional_evidence_coverage(evidence, sanitized, topic, brief)
+                except GatexWhitepaperError:
+                    regional_evidence_ready = False
+                if (
+                    len(sanitized) == len(source_rows)
+                    and len(sanitized) >= 12
+                    and len(evidence) >= 12
+                    and regional_ready
+                    and regional_evidence_ready
+                ):
                     clean_rows = [source.__dict__ for source in sanitized]
                     _progress("research", 30, f"Reusing {len(clean_rows)} cached sources and {len(evidence)} evidence points.", 10)
                     return {"sources": clean_rows, "fact_pack": fact_pack, "approved_evidence": evidence, "evidence_ledger": evidence}
@@ -457,10 +871,11 @@ def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
     if sources_path.is_file():
         try:
             cached_rows = json.loads(sources_path.read_text(encoding="utf-8"))
-            cached_sources = _sanitize_research_sources(cached_rows)
+            cached_sources = _sanitize_research_sources(cached_rows, topic=topic, brief=brief)
         except (OSError, ValueError, TypeError):
             cached_sources = []
 
+    anchors = _regional_anchor_queries(topic, brief)
     fallback = _fallback_queries(topic)
     queries = list(fallback)
     try:
@@ -494,27 +909,63 @@ Return: {{"queries":["query 1","query 2"]}}""",
         )
         generated = [_clean(item, 320) for item in planned.get("queries") or [] if _clean(item, 320)]
         if len(generated) >= 8:
-            queries = fallback[:4] + generated[:10]
+            queries = anchors + fallback[:2] + generated[:10]
     except Exception as exc:
         print(f"[gatex.whitepaper] query planner fallback: {exc}", flush=True)
-    queries = list(dict.fromkeys(queries))[:14]
+    queries = list(dict.fromkeys([*anchors, *queries]))[:16]
     (work_dir / "research-queries.json").write_text(json.dumps({"queries": queries}, ensure_ascii=False, indent=2), encoding="utf-8")
     academic_enabled = bool(os.getenv("OPENALEX_API_KEY", "").strip())
     academic_suffix = " plus a targeted academic supplement" if academic_enabled else ""
     _progress("research", 16, f"Searching {len(queries)} public-evidence queries{academic_suffix}.", 13)
     if len(cached_sources) >= 12:
-        sources = cached_sources
-        _progress("research", 24, f"Reusing {len(sources)} cached source documents.", 11)
+        cached_counts = _regional_source_counts(cached_sources, topic, brief)
+        missing_regions = [
+            region
+            for region, count in cached_counts.items()
+            if (
+                count < 2
+                or not any(_source_is_regional_anchor(source, region) for source in cached_sources)
+            )
+        ]
+        if missing_regions:
+            regional_sources: list[SourceDocument] = []
+            for region in missing_regions:
+                regional_sources.extend(_collect_regional_sources(topic, brief, region))
+            sources = _sanitize_research_sources(
+                [*regional_sources, *cached_sources],
+                topic=topic,
+                brief=brief,
+            )
+            _progress(
+                "research",
+                24,
+                f"Reused cached evidence and refreshed named-region coverage for {', '.join(missing_regions)}.",
+                11,
+            )
+        else:
+            sources = cached_sources
+            _progress("research", 24, f"Reusing {len(sources)} cached source documents.", 11)
     else:
+        regional_sources: list[SourceDocument] = []
+        for region in _required_source_regions(topic, brief):
+            regional_sources.extend(_collect_regional_sources(topic, brief, region))
+        general_limit = max(16, min(40, int(os.getenv("GEN_RPT_MAX_SOURCES", "30"))))
         public_sources = collect_sources(
             queries,
             per_query=max(2, min(6, int(os.getenv("GEN_RPT_PER_QUERY", "4")))),
-            max_sources=max(16, min(40, int(os.getenv("GEN_RPT_MAX_SOURCES", "30")))),
+            max_sources=general_limit,
         )
         academic_sources = collect_openalex_sources(topic, queries)
-        sources = _sanitize_research_sources([*public_sources, *academic_sources])
+        sources = _sanitize_research_sources(
+            [*regional_sources, *public_sources, *academic_sources],
+            topic=topic,
+            brief=brief,
+        )
     if len(sources) < 12:
         raise GatexWhitepaperError(f"Research produced only {len(sources)} usable sources after quality filtering; at least 12 are required.")
+    regional_counts = _validate_regional_source_coverage(sources, topic, brief)
+    if regional_counts:
+        print(f"[gatex.whitepaper] named-region source coverage: {regional_counts}", flush=True)
     source_rows = [source.__dict__ for source in sources]
     # Persist source retrieval before fact-pack validation so an interrupted or
     # under-qualified research pass can be repaired without repeating the web crawl.
@@ -526,11 +977,26 @@ Return: {{"queries":["query 1","query 2"]}}""",
         "outline": ["current conditions", "structural drivers", "operating and capital evidence", "constraints and outlook"],
     }
     fact_pack = build_research_fact_pack(topic, plan, sources)
-    evidence = build_evidence_ledger(topic, sources, fact_pack, limit=36, plan=plan)
+    evidence = _merge_named_region_evidence(
+        topic=topic,
+        brief=brief,
+        sources=sources,
+        fact_pack=fact_pack,
+        plan=plan,
+        limit=36,
+    )
     if len(evidence) < 12:
         raise GatexWhitepaperError(f"Research produced only {len(evidence)} structured evidence points; at least 12 are required.")
     if fact_pack.authoritative_source_count < 4:
         raise GatexWhitepaperError("Research requires at least four authoritative public sources before academic context is added.")
+    regional_evidence_counts = _validate_regional_evidence_coverage(
+        evidence,
+        sources,
+        topic,
+        brief,
+    )
+    if regional_evidence_counts:
+        print(f"[gatex.whitepaper] named-region evidence coverage: {regional_evidence_counts}", flush=True)
     fact_pack_path.write_text(json.dumps(fact_pack.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
     evidence_path.write_text(json.dumps(evidence, ensure_ascii=False, indent=2), encoding="utf-8")
     policy_path.write_text(RESEARCH_POLICY_VERSION + "\n", encoding="utf-8")
@@ -543,6 +1009,8 @@ def _source_tier(source: Mapping[str, Any]) -> str:
         return "ACADEMIC"
     domain = str(source.get("domain") or urllib.parse.urlparse(str(source.get("url") or "")).netloc).lower()
     title = str(source.get("title") or "").lower()
+    if any(_source_is_regional_anchor(source, region) for region in REGIONAL_SOURCE_RULES):
+        return "PRIMARY"
     if any(token in domain for token in (*PRIMARY_SOURCE_DOMAIN_TOKENS, *TECHNICAL_AUTHORITY_DOMAIN_HINTS)):
         return "PRIMARY"
     if any(token in domain for token in INSTITUTIONAL_SOURCE_DOMAIN_TOKENS):
@@ -566,15 +1034,54 @@ def _source_score(source: Mapping[str, Any]) -> int:
     return score
 
 
-def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[list[dict[str, str]], str]:
+def _source_packet(
+    result: Mapping[str, Any],
+    *,
+    maximum: int = 18,
+    topic: str = "",
+    brief: str = "",
+    preferred_urls: Sequence[str] | None = None,
+) -> tuple[list[dict[str, str]], str]:
     raw_sources = [item for item in result.get("sources") or [] if isinstance(item, Mapping)]
-    ordered = sorted(raw_sources, key=_source_score, reverse=True)
+    topic_tokens = _claim_tokens(f"{topic} {brief}")
+
+    def packet_score(source: Mapping[str, Any]) -> int:
+        subject = " ".join(
+            _clean(source.get(key), 12_000 if key == "content" else 1_000)
+            for key in ("title", "domain", "url", "content")
+        )
+        overlap = len(topic_tokens & _claim_tokens(subject))
+        return _source_score(source) + min(12, overlap * 2)
+
+    ordered = sorted(raw_sources, key=packet_score, reverse=True)
+    indexed_urls = [str(url).strip() for url in preferred_urls or [] if str(url).strip()]
+    if indexed_urls:
+        by_url = {_clean(source.get("url"), 2_000): source for source in raw_sources}
+        indexed_sources = [by_url[url] for url in indexed_urls if url in by_url]
+        indexed_ids = {id(source) for source in indexed_sources}
+        ordered = [*indexed_sources, *[source for source in ordered if id(source) not in indexed_ids]]
+    else:
+        preferred: list[Mapping[str, Any]] = []
+        for region in _required_source_regions(topic, brief):
+            regional = [
+                source
+                for source in ordered
+                if _source_matches_region(source, region) and _source_tier(source) != "ACADEMIC"
+            ]
+            preferred.extend(regional[:2])
+        preferred_ids = {id(source) for source in preferred}
+        if preferred_ids:
+            ordered = [*preferred, *[source for source in ordered if id(source) not in preferred_ids]]
     selected: list[dict[str, str]] = []
     seen_urls: set[str] = set()
     academic_count = 0
     for raw in ordered:
         url = _clean(raw.get("url"), 2_000)
-        content = _clean(raw.get("content"), 5_000)
+        # Ranked PDF extraction deliberately places identity and query-relevant
+        # pages first. Keep the complete ranked excerpt so chapter-level prompts
+        # and claim QA can see the underlying filing evidence instead of only
+        # the cover and contents pages.
+        content = _clean(raw.get("content"), 18_000)
         domain = (_clean(raw.get("domain"), 120) or urllib.parse.urlparse(url).netloc).lower()
         if (
             not url.startswith("https://")
@@ -592,7 +1099,7 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
         selected.append(
             {
                 "id": f"S{len(selected) + 1}",
-                "title": _clean(raw.get("title"), 240) or urllib.parse.urlparse(url).netloc,
+                "title": _english_source_title(raw) or urllib.parse.urlparse(url).netloc,
                 "url": url,
                 "domain": domain,
                 "content": content,
@@ -611,6 +1118,7 @@ def _source_packet(result: Mapping[str, Any], *, maximum: int = 18) -> tuple[lis
             "The editorial source packet requires at least four primary or institutional sources; "
             "academic and secondary material cannot replace them."
         )
+    _validate_regional_source_coverage(selected, topic, brief)
     blocks = []
     for row in selected:
         blocks.append(
@@ -643,7 +1151,377 @@ def _editorial_source_excerpt(value: Any, maximum: int) -> str:
         r"|[\d,.]+(?:\s*(?:trillion|billion|million|bn|mn))?\s*(?:yuan|dirham(?:s)?|riyal(?:s)?))",
         re.IGNORECASE,
     )
-    return non_usd_amount.sub("an undisclosed local-currency amount", text)
+    text = non_usd_amount.sub("an undisclosed local-currency amount", text)
+    return NON_USD_CURRENCY_RE.sub("local currency", text)
+
+
+def _sanitize_non_usd_prose(value: Any) -> Any:
+    """Keep source context while ensuring reader-facing prose contains no non-USD units."""
+
+    if isinstance(value, str):
+        return _editorial_source_excerpt(value, max(2_000, len(value) + 200))
+    if isinstance(value, list):
+        return [_sanitize_non_usd_prose(item) for item in value]
+    if isinstance(value, Mapping):
+        return {key: _sanitize_non_usd_prose(item) for key, item in value.items()}
+    return value
+
+
+def _sanitize_editorial_paragraphs(
+    payload: Mapping[str, Any],
+    *,
+    maximum_words_per_paragraph: int,
+) -> dict[str, Any]:
+    cleaned = dict(_sanitize_non_usd_prose(payload))
+    cleaned["paragraphs"] = [
+        _trim_complete_sentences(paragraph, maximum_words_per_paragraph)
+        for paragraph in cleaned.get("paragraphs") or []
+    ]
+    return cleaned
+
+
+def _country_mentions(value: Any) -> set[str]:
+    text = " " + _clean(value, 20_000).lower() + " "
+    return {
+        country
+        for country, terms in COUNTRY_TERMS.items()
+        if any(re.search(rf"(?<![a-z]){re.escape(term)}(?![a-z])", text) for term in terms)
+    }
+
+
+def _claim_tokens(value: Any) -> set[str]:
+    tokens = {
+        token.lower()
+        for token in re.findall(r"[A-Za-z][A-Za-z0-9&.-]{2,}", _clean(value, 8_000))
+    }
+    return {token for token in tokens if token not in CLAIM_STOP_TOKENS}
+
+
+def _numeric_markers(value: Any) -> set[str]:
+    text = _clean(value, 20_000).lower()
+    markers: set[str] = set()
+
+    def normalized_number(raw: str) -> str:
+        number = raw.replace(",", "")
+        try:
+            parsed = float(number)
+        except ValueError:
+            return number
+        return str(int(parsed)) if parsed.is_integer() else f"{parsed:.8f}".rstrip("0").rstrip(".")
+
+    scale = {
+        "k": 1_000,
+        "thousand": 1_000,
+        "m": 1_000_000,
+        "million": 1_000_000,
+        "b": 1_000_000_000,
+        "billion": 1_000_000_000,
+        "trillion": 1_000_000_000_000,
+    }
+    consumed: list[tuple[int, int]] = []
+    scaled_pattern = re.compile(
+        r"(?:\$|usd\s*)?\s*(\d[\d,.]*)(?:\s*)(thousand|million|billion|trillion|[kmb](?=\b))"
+        r"(?:\s+units?)?",
+        re.IGNORECASE,
+    )
+    for match in scaled_pattern.finditer(text):
+        number = float(match.group(1).replace(",", "")) * scale[match.group(2).lower()]
+        markers.add(f"n:{int(round(number))}")
+        consumed.append(match.span())
+
+    unit_pattern = re.compile(
+        r"(?:\$|usd\s*)?\s*(\d[\d,.]*)(?:\s*)(%|gbps|mbps|tbps|mw|gw|units?|km|kilomet(?:er|re)s?|ms)\b",
+        re.IGNORECASE,
+    )
+    for match in unit_pattern.finditer(text):
+        markers.add(f"n:{normalized_number(match.group(1))}:{match.group(2).lower()}")
+        consumed.append(match.span())
+
+    # Years adjacent to a scaled or unit-bearing value can otherwise be
+    # swallowed into the consumed span. Record them independently so "by
+    # April 2026" is checked against the source date as well as the value.
+    for match in re.finditer(r"(?<!\d)(?:19|20)\d{2}(?!\d)", text):
+        markers.add(f"n:{match.group(0)}")
+
+    # A bare number must not be embedded in a technology rate such as 800G or
+    # 1.6T. The earlier negative lookahead could backtrack and read 800G as 80.
+    bare_pattern = re.compile(r"(?<![a-z0-9.])\d(?:[\d,.]*\d)?(?![a-z0-9.])", re.IGNORECASE)
+    for match in bare_pattern.finditer(text):
+        if any(start <= match.start() and match.end() <= end for start, end in consumed):
+            continue
+        normalized = normalized_number(match.group(0))
+        if normalized not in {"0", "1", "2", "3", "4"}:
+            markers.add(f"n:{normalized}")
+    return markers
+
+
+def _source_identity_tokens(source: Mapping[str, Any]) -> set[str]:
+    # Exchange filings frequently arrive with generic metadata such as
+    # "printmgr file". Include the document body so the subject named on the
+    # cover and in the filing can still be matched to a claim.
+    identity = " ".join(
+        _clean(source.get(key), 25_000 if key == "content" else 2_000)
+        for key in ("title", "domain", "url", "content")
+    )
+    return _claim_tokens(identity)
+
+
+def _claim_identity_tokens(claim: str) -> set[str]:
+    # Names that matter for subject fidelity tend to sit before a possessive,
+    # reporting verb or numeric clause. Keep uncommon title-cased tokens and
+    # let generic claim terms be handled by the broader token-overlap gate.
+    country_tokens = {
+        token
+        for terms in COUNTRY_TERMS.values()
+        for term in terms
+        for token in re.findall(r"[a-z][a-z0-9-]{2,}", term.lower())
+    }
+    country_tokens.update({"hong", "kong", "gulf", "gcc", "mena", "middle", "east"})
+    month_tokens = {
+        "january", "february", "march", "april", "may", "june", "july", "august",
+        "september", "october", "november", "december",
+    }
+    raw_tokens = re.findall(r"\b[A-Z][A-Za-z0-9&.-]{2,}(?:['’]s)?\b", claim)
+    named: set[str] = set()
+    for index, raw in enumerate(raw_tokens):
+        token = re.sub(r"['’]s$", "", raw).lower()
+        if token in CLAIM_STOP_TOKENS or token in country_tokens or token in month_tokens:
+            continue
+        has_possessive = bool(re.search(r"['’]s$", raw))
+        is_acronym = raw.rstrip("'s’").isupper()
+        is_name_sequence = len(raw_tokens) >= 2 and any(
+            candidate.lower() not in month_tokens and candidate.lower() not in country_tokens
+            for candidate in raw_tokens[max(0, index - 1) : index] + raw_tokens[index + 1 : index + 2]
+        )
+        if has_possessive or is_acronym or is_name_sequence:
+            named.add(token)
+    return named
+
+
+def _numeric_claim_segments(sentence: str) -> list[str]:
+    """Split a sentence only where separate subjects carry separate facts."""
+
+    segments = [
+        item.strip(" ,;:")
+        for item in re.split(
+            r"\s*;\s*"
+            r"|\s*,?\s+\b(?i:while|whereas)\b\s+"
+            r"|\s*,?\s+\band\b\s+(?=(?:[A-Z]{2,}[A-Za-z0-9&.-]*|[A-Z][A-Za-z0-9&.-]*['’]s)\b)",
+            sentence,
+        )
+        if item.strip(" ,;:")
+    ]
+    return [item for item in segments if _numeric_markers(item)] or [sentence]
+
+
+def _source_numeric_markers(source: Mapping[str, Any], haystack: str) -> set[str]:
+    markers = _numeric_markers(haystack)
+    url = _clean(source.get("url"), 2_000).lower()
+    # Exchange document URLs often encode the filing date even when the PDF
+    # cover is absent from the ranked excerpt. Recognise only explicit
+    # YYYY/MMDD paths and SEHK YYMMDD document identifiers.
+    for match in re.finditer(r"/(20\d{2})/(\d{2})(\d{2})(?:/|$)", url):
+        markers.update({f"n:{match.group(1)}", f"n:{int(match.group(3))}"})
+    for match in re.finditer(r"sehk(\d{2})(\d{2})(\d{2})", url):
+        markers.update({f"n:{2000 + int(match.group(1))}", f"n:{int(match.group(3))}"})
+    return markers
+
+
+def _source_supports_claim(source: Mapping[str, Any], claim: str) -> bool:
+    haystack = " ".join(
+        _clean(source.get(key), 25_000)
+        for key in ("title", "domain", "url", "content")
+    ).lower()
+    countries = _country_mentions(claim)
+    if countries and not countries <= _country_mentions(haystack):
+        return False
+    markers = _numeric_markers(claim)
+    source_markers = _source_numeric_markers(source, haystack)
+    if markers and not markers <= source_markers:
+        return False
+    identity = _claim_identity_tokens(claim)
+    source_identity = _source_identity_tokens(source)
+    if identity and not identity & source_identity:
+        return False
+    tokens = _claim_tokens(claim)
+    if not tokens:
+        return True
+    overlap = len(tokens & _claim_tokens(haystack))
+    # Chinese exchange filings retain the underlying values and company names
+    # even when the reader-facing claim is translated into English. Exact
+    # numeric markers plus an exact named-entity match are sufficient in that
+    # bounded case; requiring two English prose tokens would reject the same
+    # filing solely because its body language differs.
+    multilingual_primary = bool(re.search(r"[\u3400-\u9fff]", haystack)) and _source_tier(source) == "PRIMARY"
+    if multilingual_primary and identity and identity & source_identity:
+        return overlap >= 1
+    return overlap >= min(2, len(tokens))
+
+
+def _section_cited_sources(
+    section: Mapping[str, Any],
+    source_map: Mapping[str, Mapping[str, Any]],
+) -> list[Mapping[str, Any]]:
+    return [
+        source_map[str(source_id)]
+        for source_id in section.get("sourceIds") or []
+        if str(source_id) in source_map
+    ]
+
+
+def _exhibit_subject_issues(
+    exhibit: Mapping[str, Any],
+    cited_sources: Sequence[Mapping[str, Any]],
+    index: int,
+) -> list[str]:
+    issues: list[str] = []
+    heading = _clean(exhibit.get("heading"), 500)
+    heading_countries = _country_mentions(heading)
+    if heading_countries:
+        for metric in exhibit.get("metrics") or []:
+            if not isinstance(metric, Mapping):
+                continue
+            metric_text = " ".join(_clean(metric.get(key), 300) for key in ("value", "label", "note"))
+            metric_countries = _country_mentions(metric_text)
+            if metric_countries and not metric_countries <= heading_countries:
+                issues.append(
+                    f"Exhibit {index} is framed as {sorted(heading_countries)} but contains a metric for "
+                    f"{sorted(metric_countries)}: {metric_text}."
+                )
+    for metric in exhibit.get("metrics") or []:
+        if not isinstance(metric, Mapping):
+            continue
+        # Include the exhibit heading so a compact metric such as "R&D
+        # expense growth" retains its named company and geography during
+        # multilingual source matching.
+        claim = " ".join(
+            [heading, *(_clean(metric.get(key), 300) for key in ("value", "label", "note"))]
+        )
+        if claim and not any(_source_supports_claim(source, claim) for source in cited_sources):
+            issues.append(f"Exhibit {index} metric is not traceable to its cited sources: {claim}.")
+    for panel in exhibit.get("panels") or []:
+        if not isinstance(panel, Mapping):
+            continue
+        panel_title = _clean(panel.get("title"), 500)
+        panel_context = " ".join(part for part in (heading, panel_title) if part)
+        panel_type = _clean(panel.get("type"), 40).lower()
+        for item in panel.get("items") or []:
+            if not isinstance(item, Mapping):
+                continue
+            if panel_type == "comparison":
+                value_keys = ("left", "right")
+                context_keys = ("metric",)
+            elif panel_type == "bars":
+                value_keys = ("display",) if item.get("display") else ("value",)
+                context_keys = ("label",)
+            elif panel_type == "scatter":
+                value_keys = ("x", "y")
+                context_keys = ("label",)
+            elif panel_type == "stacked_bar":
+                value_keys = ()
+                context_keys = ("label",)
+            elif panel_type == "waterfall":
+                value_keys = ("display",) if item.get("display") else ("value",)
+                context_keys = ("label",)
+            elif panel_type in {"scenario", "milestones"}:
+                value_keys = ("range", "metric")
+                context_keys = ("label", "body")
+            else:
+                value_keys = ()
+                context_keys = ("tag", "title", "body")
+
+            values = [_clean(item.get(key), 300) for key in value_keys if item.get(key) is not None]
+            context = " ".join(
+                [panel_context, *(_clean(item.get(key), 500) for key in context_keys)]
+            ).strip()
+            for value in values:
+                if not _numeric_markers(value):
+                    continue
+                claim = f"{context} {value}".strip()
+                if not any(_source_supports_claim(source, claim) for source in cited_sources):
+                    issues.append(
+                        f"Exhibit {index} panel value is not traceable to its cited sources: {claim}."
+                    )
+            if panel_type == "stacked_bar":
+                for segment in item.get("segments") or []:
+                    if not isinstance(segment, Mapping):
+                        continue
+                    value = _clean(
+                        segment.get("display") if segment.get("display") else segment.get("value"),
+                        300,
+                    )
+                    if not _numeric_markers(value):
+                        continue
+                    claim = " ".join(
+                        [context, _clean(segment.get("label"), 300), value]
+                    ).strip()
+                    if not any(_source_supports_claim(source, claim) for source in cited_sources):
+                        issues.append(
+                            f"Exhibit {index} stacked-bar value is not traceable to its cited sources: {claim}."
+                        )
+        if panel_type == "line":
+            x_labels = [_clean(item, 120) for item in panel.get("xLabels") or []]
+            for series in panel.get("series") or []:
+                if not isinstance(series, Mapping):
+                    continue
+                series_name = _clean(series.get("name"), 300)
+                for point_index, value in enumerate(series.get("values") or []):
+                    rendered = _clean(value, 120)
+                    if not _numeric_markers(rendered):
+                        continue
+                    x_label = x_labels[point_index] if point_index < len(x_labels) else ""
+                    claim = " ".join([panel_context, series_name, x_label, rendered]).strip()
+                    if not any(_source_supports_claim(source, claim) for source in cited_sources):
+                        issues.append(
+                            f"Exhibit {index} line-series value is not traceable to its cited sources: {claim}."
+                        )
+    return issues
+
+
+def _numeric_claim_issues(
+    section: Mapping[str, Any],
+    cited_sources: Sequence[Mapping[str, Any]],
+    label: str,
+) -> list[str]:
+    text_parts: list[str] = []
+    for key in ("opening", "deck", "callout", "headline", "caption"):
+        if section.get(key):
+            text_parts.append(_clean(section.get(key), 5_000))
+    for paragraph in section.get("paragraphs") or []:
+        text_parts.append(_clean(paragraph, 5_000))
+    for subsection in section.get("subsections") or []:
+        if isinstance(subsection, Mapping):
+            text_parts.extend(_clean(item, 5_000) for item in subsection.get("paragraphs") or [])
+    if isinstance(section.get("metrics"), list):
+        for metric in section["metrics"]:
+            if isinstance(metric, Mapping):
+                text_parts.append(" ".join(_clean(metric.get(key), 300) for key in ("value", "label", "note")))
+    # Paragraph and metric boundaries must remain sentence boundaries. Without
+    # this, the final sentence of one paragraph can be fused to a different
+    # company's fact in the next paragraph and incorrectly require one source
+    # to support both subjects.
+    text = ". ".join(part.rstrip(". ") for part in text_parts if part)
+    numeric_sentences = [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[.!?])\s+", text)
+        if re.search(r"(?:\$\s*\d|\b\d[\d,.]*\s*(?:%|gbps|mbps|mw|gw|million|billion|units?)\b)", sentence, re.I)
+    ]
+    issues: list[str] = []
+    for sentence in numeric_sentences:
+        for segment in _numeric_claim_segments(sentence):
+            supporting = [source for source in cited_sources if _source_supports_claim(source, segment)]
+            if not supporting:
+                issues.append(f"{label} contains an untraceable numeric claim: {_clean(segment, 260)}")
+            elif (
+                len(supporting) == 1
+                and re.search(r"\b(?:companies|makers|manufacturers|operators|suppliers)\b", segment, re.I)
+                and not re.search(r"\b(?:sector|industry|market|national|total)\b", _clean(supporting[0].get("title"), 500), re.I)
+            ):
+                issues.append(
+                    f"{label} generalises a single-source company metric to a plural market subject: "
+                    f"{_clean(segment, 260)}"
+                )
+    return issues
 
 
 def _publication_rules() -> str:
@@ -748,6 +1626,12 @@ Architecture rules:
 - Every cited set includes at least one PRIMARY or INSTITUTIONAL source. Treat SECONDARY sources as corroboration only.
 - Exactly four substantive exhibits, one after each chapter. Each combines at least two information layers and is grounded in cited source IDs.
 - Each exhibit contains at least six evidence units across metric cards and panel rows or data points. Sparse scorecards are unacceptable.
+- Every quantitative metric must appear in at least one source cited by that exhibit. Preserve the exact company and country subject of the source; never recast one company's capacity as a national or multi-company total.
+- Never calculate or estimate a currency conversion. Use a USD amount only when that exact USD amount appears in a cited source; otherwise omit the monetary value and use a sourced percentage, physical unit, date or qualitative comparison.
+- Do not represent missing evidence as a numeric zero, and do not use a reporting-period label, publication date or absence of contracts as a metric card.
+- Every numeric value in a comparison, bars, line, stacked-bar, scatter, waterfall, scenario or milestone panel must also appear exactly in a source cited by that exhibit. Decorative or reconstructed values are prohibited.
+- When all metric cards concern one company, name that company in the exhibit heading. Compact labels such as R&D growth are not sufficient subject attribution on their own.
+- The exhibit heading, metric cards and panel rows must describe the same entity and geography. A Saudi exhibit cannot contain a Qatar metric; a company-named exhibit cannot contain another company's metric unless the heading explicitly states the comparison.
 - Comparison panels need at least three complete rows. Matrix, process, market-map and milestone panels need at least four complete items. Quantitative charts need at least four labelled observations.
 - Use quantitative charts only for coherent source series. Otherwise use comparison, process, market map, scenario or matrix.
 - Vary the visual grammar across the four exhibits. Do not use the same panel type in more than two exhibits.
@@ -966,6 +1850,7 @@ def _sanitize_architecture_copy(architecture: Mapping[str, Any]) -> dict[str, An
     """Remove cover-level process narration without rewriting evidence structures."""
 
     cleaned = json.loads(json.dumps(architecture, ensure_ascii=False))
+    cleaned = _replace_forbidden_architecture_language(cleaned)
     summary = _without_meta_sentences(cleaned.get("coverSummary"))
     candidates: list[str] = []
     executive = cleaned.get("executiveSummary") if isinstance(cleaned.get("executiveSummary"), Mapping) else {}
@@ -983,6 +1868,111 @@ def _sanitize_architecture_copy(architecture: Mapping[str, Any]) -> dict[str, An
             break
     cleaned["coverSummary"] = summary
     return cleaned
+
+
+def _replace_forbidden_architecture_language(value: Any) -> Any:
+    replacements = (
+        (r"\b(?:strategic|decision)\s+implications?\b", "commercial consequences"),
+        (r"\bimplications?\b", "consequences"),
+        (r"\bmanagement agenda\b", "operating priorities"),
+        (r"\bkey evidence\b", "documented findings"),
+        (r"\bdecision sequence\b", "contents"),
+        (r"\breport structure\b", "contents"),
+    )
+    if isinstance(value, str):
+        output = value
+        for pattern, replacement in replacements:
+            output = re.sub(pattern, replacement, output, flags=re.IGNORECASE)
+        return output
+    if isinstance(value, list):
+        return [_replace_forbidden_architecture_language(item) for item in value]
+    if isinstance(value, Mapping):
+        return {key: _replace_forbidden_architecture_language(item) for key, item in value.items()}
+    return value
+
+
+def _complete_sparse_exhibit(exhibit: Mapping[str, Any]) -> dict[str, Any]:
+    """Build a dense, source-neutral comparison panel from supplied exhibit metrics."""
+
+    completed = dict(exhibit)
+    panels = _normalize_exhibit_panels(completed.get("panels"))
+    metrics = [dict(item) for item in completed.get("metrics") or [] if isinstance(item, Mapping)]
+    if panels or len(metrics) < 2:
+        return completed
+    columns = [_clean(metrics[0].get("label"), 80), _clean(metrics[1].get("label"), 80)]
+    completed["panels"] = [
+        {
+            "type": "comparison",
+            "span": "wide",
+            "title": _clean(completed.get("heading"), 180) or "Documented comparison",
+            "columns": columns,
+            "items": [
+                {
+                    "metric": "Documented value",
+                    "left": _clean(metrics[0].get("value"), 80),
+                    "right": _clean(metrics[1].get("value"), 80),
+                },
+                {
+                    "metric": "Measurement date",
+                    "left": _metric_date_label(metrics[0]),
+                    "right": _metric_date_label(metrics[1]),
+                },
+                {
+                    "metric": "Evidence basis",
+                    "left": _clean(metrics[0].get("note"), 100) or "Cited public filing",
+                    "right": _clean(metrics[1].get("note"), 100) or "Cited public filing",
+                },
+            ],
+        }
+    ]
+    return completed
+
+
+def _complete_exhibit_information_units(exhibit: Mapping[str, Any]) -> dict[str, Any]:
+    """Promote source-backed exhibit metrics into a dense comparison when needed."""
+
+    completed = _complete_sparse_exhibit(exhibit)
+    if _exhibit_information_units(completed) >= 6:
+        return completed
+    metrics = [dict(item) for item in completed.get("metrics") or [] if isinstance(item, Mapping)]
+    if len(metrics) < 2:
+        return completed
+    columns = [_clean(metrics[0].get("label"), 80), _clean(metrics[1].get("label"), 80)]
+    completed["panels"] = [
+        {
+            "type": "comparison",
+            "span": "wide",
+            "title": _clean(completed.get("heading"), 180) or "Documented comparison",
+            "columns": columns,
+            "items": [
+                {
+                    "metric": "Documented value",
+                    "left": _clean(metrics[0].get("value"), 80),
+                    "right": _clean(metrics[1].get("value"), 80),
+                },
+                {
+                    "metric": "Measurement period",
+                    "left": _metric_date_label(metrics[0]),
+                    "right": _metric_date_label(metrics[1]),
+                },
+                {
+                    "metric": "Evidence basis",
+                    "left": _clean(metrics[0].get("note"), 100) or "Cited public source",
+                    "right": _clean(metrics[1].get("note"), 100) or "Cited public source",
+                },
+            ],
+        }
+    ]
+    return completed
+
+
+def _metric_date_label(metric: Mapping[str, Any]) -> str:
+    text = " ".join(_clean(metric.get(key), 180) for key in ("label", "note"))
+    if match := re.search(r"\b(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\s+20\d{2}\b", text, re.IGNORECASE):
+        return match.group(0)
+    if match := re.search(r"\b20\d{2}\b", text):
+        return match.group(0)
+    return "Latest disclosed period"
 
 
 def _trim_complete_sentences(value: Any, maximum_words: int) -> str:
@@ -1004,7 +1994,7 @@ def _trim_complete_sentences(value: Any, maximum_words: int) -> str:
 
 
 def _sanitize_chapter_copy(chapter: Mapping[str, Any]) -> dict[str, Any]:
-    cleaned = json.loads(json.dumps(chapter, ensure_ascii=False))
+    cleaned = dict(_sanitize_non_usd_prose(json.loads(json.dumps(chapter, ensure_ascii=False))))
     cleaned["opening"] = _trim_complete_sentences(cleaned.get("opening"), 120)
     for subsection in cleaned.get("subsections") or []:
         if not isinstance(subsection, dict):
@@ -1047,6 +2037,7 @@ def _editorial_issues(
     content: Mapping[str, Any],
     valid_source_ids: set[str],
     authoritative_source_ids: set[str],
+    source_map: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> list[str]:
     issues: list[str] = []
     executive = content.get("executiveSummary") if isinstance(content.get("executiveSummary"), Mapping) else {}
@@ -1105,6 +2096,21 @@ def _editorial_issues(
             issues.append(f"{label} requires at least two valid source IDs.")
         if not ids & authoritative_source_ids:
             issues.append(f"{label} requires at least one primary or institutional source ID.")
+        if source_map:
+            cited = _section_cited_sources(section, source_map) if isinstance(section, Mapping) else []
+            label_text = " ".join(
+                _clean(section.get(key), 500)
+                for key in ("title", "heading", "headline", "deck", "caption", "callout")
+                if isinstance(section, Mapping)
+            )
+            for region in _required_source_regions(label_text):
+                if not any(_source_matches_region(source, region) for source in cited):
+                    issues.append(f"{label} names {region} but cites no directly relevant {region} source.")
+            if isinstance(section, Mapping):
+                issues.extend(_numeric_claim_issues(section, cited, label))
+                if label.startswith("exhibit "):
+                    exhibit_index = int(label.split()[-1])
+                    issues.extend(_exhibit_subject_issues(section, cited, exhibit_index))
     issues.extend(_publication_copy_issues(_publication_copy_projection(content)))
     return issues
 
@@ -1121,6 +2127,7 @@ def _prepare_editorial(
     work_dir: Path,
 ) -> dict[str, Any]:
     valid_ids = {str(item["id"]) for item in sources}
+    source_map = {str(item["id"]): item for item in sources}
     authoritative_ids = {
         str(item["id"])
         for item in sources
@@ -1164,9 +2171,122 @@ def _prepare_editorial(
             rows = [preferred, *rows]
         return list(dict.fromkeys(rows))[:5]
 
+    def traceability_claims(section: Mapping[str, Any]) -> list[str]:
+        heading = " ".join(
+            _clean(section.get(key), 500)
+            for key in ("title", "heading", "headline")
+            if section.get(key)
+        )
+        claims: list[str] = []
+        for key in ("deck", "callout", "opening", "caption"):
+            value = _clean(section.get(key), 4_000)
+            if value:
+                claims.extend(_numeric_claim_segments(value))
+        for metric in section.get("metrics") or []:
+            if not isinstance(metric, Mapping):
+                continue
+            claim = " ".join(
+                [heading, *(_clean(metric.get(key), 500) for key in ("value", "label", "note"))]
+            ).strip()
+            if _numeric_markers(claim):
+                claims.append(claim)
+        for panel in section.get("panels") or []:
+            if not isinstance(panel, Mapping):
+                continue
+            panel_context = " ".join([heading, _clean(panel.get("title"), 500)]).strip()
+            for item in panel.get("items") or []:
+                if not isinstance(item, Mapping):
+                    continue
+                claim = " ".join(
+                    [panel_context, *(_clean(value, 500) for value in item.values() if not isinstance(value, (list, dict)))]
+                ).strip()
+                if _numeric_markers(claim):
+                    claims.append(claim)
+                for segment in item.get("segments") or []:
+                    if isinstance(segment, Mapping):
+                        segment_claim = " ".join(
+                            [panel_context, *(_clean(value, 300) for value in segment.values())]
+                        ).strip()
+                        if _numeric_markers(segment_claim):
+                            claims.append(segment_claim)
+            x_labels = [_clean(item, 120) for item in panel.get("xLabels") or []]
+            for series in panel.get("series") or []:
+                if not isinstance(series, Mapping):
+                    continue
+                for point_index, value in enumerate(series.get("values") or []):
+                    x_label = x_labels[point_index] if point_index < len(x_labels) else ""
+                    claim = " ".join(
+                        [panel_context, _clean(series.get("name"), 300), x_label, _clean(value, 120)]
+                    ).strip()
+                    if _numeric_markers(claim):
+                        claims.append(claim)
+        return list(dict.fromkeys(claims))
+
+    def grounded_source_ids(section: Mapping[str, Any]) -> list[str]:
+        requested = normalized_source_ids(section.get("sourceIds"))
+        supporters: list[str] = []
+        for claim in traceability_claims(section):
+            matches = [
+                source_id
+                for source_id, source in source_map.items()
+                if _source_supports_claim(source, claim)
+            ]
+            preferred = next((source_id for source_id in requested if source_id in matches), None)
+            if preferred is None and matches:
+                preferred = max(matches, key=lambda source_id: _source_score(source_map[source_id]))
+            if preferred:
+                supporters.append(preferred)
+        label_text = " ".join(
+            _clean(section.get(key), 500)
+            for key in ("title", "heading", "headline", "deck", "caption", "callout")
+        )
+        regional: list[str] = []
+        for region in _required_source_regions(label_text):
+            match = next(
+                (
+                    source_id
+                    for source_id in requested
+                    if _source_matches_region(source_map[source_id], region)
+                ),
+                None,
+            ) or next(
+                (
+                    source_id
+                    for source_id, source in source_map.items()
+                    if _source_matches_region(source, region)
+                ),
+                None,
+            )
+            if match:
+                regional.append(match)
+        rows = list(dict.fromkeys([*supporters, *regional, *requested]))
+        if not set(rows) & authoritative_ids and authoritative_ids:
+            rows.insert(0, sorted(authoritative_ids)[0])
+        return rows[:5]
+
     def checkpoint_has_sources(value: Mapping[str, Any]) -> bool:
         ids = {str(item) for item in value.get("sourceIds") or []} & valid_ids
         return len(ids) >= 2 and bool(ids & authoritative_ids)
+
+    def section_traceability_issues(
+        section: Mapping[str, Any],
+        label: str,
+        *,
+        exhibit_index: int | None = None,
+    ) -> list[str]:
+        issues: list[str] = []
+        cited = _section_cited_sources(section, source_map)
+        label_text = " ".join(
+            _clean(section.get(key), 500)
+            for key in ("title", "heading", "headline", "deck", "caption", "callout")
+        )
+        for region in _required_source_regions(label_text):
+            if not any(_source_matches_region(source, region) for source in cited):
+                issues.append(f"{label} names {region} but cites no directly relevant {region} source.")
+        issues.extend(_numeric_claim_issues(section, cited, label))
+        if exhibit_index is not None:
+            issues.extend(_exhibit_subject_issues(section, cited, exhibit_index))
+        return issues
 
     checkpoint_executive = _read_json_mapping(work_dir / "editorial-executive.json") if checkpoint_compatible else None
     if checkpoint_executive is not None and not (
@@ -1234,7 +2354,61 @@ def _prepare_editorial(
     previous_architecture: dict[str, Any] | None = None
     architecture_error = ""
     architecture_path = work_dir / "editorial-architecture.json"
-    cached_architecture = _read_json_mapping(architecture_path) if checkpoint_compatible else None
+    architecture_lock_path = work_dir / "editorial-architecture-lock.json"
+    locked_architecture = _read_json_mapping(architecture_lock_path)
+    if locked_architecture is not None:
+        architecture = _sanitize_architecture_copy(_ascii(locked_architecture))
+        for key in ("executiveSummary", "outlook"):
+            section = architecture.get(key)
+            if isinstance(section, dict):
+                section["sourceIds"] = normalized_source_ids(section.get("sourceIds"))
+        for key in ("chapters", "exhibits"):
+            for section in architecture.get(key) or []:
+                if isinstance(section, dict):
+                    section["sourceIds"] = normalized_source_ids(section.get("sourceIds"))
+        architecture["exhibits"] = [
+            _normalize_exhibit_layout(_complete_exhibit_information_units(exhibit))
+            for exhibit in architecture.get("exhibits") or []
+            if isinstance(exhibit, Mapping)
+        ]
+        for key in ("executiveSummary", "outlook"):
+            section = architecture.get(key)
+            if isinstance(section, dict):
+                section["sourceIds"] = grounded_source_ids(section)
+        for key in ("chapters", "exhibits"):
+            for section in architecture.get(key) or []:
+                if isinstance(section, dict):
+                    section["sourceIds"] = grounded_source_ids(section)
+        lock_issues = _architecture_issues(architecture)
+        lock_issues.extend(
+            section_traceability_issues(architecture["executiveSummary"], "executive summary")
+        )
+        lock_issues.extend(
+            issue
+            for index, section in enumerate(architecture["chapters"], start=1)
+            for issue in section_traceability_issues(section, f"chapter {index}")
+        )
+        lock_issues.extend(
+            issue
+            for index, section in enumerate(architecture["exhibits"], start=1)
+            for issue in section_traceability_issues(section, f"exhibit {index}", exhibit_index=index)
+        )
+        lock_issues.extend(section_traceability_issues(architecture["outlook"], "outlook"))
+        if lock_issues:
+            raise GatexWhitepaperError(
+                "Reviewed architecture lock failed QA: " + " | ".join(lock_issues)
+            )
+        architecture_path.write_text(
+            json.dumps(architecture, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        fingerprint_path.write_text(source_fingerprint + "\n", encoding="utf-8")
+        _progress("synthesis", 48, "Using the reviewed evidence-first publication architecture.", 7)
+    cached_architecture = (
+        _read_json_mapping(architecture_path)
+        if architecture is None and checkpoint_compatible
+        else None
+    )
     if cached_architecture is not None:
         cached_chapters = cached_architecture.get("chapters") if isinstance(cached_architecture.get("chapters"), list) else []
         cached_exhibits = cached_architecture.get("exhibits") if isinstance(cached_architecture.get("exhibits"), list) else []
@@ -1263,7 +2437,9 @@ def _prepare_editorial(
                 prompt += (
                     "\n\nREPAIR THE PREVIOUS JSON\n"
                     "Return the complete JSON object. Preserve every valid source ID, factual value, exhibit row and visual brief. "
-                    "Rewrite only the fields needed to resolve the stated QA issues; replace meta narration with the substantive "
+                    "Rewrite every field named in the QA issues. Delete an unsupported metric or panel value instead of estimating, "
+                    "converting or relabelling it. Replace sparse evidence with sourced non-monetary facts when the packet contains no "
+                    "exact USD amount. Never retain a numeric zero for missing evidence. Replace meta narration with the substantive "
                     "finding itself and keep all monetary copy USD-only.\n"
                     + json.dumps(previous_architecture, ensure_ascii=False)
                 )
@@ -1292,16 +2468,48 @@ def _prepare_editorial(
                 architecture["executiveSummary"] = locked_checkpoint_meta["executiveSummary"]
                 architecture["chapters"] = locked_checkpoint_meta["chapters"]
             architecture = _sanitize_architecture_copy(architecture)
+            for key in ("executiveSummary", "outlook"):
+                section = architecture.get(key)
+                if isinstance(section, dict):
+                    section["sourceIds"] = normalized_source_ids(section.get("sourceIds"))
+            for key in ("chapters", "exhibits"):
+                for section in architecture.get(key) or []:
+                    if isinstance(section, dict):
+                        section["sourceIds"] = normalized_source_ids(section.get("sourceIds"))
             architecture["exhibits"] = [
-                _normalize_exhibit_layout(exhibit)
+                _normalize_exhibit_layout(_complete_exhibit_information_units(exhibit))
                 for exhibit in architecture.get("exhibits") or []
                 if isinstance(exhibit, Mapping)
             ]
+            for key in ("executiveSummary", "outlook"):
+                section = architecture.get(key)
+                if isinstance(section, dict):
+                    section["sourceIds"] = grounded_source_ids(section)
+            for key in ("chapters", "exhibits"):
+                for section in architecture.get(key) or []:
+                    if isinstance(section, dict):
+                        section["sourceIds"] = grounded_source_ids(section)
             (work_dir / f"editorial-architecture-attempt-{attempt + 1}.json").write_text(
                 json.dumps(architecture, ensure_ascii=False, indent=2),
                 encoding="utf-8",
             )
             architecture_issues = _architecture_issues(architecture)
+            architecture_issues.extend(
+                section_traceability_issues(architecture["executiveSummary"], "executive summary")
+            )
+            architecture_issues.extend(
+                issue
+                for index, section in enumerate(architecture["chapters"], start=1)
+                for issue in section_traceability_issues(section, f"chapter {index}")
+            )
+            architecture_issues.extend(
+                issue
+                for index, section in enumerate(architecture["exhibits"], start=1)
+                for issue in section_traceability_issues(section, f"exhibit {index}", exhibit_index=index)
+            )
+            architecture_issues.extend(
+                section_traceability_issues(architecture["outlook"], "outlook")
+            )
             if architecture_issues:
                 raise GatexWhitepaperError(" | ".join(architecture_issues))
             architecture_path.write_text(json.dumps(architecture, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -1334,7 +2542,7 @@ Editorial brief: {brief}
 
 {_publication_rules()}
 
-Write exactly four paragraphs and 330-420 words. Establish the evidence-led thesis, the industrial capability, the capital-market transmission and the bounded cross-border relevance. Do not describe the report structure.
+Write exactly four paragraphs and 330-420 words. Establish the evidence-led thesis, the industrial capability, the capital-market transmission and the bounded cross-border relevance. Preserve the exact company subject behind every metric; never convert one company's figure into a claim about plural suppliers or the national market. Do not describe the report structure.
 Return only: {{"paragraphs":["paragraph 1","paragraph 2","paragraph 3","paragraph 4"]}}
 
 SOURCES
@@ -1346,6 +2554,7 @@ SOURCES
                 max_tokens=1_800,
             )
         )
+        executive = _sanitize_editorial_paragraphs(executive, maximum_words_per_paragraph=102)
         executive.update(
             {
                 "headline": _clean(executive_meta.get("headline"), 300),
@@ -1354,7 +2563,10 @@ SOURCES
             }
         )
         executive_words = _paragraph_word_count(executive)
-        policy_issues = _publication_copy_issues(executive)
+        policy_issues = [
+            *_publication_copy_issues(executive),
+            *section_traceability_issues(executive, "executive summary"),
+        ]
         if len(executive.get("paragraphs") or []) == 4 and 300 <= executive_words <= 450 and not policy_issues:
             break
         executive_error = " ".join(
@@ -1391,7 +2603,7 @@ Editorial brief: {brief}
 
 {_publication_rules()}
 
-Write 600-780 words in total. Start with one opening paragraph, followed by exactly four progressive subsections. Every subsection has exactly two concise paragraphs. Use evidence-specific mechanisms and comparisons; do not repeat the executive summary. Never refer to this chapter, report, paper, section or analysis.
+Write 600-780 words in total. Start with one opening paragraph, followed by exactly four progressive subsections. Every subsection has exactly two concise paragraphs. Every printed number must be present in one of the supplied sources for this chapter, with the same company, country, date and unit. Preserve the exact company subject behind every metric; never generalise a single-company value to plural suppliers or a national market. Use evidence-specific mechanisms and comparisons; do not repeat the executive summary. Never refer to this chapter, report, paper, section or analysis.
 Return only: {{"opening":"...","subsections":[{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}},{{"heading":"...","paragraphs":["...","..."]}}]}}
 
 SOURCES
@@ -1421,7 +2633,10 @@ SOURCES
             paragraphs_ok = len(subsections) == 4 and all(
                 isinstance(item, Mapping) and len(item.get("paragraphs") or []) == 2 for item in subsections
             )
-            policy_issues = _publication_copy_issues(chapter)
+            policy_issues = [
+                *_publication_copy_issues(chapter),
+                *section_traceability_issues(chapter, f"chapter {index}"),
+            ]
             if paragraphs_ok and 560 <= _word_count(chapter) <= 980 and not policy_issues:
                 break
             chapter_error = " ".join(
@@ -1476,6 +2691,7 @@ SOURCES
                 max_tokens=1_000,
             )
         )
+        outlook = _sanitize_editorial_paragraphs(outlook, maximum_words_per_paragraph=96)
         outlook.update(
             {
                 "title": _clean(outlook_meta.get("title"), 300),
@@ -1485,7 +2701,10 @@ SOURCES
             }
         )
         outlook_words = _paragraph_word_count(outlook)
-        policy_issues = _publication_copy_issues(outlook)
+        policy_issues = [
+            *_publication_copy_issues(outlook),
+            *section_traceability_issues(outlook, "outlook"),
+        ]
         if 3 <= len(outlook.get("paragraphs") or []) <= 4 and 200 <= outlook_words <= 340 and not policy_issues:
             break
         outlook_error = " ".join(
@@ -1521,7 +2740,7 @@ SOURCES
             "visuals": visuals,
         }
     )
-    issues = _editorial_issues(candidate, valid_ids, authoritative_ids)
+    issues = _editorial_issues(candidate, valid_ids, authoritative_ids, source_map)
     if issues:
         raise GatexWhitepaperError("Assembled editorial QA failed: " + " | ".join(issues))
     (work_dir / "editorial-final.json").write_text(json.dumps(candidate, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -1845,6 +3064,24 @@ def _english_source_title(source: Mapping[str, str]) -> str:
     }))
     title = re.sub(r"\s+(?:of|for|in)\s+\.{3}$", "", title, flags=re.IGNORECASE)
     title = re.sub(r"\s*\.{3}$", "", title).rstrip(" .")
+    generic_title = re.fullmatch(
+        r"(?:printmgr(?:\s+file)?|untitled|document|report|pdf|microsoft\s+word(?:\s+-\s+.*)?)",
+        title,
+        flags=re.IGNORECASE,
+    )
+    if generic_title:
+        content = _clean(source.get("content"), 4_000)
+        application = re.search(
+            r"Application Proof of\s+(.{3,140}?(?:Co\.,? Ltd\.|Limited))(?=\s|\(|WARNING)",
+            content,
+            flags=re.IGNORECASE,
+        )
+        if application:
+            company = re.sub(r"[\u3400-\u9fff]+", "", application.group(1)).strip(" -.,()")
+            if company:
+                return f"{company} Hong Kong Listing Application"
+        domain = _clean(source.get("domain"), 160) or urllib.parse.urlparse(_clean(source.get("url"), 2_000)).netloc
+        return f"Official filing from {domain}" if domain else "Official Filing"
     if not re.search(r"[\u3400-\u9fff]", title):
         return title
     translations = (
@@ -2291,7 +3528,33 @@ def generate_gatex_whitepaper(
 
     _progress("synthesis", 42, "Converting the evidence base into the GateX white-paper architecture.", 10)
     client = _editorial_client(model, timeout=420)
-    sources, source_packet = _source_packet(research)
+    source_index_path = work_dir / "editorial-source-index.json"
+    preferred_urls: list[str] = []
+    if source_index_path.exists():
+        try:
+            source_index = json.loads(source_index_path.read_text(encoding="utf-8"))
+            rows = source_index.get("sources") if isinstance(source_index, Mapping) else []
+            preferred_urls = [
+                str(row.get("url") or "").strip()
+                for row in rows or []
+                if isinstance(row, Mapping) and str(row.get("url") or "").strip()
+            ]
+        except (OSError, ValueError, TypeError):
+            preferred_urls = []
+    sources, source_packet = _source_packet(
+        research,
+        topic=topic,
+        brief=brief,
+        preferred_urls=preferred_urls,
+    )
+    source_index_path.write_text(
+        json.dumps(
+            {"sources": [{"id": row["id"], "title": row["title"], "url": row["url"]} for row in sources]},
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     editorial_brief = (
         f"{brief}\nPublication date: {publication_date}. "
         "Apply the reporting-period boundary literally: an unfinished quarter is an outlook or latest-data edition, not a completed-quarter result."

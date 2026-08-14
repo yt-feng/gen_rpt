@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import base64
 import re
 import time
 from dataclasses import dataclass, field
@@ -15,7 +16,7 @@ USER_AGENT = (
     "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/124.0 Safari/537.36"
 )
-MAX_DOWNLOAD_BYTES = 14 * 1024 * 1024
+MAX_DOWNLOAD_BYTES = 32 * 1024 * 1024
 _GDELT_LAST_REQUEST = 0.0
 
 
@@ -243,7 +244,7 @@ def _search_bing(query: str, max_results: int = 5) -> List[SearchResult]:
     return results
 
 
-def fetch_page(url: str, max_chars: int = 9000) -> FetchedPage:
+def fetch_page(url: str, max_chars: int = 18000, *, query: str = "") -> FetchedPage:
     response = requests.get(
         url,
         headers={"User-Agent": USER_AGENT, "Accept": "text/html,application/pdf,application/xhtml+xml,*/*;q=0.8"},
@@ -261,7 +262,7 @@ def fetch_page(url: str, max_chars: int = 9000) -> FetchedPage:
         return FetchedPage(
             title="",
             url=final_url,
-            content=_extract_pdf_text(content, max_chars=max_chars),
+            content=_extract_pdf_text(content, max_chars=max_chars, query=query),
             source_type="pdf",
             content_type=content_type,
         )
@@ -440,13 +441,16 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
     for qidx, query in enumerate(query_list, start=1):
         query_start = time.monotonic()
         _log(f"query {qidx}/{len(query_list)} search started | {query[:140]!r}")
+        # Curated first-party anchors are deterministic evidence, so evaluate
+        # them before noisy search-result pages can fill the per-query quota.
+        direct_results = _direct_source_candidates(query)
         try:
-            search_results = search_web(query, max_results=per_query)
+            discovered_results = search_web(query, max_results=per_query)
         except Exception as exc:
             _log(f"query {qidx}/{len(query_list)} search failed | reason={str(exc)[:180]!r}")
-            search_results = []
-        search_results.extend(_direct_source_candidates(query))
-        if qidx <= gdelt_query_limit:
+            discovered_results = []
+        search_results = [*direct_results, *discovered_results]
+        if qidx <= gdelt_query_limit and not direct_results:
             gdelt_doc = _gdelt_timeline_document(query)
             if gdelt_doc and gdelt_doc.url not in seen and len(docs) < max_sources:
                 seen.add(gdelt_doc.url)
@@ -464,7 +468,7 @@ def collect_sources(queries: List[str], per_query: int = 3, max_sources: int = 8
             seen.add(result.url)
             fetch_start = time.monotonic()
             try:
-                fetched = fetch_page(result.url)
+                fetched = fetch_page(result.url, query=result.query)
             except Exception as exc:
                 _log(f"fetch failed | domain={_domain(result.url)} | reason={str(exc)[:180]!r}")
                 fetched = FetchedPage("", result.url, "", "error", "")
@@ -524,6 +528,16 @@ def _normalize_url(url: str) -> str:
         uddg = parse_qs(parsed.query).get("uddg")
         if uddg:
             return _normalize_url(unquote(uddg[0]))
+    if parsed.netloc.endswith("bing.com") and parsed.path.startswith("/ck/a"):
+        encoded = (parse_qs(parsed.query).get("u") or [""])[0]
+        if encoded.startswith("a1"):
+            payload = encoded[2:]
+            try:
+                decoded = base64.urlsafe_b64decode(payload + "=" * (-len(payload) % 4)).decode("utf-8")
+            except (ValueError, UnicodeDecodeError):
+                decoded = ""
+            if decoded:
+                return _normalize_url(decoded)
     if parsed.scheme not in {"http", "https"}:
         return ""
     return url
@@ -532,6 +546,182 @@ def _normalize_url(url: str) -> str:
 def _direct_source_candidates(query: str) -> List[SearchResult]:
     lower = str(query or "").lower()
     candidates: List[tuple[str, str, str]] = []
+    if any(token in lower for token in ("china", "chinese", "prc")) and any(
+        token in lower
+        for token in (
+            "semiconductor",
+            "lithography",
+            "etch",
+            "deposition",
+            "wafer equipment",
+        )
+    ):
+        candidates.extend(
+            [
+                (
+                    "NAURA Technology 2025 Annual Report",
+                    "https://static.cninfo.com.cn/finalpage/2026-04-18/1225122918.PDF",
+                    "Shenzhen exchange-hosted annual report covering semiconductor deposition, etch, cleaning and related process-equipment operations and research investment.",
+                ),
+                (
+                    "AMEC 2025 Interim Report",
+                    "https://star.sse.com.cn/disclosure/listedinfo/announcement/c/new/2025-08-29/688012_20250829_BW75.pdf",
+                    "Shanghai STAR Market filing covering etch, thin-film deposition and other semiconductor-equipment operations for the first half of 2025.",
+                ),
+                (
+                    "AMEC Shanghai Stock Exchange Company Profile",
+                    "https://star.sse.com.cn/star/en/marketdata/snapshot/c/5542484.shtml",
+                    "Official Shanghai Stock Exchange company profile for Advanced Micro-Fabrication Equipment Inc. China.",
+                ),
+                (
+                    "ASML 2025 Annual Report",
+                    "https://ourbrand.asml.com/m/71076aaad607de4d/original/asml-2025-annual-report-based-on-us-gaap.pdf",
+                    "ASML annual report providing the global reference architecture for EUV, DUV, metrology and inspection systems, including 2025 system shipments and research expenditure.",
+                ),
+                (
+                    "SEMI 2025 Global Semiconductor Equipment Billings",
+                    "https://www.semi.org/en/SEMI-Reports-Global-Semiconductor-Equipment-Billings-Reached-135-Billion-in-2025",
+                    "SEMI market statistics for 2025 semiconductor-manufacturing equipment billings by region, including China and the global total.",
+                ),
+                (
+                    "SEMI Equipment and Materials Market Outlook",
+                    "https://www.semi.org/sites/semi.org/files/2025-09/5%20Clark%20Tseng_Building%20the%20Future-AI%20Investment%2C%20Equipment%20%26%20Materials%20Market%20Outlook.pdf",
+                    "SEMI market-outlook presentation covering AI investment, fab equipment and semiconductor-material demand.",
+                ),
+            ]
+        )
+    if any(token in lower for token in ("china", "chinese", "prc")) and any(
+        token in lower for token in ("mlcc", "multilayer ceramic", "passive component", "capacitor")
+    ):
+        candidates.extend(
+            [
+                (
+                    "Fenghua Advanced Technology 2025 Interim Report",
+                    "https://static.cninfo.com.cn/finalpage/2025-08-22/1224535376.PDF",
+                    "Shenzhen exchange-hosted filing covering MLCC and passive-component operations, production, research and financial performance for the first half of 2025.",
+                ),
+                (
+                    "Fenghua Advanced Technology Investor Q&A",
+                    "https://static.cninfo.com.cn/finalpage/2025-08-26/1224574201.PDF",
+                    "Exchange-hosted investor record describing high-capacitance MLCC development, layer counts and application progress.",
+                ),
+                (
+                    "Fenghua Advanced Technology Clarification Announcement",
+                    "https://static.cninfo.com.cn/finalpage/2026-06-30/1225397295.PDF",
+                    "Exchange-hosted clarification that constrains unsupported customer-certification claims and quantifies the current contribution from emerging applications.",
+                ),
+                (
+                    "Chaozhou Three-Circle Group Company Profile",
+                    "https://static.cninfo.com.cn/finalpage/enpage/300408_2.pdf",
+                    "Exchange-hosted English company profile for a Chinese electronic-ceramics and components manufacturer.",
+                ),
+                (
+                    "TDK Integrated Report 2025",
+                    "https://www.tdk.com/system/files/integrated_report_pdf_2025_en.pdf",
+                    "Global passive-components benchmark covering capacitors, sensors, energy applications and financial performance.",
+                ),
+                (
+                    "Murata Value Report 2025",
+                    "https://corporate.murata.com/-/media/corporate/ir/library/murata-value-report/2025_e/murata-value-report-2025-all-for-viewing-e.ashx?cvid=20251023011830000000&la=en",
+                    "Murata integrated report providing a global benchmark for ceramic passive components, manufacturing capability and end-market exposure.",
+                ),
+            ]
+        )
+    if any(token in lower for token in ("gulf", "gcc", "uae", "saudi", "qatar")) and any(
+        token in lower
+        for token in (
+            "semiconductor",
+            "lithography",
+            "wafer equipment",
+            "mlcc",
+            "passive component",
+            "capacitor",
+            "electronics",
+        )
+    ):
+        candidates.extend(
+            [
+                (
+                    "Saudi National Semiconductor Hub",
+                    "https://rdia.gov.sa/en/programs/infrastructure/national-semiconductor-hub-1/",
+                    "Official Saudi government program describing the Kingdom's semiconductor design, manufacturing, talent and startup-development objectives.",
+                ),
+                (
+                    "UAE Operation 300Bn Industrial Strategy",
+                    "https://www.moiat.gov.ae/en/about-us/about-the-strategy",
+                    "Official UAE industrial strategy covering advanced technology, Industry 4.0, local manufacturing and the 2031 industrial-contribution target.",
+                ),
+                (
+                    "Saudi National Industrial Strategy",
+                    "https://www.vision2030.gov.sa/media/t0uiiudv/nsd_en.pdf",
+                    "Official Saudi industrial strategy covering advanced manufacturing, supply-chain development, industrial infrastructure and international partnerships.",
+                ),
+            ]
+        )
+    if any(token in lower for token in ("china", "chinese", "prc")) and any(
+        token in lower for token in ("optical", "fibre", "fiber", "connectivity")
+    ):
+        candidates.extend(
+            [
+                (
+                    "YOFC 2025 Annual Results",
+                    "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0327/2026032703026.pdf",
+                    "Hong Kong exchange filing for Yangtze Optical Fibre and Cable covering 2025 operations, optical-fibre preforms and related products.",
+                ),
+                (
+                    "YOFC 2025 Sustainability Report",
+                    "https://www1.hkexnews.hk/listedco/listconews/sehk/2026/0429/2026042903573.pdf",
+                    "Exchange-hosted YOFC report documenting 400G, 800G and 1.6T optical transceivers, hollow-core and multi-core fibre, overseas production bases and optical-network applications.",
+                ),
+                (
+                    "YOFC 2024 Sustainability Report",
+                    "https://www1.hkexnews.hk/listedco/listconews/sehk/2025/0429/2025042904268.pdf",
+                    "Exchange-hosted YOFC report covering optical-fibre manufacturing, technical development and international operations.",
+                ),
+                (
+                    "DSBJ 2025 Annual Report",
+                    "https://disc.static.szse.cn/download/disc/disk03/finalpage/2026-05-23/dfb085f2-b654-4e3e-a4df-2d53fb360ea4.PDF",
+                    "Shenzhen exchange-hosted annual report covering high-speed optical-module product architecture, market estimates and manufacturing investment.",
+                ),
+                (
+                    "Linktel Technologies Hong Kong Listing Application",
+                    "https://www1.hkexnews.hk/app/sehk/2026/108694/documents/sehk26062902260.pdf",
+                    "Hong Kong exchange-hosted listing application with company-specific 800G-and-above optical-transceiver capacity, shipments and financial disclosure.",
+                ),
+            ]
+        )
+    if any(token in lower for token in ("gulf", "gcc", "uae", "saudi", "qatar")) and any(
+        token in lower for token in ("optical", "fibre", "fiber", "connectivity", "data centre", "data center")
+    ):
+        candidates.extend(
+            [
+                (
+                    "Ooredoo launches 100 Gbps SDN connectivity in Qatar",
+                    "https://www.ooredoo.qa/web/en/press-release/ooredoo-launches-sdn-connect-the-future-of-high-speed-connectivity-in-qatar/",
+                    "Ooredoo Qatar operator release documenting 1, 10, 40 and 100 Gbps service tiers, data-centre interconnect and service availability.",
+                ),
+                (
+                    "Ooredoo forms an international fibre and submarine-cable infrastructure entity",
+                    "https://www.ooredoo.com/en/media/news_view/ooredoo-announces-formation-of-new-international-connectivity-infrastructure-entity-and-appoints-khalid-hassan-al-hamadi-as-ceo/",
+                    "Ooredoo Group release documenting a dedicated vehicle for high-capacity terrestrial fibre and submarine-cable investment.",
+                ),
+                (
+                    "Ooredoo and DE-CIX launch Doha IX",
+                    "https://www.ooredoo.qa/web/en/press-release/ooredoo-launches-doha-ix-qatars-first-commercial-internet-exchange-point-in-partnership-with-de-cix/",
+                    "Operator release on Qatar's commercial internet exchange, data-centre hosting and regional low-latency interconnection.",
+                ),
+                (
+                    "Saudi Internet Report 2025",
+                    "https://www.cst.gov.sa/en/knowledge-center/reports/saudi-internet-report-25-dashboard",
+                    "Saudi regulator statistics covering internet traffic, fixed and mobile network performance, infrastructure and AI-tool adoption.",
+                ),
+                (
+                    "center3 Reference Offer",
+                    "https://mutasilbus.cst.gov.sa/regulations/attachments/DownloadFile/858ksZZAzEhcSJ.LLKKFMyZc0mNfRNHJ2t.JLJVK0g.rsEUrj3XtzWnQemjomqQNKbCNhS0SU7wqXqz4Y1gP0uWKLhtaz9v6KwlPcSkGy00-",
+                    "Saudi regulatory-hosted reference offer covering DWDM, internet exchange points, data centres and high-capacity connectivity services.",
+                ),
+            ]
+        )
     if any(token in lower for token in ("fusion", "tokamak", "plasma", "tritium", "reactor")):
         candidates.extend(
             [
@@ -778,24 +968,81 @@ def _is_pdf(url: str, content_type: str, content: bytes) -> bool:
     return clean_url.endswith(".pdf") or "pdf" in content_type.lower() or content.startswith(b"%PDF")
 
 
-def _extract_pdf_text(content: bytes, max_chars: int = 9000, max_pages: int = 12) -> str:
+def _pdf_query_terms(query: str) -> List[str]:
+    stop = {
+        "and", "company", "filetype", "for", "from", "official", "report",
+        "the", "with", "2024", "2025", "2026",
+    }
+    terms = [
+        token.lower()
+        for token in re.findall(r"[A-Za-z][A-Za-z0-9-]{2,}", query or "")
+        if token.lower() not in stop
+    ]
+    return list(dict.fromkeys(terms))[:18]
+
+
+def _pdf_page_relevance(text: str, query_terms: List[str]) -> float:
+    lower = text.lower()
+    score = sum(min(4, lower.count(term)) for term in query_terms)
+    evidence_phrases = (
+        "annual results", "business overview", "capacity utilisation", "capacity utilization",
+        "designed capacity", "market share", "operating income", "production capacity",
+        "research and development", "revenue", "sales volume", "shipment", "sustainability",
+    )
+    score += sum(4 for phrase in evidence_phrases if phrase in lower)
+    score += min(8, len(re.findall(r"\b\d[\d,.]*\s*(?:%|gbps|mbps|mw|gw|million|billion|units?)\b", lower)))
+    boilerplate = (
+        "take no responsibility for the contents", "application proof is in draft form",
+        "should obtain independent professional advice", "table of contents",
+    )
+    score -= sum(8 for phrase in boilerplate if phrase in lower)
+    return float(score)
+
+
+def _extract_pdf_text(content: bytes, max_chars: int = 18000, max_pages: int = 24, query: str = "") -> str:
     if not content:
         return ""
     try:
         doc = fitz.open(stream=content, filetype="pdf")
     except Exception:
         return ""
-    parts: List[str] = []
-    for page_index in range(min(doc.page_count, max_pages)):
+    query_terms = _pdf_query_terms(query)
+    ranked: List[tuple[float, int, str]] = []
+    identity_pages: List[tuple[int, str]] = []
+    scan_limit = min(doc.page_count, int(os.getenv("GEN_RPT_PDF_SCAN_PAGES", "650")))
+    for page_index in range(scan_limit):
         try:
             text = doc.load_page(page_index).get_text("text")
         except Exception:
             continue
         text = re.sub(r"\s+", " ", text).strip()
-        if text:
-            parts.append(text)
-        if sum(len(x) for x in parts) >= max_chars:
+        if not text:
+            continue
+        if page_index == 0:
+            identity_pages.append((page_index, text[:800]))
+        ranked.append((_pdf_page_relevance(text, query_terms), page_index, text))
+
+    # Long filings often place operating data hundreds of pages after the cover.
+    # Keep a compact identity excerpt, then put the most query-relevant evidence
+    # pages first so downstream prompts do not receive pages of legal boilerplate.
+    selected: List[tuple[int, str]] = list(identity_pages)
+    selected_indexes = {index for index, _ in selected}
+    for _, page_index, text in sorted(ranked, key=lambda row: (-row[0], row[1])):
+        if page_index in selected_indexes:
+            continue
+        selected.append((page_index, text))
+        selected_indexes.add(page_index)
+        if len(selected) >= max_pages:
             break
+    parts: List[str] = []
+    used = 0
+    for page_index, text in selected:
+        remaining = max_chars - used
+        if remaining <= 0:
+            break
+        excerpt = text[:remaining]
+        parts.append(f"[PDF page {page_index + 1}] {excerpt}")
+        used += len(excerpt) + 20
     return "\n".join(parts)[:max_chars]
 
 

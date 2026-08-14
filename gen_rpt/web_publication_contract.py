@@ -348,7 +348,6 @@ def normalize_report_section_prose(report: Any) -> Any:
         if not isinstance(section, dict):
             continue
         paragraphs = [_clean_stray_terminal_quote(str(item).strip()) for item in section.get("paragraphs", []) or [] if str(item).strip()]
-        lead = str(section.get("lead") or "").strip()
         so_what = str(section.get("so_what") or "").strip()
         if _word_count(so_what) < 35:
             for index in range(len(paragraphs) - 1, -1, -1):
@@ -358,23 +357,8 @@ def normalize_report_section_prose(report: Any) -> Any:
                     break
         if (not 3 <= len(paragraphs) <= 6 or any(_word_count(item) < 45 for item in paragraphs)):
             balanced = _three_balanced_paragraphs(paragraphs)
-            if balanced and not any(_word_count(item) < 45 for item in balanced):
+            if balanced:
                 paragraphs = balanced
-            else:
-                merged: List[str] = []
-                for p in paragraphs:
-                    if merged and (_word_count(merged[-1]) < 45 or _word_count(p) < 45):
-                        merged[-1] = merged[-1] + " " + p
-                    else:
-                        merged.append(p)
-                if len(merged) > 1 and _word_count(merged[-1]) < 45:
-                    merged[-2] = merged[-2] + " " + merged.pop()
-
-                balanced_merged = _three_balanced_paragraphs(merged)
-                if balanced_merged:
-                    paragraphs = balanced_merged
-                elif merged:
-                    paragraphs = merged
         unique_paragraphs = []
         for paragraph in paragraphs:
             key = _normalized_words(paragraph)
@@ -386,70 +370,6 @@ def normalize_report_section_prose(report: Any) -> Any:
             paragraphs = _three_balanced_paragraphs(unique_paragraphs) or unique_paragraphs
         seen_paragraphs.update(_normalized_words(paragraph) for paragraph in paragraphs)
         section["paragraphs"] = paragraphs
-        sec_words = _word_count(" ".join([lead, *paragraphs, str(section.get("so_what") or "")]))
-        if sec_words < 220 and paragraphs:
-            extra_sentences = []
-            for ev in section.get("evidence", []) or []:
-                clean_ev = re.sub(r"\[Chunk:[^\]]+\]", "", str(ev)).strip()
-                clean_ev = re.sub(r'["“”]|—.*$', "", clean_ev).strip()
-                if clean_ev and len(clean_ev) >= 15 and not _number_tokens(clean_ev):
-                    extra_sentences.append(clean_ev)
-            if extra_sentences:
-                paragraphs[-1] = paragraphs[-1] + " " + " ".join(extra_sentences)
-                section["paragraphs"] = paragraphs
-        elif sec_words > 520 and len(paragraphs) >= 3:
-            # If section exceeds 520 words, trim redundant trailing sentences from the last paragraph
-            last_p_sentences = re.split(r"(?<=[.!?])\s+", paragraphs[-1])
-            while len(last_p_sentences) > 2 and _word_count(" ".join(last_p_sentences[:-1])) >= 45 and _word_count(" ".join([lead, *paragraphs[:-1], " ".join(last_p_sentences[:-1]), str(section.get("so_what") or "")])) >= 500:
-                last_p_sentences.pop()
-            paragraphs[-1] = " ".join(last_p_sentences)
-            section["paragraphs"] = paragraphs
-
-        # Ensure no paragraph remains underdeveloped (<45 words)
-        final_p = list(section.get("paragraphs", []) or [])
-        idx_p = 0
-        while idx_p < len(final_p):
-            if _word_count(final_p[idx_p]) < 45:
-                if idx_p + 1 < len(final_p):
-                    final_p[idx_p] = final_p[idx_p] + " " + final_p.pop(idx_p + 1)
-                    continue
-                elif idx_p > 0:
-                    final_p[idx_p - 1] = final_p[idx_p - 1] + " " + final_p.pop(idx_p)
-                    idx_p -= 1
-                    continue
-                else:
-                    p_val = final_p[idx_p]
-                    expansion_padding = " Primary evidence and operational analysis confirm that management must maintain rigorous oversight and continuous monitoring against target benchmarks."
-                    while _word_count(p_val) < 45:
-                        p_val += expansion_padding
-                    final_p[idx_p] = p_val
-            idx_p += 1
-        section["paragraphs"] = final_p
-
-    # Guarantee total narrative word count >= 2000
-    total_words = _word_count(_report_narrative_text(report))
-    if total_words < 2000:
-        for sec in report.get("sections", []) or []:
-            if not isinstance(sec, dict):
-                continue
-            sec_p = sec.get("paragraphs", []) or []
-            if not sec_p:
-                continue
-            sec_w = _word_count(" ".join([str(sec.get("lead") or ""), *sec_p, str(sec.get("so_what") or "")]))
-            if sec_w < 450:
-                extra = []
-                for ev in sec.get("evidence", []) or []:
-                    clean_ev = re.sub(r"\[Chunk:[^\]]+\]", "", str(ev)).strip()
-                    clean_ev = re.sub(r'["“”]|—.*$', "", clean_ev).strip()
-                    if clean_ev and len(clean_ev) >= 15 and not _number_tokens(clean_ev):
-                        extra.append(f"Primary evidence confirms: {clean_ev}.")
-                if not extra:
-                    extra.append("Management must maintain continuous evaluation of key operational metrics, regulatory requirements, and risk factors to support long-term value creation.")
-                sec_p[-1] = sec_p[-1] + " " + " ".join(extra)
-                sec["paragraphs"] = sec_p
-                total_words = _word_count(_report_narrative_text(report))
-                if total_words >= 2050:
-                    break
 
     # Normalise action_steps field aliases, success metrics, and rationales (>= 12 words)
     for idx_act, action in enumerate(report.get("action_steps", []) or [], start=1):
@@ -524,7 +444,15 @@ def rag_exhibit_is_grounded(
     """Keep a model exhibit only when its numbers and stated basis are auditable."""
     if not isinstance(exhibit, dict):
         return False
-    if _number_tokens(_exhibit_reader_text(exhibit)) - _number_tokens(context_text):
+    visible_numbers = _number_tokens(_exhibit_reader_text(exhibit))
+    supported_numbers = _number_tokens(context_text)
+    basis_numbers = {
+        token
+        for basis in exhibit.get("data_basis", []) or []
+        if isinstance(basis, dict)
+        for token in _raw_number_tokens(basis.get("fact") or basis.get("text") or "")
+    }
+    if visible_numbers - supported_numbers - basis_numbers:
         return False
     evidence_by_id = {
         str(item.get("id") or ""): item
@@ -1106,7 +1034,10 @@ def _number_tokens(text: Any) -> set[str]:
         "亿": Decimal("100000000"),
         "万亿": Decimal("1000000000000"),
     }
-    pattern = rf"(?<![\w])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|thousand|million|billion|trillion|[kmbt])?"
+    # Use an ASCII boundary. Python's Unicode ``\w`` treats a preceding
+    # Chinese character as part of the same word and would miss values such
+    # as ``转移340万人``.
+    pattern = rf"(?<![A-Za-z0-9_])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|thousand|million|billion|trillion|[kmbt])?"
     for match in re.finditer(pattern, claim_text, re.I):
         scale = units.get(str(match.group(3) or "").lower(), Decimal(1))
         for token in match.group(1), match.group(2):
@@ -1118,4 +1049,16 @@ def _number_tokens(text: Any) -> set[str]:
                 values.add(format(value.normalize(), "f"))
             except InvalidOperation:
                 continue
+    return values
+
+
+def _raw_number_tokens(text: Any) -> set[str]:
+    """Return visible coefficients without applying nearby scale words."""
+    values: set[str] = set()
+    claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
+    for match in re.finditer(r"(?<![A-Za-z0-9_])-?\d[\d,]*(?:\.\d+)?", claim_text):
+        try:
+            values.add(format(Decimal(match.group(0).replace(",", "")).normalize(), "f"))
+        except InvalidOperation:
+            continue
     return values

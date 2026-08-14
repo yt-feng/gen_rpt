@@ -921,6 +921,9 @@ def _format_human_evidence_item(item: Any, language: str = "en") -> str:
         # records, not presentation-ready evidence.  Partial regex cleanup would
         # expose their remaining keys or source-language excerpts.
         if parsed is None and internal_serialized:
+            chunk_quote = re.search(r'\]\s*["“](.{20,}?)["”](?:\s*(?:-|—).*)?$', text_item)
+            if chunk_quote:
+                return clean_client_text(chunk_quote.group(1).strip())
             return ""
 
     if isinstance(parsed, dict):

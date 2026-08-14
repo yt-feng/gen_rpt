@@ -745,7 +745,7 @@ def _split_sentences(text: str) -> List[str]:
     text = re.sub(r"\s+", " ", str(text or "")).strip()
     if not text:
         return []
-    parts = re.split(r"(?<=[。！？；;.!?])\s*|[\r\n]+", text)
+    parts = re.split(r"(?<=[。！？；;!?])\s*|(?<!\d)\.(?!\d)\s*|[\r\n]+", text)
     out = []
     for part in parts:
         part = part.strip(" -•\t")

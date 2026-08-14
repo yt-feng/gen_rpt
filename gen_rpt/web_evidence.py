@@ -287,7 +287,6 @@ def build_storyline_plan(
             "coverage_requirements": ["executive thesis", "source-backed findings", "causal mechanisms", "counter-evidence and risks", "decision implications", "evidence-based actions"],
             "core_question": decision_question,
             "central_thesis": "先由公开证据决定报告主线，再把数据、时间线和管理含义串成可执行判断。",
-            "central_thesis": "先由公开证据决定报告主线，再把数据、时间线和管理含义串成可执行判断。",
             "narrative_focus": "围绕证据最密集的主题推进：" + "、".join(strongest[:4]),
             "structure_logic": "先说明管理层问题，再呈现源自事实包的数据图表，随后讨论商业含义、风险和行动门槛。",
             "evidence_must_cover": facts,
@@ -1675,7 +1674,7 @@ def _as_list(value: Any) -> List[Any]:
 
 
 def _split_sentences(text: str) -> List[str]:
-    chunks = re.split(r"(?<=[.!?。！？；;])\s+|\n+", str(text or ""))
+    chunks = re.split(r"(?<=[!?。！？；;])\s+|(?<!\d)\.(?!\d)\s+|\n+", str(text or ""))
     return [chunk.strip() for chunk in chunks if chunk and len(chunk.strip()) >= 20]
 
 

@@ -8,20 +8,30 @@ from tempfile import TemporaryDirectory
 from types import SimpleNamespace
 from unittest import mock
 
+import pytest
+import fitz
 from PIL import Image
 
 from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _response_content
 from gen_rpt.research_quality import build_research_fact_pack
+from gen_rpt.web_evidence import build_evidence_ledger
 from gen_rpt.gatex_whitepaper_pipeline import (
     _authors,
     _architecture_prompt,
     _chart_label_issues,
     _citation_rows,
+    _claim_identity_tokens,
     _clean_editorial_evidence,
     _collect_research,
+    _complete_exhibit_information_units,
+    _complete_sparse_exhibit,
     _english_source_title,
     _editorial_source_excerpt,
+    _editorial_issues,
     _fallback_queries,
+    _merge_named_region_evidence,
+    _regional_anchor_queries,
+    _required_source_regions,
     _FailoverEditorialClient,
     _generate_visuals,
     _architecture_issues,
@@ -42,13 +52,21 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _sanitize_visual_brief,
     _reporting_period_issues,
     _sanitize_research_sources,
+    _sanitize_editorial_paragraphs,
+    _source_is_topic_contamination,
+    _source_is_regional_anchor,
+    _source_matches_region,
     _source_packet,
     _source_tier,
+    _source_supports_claim,
+    _numeric_claim_issues,
+    _exhibit_subject_issues,
     _uniform_dark_region_issue,
     semantic_visual_quality_issues,
     visual_quality_issues,
 )
 from gen_rpt.web_fetch import SourceDocument
+from gen_rpt.web_fetch import _direct_source_candidates, _extract_pdf_text
 
 
 def test_gpt_model_uses_apimart_endpoint() -> None:
@@ -457,6 +475,517 @@ def test_source_packet_rejects_social_and_prediction_market_sources() -> None:
     assert not any("polymarket" in row["domain"] or "youtube" in row["domain"] for row in rows)
 
 
+def test_named_regions_receive_priority_anchor_queries() -> None:
+    topic = "Optical Modules and Fibre: China Supply Depth and Gulf Connectivity"
+    queries = _regional_anchor_queries(topic)
+    assert _required_source_regions(topic) == ["china", "gulf"]
+    assert any("stock exchange" in query.lower() for query in queries)
+    assert any(
+        all(token in query.lower() for token in ("gulf", "gcc", "regulator", "operator"))
+        for query in queries
+    )
+    assert any("site:tdra.gov.ae" in query for query in queries)
+
+
+def test_curated_primary_source_order_is_stable() -> None:
+    results = _direct_source_candidates(
+        "China semiconductor lithography equipment official filings"
+    )
+    assert [result.title for result in results[:4]] == [
+        "NAURA Technology 2025 Annual Report",
+        "AMEC 2025 Interim Report",
+        "AMEC Shanghai Stock Exchange Company Profile",
+        "ASML 2025 Annual Report",
+    ]
+
+
+def test_region_names_are_not_treated_as_company_identity_tokens() -> None:
+    assert _claim_identity_tokens(
+        "Gulf connectivity capacity reached 100 Gbps in 2025."
+    ) == set()
+    assert _claim_identity_tokens(
+        "China semiconductor equipment revenue reached USD 2 billion in 2025."
+    ) == set()
+
+
+def test_region_matching_uses_source_evidence_not_search_query_only() -> None:
+    unrelated = {
+        "title": "U.S. grid resilience",
+        "url": "https://energy.gov/grid",
+        "domain": "energy.gov",
+        "query": "China Gulf optical connectivity",
+        "content": "United States electricity infrastructure evidence.",
+    }
+    operator = {
+        "title": "Regional fibre expansion",
+        "url": "https://www.eand.com/en/news/fibre-expansion.html",
+        "domain": "eand.com",
+        "content": "The operator expanded connectivity across the United Arab Emirates.",
+    }
+    assert not _source_matches_region(unrelated, "china")
+    assert not _source_matches_region(unrelated, "gulf")
+    assert _source_matches_region(operator, "gulf")
+
+
+def test_exchange_and_gulf_policy_domains_are_regional_authority_anchors() -> None:
+    china_sources = [
+        {
+            "title": "NAURA Technology 2025 Annual Report",
+            "url": "https://static.cninfo.com.cn/finalpage/2026-04-18/1225122918.PDF",
+        },
+        {
+            "title": "AMEC 2025 Interim Report",
+            "url": "https://star.sse.com.cn/disclosure/listedinfo/announcement/report.pdf",
+        },
+    ]
+    gulf_sources = [
+        {
+            "title": "Saudi National Semiconductor Hub",
+            "url": "https://rdia.gov.sa/en/programs/infrastructure/national-semiconductor-hub-1/",
+        },
+        {
+            "title": "UAE Operation 300Bn Industrial Strategy",
+            "url": "https://www.moiat.gov.ae/en/about-us/about-the-strategy",
+        },
+        {
+            "title": "Saudi National Industrial Strategy",
+            "url": "https://www.vision2030.gov.sa/media/national-industrial-strategy.pdf",
+        },
+    ]
+
+    assert all(_source_is_regional_anchor(source, "china") for source in china_sources)
+    assert all(_source_is_regional_anchor(source, "gulf") for source in gulf_sources)
+
+
+def test_optical_topic_rejects_generic_grid_storage_anchors() -> None:
+    source = SourceDocument(
+        title="U.S. DOE Office of Electricity",
+        url="https://www.energy.gov/oe/office-electricity",
+        query="optical connectivity power capacity",
+        snippet="Public source on grid modernization and storage programs.",
+        content="The Office of Electricity supports grid modernization and grid-scale storage. " * 10,
+        domain="energy.gov",
+    )
+    assert _source_is_topic_contamination(
+        source,
+        "Optical Modules and Fibre: China Supply Depth and Gulf Connectivity",
+    )
+    assert not _source_is_topic_contamination(source, "Grid-scale energy storage in the Gulf")
+
+
+def test_named_region_evidence_reserves_gulf_operator_points() -> None:
+    china_sources = [
+        SourceDocument(
+            title=f"China optical filing {index}",
+            url=f"https://www1.hkexnews.hk/china-optical-{index}.pdf",
+            query="China optical filing",
+            snippet=f"China optical manufacturer reported {40 + index}% growth in 2025.",
+            content=(f"China optical manufacturer reported {40 + index}% growth in 2025. " * 20),
+            source_type="pdf",
+            domain="www1.hkexnews.hk",
+        )
+        for index in range(8)
+    ]
+    gulf_sources = [
+        SourceDocument(
+            title="Ooredoo launches 100 Gbps connectivity",
+            url="https://www.ooredoo.qa/connectivity",
+            query="Gulf optical connectivity",
+            snippet="Qatar service tiers include 1 Gbps, 10 Gbps, 40 Gbps and 100 Gbps.",
+            content=(
+                "Qatar service tiers include 1 Gbps, 10 Gbps, 40 Gbps and 100 Gbps, with 99.9% availability in 2025. "
+                * 12
+            ),
+            domain="ooredoo.qa",
+        ),
+        SourceDocument(
+            title="Saudi Internet Report 2025",
+            url="https://www.cst.gov.sa/internet-report",
+            query="Gulf connectivity regulator",
+            snippet="Saudi fixed-network performance reached 216 Mbps in 2025.",
+            content=("Saudi fixed-network performance reached 216 Mbps and 99.6% coverage in 2025. " * 12),
+            domain="cst.gov.sa",
+        ),
+    ]
+    sources = [*china_sources, *gulf_sources]
+    plan = {"objective": "Optical connectivity", "decision_question": "What is documented?"}
+    fact_pack = build_research_fact_pack("Optical connectivity", plan, sources)
+    evidence = _merge_named_region_evidence(
+        topic="Optical Modules and Fibre: China Supply Depth and Gulf Connectivity",
+        brief="Evidence-led",
+        sources=sources,
+        fact_pack=fact_pack,
+        plan=plan,
+        limit=12,
+        per_region=3,
+    )
+    gulf_urls = {source.url for source in gulf_sources}
+    gulf_rows = [row for row in evidence if row["source_url"] in gulf_urls]
+    assert len(gulf_rows) >= 3
+    assert len({row["source_url"] for row in gulf_rows}) == 2
+
+
+def test_named_region_evidence_keeps_two_sources_when_one_has_many_metrics() -> None:
+    metric_heavy = SourceDocument(
+        title="Saudi National Industrial Strategy",
+        url="https://www.vision2030.gov.sa/media/strategy.pdf",
+        query="Gulf semiconductor industrial strategy",
+        snippet="Saudi advanced manufacturing strategy.",
+        content=(
+            "Saudi advanced manufacturing targets 45% localization, 40 projects, USD 12 billion of investment and 90% supplier coverage by 2030. "
+            * 12
+        ),
+        source_type="pdf",
+        domain="vision2030.gov.sa",
+    )
+    policy = SourceDocument(
+        title="Saudi National Semiconductor Hub",
+        url="https://rdia.gov.sa/en/programs/infrastructure/national-semiconductor-hub-1/",
+        query="Gulf semiconductor policy",
+        snippet="Official semiconductor design and manufacturing program.",
+        content=(
+            "The Saudi National Semiconductor Hub launched in 2026 to coordinate semiconductor design, manufacturing, talent and startup development. "
+            * 12
+        ),
+        domain="rdia.gov.sa",
+    )
+    sources = [metric_heavy, policy]
+    topic = "Semiconductor equipment and lithography in the Gulf"
+    plan = {"objective": topic, "decision_question": "What is documented?"}
+    fact_pack = build_research_fact_pack(topic, plan, sources)
+
+    evidence = _merge_named_region_evidence(
+        topic=topic,
+        brief="Saudi semiconductor industrial relevance",
+        sources=sources,
+        fact_pack=fact_pack,
+        plan=plan,
+        limit=8,
+        per_region=5,
+    )
+
+    gulf_rows = [row for row in evidence if _source_matches_region(row, "gulf")]
+    assert len(gulf_rows) >= 3
+    assert len({row["source_url"] for row in gulf_rows}) == 2
+
+
+def test_named_region_evidence_keeps_two_authorities_when_second_has_only_a_date() -> None:
+    metric_heavy = SourceDocument(
+        title="Saudi National Industrial Strategy",
+        url="https://www.vision2030.gov.sa/media/strategy.pdf",
+        query="Gulf semiconductor industrial strategy",
+        snippet="Saudi advanced manufacturing strategy.",
+        content=(
+            "Saudi industrial capacity reached 45 percent across 40 projects with USD 12 billion of investment in 2025. "
+            * 12
+        ),
+        source_type="pdf",
+        domain="vision2030.gov.sa",
+    )
+    dated_policy = SourceDocument(
+        title="Saudi National Semiconductor Hub",
+        url="https://rdia.gov.sa/en/programs/infrastructure/national-semiconductor-hub-1/",
+        query="Gulf semiconductor policy",
+        snippet="Official semiconductor design and manufacturing program.",
+        content=(
+            "The Saudi National Semiconductor Hub launched in 2026 to coordinate semiconductor design, "
+            "manufacturing, talent and startup development. " * 12
+        ),
+        domain="rdia.gov.sa",
+    )
+    unrelated = SourceDocument(
+        title="UAE construction material statistics",
+        url="https://example.ae/construction",
+        query="Gulf industry",
+        snippet="UAE stone market statistics.",
+        content="UAE stone imports represented 90 percent of demand in 2025. " * 12,
+        domain="example.ae",
+    )
+    sources = [metric_heavy, dated_policy, unrelated]
+    topic = "Semiconductor equipment and lithography in the Gulf"
+    plan = {"objective": topic, "decision_question": "What is documented?"}
+    fact_pack = build_research_fact_pack(topic, plan, sources)
+
+    evidence = _merge_named_region_evidence(
+        topic=topic,
+        brief="Saudi semiconductor industrial relevance",
+        sources=sources,
+        fact_pack=fact_pack,
+        plan=plan,
+        limit=8,
+        per_region=5,
+    )
+
+    authority_urls = {metric_heavy.url, dated_policy.url}
+    authority_rows = [row for row in evidence if row["source_url"] in authority_urls]
+    assert len(authority_rows) >= 3
+    assert {row["source_url"] for row in authority_rows} == authority_urls
+
+
+def test_decimal_percent_is_not_split_into_false_fragment() -> None:
+    source = SourceDocument(
+        title="Operator service-level release",
+        url="https://www.ooredoo.qa/service-level",
+        query="Gulf connectivity",
+        snippet="Service level availability reaches 99.9%.",
+        content="The service-level agreement provides up to 99.9% availability for enterprise connectivity.",
+        domain="ooredoo.qa",
+    )
+    plan = {"objective": "Gulf connectivity", "decision_question": "What is documented?"}
+    fact_pack = build_research_fact_pack("Gulf connectivity", plan, [source])
+    evidence = build_evidence_ledger("Gulf connectivity", [source], fact_pack, plan=plan)
+    assert any(row["display_value"] == "99.9%" for row in evidence)
+    assert not any(row["display_value"] == "9%" for row in evidence)
+
+
+def test_sparse_two_metric_exhibit_is_completed_with_comparison_panel() -> None:
+    exhibit = _complete_sparse_exhibit(
+        {
+            "heading": "Designed capacity increased",
+            "metrics": [
+                {"value": "0.6M", "label": "Capacity in December 2025", "note": "Exchange filing"},
+                {"value": "1.6M", "label": "Capacity in April 2026", "note": "Exchange filing"},
+            ],
+            "panels": [],
+        }
+    )
+    assert exhibit["panels"][0]["type"] == "comparison"
+    assert _exhibit_information_units(exhibit) >= 6
+
+
+def test_editorial_paragraphs_remove_non_usd_units_and_trim_density() -> None:
+    paragraph = (
+        "The filing reported RMB 200 million of revenue. "
+        + "Evidence supports operating scale and delivery capacity across the optical supply chain. " * 14
+    )
+    cleaned = _sanitize_editorial_paragraphs(
+        {"paragraphs": [paragraph, paragraph, paragraph, paragraph]},
+        maximum_words_per_paragraph=100,
+    )
+    assert not any("RMB" in item for item in cleaned["paragraphs"])
+    assert all(len(item.split()) <= 100 for item in cleaned["paragraphs"])
+
+
+def test_source_packet_requires_each_named_region() -> None:
+    sources = [
+        {
+            "title": f"China official filing {index}",
+            "url": f"https://disc.static.szse.cn/report-{index}.pdf",
+            "domain": "disc.static.szse.cn",
+            "source_type": "pdf",
+            "content": "China optical module manufacturing evidence " * 40,
+        }
+        for index in range(8)
+    ]
+    with pytest.raises(Exception, match="gulf"):
+        _source_packet(
+            {"sources": sources},
+            topic="Optical Modules and Fibre: China Supply Depth and Gulf Connectivity",
+        )
+
+
+def test_chapter_named_region_requires_matching_source_id() -> None:
+    chapter = {
+        "number": "04",
+        "title": "Gulf connectivity demand",
+        "deck": "Saudi and Qatari operators are expanding fibre interconnection.",
+        "callout": "Operator evidence anchors regional demand.",
+        "opening": "Regional interconnection is expanding.",
+        "subsections": [
+            {"heading": f"Layer {index}", "paragraphs": ["Evidence " * 45, "Context " * 45]}
+            for index in range(4)
+        ],
+        "sourceIds": ["S1", "S2"],
+    }
+    content = {
+        "executiveSummary": {"paragraphs": ["Evidence " * 85] * 4, "sourceIds": ["S1", "S2"]},
+        "chapters": [chapter] * 4,
+        "exhibits": [],
+        "outlook": {"paragraphs": ["Evidence " * 75] * 3, "sourceIds": ["S1", "S2"]},
+        "visuals": [
+            {"id": identifier}
+            for identifier in ("executive-summary", "chapter-1", "chapter-2", "chapter-3", "chapter-4")
+        ],
+    }
+    source_map = {
+        "S1": {"title": "China filing", "domain": "szse.cn", "url": "https://szse.cn/a", "content": "China filing"},
+        "S2": {"title": "Global standard", "domain": "itu.int", "url": "https://itu.int/a", "content": "Global standard"},
+    }
+    issues = _editorial_issues(content, {"S1", "S2"}, {"S1"}, source_map)
+    assert any("chapter 1 names gulf" in issue.lower() for issue in issues)
+
+
+def test_numeric_claim_requires_exact_marker_and_subject_in_cited_source() -> None:
+    source = {
+        "title": "Linktel Technologies Hong Kong Listing Application",
+        "domain": "hkexnews.hk",
+        "url": "https://hkexnews.hk/linktel.pdf",
+        "content": "Linktel is a Chinese company. Linktel designed capacity for 800G-and-above transceivers reached 1.6 million units in April 2026.",
+    }
+    assert _source_supports_claim(source, "Linktel capacity reached 1.6 million units in April 2026.")
+    assert not _source_supports_claim(source, "Linktel capacity reached 43.3 million units in April 2026.")
+
+
+def test_generic_filing_title_uses_document_body_for_subject_identity() -> None:
+    source = {
+        "title": "printmgr file",
+        "domain": "hkexnews.hk",
+        "url": "https://hkexnews.hk/application-proof.pdf",
+        "content": "Linktel Technologies designed capacity for 800G-and-above transceivers reached 1.6 million units in April 2026.",
+    }
+    assert _source_supports_claim(source, "Linktel's designed capacity reached 1.6 million units in April 2026.")
+
+
+def test_translated_metric_matches_chinese_primary_filing_by_value_and_company() -> None:
+    source = {
+        "title": "Fenghua Advanced Technology 2025 Interim Report",
+        "domain": "static.cninfo.com.cn",
+        "url": "https://static.cninfo.com.cn/fenghua-2025-interim.pdf",
+        "content": "Fenghua Advanced Technology 2025 interim report. 汽车电子销售同比增长39%，研发投入持续增加。",
+    }
+    claim = (
+        "Fenghua Advanced Technology: first-half 2025 operating indicators "
+        "39% Automotive electronics sales growth Year-on-year increase"
+    )
+    assert _source_supports_claim(source, claim)
+    assert not _source_supports_claim(source, claim.replace("39%", "49%"))
+
+
+def test_exchange_url_date_can_support_filing_date_attribution() -> None:
+    source = {
+        "title": "printmgr file",
+        "domain": "hkexnews.hk",
+        "url": "https://hkexnews.hk/app/sehk/2026/documents/sehk26062902260.pdf",
+        "content": "Linktel designed capacity reached 1.6 million units as of April 2026.",
+    }
+    claim = "Linktel's designed capacity reached 1.6 million units by April 2026, according to its listing application dated 29 June 2026."
+    assert _source_supports_claim(source, claim)
+
+
+def test_compound_numeric_sentence_can_be_supported_by_two_cited_filings() -> None:
+    sources = [
+        {
+            "title": "YOFC 2025 Annual Results",
+            "domain": "hkexnews.hk",
+            "url": "https://hkexnews.hk/yofc.pdf",
+            "content": "YOFC revenue rose 16.8% in 2025 and gross margin reached 30.7%.",
+        },
+        {
+            "title": "Linktel listing application",
+            "domain": "hkexnews.hk",
+            "url": "https://hkexnews.hk/linktel.pdf",
+            "content": "Linktel designed capacity for 800G-and-above transceivers reached 1.6 million units in April 2026.",
+        },
+    ]
+    section = {
+        "paragraphs": [
+            "YOFC's 2025 revenue rose 16.8% with gross margin at 30.7%, while Linktel's designed capacity reached 1.6 million units by April 2026."
+        ]
+    }
+    assert not _numeric_claim_issues(section, sources, "executive summary")
+
+
+def test_single_company_metric_cannot_be_generalised_to_plural_suppliers() -> None:
+    source = {
+        "title": "Linktel Technologies Hong Kong Listing Application",
+        "domain": "hkexnews.hk",
+        "url": "https://hkexnews.hk/linktel.pdf",
+        "content": "Linktel is a Chinese company. Linktel designed capacity for 800G-and-above transceivers reached 1.6 million units in April 2026.",
+    }
+    section = {
+        "paragraphs": ["Chinese optical suppliers reached 1.6 million units of capacity in April 2026."],
+    }
+    issues = _numeric_claim_issues(section, [source], "executive summary")
+    assert any("single-source company metric" in issue for issue in issues)
+
+
+def test_country_specific_exhibit_rejects_metric_from_another_country() -> None:
+    exhibit = {
+        "heading": "Saudi Arabia's regulatory baseline",
+        "metrics": [
+            {
+                "value": "2030",
+                "label": "Qatar National Vision target",
+                "note": "Ooredoo Doha IX press release",
+            }
+        ],
+    }
+    sources = [
+        {
+            "title": "Ooredoo Doha IX",
+            "domain": "ooredoo.qa",
+            "url": "https://ooredoo.qa/doha-ix",
+            "content": "Doha IX advances Qatar National Vision 2030.",
+        }
+    ]
+    issues = _exhibit_subject_issues(exhibit, sources, 4)
+    assert any("framed as" in issue and "qatar" in issue.lower() for issue in issues)
+
+
+def test_exhibit_comparison_rejects_unsourced_panel_value() -> None:
+    exhibit = {
+        "heading": "NAURA Technology revenue growth, 2025",
+        "sourceIds": ["S1"],
+        "metrics": [],
+        "panels": [
+            {
+                "type": "comparison",
+                "title": "Reported growth",
+                "columns": ["Revenue", "R&D"],
+                "items": [
+                    {"metric": "Year-on-year growth", "left": "30.85%", "right": "19.6%"},
+                ],
+            }
+        ],
+    }
+    sources = [
+        {
+            "title": "NAURA Technology 2025 Annual Report",
+            "domain": "static.cninfo.com.cn",
+            "url": "https://static.cninfo.com.cn/naura-2025.pdf",
+            "content": "NAURA Technology 2025 annual report. 营业收入同比增长30.85%。",
+        }
+    ]
+
+    issues = _exhibit_subject_issues(exhibit, sources, 1)
+
+    assert any("19.6%" in issue and "panel value" in issue for issue in issues)
+    assert not any("30.85%" in issue for issue in issues)
+
+
+def test_architecture_prompt_forbids_self_calculated_currency_conversion() -> None:
+    prompt = _architecture_prompt(
+        title="Semiconductor Equipment",
+        topic="China capability and Gulf industrial relevance",
+        brief="Use primary evidence.",
+        sources=[],
+        evidence=[],
+    )
+
+    assert "Never calculate or estimate a currency conversion" in prompt
+    assert "Do not represent missing evidence as a numeric zero" in prompt
+
+
+def test_pdf_extraction_prioritises_relevant_operating_pages_over_boilerplate() -> None:
+    document = fitz.open()
+    cover = document.new_page()
+    cover.insert_text((72, 72), "Application proof is in draft form. The exchange takes no responsibility for the contents.")
+    for index in range(8):
+        page = document.new_page()
+        page.insert_text((72, 72), f"Legal restriction and distribution notice {index}.")
+    evidence = document.new_page()
+    evidence.insert_text(
+        (72, 72),
+        "Optical transceiver designed capacity reached 1.6 million units in April 2026, with 78.3% capacity utilization.",
+    )
+    payload = document.tobytes()
+    document.close()
+
+    extracted = _extract_pdf_text(payload, max_chars=3_000, max_pages=4, query="optical transceiver production capacity")
+    assert "1.6 million units" in extracted
+    assert "[PDF page 10]" in extracted
+
+
 def test_citation_rows_cap_prevents_footnote_only_overflow_page() -> None:
     source_map = {
         f"S{index}": {
@@ -848,6 +1377,16 @@ def test_source_title_dashes_are_normalized_for_pdf_typography() -> None:
         "domain": "iea.org",
     }
     assert _english_source_title(source) == "Electricity Mid-Year Update 2025 - Analysis - IEA"
+
+
+def test_generic_pdf_metadata_title_uses_filing_identity() -> None:
+    source = {
+        "title": "printmgr file",
+        "domain": "www1.hkexnews.hk",
+        "url": "https://www1.hkexnews.hk/app/example.pdf",
+        "content": "Application Proof of Linktel Technologies Co., Ltd. (the Company) WARNING",
+    }
+    assert _english_source_title(source) == "Linktel Technologies Co., Ltd Hong Kong Listing Application"
 
 
 def test_malformed_comparison_panel_falls_back_to_populated_matrix() -> None:
@@ -1258,6 +1797,31 @@ def test_incomplete_optional_exhibit_panel_is_dropped() -> None:
     normalized = _normalize_exhibit_panels(panels)
     assert len(normalized) == 1
     assert normalized[0]["type"] == "matrix"
+
+
+def test_sparse_exhibit_panel_is_replaced_with_dense_metric_comparison() -> None:
+    exhibit = {
+        "heading": "Optical module market outlook",
+        "metrics": [
+            {"value": "$5.3B", "label": "Telecom modules, 2026", "note": "DSBJ projection"},
+            {"value": "$100B", "label": "AI interconnects, 2030", "note": "DSBJ projection"},
+        ],
+        "panels": [
+            {
+                "type": "scenario",
+                "items": [
+                    {"label": "2026", "range": "Telecom", "body": "Projected market size."},
+                    {"label": "2028", "range": "3.2T", "body": "Expected adoption ramp."},
+                    {"label": "2030", "range": "AI", "body": "Projected interconnect sales."},
+                ],
+            }
+        ],
+    }
+
+    completed = _complete_exhibit_information_units(exhibit)
+
+    assert completed["panels"][0]["type"] == "comparison"
+    assert _exhibit_information_units(completed) >= 6
 
 
 def test_empty_exhibit_panel_fails_release_renderability_gate() -> None:
