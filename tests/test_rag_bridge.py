@@ -817,11 +817,13 @@ class RAGBridgeTests(unittest.TestCase):
             approved,
             {},
             evidence_conflicts=[{"id": "C1", "web": {"fact": source.content}}],
+            stance="validation_only",
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
         self.assertIn("documented corridor approval", prompt)
         self.assertIn("CONFLICT REGISTER", prompt)
+        self.assertIn("RECOMMENDATION BOUNDARY: validation_only", prompt)
         self.assertIn("paragraphs must be a JSON array", prompt)
         self.assertEqual(prompt.count("A conflicting raw source reports 72% acceptance."), 1)
 
@@ -950,6 +952,14 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(removed, [])
         self.assertEqual(len(report["key_takeaways"]), 3)
 
+    def test_numeric_gate_ignores_bubble_geometry_and_matches_abbreviated_units(self):
+        exhibit = {
+            "type": "bubble",
+            "points": [{"label": "2024: $302M", "x": 74.05, "y": 63.2, "size": 48.6}],
+        }
+
+        self.assertTrue(rag_visible_numbers_supported(exhibit, "In 2024, funding reached $0.302 billion."))
+
     def test_report_revision_receives_the_rejected_draft_and_quality_corrections(self):
         client = Mock()
         client.chat_json.return_value = {"title": "Revised report"}
@@ -1017,9 +1027,10 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(revised["sections"], rejected["sections"])
         self.assertEqual(revised["action_steps"], rejected["action_steps"])
 
+    @patch("gen_rpt.web_report_pipeline.normalize_report_section_prose")
     @patch("gen_rpt.web_report_pipeline.report_content_quality_issues")
     @patch("gen_rpt.web_report_pipeline.normalize_web_report")
-    def test_final_quality_rescue_continues_until_the_revised_report_passes(self, normalize, quality_issues):
+    def test_final_quality_rescue_continues_until_the_revised_report_passes(self, normalize, quality_issues, normalize_prose):
         pipeline = WebReportPipeline(Mock())
         pipeline._revise_report_draft = Mock(side_effect=lambda report, _issues, _plan: report)
         pipeline._prepare_report_draft = Mock(side_effect=lambda report, **_kwargs: (report, []))
@@ -1040,6 +1051,7 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(remaining, [])
         self.assertEqual(pipeline._revise_report_draft.call_count, 2)
         self.assertEqual(quality_issues.call_count, 2)
+        self.assertEqual(normalize_prose.call_count, 2)
 
     def test_normalization_preserves_exact_rag_citations_for_internal_validation(self):
         citation = '[Chunk: chunk-1] "Validated flood-resilience evidence." — Governing evidence.'

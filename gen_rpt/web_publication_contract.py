@@ -1066,13 +1066,18 @@ def _exhibit_reader_text(exhibit: Any) -> str:
         return ""
     parts = [
         str(exhibit.get(key) or "")
-        for key in ("title", "subtitle", "caption", "source_note", "footnote", "evidence_quality")
+        for key in ("title", "subtitle", "caption", "source_note", "footnote", "evidence_quality", "x_label", "y_label")
     ]
     for key in (
         "metrics", "items", "events", "steps", "categories", "labels", "x_labels",
-        "rows", "columns", "values", "series", "points", "point_labels", "estimated_points", "data",
+        "rows", "columns", "values", "series", "point_labels", "estimated_points", "data",
     ):
         parts.append(_visible_value_text(exhibit.get(key)))
+    parts.extend(
+        str(point.get("label") or "")
+        for point in exhibit.get("points", []) or []
+        if isinstance(point, dict)
+    )
     return "\n".join(parts)
 
 
@@ -1089,6 +1094,10 @@ def _number_tokens(text: Any) -> set[str]:
     claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
     number = r"-?\s*[$€£]?\s*\d[\d,]*(?:\.\d+)?"
     units = {
+        "k": Decimal("1000"),
+        "m": Decimal("1000000"),
+        "b": Decimal("1000000000"),
+        "t": Decimal("1000000000000"),
         "thousand": Decimal("1000"),
         "million": Decimal("1000000"),
         "billion": Decimal("1000000000"),
@@ -1097,7 +1106,7 @@ def _number_tokens(text: Any) -> set[str]:
         "亿": Decimal("100000000"),
         "万亿": Decimal("1000000000000"),
     }
-    pattern = rf"(?<![\w])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|thousand|million|billion|trillion)?"
+    pattern = rf"(?<![\w])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|thousand|million|billion|trillion|[kmbt])?"
     for match in re.finditer(pattern, claim_text, re.I):
         scale = units.get(str(match.group(3) or "").lower(), Decimal(1))
         for token in match.group(1), match.group(2):

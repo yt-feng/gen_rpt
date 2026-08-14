@@ -396,6 +396,7 @@ class WebReportPipeline:
             language=self.language,
             allow_synthetic_fallbacks=not bool(self.rag_context),
         )
+        normalize_report_section_prose(report)
         if self.rag_context:
             final_quality_issues = rag_report_quality_issues(
                 report,
@@ -718,6 +719,7 @@ class WebReportPipeline:
                 language=self.language,
                 allow_synthetic_fallbacks=not bool(self.rag_context),
             )
+            normalize_report_section_prose(report)
             issues = (
                 rag_report_quality_issues(
                     report,
@@ -1176,6 +1178,7 @@ Requirements:
         evidence_ledger: List[Dict[str, Any]],
         storyline_plan: Dict[str, Any],
         evidence_conflicts: List[Dict[str, Any]] | None = None,
+        stance: str = "validation_only",
     ) -> Dict[str, Any]:
         source_blocks = []
         synthesis_sources = [] if self.rag_context else sources
@@ -1265,6 +1268,8 @@ Source excerpts:
 Client-visible publication contract:
 {contract_text}
 
+Recommendation boundary: {stance}. Do not recommend a stronger commitment than this boundary.
+
 Required fields:
 title, dek, category, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
 
@@ -1302,6 +1307,8 @@ Writing rules:
             user = f"""Generate a factual evidence-led market investment report with bounded supplementary web evidence and return JSON.
 
 Topic: {topic}
+
+RECOMMENDATION BOUNDARY: {stance}. Do not recommend a stronger commitment than this boundary.
 
 STORYLINE PLAN:
 {json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
