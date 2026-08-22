@@ -82,7 +82,7 @@ def main():
             Body=image_bytes,
             ContentType="image/png"
         )
-        print("Uploaded successfully to R2.")
+        print(f"Uploaded image asset successfully to R2 bucket '{r2_bucket}' at key '{r2_key}'.")
     except Exception as e:
         print(f"Error uploading to R2: {e}")
         sys.exit(1)
