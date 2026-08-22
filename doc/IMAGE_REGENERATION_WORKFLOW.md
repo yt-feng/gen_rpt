@@ -76,3 +76,33 @@ sequenceDiagram
 10. The downloaded high-resolution image is uploaded to R2, replacing the placeholder asset.
 11. The script invokes the backend webhook at `/api/internal/events/image-regenerated` using the secure `x-internal-token` header.
 12. The backend generates a fresh 1-hour presigned URL for the new image and updates `MOCK_REPORTS`. Subsequent client loads render the final high-resolution AI-generated image.
+
+---
+
+## Image Realism & Quality Resolution Analysis
+
+### 1. Root Cause of Non-Realistic Images
+
+Reviewers may notice that regenerated images look like cartoons, 3D CGI renders, or digital art illustrations rather than authentic real-world photographs. The root causes are:
+
+*   **Default Model Checkpoint Drift**: Without style constraints, generative models (like FLUX) defaults to a stylized, CGI-like digital painting aesthetic to ensure high visual vibrance and contrast.
+*   **The `enhance=true` Parameter Side-Effect**: The Pollinations AI API parameter `enhance=true` auto-injects random creative/artistic prompts (e.g. *"fantasy landscape, hyper-detailed render"*) behind the scenes. This actively overrides realism in favor of digital art aesthetics.
+*   **Generic User Prompts**: Simple reviewer inputs like *"flooded street"* or *"tall buildings"* lack the camera, lighting, and medium directives required to trigger the model's photographic weights.
+
+### 2. Logical Solutions to Enforce Photorealism
+
+To resolve this and ensure that generated images look like realistic, professional photographs, apply the following logical solutions:
+
+#### Solution A: Photographic Prompt Engineering Template
+Prepend and append camera lens, lighting, and style instructions directly to the prompt.
+*   **Photorealism Modifiers to Prepend**: `"A realistic, high-fidelity news photograph of..."` or `"A real-world documentary photograph of..."`
+*   **Lens & Camera Details to Append**: `", shot on 35mm lens, f/8 aperture, natural sunlight, highly detailed, real-world texture, journalistic style, no CGI, no digital art"`
+*   **Comparison Example**:
+    *   *Bad (Generic)*: `"A flooded street with rescue workers and orange cars."` (Result: cartoonish illustration / CGI render).
+    *   *Good (Photorealistic)*: `"A realistic, high-fidelity news photograph of a flooded city street with rescue workers in high-visibility gear wading through deep water near partially submerged cars, shot on 35mm lens, f/5.6, natural overcast daylight, real-world texture, journalistic style, photojournalism."`
+
+#### Solution B: Code-Level API Query Parameter Refinements (Proposed)
+Modifying the generator script parameters in `tools/regenerate_image.py`:
+*   **Disable Automatic Enhancement**: Change `enhance=true` to `enhance=false`. This stops the API from injecting random artistic descriptors that skew the style.
+*   **Enforce Photographic Model Checkpoint**: If supported by the endpoint provider, request the realism-tuned FLUX model checkpoint explicitly.
+*   **Append Negative Styles**: Append negative modifiers to the prompt string programmatically inside `regenerate_image.py` (e.g. `prompt = f"{prompt}, realistic photo, real-world detail --no cartoon, 3d render, illustration, drawing"`).
