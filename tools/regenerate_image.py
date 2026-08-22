@@ -23,13 +23,12 @@ def main():
         sys.exit(1)
 
     raw_prompt = args.prompt.strip()
-    # Apply high-end professional photography styling templates for maximum realism
+    # Apply clean professional photography templates optimized for FLUX realism weights
     styled_prompt = (
-        f"A stunning, highly realistic professional photograph of {raw_prompt}. "
-        "Award-winning photojournalism style, captured on a high-end full-frame DSLR camera, "
-        "50mm lens, f/8 aperture, natural realistic lighting, sharp focus, crisp details, "
-        "authentic colors and textures, volumetric atmosphere, realistic surfaces, "
-        "editorial magazine quality. No 3D render, no CGI, no cartoon, no vector, no drawing, no illustration"
+        f"A candid professional photograph of {raw_prompt}. "
+        "Sony A7R IV, 50mm lens, f/4 aperture, soft natural window light, "
+        "sharp focus, realistic textures, organic film grain, volumetric global illumination, "
+        "highly detailed, raw photo style"
     )
     print(f"Generating image with styled prompt: {styled_prompt}")
     
