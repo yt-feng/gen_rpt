@@ -30,6 +30,52 @@ def _require_hf_token() -> str:
     return str(token).strip()
 
 
+async def _call_ollama_embeddings(texts: List[str]) -> List[List[float]]:
+    """
+    Call local Ollama embeddings API for a batch of texts.
+    Truncates/pads output vectors to KNOWLEDGE_EMBEDDING_DIMENSION (384)
+    and L2-normalizes the result.
+    """
+    import urllib.request
+    import json
+    import math
+
+    dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
+    url = getattr(settings, "OLLAMA_EMBEDDING_URL", "http://localhost:11434/api/embeddings")
+    model = getattr(settings, "OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+
+    all_vectors = []
+    for text in texts:
+        data = json.dumps({"model": model, "prompt": text}).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+
+        def _post():
+            with urllib.request.urlopen(req, timeout=15.0) as response:
+                resp_data = json.loads(response.read().decode('utf-8'))
+                return resp_data.get("embedding")
+
+        vector = await asyncio.to_thread(_post)
+        if not vector or not isinstance(vector, list):
+            raise ValueError("Invalid response from Ollama embeddings endpoint")
+
+        if len(vector) > dimension:
+            vector = vector[:dimension]
+        elif len(vector) < dimension:
+            vector = vector + [0.0] * (dimension - len(vector))
+
+        norm = math.sqrt(sum(x * x for x in vector))
+        if norm > 0.0:
+            vector = [x / norm for x in vector]
+        all_vectors.append(vector)
+
+    return all_vectors
+
+
 async def _call_hf_api(
     texts: List[str],
     request_timeout: float = 90.0,
