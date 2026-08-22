@@ -282,7 +282,7 @@ async def handle_image_regenerated(
                 img["url"] = new_url
                 break
                 
-        logger.info(f"[webhook] Successfully refreshed presigned URL in cache for {slug} {safe_key}")
+        logger.info(f"[webhook] image-regenerated: Successfully refreshed presigned URL for image_key='{safe_key}' in report slug='{slug}'")
     except Exception as e:
         logger.error(f"[webhook] Failed to get signed URL for regenerated image: {e}")
         
