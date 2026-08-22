@@ -31,6 +31,8 @@ def main():
         sys.exit(1)
 
     raw_prompt = _clean_image_prompt(args.prompt)
+    if raw_prompt != args.prompt:
+        print(f"Sanitized input prompt: '{raw_prompt}'")
     # Apply clean professional photography templates optimized for FLUX realism weights
     styled_prompt = (
         f"A candid professional photograph of {raw_prompt}. "
