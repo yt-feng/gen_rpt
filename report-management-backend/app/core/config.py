@@ -106,6 +106,14 @@ class Settings(BaseSettings):
     KNOWLEDGE_CHUNKING_SETTINGS: dict = {}
     KNOWLEDGE_MONITORING_SETTINGS: dict = {}
 
+    # --- Embedding Fallback Settings ---
+    EMBEDDING_FALLBACK_PROVIDER: str = "ollama"  # "ollama" or "openai"
+    OLLAMA_EMBEDDING_URL: str = "http://localhost:11434/api/embeddings"
+    OLLAMA_EMBEDDING_MODEL: str = "nomic-embed-text"
+    OPENAI_EMBEDDING_URL: str = "https://api.openai.com/v1/embeddings"
+    OPENAI_EMBEDDING_MODEL: str = "text-embedding-3-small"
+    OPENAI_EMBEDDING_API_KEY: str = ""
+
     # --- RAG Runtime Guardrails ---
     # Keep context deliberately smaller than the model window: retrieved evidence
     # should support the report, not consume the entire prompt budget.
