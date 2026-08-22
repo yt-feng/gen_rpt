@@ -76,6 +76,60 @@ async def _call_ollama_embeddings(texts: List[str]) -> List[List[float]]:
     return all_vectors
 
 
+async def _call_openai_embeddings(texts: List[str]) -> List[List[float]]:
+    """
+    Call OpenAI / OpenRouter embeddings API.
+    Uses settings.OPENAI_EMBEDDING_MODEL and configures the dimensions parameter
+    to match KNOWLEDGE_EMBEDDING_DIMENSION (384) directly from the API.
+    """
+    import urllib.request
+    import json
+    import os
+
+    api_key = getattr(settings, "OPENAI_EMBEDDING_API_KEY", "") or os.getenv("OPENAI_API_KEY", "")
+    if not api_key:
+        raise ValueError("OPENAI_EMBEDDING_API_KEY is not configured or empty.")
+
+    url = getattr(settings, "OPENAI_EMBEDDING_URL", "https://api.openai.com/v1/embeddings")
+    model = getattr(settings, "OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+    dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+
+    batch_size = 64
+    all_vectors = []
+
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        payload = {
+            "input": batch,
+            "model": model,
+            "dimensions": dimension
+        }
+        data = json.dumps(payload).encode("utf-8")
+        req = urllib.request.Request(
+            url,
+            data=data,
+            headers=headers,
+            method="POST"
+        )
+
+        def _post():
+            with urllib.request.urlopen(req, timeout=30.0) as response:
+                resp_data = json.loads(response.read().decode('utf-8'))
+                return [item["embedding"] for item in resp_data.get("data", [])]
+
+        batch_vectors = await asyncio.to_thread(_post)
+        if len(batch_vectors) != len(batch):
+            raise ValueError("Mismatched vector counts returned from OpenAI embeddings API")
+        all_vectors.extend(batch_vectors)
+
+    return all_vectors
+
+
 async def _call_hf_api(
     texts: List[str],
     request_timeout: float = 90.0,
