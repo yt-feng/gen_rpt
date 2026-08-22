@@ -35,7 +35,7 @@ def main():
     
     # 1. Download image from Pollinations AI
     base_url = "https://image.pollinations.ai/prompt/"
-    query = "?width=1536&height=1024&enhance=false&private=true&nologo=true&safe=true&model=flux"
+    query = "?width=1536&height=1024&enhance=true&private=true&nologo=true&safe=true"
     image_url = base_url + quote(styled_prompt, safe="") + query
 
     try:
