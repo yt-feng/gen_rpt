@@ -1,9 +1,17 @@
 import argparse
 import os
 import sys
+import re
 import requests
 import boto3
 from urllib.parse import quote
+
+def _clean_image_prompt(prompt: str) -> str:
+    """Sanitize and normalize raw prompt text by stripping HTML tags and collapsing whitespace."""
+    if not prompt:
+        return ""
+    cleaned = re.sub(r'<[^>]*>', '', prompt)
+    return re.sub(r'\s+', ' ', cleaned).strip()
 
 def main():
     parser = argparse.ArgumentParser(description="Regenerate a report image using Pollinations AI and upload to R2.")
@@ -22,7 +30,7 @@ def main():
         print("Error: Missing R2 environment variables.")
         sys.exit(1)
 
-    raw_prompt = args.prompt.strip()
+    raw_prompt = _clean_image_prompt(args.prompt)
     # Apply clean professional photography templates optimized for FLUX realism weights
     styled_prompt = (
         f"A candid professional photograph of {raw_prompt}. "
