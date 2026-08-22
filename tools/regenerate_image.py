@@ -22,12 +22,20 @@ def main():
         print("Error: Missing R2 environment variables.")
         sys.exit(1)
 
-    print(f"Generating image with prompt: {args.prompt}")
+    raw_prompt = args.prompt.strip()
+    # Apply photorealism template modifiers and append negative styles to prevent CGI/illustration drift
+    styled_prompt = (
+        f"A realistic, high-fidelity news photograph of {raw_prompt}, shot on 35mm lens, "
+        "f/5.6 aperture, natural overcast daylight, real-world texture, journalistic style, "
+        "photojournalism, highly detailed, photorealistic --no digital art, CGI, 3D render, "
+        "cartoon, anime, illustration, painting"
+    )
+    print(f"Generating image with styled prompt: {styled_prompt}")
     
     # 1. Download image from Pollinations AI
     base_url = "https://image.pollinations.ai/prompt/"
-    query = "?width=1536&height=1024&enhance=true&private=true&nologo=true&safe=true&model=flux"
-    image_url = base_url + quote(args.prompt, safe="") + query
+    query = "?width=1536&height=1024&enhance=false&private=true&nologo=true&safe=true&model=flux"
+    image_url = base_url + quote(styled_prompt, safe="") + query
 
     try:
         resp = requests.get(image_url, timeout=60, headers={"User-Agent": "GateXReportGenerator/1.0"})
