@@ -108,7 +108,7 @@ def main():
                 },
                 timeout=10
             )
-            print(f"Backend notified: {resp.status_code}")
+            print(f"Backend internal webhook notified successfully (status: {resp.status_code}).")
         except Exception as e:
             print(f"Failed to notify backend: {e}")
 
