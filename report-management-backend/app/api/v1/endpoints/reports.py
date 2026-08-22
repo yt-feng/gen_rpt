@@ -309,7 +309,9 @@ async def get_report_details(
         logger.warning(f"[get_report_details] R2 fallback failed for {document_id}: {e}")
 
     # Last-resort fallback
-    report = MOCK_REPORTS.get(document_id, MOCK_REPORTS["doc-3333-review"])
+    report = MOCK_REPORTS.get(document_id) or MOCK_REPORTS.get("doc-3333-review")
+    if not report:
+        raise HTTPException(status_code=404, detail="Report not found")
     return success_response(data=report, message="Fetched fallback report details")
 
 from pydantic import BaseModel
