@@ -23,12 +23,13 @@ def main():
         sys.exit(1)
 
     raw_prompt = args.prompt.strip()
-    # Apply photorealism template modifiers and append negative styles to prevent CGI/illustration drift
+    # Apply high-end professional photography styling templates for maximum realism
     styled_prompt = (
-        f"A realistic, high-fidelity news photograph of {raw_prompt}, shot on 35mm lens, "
-        "f/5.6 aperture, natural overcast daylight, real-world texture, journalistic style, "
-        "photojournalism, highly detailed, photorealistic --no digital art, CGI, 3D render, "
-        "cartoon, anime, illustration, painting"
+        f"A stunning, highly realistic professional photograph of {raw_prompt}. "
+        "Award-winning photojournalism style, captured on a high-end full-frame DSLR camera, "
+        "50mm lens, f/8 aperture, natural realistic lighting, sharp focus, crisp details, "
+        "authentic colors and textures, volumetric atmosphere, realistic surfaces, "
+        "editorial magazine quality. No 3D render, no CGI, no cartoon, no vector, no drawing, no illustration"
     )
     print(f"Generating image with styled prompt: {styled_prompt}")
     
