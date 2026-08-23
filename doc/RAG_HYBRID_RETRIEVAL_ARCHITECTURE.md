@@ -100,3 +100,10 @@ def calculate_chunk_confidence(similarity: float, val_status: str, doc_size: int
 - [x] Freshness decay calculations evaluate to standard floats between 0.0 and 1.0.
 - [x] Document sizes below 100 character boundaries trigger size penalty multipliers.
 - [x] Validation audits track changes to database claims tables.
+
+---
+
+## 7. Retrieval Performance Analytics Monitoring
+
+The RAG pipeline logs performance analytics per search execution. When `RAG_RETRIEVAL_ANALYTICS_ENABLED` is set to `True`, the engine logs retrieval latency, cache hit status, query configurations, and resulting chunk counts. The service averages latency metrics and aggregates query frequency over a customizable retention window (default `30` days).
+

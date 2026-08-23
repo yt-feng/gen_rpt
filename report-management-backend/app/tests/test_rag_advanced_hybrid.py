@@ -122,3 +122,16 @@ def test_chunk_confidence_scoring():
     low_conf = calculate_chunk_confidence(similarity=0.8, val_status="flagged", doc_size=50)
     # 0.8 * 0.5 * 0.8 = 0.32
     assert math.isclose(low_conf, 0.32, rel_tol=1e-4)
+
+
+@pytest.mark.anyio
+async def test_retrieval_analytics_tracking():
+    """
+    Verifies retrieval analytics aggregation service bindings and settings flags.
+    """
+    from app.services.retrieval_analytics import retrieval_analytics_service
+    from app.core.config import settings
+    
+    assert settings.RAG_RETRIEVAL_ANALYTICS_ENABLED is True
+    assert settings.RAG_ANALYTICS_RETENTION_DAYS == 30
+    assert hasattr(retrieval_analytics_service, "aggregate_retrieval_performance")

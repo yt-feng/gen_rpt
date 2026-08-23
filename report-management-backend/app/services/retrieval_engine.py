@@ -296,18 +296,20 @@ class RetrievalEngineService:
         
         # 9. Immutable Session Persistence & Analytics
         latency = int((time.time() - start_time) * 1000)
-        
-        session_id = await retrieval_analytics_service.log_retrieval_session(
-            db=db,
-            query=query,
-            collection_ids=target_ids,
-            user_id=user_id or uuid.uuid4(),
-            filters=filters or {},
-            latency_ms=latency,
-            cache_hit=False,
-            selected_chunks=context_pkg["selected_chunks"],
-            snapshot_metadata=snapshot
-        )
+
+        session_id = None
+        if getattr(settings, "RAG_RETRIEVAL_ANALYTICS_ENABLED", True):
+            session_id = await retrieval_analytics_service.log_retrieval_session(
+                db=db,
+                query=query,
+                collection_ids=target_ids,
+                user_id=user_id or uuid.uuid4(),
+                filters=filters or {},
+                latency_ms=latency,
+                cache_hit=False,
+                selected_chunks=context_pkg["selected_chunks"],
+                snapshot_metadata=snapshot
+            )
         
         # 10. Format Final Response
         final_chunks = [

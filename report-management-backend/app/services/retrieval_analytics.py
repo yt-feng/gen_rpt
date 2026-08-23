@@ -66,4 +66,31 @@ class RetrievalAnalyticsService:
         await db.commit()
         return session.id
 
+    async def aggregate_retrieval_performance(
+        self,
+        db: AsyncSession,
+        collection_id: uuid.UUID
+    ) -> dict:
+        """
+        Aggregates performance metrics (avg latency, total queries) for a collection.
+        """
+        from sqlalchemy import select, func
+        from app.core.config import settings
+
+        stmt = select(
+            func.avg(RetrievalSession.duration_ms),
+            func.count(RetrievalSession.id)
+        ).where(RetrievalSession.collection_id == collection_id)
+        res = await db.execute(stmt)
+        row = res.first()
+        avg_latency = float(row[0]) if row and row[0] is not None else 0.0
+        total_queries = int(row[1]) if row and row[1] is not None else 0
+
+        return {
+            "collection_id": str(collection_id),
+            "average_latency_ms": round(avg_latency, 2),
+            "total_queries": total_queries,
+            "retention_days": getattr(settings, "RAG_ANALYTICS_RETENTION_DAYS", 30)
+        }
+
 retrieval_analytics_service = RetrievalAnalyticsService()

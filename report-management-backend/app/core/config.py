@@ -121,6 +121,10 @@ class Settings(BaseSettings):
     RAG_CONTEXT_CACHE_TTL_SECONDS: int = 14400
     RAG_MIN_RELEVANCE_SCORE: float = 0.35
 
+    # --- RAG Retrieval Analytics Settings ---
+    RAG_RETRIEVAL_ANALYTICS_ENABLED: bool = True
+    RAG_ANALYTICS_RETENTION_DAYS: int = 30
+
 
     
     @model_validator(mode='after')
