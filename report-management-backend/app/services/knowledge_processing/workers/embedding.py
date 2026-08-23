@@ -122,6 +122,7 @@ async def _call_openai_embeddings(texts: List[str]) -> List[List[float]]:
                 resp_data = json.loads(response.read().decode('utf-8'))
                 return [item["embedding"] for item in resp_data.get("data", [])]
 
+        logger.info(f"Querying OpenAI embedding endpoint for batch of {len(batch)} items using model '{model}'")
         batch_vectors = await asyncio.to_thread(_post)
         if len(batch_vectors) != len(batch):
             raise ValueError("Mismatched vector counts returned from OpenAI embeddings API")
