@@ -59,6 +59,7 @@ async def _call_ollama_embeddings(texts: List[str]) -> List[List[float]]:
                 resp_data = json.loads(response.read().decode('utf-8'))
                 return resp_data.get("embedding")
 
+        logger.info(f"Querying local Ollama embedding endpoint using model '{model}'")
         vector = await asyncio.to_thread(_post)
         if not vector or not isinstance(vector, list):
             raise ValueError("Invalid response from Ollama embeddings endpoint")
