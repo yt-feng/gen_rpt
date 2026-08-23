@@ -5,7 +5,7 @@ from uuid import UUID
 from typing import List
 from pydantic import BaseModel, Field
 
-from app.api.deps import get_db, PageParams, FilterParams, get_current_user_placeholder
+from app.api.deps import get_db, PageParams, FilterParams, get_current_user_placeholder\nfrom app.services.review_service import ReviewService
 from app.core.responses import APIResponse, success_response, error_response
 
 router = APIRouter()

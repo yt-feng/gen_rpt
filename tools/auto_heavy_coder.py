@@ -297,7 +297,7 @@ PHASES = [
 def main():
     print("[AGENT START] Auto heavy coder background loop initiated.")
     
-    for idx, phase in enumerate(PHASES):
+    for idx, phase in enumerate(PHASES[3:], start=3):
         print(f"\\n=== EXECUTING PHASE {phase['num']}: {phase['desc']} ===")
         start_time = datetime.now()
         
