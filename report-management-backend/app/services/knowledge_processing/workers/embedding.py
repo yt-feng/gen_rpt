@@ -221,27 +221,62 @@ async def _call_hf_api(
     return all_vectors
 
 
+async def _get_embeddings_with_fallback(texts: List[str]) -> tuple[List[List[float]], str]:
+    """
+    Attempt to fetch embeddings from Hugging Face first.
+    If HF fails or returns a 402/rate-limit error, fall back dynamically to:
+      1. Ollama (if EMBEDDING_FALLBACK_PROVIDER is 'ollama')
+      2. OpenAI (if EMBEDDING_FALLBACK_PROVIDER is 'openai')
+      3. Deterministic local mock vector generator as final fallback.
+    """
+    try:
+        vectors = await _call_hf_api(texts)
+        return vectors, "huggingface"
+    except Exception as hf_err:
+        logger.warning("Hugging Face embedding generation failed. Initiating fallback cascade...", error=str(hf_err))
+
+    fallback_provider = getattr(settings, "EMBEDDING_FALLBACK_PROVIDER", "ollama")
+    if fallback_provider == "ollama":
+        try:
+            logger.info("Attempting Ollama embedding fallback...")
+            vectors = await _call_ollama_embeddings(texts)
+            return vectors, "ollama_fallback"
+        except Exception as ollama_err:
+            logger.error("Ollama fallback failed.", error=str(ollama_err))
+    elif fallback_provider == "openai":
+        try:
+            logger.info("Attempting OpenAI embedding fallback...")
+            vectors = await _call_openai_embeddings(texts)
+            return vectors, "openai_fallback"
+        except Exception as openai_err:
+            logger.error("OpenAI fallback failed.", error=str(openai_err))
+
+    logger.warning("All primary/secondary embedding providers failed. Falling back to local deterministic mock vector generator.")
+    dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
+    vectors = [generate_mock_embedding(text, dimension=dimension) for text in texts]
+    return vectors, "local_fallback"
+
+
 async def generate_chunk_embeddings(
     chunks: List[Dict[str, Any]],
     model: str = None,  # kept for signature compatibility; HF_MODEL is always used
 ) -> List[Dict[str, Any]]:
     """
-    Generate embeddings for a list of chunk dicts using Hugging Face Inference API.
+    Generate embeddings for a list of chunk dicts using Hugging Face Inference API with fallback cascade.
     Model: BAAI/bge-small-en-v1.5 (384 dimensions, free).
-    Automatically falls back to local deterministic embeddings on HF API failure (e.g. 402/401/timeout).
     """
     start_time = time.time()
     texts = [chunk["content"] for chunk in chunks]
 
     logger.info(f"Generating embeddings via HF Inference API ({HF_MODEL}) for {len(texts)} chunks")
-    
+
     all_vectors = None
     provider = "huggingface"
     try:
-        all_vectors = await _call_hf_api(texts)
+        all_vectors, provider = await _get_embeddings_with_fallback(texts)
     except Exception as e:
         logger.warning(
-            "HF Inference API call failed, seamlessly using deterministic local fallback embeddings",
+            "Embedding fallback routing encountered unhandled error, using deterministic local mock",
             error=str(e)
         )
         dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
@@ -278,15 +313,14 @@ async def generate_query_embedding(
     model: str = None,  # kept for signature compatibility
 ) -> List[float]:
     """
-    Generate a single query embedding for semantic retrieval using HF Inference API
-    with local fallback on failure.
+    Generate a single query embedding for semantic retrieval with dynamic fallback logic.
     """
-    logger.info(f"Generating query embedding via HF Inference API ({HF_MODEL})")
+    logger.info(f"Generating query embedding via API endpoint")
     try:
-        vectors = await _call_hf_api([query], request_timeout=8.0, retry_count=1)
+        vectors, provider = await _get_embeddings_with_fallback([query])
         return vectors[0]
     except Exception as e:
-        logger.warning("Query embedding HF API call failed, using fallback query vector", error=str(e))
+        logger.warning("Query embedding fallback cascade failed, using local mock query vector", error=str(e))
         dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
         return generate_mock_embedding(query, dimension=dimension)
 
