@@ -211,6 +211,28 @@ async def unpublish_report(
 
     report = MOCK_REPORTS.get(report_id)
     if not report:
+        from app.models.document import Document
+        from sqlalchemy import select
+        import uuid as _uuid
+        
+        # Check if report_id is a valid UUID
+        try:
+            doc_uuid = _uuid.UUID(report_id)
+            stmt = select(Document).where(Document.id == doc_uuid)
+        except ValueError:
+            stmt = select(Document).where(Document.slug == report_id)
+            
+        doc_res = await db.execute(stmt)
+        doc = doc_res.scalar_one_or_none()
+        if doc:
+            report = {
+                "id": str(doc.id),
+                "title": doc.title,
+                "slug": doc.slug,
+                "status": "Published"
+            }
+            
+    if not report:
         raise HTTPException(status_code=404, detail=f"Report '{report_id}' not found.")
 
     logger.info(f"Unpublish requested: report_id={report_id} by user={user.get('id')}")
