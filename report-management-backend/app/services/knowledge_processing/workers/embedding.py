@@ -233,9 +233,9 @@ async def _get_embeddings_with_fallback(texts: List[str]) -> tuple[List[List[flo
         vectors = await _call_hf_api(texts)
         return vectors, "huggingface"
     except Exception as hf_err:
-        logger.warning("Hugging Face embedding generation failed. Initiating fallback cascade...", error=str(hf_err))
+        fallback_provider = getattr(settings, "EMBEDDING_FALLBACK_PROVIDER", "ollama")
+        logger.warning(f"Hugging Face embedding generation failed. Initiating fallback cascade using provider '{fallback_provider}'...", error=str(hf_err))
 
-    fallback_provider = getattr(settings, "EMBEDDING_FALLBACK_PROVIDER", "ollama")
     if fallback_provider == "ollama":
         try:
             logger.info("Attempting Ollama embedding fallback...")
