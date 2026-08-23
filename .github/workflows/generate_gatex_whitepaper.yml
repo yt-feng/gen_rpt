@@ -85,6 +85,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          python -m pip install pytest
           python -m playwright install --with-deps chromium
 
       - name: Validate cloud configuration
@@ -101,6 +102,12 @@ jobs:
             gen_rpt/gatex_pdf_renderer.py \
             gen_rpt/gatex_whitepaper_pipeline.py \
             tools/generate_gatex_whitepaper.py
+
+      - name: Verify publication quality gates
+        run: |
+          python -m pytest -q \
+            tests/test_gatex_pdf_renderer.py \
+            tests/test_gatex_whitepaper_pipeline.py
 
       - name: Verify DeepSeek editorial route
         run: |
