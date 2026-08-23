@@ -13,7 +13,8 @@ from app.models.knowledge import KnowledgeCollection, KnowledgeDocument, Knowled
 from app.services.knowledge_permission import knowledge_permission_service
 from app.services.knowledge_cache import knowledge_cache_service
 from app.services.retrieval_similarity import calculate_keyword_score
-from app.services.retrieval_ranking import rank_retrieved_chunks\nfrom app.services.retrieval_fusion import reciprocal_rank_fusion
+from app.services.retrieval_ranking import rank_retrieved_chunks
+from app.services.retrieval_fusion import reciprocal_rank_fusion
 from app.services.retrieval_context import build_retrieval_context
 from app.services.retrieval_analytics import retrieval_analytics_service
 from app.services.knowledge_processing.workers.embedding import generate_query_embedding
