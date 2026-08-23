@@ -45,3 +45,11 @@ class ReviewCommentResponse(ReviewCommentBase):
     created_at: datetime
     
     model_config = ConfigDict(from_attributes=True)
+
+
+class ReviewCommentCreate(BaseModel):
+    comment: str
+    priority: Optional[str] = "normal"
+    section_id: Optional[UUID] = None
+    block_id: Optional[UUID] = None
+    node_stable_id: Optional[str] = None
