@@ -240,14 +240,16 @@ async def _get_embeddings_with_fallback(texts: List[str]) -> tuple[List[List[flo
 
     if fallback_provider == "ollama":
         try:
-            logger.info("Attempting Ollama embedding fallback...")
+            model = getattr(settings, "OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
+            logger.info(f"Attempting Ollama embedding fallback using model '{model}'...")
             vectors = await _call_ollama_embeddings(texts)
             return vectors, "ollama_fallback"
         except Exception as ollama_err:
             logger.error("Ollama fallback failed.", error=str(ollama_err))
     elif fallback_provider == "openai":
         try:
-            logger.info("Attempting OpenAI embedding fallback...")
+            model = getattr(settings, "OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
+            logger.info(f"Attempting OpenAI embedding fallback using model '{model}'...")
             vectors = await _call_openai_embeddings(texts)
             return vectors, "openai_fallback"
         except Exception as openai_err:
