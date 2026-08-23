@@ -11,10 +11,14 @@ from pypdf import PdfReader
 
 from gen_rpt.gatex_pdf_renderer import (
     _bar_chart_svg,
+    _back_cover_html,
     COVER_TEXTURE_PATH,
     _deduplicated_word_text,
+    _normalized_authors,
+    _render_html,
     _render_whitepaper_exhibit,
     _render_whitepaper_outlook,
+    _whitepaper_body_html,
     _whitepaper_css,
     release_classification,
     release_pdf_filename,
@@ -120,11 +124,12 @@ def test_bar_chart_keeps_ten_row_period_comparisons() -> None:
     assert "viewBox='0 0 760 464'" in svg
 
 
-def test_exhibit_sources_use_compact_atomic_columns() -> None:
+def test_source_register_replaces_inline_footnote_blocks_at_readable_size() -> None:
     css = _whitepaper_css()
-    assert ".whitepaper-exhibit > .whitepaper-footnotes" in css
-    assert "column-count: 2" in css
-    assert "break-inside: avoid-page" in css
+    assert ".whitepaper-footnotes" not in css
+    assert ".source-entry p" in css and "font-size: 8.2pt" in css
+    assert ".source-entry a" in css and "font-size: 8pt" in css
+    assert ".source-entry small" in css and "font-size: 8pt" in css
 
 
 def test_four_exhibit_metrics_render_in_one_row() -> None:
@@ -184,8 +189,140 @@ def test_long_outlook_with_multiple_sources_uses_compact_page_budget() -> None:
 
     assert "class='whitepaper-outlook fixed-page outlook-dense'" in html
     css = _whitepaper_css()
-    assert ".whitepaper-outlook.outlook-dense > .whitepaper-footnotes" in css
-    assert "column-count: 2" in css
+    assert ".whitepaper-outlook.outlook-dense .outlook-copy" in css
+    assert "Sources and notes" not in html
+
+
+def test_whitepaper_emits_one_deduplicated_source_register_before_disclaimer() -> None:
+    report = {
+        "title": "GateX source register fixture",
+        "language": "en",
+        "contentSections": [
+            {
+                "kind": "executive_summary",
+                "heading": "Executive summary",
+                "paragraphs": ["Decision context."],
+                "footnotes": ["Primary source, example.com, https://example.com/a"],
+            },
+            {
+                "kind": "outlook",
+                "heading": "Outlook",
+                "paragraphs": ["Forward conditions."],
+                "footnotes": [
+                    "Primary source, example.com, https://example.com/a",
+                    "Second source, example.com, https://example.com/b",
+                ],
+            },
+            {"kind": "disclaimer", "heading": "Disclaimer", "items": []},
+        ],
+    }
+    html = _whitepaper_body_html(report)
+    assert html.count("SOURCE REGISTER") == 1
+    assert html.count("Primary source") == 1
+    assert html.index("SOURCE REGISTER") < html.index("IMPORTANT INFORMATION")
+    assert "Used in: Executive summary · Outlook: Outlook" in html
+
+
+def test_source_register_balances_real_pdf_pages_without_sparse_tail() -> None:
+    cases = [
+        (10, False),
+        (11, False),
+        (12, False),
+        (17, False),
+        (18, False),
+        (19, False),
+        (39, False),
+        (10, True),
+        (11, True),
+        (16, True),
+    ]
+    with TemporaryDirectory() as directory:
+        root = Path(directory)
+        for source_count, use_long_titles in cases:
+            footnotes = []
+            for index in range(1, source_count + 1):
+                detail = "with decision-use context"
+                if use_long_titles:
+                    detail = (
+                        "with a comprehensive evidence title describing policy, market structure, operating conditions, "
+                        "governance, implementation milestones and decision-use limitations across the covered period " * 2
+                    )
+                footnotes.append(
+                    f"SOURCE-{index:02d} Formal institutional publication {detail}, "
+                    f"authority{index}.gov, https://authority{index}.gov/publication/{index}"
+                )
+            report = {
+                "title": "Source register QA",
+                "language": "en",
+                "contentSections": [
+                    {
+                        "kind": "executive_summary",
+                        "heading": "Executive summary",
+                        "paragraphs": ["Evidence-led findings. " * 20],
+                        "footnotes": footnotes,
+                    },
+                    {"kind": "disclaimer", "heading": "Disclaimer", "body": "Important information.", "items": []},
+                ],
+            }
+            fixture_name = f"source-register-{source_count}-{'long' if use_long_titles else 'standard'}"
+            html_path = root / f"{fixture_name}.html"
+            pdf_path = root / f"{fixture_name}.pdf"
+            html_path.write_text(_whitepaper_body_html(report), encoding="utf-8")
+            _render_html(html_path, pdf_path)
+            with fitz.open(pdf_path) as document:
+                page_text = [page.get_text("text") for page in document]
+            first_source_page = next(index for index, text in enumerate(page_text) if "Sources and notes" in text)
+            disclaimer_page = next(index for index, text in enumerate(page_text) if "Disclaimer" in text)
+            source_page_text = page_text[first_source_page:disclaimer_page]
+            assert source_page_text
+            assert all("Sources and notes" in text for text in source_page_text)
+            assert all(text.count("SOURCE-") > 0 for text in source_page_text)
+            assert all(len(text.split()) >= 120 for text in source_page_text)
+            combined_sources = "\n".join(source_page_text)
+            assert combined_sources.count("SOURCE-") == source_count
+            for index in range(1, source_count + 1):
+                assert combined_sources.count(f"SOURCE-{index:02d}") == 1
+
+
+def test_unapproved_authors_never_generate_names_or_email_addresses() -> None:
+    assert _normalized_authors({}) == []
+    assert _normalized_authors({"authors": []}) == []
+    assert _normalized_authors(
+        {
+            "authorsApproved": False,
+            "authors": [{"name": "Invented Name", "role": "Research", "email": "invented@gatex.fund"}],
+        }
+    ) == []
+
+
+def test_author_normalization_preserves_only_approved_valid_records() -> None:
+    assert _normalized_authors(
+        {
+            "authorsApproved": True,
+            "authors": [
+                {"name": "Approved Author", "role": "Research Lead", "email": "author@gatex.fund"},
+                {"name": "External Person", "role": "Contributor", "email": "person@example.com"},
+            ],
+        }
+    ) == [{"name": "Approved Author", "role": "Research Lead", "email": "author@gatex.fund"}]
+
+
+def test_back_cover_preserves_institutional_byline_and_approved_signatory() -> None:
+    html = _back_cover_html(
+        {
+            "title": "GateX report",
+            "authorsApproved": False,
+            "authors": [{"name": "Unapproved Name", "email": "invented@gatex.fund"}],
+            "publicationSignatoryApproved": True,
+            "publicationSignatory": {"name": "Frank Feng", "role": "Managing Partner"},
+        }
+    )
+    assert "Institutional byline and sign-off" in html
+    assert "GateX Intelligence" in html
+    assert "Editorial &amp; Research Team" in html
+    assert "Frank Feng" in html and "Managing Partner" in html
+    assert "Publication sign-off" in html
+    assert "Unapproved Name" not in html and "invented@gatex.fund" not in html
 
 
 class GatexPdfRendererTests(unittest.TestCase):
@@ -334,7 +471,10 @@ class GatexPdfRendererTests(unittest.TestCase):
         self.assertTrue(artifact["qa"]["passed"])
         self.assertIn("The investable edge emerges", text)
         self.assertIn("Infrastructure resilience affects underwriting assumptions.", text)
-        self.assertIn("Human Reviewer", text)
+        self.assertIn("GateX Intelligence", text)
+        self.assertIn("Editorial & Research Team", text)
+        self.assertNotIn("Human Reviewer", text)
+        self.assertNotIn("reviewer@gatex.fund", text)
         self.assertNotIn("洪水造成了严重基础设施损失", text)
         for forbidden in ("RAG-first", "Evidence Synthesis Unit", "chunk_id", "why_it_matters", "chunk-internal-42"):
             self.assertNotIn(forbidden, text)

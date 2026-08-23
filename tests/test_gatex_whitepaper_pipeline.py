@@ -16,8 +16,8 @@ from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _respon
 from gen_rpt.research_quality import build_research_fact_pack
 from gen_rpt.web_evidence import build_evidence_ledger
 from gen_rpt.gatex_whitepaper_pipeline import (
-    _authors,
     _architecture_prompt,
+    _build_payload,
     _chart_label_issues,
     _citation_rows,
     _claim_identity_tokens,
@@ -986,7 +986,7 @@ def test_pdf_extraction_prioritises_relevant_operating_pages_over_boilerplate() 
     assert "[PDF page 10]" in extracted
 
 
-def test_citation_rows_cap_prevents_footnote_only_overflow_page() -> None:
+def test_citation_rows_preserve_all_selected_sources() -> None:
     source_map = {
         f"S{index}": {
             "title": f"Long underlying source title {index}",
@@ -996,7 +996,8 @@ def test_citation_rows_cap_prevents_footnote_only_overflow_page() -> None:
         for index in range(1, 6)
     }
     rows = _citation_rows(source_map, source_map)
-    assert len(rows) == 4
+    assert len(rows) == 5
+    assert rows[-1].endswith("https://authority5.gov/long-publication-path")
 
 
 def test_research_sources_are_sanitized_before_fact_extraction() -> None:
@@ -1299,12 +1300,45 @@ def test_page_furniture_below_printable_area_is_allowed() -> None:
     )
 
 
-def test_author_emails_are_client_ready_and_deterministic() -> None:
-    first = _authors("red-chips")
-    second = _authors("red-chips")
-    assert first == second
-    assert first[0] == {"name": "Frank Feng", "role": "Managing Partner", "email": "frank@gatex.fund"}
-    assert all(row["email"].endswith("@gatex.fund") and not row["email"].startswith("xxx") for row in first)
+def test_built_payload_uses_institutional_byline_and_approved_signatory() -> None:
+    payload = _build_payload(
+        slug="red-chips",
+        title="Red Chips",
+        publication_date="2026-08-23",
+        content={
+            "subtitle": "Decision brief",
+            "coverSummary": "Evidence-led market context.",
+            "executiveSummary": {
+                "headline": "Executive summary",
+                "deck": "Decision context",
+                "paragraphs": ["Evidence-led finding."],
+                "sourceIds": ["S1"],
+            },
+            "chapters": [],
+            "exhibits": [],
+            "outlook": {
+                "title": "Outlook",
+                "deck": "Conditional outlook",
+                "callout": "Monitor execution.",
+                "paragraphs": ["Conditions remain bounded."],
+                "sourceIds": ["S1"],
+            },
+        },
+        sources=[
+            {
+                "id": "S1",
+                "title": "Official report",
+                "domain": "example.gov",
+                "url": "https://example.gov/report",
+            }
+        ],
+        visuals={"executive-summary": {"path": "cover.jpg", "alt": "Cover"}},
+    )
+
+    assert payload["authors"] == []
+    assert payload["authorsApproved"] is False
+    assert payload["publicationSignatory"] == {"name": "Frank Feng", "role": "Managing Partner"}
+    assert payload["publicationSignatoryApproved"] is True
 
 
 def test_outlook_word_count_excludes_metadata() -> None:
@@ -1733,6 +1767,15 @@ def test_page_composition_gate_allows_sources_on_an_exhibit_page() -> None:
     )
 
     assert _page_composition_issues(text, 9) == []
+
+
+def test_page_composition_gate_allows_intentional_source_register() -> None:
+    text = (
+        "GATEX | EXECUTIVE INTELLIGENCE\nSOURCE REGISTER\nSources and methodology\n"
+        + "Official publication and usage context https://example.gov/report. " * 12
+    )
+
+    assert "contains orphaned source notes" not in " ".join(_page_composition_issues(text, 10))
 
 
 def test_compact_architecture_retry_reduces_evidence_payload() -> None:

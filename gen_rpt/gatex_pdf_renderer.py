@@ -20,7 +20,7 @@ from pypdf import PdfReader, PdfWriter
 from reportlab.lib.colors import HexColor
 from reportlab.pdfgen import canvas
 
-from gen_rpt.web_publication_contract import clean_client_text, is_internal_author_name, output_leak_hits
+from gen_rpt.web_publication_contract import clean_client_text, output_leak_hits
 from gen_rpt.web_report_renderer import _format_human_evidence_item
 
 
@@ -390,22 +390,18 @@ def _normalized_section(value: Any, index: int, language: str = "en") -> Dict[st
 
 
 def _normalized_authors(payload: Mapping[str, Any]) -> List[Dict[str, str]]:
+    if payload.get("authorsApproved") is not True:
+        return []
     provided = payload.get("authors") if isinstance(payload.get("authors"), list) else []
     authors: List[Dict[str, str]] = []
     for value in provided[:5]:
-        if isinstance(value, Mapping):
-            name = _clean(value.get("name"), 100)
-            role = _clean(value.get("role") or "Reviewer", 120)
-            email = _clean(value.get("email"), 180).lower()
-        else:
-            name, role, email = _clean(value, 100), "Reviewer", ""
-        if is_internal_author_name(name):
-            name = "Human Reviewer"
+        item = value if isinstance(value, Mapping) else {}
+        name = _clean(item.get("name"), 100)
+        role = _clean(item.get("role"), 120)
+        email = _clean(item.get("email"), 180).lower()
         if name and role and re.fullmatch(r"[a-z][a-z0-9._-]*@gatex\.fund", email):
             authors.append({"name": name, "role": role, "email": email})
-        elif name:
-            authors.append({"name": name, "role": role or "Reviewer", "email": email or "reviewer@gatex.fund"})
-    return authors or [{"name": "Human Reviewer", "role": "Reviewer", "email": "reviewer@gatex.fund"}]
+    return authors
 
 
 def _cover_html(report: Mapping[str, Any]) -> str:
@@ -480,8 +476,14 @@ def _back_cover_html(report: Mapping[str, Any]) -> str:
     language = "ZH" if report.get("language") == "zh" else "EN"
     version = int(report.get("versionNo") or 1)
     issued = _display_date(report.get("versionSubmittedAt") or report.get("releaseDate"))
+    approved_authors = report.get("authors") if report.get("authorsApproved") is True else []
+    publication_signatory = (
+        report.get("publicationSignatory")
+        if report.get("publicationSignatoryApproved") is True and isinstance(report.get("publicationSignatory"), Mapping)
+        else None
+    )
     author_rows = []
-    for author in report.get("authors") or []:
+    for author in approved_authors or []:
         author_rows.append(
             "<article>"
             f"<strong>{_e(author.get('name'))}</strong>"
@@ -489,6 +491,28 @@ def _back_cover_html(report: Mapping[str, Any]) -> str:
             f"<small>{_e(author.get('email'))}</small>"
             "</article>"
         )
+    if not author_rows:
+        author_rows.append(
+            "<article>"
+            "<strong>GateX Intelligence</strong>"
+            "<span>Editorial &amp; Research Team</span>"
+            "<small>Institutional publication</small>"
+            "</article>"
+        )
+    if publication_signatory:
+        author_rows.append(
+            "<article>"
+            f"<strong>{_e(publication_signatory.get('name'))}</strong>"
+            f"<span>{_e(publication_signatory.get('role'))}</span>"
+            "<small>Publication sign-off</small>"
+            "</article>"
+        )
+    desk_title = "Authors and editorial desk" if approved_authors else "Institutional byline and sign-off"
+    desk_note = (
+        "Named contributors approved for this publication and editorial review for authorised GateX readers."
+        if approved_authors
+        else "Evidence-led research and editorial review issued under the GateX Intelligence institutional byline."
+    )
     return f"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><style>
 @page {{ size: A4 portrait; margin: 0; }}
@@ -530,7 +554,7 @@ footer {{ display: flex; justify-content: space-between; margin-top: 7mm; color:
 <main><header><div class="brand"><img alt="GateX G mark" src="{mark_uri}"><strong>GATEX</strong></div><span>MEMBER CONFIDENTIAL</span></header>
 <section class="publication"><p class="eyebrow">GATEX / PUBLICATION RECORD</p><h1>{title}</h1><div class="rule"></div><p class="statement">Independent, evidence-led intelligence prepared for consequential decisions.</p>
 <div class="meta"><div><span>EDITION</span><strong>{issued}</strong></div><div><span>LANGUAGE</span><strong>{language}</strong></div><div><span>PUBLICATION</span><strong>{report_type}</strong></div><div><span>VERSION</span><strong>{version:02d}</strong></div></div></section>
-<section class="desk"><div class="desk-head"><strong>Authors and editorial desk</strong><span>Regional context, sector research and editorial review for authorised GateX readers.</span></div><div class="team">{''.join(author_rows)}</div></section>
+<section class="desk"><div class="desk-head"><strong>{desk_title}</strong><span>{desk_note}</span></div><div class="team">{''.join(author_rows)}</div></section>
 <footer><span>{classification}</span><span>GATEX.FUND</span></footer></main></body></html>"""
 
 
@@ -647,6 +671,9 @@ def _whitepaper_body_html(report: Mapping[str, Any]) -> str:
         elif kind == "outlook":
             parts.append(_render_whitepaper_outlook(section))
 
+    sources = _render_whitepaper_sources(sections)
+    if sources:
+        parts.append(sources)
     if disclaimer:
         parts.append(_render_whitepaper_disclaimer(disclaimer))
     parts.append("</body></html>")
@@ -679,7 +706,6 @@ def _render_executive_summary(section: Mapping[str, Any], report: Mapping[str, A
         for paragraph in paragraphs:
             parts.append(f"<p>{_e(paragraph)}</p>")
         parts.append("</div>")
-    parts.append(_render_whitepaper_footnotes(section))
     parts.append("</section>")
     return "".join(parts)
 
@@ -731,7 +757,6 @@ def _render_whitepaper_chapter(section: Mapping[str, Any]) -> str:
     parts.append("</div>")
     if visual and section.get("visualPlacement") != "top":
         parts.append(visual)
-    parts.append(_render_whitepaper_footnotes(section))
     parts.append("</section>")
 
     if continuation_subsections:
@@ -819,7 +844,6 @@ def _render_whitepaper_exhibit(section: Mapping[str, Any]) -> str:
     source = _clean(exhibit.get("source_note") or exhibit.get("sourceNote"), 2_000)
     if source:
         parts.append(f"<p class='whitepaper-source'><strong>Source:</strong> {_e(source)}</p>")
-    parts.append(_render_whitepaper_footnotes(section))
     parts.append("</section>")
     return "".join(parts)
 
@@ -1300,7 +1324,6 @@ def _render_whitepaper_outlook(section: Mapping[str, Any]) -> str:
     for paragraph in section.get("paragraphs") or []:
         parts.append(f"<p>{_e(paragraph)}</p>")
     parts.append("</div>")
-    parts.append(_render_whitepaper_footnotes(section))
     parts.append("</section>")
     return "".join(parts)
 
@@ -1326,22 +1349,149 @@ def _render_whitepaper_disclaimer(section: Mapping[str, Any]) -> str:
     return "".join(parts)
 
 
-def _render_whitepaper_footnotes(section: Mapping[str, Any]) -> str:
-    footnotes = [entry for entry in section.get("footnotes") or [] if entry]
-    if not footnotes:
+def _whitepaper_source_label(section: Mapping[str, Any]) -> str:
+    kind = str(section.get("kind") or "")
+    heading = _clean(section.get("heading"), 180)
+    if kind == "executive_summary":
+        return "Executive summary"
+    if kind == "chapter":
+        number = _clean(section.get("chapterNumber"), 20)
+        return f"Chapter {number}: {heading}" if number and heading else heading or "Chapter"
+    if kind == "exhibit":
+        exhibit = section.get("exhibit") if isinstance(section.get("exhibit"), Mapping) else {}
+        label = _clean(exhibit.get("label"), 80)
+        return f"{label}: {heading}" if label and heading else heading or label or "Exhibit"
+    if kind == "outlook":
+        return f"Outlook: {heading}" if heading else "Outlook"
+    return heading or kind.replace("_", " ").title()
+
+
+def _collect_whitepaper_sources(sections: list[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    for section in sections:
+        label = _whitepaper_source_label(section)
+        for raw in section.get("footnotes") or []:
+            text = _clean(raw, 4_000)
+            if not text:
+                continue
+            match = re.search(r"(?:,\s*)?(https://[^\s<]+)\s*$", text)
+            url = match.group(1).rstrip(".,);]") if match else ""
+            host = re.sub(r"^www\.", "", url.split("/", 3)[2], flags=re.IGNORECASE) if url else ""
+            citation = text[: match.start()].rstrip(" ,.;") if match else text
+            if host:
+                citation = re.sub(rf"[,;]\s*(?:www\.)?{re.escape(host)}\s*$", "", citation, flags=re.IGNORECASE)
+            key = url.lower().rstrip("/") if url else re.sub(r"\s+", " ", citation.lower()).strip()
+            record = records.setdefault(
+                key,
+                {"citation": citation, "url": url, "host": host, "sections": []},
+            )
+            if label and label not in record["sections"]:
+                record["sections"].append(label)
+    return list(records.values())
+
+
+def _source_usage_text(source: Mapping[str, Any]) -> str:
+    labels = [str(value) for value in source.get("sections") or [] if value]
+    visible = labels[:4]
+    usage = " · ".join(visible)
+    if len(labels) > len(visible):
+        usage += f" · +{len(labels) - len(visible)} more sections"
+    return usage
+
+
+def _source_entry_line_weight(source: Mapping[str, Any], *, columns: int) -> float:
+    chars_per_line = 92 if columns == 1 else 42
+    citation_lines = max(1, math.ceil(len(str(source.get("citation") or "")) / chars_per_line))
+    host_lines = max(1, math.ceil(len(str(source.get("host") or "")) / chars_per_line)) if source.get("url") else 0
+    usage = _source_usage_text(source)
+    usage_lines = max(1, math.ceil(len(usage) / chars_per_line)) if usage else 0
+    return float(citation_lines + host_lines + usage_lines) + 2.5
+
+
+def _balanced_source_pages(sources: list[dict[str, Any]], *, columns: int) -> list[list[dict[str, Any]]]:
+    if not sources:
+        return []
+    weights = [_source_entry_line_weight(source, columns=columns) for source in sources]
+    page_capacity = 72.0 if columns == 1 else 105.0
+    if any(weight > page_capacity for weight in weights):
+        raise GatexPdfError("A source-register entry is too long to fit on one readable page.")
+    page_count = max(1, math.ceil(sum(weights) / page_capacity))
+    while True:
+        pages: list[list[dict[str, Any]]] = []
+        cursor = 0
+        remaining_weight = sum(weights)
+        for page_index in range(page_count):
+            remaining_pages = page_count - page_index
+            remaining_items = len(sources) - cursor
+            if remaining_pages == 1:
+                pages.append(sources[cursor:])
+                cursor = len(sources)
+                break
+            target = remaining_weight / remaining_pages
+            page: list[dict[str, Any]] = []
+            page_weight = 0.0
+            max_items = remaining_items - (remaining_pages - 1)
+            while len(page) < max_items:
+                next_weight = weights[cursor + len(page)]
+                if page and abs(page_weight - target) <= abs(page_weight + next_weight - target):
+                    break
+                page.append(sources[cursor + len(page)])
+                page_weight += next_weight
+            if not page:
+                page.append(sources[cursor])
+                page_weight = weights[cursor]
+            pages.append(page)
+            cursor += len(page)
+            remaining_weight -= page_weight
+        page_weights = [
+            sum(_source_entry_line_weight(source, columns=columns) for source in page)
+            for page in pages
+        ]
+        if len(pages) == page_count and all(weight <= page_capacity for weight in page_weights):
+            return pages
+        page_count += 1
+
+
+def _render_whitepaper_sources(sections: list[Mapping[str, Any]]) -> str:
+    sources = _collect_whitepaper_sources(sections)
+    if not sources:
         return ""
-    parts = ["<aside class='whitepaper-footnotes'><strong>Sources and notes</strong><ol>"]
-    for entry in footnotes:
-        text = str(entry)
-        match = re.search(r",\s*(https://\S+)\s*$", text)
-        if match:
-            url = match.group(1)
-            prefix = text[: match.start()].rstrip(" ,")
-            host = re.sub(r"^www\.", "", url.split("/", 3)[2], flags=re.IGNORECASE)
-            parts.append(f"<li>{_e(prefix)}. <a href='{_e(url)}'>{_e(host)}</a></li>")
-        else:
-            parts.append(f"<li>{_e(text)}</li>")
-    parts.append("</ol></aside>")
+    single_column_weight = sum(_source_entry_line_weight(source, columns=1) for source in sources)
+    columns = 1 if len(sources) <= 10 and single_column_weight <= 72.0 else 2
+    source_pages = _balanced_source_pages(sources, columns=columns)
+    layout_class = "sources-single" if columns == 1 else "sources-multi"
+    parts: list[str] = []
+    source_index = 0
+    for page_index, page_sources in enumerate(source_pages):
+        eyebrow = "SOURCE REGISTER" if page_index == 0 else "SOURCE REGISTER / CONTINUED"
+        heading = "Sources and notes" if page_index == 0 else "Sources and notes continued"
+        parts.extend(
+            [
+                "<section class='whitepaper-sources'>",
+                f"<div class='eyebrow'>{eyebrow}</div>",
+                f"<h2>{heading}</h2>",
+            ]
+        )
+        if page_index == 0:
+            parts.append(
+                "<p class='sources-deck'>Consolidated references used across this report. Repeated sources appear once, with the sections in which they support the analysis.</p>"
+            )
+        parts.append(f"<div class='sources-register {layout_class}'>")
+        for source in page_sources:
+            sections_used = _source_usage_text(source)
+            parts.extend(
+                [
+                    "<article class='source-entry'>",
+                    f"<span>{source_index + 1:02d}</span>",
+                    "<div>",
+                    f"<p>{_e(source['citation'])}</p>",
+                    f"<a href='{_e(source['url'])}'>{_e(source['host'])}</a>" if source["url"] else "",
+                    f"<small>Used in: {_e(sections_used)}</small>" if sections_used else "",
+                    "</div></article>",
+                ]
+            )
+            source_index += 1
+        parts.append("</div></section>")
     return "".join(parts)
 
 
@@ -1364,8 +1514,6 @@ p { orphans: 3; widows: 3; }
 .executive-deck { max-width: 158mm; margin-bottom: 4mm; color: #2777c9; font-size: 12.5pt; line-height: 1.34; }
 .executive-copy { column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; color: #334155; font-size: 7.75pt; line-height: 1.37; }
 .executive-copy p { margin: 0 0 3.2mm; }
-.executive-summary .whitepaper-footnotes { margin-top: 2.5mm; padding-top: 1.8mm; font-size: 5.6pt; line-height: 1.25; }
-.executive-summary .whitepaper-footnotes ol { margin-top: 1mm; }
 .whitepaper-contents { padding-top: 4mm; }
 .whitepaper-contents h2 { margin: 0 0 3mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; }
 .contents-deck { max-width: 132mm; margin-bottom: 13mm; color: #5c6b7c; font-size: 11pt; line-height: 1.5; }
@@ -1375,7 +1523,7 @@ p { orphans: 3; widows: 3; }
 .whitepaper-contents strong { color: #10264a; font-family: Georgia, "Times New Roman", serif; font-size: 13.5pt; font-weight: 400; line-height: 1.12; }
 .whitepaper-contents li p { max-width: 142mm; margin: 1.2mm 0 0; color: #68778a; font-size: 7.4pt; line-height: 1.28; }
 .contents-page { color: #176ddc; font-size: 9pt; font-weight: 700; text-align: right; }
-.whitepaper-chapter, .whitepaper-chapter-continuation, .whitepaper-exhibit, .whitepaper-outlook, .whitepaper-disclaimer { break-before: page; }
+.whitepaper-chapter, .whitepaper-chapter-continuation, .whitepaper-exhibit, .whitepaper-outlook, .whitepaper-sources, .whitepaper-disclaimer { break-before: page; }
 .chapter-opening-page { display: flex; flex-direction: column; }
 .whitepaper-chapter-continuation { break-inside: avoid-page; }
 .chapter-head { display: grid; gap: 5mm; margin-bottom: 4mm; padding-top: 1.5mm; grid-template-columns: 22mm 1fr; border-top: .9mm solid #0b579d; }
@@ -1391,7 +1539,6 @@ p { orphans: 3; widows: 3; }
 .chapter-visual img { display: block; width: 100%; height: 48mm; object-fit: cover; }
 .chapter-visual figcaption { display: flex; justify-content: space-between; gap: 8mm; margin-top: 1.2mm; color: #7b8796; font-size: 6pt; }
 .chapter-visual figcaption strong { color: #176ddc; letter-spacing: .12em; }
-.chapter-opening-page > .whitepaper-footnotes, .whitepaper-chapter-continuation > .whitepaper-footnotes { margin-top: auto; }
 .chapter-continuation-head { margin-bottom: 6mm; padding-top: 3mm; border-top: .9mm solid #0b579d; }
 .chapter-continuation-head span { display: block; margin-bottom: 3mm; color: #1587a6; font-size: 7pt; font-weight: 800; letter-spacing: .17em; }
 .chapter-continuation-head h2 { max-width: 155mm; margin: 0; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 20pt; font-weight: 400; line-height: 1.08; }
@@ -1495,14 +1642,6 @@ p { orphans: 3; widows: 3; }
 .exhibit-analysis { margin-top: 6mm; column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; }
 .exhibit-analysis p { margin: 0 0 3mm; color: #3b4a5e; font-size: 8pt; }
 .whitepaper-source { margin: 5mm 0 0; padding-top: 3mm; color: #778596; border-top: .25mm solid #cfd8e1; font-size: 6.7pt; }
-.whitepaper-footnotes { margin-top: 2.5mm; padding-top: 1.7mm; color: #7a8795; border-top: .25mm solid #d5dde5; font-size: 5.9pt; line-height: 1.3; break-inside: auto; }
-.whitepaper-footnotes strong { color: #536276; font-size: 6.3pt; letter-spacing: .08em; text-transform: uppercase; }
-.whitepaper-footnotes ol { margin: 1.5mm 0 0; padding-left: 5mm; }
-.whitepaper-footnotes li { margin-bottom: 1mm; }
-.whitepaper-footnotes a { color: #4f718f; text-decoration: none; border-bottom: .15mm solid #9eb2c4; }
-.whitepaper-exhibit > .whitepaper-footnotes { font-size: 5.4pt; line-height: 1.2; break-inside: avoid-page; }
-.whitepaper-exhibit > .whitepaper-footnotes ol { margin-top: 1mm; column-count: 2; column-gap: 7mm; column-fill: balance; }
-.whitepaper-exhibit > .whitepaper-footnotes li { margin-bottom: .6mm; break-inside: avoid; }
 .whitepaper-exhibit.exhibit-dense .whitepaper-exhibit-head { margin-bottom: 3.5mm; }
 .whitepaper-exhibit.exhibit-dense .whitepaper-exhibit-head h2 { font-size: 20.5pt; }
 .whitepaper-exhibit.exhibit-dense .whitepaper-exhibit-head p { font-size: 10pt; }
@@ -1523,7 +1662,6 @@ p { orphans: 3; widows: 3; }
 .whitepaper-exhibit.exhibit-dense .market-layer > span { margin-bottom: 4mm; }
 .whitepaper-exhibit.exhibit-dense .market-layer strong { min-height: 14mm; font-size: 12pt; }
 .whitepaper-exhibit.exhibit-dense .market-layer p { margin-top: 2mm; font-size: 6.7pt; line-height: 1.3; }
-.whitepaper-exhibit.exhibit-dense > .whitepaper-footnotes { margin-top: 1.5mm; padding-top: 1.2mm; }
 .whitepaper-outlook { padding-top: 8mm; }
 .whitepaper-outlook h2 { max-width: 158mm; margin: 0 0 4mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 31pt; font-weight: 400; line-height: 1.05; }
 .outlook-deck { max-width: 145mm; margin-bottom: 8mm; color: #2777c9; font-size: 12.5pt; line-height: 1.38; }
@@ -1536,9 +1674,16 @@ p { orphans: 3; widows: 3; }
 .whitepaper-outlook.outlook-dense blockquote { margin-bottom: 3mm; padding-top: 2mm; padding-bottom: 2mm; font-size: 12pt; line-height: 1.22; }
 .whitepaper-outlook.outlook-dense .outlook-copy { font-size: 8.25pt; line-height: 1.42; }
 .whitepaper-outlook.outlook-dense .outlook-copy p { margin-bottom: 2.6mm; }
-.whitepaper-outlook.outlook-dense > .whitepaper-footnotes { margin-top: 1.5mm; padding-top: 1.2mm; font-size: 5.3pt; line-height: 1.2; break-inside: avoid-page; }
-.whitepaper-outlook.outlook-dense > .whitepaper-footnotes ol { margin-top: .8mm; column-count: 2; column-gap: 7mm; column-fill: balance; }
-.whitepaper-outlook.outlook-dense > .whitepaper-footnotes li { margin-bottom: .5mm; break-inside: avoid; }
+.whitepaper-sources { padding-top: 5mm; }
+.whitepaper-sources h2 { margin: 0 0 3mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; line-height: 1.05; }
+.sources-deck { max-width: 156mm; margin: 0 0 7mm; color: #5c6b7c; font-size: 10pt; line-height: 1.45; }
+.sources-register.sources-multi { column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; }
+.source-entry { display: grid; gap: 3mm; margin: 0 0 4mm; padding: 0 0 3.5mm; grid-template-columns: 8mm 1fr; border-bottom: .25mm solid #d6dee6; break-inside: avoid; }
+.source-entry > span { color: #1587a6; font-family: Georgia, "Times New Roman", serif; font-size: 9.5pt; line-height: 1.2; }
+.source-entry p { margin: 0; color: #344256; font-size: 8.2pt; line-height: 1.38; }
+.source-entry a { display: inline-block; margin-top: 1mm; color: #176ddc; border-bottom: .15mm solid #a8bed2; font-size: 8pt; line-height: 1.3; text-decoration: none; overflow-wrap: anywhere; }
+.source-entry small { display: block; margin-top: 1.2mm; color: #738292; font-size: 8pt; line-height: 1.35; }
+.sources-register.sources-single .source-entry { margin-bottom: 0; padding: 3mm 0; grid-template-columns: 10mm 1fr; }
 .whitepaper-disclaimer { padding-top: 7mm; color: #687382; }
 .whitepaper-disclaimer h2 { margin: 0 0 4mm; color: #26384d; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; }
 .disclaimer-lead { max-width: 158mm; margin-bottom: 6mm; color: #596675; font-size: 8.6pt; line-height: 1.5; }

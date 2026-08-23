@@ -5,7 +5,6 @@ import hashlib
 import io
 import json
 import os
-import random
 import re
 import shutil
 import time
@@ -180,24 +179,6 @@ SUPPORTED_PANELS = {
     "milestones",
     "vehicle_scale",
 }
-AUTHOR_POOL = (
-    "Amelia Rhodes",
-    "Marcus Bell",
-    "Sofia Alvarez",
-    "Julian Hart",
-    "Eleanor Hayes",
-    "Daniel Mercer",
-    "Clara Bennett",
-    "Nathaniel Brooks",
-    "Isabelle Laurent",
-    "Thomas Reid",
-    "Maya Sullivan",
-    "Oliver Grant",
-    "Helena Ward",
-    "Samuel Price",
-    "Victoria Cole",
-    "Adrian Foster",
-)
 BLOCKED_SOURCE_DOMAIN_TOKENS = (
     "baijiahao.baidu.com",
     "blog.udn.com",
@@ -3110,20 +3091,7 @@ def _citation_rows(source_ids: Iterable[Any], source_map: Mapping[str, Mapping[s
         if not source:
             continue
         rows.append(f"{_english_source_title(source)}, {source['domain']}, {source['url']}")
-    # Five long citations can spill a single footnote onto an otherwise empty page.
-    # Four still provides strong triangulation while keeping the citation block intact.
-    return rows[:4]
-
-
-def _authors(slug: str) -> list[dict[str, str]]:
-    rng = random.Random(int(hashlib.sha256(slug.encode("utf-8")).hexdigest()[:16], 16))
-    names = rng.sample(AUTHOR_POOL, 4)
-    roles = ("China Technology Research", "Capital Markets Research", "Industry Strategy", "Research Operations")
-    result = [{"name": "Frank Feng", "role": "Managing Partner", "email": "frank@gatex.fund"}]
-    for name, role in zip(names, roles):
-        first = re.sub(r"[^a-z]", "", name.split()[0].lower())
-        result.append({"name": name, "role": role, "email": f"{first}@gatex.fund"})
-    return result
+    return rows
 
 
 def _disclaimer() -> dict[str, Any]:
@@ -3231,7 +3199,10 @@ def _build_payload(
         "accessScope": "member",
         "contentSections": sections,
         "coverImagePath": executive_visual["path"],
-        "authors": _authors(slug),
+        "authors": [],
+        "authorsApproved": False,
+        "publicationSignatory": {"name": "Frank Feng", "role": "Managing Partner"},
+        "publicationSignatoryApproved": True,
     }
 
 
@@ -3256,6 +3227,7 @@ def _page_composition_issues(page_text: str, page_number: int) -> list[str]:
     page_lower = page_text.lower()
     if (
         "sources and notes" in page_lower
+        and "source register" not in page_lower
         and word_count < 120
         and not any(
             marker in page_lower
