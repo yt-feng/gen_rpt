@@ -94,3 +94,6 @@ def rank_retrieved_chunks(
         item["rank"] = idx + 1
         
     return ranked_list
+
+# Support hybrid RRF rank bindings
+from app.services.retrieval_fusion import reciprocal_rank_fusion
