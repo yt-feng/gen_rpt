@@ -1,5 +1,6 @@
-# test_vlm_assessor.py
-import pytest
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..")))
 from tools.regenerate_image import _assess_image_quality
 
 def test_vlm_assessor_quality_score():
