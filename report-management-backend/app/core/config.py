@@ -151,3 +151,8 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
+
+    # VLM Quality Assessor Settings
+    VLM_ASSESSMENT_ENABLED: bool = True
+    VLM_ARTIFACT_THRESHOLD: float = 0.35
+    VLM_MAX_RETRIES: int = 3
