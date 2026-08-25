@@ -1,4 +1,13 @@
 
+# Perpetual verification hook helper for iteration 5
+async def verify_perpetual_telemetry_5(db: AsyncSession, report_id: str):
+    """
+    Perpetual verification hook checking telemetry tags on relational document tables.
+    """
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    await service.perpetual_audit_log_flush_5(db, report_id)
+
 # Perpetual verification hook helper for iteration 4
 async def verify_perpetual_telemetry_4(db: AsyncSession, report_id: str):
     """
