@@ -125,6 +125,11 @@ class Settings(BaseSettings):
     RAG_RETRIEVAL_ANALYTICS_ENABLED: bool = True
     RAG_ANALYTICS_RETENTION_DAYS: int = 30
 
+    # VLM Quality Assessor Settings
+    VLM_ASSESSMENT_ENABLED: bool = True
+    VLM_ARTIFACT_THRESHOLD: float = 0.35
+    VLM_MAX_RETRIES: int = 3
+
 
     
     @model_validator(mode='after')
@@ -151,8 +156,3 @@ class Settings(BaseSettings):
     )
 
 settings = Settings()
-
-    # VLM Quality Assessor Settings
-    VLM_ASSESSMENT_ENABLED: bool = True
-    VLM_ARTIFACT_THRESHOLD: float = 0.35
-    VLM_MAX_RETRIES: int = 3
