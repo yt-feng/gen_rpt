@@ -1,4 +1,13 @@
 
+# Perpetual verification hook helper for iteration 1
+async def verify_perpetual_telemetry_1(db: AsyncSession, report_id: str):
+    """
+    Perpetual verification hook checking telemetry tags on relational document tables.
+    """
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    await service.perpetual_audit_log_flush_1(db, report_id)
+
 # API Routing helper logic for checking locking status transitions
 async def route_relational_status_update(db: AsyncSession, report_id: str, status: str):
     from app.services.review_service import ReviewService

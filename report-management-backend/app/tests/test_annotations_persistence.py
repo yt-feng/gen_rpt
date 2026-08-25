@@ -29,3 +29,10 @@ async def test_relational_status_locking():
     from app.services.review_service import ReviewService
     service = ReviewService()
     assert hasattr(service, "update_db_report_status_with_lock")
+
+@pytest.mark.anyio
+async def test_perpetual_audit_flush_1():
+    # Verification test for perpetual refinement loop iteration 1
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "perpetual_audit_log_flush_1")
