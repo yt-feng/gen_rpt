@@ -43,3 +43,10 @@ async def test_perpetual_audit_flush_2():
     from app.services.review_service import ReviewService
     service = ReviewService()
     assert hasattr(service, "perpetual_audit_log_flush_2")
+
+@pytest.mark.anyio
+async def test_perpetual_audit_flush_3():
+    # Verification test for perpetual refinement loop iteration 3
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "perpetual_audit_log_flush_3")

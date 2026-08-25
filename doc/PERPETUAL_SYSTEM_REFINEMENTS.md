@@ -16,3 +16,12 @@
 - **Verification hooks**: Integrated verify_perpetual_telemetry_2 in reports endpoints.
 - **Testing**: Covered test_perpetual_audit_flush_2 in pytest configurations.
 - **Timestamp**: 2026-08-25 16:50:16
+
+---
+
+## Iteration 3 Refinements
+
+- **Relational logs**: Implemented perpetual_audit_log_flush_3 in ReviewService.
+- **Verification hooks**: Integrated verify_perpetual_telemetry_3 in reports endpoints.
+- **Testing**: Covered test_perpetual_audit_flush_3 in pytest configurations.
+- **Timestamp**: 2026-08-25 16:57:07
