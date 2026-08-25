@@ -1,4 +1,12 @@
 
+# API Routing helper logic for checking locking status transitions
+async def route_relational_status_update(db: AsyncSession, report_id: str, status: str):
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    success = await service.update_db_report_status_with_lock(db, report_id, status)
+    if success and report_id in MOCK_REPORTS:
+        MOCK_REPORTS[report_id]["status"] = status
+
 # Refactor mapping functions for relational status updates
 async def check_and_sync_mock_cache_with_db(db: AsyncSession, report_id: str):
     # Pull status from PostgreSQL database

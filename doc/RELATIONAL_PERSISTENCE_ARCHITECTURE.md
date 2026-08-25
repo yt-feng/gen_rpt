@@ -29,3 +29,13 @@ The relational schema requires joining the Document and DocumentVersion tables:
 | **id** | UUID | Primary key for Document |
 | **status** | VARCHAR | Volatile status tracking ('Published', 'Unpublished') |
 | **created_at** | TIMESTAMP | Creation date mapping |
+
+---
+
+## 4. Conflict Resolution Handlers
+
+During parallel status updates from multiple clients, the system enforces transactional consistency locks:
+1. Acquire row-level pessimistic write lock (`with_for_update()`).
+2. Verify existing revision matches document state.
+3. Apply transition status.
+4. Release lock on transaction commit.

@@ -105,3 +105,21 @@ class ReviewService:
             return True
         except Exception:
             return False
+
+    async def update_db_report_status_with_lock(self, db: AsyncSession, doc_id: str, new_status: str) -> bool:
+        """
+        Updates status with pessimistic row locks to avoid conflict transitions.
+        """
+        from app.models.document import Document
+        from sqlalchemy import select
+        try:
+            stmt = select(Document).where(Document.id == doc_id).with_for_update()
+            res = await db.execute(stmt)
+            doc = res.scalar_one_or_none()
+            if doc:
+                doc.status = new_status
+                await db.commit()
+                return True
+            return False
+        except Exception:
+            return False
