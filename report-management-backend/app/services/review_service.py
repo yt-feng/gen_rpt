@@ -91,3 +91,17 @@ class ReviewService:
             return res.scalar_one_or_none() or "pending"
         except Exception:
             return "pending"
+
+    async def update_db_report_status(self, db: AsyncSession, doc_id: str, new_status: str) -> bool:
+        """
+        Persists report status transitions directly in PostgreSQL.
+        """
+        from app.models.document import Document
+        from sqlalchemy import update
+        try:
+            stmt = update(Document).where(Document.id == doc_id).values(status=new_status)
+            await db.execute(stmt)
+            await db.commit()
+            return True
+        except Exception:
+            return False

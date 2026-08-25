@@ -17,3 +17,15 @@ This document tracks progress refactoring volatile memory caches to PostgreSQL-b
 graph TD
     MOCK_REPORTS[MOCK_REPORTS Cache] -.-> |Refactor Target| RelationalDB[(PostgreSQL Document Table)]
 ```
+
+---
+
+## 3. Database Schema Specifications
+
+The relational schema requires joining the Document and DocumentVersion tables:
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| **id** | UUID | Primary key for Document |
+| **status** | VARCHAR | Volatile status tracking ('Published', 'Unpublished') |
+| **created_at** | TIMESTAMP | Creation date mapping |

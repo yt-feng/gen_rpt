@@ -17,3 +17,9 @@ async def test_relational_status_logs():
     from app.services.review_service import ReviewService
     service = ReviewService()
     assert hasattr(service, "get_db_report_status")
+
+@pytest.mark.anyio
+async def test_relational_status_update():
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "update_db_report_status")

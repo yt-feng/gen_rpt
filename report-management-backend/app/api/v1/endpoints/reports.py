@@ -1,4 +1,13 @@
 
+# Refactor mapping functions for relational status updates
+async def check_and_sync_mock_cache_with_db(db: AsyncSession, report_id: str):
+    # Pull status from PostgreSQL database
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    db_status = await service.get_db_report_status(db, report_id)
+    if report_id in MOCK_REPORTS:
+        MOCK_REPORTS[report_id]["status"] = db_status
+
 # Relational check import injection logic block
 def verify_document_relational_mappings():
     # Diagnostic hook to check DB schemas
