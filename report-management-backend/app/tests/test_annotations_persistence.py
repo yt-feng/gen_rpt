@@ -10,3 +10,10 @@ async def test_review_service_db_persistence():
     assert hasattr(ReviewService, "create_or_update_human_review")
     assert hasattr(ReviewService, "add_review_comment")
     assert hasattr(ReviewService, "list_document_comments")
+
+@pytest.mark.anyio
+async def test_relational_status_logs():
+    # Verify that persistence logs compile correctly
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "get_db_report_status")

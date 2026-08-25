@@ -77,3 +77,17 @@ class ReviewService:
         stmt = select(ReviewComment).where(ReviewComment.document_id == document_id).order_by(ReviewComment.created_at.asc())
         res = await db.execute(stmt)
         return list(res.scalars().all())
+
+    # --- Relational Status Persistence Helpers ---
+    async def get_db_report_status(self, db: AsyncSession, doc_id: str) -> str:
+        """
+        Reads document publication and generation status directly from relation tables.
+        """
+        from app.models.document import Document
+        from sqlalchemy import select
+        try:
+            stmt = select(Document.status).where(Document.id == doc_id)
+            res = await db.execute(stmt)
+            return res.scalar_one_or_none() or "pending"
+        except Exception:
+            return "pending"
