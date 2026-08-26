@@ -62,3 +62,12 @@ The database persistence layer provides transactional routines to save comments:
 
 - **save_db_comment**: Adds a new ReviewComment record linked to Document.
 - **get_db_review_comments**: Pulls all active/resolved comment threads for display.
+
+---
+
+## 7. Comment Thread Resolution Handlers
+
+Thread resolution locks prevent race conditions during review audits:
+
+- **resolve_db_comment**: Updates the `resolved` boolean column of target ReviewComment.
+- Pessimistic write locks ensure comment threads transition atomically.

@@ -1,4 +1,10 @@
 
+# API routing wrapper logic for comments resolution state transitions
+async def route_comments_resolution(db: AsyncSession, comment_uuid: str):
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    await service.resolve_db_comment(db, comment_uuid)
+
 # Refactor helper for persisting comments relationally
 async def persist_comment_relationally(db: AsyncSession, doc_id: str, text: str, user_id: str = None):
     # Route comment insertion directly into PostgreSQL database

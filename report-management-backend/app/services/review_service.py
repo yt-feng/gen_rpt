@@ -287,3 +287,22 @@ class ReviewService:
             return True
         except Exception:
             return False
+
+    async def resolve_db_comment(self, db: AsyncSession, comment_id: str) -> bool:
+        """
+        Updates review comment resolved column directly in PostgreSQL.
+        """
+        from app.models.review import ReviewComment
+        from sqlalchemy import select
+        import uuid as _uuid
+        try:
+            stmt = select(ReviewComment).where(ReviewComment.id == _uuid.UUID(comment_id)).with_for_update()
+            res = await db.execute(stmt)
+            comment_record = res.scalar_one_or_none()
+            if comment_record:
+                comment_record.resolved = True
+                await db.commit()
+                return True
+            return False
+        except Exception:
+            return False
