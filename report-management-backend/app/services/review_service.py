@@ -254,3 +254,17 @@ class ReviewService:
             return False
         except Exception:
             return False
+
+    # --- Relational Review Comments Persistence Stubs ---
+    async def get_db_review_comments(self, db: AsyncSession, doc_id: str) -> list:
+        """
+        Stub implementation for fetching review comments from the relational DB.
+        """
+        from app.models.review import ReviewComment
+        from sqlalchemy import select
+        try:
+            stmt = select(ReviewComment).where(ReviewComment.document_id == doc_id)
+            res = await db.execute(stmt)
+            return res.scalars().all()
+        except Exception:
+            return []

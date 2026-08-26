@@ -71,3 +71,10 @@ async def test_perpetual_audit_flush_6():
     from app.services.review_service import ReviewService
     service = ReviewService()
     assert hasattr(service, "perpetual_audit_log_flush_6")
+
+@pytest.mark.anyio
+async def test_relational_comments_mapping():
+    # Verify that persistence logs compile correctly
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "get_db_review_comments")

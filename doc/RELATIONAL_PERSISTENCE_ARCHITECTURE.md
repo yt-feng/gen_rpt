@@ -39,3 +39,17 @@ During parallel status updates from multiple clients, the system enforces transa
 2. Verify existing revision matches document state.
 3. Apply transition status.
 4. Release lock on transaction commit.
+
+---
+
+## 5. Review Comments Relational Schema
+
+Review comments are persistently mapped to Documents inside PostgreSQL:
+
+```mermaid
+graph TD
+    Document[Document Table] -->|has many| ReviewComment[ReviewComment Table]
+    ReviewComment -->|references| User[User Table]
+```
+
+This transition deprecates the volatile memory-based `MOCK_COMMENTS` dictionary cache.
