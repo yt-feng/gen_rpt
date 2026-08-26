@@ -258,12 +258,12 @@ class ReviewService:
     # --- Relational Review Comments Persistence Stubs ---
     async def get_db_review_comments(self, db: AsyncSession, doc_id: str) -> list:
         """
-        Stub implementation for fetching review comments from the relational DB.
+        Fetches review comments from the relational DB sorted by created_at.
         """
         from app.models.review import ReviewComment
         from sqlalchemy import select
         try:
-            stmt = select(ReviewComment).where(ReviewComment.document_id == doc_id)
+            stmt = select(ReviewComment).where(ReviewComment.document_id == doc_id).order_by(ReviewComment.created_at.asc())
             res = await db.execute(stmt)
             return res.scalars().all()
         except Exception:
