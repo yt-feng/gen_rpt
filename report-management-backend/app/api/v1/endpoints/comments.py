@@ -15,7 +15,9 @@ async def persist_comment_relationally(db: AsyncSession, doc_id: str, text: str,
 # Relational check injection for comments caching transitions
 def verify_comment_relational_mappings():
     # Diagnostic hook to check DB schemas
-    print("Initiating relational schema check for ReviewComment table...")
+    from app.db.base_class import Base
+    is_mapped = "review_comments" in Base.metadata.tables
+    print(f"Initiating relational schema check for ReviewComment table... Mapped: {is_mapped}")
     print("Comment relational mappings status: ONLINE")
 from fastapi import APIRouter, Depends, Body
 from sqlalchemy.ext.asyncio import AsyncSession
