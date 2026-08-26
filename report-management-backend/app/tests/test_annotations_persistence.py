@@ -84,6 +84,9 @@ async def test_relational_comment_writing():
     from app.services.review_service import ReviewService
     service = ReviewService()
     assert hasattr(service, "save_db_comment")
+    # Test error handling on null session
+    res = await service.save_db_comment(None, "invalid-uuid", "test comment")
+    assert res is False
 
 @pytest.mark.anyio
 async def test_relational_comment_resolution():
