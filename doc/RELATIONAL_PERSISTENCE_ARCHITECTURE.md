@@ -53,3 +53,12 @@ graph TD
 ```
 
 This transition deprecates the volatile memory-based `MOCK_COMMENTS` dictionary cache.
+
+---
+
+## 6. Review Comments Persistence Writers
+
+The database persistence layer provides transactional routines to save comments:
+
+- **save_db_comment**: Adds a new ReviewComment record linked to Document.
+- **get_db_review_comments**: Pulls all active/resolved comment threads for display.

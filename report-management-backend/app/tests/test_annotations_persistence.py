@@ -78,3 +78,9 @@ async def test_relational_comments_mapping():
     from app.services.review_service import ReviewService
     service = ReviewService()
     assert hasattr(service, "get_db_review_comments")
+
+@pytest.mark.anyio
+async def test_relational_comment_writing():
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "save_db_comment")

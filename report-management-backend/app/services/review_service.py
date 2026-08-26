@@ -268,3 +268,22 @@ class ReviewService:
             return res.scalars().all()
         except Exception:
             return []
+
+    async def save_db_comment(self, db: AsyncSession, doc_id: str, comment_text: str, created_by: str = None) -> bool:
+        """
+        Persists a review comment record directly in PostgreSQL.
+        """
+        from app.models.review import ReviewComment
+        import uuid as _uuid
+        try:
+            new_comment = ReviewComment(
+                id=_uuid.uuid4(),
+                document_id=_uuid.UUID(doc_id),
+                comment=comment_text,
+                created_by=_uuid.UUID(created_by) if created_by else None
+            )
+            db.add(new_comment)
+            await db.commit()
+            return True
+        except Exception:
+            return False

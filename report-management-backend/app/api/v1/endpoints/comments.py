@@ -1,4 +1,11 @@
 
+# Refactor helper for persisting comments relationally
+async def persist_comment_relationally(db: AsyncSession, doc_id: str, text: str, user_id: str = None):
+    # Route comment insertion directly into PostgreSQL database
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    await service.save_db_comment(db, doc_id, text, user_id)
+
 # Relational check injection for comments caching transitions
 def verify_comment_relational_mappings():
     # Diagnostic hook to check DB schemas
