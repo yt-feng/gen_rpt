@@ -1,0 +1,211 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Brent crude oil price scenarios under conflict escalation",
+    "chart_type": "line",
+    "executive_question": "How might oil prices evolve under different conflict escalation scenarios, and what is the impact on UAE fiscal revenues?",
+    "required_metrics": [
+      "Brent crude oil price (USD/bbl) annual average for 2020, 2021, 2022, 2023, 2024, 2025 (forecast)",
+      "UAE oil export volume (million barrels per day) for 2024",
+      "UAE fiscal break-even oil price (USD/bbl) for 2025"
+    ],
+    "comparison_set": [
+      "Historical annual averages (2020-2024) and forecast scenarios (2025) from EIA, IEA, and major banks."
+    ],
+    "preferred_sources": [
+      "U.S. Energy Information Administration (EIA)",
+      "International Energy Agency (IEA)",
+      "OPEC Monthly Oil Market Report",
+      "UAE Ministry of Finance"
+    ],
+    "search_queries": [
+      "Brent crude oil price annual average 2020 2021 2022 2023 2024",
+      "UAE fiscal break-even oil price 2025",
+      "Brent crude oil price forecast 2025 Iran US conflict"
+    ],
+    "data_quality_rule": "Use official historical data from EIA/IEA; for 2025 forecasts, cite at least three credible sources and show range. If only two endpoints are available, mark intermediate years as estimates and use CAGR or public forecast benchmark.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Sets the baseline for energy market impact and fiscal implications.",
+    "pre_exhibit_context": "The report has introduced the conflict and its potential economic transmission channels; this exhibit quantifies the most direct channel—oil prices.",
+    "post_exhibit_takeaway": "Under a high-escalation scenario, Brent could average above $90/bbl, boosting UAE oil revenues but increasing volatility and uncertainty for non-oil sectors."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Strait of Hormuz oil flows and war risk insurance premiums",
+    "chart_type": "line",
+    "executive_question": "How have oil flows through the Strait of Hormuz and war risk insurance premiums evolved during past Gulf conflicts, and what are the current levels?",
+    "required_metrics": [
+      "Oil flow through Strait of Hormuz (million barrels per day) for 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+      "War risk insurance premium rate (percentage of hull value) for tankers in the Gulf region for 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025"
+    ],
+    "comparison_set": [
+      "Annual data points for oil flows and insurance premiums over the past 7 years."
+    ],
+    "preferred_sources": [
+      "U.S. Energy Information Administration (EIA)",
+      "International Maritime Organization (IMO)",
+      "Lloyd's List",
+      "Insurance brokers (e.g., Marsh, Aon)"
+    ],
+    "search_queries": [
+      "Strait of Hormuz oil flow annual data 2018 2019 2020 2021 2022 2023 2024",
+      "war risk insurance premium Gulf tanker 2018 2019 2020 2021 2022 2023 2024",
+      "Strait of Hormuz shipping insurance rates 2025"
+    ],
+    "data_quality_rule": "Use official data for oil flows (EIA). For insurance premiums, use published market reports; if only two endpoints are available, mark intermediate years as estimates and use a transparent estimation rule (e.g., linear interpolation) but do not present as a trend line without caveat.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the supply disruption risk and its direct cost to UAE shipping and trade.",
+    "pre_exhibit_context": "The report has discussed the risk of disruption to the Strait of Hormuz; this exhibit provides historical context and current insurance cost trends.",
+    "post_exhibit_takeaway": "Historical data shows that during past conflicts, insurance premiums spiked sharply while oil flows dipped temporarily; current premiums are already elevated, indicating heightened risk."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "UAE banking sector exposure to vulnerable sectors",
+    "chart_type": "bar",
+    "executive_question": "Which sectors in the UAE banking loan portfolio are most exposed to conflict-related risks, and what is the potential credit risk?",
+    "required_metrics": [
+      "UAE banking sector loans by sector (USD billion) for 2024: real estate, construction, trade, manufacturing, tourism, other",
+      "Non-performing loan ratio (%) for UAE banks for 2020, 2021, 2022, 2023, 2024"
+    ],
+    "comparison_set": [
+      "Sectoral loan distribution and NPL trends over time."
+    ],
+    "preferred_sources": [
+      "UAE Central Bank",
+      "International Monetary Fund (IMF) Financial System Stability Assessment",
+      "Moody's, Fitch, S&P Global reports"
+    ],
+    "search_queries": [
+      "UAE banking sector loans by sector 2024",
+      "UAE non-performing loan ratio 2020 2021 2022 2023 2024",
+      "UAE central bank financial stability report 2025"
+    ],
+    "data_quality_rule": "Use official central bank data; if sectoral breakdown is not available, use IMF or rating agency estimates and clearly label as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the financial sector vulnerability and potential credit risk for UAE banks.",
+    "pre_exhibit_context": "The report has discussed the economic impact on trade, tourism, and real estate; this exhibit shows how these sectors translate into banking sector risk.",
+    "post_exhibit_takeaway": "UAE banks have significant exposure to trade, real estate, and construction, which are vulnerable to conflict; this could lead to higher non-performing loans and tighter lending standards."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Tourism and real estate indicators during past Gulf conflicts",
+    "chart_type": "line",
+    "executive_question": "How did UAE tourism arrivals and real estate transactions respond to past Gulf conflicts, and what is the recovery pattern?",
+    "required_metrics": [
+      "UAE international tourist arrivals (millions) for 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+      "Dubai real estate transaction volume (number of sales) for 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024"
+    ],
+    "comparison_set": [
+      "Annual data points over the past 10 years, highlighting conflict periods (e.g., 2019-2020)."
+    ],
+    "preferred_sources": [
+      "Dubai Statistics Center",
+      "UAE Federal Competitiveness and Statistics Authority",
+      "Dubai Land Department",
+      "World Tourism Organization (UNWTO)"
+    ],
+    "search_queries": [
+      "UAE international tourist arrivals annual 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024",
+      "Dubai real estate transactions annual 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024",
+      "UAE tourism impact Gulf conflict 2019 2020"
+    ],
+    "data_quality_rule": "Use official statistics; if data for all years is not available, use credible estimates and mark them clearly. At least 4 same-basis annual observations are required.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides historical evidence on the resilience of non-oil sectors to regional instability.",
+    "pre_exhibit_context": "The report has hypothesized that tourism and real estate will face short-term declines; this exhibit tests that hypothesis with historical data.",
+    "post_exhibit_takeaway": "Historical data shows that tourism and real estate experienced sharp declines during past conflicts but recovered within 6-12 months, suggesting a similar pattern may occur if the conflict does not escalate further."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "UAE renewable energy investment vs. fossil fuel investment",
+    "chart_type": "bubble",
+    "executive_question": "Is the conflict accelerating UAE's shift towards renewable energy investments compared to fossil fuels?",
+    "required_metrics": [
+      "UAE investment in renewable energy projects (USD billion) for 2020, 2021, 2022, 2023, 2024",
+      "UAE investment in fossil fuel projects (USD billion) for 2020, 2021, 2022, 2023, 2024",
+      "Number of renewable energy projects announced in UAE for 2020, 2021, 2022, 2023, 2024"
+    ],
+    "comparison_set": [
+      "Annual investment amounts and project counts for renewables vs. fossil fuels."
+    ],
+    "preferred_sources": [
+      "International Renewable Energy Agency (IRENA)",
+      "UAE Ministry of Energy and Infrastructure",
+      "Bloomberg New Energy Finance",
+      "Company announcements (e.g., Masdar, ADNOC)"
+    ],
+    "search_queries": [
+      "UAE renewable energy investment annual 2020 2021 2022 2023 2024",
+      "UAE fossil fuel investment annual 2020 2021 2022 2023 2024",
+      "UAE renewable energy projects announced 2024"
+    ],
+    "data_quality_rule": "Use official or industry data; if exact investment figures are not available, use project counts and estimated costs from credible sources, clearly labeled as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies long-term strategic investment opportunities arising from the conflict.",
+    "pre_exhibit_context": "The report has discussed the potential for accelerated diversification; this exhibit visualizes the investment trend in renewables versus fossil fuels.",
+    "post_exhibit_takeaway": "Investment in renewable energy projects is growing rapidly, while fossil fuel investments remain significant but may face increased scrutiny; the conflict could accelerate this shift."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "UAE government bond issuance and fiscal stimulus measures",
+    "chart_type": "bar",
+    "executive_question": "How has UAE government bond issuance changed in response to past geopolitical crises, and what is the current fiscal stance?",
+    "required_metrics": [
+      "UAE federal government bond issuance (USD billion) for 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+      "UAE government fiscal deficit/surplus (% of GDP) for 2018, 2019, 2020, 2021, 2022, 2023, 2024"
+    ],
+    "comparison_set": [
+      "Annual bond issuance and fiscal balance over the past 7 years."
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Finance",
+      "International Monetary Fund (IMF)",
+      "Bloomberg, Reuters"
+    ],
+    "search_queries": [
+      "UAE government bond issuance annual 2018 2019 2020 2021 2022 2023 2024",
+      "UAE fiscal deficit surplus GDP 2018 2019 2020 2021 2022 2023 2024",
+      "UAE fiscal stimulus geopolitical crisis 2020"
+    ],
+    "data_quality_rule": "Use official data from Ministry of Finance or IMF; if bond issuance data is not available, use central bank data or credible media reports.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Assesses sovereign risk and the potential for increased government spending and bond issuance.",
+    "pre_exhibit_context": "The report has hypothesized that the UAE government will increase fiscal spending; this exhibit examines historical bond issuance patterns during crises.",
+    "post_exhibit_takeaway": "Historical data shows that UAE government bond issuance increased during past crises to fund stimulus; a similar response is likely, affecting sovereign bond yields and investment opportunities."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Timeline of key conflict events and UAE policy responses",
+    "chart_type": "timeline",
+    "executive_question": "What are the key conflict events and UAE policy responses over the past year, and how do they correlate with market indicators?",
+    "required_metrics": [
+      "Date and description of major conflict events (e.g., US strikes, Iranian retaliation, shipping attacks) from January 2024 to present",
+      "Date and description of UAE government policy responses (e.g., diplomatic statements, economic measures, OPEC+ decisions) from January 2024 to present"
+    ],
+    "comparison_set": [
+      "Chronological list of events and responses."
+    ],
+    "preferred_sources": [
+      "Reuters, Bloomberg, Gulf News, Khaleej Times",
+      "UAE government official statements",
+      "OPEC press releases"
+    ],
+    "search_queries": [
+      "Iran US conflict timeline 2024 2025",
+      "UAE response Iran US conflict 2024 2025",
+      "UAE government statement Iran US war 2025"
+    ],
+    "data_quality_rule": "Use credible news sources and official statements; ensure dates are accurate and sources are cited.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a chronological context for the conflict and UAE's reactions, helping to understand causality.",
+    "pre_exhibit_context": "The report has discussed the conflict escalation; this exhibit maps the sequence of events and policy responses.",
+    "post_exhibit_takeaway": "The timeline shows a pattern of escalation and response, with UAE policy actions aimed at mitigating economic impact; understanding this sequence is crucial for anticipating future moves."
+  }
+]

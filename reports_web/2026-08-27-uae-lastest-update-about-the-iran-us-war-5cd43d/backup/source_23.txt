@@ -1,0 +1,16 @@
+Title: Crude Oil Prices: Brent - Europe (DCOILBRENTEU) - FRED
+URL: https://fred.stlouisfed.org/series/DCOILBRENTEU
+Source Type: snippet
+Domain: fred.stlouisfed.org
+Content Type: text/plain
+Search Query: Brent crude oil price annual average 2020 2021 2022 2023 2024
+
+Crude Oil Prices: Brent - Europe (DCOILBRENTEU) - FRED
+
+Crude Oil Prices: Brent - Europe (DCOILBRENTEU) ; 2026-08-25: 88.24 ; 2026-08-24: 92.71 ; 2026-08-21: 96.92 ; 2026-08-20: 94.00 ; 2026-08-19: 92.37.
+
+Source URL retained for public-source review: https://fred.stlouisfed.org/series/DCOILBRENTEU
+
+Search context: Brent crude oil price annual average 2020 2021 2022 2023 2024
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

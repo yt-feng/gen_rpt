@@ -1,0 +1,16 @@
+Title: Crude oil prices | MMA Statistics Database
+URL: https://database.mma.gov.mv/viya/series/3787
+Source Type: snippet
+Domain: database.mma.gov.mv
+Content Type: text/plain
+Search Query: Brent crude oil price annual average 2020 2021 2022 2023 2024
+
+Crude oil prices | MMA Statistics Database
+
+... 2020 2021 2022 2023 2024 2025 0 25 50 75 100 125. Composition chart is not ... This is an average of Brent, Dubai and WTI crude oil prices. Data. ID, 3787.
+
+Source URL retained for public-source review: https://database.mma.gov.mv/viya/series/3787
+
+Search context: Brent crude oil price annual average 2020 2021 2022 2023 2024
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

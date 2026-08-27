@@ -1,0 +1,765 @@
+{
+  "decision_question": "How should UAE-based businesses and investors adjust their risk exposure, supply chain dependencies, and capital allocation in response to the latest Iran-US conflict escalation?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "Escalation in the Iran-US conflict will cause a sustained increase in oil price volatility, with Brent crude averaging above $90/bbl for the next quarter, impacting UAE fiscal revenues and energy sector profitability.",
+      "decision_relevance": "Determines whether to hedge energy exposure or increase investment in UAE energy assets.",
+      "needed_evidence": [
+        "Historical oil price responses to similar conflicts, current OPEC+ spare capacity, and forward curves."
+      ],
+      "search_queries": [
+        "Brent crude price forecast Iran US conflict 2025",
+        "OPEC+ spare capacity 2025",
+        "oil price volatility historical geopolitical events"
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The risk of disruption to Strait of Hormuz shipping will lead to a 20-30% increase in maritime insurance premiums for UAE-based shipping companies, affecting trade margins.",
+      "decision_relevance": "Impacts logistics costs and trade finance decisions.",
+      "needed_evidence": [
+        "Current war risk insurance rates, historical premium spikes during Gulf conflicts, and shipping volume data."
+      ],
+      "search_queries": [
+        "war risk insurance premium Strait of Hormuz 2025",
+        "shipping insurance rates Gulf conflict",
+        "Strait of Hormuz shipping volume statistics"
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "UAE banks will face increased credit risk due to exposure to sectors vulnerable to conflict, leading to tighter lending standards and higher provisioning.",
+      "decision_relevance": "Affects credit availability and cost for UAE businesses.",
+      "needed_evidence": [
+        "UAE banking sector exposure to oil, trade, and real estate; historical NPL trends during geopolitical crises."
+      ],
+      "search_queries": [
+        "UAE banking sector exposure oil price shock",
+        "UAE non-performing loans geopolitical crisis",
+        "UAE central bank stress test 2025"
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "UAE's non-oil sectors, particularly tourism and real estate, will experience a short-term decline in demand due to regional instability, but will recover within 6 months if conflict does not escalate further.",
+      "decision_relevance": "Guides investment in hospitality and property development.",
+      "needed_evidence": [
+        "Historical tourism and real estate data during past Gulf conflicts, current forward bookings, and government stimulus measures."
+      ],
+      "search_queries": [
+        "UAE tourism arrivals geopolitical crisis impact",
+        "Dubai real estate market Iran US conflict",
+        "UAE economic diversification resilience"
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "UAE government will increase fiscal spending and potentially adjust its foreign policy stance to mitigate economic impact, leading to higher government bond issuance.",
+      "decision_relevance": "Affects sovereign risk and investment in UAE government bonds.",
+      "needed_evidence": [
+        "UAE federal budget announcements, bond issuance plans, and policy statements."
+      ],
+      "search_queries": [
+        "UAE government bond issuance 2025",
+        "UAE fiscal stimulus geopolitical crisis",
+        "UAE foreign policy Iran US conflict"
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The conflict will accelerate UAE's shift towards alternative energy sources and supply chain diversification, creating new investment opportunities in renewables and logistics hubs.",
+      "decision_relevance": "Identifies long-term strategic investment themes.",
+      "needed_evidence": [
+        "UAE renewable energy project announcements, logistics infrastructure investments, and trade route diversification plans."
+      ],
+      "search_queries": [
+        "UAE renewable energy investment 2025",
+        "UAE supply chain diversification strategy",
+        "UAE logistics hub development"
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The conflict will lead to a depreciation of the UAE dirham against the US dollar due to safe-haven flows, impacting import costs and inflation.",
+      "decision_relevance": "Affects currency risk management and pricing strategies.",
+      "needed_evidence": [
+        "Historical AED/USD movements during crises, central bank interventions, and inflation data."
+      ],
+      "search_queries": [
+        "UAE dirham exchange rate geopolitical crisis",
+        "UAE central bank intervention currency",
+        "UAE inflation rate 2025"
+      ]
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for UAE lastest update about the Iran-US war, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "top-down",
+        "formula": "Total UAE GDP impact = (Oil price change * Oil export volume) + (Non-oil GDP * Elasticity to conflict)",
+        "variables": [
+          "Oil price change",
+          "UAE oil export volume",
+          "Non-oil GDP",
+          "Elasticity estimate"
+        ],
+        "preferred_sources": [
+          "IMF",
+          "World Bank",
+          "UAE Federal Competitiveness and Statistics Authority"
+        ],
+        "search_queries": [
+          "UAE GDP oil export revenue 2025",
+          "UAE non-oil GDP growth",
+          "IMF UAE economic outlook"
+        ],
+        "known_limitations": [
+          "Elasticity estimates are uncertain",
+          "Does not capture sector-specific effects"
+        ]
+      },
+      {
+        "method": "bottom-up",
+        "formula": "Sum of sector impacts = Σ (Sector revenue * Exposure factor * Impact severity)",
+        "variables": [
+          "Sector revenue",
+          "Exposure factor",
+          "Impact severity"
+        ],
+        "preferred_sources": [
+          "UAE Central Bank",
+          "Dubai Statistics Center",
+          "Industry associations"
+        ],
+        "search_queries": [
+          "UAE tourism revenue 2025",
+          "UAE logistics sector revenue",
+          "UAE banking sector assets"
+        ],
+        "known_limitations": [
+          "Data availability for all sectors",
+          "Exposure factors are subjective"
+        ]
+      },
+      {
+        "method": "adoption_funnel",
+        "formula": "Number of affected businesses = Total businesses * % with supply chain exposure * % with contingency plans",
+        "variables": [
+          "Total businesses",
+          "Supply chain exposure rate",
+          "Contingency plan rate"
+        ],
+        "preferred_sources": [
+          "UAE Ministry of Economy",
+          "Dubai Chamber",
+          "Survey data"
+        ],
+        "search_queries": [
+          "UAE SME supply chain exposure",
+          "UAE business contingency planning survey"
+        ],
+        "known_limitations": [
+          "Survey data may be limited",
+          "Assumes uniform distribution"
+        ]
+      },
+      {
+        "method": "value_pool",
+        "formula": "Value at risk = Σ (Asset value * Probability of disruption * Loss given disruption)",
+        "variables": [
+          "Asset value",
+          "Probability of disruption",
+          "Loss given disruption"
+        ],
+        "preferred_sources": [
+          "Insurance industry reports",
+          "Risk assessment firms"
+        ],
+        "search_queries": [
+          "UAE insured assets value",
+          "war risk insurance UAE",
+          "business interruption loss estimates"
+        ],
+        "known_limitations": [
+          "Probability and loss estimates are highly uncertain"
+        ]
+      },
+      {
+        "method": "supply_side_sizing",
+        "formula": "Impact on oil supply = (Strait of Hormuz closure probability * Daily oil flow) + (OPEC+ spare capacity)",
+        "variables": [
+          "Closure probability",
+          "Daily oil flow",
+          "OPEC+ spare capacity"
+        ],
+        "preferred_sources": [
+          "EIA",
+          "OPEC",
+          "IEA"
+        ],
+        "search_queries": [
+          "Strait of Hormuz oil flow 2025",
+          "OPEC+ spare capacity 2025",
+          "EIA energy outlook"
+        ],
+        "known_limitations": [
+          "Closure probability is speculative",
+          "Spare capacity data may be outdated"
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war cost CAPEX OPEX"
+      ]
+    },
+    {
+      "id": "D7",
+      "metric": "Capacity or project pipeline",
+      "decision_use": "Check whether supply can serve demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war capacity project pipeline"
+      ]
+    },
+    {
+      "id": "D8",
+      "metric": "Funding or investment",
+      "decision_use": "Validate capital formation and investor conviction.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war funding investment by company"
+      ]
+    },
+    {
+      "id": "D9",
+      "metric": "Regulatory or policy gate",
+      "decision_use": "Identify non-market blockers to adoption.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war regulation policy approval"
+      ]
+    },
+    {
+      "id": "D10",
+      "metric": "Competitive share",
+      "decision_use": "Separate market growth from player-level advantage.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war market share competitive landscape"
+      ]
+    },
+    {
+      "id": "D11",
+      "metric": "Case studies or orders",
+      "decision_use": "Verify that adoption exists outside narrative claims.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war customer case order announcement"
+      ]
+    },
+    {
+      "id": "D12",
+      "metric": "Milestone timeline",
+      "decision_use": "Anchor the commercialization clock in dated evidence.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "UAE lastest update about the Iran-US war milestone timeline commercialization"
+      ]
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Brent crude oil price scenarios under conflict escalation",
+      "chart_type": "line",
+      "executive_question": "How might oil prices evolve under different conflict escalation scenarios, and what is the impact on UAE fiscal revenues?",
+      "required_metrics": [
+        "Brent crude oil price (USD/bbl) annual average for 2020, 2021, 2022, 2023, 2024, 2025 (forecast)",
+        "UAE oil export volume (million barrels per day) for 2024",
+        "UAE fiscal break-even oil price (USD/bbl) for 2025"
+      ],
+      "comparison_set": [
+        "Historical annual averages (2020-2024) and forecast scenarios (2025) from EIA, IEA, and major banks."
+      ],
+      "preferred_sources": [
+        "U.S. Energy Information Administration (EIA)",
+        "International Energy Agency (IEA)",
+        "OPEC Monthly Oil Market Report",
+        "UAE Ministry of Finance"
+      ],
+      "search_queries": [
+        "Brent crude oil price annual average 2020 2021 2022 2023 2024",
+        "UAE fiscal break-even oil price 2025",
+        "Brent crude oil price forecast 2025 Iran US conflict"
+      ],
+      "data_quality_rule": "Use official historical data from EIA/IEA; for 2025 forecasts, cite at least three credible sources and show range. If only two endpoints are available, mark intermediate years as estimates and use CAGR or public forecast benchmark.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Sets the baseline for energy market impact and fiscal implications.",
+      "pre_exhibit_context": "The report has introduced the conflict and its potential economic transmission channels; this exhibit quantifies the most direct channel—oil prices.",
+      "post_exhibit_takeaway": "Under a high-escalation scenario, Brent could average above $90/bbl, boosting UAE oil revenues but increasing volatility and uncertainty for non-oil sectors."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Strait of Hormuz oil flows and war risk insurance premiums",
+      "chart_type": "line",
+      "executive_question": "How have oil flows through the Strait of Hormuz and war risk insurance premiums evolved during past Gulf conflicts, and what are the current levels?",
+      "required_metrics": [
+        "Oil flow through Strait of Hormuz (million barrels per day) for 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+        "War risk insurance premium rate (percentage of hull value) for tankers in the Gulf region for 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025"
+      ],
+      "comparison_set": [
+        "Annual data points for oil flows and insurance premiums over the past 7 years."
+      ],
+      "preferred_sources": [
+        "U.S. Energy Information Administration (EIA)",
+        "International Maritime Organization (IMO)",
+        "Lloyd's List",
+        "Insurance brokers (e.g., Marsh, Aon)"
+      ],
+      "search_queries": [
+        "Strait of Hormuz oil flow annual data 2018 2019 2020 2021 2022 2023 2024",
+        "war risk insurance premium Gulf tanker 2018 2019 2020 2021 2022 2023 2024",
+        "Strait of Hormuz shipping insurance rates 2025"
+      ],
+      "data_quality_rule": "Use official data for oil flows (EIA). For insurance premiums, use published market reports; if only two endpoints are available, mark intermediate years as estimates and use a transparent estimation rule (e.g., linear interpolation) but do not present as a trend line without caveat.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies the supply disruption risk and its direct cost to UAE shipping and trade.",
+      "pre_exhibit_context": "The report has discussed the risk of disruption to the Strait of Hormuz; this exhibit provides historical context and current insurance cost trends.",
+      "post_exhibit_takeaway": "Historical data shows that during past conflicts, insurance premiums spiked sharply while oil flows dipped temporarily; current premiums are already elevated, indicating heightened risk."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "UAE banking sector exposure to vulnerable sectors",
+      "chart_type": "bar",
+      "executive_question": "Which sectors in the UAE banking loan portfolio are most exposed to conflict-related risks, and what is the potential credit risk?",
+      "required_metrics": [
+        "UAE banking sector loans by sector (USD billion) for 2024: real estate, construction, trade, manufacturing, tourism, other",
+        "Non-performing loan ratio (%) for UAE banks for 2020, 2021, 2022, 2023, 2024"
+      ],
+      "comparison_set": [
+        "Sectoral loan distribution and NPL trends over time."
+      ],
+      "preferred_sources": [
+        "UAE Central Bank",
+        "International Monetary Fund (IMF) Financial System Stability Assessment",
+        "Moody's, Fitch, S&P Global reports"
+      ],
+      "search_queries": [
+        "UAE banking sector loans by sector 2024",
+        "UAE non-performing loan ratio 2020 2021 2022 2023 2024",
+        "UAE central bank financial stability report 2025"
+      ],
+      "data_quality_rule": "Use official central bank data; if sectoral breakdown is not available, use IMF or rating agency estimates and clearly label as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Highlights the financial sector vulnerability and potential credit risk for UAE banks.",
+      "pre_exhibit_context": "The report has discussed the economic impact on trade, tourism, and real estate; this exhibit shows how these sectors translate into banking sector risk.",
+      "post_exhibit_takeaway": "UAE banks have significant exposure to trade, real estate, and construction, which are vulnerable to conflict; this could lead to higher non-performing loans and tighter lending standards."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Tourism and real estate indicators during past Gulf conflicts",
+      "chart_type": "line",
+      "executive_question": "How did UAE tourism arrivals and real estate transactions respond to past Gulf conflicts, and what is the recovery pattern?",
+      "required_metrics": [
+        "UAE international tourist arrivals (millions) for 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+        "Dubai real estate transaction volume (number of sales) for 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024"
+      ],
+      "comparison_set": [
+        "Annual data points over the past 10 years, highlighting conflict periods (e.g., 2019-2020)."
+      ],
+      "preferred_sources": [
+        "Dubai Statistics Center",
+        "UAE Federal Competitiveness and Statistics Authority",
+        "Dubai Land Department",
+        "World Tourism Organization (UNWTO)"
+      ],
+      "search_queries": [
+        "UAE international tourist arrivals annual 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024",
+        "Dubai real estate transactions annual 2015 2016 2017 2018 2019 2020 2021 2022 2023 2024",
+        "UAE tourism impact Gulf conflict 2019 2020"
+      ],
+      "data_quality_rule": "Use official statistics; if data for all years is not available, use credible estimates and mark them clearly. At least 4 same-basis annual observations are required.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides historical evidence on the resilience of non-oil sectors to regional instability.",
+      "pre_exhibit_context": "The report has hypothesized that tourism and real estate will face short-term declines; this exhibit tests that hypothesis with historical data.",
+      "post_exhibit_takeaway": "Historical data shows that tourism and real estate experienced sharp declines during past conflicts but recovered within 6-12 months, suggesting a similar pattern may occur if the conflict does not escalate further."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "UAE renewable energy investment vs. fossil fuel investment",
+      "chart_type": "bubble",
+      "executive_question": "Is the conflict accelerating UAE's shift towards renewable energy investments compared to fossil fuels?",
+      "required_metrics": [
+        "UAE investment in renewable energy projects (USD billion) for 2020, 2021, 2022, 2023, 2024",
+        "UAE investment in fossil fuel projects (USD billion) for 2020, 2021, 2022, 2023, 2024",
+        "Number of renewable energy projects announced in UAE for 2020, 2021, 2022, 2023, 2024"
+      ],
+      "comparison_set": [
+        "Annual investment amounts and project counts for renewables vs. fossil fuels."
+      ],
+      "preferred_sources": [
+        "International Renewable Energy Agency (IRENA)",
+        "UAE Ministry of Energy and Infrastructure",
+        "Bloomberg New Energy Finance",
+        "Company announcements (e.g., Masdar, ADNOC)"
+      ],
+      "search_queries": [
+        "UAE renewable energy investment annual 2020 2021 2022 2023 2024",
+        "UAE fossil fuel investment annual 2020 2021 2022 2023 2024",
+        "UAE renewable energy projects announced 2024"
+      ],
+      "data_quality_rule": "Use official or industry data; if exact investment figures are not available, use project counts and estimated costs from credible sources, clearly labeled as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Identifies long-term strategic investment opportunities arising from the conflict.",
+      "pre_exhibit_context": "The report has discussed the potential for accelerated diversification; this exhibit visualizes the investment trend in renewables versus fossil fuels.",
+      "post_exhibit_takeaway": "Investment in renewable energy projects is growing rapidly, while fossil fuel investments remain significant but may face increased scrutiny; the conflict could accelerate this shift."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "UAE government bond issuance and fiscal stimulus measures",
+      "chart_type": "bar",
+      "executive_question": "How has UAE government bond issuance changed in response to past geopolitical crises, and what is the current fiscal stance?",
+      "required_metrics": [
+        "UAE federal government bond issuance (USD billion) for 2018, 2019, 2020, 2021, 2022, 2023, 2024",
+        "UAE government fiscal deficit/surplus (% of GDP) for 2018, 2019, 2020, 2021, 2022, 2023, 2024"
+      ],
+      "comparison_set": [
+        "Annual bond issuance and fiscal balance over the past 7 years."
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Finance",
+        "International Monetary Fund (IMF)",
+        "Bloomberg, Reuters"
+      ],
+      "search_queries": [
+        "UAE government bond issuance annual 2018 2019 2020 2021 2022 2023 2024",
+        "UAE fiscal deficit surplus GDP 2018 2019 2020 2021 2022 2023 2024",
+        "UAE fiscal stimulus geopolitical crisis 2020"
+      ],
+      "data_quality_rule": "Use official data from Ministry of Finance or IMF; if bond issuance data is not available, use central bank data or credible media reports.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Assesses sovereign risk and the potential for increased government spending and bond issuance.",
+      "pre_exhibit_context": "The report has hypothesized that the UAE government will increase fiscal spending; this exhibit examines historical bond issuance patterns during crises.",
+      "post_exhibit_takeaway": "Historical data shows that UAE government bond issuance increased during past crises to fund stimulus; a similar response is likely, affecting sovereign bond yields and investment opportunities."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Timeline of key conflict events and UAE policy responses",
+      "chart_type": "timeline",
+      "executive_question": "What are the key conflict events and UAE policy responses over the past year, and how do they correlate with market indicators?",
+      "required_metrics": [
+        "Date and description of major conflict events (e.g., US strikes, Iranian retaliation, shipping attacks) from January 2024 to present",
+        "Date and description of UAE government policy responses (e.g., diplomatic statements, economic measures, OPEC+ decisions) from January 2024 to present"
+      ],
+      "comparison_set": [
+        "Chronological list of events and responses."
+      ],
+      "preferred_sources": [
+        "Reuters, Bloomberg, Gulf News, Khaleej Times",
+        "UAE government official statements",
+        "OPEC press releases"
+      ],
+      "search_queries": [
+        "Iran US conflict timeline 2024 2025",
+        "UAE response Iran US conflict 2024 2025",
+        "UAE government statement Iran US war 2025"
+      ],
+      "data_quality_rule": "Use credible news sources and official statements; ensure dates are accurate and sources are cited.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides a chronological context for the conflict and UAE's reactions, helping to understand causality.",
+      "pre_exhibit_context": "The report has discussed the conflict escalation; this exhibit maps the sequence of events and policy responses.",
+      "post_exhibit_takeaway": "The timeline shows a pattern of escalation and response, with UAE policy actions aimed at mitigating economic impact; understanding this sequence is crucial for anticipating future moves."
+    }
+  ],
+  "storyline_plan": {
+    "report_archetype": "market_investment",
+    "selected_modules": [
+      "source and forecast comparison",
+      "base, upside and downside scenarios",
+      "sensitivity drivers",
+      "segment and micro-market implications",
+      "investment recommendations"
+    ],
+    "coverage_requirements": [
+      "executive thesis",
+      "source-backed findings",
+      "causal mechanisms",
+      "counter-evidence and risks",
+      "decision implications",
+      "evidence-based actions"
+    ],
+    "core_question": "How should UAE-based businesses and investors adjust their risk exposure, supply chain dependencies, and capital allocation in response to the latest Iran-US conflict escalation?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: timeline, pricing, market, funding",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "In 2025, roughly 25% of the world's maritime trade in crude oil and petroleum products, as well as roughly 19% of liquefied natural gas, passed ..",
+      "In 2025, roughly 25% of the world's maritime trade in crude oil and petroleum products, as well as roughly 19% of liquefied natural gas, passed ..",
+      "According to data published in the Financial Times Ltd's 'fDi Markets' tracking database, in the first half of 2025, hotels and tourism (21.3%) was one of the ..",
+      "The Strait of Hormuz, through which an average of 20 million barrels per day (mb/d) of crude oil and oil products were shipped in 2025, is one of the world's ..",
+      "Only 0.14m b/d was restored, partly offset by extra cuts announced in March to compensate for past overproduction, primarily from Iraq and Kazakhstan, with minor adjustments for each of the GCC states – OPEC 20 March 2025 [3] OPEC, Press release 3 May 2025 [4] Bloomberg.com, 3 May 2025 ‘Saudis double down on seismic OPEC shift to sink oil prices’ [5] Reuters",
+      "Only 0.14m b/d was restored, partly offset by extra cuts announced in March to compensate for past overproduction, primarily from Iraq and Kazakhstan, with minor adjustments for each of the GCC states – OPEC 20 March 2025 [3] OPEC, Press release 3 May 2025 [4] Bloomberg.com, 3 May 2025 ‘Saudis double down on seismic OPEC shift to sink oil prices’ [5] Reuters"
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "Escalation in the Iran-US conflict will cause a sustained increase in oil price volatility, with Brent crude averaging above $90/bbl for the next quarter, impacting UAE fiscal revenues and energy sector profitability.",
+        "decision_relevance": "Determines whether to hedge energy exposure or increase investment in UAE energy assets.",
+        "needed_evidence": [
+          "Historical oil price responses to similar conflicts, current OPEC+ spare capacity, and forward curves."
+        ]
+      },
+      {
+        "id": "H2",
+        "hypothesis": "The risk of disruption to Strait of Hormuz shipping will lead to a 20-30% increase in maritime insurance premiums for UAE-based shipping companies, affecting trade margins.",
+        "decision_relevance": "Impacts logistics costs and trade finance decisions.",
+        "needed_evidence": [
+          "Current war risk insurance rates, historical premium spikes during Gulf conflicts, and shipping volume data."
+        ]
+      },
+      {
+        "id": "H3",
+        "hypothesis": "UAE banks will face increased credit risk due to exposure to sectors vulnerable to conflict, leading to tighter lending standards and higher provisioning.",
+        "decision_relevance": "Affects credit availability and cost for UAE businesses.",
+        "needed_evidence": [
+          "UAE banking sector exposure to oil, trade, and real estate; historical NPL trends during geopolitical crises."
+        ]
+      },
+      {
+        "id": "H4",
+        "hypothesis": "UAE's non-oil sectors, particularly tourism and real estate, will experience a short-term decline in demand due to regional instability, but will recover within 6 months if conflict does not escalate further.",
+        "decision_relevance": "Guides investment in hospitality and property development.",
+        "needed_evidence": [
+          "Historical tourism and real estate data during past Gulf conflicts, current forward bookings, and government stimulus measures."
+        ]
+      },
+      {
+        "id": "H5",
+        "hypothesis": "UAE government will increase fiscal spending and potentially adjust its foreign policy stance to mitigate economic impact, leading to higher government bond issuance.",
+        "decision_relevance": "Affects sovereign risk and investment in UAE government bonds.",
+        "needed_evidence": [
+          "UAE federal budget announcements, bond issuance plans, and policy statements."
+        ]
+      },
+      {
+        "id": "H6",
+        "hypothesis": "The conflict will accelerate UAE's shift towards alternative energy sources and supply chain diversification, creating new investment opportunities in renewables and logistics hubs.",
+        "decision_relevance": "Identifies long-term strategic investment themes.",
+        "needed_evidence": [
+          "UAE renewable energy project announcements, logistics infrastructure investments, and trade route diversification plans."
+        ]
+      },
+      {
+        "id": "H7",
+        "hypothesis": "The conflict will lead to a depreciation of the UAE dirham against the US dollar due to safe-haven flows, impacting import costs and inflation.",
+        "decision_relevance": "Affects currency risk management and pricing strategies.",
+        "needed_evidence": [
+          "Historical AED/USD movements during crises, central bank interventions, and inflation data."
+        ]
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "top-down",
+        "formula": "Total UAE GDP impact = (Oil price change * Oil export volume) + (Non-oil GDP * Elasticity to conflict)",
+        "variables": [
+          "Oil price change",
+          "UAE oil export volume",
+          "Non-oil GDP",
+          "Elasticity estimate"
+        ],
+        "known_limitations": [
+          "Elasticity estimates are uncertain",
+          "Does not capture sector-specific effects"
+        ]
+      },
+      {
+        "method": "bottom-up",
+        "formula": "Sum of sector impacts = Σ (Sector revenue * Exposure factor * Impact severity)",
+        "variables": [
+          "Sector revenue",
+          "Exposure factor",
+          "Impact severity"
+        ],
+        "known_limitations": [
+          "Data availability for all sectors",
+          "Exposure factors are subjective"
+        ]
+      },
+      {
+        "method": "adoption_funnel",
+        "formula": "Number of affected businesses = Total businesses * % with supply chain exposure * % with contingency plans",
+        "variables": [
+          "Total businesses",
+          "Supply chain exposure rate",
+          "Contingency plan rate"
+        ],
+        "known_limitations": [
+          "Survey data may be limited",
+          "Assumes uniform distribution"
+        ]
+      },
+      {
+        "method": "value_pool",
+        "formula": "Value at risk = Σ (Asset value * Probability of disruption * Loss given disruption)",
+        "variables": [
+          "Asset value",
+          "Probability of disruption",
+          "Loss given disruption"
+        ],
+        "known_limitations": [
+          "Probability and loss estimates are highly uncertain"
+        ]
+      },
+      {
+        "method": "supply_side_sizing",
+        "formula": "Impact on oil supply = (Strait of Hormuz closure probability * Daily oil flow) + (OPEC+ spare capacity)",
+        "variables": [
+          "Closure probability",
+          "Daily oil flow",
+          "OPEC+ spare capacity"
+        ],
+        "known_limitations": [
+          "Closure probability is speculative",
+          "Spare capacity data may be outdated"
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

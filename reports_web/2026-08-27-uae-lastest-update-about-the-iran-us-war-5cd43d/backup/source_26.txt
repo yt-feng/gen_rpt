@@ -1,0 +1,16 @@
+Title: Breakeven Fiscal Oil Price for United Arab Emirates - FRED
+URL: https://fred.stlouisfed.org/series/AREPZPIOILBEGUSD
+Source Type: snippet
+Domain: fred.stlouisfed.org
+Content Type: text/plain
+Search Query: UAE fiscal break-even oil price 2025
+
+Breakeven Fiscal Oil Price for United Arab Emirates - FRED
+
+2025: 49.95163 ; 2024: 53.89980 ; 2023: 52.81146 ; 2022: 46.56071 ; 2021: 52.95591.
+
+Source URL retained for public-source review: https://fred.stlouisfed.org/series/AREPZPIOILBEGUSD
+
+Search context: UAE fiscal break-even oil price 2025
+
+The page body could not be fully extracted, so this source should be treated as a lower-confidence public signal unless another fetched source confirms the same claim.

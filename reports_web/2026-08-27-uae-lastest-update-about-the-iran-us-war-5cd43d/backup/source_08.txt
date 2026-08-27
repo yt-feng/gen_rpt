@@ -1,0 +1,41 @@
+Title: World Oil Transit Chokepoints - EIA
+URL: https://www.eia.gov/international/analysis/special-topics/world_oil_transit_Chokepoints
+Source Type: html
+Domain: eia.gov
+Content Type: text/html; charset=UTF-8
+Search Query: Strait of Hormuz oil flow 2025
+
+International - U.S. Energy Information Administration (EIA)
+
+U.S. Energy Information Administration - EIA - Independent Statistics and Analysis
+Crude oil, gasoline, heating oil, diesel, propane, and other liquids including biofuels and natural gas liquids.
+Exploration and reserves, storage, imports and exports, production, prices, sales.
+Sales, revenue and prices, power plants, fuel use, stocks, generation, trade, demand & emissions.
+Energy use in homes, commercial buildings, manufacturing, and transportation.
+Reserves, production, prices, employment and productivity, distribution, stocks, imports and exports.
+Includes hydropower, solar, wind, geothermal, biomass and ethanol.
+Uranium fuel, nuclear reactors, generation, spent fuel.
+Comprehensive data summaries, comparisons, analysis, and projections integrated across all energy sources.
+Monthly and yearly energy forecasts, analysis of energy topics, financial analysis, congressional reports.
+Financial market analysis and financial data for major energy companies.
+Greenhouse gas data, voluntary reporting, electric power plant emissions.
+Maps, tools, and resources related to energy disruptions and infrastructure.
+State energy information, including overviews, rankings, data, and analyses.
+International energy information, including overviews, rankings, data, and analyses.
+Tools to customize searches, view specific data sets, study detailed documentation, and access time-series data.
+EIA's free and open data available as API, Excel add-in, bulk files, and widgets
+Come test out some of the products still in development and let us know what you think!
+EIA's open source code, available on GitHub.
+Forms EIA uses to collect energy data including descriptions, links to survey instructions, and additional information.
+Sign up for email subscriptions to receive messages about specific EIA products
+Subscribe to feeds for updates on EIA products including Today in Energy and What's New.
+Short, timely articles with graphics on energy, facts, issues, and trends.
+Lesson plans, science fair experiments, field trips, teacher guide, and career corner.
+Weekly Natural Gas Storage Report Supplement
+Residential Energy Consumption Survey (RECS)
+Commercial Buildings Energy Consumption Survey (CBECS)
+Manufacturing Energy Consumption Survey (MECS)
+Energy & Financial Markets: What Drives Crude Oil Prices?
+U.S. Energy-Related Carbon Dioxide Emissions
+Energy-Related Carbon Dioxide Emissions at the State Level
+Learn about the Department of Energy’s Vulnerability Disclosure Program

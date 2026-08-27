@@ -1,0 +1,157 @@
+{
+  "report_archetype": "market_investment",
+  "selected_modules": [
+    "source and forecast comparison",
+    "base, upside and downside scenarios",
+    "sensitivity drivers",
+    "segment and micro-market implications",
+    "investment recommendations"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "How should UAE-based businesses and investors adjust their risk exposure, supply chain dependencies, and capital allocation in response to the latest Iran-US conflict escalation?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, pricing, market, funding",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "In 2025, roughly 25% of the world's maritime trade in crude oil and petroleum products, as well as roughly 19% of liquefied natural gas, passed ..",
+    "In 2025, roughly 25% of the world's maritime trade in crude oil and petroleum products, as well as roughly 19% of liquefied natural gas, passed ..",
+    "According to data published in the Financial Times Ltd's 'fDi Markets' tracking database, in the first half of 2025, hotels and tourism (21.3%) was one of the ..",
+    "The Strait of Hormuz, through which an average of 20 million barrels per day (mb/d) of crude oil and oil products were shipped in 2025, is one of the world's ..",
+    "Only 0.14m b/d was restored, partly offset by extra cuts announced in March to compensate for past overproduction, primarily from Iraq and Kazakhstan, with minor adjustments for each of the GCC states – OPEC 20 March 2025 [3] OPEC, Press release 3 May 2025 [4] Bloomberg.com, 3 May 2025 ‘Saudis double down on seismic OPEC shift to sink oil prices’ [5] Reuters",
+    "Only 0.14m b/d was restored, partly offset by extra cuts announced in March to compensate for past overproduction, primarily from Iraq and Kazakhstan, with minor adjustments for each of the GCC states – OPEC 20 March 2025 [3] OPEC, Press release 3 May 2025 [4] Bloomberg.com, 3 May 2025 ‘Saudis double down on seismic OPEC shift to sink oil prices’ [5] Reuters"
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "Escalation in the Iran-US conflict will cause a sustained increase in oil price volatility, with Brent crude averaging above $90/bbl for the next quarter, impacting UAE fiscal revenues and energy sector profitability.",
+      "decision_relevance": "Determines whether to hedge energy exposure or increase investment in UAE energy assets.",
+      "needed_evidence": [
+        "Historical oil price responses to similar conflicts, current OPEC+ spare capacity, and forward curves."
+      ]
+    },
+    {
+      "id": "H2",
+      "hypothesis": "The risk of disruption to Strait of Hormuz shipping will lead to a 20-30% increase in maritime insurance premiums for UAE-based shipping companies, affecting trade margins.",
+      "decision_relevance": "Impacts logistics costs and trade finance decisions.",
+      "needed_evidence": [
+        "Current war risk insurance rates, historical premium spikes during Gulf conflicts, and shipping volume data."
+      ]
+    },
+    {
+      "id": "H3",
+      "hypothesis": "UAE banks will face increased credit risk due to exposure to sectors vulnerable to conflict, leading to tighter lending standards and higher provisioning.",
+      "decision_relevance": "Affects credit availability and cost for UAE businesses.",
+      "needed_evidence": [
+        "UAE banking sector exposure to oil, trade, and real estate; historical NPL trends during geopolitical crises."
+      ]
+    },
+    {
+      "id": "H4",
+      "hypothesis": "UAE's non-oil sectors, particularly tourism and real estate, will experience a short-term decline in demand due to regional instability, but will recover within 6 months if conflict does not escalate further.",
+      "decision_relevance": "Guides investment in hospitality and property development.",
+      "needed_evidence": [
+        "Historical tourism and real estate data during past Gulf conflicts, current forward bookings, and government stimulus measures."
+      ]
+    },
+    {
+      "id": "H5",
+      "hypothesis": "UAE government will increase fiscal spending and potentially adjust its foreign policy stance to mitigate economic impact, leading to higher government bond issuance.",
+      "decision_relevance": "Affects sovereign risk and investment in UAE government bonds.",
+      "needed_evidence": [
+        "UAE federal budget announcements, bond issuance plans, and policy statements."
+      ]
+    },
+    {
+      "id": "H6",
+      "hypothesis": "The conflict will accelerate UAE's shift towards alternative energy sources and supply chain diversification, creating new investment opportunities in renewables and logistics hubs.",
+      "decision_relevance": "Identifies long-term strategic investment themes.",
+      "needed_evidence": [
+        "UAE renewable energy project announcements, logistics infrastructure investments, and trade route diversification plans."
+      ]
+    },
+    {
+      "id": "H7",
+      "hypothesis": "The conflict will lead to a depreciation of the UAE dirham against the US dollar due to safe-haven flows, impacting import costs and inflation.",
+      "decision_relevance": "Affects currency risk management and pricing strategies.",
+      "needed_evidence": [
+        "Historical AED/USD movements during crises, central bank interventions, and inflation data."
+      ]
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "top-down",
+      "formula": "Total UAE GDP impact = (Oil price change * Oil export volume) + (Non-oil GDP * Elasticity to conflict)",
+      "variables": [
+        "Oil price change",
+        "UAE oil export volume",
+        "Non-oil GDP",
+        "Elasticity estimate"
+      ],
+      "known_limitations": [
+        "Elasticity estimates are uncertain",
+        "Does not capture sector-specific effects"
+      ]
+    },
+    {
+      "method": "bottom-up",
+      "formula": "Sum of sector impacts = Σ (Sector revenue * Exposure factor * Impact severity)",
+      "variables": [
+        "Sector revenue",
+        "Exposure factor",
+        "Impact severity"
+      ],
+      "known_limitations": [
+        "Data availability for all sectors",
+        "Exposure factors are subjective"
+      ]
+    },
+    {
+      "method": "adoption_funnel",
+      "formula": "Number of affected businesses = Total businesses * % with supply chain exposure * % with contingency plans",
+      "variables": [
+        "Total businesses",
+        "Supply chain exposure rate",
+        "Contingency plan rate"
+      ],
+      "known_limitations": [
+        "Survey data may be limited",
+        "Assumes uniform distribution"
+      ]
+    },
+    {
+      "method": "value_pool",
+      "formula": "Value at risk = Σ (Asset value * Probability of disruption * Loss given disruption)",
+      "variables": [
+        "Asset value",
+        "Probability of disruption",
+        "Loss given disruption"
+      ],
+      "known_limitations": [
+        "Probability and loss estimates are highly uncertain"
+      ]
+    },
+    {
+      "method": "supply_side_sizing",
+      "formula": "Impact on oil supply = (Strait of Hormuz closure probability * Daily oil flow) + (OPEC+ spare capacity)",
+      "variables": [
+        "Closure probability",
+        "Daily oil flow",
+        "OPEC+ spare capacity"
+      ],
+      "known_limitations": [
+        "Closure probability is speculative",
+        "Spare capacity data may be outdated"
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}
