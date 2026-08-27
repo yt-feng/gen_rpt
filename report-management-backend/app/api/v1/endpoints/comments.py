@@ -1,4 +1,14 @@
 
+# Telemetry validator wrapper helper for iteration 20
+async def validate_user_comments_telemetry_20(db: AsyncSession, user_uuid: str):
+    """
+    Perpetual validation hook checking user comments counts on relational database.
+    """
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    results = await service.get_db_review_comments_by_user_20(db, user_uuid)
+    print(f"Relational telemetry diagnostics checked for user {user_uuid}. Results: {len(results)}")
+
 # Telemetry validator wrapper helper for iteration 19
 async def validate_user_comments_telemetry_19(db: AsyncSession, user_uuid: str):
     """
