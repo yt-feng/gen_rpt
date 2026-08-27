@@ -291,3 +291,12 @@ async def test_relational_comments_by_user_22():
     assert hasattr(service, "get_db_review_comments_by_user_22")
     res = await service.get_db_review_comments_by_user_22(None, "invalid-uuid")
     assert res == []
+
+@pytest.mark.anyio
+async def test_relational_comments_by_user_23():
+    # Verification test for relational query loop iteration 23
+    from app.services.review_service import ReviewService
+    service = ReviewService()
+    assert hasattr(service, "get_db_review_comments_by_user_23")
+    res = await service.get_db_review_comments_by_user_23(None, "invalid-uuid")
+    assert res == []
