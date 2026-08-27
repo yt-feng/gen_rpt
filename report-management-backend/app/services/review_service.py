@@ -681,3 +681,18 @@ class ReviewService:
             return res.scalars().all()
         except Exception:
             return []
+
+    # --- Relational Refinement iteration 26 ---
+    async def get_db_review_comments_by_user_26(self, db: AsyncSession, user_uuid: str) -> list:
+        """
+        Perpetual task iteration 26: Fetch comments created by a specific user UUID.
+        """
+        from app.models.review import ReviewComment
+        from sqlalchemy import select
+        import uuid as _uuid
+        try:
+            stmt = select(ReviewComment).where(ReviewComment.created_by == _uuid.UUID(user_uuid))
+            res = await db.execute(stmt)
+            return res.scalars().all()
+        except Exception:
+            return []
