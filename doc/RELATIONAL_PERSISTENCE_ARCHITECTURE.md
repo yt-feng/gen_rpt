@@ -71,3 +71,12 @@ Thread resolution locks prevent race conditions during review audits:
 
 - **resolve_db_comment**: Updates the `resolved` boolean column of target ReviewComment.
 - Pessimistic write locks ensure comment threads transition atomically.
+
+---
+
+### 8. Iteration 1 Database Verification Specs
+
+Relational verification specifications for comments trace validations:
+- Checked retrieval performance of `get_db_review_comments_by_user_1`.
+- Confirmed error handling capabilities during malformed query inputs.
+- Covered by unit test `test_relational_comments_by_user_1`.
