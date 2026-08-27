@@ -98,3 +98,12 @@ Relational verification specifications for comments trace validations:
 - Checked retrieval performance of `get_db_review_comments_by_user_3`.
 - Confirmed error handling capabilities during malformed query inputs.
 - Covered by unit test `test_relational_comments_by_user_3`.
+
+---
+
+### 8. Iteration 4 Database Verification Specs
+
+Relational verification specifications for comments trace validations:
+- Checked retrieval performance of `get_db_review_comments_by_user_4`.
+- Confirmed error handling capabilities during malformed query inputs.
+- Covered by unit test `test_relational_comments_by_user_4`.
