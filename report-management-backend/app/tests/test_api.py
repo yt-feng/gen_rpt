@@ -11,7 +11,7 @@ def test_generation_rag_gate_is_opt_in():
     generation._require_validated_evidence(request.rag_required, [])
 
     with pytest.raises(HTTPException) as exc:
-        generation._require_validated_evidence(True, [])
+        generation._require_validated_evidence(True, [], has_active_collections=True)
     assert exc.value.status_code == 422
 
 
