@@ -1,0 +1,222 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Annual Government Budget Allocations for Climate-Resilient Infrastructure in China (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "How has China's government spending on climate-resilient infrastructure evolved over the past decade, and what is the projected trajectory to 2030?",
+    "required_metrics": [
+      "Year (2020-2030)",
+      "Annual government budget allocation for climate-resilient infrastructure (in USD billion or CNY billion)",
+      "Entity: China central and local government"
+    ],
+    "comparison_set": [
+      "Annual data points from 2020 to 2030 (projected for 2027-2030)"
+    ],
+    "preferred_sources": [
+      "China's Ministry of Finance",
+      "National Development and Reform Commission (NDRC)",
+      "World Bank",
+      "Asian Development Bank"
+    ],
+    "search_queries": [
+      "China annual budget allocation climate-resilient infrastructure 2020 2021 2022 2023 2024 2025 2026",
+      "China government spending flood control water management 2020-2030 official data",
+      "NDRC climate resilience infrastructure investment plan 2030"
+    ],
+    "data_quality_rule": "Use official government budget documents or credible international organization reports. If only a few years are available, use CAGR from 2020-2026 to project to 2030, clearly marking projections as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the scale and trend of public investment in climate-resilient infrastructure, providing the financial context for subsequent analysis of sovereign AI infrastructure priorities.",
+    "pre_exhibit_context": "The 2026 disaster season has prompted significant government investment in climate-resilient infrastructure. To understand the magnitude and trajectory of this investment, we examine annual budget allocations.",
+    "post_exhibit_takeaway": "Government spending on climate-resilient infrastructure has been steadily increasing, with a notable acceleration post-2026, indicating a sustained commitment that will drive demand for AI-driven monitoring and predictive analytics."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Semiconductor Supply Chain Disruption Events Due to Extreme Weather (2015-2026)",
+    "chart_type": "line",
+    "executive_question": "How has the frequency and impact of extreme weather events on semiconductor supply chains evolved over the past decade?",
+    "required_metrics": [
+      "Year (2015-2026)",
+      "Number of disruption events due to extreme weather",
+      "Estimated financial impact (in USD billion)",
+      "Entity: Global semiconductor supply chain"
+    ],
+    "comparison_set": [
+      "Annual data points from 2015 to 2026"
+    ],
+    "preferred_sources": [
+      "Industry reports (Gartner, McKinsey, Deloitte)",
+      "Insurance claims data (e.g., Munich Re, Swiss Re)",
+      "Semiconductor Industry Association (SIA)"
+    ],
+    "search_queries": [
+      "semiconductor supply chain disruption extreme weather events 2015-2026",
+      "semiconductor fab shutdown flood typhoon impact 2020 2021 2022 2023 2024 2025 2026",
+      "extreme weather semiconductor industry losses annual report"
+    ],
+    "data_quality_rule": "Use credible industry reports and insurance data. If annual data is incomplete, use a consistent definition of 'disruption event' and note any gaps.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Demonstrates the growing risk of climate-induced disruptions to semiconductor supply chains, justifying the need for resilience strategies.",
+    "pre_exhibit_context": "The 2026 floods and typhoons in China disrupted semiconductor logistics and manufacturing. To assess whether this is an isolated incident or a growing trend, we analyze historical disruption events.",
+    "post_exhibit_takeaway": "The frequency and severity of extreme weather disruptions to semiconductor supply chains have increased over the past decade, with 2026 marking a peak, underscoring the urgent need for resilient production capabilities."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Market Size Forecast for AI in Disaster Management and Climate Resilience (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the projected market size for AI-driven disaster management and climate resilience solutions, and how does it compare to overall AI infrastructure spending?",
+    "required_metrics": [
+      "Year (2020-2030)",
+      "Market size (in USD billion)",
+      "Segment: AI in disaster management and climate resilience",
+      "Entity: Global"
+    ],
+    "comparison_set": [
+      "Annual market size forecasts from 2020 to 2030"
+    ],
+    "preferred_sources": [
+      "MarketsandMarkets",
+      "Grand View Research",
+      "Frost & Sullivan",
+      "Gartner"
+    ],
+    "search_queries": [
+      "AI disaster management market size forecast 2020-2030",
+      "AI climate resilience market size 2025 2030",
+      "artificial intelligence disaster response market forecast"
+    ],
+    "data_quality_rule": "Use reputable market research reports. If multiple sources differ, use a range or average, and clearly cite the source.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the market opportunity for AI in disaster management, supporting the argument that this is a significant and growing segment of sovereign AI infrastructure.",
+    "pre_exhibit_context": "The 2026 disasters have highlighted the need for AI-powered disaster prediction and response. To gauge the commercial potential, we examine market forecasts for AI in this domain.",
+    "post_exhibit_takeaway": "The market for AI in disaster management is projected to grow at a double-digit CAGR, reaching $XX billion by 2030, representing a substantial opportunity for investment and innovation."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Investment Opportunity vs. Risk Profile for Climate-Resilient Infrastructure Sectors",
+    "chart_type": "bubble",
+    "executive_question": "Which climate-resilient infrastructure sectors offer the most attractive investment opportunities relative to their risk profiles?",
+    "required_metrics": [
+      "Sector (e.g., water management, monitoring, emergency equipment)",
+      "Market size (in USD billion, 2026)",
+      "Projected CAGR (2026-2030, %)",
+      "Risk score (qualitative, based on cyclicality, regulatory, etc.)"
+    ],
+    "comparison_set": [
+      "Sectors: water management, monitoring, emergency equipment, AI-driven analytics, digital twin technologies"
+    ],
+    "preferred_sources": [
+      "Market research reports",
+      "Industry analyses",
+      "Government procurement data"
+    ],
+    "search_queries": [
+      "water management market size forecast 2030",
+      "AI monitoring systems market size 2026",
+      "emergency equipment market size growth rate"
+    ],
+    "data_quality_rule": "Use credible market research for market size and CAGR. Risk score should be based on qualitative assessment from the document and industry knowledge, clearly defined in the methodology.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a visual comparison of investment opportunities across sectors (e.g., water management, monitoring, emergency equipment) based on market size, growth, and risk, guiding strategic investment decisions.",
+    "pre_exhibit_context": "The document identifies several commercial opportunities in disaster response. To prioritize investments, we assess each sector's market attractiveness and risk.",
+    "post_exhibit_takeaway": "Water management and AI-driven monitoring systems offer high growth potential with moderate risk, while emergency equipment presents lower growth but also lower risk, allowing for a balanced portfolio approach."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Government Funding vs. Insurance Claims for Climate Disasters in China (2020-2026)",
+    "chart_type": "bar",
+    "executive_question": "How does government relief funding compare to insurance claims for climate disasters in China, and what does this imply for the financial burden?",
+    "required_metrics": [
+      "Year (2020-2026)",
+      "Government relief funds (in USD billion)",
+      "Insurance claims (in USD billion)",
+      "Entity: China"
+    ],
+    "comparison_set": [
+      "Annual data points from 2020 to 2026"
+    ],
+    "preferred_sources": [
+      "China's Ministry of Emergency Management",
+      "China Insurance Regulatory Commission",
+      "Munich Re, Swiss Re"
+    ],
+    "search_queries": [
+      "China government relief funds flood disaster 2020 2021 2022 2023 2024 2025 2026",
+      "China insurance claims natural disaster 2020-2026",
+      "China flood losses government spending insurance"
+    ],
+    "data_quality_rule": "Use official government and insurance industry data. If exact figures are unavailable, use estimates from credible sources and note the uncertainty.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the financial impact of climate disasters and the role of government vs. insurance, informing discussions on fiscal sustainability and the need for innovative financial instruments.",
+    "pre_exhibit_context": "The 2026 disasters have imposed significant economic costs. To understand the financial burden, we compare government relief funds with insurance claims.",
+    "post_exhibit_takeaway": "Government relief funds have consistently exceeded insurance claims, indicating a heavy fiscal burden and underscoring the need for parametric insurance and other risk transfer mechanisms."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Semiconductor Manufacturing Capacity in Climate-Risk Zones (2026)",
+    "chart_type": "bar",
+    "executive_question": "What percentage of global semiconductor manufacturing capacity is located in areas vulnerable to extreme weather events?",
+    "required_metrics": [
+      "Region (e.g., Taiwan, China, USA, Japan, South Korea)",
+      "Semiconductor manufacturing capacity share (%, 2026)",
+      "Climate risk level (e.g., high, medium, low)",
+      "Entity: Global semiconductor fabs"
+    ],
+    "comparison_set": [
+      "Major semiconductor manufacturing regions"
+    ],
+    "preferred_sources": [
+      "SEMI",
+      "IC Insights",
+      "TrendForce",
+      "World Bank climate risk data"
+    ],
+    "search_queries": [
+      "semiconductor manufacturing capacity by region 2026",
+      "semiconductor fabs climate risk flood typhoon",
+      "global semiconductor production share by country 2026"
+    ],
+    "data_quality_rule": "Use industry data for capacity share and climate risk assessments from reputable sources. Clearly define 'climate-risk zone' based on flood and typhoon risk maps.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the exposure of semiconductor supply chains to climate risks, supporting the case for diversification and resilient production capabilities.",
+    "pre_exhibit_context": "The 2026 floods disrupted semiconductor operations in China. To assess global vulnerability, we examine the share of manufacturing capacity in climate-risk zones.",
+    "post_exhibit_takeaway": "A significant portion of global semiconductor manufacturing capacity is located in regions prone to extreme weather, highlighting the systemic risk and the need for geographic diversification."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Timeline of Key Policy Announcements and Investments in Sovereign AI Infrastructure (2020-2030)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key policy milestones and investment announcements in sovereign AI infrastructure globally, and how do they align with climate events?",
+    "required_metrics": [
+      "Date (year and month)",
+      "Event type (policy announcement, investment, disaster)",
+      "Country/entity",
+      "Description",
+      "Amount (if applicable, in USD billion)"
+    ],
+    "comparison_set": [
+      "Major events from 2020 to 2030"
+    ],
+    "preferred_sources": [
+      "Government press releases",
+      "Policy documents",
+      "News articles from credible sources"
+    ],
+    "search_queries": [
+      "sovereign AI infrastructure policy announcement 2020 2021 2022 2023 2024 2025 2026",
+      "national AI strategy investment 2030",
+      "semiconductor supply chain resilience policy 2026"
+    ],
+    "data_quality_rule": "Use official announcements and credible news sources. Ensure dates are accurate and amounts are clearly stated.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a chronological overview of policy and investment actions, showing how climate disasters have influenced sovereign AI infrastructure strategies.",
+    "pre_exhibit_context": "To understand the strategic response to climate-induced disruptions, we map key policy announcements and investments in sovereign AI infrastructure over time.",
+    "post_exhibit_takeaway": "The timeline reveals a surge in sovereign AI infrastructure initiatives following major climate events, indicating that climate resilience is becoming a core driver of national computing strategies."
+  }
+]

@@ -1,0 +1,128 @@
+{
+  "report_archetype": "operating_strategy",
+  "selected_modules": [
+    "current decision baseline",
+    "options and trade-offs",
+    "causal and economic drivers",
+    "failure modes and uncertainty",
+    "staged decision gates"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "How should sovereign AI infrastructure investments and semiconductor supply chain resilience strategies be adjusted to account for climate-induced disruptions and the resulting demand for climate-resilient infrastructure, as evidenced by China's 2026 disaster season?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: market, timeline",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "4．先进封装设备 得益于AI、高性能计算及5G/6G 技术对算力密度的不断提升，以及数据中心、自动驾驶等领域对低功耗、高可靠 性封装的强烈需求，先进封装技术迎来关键增长阶段，其中AI 与高性能计算、通信与基础设施、汽车电子成为增长主 力。2.5D 封装通过硅中介层实现水平方向的芯片间高速互联，从而实现HBM 和GPU 的高带宽互联。3D 封装使用TSV 等技术，在垂直方向对芯片进行堆叠互联，通过最大化带宽、最小化延迟和面积，实现极致集成与密度。混合键合技术 作为下一代高密度集成的关键，多家厂商正推动其大规模量产进程。此过程中，先进封装装备技术也快速迭代，部分前 道工艺向封装环节延伸，拉动刻蚀、薄膜沉积、电镀、键合等设备的需求。根据公开信息，2025 年全球半导体封装设备 销售额64 亿美元，同比增长19.6%，",
+    "4．先进封装设备 得益于AI、高性能计算及5G/6G 技术对算力密度的不断提升，以及数据中心、自动驾驶等领域对低功耗、高可靠 性封装的强烈需求，先进封装技术迎来关键增长阶段，其中AI 与高性能计算、通信与基础设施、汽车电子成为增长主 力。2.5D 封装通过硅中介层实现水平方向的芯片间高速互联，从而实现HBM 和GPU 的高带宽互联。3D 封装使用TSV 等技术，在垂直方向对芯片进行堆叠互联，通过最大化带宽、最小化延迟和面积，实现极致集成与密度。混合键合技术 作为下一代高密度集成的关键，多家厂商正推动其大规模量产进程。此过程中，先进封装装备技术也快速迭代，部分前 道工艺向封装环节延伸，拉动刻蚀、薄膜沉积、电镀、键合等设备的需求。根据公开信息，2025 年全球半导体封装设备 销售额64 亿美元，同比增长19.6%，",
+    "4．先进封装设备 得益于AI、高性能计算及5G/6G 技术对算力密度的不断提升，以及数据中心、自动驾驶等领域对低功耗、高可靠 性封装的强烈需求，先进封装技术迎来关键增长阶段，其中AI 与高性能计算、通信与基础设施、汽车电子成为增长主 力。2.5D 封装通过硅中介层实现水平方向的芯片间高速互联，从而实现HBM 和GPU 的高带宽互联。3D 封装使用TSV 等技术，在垂直方向对芯片进行堆叠互联，通过最大化带宽、最小化延迟和面积，实现极致集成与密度。混合键合技术 作为下一代高密度集成的关键，多家厂商正推动其大规模量产进程。此过程中，先进封装装备技术也快速迭代，部分前 道工艺向封装环节延伸，拉动刻蚀、薄膜沉积、电镀、键合等设备的需求。根据公开信息，2025 年全球半导体封装设备 销售额64 亿美元，同比增长19.6%，",
+    "5．化合物半导体设备 碳化硅（SiC）、氮化镓（GaN）等化合物半导体凭借高频、高压、耐高温特性，在新能源汽车、5G/6G 通信、光 伏逆变器、Micro LED 等领域加速替代硅基半导体，市场规模快速增长，2025 年SiC 晶圆制造设备市场规模超44 亿美 元，GaN 外延设备市场同比增长25%，技术路线向大尺寸、高质量外延层方向迭代。设备方面，核心设备包括外延生长、 刻蚀、薄膜沉积、离子注入等设备，需适配化合物半导体材料的特殊物理化学特性。外延生长设备需精准控制外延层厚 度与纯度，降低缺陷密度；刻蚀设备需实现高选择性刻蚀，避免材料损伤；薄膜沉积设备则要满足异质结构的界面兼容 性要求，保障器件性能稳定性。从国产设备进展看，依托硅基半导体设备及LED 设备的技术沉淀，国产设备在化合物 半导体专用设备领域快速突",
+    "[PDF page 10] 北方华创科技集团股份有限公司2025 年年度报告全文 10 五、其他有关资料 公司聘请的会计师事务所 会计师事务所名称 大信会计师事务所（特殊普通合伙） 会计师事务所办公地址 北京市海淀区知春路1 号22 层2206 签字会计师姓名 韩雪艳、王鹏 公司聘请的报告期内履行持续督导职责的保荐机构 □适用不适用 公司聘请的报告期内履行持续督导职责的财务顾问 □适用不适用 六、主要会计数据和财务指标 公司是否需追溯调整或重述以前年度会计数据 是□否 追溯调整或重述原因 同一控制下企业合并 2025 年 2024 年 本年比上年增 减 2023 年 调整前 调整后 调整后 调整前 调整后 营业收入 （元） 39,353,112,419 .78 29,838,069,162 .26 30,",
+    "[PDF page 10] 北方华创科技集团股份有限公司2025 年年度报告全文 10 五、其他有关资料 公司聘请的会计师事务所 会计师事务所名称 大信会计师事务所（特殊普通合伙） 会计师事务所办公地址 北京市海淀区知春路1 号22 层2206 签字会计师姓名 韩雪艳、王鹏 公司聘请的报告期内履行持续督导职责的保荐机构 □适用不适用 公司聘请的报告期内履行持续督导职责的财务顾问 □适用不适用 六、主要会计数据和财务指标 公司是否需追溯调整或重述以前年度会计数据 是□否 追溯调整或重述原因 同一控制下企业合并 2025 年 2024 年 本年比上年增 减 2023 年 调整前 调整后 调整后 调整前 调整后 营业收入 （元） 39,353,112,419 .78 29,838,069,162 .26 30,"
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The 2026 disaster season in China will accelerate government investment in climate-resilient infrastructure, creating significant demand for AI-driven monitoring, predictive analytics, and digital twin technologies, which will in turn shape sovereign AI infrastructure priorities.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Semiconductor supply chain resilience will become a critical component of national computing strategies, as extreme weather events disrupt logistics and manufacturing, prompting diversification and investment in resilient production capabilities.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The disasters will highlight the need for AI-powered disaster prediction and response systems, leading to increased funding for AI research and deployment in public safety, which will compete with other AI infrastructure priorities.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: The commercial opportunities identified in the document (e.g., water management, monitoring, emergency equipment) will attract private investment, but the cyclical nature of disaster-related revenue may limit long-term attractiveness unless tied to recurring maintenance and service contracts.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The cross-border opportunity to export climate-resilient solutions to the UAE and other Gulf states will grow, leveraging China's experience and technology, and may influence global standards for resilient infrastructure.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

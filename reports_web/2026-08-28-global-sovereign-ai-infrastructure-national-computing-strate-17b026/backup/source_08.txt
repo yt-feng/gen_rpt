@@ -1,0 +1,33 @@
+Title: China's rare-earth curbs impact global chip supply | The Straits Times
+URL: https://www.straitstimes.com/world/worlds-chip-supply-chain-bracing-itself-for-fallout-from-chinas-rare-earth-curbs
+Source Type: html
+Domain: straitstimes.com
+Content Type: text/html; charset=utf-8
+Search Query: China 2026 flood disaster impact on semiconductor supply chain
+
+China’s rare-earth curbs impact global chip supply | The Straits Times
+
+World’s chip supply chain bracing itself for fallout from China’s rare earth curbs
+Sign up now: Get ST's newsletters delivered to your inbox
+Container ships at the Port of Oakland in California on Oct 10. China and the US have been engaged in an escalating trade war.
+Businesses across the global semiconductor supply chain are bracing themselves for disruptions from China’s most targeted move yet to limit their supplies of rare earth materials as part of an escalating trade war between the Asian nation and the US.
+The restrictions may lead to weeks-long delays in shipments for ASML Holding, the only manufacturer in the world of machines that make the most advanced semiconductors, a person familiar with the company said.
+The company is preparing for disruptions, particularly due to a clause that requires foreign firms to seek China’s approval for re-exports of products containing its rare earths, said the person, who asked not to be identified discussing private matters and noted that ASML is lobbying Dutch and US allies for alternatives. The company declined to comment.
+A senior manager at a major US chip company said the firm is still assessing potential impacts. But the clearest risk the company is facing now is an increase in the prices of rare earths-dependent magnets that are critical to the chip supply chain, the person said, asking not to be identified discussing operations.
+An official at another US chip company said the business is rushing to identify which of its products contain rare earths from China and is worried that the country’s requirement for licences will grind its supply chain to a halt.
+The restrictions represent the first major attempt by Beijing to exercise long-arm jurisdiction over foreign companies to target the semiconductor industry, threatening to stall the chips powering the artificial intelligence (AI) boom. They prompted US President Donald Trump to announce on Oct 10 that he will impose an additional 100 per cent tariff on China and export controls on “any and all critical software”.
+China’s new rules require overseas firms to seek approval for shipping any material containing even trace amounts of Chinese rare earths – and explicitly call out parts used to make certain computer chips and advance AI research with military applications.
+“These are the strictest export controls that China has utilised,” said Dr Gracelin Baskaran, a critical minerals-focused director at the Centre for Strategic and International Studies. “It’s quite clear that they have the sticks and the leverage to make not just US firms, but also firms worldwide comply.”
+Chipmaking machines, like those sold by ASML and Applied Materials, are especially dependent on rare earths because they contain extremely precise lasers, magnets and other equipment that use these elements.
+“Within the semiconductor value chain, China’s new export controls will likely most impact chipmakers that use rare earth-based chemicals during the chip fabrication process and toolmakers that integrate rare earth magnets into their equipment,” said Mr Jacob Feldgoise, a senior data research analyst at Georgetown University’s Centre for Security and Emerging Technology.
+Some have questioned how long the restrictions will last, viewing them as potential posturing ahead of a trip to Asia Mr Trump has planned that is expected to include a meeting with Chinese President Xi Jinping later in October . It is unclear how China will even track rare earths at such discreet levels to enforce the rules.
+But China’s move has instead escalated tensions with the US. Mr Trump’s announced tariffs will raise import taxes on many Chinese goods to 130 per cent starting in November. This would be just below the 145 per cent level imposed earlier in 2025 , before both countries ratcheted down the duties in a truce to advance trade talks.
+On Oct 10, Mr Trump also threatened to call off his meeting with Mr Xi altogether, describing the new rare earth controls as a “hostile” action.
+“I have always felt that they’ve been lying in wait, and now, as usual, I have been proven right! There is no way that China should be allowed to hold the world ‘captive’,” Mr Trump said in a post on Truth Social.
+This is not the first time that rare earths have landed in the centre of US-China trade wars. After Mr Trump hiked tariffs on Chinese imports earlier in 2025 , China’s government responded by cutting off mineral exports to US companies. Officials from both sides agreed to a truce in the spring, under which Mr Trump lowered duties and Mr Xi’s officials agreed to resume the flow of the minerals.
+The world’s biggest chipmakers, including Intel Corp, Taiwan Semiconductor Manufacturing Company (TSMC) and Samsung Electronics, rely on ASML to produce semiconductors. Samsung and Intel declined to comment. TSMC did not respond to a request for comment.
+A White House official said the government and relevant agencies are assessing any impact from the new rules, which were announced without notice and imposed in an apparent effort to exert control over the entire world’s technology supply chains.
+The US House Select Committee on China panned the Asian nation for the move, describing the restrictions as “an economic declaration of war against the US”. Committee chairman John Moolenaar, a Republican, said in a statement on Oct 9 that China has “fired a loaded gun at the American economy”.
+Germany, Europe’s biggest economy, has already introduced measures to diversify its supply of raw materials, and its Economic Ministry called China’s curbs a “great concern” on Oct 10. The government said it is in close contact with affected companies and the European Commission to respond.
+Taiwan relies mainly on Europe, the US and Japan for rare earth supplies.
+“We still need further assessment before deciding on the impact on our overall (chip) industry,” its Economic Affairs Ministry said in a statement. “We will continue to monitor indirect impact from fluctuations in the pricing of raw materials and supply chain adjustments.” BLOOMBERG

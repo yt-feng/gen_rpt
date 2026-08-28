@@ -1,0 +1,370 @@
+{
+  "objective": "Assess the strategic implications of China's 2026 flood and typhoon disasters for global sovereign AI infrastructure, focusing on national computing strategies and semiconductor supply chain resilience by 2030 and beyond, based strictly on the provided document.",
+  "audience": "Senior executives and strategists in sovereign technology funds, semiconductor supply chain planners, and national infrastructure policymakers.",
+  "decision_question": "How should sovereign AI infrastructure investments and semiconductor supply chain resilience strategies be adjusted to account for climate-induced disruptions and the resulting demand for climate-resilient infrastructure, as evidenced by China's 2026 disaster season?",
+  "issue_tree": {
+    "node_1": "Disaster Impact on Infrastructure",
+    "children": [
+      "Export of Chinese climate-resilient solutions to Gulf states (e.g., UAE)",
+      "Collaboration on AI-driven disaster management and resilient infrastructure"
+    ],
+    "node_2": "Sovereign AI Infrastructure Strategy",
+    "node_3": "Semiconductor Supply Chain Resilience",
+    "node_4": "Investment and Policy Implications",
+    "node_5": "Cross-Border Opportunities"
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: The 2026 disaster season in China will accelerate government investment in climate-resilient infrastructure, creating significant demand for AI-driven monitoring, predictive analytics, and digital twin technologies, which will in turn shape sovereign AI infrastructure priorities.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: Semiconductor supply chain resilience will become a critical component of national computing strategies, as extreme weather events disrupt logistics and manufacturing, prompting diversification and investment in resilient production capabilities.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: The disasters will highlight the need for AI-powered disaster prediction and response systems, leading to increased funding for AI research and deployment in public safety, which will compete with other AI infrastructure priorities.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: The commercial opportunities identified in the document (e.g., water management, monitoring, emergency equipment) will attract private investment, but the cyclical nature of disaster-related revenue may limit long-term attractiveness unless tied to recurring maintenance and service contracts.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: The cross-border opportunity to export climate-resilient solutions to the UAE and other Gulf states will grow, leveraging China's experience and technology, and may influence global standards for resilient infrastructure.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Government budget allocations for climate-resilient infrastructure post-2026 (e.g., central and local spending on water management, monitoring systems).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Semiconductor industry reports on supply chain disruptions due to extreme weather events and mitigation strategies.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Market forecasts for AI in disaster management and climate resilience (e.g., market size, growth rates).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Policy documents from China and other nations on sovereign AI infrastructure and semiconductor resilience.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Case studies of public-private partnerships in resilient infrastructure and their financial performance.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Data on insurance and financial instruments for climate risk, including parametric insurance adoption.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Export data and trade agreements between China and Gulf states on technology and infrastructure.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future price ARPU ASP"
+      ]
+    }
+  ],
+  "search_queries": [
+    "China 2026 flood disaster impact on semiconductor supply chain",
+    "sovereign AI infrastructure national strategy 2030",
+    "climate-resilient infrastructure investment trends 2026",
+    "AI disaster prediction market size forecast 2030",
+    "semiconductor fab location risk extreme weather",
+    "China UAE technology cooperation infrastructure",
+    "parametric insurance climate risk adoption 2026",
+    "government spending on flood control and monitoring 2026",
+    "digital twin for urban flood management market",
+    "supply chain resilience semiconductor industry 2030"
+  ],
+  "source_strategy": "Prioritize official government reports (e.g., China's Ministry of Emergency Management, National Development and Reform Commission), industry analyses from semiconductor and infrastructure research firms (e.g., Gartner, McKinsey), and academic papers on climate risk and AI. Use the provided document as the primary source for disaster facts and commercial opportunities, and supplement with external data for market sizing and policy context.",
+  "outline": [
+    "1. The 2026 Disaster Season: A Catalyst for Climate-Resilient Infrastructure Investment",
+    "2. From Disaster Response to Sovereign AI: How National Computing Strategies Must Integrate Climate Risk",
+    "3. Semiconductor Supply Chain Resilience: Lessons from Floods and Typhoons",
+    "4. Commercial Opportunities and Investment Priorities: From Water Management to AI Monitoring",
+    "5. Cross-Border Potential: Exporting China's Climate-Resilient Solutions to the Gulf",
+    "6. Strategic Implications for 2030: Building Adaptive and Resilient AI Infrastructure"
+  ],
+  "exhibit_ideas": [
+    "Map of disaster-affected regions and key infrastructure nodes (e.g., semiconductor fabs, data centers) with overlay of flood risk zones.",
+    "Timeline of disaster events and corresponding government funding announcements.",
+    "Chart of insurance claims and estimated losses vs. government relief funds.",
+    "Comparison of investment opportunities by sector (e.g., water management, monitoring, emergency equipment) with risk-return profiles.",
+    "Scenario analysis of semiconductor supply chain disruptions under different climate scenarios (e.g., 1-in-100-year flood events).",
+    "Table of potential cross-border solutions for Gulf states, with alignment to UAE's infrastructure priorities."
+  ],
+  "risks": [
+    "Overreliance on a single disaster season may lead to short-term investment decisions that do not align with long-term strategic goals.",
+    "Government funding may be cyclical and not sustained, affecting the viability of long-term infrastructure projects.",
+    "Semiconductor supply chain resilience may be overshadowed by other geopolitical factors, such as export controls and trade tensions.",
+    "The cross-border opportunity may face regulatory, cultural, or competitive barriers in Gulf markets.",
+    "AI-driven disaster prediction and response systems may face data privacy and ethical concerns, limiting adoption.",
+    "The document's commercial opportunities are based on immediate disaster response and may not translate into sustained revenue without recurring service contracts."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future total market size segment share",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future customer count price ARPU",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future pilot customer conversion",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future ROI cost savings case study",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future capacity utilization unit price",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 and future project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "critical_evidence_required": [
+    {
+      "id": "BASE-1",
+      "description": "Product-specific demand: procurement records, tenders, RFPs, orders, or contracts for the specific product category in the target market",
+      "type": "demand_signal",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-2",
+      "description": "Identifiable customer or procurement route: named buyer, procurement channel, or comparable contract in the target geography",
+      "type": "customer",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-3",
+      "description": "Competitive alternatives: named competing products, services, or suppliers with at least one comparable data point",
+      "type": "competition",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-4",
+      "description": "Indicative commercial economics: pricing, contract value, margin, or cost benchmark from a comparable transaction or product",
+      "type": "financial",
+      "required_for": "invest"
+    },
+    {
+      "id": "BASE-5",
+      "description": "Regulatory pathway: relevant approvals, certifications, standards, or licences required for the product in the target market",
+      "type": "regulation",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-6",
+      "description": "Technical feasibility: performance specification, integration requirement, or comparable deployment evidence",
+      "type": "technical",
+      "required_for": "conditional_pilot"
+    }
+  ]
+}
