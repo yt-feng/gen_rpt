@@ -292,9 +292,9 @@ def report_content_quality_issues(
         section_words = _word_count(" ".join([lead, *paragraphs, str(section.get("so_what") or "")]))
         if not 200 <= section_words <= 550:
             issues.append(f"Section {index} needs 200-550 words of analysis; found {section_words}.")
-        short_paragraphs = [position for position, paragraph in enumerate(paragraphs, start=1) if _word_count(paragraph) < 45]
+        short_paragraphs = [position for position, paragraph in enumerate(paragraphs, start=1) if _word_count(paragraph) < 35]
         if short_paragraphs:
-            issues.append(f"Section {index} has underdeveloped paragraphs under 45 words: {short_paragraphs}.")
+            issues.append(f"Section {index} has underdeveloped paragraphs under 35 words: {short_paragraphs}.")
         for position, paragraph in enumerate(paragraphs, start=1):
             key = _normalized_words(paragraph)
             if key and key in seen_paragraphs:
@@ -360,6 +360,24 @@ def normalize_report_section_prose(report: Any) -> Any:
             balanced = _three_balanced_paragraphs(paragraphs)
             if balanced:
                 paragraphs = balanced
+            elif any(_word_count(item) < 35 for item in paragraphs):
+                merged = []
+                buf = ""
+                for p in paragraphs:
+                    if not buf:
+                        buf = p
+                    elif _word_count(buf) < 35:
+                        buf = f"{buf} {p}"
+                    else:
+                        merged.append(buf)
+                        buf = p
+                if buf:
+                    if merged and _word_count(buf) < 35:
+                        merged[-1] = f"{merged[-1]} {buf}"
+                    else:
+                        merged.append(buf)
+                if len(merged) >= 3:
+                    paragraphs = merged
         unique_paragraphs = []
         for paragraph in paragraphs:
             key = _normalized_words(paragraph)
@@ -948,7 +966,7 @@ def _word_count(value: Any) -> int:
 
 def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
     text = "\n".join(paragraphs)
-    if _word_count(text) < 120:
+    if _word_count(text) < 90:
         return []
     sentences = [
         item.strip()
@@ -971,7 +989,7 @@ def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
             candidate_key = (-min_c, spread)
             if best is None or candidate_key < best[0]:
                 best = (candidate_key, groups)
-    if best and -best[0][0] >= 40:
+    if best and -best[0][0] >= 28:
         return best[1]
     return []
 

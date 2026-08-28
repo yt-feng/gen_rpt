@@ -3,6 +3,7 @@ from typing import Dict, Any, List
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, delete
 from app.models.knowledge import EmbeddingMetadata, KnowledgeChunk, KnowledgeDocument
+from app.core.config import settings
 
 class EmbeddingManagementService:
     async def get_embedding_status(self, db: AsyncSession) -> Dict[str, Any]:

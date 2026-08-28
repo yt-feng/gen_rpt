@@ -242,6 +242,50 @@ class TestReportPublicationContract(unittest.TestCase):
             self.assertTrue(bool(act.get("success_metric")))
             self.assertGreaterEqual(_word_count(act.get("rationale")), 12)
 
+    def test_normalize_report_section_prose_handles_four_short_paragraphs(self):
+        from gen_rpt.web_publication_contract import normalize_report_section_prose, report_content_quality_issues
+        report = {
+            "title": "Global Sovereign AI Infrastructure: National Computing Strategies and Resilience by 2030",
+            "dek": "A comprehensive strategic assessment of national compute initiatives and sovereign infrastructure.",
+            "intro": ["Introduction paragraph with substantial analysis of global sovereign computing priorities."],
+            "key_takeaways": [
+                "National governments are establishing dedicated compute reserves to ensure independence.",
+                "Supply chain concentration remains the critical vulnerability across advanced packaging.",
+                "Capital expenditure requirements necessitate public-private co-investment structures.",
+            ],
+            "sections": [
+                {
+                    "title": "National Computing Strategies Reshape Sovereign Compute Investment Priorities",
+                    "lead": "Leading economies are committing state-backed capital pools to secure sovereign AI infrastructure capacity and reduce reliance on external hardware providers.",
+                    "paragraphs": [
+                        "National computing initiatives have accelerated as governments recognize compute capacity as critical infrastructure for public sector administration.",
+                        "Direct public subsidies and national sovereign wealth investments are funding domestic data center buildouts across European and Asian markets.",
+                        "Regulatory mandates now require domestic hosting for sensitive foundation models and citizen data workloads across strategic economic sectors.",
+                        "Public-private partnerships are structuring long-term off-take agreements to guarantee commercial viability for localized sovereign infrastructure.",
+                    ],
+                    "evidence": ["Doc1.pdf — Sovereign compute initiative", "Doc2.pdf — Public capital allocation"],
+                    "so_what": "Enterprise leaders must align local cloud procurement with sovereign data residency and national security mandates across all operating jurisdictions.",
+                }
+            ] * 5,
+            "action_steps": [
+                {
+                    "horizon": "Immediate (0-90 Days)",
+                    "action": "Audit sovereign compute exposure.",
+                    "success_metric": "Complete inventory of model compute locations.",
+                    "rationale": "Sovereign regulatory requirements demand clear visibility of physical hardware hosting environments across all active deployments.",
+                }
+            ] * 4,
+        }
+        normalized = normalize_report_section_prose(report)
+        issues = report_content_quality_issues(
+            normalized,
+            topic="Global Sovereign AI Infrastructure",
+            context_text="Sovereign AI infrastructure context",
+            source_count=5,
+        )
+        short_paragraph_issues = [issue for issue in issues if "underdeveloped paragraphs" in issue]
+        self.assertEqual(short_paragraph_issues, [])
+
     def test_rag_first_terminology_and_author_byline_normalization(self):
         from gen_rpt.web_publication_contract import clean_client_text
         self.assertEqual(clean_client_text("A RAG-first market investment report"), "An evidence-led market investment report")
