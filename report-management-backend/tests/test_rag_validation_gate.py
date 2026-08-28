@@ -1,5 +1,6 @@
 import uuid
 import ast
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock
 
@@ -118,8 +119,8 @@ def test_error_responses_preserve_configured_frontend_cors():
 
 
 def test_retrieval_engine_does_not_shadow_module_hashlib():
-    source_path = "app/services/retrieval_engine.py"
-    tree = ast.parse(open(source_path, encoding="utf-8").read())
+    source_path = Path(__file__).resolve().parent.parent / "app" / "services" / "retrieval_engine.py"
+    tree = ast.parse(source_path.read_text(encoding="utf-8"))
     retrieval_function = next(
         node for node in ast.walk(tree)
         if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))

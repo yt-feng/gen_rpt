@@ -675,7 +675,7 @@ class WebReportPipeline:
         ]
 
         try:
-            res = subprocess.run(cmd, cwd=str(root_dir), capture_output=True, text=True, timeout=180)
+            res = subprocess.run(cmd, cwd=str(root_dir), capture_output=True, text=True, timeout=600)
             if res.returncode == 0:
                 review_json_file = review_dir / "review.json"
                 if review_json_file.exists():
