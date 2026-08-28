@@ -17,6 +17,8 @@ AGENTS.md
 storage/logs/
 .pytest_cache/
 *.log
+review_system/logs/
+reports_web/generation-*.log
 
 # Documentation
 docs/

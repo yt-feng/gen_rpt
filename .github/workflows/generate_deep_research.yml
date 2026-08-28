@@ -251,9 +251,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -n "$(git status --porcelain reports_web)" ]; then
             git add reports_web
+            if [ -d "review_outputs" ]; then git add review_outputs; fi
             git commit -m "Add generated HTML thought leadership report"
-            git pull --rebase origin main
-            git push
+            git pull --rebase --autostash origin main
+            git push origin main
           else
             echo "No report changes to commit"
           fi
