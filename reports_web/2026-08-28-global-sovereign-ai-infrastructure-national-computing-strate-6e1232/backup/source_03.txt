@@ -1,0 +1,70 @@
+Title: Six Networks: Inside China's trillion-dollar bet to wire its economy for ...
+URL: https://www.straitstimes.com/asia/east-asia/six-networks-inside-chinas-trillion-dollar-bet-to-wire-its-economy-for-an-ai-era
+Source Type: html
+Domain: straitstimes.com
+Content Type: text/html; charset=utf-8
+Search Query: China 2026 flood disaster infrastructure investment plan
+
+Six Networks: Inside China’s trillion-dollar bet to wire its economy for an AI era | The Straits Times
+
+Six Networks: Inside China’s trillion-dollar bet to wire its economy for an AI era
+Why is China investing so heavily in the Six Networks?
+How will China pay for the Six Networks?
+Is the US also ramping up its AI infrastructure?
+Sign up now: Get insights on Asia's fast-moving developments
+The Six Networks is a national infrastructure programme to upgrade China’s vast physical and digital systems.
+BEIJING – As competition with the US for technological dominance intensifies, China is embarking on a multi-trillion-dollar infrastructure push aimed at laying the foundations for long-term growth in an era it expects to be shaped by artificial intelligence.
+Beijing is betting that success will not solely depend on advanced chips and AI models, but also on the physical systems that support them – from power grids and data centres to telecommunications networks and logistics.
+The initiative, known as the Six Networks, is part of Beijing’s latest Five-Year Plan.
+It marks the first time China has brought its biggest infrastructure projects under a single, integrated programme, rather than developing transport, energy and communications networks separately.
+As well as supporting the country’s AI ambitions, the government hopes the project will strengthen China’s manufacturing base, bolster resilience to geopolitical tensions, economic shocks and natural disasters, and advance the transition to a low-carbon economy.
+The Six Networks is a national infrastructure programme to upgrade China’s vast physical and digital systems.
+Scheduled for completion by 2030, it spans six areas: electricity, water, telecommunications, computing, logistics and underground pipe networks. China Securities estimates the project will cost more than 26 trillion yuan (S$5 trillion).
+A central focus is digital infrastructure. China plans to build high-performance supercomputing centres, general purpose data centres and AI-focused compute hubs, as well as develop new ultra-high-speed fibre broadband, satellite internet and a sixth-generation, or 6G, mobile network.
+The electricity grid is also to be upgraded.
+Beijing plans to expand long-distance transmission lines, strengthen urban and rural networks, and build more energy storage facilities to absorb renewable power.
+It also plans to develop an AI-powered dispatch system capable of monitoring the grid in real time, adjusting power flows and matching renewable energy supply with data centre demand.
+The project also includes an upgrade to transport and water infrastructure.
+Logistics networks are set to have improved connections between production sites, ports and distribution hubs.
+As part of the plan, existing flood-control systems – such as embankments, dykes and reservoirs – will be improved, while diversion projects that shift water from wet basins to arid areas and large irrigation districts will be expanded.
+Finally, the government plans to build 770,000km of water, drainage, gas and heating pipelines beneath Chinese cities to replace ageing infrastructure, reduce leaks and flooding, and support urban development.
+Competition with the US over AI has made infrastructure a strategic priority for Beijing.
+As AI models become larger and more sophisticated, they require enormous amounts of computing power and electricity, cooling water, high-speed communications networks and efficient supply chains.
+Rather than treating those needs separately, China wants to build an integrated system.
+Much of the attention has focused on the computing and telecommunications networks.
+The government wants to connect scattered data processing hubs across the country through high-speed, stable networks, creating a nationally coordinated system that can direct AI workloads to whichever data centres have spare capacity – similar to how electricity flows through a power grid.
+Officials also expect the network to underpin a wide range of AI uses, from factory automation and self-driving cars to robots.
+Electricity is another piece of the puzzle.
+New transmission lines and renewable energy projects are intended to provide abundant, low-cost clean power to data centres, whose power consumption is almost the equivalent to twice the annual output of the Three Gorges Dam – the world’s largest hydropower project by installed capacity.
+Expanding the adoption of renewable energy would also advance Beijing’s carbon-neutral goals while bolstering energy security.
+Other parts of the Six Networks plan support broader economic priorities.
+Improvements to the logistics network are designed to reduce transport costs and better connect demand in China’s large, populous cities with supply from the farthest mountainous areas.
+The water initiatives are aimed at strengthening food security and resilience against floods and droughts.
+The hope is that modernising underground pipe networks should improve living conditions and also create construction work at a time when China is in the midst of a property downturn.
+The cost of the project is expected to be nearly 50 per cent more than the combined investment across those six sectors during the last Five-Year Plan from 2021 to 2025, according to estimates by China Securities.
+Public interest infrastructure, such as flood control systems and water diversion initiatives, is expected to be funded mainly through the issuance of central and local government bonds, alongside lending from policy banks – state-owned lenders that finance projects aligned with Beijing’s strategic priorities.
+Revenue-generating projects, including logistics hubs, are expected to attract private capital through public-private partnerships.
+For underground pipelines, for example, investors may be granted operating concession rights that enable them to earn recurring revenue after the projects are completed.
+More commercially viable projects – including power, computing and communication networks – are expected to rely primarily on market-based corporate investment.
+China has a strong track record of delivering major projects under its five-year plans.
+Large amounts of public money are set aside every year for such initiatives, and approvals for land and other resources are often fast-tracked.
+Local officials also have strong incentives to ensure projects are completed, as their performance reviews and promotion prospects can be tied to how quickly and effectively they deliver them.
+That said, financing could be a challenge this time.
+Economic growth has slowed as consumer spending remains weak amid a soft job market and a prolonged real estate slump, weighing on corporate profits and investment.
+Local governments, which have traditionally shouldered much of the cost of infrastructure spending, have also seen income from land sales shrink to less than half of its 2021 peak.
+At the same time, Beijing has tightened limits on their borrowing as it tries to contain risks from the huge stockpile of off-balance-sheet debt that has accumulated since the Global Financial Crisis.
+Technology restrictions could also complicate the project. US-led export controls have limited China’s access to cutting-edge semiconductors, potentially slowing progress on the computing and communications networks at the heart of the project.
+Another challenge will be the bureaucracy and coordination required for a project that spans multiple sectors.
+Government researchers have warned that isolated planning across different government departments, inconsistent technical standards, and unclear benefit-sharing rules could lead to overlapping investment and undermine the project’s success.
+Silicon Valley is betting that physical infrastructure is key to building more advanced AI systems and keeping ahead of China in the race for AI dominance.
+Top US tech firms, including Meta Platforms, Alphabet’s Google and Amazon.com, plan to spend hundreds of billions of dollars to build sprawling new data centres stocked with cutting-edge AI chips.
+OpenAI’s Sam Altman has previously said he expects his firm to spend “trillions” on infrastructure to develop and run AI.
+The US government has thrown its support behind this push.
+The Trump administration has previously unveiled plans to use federal land and resources to build data centres, and steps to ensure there is enough power to run energy-hungry AI data centres.
+Not all policymakers are on board, however. A growing number of local and state officials have taken tougher stances on data centre development, following a surge in community pushback over the impacts on utility prices and the environment.
+New York Governor Kathy Hochul recently announced a one-year moratorium on new large data centre projects in the state.
+President Donald Trump responded by calling it a “terrible decision”.
+“Data centres are tremendous Wins for the states and communities that are lucky enough to get them,” he wrote in a social media post. BLOOMBERG
+China's Six Networks is a $5 trillion plan to integrate electricity, water, telecoms, computing, logistics, and underground pipes by 2030 to support AI and economic resilience.
+The project aims to build advanced digital infrastructure, upgrade power grids with renewable energy, and improve logistics and water systems to boost manufacturing and environmental goals.
+Funding comes from government bonds, policy banks, private investors, and corporations, but challenges include economic slowdown, US tech restrictions, and complex interdepartmental coordination.

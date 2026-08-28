@@ -1,0 +1,43 @@
+Title: China prepares two trillion yuan plan to fund nationwide AI build-out
+URL: https://www.businesstimes.com.sg/international/china-prepares-two-trillion-yuan-plan-fund-nationwide-ai-build-out
+Source Type: html
+Domain: businesstimes.com.sg
+Content Type: text/html; charset=utf-8
+Search Query: China national computing strategy 2030 AI infrastructure
+
+China prepares two trillion yuan plan to fund nationwide AI build-out - The Business Times
+
+China prepares two trillion yuan plan to fund nationwide AI build-out
+The returnees: Inside China’s AI talent reversal
+China robotics firms line up IPOs to pitch next phase of AI
+China tightens outbound investment rules with eye on security
+Key government agencies are drafting a blueprint to erect a network of interconnected computing hubs across the country
+[BEIJING] China is preparing to spend around two trillion yuan (S$362.4 billion) over the next five years on building data centres across the country, fuelling Beijing’s ambition to propel the domestic artificial intelligence sector and surpass the US in a potentially game-changing technology.
+Key government agencies including the National Development and Reform Commission (NDRC) are drafting a blueprint to erect a network of interconnected computing hubs across the country, people familiar with the matter said.
+State firms such as China Mobile and China Telecom will operate the bulk of the data centres and ensure they are connected, one of the people said. The idea is to rely on local suppliers, including Huawei Technologies , for at least 80 per cent of technology such as AI chips, effectively squeezing out Nvidia and Advanced Micro Devices, the people said.
+The overarching plan represents Beijing’s most aggressive endeavour yet to lay the foundation for future Chinese AI development.
+It recalls the undertakings of years past that marshalled resources to support national champions like Huawei, with the aim of replacing US technology. And it is a key prong of the “Six Networks” programme announced earlier this year, covering construction of essential infrastructure spanning water and electricity to computing, one of the people said.
+The data centre blueprint remains in early discussions and details could change, the people said, asking not to be named talking about a private matter. But it underscores Beijing’s resolve to drive cutting-edge technologies even as spending elsewhere begins to wither under mounting government debt.
+Get insights into businesses across South-east Asia
+The sum will be funded mainly through sovereign debt including ultra-long-term special government bonds – typically of more than 10 years’ tenure – and state funds for investment in strategic industries, the people said. Bank loans and private capital would supplement the financing, they said.
+A unified computing network would pool fragmented regional resources and should give enterprises broader access to high-performance computing, according to Charlie Dai, principal analyst at Forrester Research. It would also help speed up AI model iteration, and the expansion of agentic and physical AI services across industries, he said. “Elevating it to a national strategy ensures policy alignment, capital mobilisation.”
+The NDRC and finance ministry, which issues sovereign bonds, did not respond to faxed requests for comment. China Mobile and China Telecom representatives also did not respond to requests for comment.
+The idea of building a nationwide computing network was laid out in China’s latest five-year plan covering the period through 2030, in which Beijing pledged to prioritise the construction of data infrastructure.
+The latest investment goal, which has not previously been reported, pales in comparison to the US$725 billion that US leaders such as Meta Platforms and Microsoft are setting aside for AI this year alone.
+Chinese data centres in general cost less than in the US because of cheaper labour, component and construction costs, and local government incentives. The two trillion yuan also does not include spending by private firms such as Alibaba Group Holding and Tencent Holdings, the people said.
+It is unclear how the envisioned unified data centre network would function alongside those private hubs. But the broad goal is to connect those scattered data facilities to a cohesive network by 2028. That in turn furthers China’s objective to push AI adoption across public sectors such as healthcare, transportation and city management.
+In addition to AI facilities, which includes data centres and faster communications infrastructure, China also plans to integrate the power grid with the project, the people said. That could take the total projected investment to at least five trillion yuan, the people said.
+If it goes ahead, Chinese firms are the likely winners.
+Washington has agreed to allow Nvidia to sell its previous-generation H200 AI chips to Chinese customers , a significant easing of measures aimed at restraining China’s AI development. Those components are about a generation behind Nvidia’s cutting-edge Blackwells.
+But shipments of the component have yet to begin, in a sign that Beijing is growing increasingly confident in replacing some AI computing capacity with locally made hardware.
+In May, nine types of home-grown AI chips, including from Huawei, Alibaba, Shanghai Biren Technology and Moore Threads Technology, passed a security review by a Chinese technology security agency, opening the door to their wider adoption in sectors with higher security requirements.
+In addition, enterprises in the finance, manufacturing, healthcare and logistics sectors will get access to more affordable and flexible AI capacity. Inland provinces are likely to attract more digital industry investment and talent, according to Dai.
+“Every ecosystem player will benefit from it,” he said. BLOOMBERG
+Decoding Asia newsletter: your guide to navigating Asia in a new global order. Sign up here to get Decoding Asia newsletter. Delivered to your inbox. Free.
+Share with us your feedback on BT's products and services
+Asia-Pacific aviation: is up really the only way?
+Russia’s ‘pivot to Asia’ takes a turn as it prioritises ties with isolated regimes over bigger economies
+Why disciplined stewardship matters when managing wealth in uncertain markets
+More than 15,000 sign up for national accounting body’s AI programme in two months
+MDDI (P) 046/10/2024. Published by SPH Media Limited, Co. Regn. No. 202120748H. Copyright © 2026 SPH Media Limited. All rights reserved.
+The overarching plan represents Beijing’s most aggressive endeavour yet to lay the foundation for future Chinese AI development. PHOTO: REUTERS

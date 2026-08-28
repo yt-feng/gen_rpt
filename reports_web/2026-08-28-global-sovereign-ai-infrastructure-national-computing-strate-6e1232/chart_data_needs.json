@@ -1,0 +1,230 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Government Budget Allocations for Climate Resilience Infrastructure (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "How has China's government budget for climate resilience infrastructure evolved, and what is the projected trajectory post-2026?",
+    "required_metrics": [
+      "Year (2020-2030)",
+      "Budget allocation (USD billion)",
+      "Entity: China central government",
+      "Segment: Climate resilience infrastructure"
+    ],
+    "comparison_set": [
+      "Historical vs. projected budget allocations"
+    ],
+    "preferred_sources": [
+      "Ministry of Finance (China)",
+      "National Development and Reform Commission (NDRC)",
+      "World Bank",
+      "Asian Infrastructure Investment Bank (AIIB)"
+    ],
+    "search_queries": [
+      "China central government budget climate resilience infrastructure 2020 2021 2022 2023 2024 2025",
+      "China special bonds infrastructure resilience 2026 2027 2028 2029 2030",
+      "NDRC climate resilience infrastructure investment plan 2030"
+    ],
+    "data_quality_rule": "Use official budget documents or credible reports. If only two endpoints are available, use CAGR or public forecast to estimate intermediate values, clearly marking them as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the scale and acceleration of government investment in resilience infrastructure, supporting H1.",
+    "pre_exhibit_context": "The 2026 disaster response is expected to catalyze significant government investment in AI-driven climate resilience. This chart quantifies the historical and projected budget allocations.",
+    "post_exhibit_takeaway": "Government budget allocations have been steadily increasing, with a sharp uptick projected post-2026, indicating a multi-billion-dollar market opportunity."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Market Size for AI-Driven Disaster Monitoring and Early Warning Systems (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the current and projected market size for AI-driven disaster monitoring and early warning systems globally and in key regions?",
+    "required_metrics": [
+      "Year (2020-2030)",
+      "Market size (USD billion)",
+      "Region: Global, China, UAE",
+      "Segment: AI-driven disaster monitoring and early warning systems"
+    ],
+    "comparison_set": [
+      "Global vs. China vs. UAE market size"
+    ],
+    "preferred_sources": [
+      "MarketsandMarkets",
+      "Grand View Research",
+      "Frost & Sullivan",
+      "IDC",
+      "Gartner"
+    ],
+    "search_queries": [
+      "AI disaster monitoring market size forecast 2020 2021 2022 2023 2024 2025 2030",
+      "early warning systems market size 2030",
+      "China AI disaster monitoring market size 2030"
+    ],
+    "data_quality_rule": "Use credible market research reports. If only two endpoints are available, use CAGR or public forecast to estimate intermediate values, clearly marking them as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the market opportunity for AI-driven disaster tech, supporting H1 and H3.",
+    "pre_exhibit_context": "The demand for AI-driven disaster monitoring is expected to surge. This chart provides market size projections to validate the opportunity.",
+    "post_exhibit_takeaway": "The market for AI-driven disaster monitoring is projected to grow at a CAGR of X%, reaching $Y billion by 2030, driven by government investments and climate change."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Semiconductor Supply Chain Bottlenecks for Disaster Tech Components (2020-2030)",
+    "chart_type": "bubble",
+    "executive_question": "Which semiconductor components used in disaster tech are most vulnerable to supply chain disruptions, and how will this evolve by 2030?",
+    "required_metrics": [
+      "Component type (e.g., AI chips, IoT sensors, edge computing processors)",
+      "Supply chain concentration (e.g., % of manufacturing in a single country)",
+      "Lead time (weeks)",
+      "Price volatility (index)",
+      "Year (2020, 2025, 2030)"
+    ],
+    "comparison_set": [
+      "Components by vulnerability and lead time"
+    ],
+    "preferred_sources": [
+      "SEMI",
+      "SIA",
+      "McKinsey",
+      "BCG",
+      "Gartner"
+    ],
+    "search_queries": [
+      "semiconductor supply chain concentration AI chips sensors 2025",
+      "lead time AI chips 2020 2025 2030",
+      "semiconductor price volatility sensors 2020 2025 2030"
+    ],
+    "data_quality_rule": "Use data from industry associations and credible research. If exact data is unavailable, use proxy indicators and clearly state assumptions.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies critical supply chain vulnerabilities for sensors and AI chips, supporting H2.",
+    "pre_exhibit_context": "The demand for sensors and AI chips in disaster monitoring will strain semiconductor supply chains. This chart maps the vulnerability of key components.",
+    "post_exhibit_takeaway": "AI chips and advanced sensors are highly vulnerable due to concentrated manufacturing and geopolitical risks, prompting nations to prioritize domestic chip manufacturing."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "National AI Infrastructure Investment by Country (2020-2030)",
+    "chart_type": "bar",
+    "executive_question": "How do national AI infrastructure investments compare across key countries (China, UAE, US, etc.) over time?",
+    "required_metrics": [
+      "Year (2020, 2025, 2030)",
+      "Country (China, UAE, US, etc.)",
+      "Investment amount (USD billion)",
+      "Segment: AI infrastructure (data centers, computing, etc.)"
+    ],
+    "comparison_set": [
+      "Country-wise investment"
+    ],
+    "preferred_sources": [
+      "National government budgets",
+      "OECD",
+      "World Bank",
+      "ITU",
+      "Stanford AI Index"
+    ],
+    "search_queries": [
+      "China AI infrastructure investment 2020 2025 2030",
+      "UAE AI strategy investment 2020 2025 2030",
+      "national AI infrastructure spending by country 2030"
+    ],
+    "data_quality_rule": "Use official government sources or credible international databases. If data is missing, use estimates from reputable research and clearly label.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a comparative view of national computing strategies, supporting H4 and H5.",
+    "pre_exhibit_context": "Sovereign nations are prioritizing AI infrastructure. This chart compares investment levels across key players.",
+    "post_exhibit_takeaway": "China and the UAE are making significant investments in AI infrastructure, with China leading in absolute terms and the UAE showing rapid growth, indicating strong alignment with resilience goals."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "China-UAE Technology Transfer and Partnership Deals (2020-2030)",
+    "chart_type": "bar",
+    "executive_question": "What is the volume and value of technology transfer and partnership deals between China and UAE in disaster resilience and AI?",
+    "required_metrics": [
+      "Year (2020-2030)",
+      "Number of deals",
+      "Deal value (USD million)",
+      "Sector: Disaster resilience, AI, smart city"
+    ],
+    "comparison_set": [
+      "Yearly deal count and value"
+    ],
+    "preferred_sources": [
+      "Ministry of Commerce (China)",
+      "UAE Ministry of Economy",
+      "Dealogic",
+      "Refinitiv",
+      "Trade press"
+    ],
+    "search_queries": [
+      "China UAE technology transfer deals disaster management 2020 2021 2022 2023 2024 2025",
+      "China UAE AI partnership agreements 2026 2027 2028 2029 2030",
+      "China UAE smart city resilience investment"
+    ],
+    "data_quality_rule": "Use official trade data and deal databases. If data is incomplete, use credible news reports and clearly state limitations.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the export opportunity for China's disaster resilience solutions to the UAE, supporting H3.",
+    "pre_exhibit_context": "China's integrated disaster resilience solutions are highly transferable to Gulf countries. This chart shows the scale of existing partnerships.",
+    "post_exhibit_takeaway": "The number and value of China-UAE technology partnerships have been increasing, indicating a growing market for integrated solutions."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Adoption of Parametric Insurance for Climate Risk (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "How has the adoption of parametric insurance for climate risk evolved, and what is the projected growth?",
+    "required_metrics": [
+      "Year (2020-2030)",
+      "Premiums written (USD billion)",
+      "Number of policies issued",
+      "Region: Global, China, UAE"
+    ],
+    "comparison_set": [
+      "Global vs. China vs. UAE"
+    ],
+    "preferred_sources": [
+      "Swiss Re",
+      "Munich Re",
+      "Insurance Information Institute",
+      "National regulators"
+    ],
+    "search_queries": [
+      "parametric insurance market size 2020 2021 2022 2023 2024 2025 2030",
+      "parametric insurance adoption China 2025",
+      "parametric insurance UAE climate risk 2030"
+    ],
+    "data_quality_rule": "Use industry reports and regulatory data. If only two endpoints are available, use CAGR or public forecast to estimate intermediate values, clearly marking them as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the growth of insurance risk models as part of integrated resilience solutions, supporting H3 and H5.",
+    "pre_exhibit_context": "Insurance risk models are a key component of disaster resilience. This chart shows the adoption trend of parametric insurance.",
+    "post_exhibit_takeaway": "Parametric insurance adoption is growing rapidly, driven by climate change and government support, creating opportunities for AI-driven risk modeling."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Key Milestones in China's AI Infrastructure and Disaster Resilience (2020-2030)",
+    "chart_type": "timeline",
+    "executive_question": "What are the key policy, investment, and technological milestones in China's AI infrastructure and disaster resilience journey?",
+    "required_metrics": [
+      "Date (year, month if available)",
+      "Milestone description",
+      "Type: Policy, Investment, Technology, Disaster event",
+      "Entity: Government, Company, etc."
+    ],
+    "comparison_set": [
+      "Chronological milestones"
+    ],
+    "preferred_sources": [
+      "Government announcements",
+      "News archives",
+      "Industry reports"
+    ],
+    "search_queries": [
+      "China AI infrastructure policy milestones 2020 2021 2022 2023 2024 2025 2026",
+      "China disaster resilience technology milestones 2026 2027 2028 2029 2030",
+      "China UAE AI partnership milestones 2020 2025 2030"
+    ],
+    "data_quality_rule": "Use official announcements and credible news sources. Ensure dates are accurate and sources are cited.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a chronological overview of events that shape the market, supporting H1, H2, and H5.",
+    "pre_exhibit_context": "Understanding the sequence of events is crucial for strategic planning. This timeline highlights major milestones.",
+    "post_exhibit_takeaway": "The timeline shows a clear acceleration of AI infrastructure investment and disaster resilience initiatives, with 2026 as a pivotal year."
+  }
+]

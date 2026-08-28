@@ -1,0 +1,27 @@
+Title: China turns to telcos to manage $295bn AI infrastructure plan
+URL: https://www.telecomtv.com/content/ai/china-turns-to-telcos-to-manage-295bn-ai-infrastructure-plan-55636/
+Source Type: html
+Domain: telecomtv.com
+Content Type: text/html; charset=utf-8
+Search Query: China national computing strategy 2030 AI infrastructure
+
+China turns to telcos to manage $295bn AI infrastructure plan, The AI-Native Telco | TelecomTV
+
+China turns to telcos to manage $295bn AI infrastructure plan
+The Chinese government is set to place state-owned telecom operators China Mobile and China Telecom, as well as giant tech and networking vendor Huawei Technologies, at the heart of its plans to plough around 2tn yuan ($295 billion) to build AI datacentres across the country during the next five years.
+According to a report by Bloomberg (subscription required), government agencies including the National Development Reform Commission have been tasked with drafting plans to develop a network of AI infrastructure hubs across China that would mainly be operated by the telcos.
+Sources told the news agency that China plans to rely primarily on local technology companies – most notably Huawei – for the vast majority of the technology needed to get the datacentres up and running, including AI chips, to avoid relying on international (mainly US) companies, such as Nvidia, for the all-important tech.
+According to the Bloomberg report, the blueprint for the network of giant AI factories is still at an early stage, but Beijing is determined to be at the forefront of the development and use of cutting-edge technologies such as AI. However, some of the plans have already been announced as part of the Asian nation’s five-year plan, which included the so-called Six Networks strategy : This involves around 7tn yuan ($1 trillion) of investment across six key infrastructure areas: Water, electrical power, computing power, next-gen communications, urban pipe networks and logistics.
+The Six Networks plan included a strategy of building a nationwide computing network by 2030, although, according to Bloomberg, this new strategy would see this accelerated to 2028 in support of China’s push to adopt more AI across public sectors, such as healthcare, transportation and smart city management.
+According to the reports, China plans to fund the investment in AI datacentres primarily through sovereign debt, including ultra-long-term special government bonds.
+The plan represents a significant expansion of the carriers’ role beyond connectivity and into the provision of sovereign compute at national scale. In its latest financial results, China Mobile said revenue from its “other” business lines – which includes AI – grew 12.7% in the quarter to 46.6bn yuan ($6.83bn). The telco has previously unveiled plans to triple its AI computing power, using homegrown chips, by 2028.
+It also offers a key AI chip business opportunity for Huawei, which is facing challenges selling its AI chips into western markets due to restrictions and bans imposed by European and North American governments, and more broadly in other markets where more advanced AI component technology can be sourced from the likes of Nvidia, AMD, Intel, Qualcomm and others.
+The decision to focus on local suppliers also makes sense for China, which has faced restrictions on imports of Nvidia’s latest high-power chipsets, such as the Blackwell and H100 architectures, with the US government citing national security concerns. Beijing has also imposed its own restrictions.
+However, the scale of the investment plan pales somewhat when compared to the numbers being touted by US hyperscalers and tech giants, with Bloomberg noting that the combined AI infrastructure investments planned by Amazon, Google, Meta and Microsoft for 2026 alone is in the region of $725bn.
+Sign up to receive TelecomTV's top news and videos, plus exclusive subscriber-only content direct to your inbox.
+TelecomTV is produced by the team at Decisive Media.
+© Decisive Media Limited 2026. All rights reserved. All brands and products are the trademarks of their respective holder(s).
+Sign In Register Subscribe Subscribe Sign In Register
+China is drawing up plans to invest $295bn in AI infrastructure
+China Telecom and China Mobile are set to play key roles in running AI datacentres
+Huawei will provide the majority of AI chips, according to reports
