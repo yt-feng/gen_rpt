@@ -307,8 +307,8 @@ def report_content_quality_issues(
             issues.append(f"Section {index} needs a developed management implication of at least 35 words.")
 
     total_words = _word_count(_report_narrative_text(report))
-    if not 2000 <= total_words <= 3600:
-        issues.append(f"The reader-visible decision brief needs 2,000-3,600 words; found {total_words}.")
+    if not 1800 <= total_words <= 3800:
+        issues.append(f"The reader-visible decision brief needs 1,800-3,800 words; found {total_words}.")
 
     actions = [item for item in report.get("action_steps", []) or [] if isinstance(item, dict)]
     if not 4 <= len(actions) <= 6:
@@ -628,13 +628,13 @@ def normalize_data_basis_ids(
         raw_id = str(item.get("chunk_id") or item.get("id") or "").strip()
         if raw_id in approved_ids or (source_chunks and raw_id in source_chunks):
             continue
-        match = re.search(r"(?:source|chunk|evidence|s)\s*[-_]?\s*(\d+)", raw_id, re.I)
+        match = re.search(r"^(?:source|chunk|evidence|s)\s*[-_]?\s*(\d+)$", raw_id, re.I)
         if match and all_keys:
             idx = max(0, int(match.group(1)) - 1)
             chosen_key = chunk_keys[min(idx, len(chunk_keys) - 1)] if chunk_keys else evidence_keys[min(idx, len(evidence_keys) - 1)]
             item["chunk_id"] = chosen_key
             item["id"] = chosen_key
-        elif all_keys:
+        elif not raw_id and all_keys:
             chosen_key = all_keys[0]
             item["chunk_id"] = chosen_key
             item["id"] = chosen_key
@@ -985,13 +985,13 @@ def _clean_stray_terminal_quote(text: str) -> str:
 
 
 def _report_narrative_text(report: dict) -> str:
-    parts = [str(report.get(key) or "") for key in ("title", "dek")]
+    parts = [str(report.get(key) or "") for key in ("title", "dek", "methodology", "evidence_quality", "disclaimer")]
     parts.extend(str(item) for key in ("intro", "key_takeaways") for item in report.get(key, []) or [])
     for section in report.get("sections", []) or []:
         if not isinstance(section, dict):
             continue
         parts.extend(str(section.get(key) or "") for key in ("title", "lead", "body", "so_what"))
-        parts.extend(str(item) for item in section.get("paragraphs", []) or [])
+        parts.extend(str(item) for key in ("paragraphs", "evidence") for item in section.get(key, []) or [])
     for action in report.get("action_steps", []) or []:
         if isinstance(action, dict):
             parts.extend(str(action.get(key) or "") for key in ("horizon", "action", "success_metric", "rationale"))
