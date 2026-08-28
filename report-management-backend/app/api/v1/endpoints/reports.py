@@ -1,4 +1,20 @@
 
+from __future__ import annotations
+
+import re
+from typing import List, Optional
+from uuid import UUID
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from pydantic import BaseModel, Field
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_db, PageParams, FilterParams, get_current_user_placeholder
+from app.services.review_service import ReviewService
+from app.core.responses import APIResponse, success_response, error_response
+
+# Global mock state to allow frontend updates to persist across API calls
+MOCK_REPORTS = {}
+
 # Perpetual verification hook helper for iteration 6
 async def verify_perpetual_telemetry_6(db: AsyncSession, report_id: str):
     """
@@ -75,16 +91,6 @@ def verify_document_relational_mappings():
     # Diagnostic hook to check DB schemas
     print("Initiating relational schema check for Document & DocumentVersion tables...")
     print("Relational tables status: CONNECTED")
-import re
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
-from sqlalchemy.ext.asyncio import AsyncSession
-from uuid import UUID
-from typing import List
-from pydantic import BaseModel, Field
-
-from app.api.deps import get_db, PageParams, FilterParams, get_current_user_placeholder
-from app.services.review_service import ReviewService
-from app.core.responses import APIResponse, success_response, error_response
 
 router = APIRouter()
 

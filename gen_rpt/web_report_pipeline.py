@@ -554,6 +554,12 @@ class WebReportPipeline:
         (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "rag_manifest.json").write_text(json.dumps(rag_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+
+        # Step 14: Automated AI Review & Multi-Agent Fact Checking
+        ai_review_data = self._run_post_generation_review(output_dir, markdown_path, report)
+        if ai_review_data:
+            report["ai_review_data"] = ai_review_data
+
         self._log(
             "PHASE render_and_write completed "
             f"| elapsed={self._elapsed(phase_start)} | html={html_path} | markdown={markdown_path}"
@@ -585,6 +591,80 @@ class WebReportPipeline:
             "private_source_count": len(private_source_list) if normalized_source_mode != "web_only" else 0,
             "rag_source_count": len(self.rag_sources),
         }
+
+    def _run_post_generation_review(
+        self,
+        output_dir: Path,
+        markdown_path: Path,
+        report: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        """Automatically runs the isolated AI Review System on the rendered markdown report."""
+        import subprocess
+        import sys
+
+        openrouter_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+        groq_key = os.getenv("GROQ_API_KEY", "").strip()
+        deepseek_key = os.getenv("DEEPSEEK_API_KEY", "").strip()
+
+        if not (openrouter_key or groq_key or deepseek_key):
+            self._log("AI review skipped: No OPENROUTER_API_KEY or DEEPSEEK_API_KEY set.")
+            return None
+
+        phase_start = time.monotonic()
+        self._log("PHASE automated_review started | evaluating claims & rubric scores")
+
+        review_dir = output_dir / "reviews"
+        review_dir.mkdir(parents=True, exist_ok=True)
+
+        root_dir = Path(__file__).resolve().parent.parent
+        review_main = root_dir / "review_system" / "main.py"
+
+        if not review_main.exists():
+            self._log(f"AI review skipped: {review_main} not found.")
+            return None
+
+        model_name = os.getenv("REVIEW_MODEL", "qwen/qwen-2.5-72b-instruct")
+        cmd = [
+            sys.executable,
+            str(review_main),
+            "--report",
+            str(markdown_path),
+            "--output",
+            str(review_dir),
+            "--model",
+            model_name,
+        ]
+
+        try:
+            res = subprocess.run(cmd, cwd=str(root_dir), capture_output=True, text=True, timeout=180)
+            if res.returncode == 0:
+                review_json_file = review_dir / "review.json"
+                if review_json_file.exists():
+                    try:
+                        review_data = json.loads(review_json_file.read_text(encoding="utf-8"))
+                        report["ai_review_data"] = review_data
+                        (output_dir / "web_report_payload.json").write_text(
+                            json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+                        )
+                        # Also copy to global review_outputs/
+                        global_review_dir = root_dir / "review_outputs" / f"{output_dir.name}_review"
+                        global_review_dir.mkdir(parents=True, exist_ok=True)
+                        for f in review_dir.glob("*"):
+                            if f.is_file():
+                                (global_review_dir / f.name).write_bytes(f.read_bytes())
+
+                        score = review_data.get("scores", {}).get("overall_score")
+                        grade = review_data.get("scores", {}).get("grade")
+                        self._log(f"PHASE automated_review completed | elapsed={self._elapsed(phase_start)} | score={score} | grade={grade}")
+                        return review_data
+                    except Exception as pe:
+                        self._log(f"Automated review JSON parse error: {pe}")
+            else:
+                self._log(f"Automated review exited with code {res.returncode}: {res.stderr[:200]}")
+        except Exception as e:
+            self._log(f"Automated review execution failed or timed out: {e}")
+
+        return None
 
     def _log(self, message: str) -> None:
         print(f"[gen_rpt.web] {time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())} {message}", flush=True)

@@ -533,11 +533,11 @@ def _normalize_automated_review(review: Any) -> Dict[str, Any]:
 
 
 def _run_automated_review(output_dir: Path) -> Dict[str, Any]:
-    if not os.getenv("GROQ_API_KEY", "").strip():
-        print("[gatex.bridge] GROQ_API_KEY is unavailable; automated review skipped.", flush=True)
+    if not (os.getenv("OPENROUTER_API_KEY", "").strip() or os.getenv("DEEPSEEK_API_KEY", "").strip() or os.getenv("GROQ_API_KEY", "").strip()):
+        print("[gatex.bridge] No review API keys available; automated review skipped.", flush=True)
         return _review_unavailable(
             "skipped",
-            "Automated review was skipped because GROQ_API_KEY is not configured.",
+            "Automated review was skipped because OPENROUTER_API_KEY is not configured.",
         )
     review_dir = output_dir / "automated_review"
     command = [
@@ -548,7 +548,7 @@ def _run_automated_review(output_dir: Path) -> Dict[str, Any]:
         "--output",
         str(review_dir),
         "--model",
-        os.getenv("REVIEW_MODEL", "llama-3.3-70b-versatile"),
+        os.getenv("REVIEW_MODEL", "qwen/qwen-2.5-72b-instruct"),
     ]
     try:
         result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=1_800)

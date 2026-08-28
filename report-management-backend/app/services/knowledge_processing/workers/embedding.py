@@ -321,12 +321,16 @@ async def generate_query_embedding(
     """
     logger.info(f"Generating query embedding via API endpoint")
     try:
-        vectors, provider = await _get_embeddings_with_fallback([query])
+        vectors = await _call_hf_api([query], request_timeout=8.0, retry_count=1)
         return vectors[0]
     except Exception as e:
-        logger.warning("Query embedding fallback cascade failed, using local mock query vector", error=str(e))
-        dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
-        return generate_mock_embedding(query, dimension=dimension)
+        try:
+            vectors, provider = await _get_embeddings_with_fallback([query])
+            return vectors[0]
+        except Exception as e2:
+            logger.warning("Query embedding fallback cascade failed, using local mock query vector", error=str(e2))
+            dimension = int(getattr(settings, "KNOWLEDGE_EMBEDDING_DIMENSION", 384))
+            return generate_mock_embedding(query, dimension=dimension)
 
 
 def generate_mock_embedding(text: str, dimension: int = None) -> List[float]:

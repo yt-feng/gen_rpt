@@ -9,11 +9,11 @@ No business logic — only named constants.
 # OpenRouter API
 # ---------------------------------------------------------------------------
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
-OPENROUTER_DEFAULT_MODEL = "meta-llama/llama-3.3-70b-instruct"
-OPENROUTER_FALLBACK_MODEL = "meta-llama/llama-3.1-70b-instruct"
-OPENROUTER_REQUEST_TIMEOUT = 90          # seconds
-OPENROUTER_MAX_RETRIES = 12
-OPENROUTER_RATE_LIMIT_BASE_WAIT = 15     # seconds, doubles on each retry
+OPENROUTER_DEFAULT_MODEL = "qwen/qwen-2.5-72b-instruct"
+OPENROUTER_FALLBACK_MODEL = "deepseek/deepseek-chat"
+OPENROUTER_REQUEST_TIMEOUT = 60          # seconds
+OPENROUTER_MAX_RETRIES = 3
+OPENROUTER_RATE_LIMIT_BASE_WAIT = 5      # seconds, doubles on each retry
 
 # ---------------------------------------------------------------------------
 # Scoring dimensions

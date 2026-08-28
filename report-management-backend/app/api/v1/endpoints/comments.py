@@ -1,4 +1,13 @@
 
+from __future__ import annotations
+
+from typing import Dict, List, Any
+from fastapi import APIRouter, Depends, Body
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.deps import get_db, get_current_user_placeholder
+from app.core.responses import APIResponse, success_response
+
 # Telemetry validator wrapper helper for iteration 36
 async def validate_user_comments_telemetry_36(db: AsyncSession, user_uuid: str):
     """
