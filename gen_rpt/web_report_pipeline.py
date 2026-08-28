@@ -401,7 +401,13 @@ class WebReportPipeline:
             evidence_exhibits,
             preserve_existing=bool(self.rag_context),
         )
-        report = self._filter_post_merge_exhibits(report, approved_evidence, grounding_text)
+        report = self._filter_post_merge_exhibits(
+            report,
+            approved_evidence,
+            grounding_text,
+            conflicts=evidence_conflicts,
+            source_chunks=rag_source_chunks,
+        )
         if self.rag_context:
             self._label_exhibit_origins(report, rag_source_chunks, approved_evidence)
             self._apply_source_aware_exhibit_text(report)
@@ -1739,6 +1745,8 @@ CRITICAL RULES (violation = failure):
         report: Dict[str, Any],
         evidence_ledger: List[Dict[str, Any]],
         grounding_text: str = "",
+        conflicts: List[Dict[str, Any]] | None = None,
+        source_chunks: Dict[str, str] | None = None,
     ) -> Dict[str, Any]:
         ledger_map = {
             str(item.get("id") or ""): item
@@ -1753,6 +1761,13 @@ CRITICAL RULES (violation = failure):
             if not isinstance(exhibit, dict):
                 continue
             if grounding_text and not rag_visible_numbers_supported(exhibit, grounding_text):
+                continue
+            if self.rag_context and combined_evidence_quality_issues(
+                {"exhibits": [exhibit]},
+                approved_evidence=evidence_ledger,
+                conflicts=conflicts or [],
+                source_chunks=source_chunks or {},
+            ):
                 continue
             data_basis = exhibit.get("data_basis", []) or []
             basis_types = set()

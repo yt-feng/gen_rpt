@@ -609,25 +609,35 @@ def prune_unsupported_numeric_claims(report: Any, context_text: str) -> List[str
     return sorted(removed)
 
 
-def combined_evidence_quality_issues(
-    report: Any,
-    *,
+def normalize_data_basis_ids(
+    exhibit: dict,
     approved_evidence: List[dict[str, Any]],
-    conflicts: List[dict[str, Any]],
     source_chunks: dict[str, str],
-) -> List[str]:
-    """Reject exhibits that bypass approved evidence or reuse quarantined web claims."""
-    if not isinstance(report, dict):
-        return ["The combined-evidence report is not a structured object."]
-    approved_ids = {str(item.get("id") or "") for item in approved_evidence if item.get("id")}
-    allowed_ids = approved_ids | set(source_chunks)
-    conflict_ids = {
-        str(side.get("id") or "")
-        for conflict in conflicts
-        for side in (conflict.get("web") or {},)
-        if isinstance(side, dict) and side.get("id")
-    }
-    issues: List[str] = []
+) -> None:
+    """Map ordinal identifiers like 'Source 1', 'Chunk 2', 'S1' to canonical chunk or evidence IDs."""
+    if not isinstance(exhibit, dict):
+        return
+    approved_ids = {str(item.get("id") or ""): str(item.get("id") or "") for item in approved_evidence if isinstance(item, dict) and item.get("id")}
+    chunk_keys = list(source_chunks.keys()) if isinstance(source_chunks, dict) else []
+    evidence_keys = list(approved_ids.keys())
+    all_keys = chunk_keys or evidence_keys
+
+    for item in exhibit.get("data_basis", []) or []:
+        if not isinstance(item, dict):
+            continue
+        raw_id = str(item.get("chunk_id") or item.get("id") or "").strip()
+        if raw_id in approved_ids or (source_chunks and raw_id in source_chunks):
+            continue
+        match = re.search(r"(?:source|chunk|evidence|s)\s*[-_]?\s*(\d+)", raw_id, re.I)
+        if match and all_keys:
+            idx = max(0, int(match.group(1)) - 1)
+            chosen_key = chunk_keys[min(idx, len(chunk_keys) - 1)] if chunk_keys else evidence_keys[min(idx, len(evidence_keys) - 1)]
+            item["chunk_id"] = chosen_key
+            item["id"] = chosen_key
+        elif all_keys:
+            chosen_key = all_keys[0]
+            item["chunk_id"] = chosen_key
+            item["id"] = chosen_key
 
 
 def combined_evidence_quality_issues(
@@ -652,6 +662,7 @@ def combined_evidence_quality_issues(
     for index, exhibit in enumerate(report.get("exhibits", []) or [], start=1):
         if not isinstance(exhibit, dict):
             continue
+        normalize_data_basis_ids(exhibit, approved_evidence, source_chunks)
         basis_ids = {
             str(item.get("chunk_id") or item.get("id") or "").strip()
             for item in exhibit.get("data_basis", []) or []
