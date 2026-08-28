@@ -129,64 +129,27 @@ async def list_reports(
     )
     result = await db.execute(stmt)
     
+    from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
+
     for row in result.all():
         job, doc, owner = row[0], row[1], row[2]
         doc_id = doc.slug or str(doc.id)
-        # Avoid overriding if already present in MOCK_REPORTS (it might have richer real-time data)
         if doc_id not in mock_reports_dict:
-            mock_reports_dict[doc_id] = {
-                "id": doc_id,
-                "title": doc.title or job.topic,
-                "version": "1.0",
-                "status": "Generated",
-                "humanStatus": "Pending Review",
-                "aiScore": 85,
-                "aiGrade": "Silver",
-                "commentCount": 0,
-                "lastUpdated": (job.completed or job.started).strftime("%Y-%m-%dT%H:%M:%SZ") if (job.completed or job.started) else datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "aiReview": {
-                    "scores": {
-                        "overall_score": 85,
-                        "grade": "A-",
-                        "components": {"clarity": 88, "accuracy": 84, "formatting": 90, "completeness": 82}
-                    },
-                    "recommendations": {
-                        "strengths": ["RAG retrieval and knowledge validation verified successfully."],
-                        "weaknesses": ["Pending deep-eval review background job execution."],
-                        "priority_improvements": [],
-                        "executive_readiness": {
-                            "board_members": True,
-                            "ministers": True,
-                            "ceos": True,
-                            "sovereign_wealth_funds": True,
-                            "senior_executives": True,
-                            "justification": "AI generation verified with active RAG context snapshot."
-                        }
-                    },
-                    "dataGaps": [],
-                    "writingFlaws": [],
-                    "strategicGaps": [],
-                    "gccGaps": [],
-                    "claims_audit": {"claims": []}
-                },
-
-                "assignedTo": {
+            payload = await _load_report_payload_from_r2(doc_id)
+            title = doc.title or job.topic
+            slug = doc.slug or doc_id
+            entry = _build_mock_report_entry(doc_id, title, slug, payload or {})
+            if job.completed or job.started:
+                entry["lastUpdated"] = (job.completed or job.started).strftime("%Y-%m-%dT%H:%M:%SZ")
+            if owner:
+                entry["assignedTo"] = {
                     "id": str(owner.id),
                     "full_name": owner.full_name,
                     "email": owner.email
-                } if owner else None,
-                "reportContent": {
-                    "brand": "GateX",
-                    "label": "Deep Research",
-                    "date": (job.completed or job.started).strftime("%B %d, %Y"),
-                    "sections": [
-                        {"heading": "Executive Summary", "body": "Click 'View Report' to load full report content."}
-                    ]
-                },
-                "comments": []
-            }
+                }
+            mock_reports_dict[doc_id] = entry
+            MOCK_REPORTS[doc_id] = entry
         else:
-            # If already present in MOCK_REPORTS, ensure it has the owner sync'd from DB if not set
             if owner and not mock_reports_dict[doc_id].get("assignedTo"):
                 mock_reports_dict[doc_id]["assignedTo"] = {
                     "id": str(owner.id),

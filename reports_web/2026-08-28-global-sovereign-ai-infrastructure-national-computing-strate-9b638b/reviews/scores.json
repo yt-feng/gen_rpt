@@ -1,0 +1,92 @@
+{
+  "overall_score": 87,
+  "grade": "Silver",
+  "research_quality": {
+    "score": 24,
+    "max_points": 30,
+    "what_works": [
+      {
+        "point": "The report provides a detailed analysis of the 2026 flood disasters in China, including the human and economic impact, which forms a strong basis for investment decisions."
+      },
+      {
+        "point": "The report effectively links the need for climate resilience infrastructure with the growth in semiconductor supply chains, highlighting the technological and economic drivers."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report lacks a detailed analysis of potential environmental impacts and sustainability considerations of the proposed infrastructure projects.",
+        "location_ref": "Location -> [Current Decision Baseline: Climate Resilience Infrastructure as a Strategic Imperative] | Para 3 | "
+      },
+      {
+        "point": "The report does not explore alternative scenarios or potential changes in government policy that could affect the investment landscape.",
+        "location_ref": "Location -> [Causal and Economic Drivers: Government Spending and Technological Demand] | Para 5 | "
+      }
+    ]
+  },
+  "evidence_and_citations": {
+    "score": 22,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report cites specific data and figures, such as the number of deaths, injuries, and economic losses from the 2026 floods, which adds credibility to the analysis."
+      },
+      {
+        "point": "The report references multiple sources, including private documents and annual reports from semiconductor companies, to support its claims and recommendations."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report mentions that some online 'national loss figures' are incomplete, but does not provide a clear source for the data used in the report.",
+        "location_ref": "Location -> [Failure Modes and Uncertainty: Risks in Implementation and Market Volatility] | Para 2 | "
+      },
+      {
+        "point": "The bibliography is incomplete, as it does not list all the sources referenced in the report, such as the private document context.",
+        "location_ref": "Location -> [References] | Para 1 | "
+      }
+    ]
+  },
+  "strategic_clarity": {
+    "score": 23,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report clearly identifies the key investment opportunities in water digitalization, monitoring, and advanced semiconductor equipment, providing a clear 'so-what' for sovereign investors."
+      },
+      {
+        "point": "The report outlines specific decision gates and management implications, guiding investors on how to phase their investments and manage risks."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a detailed timeline or specific metrics for evaluating the success of the recommended investments.",
+        "location_ref": "Location -> [Staged Decision Gates: Phased Investment Approach for Sovereign Investors] | Para 5 | "
+      },
+      {
+        "point": "The report lacks a clear explanation of the potential regulatory or policy changes that could impact the investment thesis.",
+        "location_ref": "Location -> [Causal and Economic Drivers: Government Spending and Technological Demand] | Para 5 | "
+      }
+    ]
+  },
+  "writing_and_structure": {
+    "score": 18,
+    "max_points": 20,
+    "what_works": [
+      {
+        "point": "The report is well-structured with clear section titles that match the content, making it easy to navigate."
+      },
+      {
+        "point": "The report uses concise and clear language, avoiding unnecessary jargon and filler content."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "Some sections contain repetitive information, such as the repeated emphasis on the Gulf export potential without additional context.",
+        "location_ref": "Location -> [Current Decision Baseline: Climate Resilience Infrastructure as a Strategic Imperative] | Para 5 | "
+      },
+      {
+        "point": "The report occasionally uses vague terms, such as 'sustainable opportunities,' without providing specific examples or criteria.",
+        "location_ref": "Location -> [Options and Trade-offs: Prioritizing Long-term Infrastructure over Short-term Relief] | Para 2 | "
+      }
+    ]
+  }
+}

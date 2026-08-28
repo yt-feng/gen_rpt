@@ -652,7 +652,17 @@ class WebReportPipeline:
             self._log(f"AI review skipped: {review_main} not found.")
             return None
 
-        model_name = os.getenv("REVIEW_MODEL", "qwen/qwen-2.5-72b-instruct")
+        model_name = os.getenv("REVIEW_MODEL", "").strip()
+        if not model_name:
+            if openrouter_key:
+                model_name = "qwen/qwen-2.5-72b-instruct"
+            elif deepseek_key:
+                model_name = "deepseek-chat"
+            elif groq_key:
+                model_name = "llama-3.3-70b-versatile"
+            else:
+                model_name = "qwen/qwen-2.5-72b-instruct"
+
         cmd = [
             sys.executable,
             str(review_main),

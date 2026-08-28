@@ -1,0 +1,24 @@
+{
+  "review_timestamp": "2026-08-28T07:38:45.348418Z",
+  "report_title": "Invest in Climate Resilience Infrastructure and Semiconductor Supply Chain Resilience for Sovereign AI Growth",
+  "report_path": "D:\\BlueOcean\\gen_rpt-main\\reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\report.md",
+  "overall_score": 87,
+  "grade": "Silver",
+  "total_claims": 14,
+  "high_risk_claims": 0,
+  "unsupported_claims": 0,
+  "improvement_tasks": 10,
+  "minister_ready": false,
+  "board_ready": false,
+  "swf_ready": false,
+  "output_dir": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews",
+  "files": {
+    "review_json": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\review.json",
+    "review_md": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\review.md",
+    "review_html": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\review.html",
+    "claims_json": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\claims.json",
+    "findings_json": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\findings.json",
+    "scores_json": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\scores.json",
+    "audit_manifest": "reports_web\\2026-08-28-global-sovereign-ai-infrastructure-national-computing-strate-9b638b\\reviews\\audit_manifest.json"
+  }
+}

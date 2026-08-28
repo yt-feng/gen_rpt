@@ -212,7 +212,7 @@ async def delete_report_files_from_r2(slug: str) -> None:
     from anyio import to_thread
     await to_thread.run_sync(_find_and_delete)
 
-async def _load_report_payload_from_r2(slug: str, topic: str) -> dict:
+async def _load_report_payload_from_r2(slug: str, topic: str = "") -> dict:
     """
     Tries to load the web_report_payload.json from R2 to get real report content.
     The GitHub Actions workflow often prepends a date (YYYY-MM-DD-) to the slug in R2.
