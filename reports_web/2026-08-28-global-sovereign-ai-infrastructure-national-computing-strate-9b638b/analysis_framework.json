@@ -1,0 +1,649 @@
+{
+  "decision_question": "How should sovereign investors and technology partners position themselves to capitalize on China's climate resilience infrastructure upgrades and their potential for export to Gulf states, while mitigating risks in the semiconductor supply chain?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "H1: China's 2026 flood disasters will accelerate government investment in digital water management and geological monitoring, creating a multi-billion-dollar market for AI-driven infrastructure solutions.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "H2: The demand for AI chips and sensors in climate resilience applications will strain semiconductor supply chains, prompting China to accelerate domestic chip production and diversify suppliers.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "H3: Sovereign investors in the Gulf, particularly UAE, will seek to import China's integrated climate resilience technology to mitigate their own flood risks, creating a new export market.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "H4: The semiconductor supply chain resilience will become a critical factor in the deployment of sovereign AI infrastructure, with countries prioritizing secure and reliable chip sources.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "H5: Companies with existing government contracts and recurring revenue in water digitalization and monitoring will outperform those focused on short-term disaster relief.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 total market size segment share",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 customer count price ARPU",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 pilot customer conversion",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 ROI cost savings case study",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 capacity utilization unit price",
+          "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Government budget allocations for water infrastructure and disaster monitoring in China (2026-2030).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Market size and growth projections for smart water management and geological monitoring systems.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Semiconductor supply chain data: capacity, investment in fabs, import/export statistics for AI chips.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "UAE's infrastructure spending plans and smart city initiatives.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Case studies of cross-border technology transfers in climate resilience.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Financial performance of key companies in water digitalization and monitoring (e.g., revenue, order backlog).",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030 cost CAPEX OPEX"
+      ]
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "China's Annual Investment in Water Infrastructure and Disaster Monitoring (2020-2030)",
+      "chart_type": "line",
+      "executive_question": "How is China's government spending on water infrastructure and disaster monitoring evolving, and what is the projected trajectory to 2030?",
+      "required_metrics": [
+        "Annual government investment in water infrastructure (CNY billion, 2020-2030)",
+        "Annual government investment in disaster monitoring systems (CNY billion, 2020-2030)",
+        "Total annual investment in water and disaster monitoring (CNY billion, 2020-2030)"
+      ],
+      "comparison_set": [
+        "Historical data (2020-2025) and forecast (2026-2030) from government budgets and industry reports."
+      ],
+      "preferred_sources": [
+        "China Ministry of Water Resources",
+        "National Development and Reform Commission (NDRC)",
+        "China Statistical Yearbook",
+        "World Bank",
+        "McKinsey & Company reports"
+      ],
+      "search_queries": [
+        "China water infrastructure investment annual 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+        "China disaster monitoring investment budget 2026 2030",
+        "China water resources ministry annual report investment"
+      ],
+      "data_quality_rule": "Use official government budget figures where available; for forecast years, use credible industry forecasts (e.g., McKinsey, IDC) and clearly mark as estimates. If only two endpoints are available, use CAGR to interpolate and label as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the scale and growth of China's investment in climate resilience infrastructure, setting the stage for the demand for AI and computing.",
+      "pre_exhibit_context": "The 2026 floods exposed critical infrastructure gaps, prompting a surge in government funding for digital water management and monitoring.",
+      "post_exhibit_takeaway": "China's investment in water infrastructure and disaster monitoring is on a steep upward trajectory, with annual spending projected to exceed $X billion by 2030, creating a substantial market for AI-driven solutions."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Global Smart Water Management Market Size (2020-2030)",
+      "chart_type": "line",
+      "executive_question": "What is the global market size for smart water management systems, and how is it expected to grow by 2030?",
+      "required_metrics": [
+        "Global smart water management market size (USD billion, 2020-2030)",
+        "China smart water management market size (USD billion, 2020-2030)",
+        "Annual growth rate (CAGR) for global and China markets"
+      ],
+      "comparison_set": [
+        "Global vs. China market size over time."
+      ],
+      "preferred_sources": [
+        "Gartner",
+        "IDC",
+        "Frost & Sullivan",
+        "MarketsandMarkets",
+        "China Water Risk"
+      ],
+      "search_queries": [
+        "smart water management market size 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+        "China smart water management market size forecast 2030",
+        "global smart water management market CAGR 2020 2030"
+      ],
+      "data_quality_rule": "Use market research reports with clear methodology. If only two data points are available, use CAGR to interpolate and label as estimates. Prefer sources that provide annual data points.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies the global opportunity for AI-driven water management, providing a benchmark for China's market share and growth potential.",
+      "pre_exhibit_context": "China's investment is part of a global trend towards digitalizing water infrastructure, driven by climate change and urbanization.",
+      "post_exhibit_takeaway": "The global smart water management market is projected to grow from $X billion in 2020 to $Y billion by 2030, with China representing a significant and growing share."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Semiconductor Supply Chain Dependency by Country (2025)",
+      "chart_type": "bubble",
+      "executive_question": "How do major economies compare in terms of semiconductor production capacity, consumption, and import dependency?",
+      "required_metrics": [
+        "Semiconductor production capacity (USD billion, 2025)",
+        "Semiconductor consumption (USD billion, 2025)",
+        "Net import dependency (percentage, 2025)",
+        "Country (China, US, EU, Japan, South Korea, Taiwan, etc.)"
+      ],
+      "comparison_set": [
+        "Major economies: China, US, EU, Japan, South Korea, Taiwan."
+      ],
+      "preferred_sources": [
+        "SIA (Semiconductor Industry Association)",
+        "WSTS (World Semiconductor Trade Statistics)",
+        "IC Insights",
+        "McKinsey",
+        "BCG"
+      ],
+      "search_queries": [
+        "semiconductor production capacity by country 2025",
+        "semiconductor consumption by country 2025",
+        "semiconductor import dependency by country 2025"
+      ],
+      "data_quality_rule": "Use data from industry associations and reputable research firms. Ensure consistent definitions of production and consumption. If data is not available for 2025, use the most recent year and note the year.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Illustrates the global semiconductor supply chain landscape, highlighting vulnerabilities and the need for resilience strategies.",
+      "pre_exhibit_context": "The demand for AI chips in climate tech is straining supply chains, prompting countries to reassess their dependencies.",
+      "post_exhibit_takeaway": "Countries like China and the US have high consumption but varying production capacities, leading to strategic dependencies that drive national self-sufficiency initiatives."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "China's Semiconductor Self-Sufficiency Rate (2020-2030)",
+      "chart_type": "line",
+      "executive_question": "How is China's semiconductor self-sufficiency rate expected to evolve by 2030?",
+      "required_metrics": [
+        "Semiconductor self-sufficiency rate (percentage, 2020-2030)",
+        "Semiconductor production value (USD billion, 2020-2030)",
+        "Semiconductor consumption value (USD billion, 2020-2030)"
+      ],
+      "comparison_set": [
+        "Historical and forecast self-sufficiency rates."
+      ],
+      "preferred_sources": [
+        "China Semiconductor Industry Association (CSIA)",
+        "IC Insights",
+        "McKinsey",
+        "BCG",
+        "China's Ministry of Industry and Information Technology (MIIT)"
+      ],
+      "search_queries": [
+        "China semiconductor self-sufficiency rate 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+        "China semiconductor production value 2020 2030",
+        "China semiconductor consumption value 2020 2030"
+      ],
+      "data_quality_rule": "Use official statistics and industry reports. If only two data points are available, use CAGR to interpolate and label as estimates. Clearly define self-sufficiency rate (production/consumption).",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows China's progress in reducing reliance on foreign semiconductors, a key driver of supply chain resilience.",
+      "pre_exhibit_context": "China's push for self-sufficiency in semiconductors is a response to supply chain vulnerabilities and geopolitical tensions.",
+      "post_exhibit_takeaway": "China's semiconductor self-sufficiency rate is projected to rise from X% in 2020 to Y% by 2030, reducing dependence on imports but still leaving significant gaps in advanced chips."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "UAE Infrastructure Spending on Smart City and Flood Management (2020-2030)",
+      "chart_type": "bar",
+      "executive_question": "How is the UAE allocating its infrastructure budget to smart city and flood management projects?",
+      "required_metrics": [
+        "Annual UAE infrastructure spending on smart city projects (USD billion, 2020-2030)",
+        "Annual UAE spending on flood management (USD billion, 2020-2030)",
+        "Total annual spending (USD billion, 2020-2030)"
+      ],
+      "comparison_set": [
+        "Historical and forecast spending by category."
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Finance",
+        "UAE government portals",
+        "Smart Dubai",
+        "Deloitte",
+        "PwC"
+      ],
+      "search_queries": [
+        "UAE smart city infrastructure spending 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+        "UAE flood management budget 2026 2030",
+        "UAE infrastructure investment plan 2030"
+      ],
+      "data_quality_rule": "Use official government budget documents and credible industry reports. If annual data is not available, use total budget and allocate based on project announcements.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Highlights the UAE's investment in climate resilience, creating a market for imported technology solutions.",
+      "pre_exhibit_context": "The UAE is investing heavily in smart city initiatives and flood management to mitigate climate risks, presenting an export opportunity for China's integrated solutions.",
+      "post_exhibit_takeaway": "The UAE's annual spending on smart city and flood management is projected to reach $X billion by 2030, with a significant portion allocated to digital technologies."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "Key Companies in Water Digitalization and Monitoring: Revenue and Order Backlog (2023-2025)",
+      "chart_type": "bar",
+      "executive_question": "Which companies are leading in water digitalization and monitoring, and what is their financial performance?",
+      "required_metrics": [
+        "Company name",
+        "Annual revenue (USD million, 2023, 2024, 2025)",
+        "Order backlog (USD million, 2025)",
+        "Government contract value (USD million, 2025)"
+      ],
+      "comparison_set": [
+        "Top 5-10 companies in the sector."
+      ],
+      "preferred_sources": [
+        "Company annual reports",
+        "Bloomberg",
+        "Capital IQ",
+        "S&P Global",
+        "Industry association reports"
+      ],
+      "search_queries": [
+        "water digitalization company revenue 2023 2024 2025",
+        "smart water management company order backlog 2025",
+        "water monitoring company government contracts 2025"
+      ],
+      "data_quality_rule": "Use audited financial statements. If order backlog is not disclosed, use contract wins or project pipeline as a proxy and note the source.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Identifies potential investment targets and competitive landscape in the climate tech sector.",
+      "pre_exhibit_context": "Investors need to identify companies with strong government ties and recurring revenue in water digitalization to capitalize on the infrastructure boom.",
+      "post_exhibit_takeaway": "Companies like X, Y, and Z show strong revenue growth and substantial order backlogs, indicating their readiness to benefit from increased government spending."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Timeline of China's 2026 Flood Events and Government Funding Announcements",
+      "chart_type": "timeline",
+      "executive_question": "What were the key flood events in 2026 and how did the government respond with funding?",
+      "required_metrics": [
+        "Date of flood event",
+        "Location (province/city)",
+        "Estimated economic loss (USD billion)",
+        "Government relief fund amount (USD billion)",
+        "Date of funding announcement",
+        "Purpose of funding (e.g., water infrastructure, monitoring systems)"
+      ],
+      "comparison_set": [
+        "Major flood events and corresponding funding announcements."
+      ],
+      "preferred_sources": [
+        "China Ministry of Emergency Management",
+        "China Ministry of Water Resources",
+        "Xinhua News Agency",
+        "ReliefWeb",
+        "World Bank disaster reports"
+      ],
+      "search_queries": [
+        "China 2026 flood events timeline",
+        "China flood relief fund 2026",
+        "China government funding water infrastructure 2026"
+      ],
+      "data_quality_rule": "Use official government announcements and credible news sources. If exact dates are not available, use month and year. Clearly label estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides a chronological context for the surge in investment and the urgency of digital resilience solutions.",
+      "pre_exhibit_context": "The 2026 floods were a catalyst for increased investment in water infrastructure and monitoring.",
+      "post_exhibit_takeaway": "The timeline shows a rapid government response with significant funding allocations, underscoring the immediate demand for AI-driven solutions."
+    }
+  ],
+  "storyline_plan": {
+    "report_archetype": "operating_strategy",
+    "selected_modules": [
+      "current decision baseline",
+      "options and trade-offs",
+      "causal and economic drivers",
+      "failure modes and uncertainty",
+      "staged decision gates"
+    ],
+    "coverage_requirements": [
+      "executive thesis",
+      "source-backed findings",
+      "causal mechanisms",
+      "counter-evidence and risks",
+      "decision implications",
+      "evidence-based actions"
+    ],
+    "core_question": "How should sovereign investors and technology partners position themselves to capitalize on China's climate resilience infrastructure upgrades and their potential for export to Gulf states, while mitigating risks in the semiconductor supply chain?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: timeline, market",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "4．先进封装设备 得益于AI、高性能计算及5G/6G 技术对算力密度的不断提升，以及数据中心、自动驾驶等领域对低功耗、高可靠 性封装的强烈需求，先进封装技术迎来关键增长阶段，其中AI 与高性能计算、通信与基础设施、汽车电子成为增长主 力。2.5D 封装通过硅中介层实现水平方向的芯片间高速互联，从而实现HBM 和GPU 的高带宽互联。3D 封装使用TSV 等技术，在垂直方向对芯片进行堆叠互联，通过最大化带宽、最小化延迟和面积，实现极致集成与密度。混合键合技术 作为下一代高密度集成的关键，多家厂商正推动其大规模量产进程。此过程中，先进封装装备技术也快速迭代，部分前 道工艺向封装环节延伸，拉动刻蚀、薄膜沉积、电镀、键合等设备的需求。根据公开信息，2025 年全球半导体封装设备 销售额64 亿美元，同比增长19.6%，",
+      "4．先进封装设备 得益于AI、高性能计算及5G/6G 技术对算力密度的不断提升，以及数据中心、自动驾驶等领域对低功耗、高可靠 性封装的强烈需求，先进封装技术迎来关键增长阶段，其中AI 与高性能计算、通信与基础设施、汽车电子成为增长主 力。2.5D 封装通过硅中介层实现水平方向的芯片间高速互联，从而实现HBM 和GPU 的高带宽互联。3D 封装使用TSV 等技术，在垂直方向对芯片进行堆叠互联，通过最大化带宽、最小化延迟和面积，实现极致集成与密度。混合键合技术 作为下一代高密度集成的关键，多家厂商正推动其大规模量产进程。此过程中，先进封装装备技术也快速迭代，部分前 道工艺向封装环节延伸，拉动刻蚀、薄膜沉积、电镀、键合等设备的需求。根据公开信息，2025 年全球半导体封装设备 销售额64 亿美元，同比增长19.6%，",
+      "4．先进封装设备 得益于AI、高性能计算及5G/6G 技术对算力密度的不断提升，以及数据中心、自动驾驶等领域对低功耗、高可靠 性封装的强烈需求，先进封装技术迎来关键增长阶段，其中AI 与高性能计算、通信与基础设施、汽车电子成为增长主 力。2.5D 封装通过硅中介层实现水平方向的芯片间高速互联，从而实现HBM 和GPU 的高带宽互联。3D 封装使用TSV 等技术，在垂直方向对芯片进行堆叠互联，通过最大化带宽、最小化延迟和面积，实现极致集成与密度。混合键合技术 作为下一代高密度集成的关键，多家厂商正推动其大规模量产进程。此过程中，先进封装装备技术也快速迭代，部分前 道工艺向封装环节延伸，拉动刻蚀、薄膜沉积、电镀、键合等设备的需求。根据公开信息，2025 年全球半导体封装设备 销售额64 亿美元，同比增长19.6%，",
+      "5．化合物半导体设备 碳化硅（SiC）、氮化镓（GaN）等化合物半导体凭借高频、高压、耐高温特性，在新能源汽车、5G/6G 通信、光 伏逆变器、Micro LED 等领域加速替代硅基半导体，市场规模快速增长，2025 年SiC 晶圆制造设备市场规模超44 亿美 元，GaN 外延设备市场同比增长25%，技术路线向大尺寸、高质量外延层方向迭代。设备方面，核心设备包括外延生长、 刻蚀、薄膜沉积、离子注入等设备，需适配化合物半导体材料的特殊物理化学特性。外延生长设备需精准控制外延层厚 度与纯度，降低缺陷密度；刻蚀设备需实现高选择性刻蚀，避免材料损伤；薄膜沉积设备则要满足异质结构的界面兼容 性要求，保障器件性能稳定性。从国产设备进展看，依托硅基半导体设备及LED 设备的技术沉淀，国产设备在化合物 半导体专用设备领域快速突",
+      "[PDF page 10] 北方华创科技集团股份有限公司2025 年年度报告全文 10 五、其他有关资料 公司聘请的会计师事务所 会计师事务所名称 大信会计师事务所（特殊普通合伙） 会计师事务所办公地址 北京市海淀区知春路1 号22 层2206 签字会计师姓名 韩雪艳、王鹏 公司聘请的报告期内履行持续督导职责的保荐机构 □适用不适用 公司聘请的报告期内履行持续督导职责的财务顾问 □适用不适用 六、主要会计数据和财务指标 公司是否需追溯调整或重述以前年度会计数据 是□否 追溯调整或重述原因 同一控制下企业合并 2025 年 2024 年 本年比上年增 减 2023 年 调整前 调整后 调整后 调整前 调整后 营业收入 （元） 39,353,112,419 .78 29,838,069,162 .26 30,",
+      "[PDF page 10] 北方华创科技集团股份有限公司2025 年年度报告全文 10 五、其他有关资料 公司聘请的会计师事务所 会计师事务所名称 大信会计师事务所（特殊普通合伙） 会计师事务所办公地址 北京市海淀区知春路1 号22 层2206 签字会计师姓名 韩雪艳、王鹏 公司聘请的报告期内履行持续督导职责的保荐机构 □适用不适用 公司聘请的报告期内履行持续督导职责的财务顾问 □适用不适用 六、主要会计数据和财务指标 公司是否需追溯调整或重述以前年度会计数据 是□否 追溯调整或重述原因 同一控制下企业合并 2025 年 2024 年 本年比上年增 减 2023 年 调整前 调整后 调整后 调整前 调整后 营业收入 （元） 39,353,112,419 .78 29,838,069,162 .26 30,"
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "H1: China's 2026 flood disasters will accelerate government investment in digital water management and geological monitoring, creating a multi-billion-dollar market for AI-driven infrastructure solutions.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H2",
+        "hypothesis": "H2: The demand for AI chips and sensors in climate resilience applications will strain semiconductor supply chains, prompting China to accelerate domestic chip production and diversify suppliers.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H3",
+        "hypothesis": "H3: Sovereign investors in the Gulf, particularly UAE, will seek to import China's integrated climate resilience technology to mitigate their own flood risks, creating a new export market.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H4",
+        "hypothesis": "H4: The semiconductor supply chain resilience will become a critical factor in the deployment of sovereign AI infrastructure, with countries prioritizing secure and reliable chip sources.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H5",
+        "hypothesis": "H5: Companies with existing government contracts and recurring revenue in water digitalization and monitoring will outperform those focused on short-term disaster relief.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

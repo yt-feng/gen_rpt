@@ -1,0 +1,231 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "China's Annual Investment in Water Infrastructure and Disaster Monitoring (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "How is China's government spending on water infrastructure and disaster monitoring evolving, and what is the projected trajectory to 2030?",
+    "required_metrics": [
+      "Annual government investment in water infrastructure (CNY billion, 2020-2030)",
+      "Annual government investment in disaster monitoring systems (CNY billion, 2020-2030)",
+      "Total annual investment in water and disaster monitoring (CNY billion, 2020-2030)"
+    ],
+    "comparison_set": [
+      "Historical data (2020-2025) and forecast (2026-2030) from government budgets and industry reports."
+    ],
+    "preferred_sources": [
+      "China Ministry of Water Resources",
+      "National Development and Reform Commission (NDRC)",
+      "China Statistical Yearbook",
+      "World Bank",
+      "McKinsey & Company reports"
+    ],
+    "search_queries": [
+      "China water infrastructure investment annual 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+      "China disaster monitoring investment budget 2026 2030",
+      "China water resources ministry annual report investment"
+    ],
+    "data_quality_rule": "Use official government budget figures where available; for forecast years, use credible industry forecasts (e.g., McKinsey, IDC) and clearly mark as estimates. If only two endpoints are available, use CAGR to interpolate and label as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the scale and growth of China's investment in climate resilience infrastructure, setting the stage for the demand for AI and computing.",
+    "pre_exhibit_context": "The 2026 floods exposed critical infrastructure gaps, prompting a surge in government funding for digital water management and monitoring.",
+    "post_exhibit_takeaway": "China's investment in water infrastructure and disaster monitoring is on a steep upward trajectory, with annual spending projected to exceed $X billion by 2030, creating a substantial market for AI-driven solutions."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Global Smart Water Management Market Size (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "What is the global market size for smart water management systems, and how is it expected to grow by 2030?",
+    "required_metrics": [
+      "Global smart water management market size (USD billion, 2020-2030)",
+      "China smart water management market size (USD billion, 2020-2030)",
+      "Annual growth rate (CAGR) for global and China markets"
+    ],
+    "comparison_set": [
+      "Global vs. China market size over time."
+    ],
+    "preferred_sources": [
+      "Gartner",
+      "IDC",
+      "Frost & Sullivan",
+      "MarketsandMarkets",
+      "China Water Risk"
+    ],
+    "search_queries": [
+      "smart water management market size 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+      "China smart water management market size forecast 2030",
+      "global smart water management market CAGR 2020 2030"
+    ],
+    "data_quality_rule": "Use market research reports with clear methodology. If only two data points are available, use CAGR to interpolate and label as estimates. Prefer sources that provide annual data points.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the global opportunity for AI-driven water management, providing a benchmark for China's market share and growth potential.",
+    "pre_exhibit_context": "China's investment is part of a global trend towards digitalizing water infrastructure, driven by climate change and urbanization.",
+    "post_exhibit_takeaway": "The global smart water management market is projected to grow from $X billion in 2020 to $Y billion by 2030, with China representing a significant and growing share."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Semiconductor Supply Chain Dependency by Country (2025)",
+    "chart_type": "bubble",
+    "executive_question": "How do major economies compare in terms of semiconductor production capacity, consumption, and import dependency?",
+    "required_metrics": [
+      "Semiconductor production capacity (USD billion, 2025)",
+      "Semiconductor consumption (USD billion, 2025)",
+      "Net import dependency (percentage, 2025)",
+      "Country (China, US, EU, Japan, South Korea, Taiwan, etc.)"
+    ],
+    "comparison_set": [
+      "Major economies: China, US, EU, Japan, South Korea, Taiwan."
+    ],
+    "preferred_sources": [
+      "SIA (Semiconductor Industry Association)",
+      "WSTS (World Semiconductor Trade Statistics)",
+      "IC Insights",
+      "McKinsey",
+      "BCG"
+    ],
+    "search_queries": [
+      "semiconductor production capacity by country 2025",
+      "semiconductor consumption by country 2025",
+      "semiconductor import dependency by country 2025"
+    ],
+    "data_quality_rule": "Use data from industry associations and reputable research firms. Ensure consistent definitions of production and consumption. If data is not available for 2025, use the most recent year and note the year.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Illustrates the global semiconductor supply chain landscape, highlighting vulnerabilities and the need for resilience strategies.",
+    "pre_exhibit_context": "The demand for AI chips in climate tech is straining supply chains, prompting countries to reassess their dependencies.",
+    "post_exhibit_takeaway": "Countries like China and the US have high consumption but varying production capacities, leading to strategic dependencies that drive national self-sufficiency initiatives."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "China's Semiconductor Self-Sufficiency Rate (2020-2030)",
+    "chart_type": "line",
+    "executive_question": "How is China's semiconductor self-sufficiency rate expected to evolve by 2030?",
+    "required_metrics": [
+      "Semiconductor self-sufficiency rate (percentage, 2020-2030)",
+      "Semiconductor production value (USD billion, 2020-2030)",
+      "Semiconductor consumption value (USD billion, 2020-2030)"
+    ],
+    "comparison_set": [
+      "Historical and forecast self-sufficiency rates."
+    ],
+    "preferred_sources": [
+      "China Semiconductor Industry Association (CSIA)",
+      "IC Insights",
+      "McKinsey",
+      "BCG",
+      "China's Ministry of Industry and Information Technology (MIIT)"
+    ],
+    "search_queries": [
+      "China semiconductor self-sufficiency rate 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+      "China semiconductor production value 2020 2030",
+      "China semiconductor consumption value 2020 2030"
+    ],
+    "data_quality_rule": "Use official statistics and industry reports. If only two data points are available, use CAGR to interpolate and label as estimates. Clearly define self-sufficiency rate (production/consumption).",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows China's progress in reducing reliance on foreign semiconductors, a key driver of supply chain resilience.",
+    "pre_exhibit_context": "China's push for self-sufficiency in semiconductors is a response to supply chain vulnerabilities and geopolitical tensions.",
+    "post_exhibit_takeaway": "China's semiconductor self-sufficiency rate is projected to rise from X% in 2020 to Y% by 2030, reducing dependence on imports but still leaving significant gaps in advanced chips."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "UAE Infrastructure Spending on Smart City and Flood Management (2020-2030)",
+    "chart_type": "bar",
+    "executive_question": "How is the UAE allocating its infrastructure budget to smart city and flood management projects?",
+    "required_metrics": [
+      "Annual UAE infrastructure spending on smart city projects (USD billion, 2020-2030)",
+      "Annual UAE spending on flood management (USD billion, 2020-2030)",
+      "Total annual spending (USD billion, 2020-2030)"
+    ],
+    "comparison_set": [
+      "Historical and forecast spending by category."
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Finance",
+      "UAE government portals",
+      "Smart Dubai",
+      "Deloitte",
+      "PwC"
+    ],
+    "search_queries": [
+      "UAE smart city infrastructure spending 2020 2021 2022 2023 2024 2025 2026 2027 2028 2029 2030",
+      "UAE flood management budget 2026 2030",
+      "UAE infrastructure investment plan 2030"
+    ],
+    "data_quality_rule": "Use official government budget documents and credible industry reports. If annual data is not available, use total budget and allocate based on project announcements.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Highlights the UAE's investment in climate resilience, creating a market for imported technology solutions.",
+    "pre_exhibit_context": "The UAE is investing heavily in smart city initiatives and flood management to mitigate climate risks, presenting an export opportunity for China's integrated solutions.",
+    "post_exhibit_takeaway": "The UAE's annual spending on smart city and flood management is projected to reach $X billion by 2030, with a significant portion allocated to digital technologies."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Key Companies in Water Digitalization and Monitoring: Revenue and Order Backlog (2023-2025)",
+    "chart_type": "bar",
+    "executive_question": "Which companies are leading in water digitalization and monitoring, and what is their financial performance?",
+    "required_metrics": [
+      "Company name",
+      "Annual revenue (USD million, 2023, 2024, 2025)",
+      "Order backlog (USD million, 2025)",
+      "Government contract value (USD million, 2025)"
+    ],
+    "comparison_set": [
+      "Top 5-10 companies in the sector."
+    ],
+    "preferred_sources": [
+      "Company annual reports",
+      "Bloomberg",
+      "Capital IQ",
+      "S&P Global",
+      "Industry association reports"
+    ],
+    "search_queries": [
+      "water digitalization company revenue 2023 2024 2025",
+      "smart water management company order backlog 2025",
+      "water monitoring company government contracts 2025"
+    ],
+    "data_quality_rule": "Use audited financial statements. If order backlog is not disclosed, use contract wins or project pipeline as a proxy and note the source.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Identifies potential investment targets and competitive landscape in the climate tech sector.",
+    "pre_exhibit_context": "Investors need to identify companies with strong government ties and recurring revenue in water digitalization to capitalize on the infrastructure boom.",
+    "post_exhibit_takeaway": "Companies like X, Y, and Z show strong revenue growth and substantial order backlogs, indicating their readiness to benefit from increased government spending."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Timeline of China's 2026 Flood Events and Government Funding Announcements",
+    "chart_type": "timeline",
+    "executive_question": "What were the key flood events in 2026 and how did the government respond with funding?",
+    "required_metrics": [
+      "Date of flood event",
+      "Location (province/city)",
+      "Estimated economic loss (USD billion)",
+      "Government relief fund amount (USD billion)",
+      "Date of funding announcement",
+      "Purpose of funding (e.g., water infrastructure, monitoring systems)"
+    ],
+    "comparison_set": [
+      "Major flood events and corresponding funding announcements."
+    ],
+    "preferred_sources": [
+      "China Ministry of Emergency Management",
+      "China Ministry of Water Resources",
+      "Xinhua News Agency",
+      "ReliefWeb",
+      "World Bank disaster reports"
+    ],
+    "search_queries": [
+      "China 2026 flood events timeline",
+      "China flood relief fund 2026",
+      "China government funding water infrastructure 2026"
+    ],
+    "data_quality_rule": "Use official government announcements and credible news sources. If exact dates are not available, use month and year. Clearly label estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a chronological context for the surge in investment and the urgency of digital resilience solutions.",
+    "pre_exhibit_context": "The 2026 floods were a catalyst for increased investment in water infrastructure and monitoring.",
+    "post_exhibit_takeaway": "The timeline shows a rapid government response with significant funding allocations, underscoring the immediate demand for AI-driven solutions."
+  }
+]

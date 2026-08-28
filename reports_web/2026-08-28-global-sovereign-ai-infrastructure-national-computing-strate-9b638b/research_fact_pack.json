@@ -1,0 +1,64 @@
+{
+  "topic": "Global Sovereign AI Infrastructure: National Computing Strategies and Semiconductor Supply Chain Resilience by 2030",
+  "objective": "Assess the strategic implications of China's 2026 flood and geological disaster response for global sovereign AI infrastructure, focusing on national computing strategies and semiconductor supply chain resilience by 2030, and identify investment and partnership opportunities.",
+  "decision_question": "How should sovereign investors and technology partners position themselves to capitalize on China's climate resilience infrastructure upgrades and their potential for export to Gulf states, while mitigating risks in the semiconductor supply chain?",
+  "source_count": 1,
+  "authoritative_source_count": 0,
+  "source_domains": [
+    "documents"
+  ],
+  "source_refs": [
+    "[Source 1][supplement][internal] text.md (Fragment 9fc0f0c7) | internal://documents/d5ac33d3-0235-4d20-a99b-1bd4934e3623#chunk=9fc0f0c7-3f26-4ef4-a7ac-d5e4018b1f5f"
+  ],
+  "high_confidence_facts": [
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 金融监管总局数据 “红霞”影响广东后，截至7月27日，广东保险业接报20,005件，已经支付赔款约3,679万元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 作为背景，2026年上半年洪涝和地质灾害已造成1,132.6万人次受灾、124人死亡失踪、直接经济损失338.7亿元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 较可靠的量化指标是： 截至7月13日，广西、湖北、浙江等20个省区市，保险业累计接到近38万件报案，保险估损63.8亿元，已赔付28.9亿元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 中央已紧急预拨1.8亿元，支持广东、福建、江西、湖南、辽宁、吉林六省抢险、人员安置、隐患排查及民房修复。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 应急管理部 此外，国家发改委分别安排浙江1亿元、河北3,000万元、吉林3,000万元，支持道路、水利、学校、医院等恢复。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 截至2026年7月29日上午，中国这一轮灾情呈现出“台风连续登陆、雨带南北摆动、洪涝与山体滑坡叠加”的特点。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 二、经济损失目前有多大 目前应急管理部尚未发布“2026年7月全国自然灾害汇总”，所以网上一些所谓“全国损失数字”并不完整。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 国家气候中心预测 四、最值得关注的商业与投资机会 我认为真正有持续性的机会不是短期囤积救灾物资，而是未来3—5年的“气候韧性基础设施”。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 一、近几周主要灾情 时间及地区 主要灾害 最新公开伤亡及影响 7月3—9日：海南、广西 台风“美莎克”登陆海南后，其残余环流在广西形成极端降雨。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 南宁横州六蓝水库等出现漫顶、缺口，横州、宾阳、贵港、防城港、钦州等地发生洪水、内涝 广西39人死亡、9人失联；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社通报 7月6—7日：湖北 黄冈、黄石、鄂州、咸宁遭遇雷暴大风和龙卷风，黄冈出现EF2级龙卷风 1.46万人受灾，11人死亡、1人失联、331人受伤；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社通报 7月7日：甘肃陇南宕昌 突发山体滑坡，33名林业作业人员被困。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 该事件原因仍在调查，不能简单归因于暴雨 21人死亡、7人轻伤、5人未受伤。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社通报 7月11—15日：浙江及华东、华北、东北 台风“巴威”先后登陆浙江玉环、乐清，并把大量水汽输送至河北、辽宁、吉林等地 浙江累计转移超过268万人，台州、温州出现风损、内涝、树木及设施损坏；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社报道 7月17日：重庆彭水 连续强降雨后发生大型山体崩塌，十余栋住宅、商铺及一辆客运车被埋 截至7月28日，41人确认死亡、20人失联、10人受伤，仍在搜寻和身份鉴定。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] AP最新更新 7月26日：甘肃定西渭源 双石门景区短时强降雨引发山洪，露营、自驾游客被困 10人死亡、23人受伤，另有174人获救；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 应急管理部 7月26日起：广东及华南、华中 第12号台风“红霞”登陆广东惠州惠东，影响汕尾、揭阳、惠州、河源、韶关、深圳，并向江西、湖南、湖北等地输送降雨 广东转移超过70万人；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 水利部通报 机械汇总上述有明确数字、并与暴雨或台风直接相关的四起主要伤亡事件——广西、湖北、重庆彭水、甘肃渭源——至少已有101人死亡、30人失联、364人受伤。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 7月29日中央气象台继续发布暴雨黄色预警，重点包括广东、广西、湖北、四川、河南、河北、山东、吉林、黑龙江及内蒙古东北部；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 中央气象台最新预报 国家气候中心预计，“七下八上”期间仍可能有2—3个台风登陆或影响中国，其中可能有一个较强台风北上；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 筛选时重点看在手订单、应收账款回收、地方政府客户比例、现金流和真实防灾业务收入占比。"
+  ],
+  "numeric_facts": [
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 金融监管总局数据 “红霞”影响广东后，截至7月27日，广东保险业接报20,005件，已经支付赔款约3,679万元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 作为背景，2026年上半年洪涝和地质灾害已造成1,132.6万人次受灾、124人死亡失踪、直接经济损失338.7亿元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 较可靠的量化指标是： 截至7月13日，广西、湖北、浙江等20个省区市，保险业累计接到近38万件报案，保险估损63.8亿元，已赔付28.9亿元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 中央已紧急预拨1.8亿元，支持广东、福建、江西、湖南、辽宁、吉林六省抢险、人员安置、隐患排查及民房修复。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 应急管理部 此外，国家发改委分别安排浙江1亿元、河北3,000万元、吉林3,000万元，支持道路、水利、学校、医院等恢复。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 截至2026年7月29日上午，中国这一轮灾情呈现出“台风连续登陆、雨带南北摆动、洪涝与山体滑坡叠加”的特点。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 二、经济损失目前有多大 目前应急管理部尚未发布“2026年7月全国自然灾害汇总”，所以网上一些所谓“全国损失数字”并不完整。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 国家气候中心预测 四、最值得关注的商业与投资机会 我认为真正有持续性的机会不是短期囤积救灾物资，而是未来3—5年的“气候韧性基础设施”。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 一、近几周主要灾情 时间及地区 主要灾害 最新公开伤亡及影响 7月3—9日：海南、广西 台风“美莎克”登陆海南后，其残余环流在广西形成极端降雨。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 南宁横州六蓝水库等出现漫顶、缺口，横州、宾阳、贵港、防城港、钦州等地发生洪水、内涝 广西39人死亡、9人失联；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社通报 7月6—7日：湖北 黄冈、黄石、鄂州、咸宁遭遇雷暴大风和龙卷风，黄冈出现EF2级龙卷风 1.46万人受灾，11人死亡、1人失联、331人受伤；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社通报 7月7日：甘肃陇南宕昌 突发山体滑坡，33名林业作业人员被困。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 该事件原因仍在调查，不能简单归因于暴雨 21人死亡、7人轻伤、5人未受伤。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社通报 7月11—15日：浙江及华东、华北、东北 台风“巴威”先后登陆浙江玉环、乐清，并把大量水汽输送至河北、辽宁、吉林等地 浙江累计转移超过268万人，台州、温州出现风损、内涝、树木及设施损坏；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 新华社报道 7月17日：重庆彭水 连续强降雨后发生大型山体崩塌，十余栋住宅、商铺及一辆客运车被埋 截至7月28日，41人确认死亡、20人失联、10人受伤，仍在搜寻和身份鉴定。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] AP最新更新 7月26日：甘肃定西渭源 双石门景区短时强降雨引发山洪，露营、自驾游客被困 10人死亡、23人受伤，另有174人获救；"
+  ],
+  "dated_facts": [
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 作为背景，2026年上半年洪涝和地质灾害已造成1,132.6万人次受灾、124人死亡失踪、直接经济损失338.7亿元；",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 截至2026年7月29日上午，中国这一轮灾情呈现出“台风连续登陆、雨带南北摆动、洪涝与山体滑坡叠加”的特点。",
+    "[Source 1: text.md (Fragment 9fc0f0c7)] 二、经济损失目前有多大 目前应急管理部尚未发布“2026年7月全国自然灾害汇总”，所以网上一些所谓“全国损失数字”并不完整。"
+  ],
+  "validation_issues": [
+    "资料来源偏少，当前仅1个。",
+    "来源域名多样性不足，当前1个。",
+    "缺少政府、交易所、监管、公司公告、国际组织或其他权威来源。"
+  ]
+}
