@@ -324,7 +324,8 @@ def report_content_quality_issues(
             issues.append(f"Action {index} needs an evidence-based rationale of at least 12 words.")
 
     report_numbers = _number_tokens(_rag_reader_text(report))
-    unsupported_numbers = sorted(report_numbers - _number_tokens(context_text))
+    allowed_numbers = _number_tokens(context_text) | _raw_number_tokens(context_text)
+    unsupported_numbers = sorted(report_numbers - allowed_numbers)
     if unsupported_numbers:
         issues.append(
             "Numeric claims not found in the validated evidence: "
@@ -430,8 +431,9 @@ def _matching_chunk_citation(evidence: str, source_chunks: dict[str, str]) -> re
 
 
 def rag_visible_numbers_supported(value: Any, context_text: str) -> bool:
-    visible_text = _exhibit_reader_text(value) if isinstance(value, dict) and "type" in value else _visible_value_text(value)
-    return not (_number_tokens(visible_text) - _number_tokens(context_text))
+    visible_text = _exhibit_reader_text(value) if isinstance(value, dict) else _visible_value_text(value)
+    allowed = _number_tokens(context_text) | _raw_number_tokens(context_text)
+    return not (_number_tokens(visible_text) - allowed)
 
 
 def rag_exhibit_is_grounded(
@@ -445,7 +447,7 @@ def rag_exhibit_is_grounded(
     if not isinstance(exhibit, dict):
         return False
     visible_numbers = _number_tokens(_exhibit_reader_text(exhibit))
-    supported_numbers = _number_tokens(context_text)
+    supported_numbers = _number_tokens(context_text) | _raw_number_tokens(context_text)
     basis_numbers = {
         token
         for basis in exhibit.get("data_basis", []) or []
@@ -547,7 +549,7 @@ def prune_unsupported_numeric_claims(report: Any, context_text: str) -> List[str
     """Drop reader-visible prose claims containing numbers outside approved evidence."""
     if not isinstance(report, dict):
         return []
-    allowed = _number_tokens(context_text)
+    allowed = _number_tokens(context_text) | _raw_number_tokens(context_text)
     removed: set[str] = set()
 
     def clean_text(value: Any) -> str:
@@ -593,6 +595,17 @@ def prune_unsupported_numeric_claims(report: Any, context_text: str) -> List[str
         if str(cleaned.get("action") or "").strip():
             cleaned_actions.append(cleaned)
     report["action_steps"] = cleaned_actions
+
+    # Also clean and filter exhibits
+    cleaned_exhibits = []
+    for exhibit in report.get("exhibits", []) or []:
+        if rag_visible_numbers_supported(exhibit, context_text):
+            cleaned_exhibits.append(exhibit)
+        else:
+            exhibit_nums = _number_tokens(_exhibit_reader_text(exhibit)) - allowed
+            removed.update(exhibit_nums)
+    report["exhibits"] = cleaned_exhibits
+
     return sorted(removed)
 
 
@@ -1020,6 +1033,13 @@ def _visible_value_text(value: Any) -> str:
 def _number_tokens(text: Any) -> set[str]:
     values = set()
     claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
+    claim_text = re.sub(r"\[\d+\]", "", claim_text)
+    claim_text = re.sub(
+        r"\b(?:section|action|exhibit|figure|chart|table|step|citation|ref|reference|part|phase)\s+\d+\b",
+        "",
+        claim_text,
+        flags=re.I,
+    )
     number = r"-?\s*[$€£]?\s*\d[\d,]*(?:\.\d+)?"
     units = {
         "k": Decimal("1000"),
@@ -1056,6 +1076,13 @@ def _raw_number_tokens(text: Any) -> set[str]:
     """Return visible coefficients without applying nearby scale words."""
     values: set[str] = set()
     claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
+    claim_text = re.sub(r"\[\d+\]", "", claim_text)
+    claim_text = re.sub(
+        r"\b(?:section|action|exhibit|figure|chart|table|step|citation|ref|reference|part|phase)\s+\d+\b",
+        "",
+        claim_text,
+        flags=re.I,
+    )
     for match in re.finditer(r"(?<![A-Za-z0-9_])-?\d[\d,]*(?:\.\d+)?", claim_text):
         try:
             values.add(format(Decimal(match.group(0).replace(",", "")).normalize(), "f"))

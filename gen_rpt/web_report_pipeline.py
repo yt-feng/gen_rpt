@@ -314,6 +314,18 @@ class WebReportPipeline:
                     approved_evidence=approved_evidence,
                 )
             if quality_issues:
+                # Automatic remediation: prune unsupported claims and re-normalize
+                prune_unsupported_numeric_claims(report, grounding_text)
+                normalize_report_section_prose(report)
+                report, quality_issues = self._prepare_report_draft(
+                    report,
+                    topic=display_topic,
+                    grounding_text=grounding_text,
+                    source_count=len(sources),
+                    source_chunks=rag_source_chunks,
+                    approved_evidence=approved_evidence,
+                )
+            if quality_issues:
                 raise ReportQualityError("Report content quality gate failed: " + " | ".join(quality_issues))
 
             self._post_process(report, display_topic, sources, fact_pack)
@@ -330,6 +342,17 @@ class WebReportPipeline:
                     source_chunks=rag_source_chunks,
                     approved_evidence=approved_evidence,
                 )
+                if quality_issues:
+                    prune_unsupported_numeric_claims(report, grounding_text)
+                    normalize_report_section_prose(report)
+                    report, quality_issues = self._prepare_report_draft(
+                        report,
+                        topic=display_topic,
+                        grounding_text=grounding_text,
+                        source_count=len(sources),
+                        source_chunks=rag_source_chunks,
+                        approved_evidence=approved_evidence,
+                    )
                 if quality_issues:
                     raise ReportQualityError("Editorial revision failed the content gate: " + " | ".join(quality_issues))
                 self._post_process(report, display_topic, sources, fact_pack)
