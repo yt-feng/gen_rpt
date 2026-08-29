@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .brand_assets import copy_or_generate_brand_assets, write_reference_backup
-from .deepseek_client import DeepSeekClient
+from .deepseek_client import DeepSeekClient, EditorialServiceExhausted
 from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
 from .openalex_fetch import collect_openalex_sources
@@ -24,6 +24,7 @@ from .web_evidence import (
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
+    SOURCE_CHANNEL_TARGET_MAX_WORDS,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     compress_report_to_word_budget,
@@ -38,12 +39,86 @@ from .web_publication_contract import (
     report_content_quality_issues,
     rag_rendered_output_issues,
     rag_visible_numbers_supported,
+    source_channel_report_quality_issues,
 )
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
 
 
 class ReportQualityError(RuntimeError):
     """The evidence or editorial contract is too weak for publication."""
+
+
+class EditorialFailoverClient:
+    """Keep a report on one editorial route, with bounded availability failover."""
+
+    def __init__(
+        self,
+        primary: DeepSeekClient,
+        fallback: DeepSeekClient | None = None,
+    ) -> None:
+        self.primary = primary
+        self.fallback = fallback
+        self.primary_disabled = False
+        self.active_model = primary.model
+        self.active_route = getattr(primary, "route_label", "primary editorial route")
+        self.failover_reason: str | None = None
+
+    @property
+    def model(self) -> str:
+        return self.active_model
+
+    @property
+    def route_label(self) -> str:
+        return self.active_route
+
+    def chat_json(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+        if not self.primary_disabled:
+            try:
+                return self.primary.chat_json(*args, **kwargs)
+            except EditorialServiceExhausted as exc:
+                if self.fallback is None:
+                    raise
+                self.primary_disabled = True
+                self.active_model = self.fallback.model
+                self.active_route = getattr(
+                    self.fallback,
+                    "route_label",
+                    "fallback editorial route",
+                )
+                self.failover_reason = exc.failure_kind
+                print(
+                    "[gen_rpt.editorial] primary route exhausted; "
+                    f"switching report to model={self.active_model!r} "
+                    f"route={self.active_route!r} reason={exc.failure_kind!r}",
+                    flush=True,
+                )
+        if self.fallback is None:
+            raise RuntimeError(
+                "The primary editorial route is unavailable and no fallback is configured."
+            )
+        return self.fallback.chat_json(*args, **kwargs)
+
+    def route_record(self) -> Dict[str, Any]:
+        fallback_model = self.fallback.model if self.fallback is not None else None
+        fallback_route = (
+            getattr(self.fallback, "route_label", "fallback editorial route")
+            if self.fallback is not None
+            else None
+        )
+        return {
+            "primaryModel": self.primary.model,
+            "primaryRoute": getattr(
+                self.primary,
+                "route_label",
+                "primary editorial route",
+            ),
+            "fallbackModel": fallback_model,
+            "fallbackRoute": fallback_route,
+            "activeModel": self.active_model,
+            "activeRoute": self.active_route,
+            "fallbackUsed": self.primary_disabled,
+            "failoverReason": self.failover_reason,
+        }
 
 
 def _source_artifact_dict(source: SourceDocument) -> Dict[str, Any]:
@@ -167,7 +242,11 @@ class WebReportPipeline:
     PDF/PPT concerns out of the content schema.
     """
 
-    def __init__(self, client: DeepSeekClient, language: str = "en") -> None:
+    def __init__(
+        self,
+        client: DeepSeekClient | EditorialFailoverClient,
+        language: str = "en",
+    ) -> None:
         self.client = client
         self.language = "zh" if str(language or "").lower().startswith("zh") else "en"
         # Set by build_report when private document context is available
@@ -556,7 +635,7 @@ class WebReportPipeline:
             report["content_quality_audit"] = audit
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
-            if self.rag_required or isinstance(exc, ReportQualityError):
+            if self._synthesis_error_must_fail_closed(exc):
                 raise
             report = self._fallback_report(display_topic, plan, sources, fact_pack, str(exc))
             self._log(f"PHASE synthesis fallback used | reason={str(exc)[:240]!r}")
@@ -631,6 +710,13 @@ class WebReportPipeline:
                 source_count=len(sources),
                 source_chunks=rag_source_chunks,
             )
+        elif self._source_channel_mode():
+            final_quality_issues = source_channel_report_quality_issues(
+                report,
+                topic=display_topic,
+                context_text=grounding_text,
+                source_count=len(sources),
+            )
         else:
             final_quality_issues = report_content_quality_issues(
                 report,
@@ -674,6 +760,14 @@ class WebReportPipeline:
             rag_source_titles,
             approved_evidence,
             language=self.language,
+        )
+        self._final_humanized_quality_gate(
+            report,
+            topic=display_topic,
+            grounding_text=grounding_text,
+            source_count=len(sources),
+            source_chunks=rag_source_chunks,
+            output_dir=output_dir,
         )
 
         private_reproduction = _private_source_reproduction_violations(
@@ -752,6 +846,10 @@ class WebReportPipeline:
             web_query_count=web_query_count,
             source_mode=normalized_source_mode,
         )
+        if self._source_channel_mode():
+            rag_manifest["generation_profile"] = "source_channel"
+        editorial_route = self._editorial_route_record()
+        rag_manifest["editorial_route"] = editorial_route
 
         report["evidenceAudit"] = {
             "manifest": rag_manifest,
@@ -769,6 +867,14 @@ class WebReportPipeline:
             rag_source_titles,
             approved_evidence,
             language=self.language,
+        )
+        self._final_humanized_quality_gate(
+            report,
+            topic=display_topic,
+            grounding_text=grounding_text,
+            source_count=len(sources),
+            source_chunks=rag_source_chunks,
+            output_dir=output_dir,
         )
         html_path = render_web_report_html(
             report,
@@ -808,6 +914,7 @@ class WebReportPipeline:
         (output_dir / "storyline_plan.json").write_text(json.dumps(storyline_plan, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "sources.json").write_text(json.dumps(source_dicts, ensure_ascii=False, indent=2), encoding="utf-8")
         (output_dir / "rag_manifest.json").write_text(json.dumps(rag_manifest, ensure_ascii=False, indent=2), encoding="utf-8")
+        (output_dir / "editorial_route.json").write_text(json.dumps(editorial_route, ensure_ascii=False, indent=2), encoding="utf-8")
 
         # Step 14: Automated AI Review & Multi-Agent Fact Checking
         ai_review_data = self._run_post_generation_review(output_dir, markdown_path, report)
@@ -834,6 +941,7 @@ class WebReportPipeline:
             "storyline_plan": storyline_plan,
             "sources": source_dicts,
             "rag_manifest": rag_manifest,
+            "editorial_route": editorial_route,
             "report": report,
             "assets": assets,
             "output_dir": str(output_dir),
@@ -981,6 +1089,13 @@ class WebReportPipeline:
 
     def _source_channel_mode(self) -> bool:
         return str(self.source_profile.get("mode") or "").strip().lower() == "source_channel"
+
+    def _synthesis_error_must_fail_closed(self, exc: Exception) -> bool:
+        return bool(
+            self.rag_required
+            or self._source_channel_mode()
+            or isinstance(exc, ReportQualityError)
+        )
 
     def _source_profile_anchors(self) -> List[str]:
         values: List[Any] = list(_as_list(self.source_profile.get("anchors")))
@@ -1199,6 +1314,13 @@ class WebReportPipeline:
                 source_count=source_count,
                 source_chunks=source_chunks,
             )
+        elif self._source_channel_mode():
+            issues = source_channel_report_quality_issues(
+                report,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+            )
         else:
             issues = report_content_quality_issues(
                 report,
@@ -1220,8 +1342,22 @@ class WebReportPipeline:
         source_chunks: Dict[str, str],
         approved_evidence: List[Dict[str, Any]],
     ) -> tuple[Dict[str, Any], List[str]]:
-        if any("reader-visible decision brief" in issue for issue in issues):
-            before_words, after_words = compress_report_to_word_budget(report)
+        needs_compression = any(
+            "reader-visible decision brief" in issue
+            or "post-render margin" in issue
+            or "needs 200-550 words of analysis" in issue
+            for issue in issues
+        )
+        if needs_compression:
+            compression_ceiling = (
+                SOURCE_CHANNEL_TARGET_MAX_WORDS
+                if self._source_channel_mode()
+                else 3_650
+            )
+            before_words, after_words = compress_report_to_word_budget(
+                report,
+                max_words=compression_ceiling,
+            )
             if after_words < before_words:
                 self._log(
                     "PHASE final_quality deterministic compression "
@@ -1251,6 +1387,13 @@ class WebReportPipeline:
                         source_chunks=source_chunks,
                     )
                     if self.rag_context
+                    else source_channel_report_quality_issues(
+                        report,
+                        topic=topic,
+                        context_text=grounding_text,
+                        source_count=source_count,
+                    )
+                    if self._source_channel_mode()
                     else report_content_quality_issues(
                         report,
                         topic=topic,
@@ -1287,6 +1430,13 @@ class WebReportPipeline:
                     source_chunks=source_chunks,
                 )
                 if self.rag_context
+                else source_channel_report_quality_issues(
+                    report,
+                    topic=topic,
+                    context_text=grounding_text,
+                    source_count=source_count,
+                )
+                if self._source_channel_mode()
                 else report_content_quality_issues(
                     report,
                     topic=topic,
@@ -1296,6 +1446,120 @@ class WebReportPipeline:
             )
         return report, issues
 
+    def _final_humanized_quality_gate(
+        self,
+        report: Dict[str, Any],
+        *,
+        topic: str,
+        grounding_text: str,
+        source_count: int,
+        source_chunks: Dict[str, str],
+        output_dir: Path,
+    ) -> None:
+        """Re-run the shared content contract after citations become visible."""
+
+        if self.rag_context:
+            issues = rag_report_quality_issues(
+                report,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+            )
+        elif self._source_channel_mode():
+            issues = source_channel_report_quality_issues(
+                report,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+            )
+        else:
+            issues = report_content_quality_issues(
+                report,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+            )
+
+        needs_compression = any(
+            "reader-visible decision brief" in issue
+            or "post-render margin" in issue
+            or "needs 200-550 words of analysis" in issue
+            for issue in issues
+        )
+        if needs_compression:
+            ceiling = (
+                SOURCE_CHANNEL_TARGET_MAX_WORDS
+                if self._source_channel_mode()
+                else 3_650
+            )
+            before_words, after_words = compress_report_to_word_budget(
+                report,
+                max_words=ceiling,
+            )
+            if after_words < before_words:
+                self._log(
+                    "PHASE post_humanization deterministic compression "
+                    f"| words={before_words}->{after_words} | ceiling={ceiling}"
+                )
+            if self.rag_context:
+                issues = rag_report_quality_issues(
+                    report,
+                    topic=topic,
+                    context_text=grounding_text,
+                    source_count=source_count,
+                    source_chunks=source_chunks,
+                )
+            elif self._source_channel_mode():
+                issues = source_channel_report_quality_issues(
+                    report,
+                    topic=topic,
+                    context_text=grounding_text,
+                    source_count=source_count,
+                )
+            else:
+                issues = report_content_quality_issues(
+                    report,
+                    topic=topic,
+                    context_text=grounding_text,
+                    source_count=source_count,
+                )
+        if issues:
+            message = (
+                "Post-humanization report quality gate failed: "
+                + " | ".join(issues)
+            )
+            (output_dir / "web_report_quality_error.txt").write_text(
+                message,
+                encoding="utf-8",
+            )
+            raise ReportQualityError(message)
+
+    def _editorial_route_record(self) -> Dict[str, Any]:
+        route_record = getattr(self.client, "route_record", None)
+        if callable(route_record):
+            record = route_record()
+            if isinstance(record, dict):
+                return record
+        return {
+            "primaryModel": getattr(self.client, "model", "unknown"),
+            "primaryRoute": getattr(
+                self.client,
+                "route_label",
+                "editorial route",
+            ),
+            "fallbackModel": None,
+            "fallbackRoute": None,
+            "activeModel": getattr(self.client, "model", "unknown"),
+            "activeRoute": getattr(
+                self.client,
+                "route_label",
+                "editorial route",
+            ),
+            "fallbackUsed": False,
+            "failoverReason": None,
+        }
+
     def _revise_report_draft(
         self,
         report: Dict[str, Any],
@@ -1303,6 +1567,16 @@ class WebReportPipeline:
         storyline_plan: Dict[str, Any],
     ) -> Dict[str, Any]:
         correction_text = "\n".join(f"- {item}" for item in corrections)
+        section_contract = (
+            "exactly 5 sections"
+            if self._source_channel_mode()
+            else "5-6 sections"
+        )
+        word_contract = (
+            "2,000-2,600 words (or Chinese characters)"
+            if self._source_channel_mode()
+            else "2,000-2,700 words (or Chinese characters)"
+        )
         prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
 
 Keep the report in its existing language. Preserve its grounded facts, exact quotations, chunk identifiers, evidence items, references and supported numbers. Do not introduce outside facts, new numbers, new sources or invented citations.
@@ -1320,13 +1594,13 @@ Rejected report:
 Revision contract:
 - Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
 - Correct only the rejected fields named above. Keep compliant sections, evidence and actions unchanged.
-- Keep exactly 3 key_takeaways, 5-6 sections and 4-6 action_steps.
+- Keep exactly 3 key_takeaways, {section_contract} and 4-6 action_steps.
 - Each section must contain title, lead, paragraphs, evidence and so_what.
 - paragraphs must be a JSON array with exactly 4 separate strings. Never put all section prose into one string.
 - Each paragraph must contain 55-75 words (or Chinese characters), lead must contain 30-45, and so_what must contain 35-50. Keep every complete section between 300 and 400 words (or Chinese characters).
 - Develop evidence, causal mechanism, counterpoint or risk, and management implication without filler or repetition.
 - Keep at least 2 traceable evidence items per section. Private-document evidence must retain exact chunk quotations.
-- Keep the full reader-visible report between 2,000 and 2,700 words (or Chinese characters); never exceed the requested ranges.
+- Keep the full reader-visible report between {word_contract}; never exceed the requested ranges.
 - Every action must retain horizon, action, success_metric and a 12-word minimum evidence rationale.
 """
         revision = self.client.chat_json(
@@ -2036,6 +2310,15 @@ CRITICAL RULES (violation = failure):
 12. Do not generate or resolve the human-review conflict section. The pipeline adds it deterministically after synthesis.
 13. Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use scenario probabilities only when they appear in approved evidence; otherwise use qualitative scenario triggers and state the unresolved evidence.
 """
+        if self._source_channel_mode():
+            source_profile_rule = (
+                "\nSOURCE PROFILE OVERRIDE:\n"
+                "- Return exactly 5 sections, never 6.\n"
+                "- Keep 3-5 developed paragraphs per section and at least 2 traceable evidence items.\n"
+                "- Keep the pre-citation draft between 2,200 and 2,800 reader-visible words or Chinese characters so human-readable source citations remain within the publication ceiling.\n"
+                "- Preserve causal mechanism, counterpoint or risk, and a developed management implication in every section.\n"
+            )
+            user += source_profile_rule
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.12)
 
     def _post_process(

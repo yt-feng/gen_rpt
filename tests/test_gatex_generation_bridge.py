@@ -1,12 +1,17 @@
 import hashlib
+import io
 import json
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from unittest.mock import patch
+from typing import Any, Dict
+from unittest.mock import Mock, call, patch
 
+from gen_rpt.deepseek_client import EditorialServiceExhausted
 from gen_rpt.web_fetch import SourceDocument
 from gen_rpt.web_report_pipeline import (
+    EditorialFailoverClient,
     _private_source_reproduction_violations,
     _source_artifact_dict,
 )
@@ -21,10 +26,153 @@ from tools.gatex_generation_bridge import (
     download_private_sources,
     manifest_requires_private_source_content,
 )
-from tools.local_web_report_audit import required_reference_count
+from tools.local_web_report_audit import required_reference_count, section_quality_issues
 
 
 class GateXGenerationBridgeTests(unittest.TestCase):
+    def test_editorial_failover_is_retry_exhaustion_only_sticky_and_secret_safe(self):
+        class StubClient:
+            def __init__(self, model: str, route: str, responses: list[object]) -> None:
+                self.model = model
+                self.route_label = route
+                self.responses = list(responses)
+                self.calls = 0
+
+            def chat_json(self, *_args: object, **_kwargs: object) -> Dict[str, Any]:
+                self.calls += 1
+                response = self.responses.pop(0)
+                if isinstance(response, Exception):
+                    raise response
+                return response  # type: ignore[return-value]
+
+        exhausted = EditorialServiceExhausted(
+            "Chat Completions",
+            failure_kind="retryable_http",
+            status_code=500,
+        )
+        exhausted.args = ("SENTINEL_PRIVATE_UPSTREAM_BODY",)
+        primary = StubClient("gpt-5.6-sol", "APIMart Chat", [exhausted])
+        fallback = StubClient(
+            "deepseek-chat",
+            "DeepSeek Chat",
+            [{"stage": "synthesis"}, {"stage": "revision"}],
+        )
+        client = EditorialFailoverClient(primary, fallback)  # type: ignore[arg-type]
+
+        stream = io.StringIO()
+        with redirect_stdout(stream):
+            self.assertEqual(client.chat_json([]), {"stage": "synthesis"})
+            self.assertEqual(client.chat_json([]), {"stage": "revision"})
+
+        self.assertEqual(primary.calls, 1)
+        self.assertEqual(fallback.calls, 2)
+        self.assertNotIn("SENTINEL_PRIVATE_UPSTREAM_BODY", stream.getvalue())
+        self.assertEqual(
+            client.route_record(),
+            {
+                "primaryModel": "gpt-5.6-sol",
+                "primaryRoute": "APIMart Chat",
+                "fallbackModel": "deepseek-chat",
+                "fallbackRoute": "DeepSeek Chat",
+                "activeModel": "deepseek-chat",
+                "activeRoute": "DeepSeek Chat",
+                "fallbackUsed": True,
+                "failoverReason": "retryable_http",
+            },
+        )
+
+    def test_editorial_failover_does_not_switch_on_schema_or_auth_failure(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        client = EditorialFailoverClient(primary, fallback)
+
+        for failure in (ValueError("invalid report schema"), RuntimeError("HTTP 401")):
+            primary.chat_json.side_effect = failure
+            with self.assertRaises(type(failure)):
+                client.chat_json([])
+
+        fallback.chat_json.assert_not_called()
+        self.assertFalse(client.route_record()["fallbackUsed"])
+
+    def test_bridge_builds_independent_deepseek_fallback_for_apimart(self):
+        primary = Mock(
+            model="gpt-5.6-sol",
+            route_label="APIMart Chat",
+            use_apimart=True,
+            timeout=180,
+        )
+        fallback = Mock(
+            model="deepseek-chat",
+            route_label="DeepSeek Chat",
+            use_apimart=False,
+            timeout=180,
+        )
+        with patch(
+            "tools.gatex_generation_bridge.DeepSeekClient",
+            side_effect=[primary, fallback],
+        ) as client_class, patch(
+            "tools.gatex_generation_bridge.WebReportPipeline"
+        ) as pipeline_class:
+            pipeline_class.return_value.build_report.return_value = {"ok": True}
+            result = _run_generator(
+                topic="Tracked market theme",
+                language="zh",
+                model="gpt-5.6-sol",
+                source_mode="web_only",
+                private_sources=[],
+                seed_sources=[],
+                output_dir=Path("/tmp/report"),
+            )
+
+        self.assertEqual(result, {"ok": True})
+        self.assertEqual(
+            client_class.call_args_list,
+            [
+                call(model="gpt-5.6-sol"),
+                call(
+                    model="deepseek-chat",
+                    timeout=180,
+                    provider="deepseek",
+                ),
+            ],
+        )
+        editorial_client = pipeline_class.call_args.kwargs["client"]
+        self.assertIsInstance(editorial_client, EditorialFailoverClient)
+        self.assertIs(editorial_client.primary, primary)
+        self.assertIs(editorial_client.fallback, fallback)
+
+    def test_source_channel_local_audit_uses_shared_section_depth_contract(self):
+        paragraph = (
+            "Verified public evidence supports the conclusion while the causal mechanism, "
+            "counterpoint, operating constraint, and management implication remain explicit "
+            "for the accountable decision owner and the next documented review gate."
+        )
+        section = {
+            "title": "Evidence supports bounded action",
+            "lead": paragraph,
+            "paragraphs": [paragraph, paragraph, paragraph],
+            "evidence": [
+                "Source A supports the claim (https://example.com/a).",
+                "Source B corroborates it (https://example.org/b).",
+            ],
+        }
+
+        source_issues = section_quality_issues(
+            section,
+            3,
+            source_channel_profile=True,
+        )
+        generic_issues = section_quality_issues(
+            section,
+            3,
+            source_channel_profile=False,
+        )
+
+        self.assertEqual(source_issues, [])
+        self.assertTrue(any("too few paragraphs" in issue for issue in generic_issues))
+        self.assertTrue(any("lacks depth" in issue for issue in generic_issues))
+        self.assertTrue(any("lacks dates or numeric" in issue for issue in generic_issues))
+
     def test_source_channel_retry_inherits_private_content_requirement(self):
         manifest = {
             "provenanceType": "manual_retry",

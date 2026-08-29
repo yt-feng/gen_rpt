@@ -14,6 +14,30 @@ class _ResponseBudgetExhausted(ValueError):
     pass
 
 
+class EditorialServiceExhausted(RuntimeError):
+    """A retryable editorial route failed after its own retries were exhausted.
+
+    This exception is deliberately narrower than ``RuntimeError``.  Callers may
+    use it to switch providers without treating authentication, configuration,
+    response-schema, or editorial-quality failures as availability incidents.
+    """
+
+    def __init__(
+        self,
+        route: str,
+        *,
+        failure_kind: str,
+        status_code: int | None = None,
+    ) -> None:
+        self.route = route
+        self.failure_kind = failure_kind
+        self.status_code = status_code
+        status = f", HTTP {status_code}" if status_code is not None else ""
+        super().__init__(
+            f"{route} exhausted retryable attempts ({failure_kind}{status})."
+        )
+
+
 class DeepSeekClient:
     def __init__(
         self,
@@ -21,9 +45,17 @@ class DeepSeekClient:
         base_url: Optional[str] = None,
         model: str = "deepseek-chat",
         timeout: int = 180,
+        provider: Optional[str] = None,
     ) -> None:
         self.model = model
-        use_apimart = _uses_apimart(model)
+        provider_name = str(provider or "").strip().lower()
+        if provider_name not in {"", "apimart", "deepseek"}:
+            raise ValueError("provider must be 'apimart' or 'deepseek'.")
+        use_apimart = (
+            provider_name == "apimart"
+            if provider_name
+            else _uses_apimart(model)
+        )
         self.use_apimart = use_apimart
         default_key_name = "APIMART_API_KEY" if use_apimart else "DEEPSEEK_API_KEY"
         default_base_url = (
@@ -100,7 +132,8 @@ class DeepSeekClient:
                     raise
                 print(
                     "[gatex.editorial] APIMart Responses route unavailable; "
-                    f"retrying the same model through Chat Completions: {exc}",
+                    "retrying the same model through Chat Completions "
+                    f"(reason={type(exc).__name__}).",
                     flush=True,
                 )
 
@@ -136,12 +169,16 @@ class DeepSeekClient:
                 _int_env("DEEPSEEK_MAX_TOKENS", requested_max_tokens),
             )
         last_error = "unknown chat-completion failure"
+        last_failure_kind = "retryable_upstream"
+        last_status_code: int | None = None
         attempts = _retry_attempts(use_apimart=self.use_apimart)
         for attempt in range(attempts):
             try:
                 response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
             except requests.RequestException as exc:
                 last_error = str(exc)
+                last_failure_kind = "network_or_timeout"
+                last_status_code = None
                 if attempt < attempts - 1:
                     _sleep_before_retry(None, attempt, route="Chat Completions", error=last_error)
                     continue
@@ -152,6 +189,8 @@ class DeepSeekClient:
                     response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
                 except requests.RequestException as exc:
                     last_error = str(exc)
+                    last_failure_kind = "network_or_timeout"
+                    last_status_code = None
                     if attempt < attempts - 1:
                         _sleep_before_retry(None, attempt, route="Chat Completions", error=last_error)
                         continue
@@ -164,6 +203,8 @@ class DeepSeekClient:
                 if content.strip():
                     return content
                 last_error = _empty_completion_diagnostic(response)
+                last_failure_kind = "empty_completion"
+                last_status_code = response.status_code
                 if json_mode and "response_format" in payload:
                     payload.pop("response_format", None)
                     print(
@@ -173,6 +214,8 @@ class DeepSeekClient:
                     )
             except _ResponseBudgetExhausted as exc:
                 last_error = str(exc)
+                last_failure_kind = "output_budget"
+                last_status_code = response.status_code
                 if json_mode and "response_format" in payload:
                     payload.pop("response_format", None)
                 if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
@@ -187,11 +230,24 @@ class DeepSeekClient:
                         flush=True,
                     )
                     continue
+            except (ValueError, KeyError, IndexError, TypeError):
+                # A syntactically invalid provider payload is not an
+                # availability failure and must not trigger cross-provider
+                # editorial failover.
+                raise
             except Exception as exc:
+                if not _retryable_status(response.status_code):
+                    raise
                 last_error = str(exc)
+                last_failure_kind = "retryable_http"
+                last_status_code = response.status_code
             if attempt < attempts - 1:
                 _sleep_before_retry(response, attempt, route="Chat Completions", error=last_error)
-        raise RuntimeError(f"Chat completion failed after retries: {last_error}")
+        raise EditorialServiceExhausted(
+            "Chat Completions",
+            failure_kind=last_failure_kind,
+            status_code=last_status_code,
+        )
 
     def _responses_chat(
         self,
@@ -250,12 +306,16 @@ class DeepSeekClient:
             payload["max_output_tokens"] = requested_max_tokens
 
         last_error = "unknown Responses API failure"
+        last_failure_kind = "retryable_upstream"
+        last_status_code: int | None = None
         attempts = _retry_attempts(use_apimart=True)
         for attempt in range(attempts):
             try:
                 response = requests.post(url, headers=headers, json=dict(payload), timeout=self.timeout)
             except requests.RequestException as exc:
                 last_error = str(exc)
+                last_failure_kind = "network_or_timeout"
+                last_status_code = None
                 if attempt < attempts - 1:
                     _sleep_before_retry(None, attempt, route="Responses", error=last_error)
                     continue
@@ -268,8 +328,12 @@ class DeepSeekClient:
                 if content.strip():
                     return content
                 last_error = f"HTTP {response.status_code} returned an empty response"
+                last_failure_kind = "empty_completion"
+                last_status_code = response.status_code
             except _ResponseBudgetExhausted as exc:
                 last_error = str(exc)
+                last_failure_kind = "output_budget"
+                last_status_code = response.status_code
                 if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
                     requested_max_tokens = min(maximum_output_tokens, requested_max_tokens * 2)
                     payload["max_tokens"] = requested_max_tokens
@@ -280,11 +344,21 @@ class DeepSeekClient:
                         flush=True,
                     )
                     continue
+            except (ValueError, KeyError, IndexError, TypeError):
+                raise
             except Exception as exc:
+                if not _retryable_status(response.status_code):
+                    raise
                 last_error = str(exc)
+                last_failure_kind = "retryable_http"
+                last_status_code = response.status_code
             if attempt < attempts - 1:
                 _sleep_before_retry(response, attempt, route="Responses", error=last_error)
-        raise RuntimeError(f"Responses API call failed after retries: {last_error}")
+        raise EditorialServiceExhausted(
+            "Responses API",
+            failure_kind=last_failure_kind,
+            status_code=last_status_code,
+        )
 
     def chat_json(
         self,
@@ -321,13 +395,19 @@ class DeepSeekClient:
                     ),
                 },
             ]
-            repaired = self.chat(
-                repair_messages,
-                temperature=0.0,
-                model=model,
-                json_mode=True,
-                max_tokens=max_tokens,
-            )
+            try:
+                repaired = self.chat(
+                    repair_messages,
+                    temperature=0.0,
+                    model=model,
+                    json_mode=True,
+                    max_tokens=max_tokens,
+                )
+            except EditorialServiceExhausted as repair_error:
+                raise ValueError(
+                    "DeepSeek returned invalid JSON and its syntax-repair attempt "
+                    "did not complete."
+                ) from repair_error
             try:
                 return normalize_structured_payload(extract_json_object(repaired))
             except Exception as second_error:
@@ -795,7 +875,7 @@ def _retry_attempts(*, use_apimart: bool) -> int:
 
 
 def _retryable_status(status_code: int) -> bool:
-    return status_code in {408, 409, 425, 429, 500, 502, 503, 504}
+    return status_code in {408, 409, 425, 429} or 500 <= status_code <= 599
 
 
 def _retry_delay(response: requests.Response | None, attempt: int) -> float:
@@ -818,11 +898,12 @@ def _sleep_before_retry(
     route: str,
     error: str,
 ) -> None:
+    _ = error
     delay = _retry_delay(response, attempt)
     status = getattr(response, "status_code", "network") if response is not None else "network"
     print(
         f"[gatex.editorial] {route} retryable failure ({status}); "
-        f"waiting {delay:g}s before retry {attempt + 2}: {error[:240]}",
+        f"waiting {delay:g}s before retry {attempt + 2}.",
         flush=True,
     )
     time.sleep(delay)

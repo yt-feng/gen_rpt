@@ -10,9 +10,15 @@ from unittest import mock
 
 import pytest
 import fitz
+import requests
 from PIL import Image
 
-from gen_rpt.deepseek_client import DeepSeekClient, _completion_content, _response_content
+from gen_rpt.deepseek_client import (
+    DeepSeekClient,
+    EditorialServiceExhausted,
+    _completion_content,
+    _response_content,
+)
 from gen_rpt.research_quality import build_research_fact_pack
 from gen_rpt.web_evidence import build_evidence_ledger
 from gen_rpt.gatex_whitepaper_pipeline import (
@@ -81,6 +87,49 @@ def test_deepseek_model_keeps_deepseek_endpoint() -> None:
         client = DeepSeekClient(model="deepseek-chat")
     assert client.api_key == "test-key"
     assert client.base_url == "https://api.deepseek.com/v1"
+
+
+def test_explicit_deepseek_provider_ignores_apimart_force_route() -> None:
+    environment = {
+        "APIMART_FORCE_CHAT": "true",
+        "DEEPSEEK_API_KEY": "deepseek-test-key",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        client = DeepSeekClient(model="deepseek-chat", provider="deepseek")
+
+    assert client.use_apimart is False
+    assert client.api_key == "deepseek-test-key"
+    assert client.base_url == "https://api.deepseek.com/v1"
+
+
+@pytest.mark.parametrize("status_code", [500, 521])
+def test_retryable_apimart_exhaustion_is_typed_for_bounded_failover(
+    status_code: int,
+) -> None:
+    unavailable = mock.Mock()
+    unavailable.status_code = status_code
+    unavailable.headers = {}
+    unavailable.raise_for_status.side_effect = requests.HTTPError(
+        "500 upstream body must not become a route log"
+    )
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_RETRY_ATTEMPTS": "2",
+        "APIMART_RETRY_BASE_SECONDS": "0",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=unavailable,
+        ) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            with pytest.raises(EditorialServiceExhausted) as exc_info:
+                client.chat_json([{"role": "user", "content": "Return JSON."}])
+
+    assert post.call_count == 2
+    assert exc_info.value.failure_kind == "retryable_http"
+    assert exc_info.value.status_code == status_code
+    assert "upstream body" not in str(exc_info.value)
 
 
 def test_deepseek_v4_pro_keeps_deepseek_endpoint() -> None:

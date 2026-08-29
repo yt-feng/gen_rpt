@@ -31,7 +31,7 @@ if str(ROOT) not in sys.path:
 from gen_rpt.deepseek_client import DeepSeekClient
 from gen_rpt.main_web import slugify
 from gen_rpt.web_fetch import SourceDocument
-from gen_rpt.web_report_pipeline import WebReportPipeline
+from gen_rpt.web_report_pipeline import EditorialFailoverClient, WebReportPipeline
 
 
 SOURCE_MODES = {"web_only", "collection_only", "web_and_collection"}
@@ -999,7 +999,28 @@ def _run_generator(
     output_dir: Path,
     source_profile: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
-    client = DeepSeekClient(model=model)
+    primary = DeepSeekClient(model=model)
+    fallback = None
+    if getattr(primary, "use_apimart", False) is True:
+        try:
+            fallback = DeepSeekClient(
+                model="deepseek-chat",
+                timeout=primary.timeout,
+                provider="deepseek",
+            )
+        except ValueError:
+            print(
+                "[gatex.bridge] DeepSeek editorial fallback is not configured; "
+                "the APIMart route will remain fail-closed.",
+                flush=True,
+            )
+    client = EditorialFailoverClient(primary, fallback)
+    fallback_label = fallback.model if fallback is not None else "disabled"
+    print(
+        f"[gatex.bridge] editorial route primary_model={primary.model!r} "
+        f"primary_route={primary.route_label!r} fallback_model={fallback_label!r}",
+        flush=True,
+    )
     pipeline = WebReportPipeline(client=client, language=language)
     return pipeline.build_report(
         topic=topic,

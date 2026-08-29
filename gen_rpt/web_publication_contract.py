@@ -71,6 +71,8 @@ WORKBENCH_EXHIBIT_PATTERNS: Tuple[str, ...] = (
     r"\bcommitment\s+behind\s+proof\b",
 )
 
+SOURCE_CHANNEL_TARGET_MAX_WORDS = 3_400
+
 
 def _evidence_relevance_tokens(value: Any) -> set[str]:
     text = str(value or "").lower()
@@ -207,6 +209,7 @@ def compress_report_to_word_budget(
     max_words: int = 3_650,
     min_words: int = 1_800,
     min_section_words: int = 200,
+    max_section_words: int = 550,
     min_paragraph_words: int = 35,
 ) -> tuple[int, int]:
     """Remove only redundant, unprotected prose sentences to meet the budget.
@@ -222,7 +225,23 @@ def compress_report_to_word_budget(
         return 0, 0
     before = _word_count(_report_narrative_text(report))
     current = before
-    if current <= max_words:
+    def has_overlong_section() -> bool:
+        for section in report.get("sections", []) or []:
+            if not isinstance(section, dict):
+                continue
+            paragraphs = section.get("paragraphs")
+            if not isinstance(paragraphs, list):
+                continue
+            section_words = _word_count(" ".join([
+                str(section.get("lead") or ""),
+                *(str(item or "") for item in paragraphs),
+                str(section.get("so_what") or ""),
+            ]))
+            if section_words > max_section_words:
+                return True
+        return False
+
+    if current <= max_words and not has_overlong_section():
         return before, current
 
     protected = re.compile(
@@ -236,8 +255,8 @@ def compress_report_to_word_budget(
         re.I,
     )
 
-    while current > max_words:
-        candidates: List[tuple[tuple[int, int, int, int], int, int, int, List[str]]] = []
+    while current > max_words or has_overlong_section():
+        candidates: List[tuple[tuple[int, int, int, int, int], int, int, int, List[str]]] = []
         for section_index, section in enumerate(report.get("sections", []) or []):
             if not isinstance(section, dict):
                 continue
@@ -271,6 +290,7 @@ def compress_report_to_word_budget(
                     excess = current - max_words
                     candidates.append((
                         (
+                            0 if section_words > max_section_words else 1,
                             1 if semantic_guard.search(sentence) else 0,
                             -overlap,
                             abs(excess - sentence_words),
@@ -549,6 +569,44 @@ def report_content_quality_issues(
         issues.append(
             "Numeric claims not found in the validated evidence: "
             + ", ".join(unsupported_numbers[:8])
+        )
+    return issues
+
+
+def source_channel_report_quality_issues(
+    report: Any,
+    *,
+    topic: str,
+    context_text: str,
+    source_count: int,
+) -> List[str]:
+    """Apply the shared publication gate plus the tighter source-channel profile.
+
+    Source-channel reports retain the same evidence, paragraph-development and
+    numeric-grounding requirements as every report.  Their five-section shape
+    and lower word ceiling leave room for citation humanization and rendering
+    without drifting beyond the 3,800-word public limit.
+    """
+
+    issues = report_content_quality_issues(
+        report,
+        topic=topic,
+        context_text=context_text,
+        source_count=source_count,
+    )
+    if not isinstance(report, dict):
+        return issues
+    sections = report.get("sections")
+    section_count = len(sections) if isinstance(sections, list) else 0
+    if section_count != 5:
+        issues.append(
+            f"A source-channel report requires exactly 5 substantive sections; found {section_count}."
+        )
+    total_words = _word_count(_report_narrative_text(report))
+    if total_words > SOURCE_CHANNEL_TARGET_MAX_WORDS:
+        issues.append(
+            "The source-channel report needs post-render margin at or below "
+            f"{SOURCE_CHANNEL_TARGET_MAX_WORDS:,} words; found {total_words}."
         )
     return issues
 
@@ -1280,7 +1338,8 @@ def _visible_value_text(value: Any) -> str:
 
 def _number_tokens(text: Any) -> set[str]:
     values = set()
-    claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
+    claim_text = _strip_non_narrative_identifiers(str(text or ""))
+    claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", claim_text, flags=re.I)
     claim_text = re.sub(r"\[\d+\]", "", claim_text)
     claim_text = re.sub(
         r"\b(?:section|action|exhibit|figure|chart|table|step|citation|ref|reference|part|phase)\s+\d+\b",
@@ -1323,7 +1382,8 @@ def _number_tokens(text: Any) -> set[str]:
 def _raw_number_tokens(text: Any) -> set[str]:
     """Return visible coefficients without applying nearby scale words."""
     values: set[str] = set()
-    claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", str(text or ""), flags=re.I)
+    claim_text = _strip_non_narrative_identifiers(str(text or ""))
+    claim_text = re.sub(r"\[Chunk:[^\]]+\]", "", claim_text, flags=re.I)
     claim_text = re.sub(r"\[\d+\]", "", claim_text)
     claim_text = re.sub(
         r"\b(?:section|action|exhibit|figure|chart|table|step|citation|ref|reference|part|phase)\s+\d+\b",
@@ -1337,3 +1397,18 @@ def _raw_number_tokens(text: Any) -> set[str]:
         except InvalidOperation:
             continue
     return values
+
+
+def _strip_non_narrative_identifiers(value: str) -> str:
+    """Remove identifier digits that are not claims made by the report."""
+
+    text = re.sub(r"https?://[^\s\])}>\"']+", " ", str(value or ""), flags=re.I)
+    text = re.sub(r"\b(?:doi\s*:\s*)?10\.\d{4,9}/[-._;()/:A-Za-z0-9]+", " ", text, flags=re.I)
+    text = re.sub(r"\b(?:OpenAlex\s*[:#]?\s*)?[WASCI]\d{5,}\b", " ", text, flags=re.I)
+    text = re.sub(
+        r"\bSSRN(?:\s+(?:abstract|paper|id|number|no\.?))?\s*[:#]?\s*\d{5,}\b",
+        " ",
+        text,
+        flags=re.I,
+    )
+    return text

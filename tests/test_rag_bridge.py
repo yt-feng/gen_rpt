@@ -29,6 +29,7 @@ from gen_rpt.web_evidence import (
 )
 from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
+    SOURCE_CHANNEL_TARGET_MAX_WORDS,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     compress_report_to_word_budget,
@@ -39,6 +40,7 @@ from gen_rpt.web_publication_contract import (
     rag_report_quality_issues,
     rag_rendered_output_issues,
     rag_visible_numbers_supported,
+    source_channel_report_quality_issues,
     _report_narrative_text,
     _word_count,
 )
@@ -65,6 +67,76 @@ def _context_payload():
                 "metadata": {"page": 4},
             }
         ],
+    }
+
+
+def _source_channel_quality_report(*, extra_sentences: int = 1):
+    section_names = ["demand", "supply", "policy", "adoption", "execution"]
+    paragraph_names = ["signal", "mechanism", "constraint", "response"]
+    sections = []
+    for section_name in section_names:
+        paragraphs = []
+        for paragraph_name in paragraph_names:
+            core = (
+                f"The {section_name} {paragraph_name} evidence connects the retained public record "
+                "to a clear operating mechanism while preserving the counterpoint, the unresolved "
+                "constraint, and the decision boundary that an accountable executive owner must "
+                "review before committing additional organisational capacity."
+            )
+            redundant = (
+                "Additional descriptive context repeats the same supported conclusion without "
+                "changing its evidence, causal interpretation, decision boundary, or accountable "
+                "management response."
+            )
+            paragraphs.append(" ".join([core] + [redundant] * extra_sentences))
+        sections.append(
+            {
+                "title": f"Validated {section_name} evidence supports a bounded operating decision",
+                "lead": (
+                    f"The retained {section_name} record supports a conclusion-first decision while "
+                    "keeping the remaining uncertainty visible. Independent corroboration determines "
+                    "how quickly management can move and which commitment must remain conditional."
+                ),
+                "paragraphs": paragraphs,
+                "evidence": [
+                    "The public record supports this conclusion — OpenAlex (https://openalex.org/W1234567890).",
+                    "Independent research corroborates the mechanism — DOI (https://doi.org/10.1234/example.5678).",
+                ],
+                "so_what": (
+                    "Management should assign an accountable owner, document the unresolved condition, "
+                    "and preserve a clear pause gate until independent evidence confirms that the "
+                    "operating mechanism remains valid under the identified constraint. The next review "
+                    "must record the evidence accepted, the counterpoint tested, and the resulting response."
+                ),
+            }
+        )
+    return {
+        "title": "Verified public evidence supports a bounded market response",
+        "dek": "Independent corroboration narrows the decision without overstating certainty.",
+        "intro": [
+            "The brief separates the supported conclusion from the conditions that still require management verification."
+        ],
+        "key_takeaways": [
+            "Independent evidence supports a conditional operating response.",
+            "The causal mechanism remains more important than narrative momentum.",
+            "Management ownership and a documented pause gate preserve decision quality.",
+        ],
+        "sections": sections,
+        "action_steps": [
+            {
+                "horizon": "Decision gate",
+                "action": f"Assign the {section_name} evidence owner.",
+                "success_metric": "Documented acceptance or pause decision.",
+                "rationale": (
+                    "The retained evidence supports action only after an accountable owner confirms "
+                    "the operating condition and records the decision boundary."
+                ),
+            }
+            for section_name in section_names[:4]
+        ],
+        "methodology": "The brief uses retained public sources and independent corroboration.",
+        "evidence_quality": "The public evidence is corroborated but the response remains conditional.",
+        "disclaimer": "This editorial market research does not provide personalised advice.",
     }
 
 
@@ -1146,6 +1218,93 @@ class RAGBridgeTests(unittest.TestCase):
                 section["so_what"],
             ]))
             self.assertGreaterEqual(section_words, 200)
+
+    def test_source_channel_profile_ignores_identifier_digits_but_rejects_claims(self):
+        report = _source_channel_quality_report()
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+
+        self.assertEqual(issues, [])
+
+        report["sections"][0]["paragraphs"][0] += (
+            " Unsupported revenue reached 777 million in the latest period."
+        )
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+
+        self.assertTrue(any("Numeric claims not found" in issue for issue in issues))
+
+    def test_post_humanization_source_channel_compression_reproduces_3860_word_gate(self):
+        report = _source_channel_quality_report(extra_sentences=6)
+        before = _word_count(_report_narrative_text(report))
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        self.assertGreater(before, 3_800)
+        with tempfile.TemporaryDirectory() as directory:
+            pipeline._final_humanized_quality_gate(
+                report,
+                topic="Bounded market response",
+                grounding_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+                source_chunks={},
+                output_dir=Path(directory),
+            )
+
+        after = _word_count(_report_narrative_text(report))
+        self.assertLessEqual(after, SOURCE_CHANNEL_TARGET_MAX_WORDS)
+        self.assertGreaterEqual(after, 1_800)
+        self.assertEqual(len(report["sections"]), 5)
+        self.assertTrue(
+            all(3 <= len(section["paragraphs"]) <= 6 for section in report["sections"])
+        )
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                report,
+                topic="Bounded market response",
+                context_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+            ),
+            [],
+        )
+
+    def test_source_channel_final_gate_rejects_six_section_half_product(self):
+        report = _source_channel_quality_report()
+        report["sections"].append(dict(report["sections"][0]))
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ReportQualityError, "exactly 5"):
+                pipeline._final_humanized_quality_gate(
+                    report,
+                    topic="Bounded market response",
+                    grounding_text="The validated public record supports a conditional operating response.",
+                    source_count=2,
+                    source_chunks={},
+                    output_dir=Path(directory),
+                )
+
+    def test_source_channel_synthesis_failure_never_emits_generic_fallback(self):
+        pipeline = WebReportPipeline(Mock())
+        upstream_failure = RuntimeError("both editorial routes unavailable")
+
+        self.assertFalse(pipeline._synthesis_error_must_fail_closed(upstream_failure))
+        pipeline.source_profile = {"mode": "source_channel"}
+        self.assertTrue(pipeline._synthesis_error_must_fail_closed(upstream_failure))
+        self.assertTrue(
+            pipeline._synthesis_error_must_fail_closed(
+                ReportQualityError("publication contract failed")
+            )
+        )
 
     def test_deterministic_compression_keeps_gate_closed_when_only_evidence_is_long(self):
         report = {

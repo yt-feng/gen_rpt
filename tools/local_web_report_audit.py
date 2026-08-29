@@ -13,7 +13,12 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from gen_rpt.web_publication_contract import client_visible_internal_hits, is_internal_workbench_exhibit, report_content_quality_issues
+from gen_rpt.web_publication_contract import (
+    client_visible_internal_hits,
+    is_internal_workbench_exhibit,
+    report_content_quality_issues,
+    source_channel_report_quality_issues,
+)
 
 
 BAD_HEADINGS = {
@@ -79,6 +84,39 @@ def required_reference_count(sources: Any) -> int:
     return min(4, source_count) if source_count else 4
 
 
+def section_quality_issues(
+    section: Dict[str, Any],
+    index: int,
+    *,
+    source_channel_profile: bool,
+) -> List[str]:
+    """Return legacy presentation checks without duplicating profile contracts."""
+
+    issues: List[str] = []
+    title = text(section.get("title"))
+    lead = text(section.get("lead"))
+    paragraphs = [text(x) for x in as_list(section.get("paragraphs")) if text(x)]
+    evidence = [text(x) for x in as_list(section.get("evidence")) if text(x)]
+    body = " ".join([lead] + paragraphs + evidence)
+    if title.lower().strip(" .:-") in BAD_HEADINGS:
+        issues.append(f"section {index} uses generic label heading: {title}")
+    if not source_channel_profile and len(title) < 24:
+        issues.append(f"section {index} title is too thin: {title}")
+    if not source_channel_profile and len(paragraphs) < 5:
+        issues.append(f"section {index} has too few paragraphs: {len(paragraphs)}")
+    if not source_channel_profile and len(body) < 1400:
+        issues.append(f"section {index} lacks depth ({len(body)} chars): {title[:90]}")
+    if not evidence:
+        issues.append(f"section {index} has no explicit evidence bullets: {title[:90]}")
+    if not source_channel_profile and not re.search(
+        r"\b(19|20)\d{2}\b|\b\d+(?:\.\d+)?%|\b\$\d+|\b\d+(?:\.\d+)?\s*(?:billion|million|trillion|GW|MW|kg|years?|months?)\b",
+        body,
+        re.I,
+    ):
+        issues.append(f"section {index} lacks dates or numeric evidence cues: {title[:90]}")
+    return issues
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Audit HTML-first thought leadership report output.")
     parser.add_argument("report_dir", type=Path)
@@ -133,12 +171,26 @@ def main() -> int:
         [text(item.get("fact")) for item in ledger_items]
         + [text(item.get("content")) for item in as_list(sources) if isinstance(item, dict)]
     )
+    evidence_audit = payload.get("evidenceAudit") if isinstance(payload, dict) else {}
+    evidence_audit = evidence_audit if isinstance(evidence_audit, dict) else {}
+    generation_manifest = evidence_audit.get("manifest")
+    generation_manifest = generation_manifest if isinstance(generation_manifest, dict) else {}
+    source_channel_profile = generation_manifest.get("generation_profile") == "source_channel"
     issues.extend(
-        report_content_quality_issues(
-            payload,
-            topic="",
-            context_text=grounding_text,
-            source_count=len(as_list(sources)),
+        (
+            source_channel_report_quality_issues(
+                payload,
+                topic="",
+                context_text=grounding_text,
+                source_count=len(as_list(sources)),
+            )
+            if source_channel_profile
+            else report_content_quality_issues(
+                payload,
+                topic="",
+                context_text=grounding_text,
+                source_count=len(as_list(sources)),
+            )
         )
     )
 
@@ -160,6 +212,7 @@ def main() -> int:
             "html_chars": len(html_text),
             "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
             "takeaway_candidate_counts": takeaway_candidates,
+            "generation_profile": "source_channel" if source_channel_profile else "generic",
         }
     )
 
@@ -196,23 +249,13 @@ def main() -> int:
         issues.append(f"expected at least {min(3, len(exhibits))} exhibits with data_basis, got {len(data_backed_exhibits)}")
 
     for idx, section in enumerate(sections, start=1):
-        title = text(section.get("title"))
-        lead = text(section.get("lead"))
-        paragraphs = [text(x) for x in as_list(section.get("paragraphs")) if text(x)]
-        evidence = [text(x) for x in as_list(section.get("evidence")) if text(x)]
-        body = " ".join([lead] + paragraphs + evidence)
-        if title.lower().strip(" .:-") in BAD_HEADINGS:
-            issues.append(f"section {idx} uses generic label heading: {title}")
-        if len(title) < 24:
-            issues.append(f"section {idx} title is too thin: {title}")
-        if len(paragraphs) < 5:
-            issues.append(f"section {idx} has too few paragraphs: {len(paragraphs)}")
-        if len(body) < 1400:
-            issues.append(f"section {idx} lacks depth ({len(body)} chars): {title[:90]}")
-        if not evidence:
-            issues.append(f"section {idx} has no explicit evidence bullets: {title[:90]}")
-        if not re.search(r"\b(19|20)\d{2}\b|\b\d+(?:\.\d+)?%|\b\$\d+|\b\d+(?:\.\d+)?\s*(?:billion|million|trillion|GW|MW|kg|years?|months?)\b", body, re.I):
-            issues.append(f"section {idx} lacks dates or numeric evidence cues: {title[:90]}")
+        issues.extend(
+            section_quality_issues(
+                section,
+                idx,
+                source_channel_profile=source_channel_profile,
+            )
+        )
 
     exhibit_types = {text(x.get("type")).lower() for x in exhibits}
     metrics["exhibit_types"] = sorted(exhibit_types)
