@@ -22,6 +22,7 @@ from .web_evidence import (
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
+    backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     convert_evidence_to_human_readable,
     ground_rag_section_evidence,
@@ -897,6 +898,8 @@ class WebReportPipeline:
         removed_numbers = prune_unsupported_numeric_claims(report, grounding_text)
         if removed_numbers:
             self._log("PHASE synthesis removed unsupported numeric claims | " + ", ".join(removed_numbers))
+        if not self.rag_context:
+            backfill_section_evidence_from_ledger(report, approved_evidence)
         normalize_report_section_prose(report)
         if self.rag_context:
             issues = rag_report_quality_issues(
@@ -1216,7 +1219,7 @@ Requirements:
         return self._normalize_chart_data_needs(payload.get("chart_data_needs") or payload.get("needs") or payload.get("charts") or [])
 
     def _fallback_chart_data_needs(self, topic: str, plan: Dict[str, Any], reason: str) -> List[Dict[str, Any]]:
-        base_queries = [str(query) for query in plan.get("search_queries", []) or [] if str(query).strip()]
+        base_queries = self._dedupe_queries(_as_list(plan.get("search_queries")))
         if self.language == "zh":
             title_prefix = topic
         else:
@@ -1334,7 +1337,7 @@ Requirements:
             chart_type = str(item.get("chart_type") or item.get("type") or "bar").lower().replace("_chart", "")
             if chart_type not in {"bar", "line", "bubble", "matrix", "timeline"}:
                 chart_type = "bar"
-            queries = [str(query).strip() for query in _as_list(item.get("search_queries") or item.get("queries")) if str(query).strip()]
+            queries = self._dedupe_queries(_as_list(item.get("search_queries") or item.get("queries")))
             need = {
                 "id": str(item.get("id") or f"chart-need-{idx}"),
                 "title": str(item.get("title") or item.get("name") or f"Chart data need {idx}").strip(),
@@ -1378,13 +1381,13 @@ Requirements:
         queries: List[str] = []
         for need in chart_data_needs:
             for query in need.get("search_queries", []) or []:
-                clean = str(query or "").strip()
+                clean = self._query_text(query)
                 if clean and clean not in queries:
                     queries.append(clean)
         return queries
 
     def _expanded_search_queries(self, plan: Dict[str, Any], chart_data_needs: List[Dict[str, Any]]) -> List[str]:
-        plan_queries = [str(query).strip() for query in plan.get("search_queries", []) or [] if str(query).strip()]
+        plan_queries = self._dedupe_queries(_as_list(plan.get("search_queries")))
         if self.rag_context:
             return self._dedupe_texts(plan_queries)
         chart_queries = self._chart_need_queries(chart_data_needs)
@@ -1738,7 +1741,7 @@ CRITICAL RULES (violation = failure):
 
     def _normalize_research_plan(self, plan: Dict[str, Any], topic: str) -> Dict[str, Any]:
         normalized = dict(plan or {})
-        normalized["search_queries"] = self._dedupe_texts(_as_list(normalized.get("search_queries")))[:18]
+        normalized["search_queries"] = self._dedupe_queries(_as_list(normalized.get("search_queries")))[:18]
         normalized["hypotheses"] = self._normalize_hypotheses(normalized.get("hypotheses"), topic)
         normalized["market_sizing_plan"] = self._normalize_market_sizing_plan(normalized.get("market_sizing_plan"), topic)
         normalized["validation_data_needs"] = self._normalize_validation_data_needs(normalized.get("validation_data_needs"), topic)
@@ -1934,7 +1937,7 @@ CRITICAL RULES (violation = failure):
             if isinstance(item, dict):
                 hypothesis = str(item.get("hypothesis") or item.get("claim") or item.get("title") or "").strip()
                 needed = [str(x).strip() for x in _as_list(item.get("needed_evidence") or item.get("evidence_needed") or item.get("data_needed")) if str(x).strip()]
-                queries = [str(x).strip() for x in _as_list(item.get("search_queries") or item.get("queries")) if str(x).strip()]
+                queries = self._dedupe_queries(_as_list(item.get("search_queries") or item.get("queries")))
                 decision_relevance = str(item.get("decision_relevance") or item.get("why_it_matters") or item.get("management_relevance") or "").strip()
                 item_id = str(item.get("id") or f"H{idx}").strip()
             else:
@@ -1976,7 +1979,7 @@ CRITICAL RULES (violation = failure):
             formula = str(item.get("formula") or item.get("calculation") or "").strip()
             variables = [str(x).strip() for x in _as_list(item.get("variables") or item.get("inputs")) if str(x).strip()]
             sources = [str(x).strip() for x in _as_list(item.get("preferred_sources") or item.get("sources")) if str(x).strip()]
-            queries = [str(x).strip() for x in _as_list(item.get("search_queries") or item.get("queries")) if str(x).strip()]
+            queries = self._dedupe_queries(_as_list(item.get("search_queries") or item.get("queries")))
             limitations = [str(x).strip() for x in _as_list(item.get("known_limitations") or item.get("limitations")) if str(x).strip()]
             if method:
                 methods.append(
@@ -2012,7 +2015,7 @@ CRITICAL RULES (violation = failure):
                 metric = str(item.get("metric") or item.get("data") or item.get("name") or item.get("title") or "").strip()
                 reason = str(item.get("decision_use") or item.get("reason") or item.get("why_needed") or "").strip()
                 sources = [str(x).strip() for x in _as_list(item.get("preferred_sources") or item.get("sources")) if str(x).strip()]
-                queries = [str(x).strip() for x in _as_list(item.get("search_queries") or item.get("queries")) if str(x).strip()]
+                queries = self._dedupe_queries(_as_list(item.get("search_queries") or item.get("queries")))
             else:
                 metric = str(item or "").strip()
                 reason = ""
@@ -2035,15 +2038,15 @@ CRITICAL RULES (violation = failure):
         queries: List[str] = []
         for hypothesis in plan.get("hypotheses", []) or []:
             if isinstance(hypothesis, dict):
-                queries.extend(str(x).strip() for x in _as_list(hypothesis.get("search_queries")) if str(x).strip())
+                queries.extend(self._dedupe_queries(_as_list(hypothesis.get("search_queries"))))
         sizing_plan = plan.get("market_sizing_plan") or {}
         if isinstance(sizing_plan, dict):
             for method in sizing_plan.get("methods", []) or []:
                 if isinstance(method, dict):
-                    queries.extend(str(x).strip() for x in _as_list(method.get("search_queries")) if str(x).strip())
+                    queries.extend(self._dedupe_queries(_as_list(method.get("search_queries"))))
         for need in plan.get("validation_data_needs", []) or []:
             if isinstance(need, dict):
-                queries.extend(str(x).strip() for x in _as_list(need.get("search_queries")) if str(x).strip())
+                queries.extend(self._dedupe_queries(_as_list(need.get("search_queries"))))
         return self._dedupe_texts(queries)
 
     def _analysis_framework(self, plan: Dict[str, Any], chart_data_needs: List[Dict[str, Any]], storyline_plan: Dict[str, Any]) -> Dict[str, Any]:
@@ -2204,6 +2207,22 @@ CRITICAL RULES (violation = failure):
                 seen.add(key)
                 out.append(text)
         return out
+
+    @staticmethod
+    def _query_text(value: Any) -> str:
+        if isinstance(value, dict):
+            for key in ("query", "search_query", "searchQuery", "q", "text"):
+                candidate = value.get(key)
+                if isinstance(candidate, str) and candidate.strip():
+                    return candidate.strip()
+            return ""
+        return str(value or "").strip() if isinstance(value, str) else ""
+
+    @classmethod
+    def _dedupe_queries(cls, values: List[Any]) -> List[str]:
+        return cls._dedupe_texts(
+            [query for value in values if (query := cls._query_text(value))]
+        )
 
     @staticmethod
     def _norm_key(value: str) -> str:

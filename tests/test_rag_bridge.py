@@ -25,6 +25,7 @@ from gen_rpt.web_evidence import (
 )
 from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
+    backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     ground_rag_section_evidence,
     normalize_report_section_prose,
@@ -549,6 +550,105 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertEqual(queries, ["external regulation gap", "external market benchmark"])
+
+    def test_structured_planner_queries_are_unwrapped_before_search(self):
+        pipeline = WebReportPipeline(Mock())
+        plan = pipeline._normalize_research_plan(
+            {
+                "search_queries": [
+                    {
+                        "query": "site:bis.org derivatives statistics",
+                        "purpose": "market baseline",
+                    },
+                    {"q": "site:cftc.gov commitments of traders"},
+                    {"purpose": "missing query text"},
+                ]
+            },
+            "Consensus positioning",
+        )
+
+        self.assertEqual(
+            plan["search_queries"][:2],
+            [
+                "site:bis.org derivatives statistics",
+                "site:cftc.gov commitments of traders",
+            ],
+        )
+        self.assertFalse(any(query.startswith("{") for query in plan["search_queries"]))
+
+        expanded = pipeline._expanded_search_queries(
+            plan,
+            [{"search_queries": [{"search_query": "site:sec.gov 13F data"}]}],
+        )
+        self.assertIn("site:sec.gov 13F data", expanded)
+        self.assertFalse(any(query.startswith("{") for query in expanded))
+
+    def test_missing_section_evidence_is_backfilled_only_from_approved_ledger(self):
+        report = {
+            "sections": [{
+                "title": "Derivatives positioning can amplify crowded consensus trades",
+                "lead": "Concentrated derivatives positioning changes reversal sensitivity.",
+                "paragraphs": ["Managers should compare notional exposure with positioning concentration."],
+                "evidence": ["The model retained one grounded evidence item."],
+                "so_what": "Use position data to set a decision gate.",
+            }]
+        }
+        approved = [
+            {
+                "id": "E1",
+                "fact": "BIS derivatives statistics report notional exposure by asset class.",
+                "source_title": "BIS derivatives statistics",
+                "source_url": "https://bis.org/statistics/derstats.htm",
+                "authoritative": True,
+                "decision_relevance": "supporting",
+            },
+            {
+                "id": "E2",
+                "fact": "CFTC reports position concentration in its Commitments of Traders data.",
+                "source_title": "CFTC Commitments of Traders",
+                "source_url": "https://cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+                "authoritative": True,
+                "decision_relevance": "critical",
+            },
+        ]
+
+        backfill_section_evidence_from_ledger(report, approved)
+
+        evidence = report["sections"][0]["evidence"]
+        self.assertEqual(len(evidence), 2)
+        self.assertIn("https://cftc.gov/MarketReports/CommitmentsofTraders/index.htm", evidence[1])
+        self.assertNotIn("E2", evidence[1])
+
+        pipeline = WebReportPipeline(Mock())
+        prepared, issues = pipeline._prepare_report_draft(
+            report,
+            topic="Consensus positioning",
+            grounding_text=" ".join(item["fact"] for item in approved),
+            source_count=2,
+            source_chunks={},
+            approved_evidence=approved,
+        )
+        self.assertEqual(len(prepared["sections"][0]["evidence"]), 2)
+        self.assertFalse(any("traceable evidence items" in issue for issue in issues))
+
+    def test_evidence_backfill_stays_fail_closed_without_two_source_urls(self):
+        report = {"sections": [{"title": "One source only", "evidence": ["One item."]}]}
+        approved = [
+            {
+                "fact": "First supported fact.",
+                "source_title": "Only source",
+                "source_url": "https://example.com/one",
+            },
+            {
+                "fact": "Second supported fact.",
+                "source_title": "Only source",
+                "source_url": "https://example.com/one",
+            },
+        ]
+
+        backfill_section_evidence_from_ledger(report, approved)
+
+        self.assertEqual(report["sections"][0]["evidence"], ["One item."])
 
     def test_deterministic_exhibits_do_not_repeat_existing_rag_facts(self):
         fact = "The validated investment is $45.5 million."

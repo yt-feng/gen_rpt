@@ -261,6 +261,34 @@ def _manifest_items(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
     return []
 
 
+def manifest_requires_private_source_content(manifest: Dict[str, Any]) -> bool:
+    """Honor the GateX lineage contract for source-channel retries.
+
+    A retry has ``provenanceType=manual_retry`` even when its immutable root job
+    came from a source channel. GateX therefore exposes the effective root
+    provenance and an explicit requirement bit in the source manifest. Treat
+    either signal as authoritative so a retry cannot silently downgrade to its
+    bounded excerpt when the private body is unavailable.
+    """
+
+    candidate: Any = manifest
+    if isinstance(candidate, dict) and isinstance(candidate.get("data"), dict):
+        candidate = candidate["data"]
+    if not isinstance(candidate, dict):
+        return False
+    if candidate.get("requiresPrivateSourceContent") is True:
+        return True
+    provenance_values = (
+        candidate.get("effectiveProvenanceType"),
+        candidate.get("rootProvenanceType"),
+        candidate.get("provenanceType"),
+    )
+    return any(
+        str(value or "").strip().lower() == "source_channel"
+        for value in provenance_values
+    )
+
+
 def discovered_sources_from_manifest(
     manifest: Dict[str, Any],
 ) -> tuple[List[SourceDocument], List[Dict[str, Any]]]:
@@ -953,13 +981,21 @@ def run_job(args: argparse.Namespace) -> int:
             manifest,
             private_dir / "intelligence",
         )
-        provenance_type = str(manifest.get("provenanceType") or "").strip().lower()
-        if provenance_type == "source_channel" and not any(
-            source.metadata.get("gatex_private_content") for source in seed_sources
-        ):
+        private_seed_count = sum(
+            1
+            for source in seed_sources
+            if source.metadata.get("gatex_private_content")
+        )
+        if manifest_requires_private_source_content(manifest) and private_seed_count < 1:
             raise BridgeError(
-                "A source-channel generation job requires verified private source content."
+                "A source-channel generation job or retry requires verified private source content."
             )
+        api.progress(
+            "ingesting",
+            8,
+            f"Prepared {len(seed_sources)} Intelligence source seed(s), "
+            f"including {private_seed_count} verified private source body/bodies.",
+        )
         if source_mode in {"collection_only", "web_and_collection"}:
             api.progress("ingesting", 8, "Downloading the private source collection.")
             private_sources, private_source_summary = download_private_sources(api, manifest, private_dir)

@@ -17,11 +17,27 @@ from tools.gatex_generation_bridge import (
     discovered_sources_from_manifest,
     download_intelligence_seed_sources,
     download_private_sources,
+    manifest_requires_private_source_content,
 )
 from tools.local_web_report_audit import required_reference_count
 
 
 class GateXGenerationBridgeTests(unittest.TestCase):
+    def test_source_channel_retry_inherits_private_content_requirement(self):
+        manifest = {
+            "provenanceType": "manual_retry",
+            "effectiveProvenanceType": "source_channel",
+            "requiresPrivateSourceContent": True,
+            "discoveredSources": [],
+        }
+
+        self.assertTrue(manifest_requires_private_source_content(manifest))
+        self.assertFalse(
+            manifest_requires_private_source_content(
+                {"provenanceType": "manual_retry", "discoveredSources": []}
+            )
+        )
+
     def test_callback_requests_never_follow_redirects(self):
         with patch("tools.gatex_generation_bridge.requests.request") as request:
             response = request.return_value

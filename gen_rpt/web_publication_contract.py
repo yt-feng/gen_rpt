@@ -71,6 +71,119 @@ WORKBENCH_EXHIBIT_PATTERNS: Tuple[str, ...] = (
     r"\bcommitment\s+behind\s+proof\b",
 )
 
+
+def _evidence_relevance_tokens(value: Any) -> set[str]:
+    text = str(value or "").lower()
+    tokens = set(re.findall(r"[a-z][a-z0-9-]{2,}", text))
+    for run in re.findall(r"[\u3400-\u9fff]+", text):
+        tokens.update(run[index:index + 2] for index in range(len(run) - 1))
+    return tokens
+
+
+def _reader_evidence_item(item: Dict[str, Any]) -> str:
+    fact = re.sub(r"\s+", " ", str(item.get("fact") or "")).strip()
+    title = re.sub(
+        r"\s+",
+        " ",
+        str(item.get("source_title") or item.get("domain") or "Source"),
+    ).strip()
+    url = str(item.get("source_url") or "").strip()
+    if not fact or not re.fullmatch(r"https://[^\s]+", url):
+        return ""
+    return f"{fact} — {title} ({url})"
+
+
+def backfill_section_evidence_from_ledger(
+    report: Any,
+    approved_evidence: List[Dict[str, Any]],
+    *,
+    target: int = 2,
+) -> Any:
+    """Repair dropped evidence bullets using only already-approved evidence.
+
+    The synthesis model occasionally returns one evidence bullet after a
+    revision even though the deterministic ledger contains many validated
+    points. This repair never lowers the quality threshold or invents a
+    citation: it appends reader-visible facts with their retained HTTPS source,
+    preferring section-relevant and distinct sources. If the ledger cannot
+    supply enough traceable sources, the normal quality gate still fails.
+    """
+
+    if not isinstance(report, dict) or target < 1:
+        return report
+    sections = report.get("sections")
+    if not isinstance(sections, list):
+        return report
+
+    candidates: List[Dict[str, Any]] = []
+    seen_candidates: set[tuple[str, str]] = set()
+    for index, item in enumerate(approved_evidence or []):
+        if not isinstance(item, dict):
+            continue
+        rendered = _reader_evidence_item(item)
+        url = str(item.get("source_url") or "").strip()
+        fact = re.sub(r"\s+", " ", str(item.get("fact") or "")).strip()
+        key = (url, fact)
+        if not rendered or key in seen_candidates:
+            continue
+        seen_candidates.add(key)
+        candidates.append({
+            "rendered": rendered,
+            "url": url,
+            "tokens": _evidence_relevance_tokens(fact),
+            "authority": 1 if item.get("authoritative") else 0,
+            "decision": 2 if item.get("decision_relevance") == "critical" else 1 if item.get("decision_relevance") == "supporting" else 0,
+            "index": index,
+        })
+
+    if len({candidate["url"] for candidate in candidates}) < target:
+        return report
+
+    usage: Dict[str, int] = {}
+    for section in sections:
+        if not isinstance(section, dict):
+            continue
+        raw_evidence = section.get("evidence")
+        evidence = list(raw_evidence) if isinstance(raw_evidence, list) else []
+        evidence = [item for item in evidence if str(item or "").strip()]
+        if len(evidence) >= target:
+            continue
+        paragraphs = section.get("paragraphs")
+        paragraph_items = paragraphs if isinstance(paragraphs, list) else [paragraphs]
+        section_text = " ".join(
+            str(value or "")
+            for value in (
+                section.get("title"),
+                section.get("heading"),
+                section.get("lead"),
+                *paragraph_items,
+                section.get("so_what"),
+            )
+        )
+        section_tokens = _evidence_relevance_tokens(section_text)
+        existing_text = " ".join(str(item) for item in evidence)
+        selected_urls = set(re.findall(r"https://[^\s)]+", existing_text))
+        ranked = sorted(
+            candidates,
+            key=lambda candidate: (
+                -len(section_tokens & candidate["tokens"]),
+                usage.get(candidate["url"], 0),
+                -candidate["decision"],
+                -candidate["authority"],
+                candidate["index"],
+            ),
+        )
+        for candidate in ranked:
+            if len(evidence) >= target:
+                break
+            if candidate["rendered"] in evidence or candidate["url"] in selected_urls:
+                continue
+            evidence.append(candidate["rendered"])
+            selected_urls.add(candidate["url"])
+            usage[candidate["url"]] = usage.get(candidate["url"], 0) + 1
+        section["evidence"] = evidence
+    return report
+
 CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bThis analysis is based on a structured research plan with [^.]+?hypotheses?, each tested against publicly available evidence from\b", "This analysis draws on publicly available evidence from"),
     (r"\bMarket sizing should be built as a bridge, not a single TAM claim\b", "Build the opportunity case from demand, adoption, economics and constraints"),
