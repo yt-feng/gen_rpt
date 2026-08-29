@@ -12,10 +12,12 @@ import requests
 from gen_rpt.deepseek_client import normalize_structured_payload
 from gen_rpt.main_web import RAGBridgeError, _fetch_rag_context
 from gen_rpt.web_fetch import (
+    SearchResult,
     SourceDocument,
     _search_searxng,
     build_rag_manifest,
     merge_sources,
+    search_web,
     sources_from_validated_context,
 )
 from gen_rpt.web_evidence import (
@@ -582,6 +584,39 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertIn("site:sec.gov 13F data", expanded)
         self.assertFalse(any(query.startswith("{") for query in expanded))
+
+    @patch("gen_rpt.web_fetch._search_bing")
+    @patch("gen_rpt.web_fetch._search_duckduckgo")
+    def test_site_queries_drop_provider_results_from_other_domains(self, duckduckgo, bing):
+        duckduckgo.__name__ = "_search_duckduckgo"
+        bing.__name__ = "_search_bing"
+        duckduckgo.return_value = [
+            SearchResult(
+                title="Unrelated dictionary result",
+                url="https://dictionary.example/query",
+                snippet="Unrelated result.",
+                query="site:sec.gov 13F data",
+            )
+        ]
+        bing.return_value = [
+            SearchResult(
+                title="SEC 13F data",
+                url="https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets",
+                snippet="Official dataset.",
+                query="site:sec.gov 13F data",
+            )
+        ]
+
+        with patch.dict(
+            os.environ,
+            {"TAVILY_API_KEY": "", "SEARXNG_URL": ""},
+            clear=False,
+        ):
+            results = search_web("site:sec.gov 13F data", max_results=5)
+
+        self.assertEqual([result.url for result in results], [
+            "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets"
+        ])
 
     def test_missing_section_evidence_is_backfilled_only_from_approved_ledger(self):
         report = {

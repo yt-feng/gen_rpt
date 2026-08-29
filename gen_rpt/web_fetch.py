@@ -66,6 +66,15 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
     """
     results: List[SearchResult] = []
     seen: set = set()
+    site_domains = {
+        domain.lower().strip(".")
+        for domain in re.findall(
+            r"(?:^|\s)site:([a-z0-9.-]+)",
+            str(query or ""),
+            flags=re.I,
+        )
+        if domain.strip(".")
+    }
 
     # Build provider chain: Tavily and SearXNG first when configured, then HTML fallbacks.
     tavily_key = os.getenv("TAVILY_API_KEY", "").strip()
@@ -90,6 +99,12 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
             _log(f"search provider attempt | provider={provider_name} | query={query[:120]!r}")
             for result in searcher(query, max_results=max_results):
                 if not result.url or result.url in seen:
+                    continue
+                result_domain = _domain(result.url)
+                if site_domains and not any(
+                    result_domain == domain or result_domain.endswith(f".{domain}")
+                    for domain in site_domains
+                ):
                     continue
                 result.provider = result.provider or provider_name
                 seen.add(result.url)
