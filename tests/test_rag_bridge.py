@@ -29,6 +29,7 @@ from gen_rpt.web_evidence import (
 )
 from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
+    SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
     SOURCE_CHANNEL_TARGET_MAX_WORDS,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
@@ -1266,6 +1267,46 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertTrue(
             all(3 <= len(section["paragraphs"]) <= 6 for section in report["sections"])
         )
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                report,
+                topic="Bounded market response",
+                context_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+            ),
+            [],
+        )
+
+    def test_editorial_revision_3433_word_overage_compresses_with_render_margin(self):
+        report = _source_channel_quality_report(extra_sentences=5)
+        final_paragraph = report["sections"][-1]["paragraphs"][-1]
+        sentences = [item.strip() for item in final_paragraph.split(".") if item.strip()]
+        report["sections"][-1]["paragraphs"][-1] = ". ".join(sentences[:-2]) + "."
+        before = _word_count(_report_narrative_text(report))
+        evidence_before = [list(section["evidence"]) for section in report["sections"]]
+        implications_before = [section["so_what"] for section in report["sections"]]
+        actions_before = [dict(action) for action in report["action_steps"]]
+
+        self.assertEqual(before, 3_433)
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+        self.assertTrue(any("post-render margin" in issue for issue in issues))
+
+        compressed_before, after = compress_report_to_word_budget(
+            report,
+            max_words=SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
+        )
+
+        self.assertEqual(compressed_before, 3_433)
+        self.assertLessEqual(after, SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS)
+        self.assertEqual([section["evidence"] for section in report["sections"]], evidence_before)
+        self.assertEqual([section["so_what"] for section in report["sections"]], implications_before)
+        self.assertEqual(report["action_steps"], actions_before)
+        self.assertEqual(len(report["sections"]), 5)
         self.assertEqual(
             source_channel_report_quality_issues(
                 report,

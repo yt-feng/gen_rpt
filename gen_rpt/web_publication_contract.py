@@ -72,6 +72,10 @@ WORKBENCH_EXHIBIT_PATTERNS: Tuple[str, ...] = (
 )
 
 SOURCE_CHANNEL_TARGET_MAX_WORDS = 3_400
+# Deterministic compression aims below the publication ceiling so later
+# normalization, citation humanization, and editorial corrections have bounded
+# room without turning a harmless few-word overage into a failed report.
+SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS = 3_300
 
 
 def _evidence_relevance_tokens(value: Any) -> set[str]:

@@ -24,7 +24,7 @@ from .web_evidence import (
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
-    SOURCE_CHANNEL_TARGET_MAX_WORDS,
+    SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     compress_report_to_word_budget,
@@ -615,6 +615,28 @@ class WebReportPipeline:
                     source_chunks=rag_source_chunks,
                     approved_evidence=approved_evidence,
                 )
+                if (
+                    self._source_channel_mode()
+                    and any("post-render margin" in issue for issue in quality_issues)
+                ):
+                    before_words, after_words = compress_report_to_word_budget(
+                        report,
+                        max_words=SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
+                    )
+                    if after_words < before_words:
+                        self._log(
+                            "PHASE editorial_revision deterministic compression "
+                            f"| words={before_words}->{after_words} "
+                            f"| ceiling={SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS}"
+                        )
+                        report, quality_issues = self._prepare_report_draft(
+                            report,
+                            topic=display_topic,
+                            grounding_text=grounding_text,
+                            source_count=len(sources),
+                            source_chunks=rag_source_chunks,
+                            approved_evidence=approved_evidence,
+                        )
                 if quality_issues:
                     prune_unsupported_numeric_claims(report, grounding_text)
                     normalize_report_section_prose(report)
@@ -1350,7 +1372,7 @@ class WebReportPipeline:
         )
         if needs_compression:
             compression_ceiling = (
-                SOURCE_CHANNEL_TARGET_MAX_WORDS
+                SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS
                 if self._source_channel_mode()
                 else 3_650
             )
@@ -1489,7 +1511,7 @@ class WebReportPipeline:
         )
         if needs_compression:
             ceiling = (
-                SOURCE_CHANNEL_TARGET_MAX_WORDS
+                SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS
                 if self._source_channel_mode()
                 else 3_650
             )
