@@ -52,6 +52,39 @@ class FetchedPage:
     content_type: str
 
 
+_FALLBACK_QUERY_STOPWORDS = {
+    "about", "addressable", "analysis", "data", "future", "global", "industry",
+    "latest", "linked", "market", "official", "report", "research", "scan",
+    "source", "study", "total", "website", "with",
+}
+
+
+def _fallback_result_relevant(query: str, result: SearchResult) -> bool:
+    """Apply a conservative lexical floor to noisy HTML-search fallbacks."""
+
+    query_text = re.sub(r"\b(?:site|filetype):\S+", " ", str(query or ""), flags=re.I)
+    query_terms = {
+        token
+        for token in re.findall(r"[a-z][a-z0-9-]{2,}", query_text.lower())
+        if token not in _FALLBACK_QUERY_STOPWORDS
+    }
+    for run in re.findall(r"[\u3400-\u9fff]+", query_text):
+        query_terms.update(run[index:index + 2] for index in range(len(run) - 1))
+    if not query_terms:
+        return True
+
+    result_text = " ".join((result.title, result.snippet, result.url)).lower()
+    result_terms = set(re.findall(r"[a-z][a-z0-9-]{2,}", result_text))
+    for run in re.findall(r"[\u3400-\u9fff]+", result_text):
+        result_terms.update(run[index:index + 2] for index in range(len(run) - 1))
+    overlap = query_terms & result_terms
+    if len(overlap) >= (2 if len(query_terms) >= 4 else 1):
+        return True
+
+    result_domain = _domain(result.url).split(".", 1)[0]
+    return bool(result_domain and result_domain in query_terms)
+
+
 def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
     """Search the web using the configured provider chain.
 
@@ -104,6 +137,12 @@ def search_web(query: str, max_results: int = 5) -> List[SearchResult]:
                 if site_domains and not any(
                     result_domain == domain or result_domain.endswith(f".{domain}")
                     for domain in site_domains
+                ):
+                    continue
+                if (
+                    not site_domains
+                    and provider_name in {"duckduckgo", "bing"}
+                    and not _fallback_result_relevant(query, result)
                 ):
                     continue
                 result.provider = result.provider or provider_name

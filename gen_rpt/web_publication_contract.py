@@ -184,6 +184,112 @@ def backfill_section_evidence_from_ledger(
         section["evidence"] = evidence
     return report
 
+
+def _compression_sentences(value: Any) -> List[str]:
+    text = str(value or "").strip()
+    if not text:
+        return []
+    return [
+        sentence.strip()
+        for sentence in re.split(r"(?<=[。！？!?])\s*|(?<=\.)\s+|\n+", text)
+        if sentence.strip()
+    ]
+
+
+def _compression_join(sentences: List[str]) -> str:
+    separator = "" if any(re.search(r"[\u3400-\u9fff]", item) for item in sentences) else " "
+    return separator.join(sentences).strip()
+
+
+def compress_report_to_word_budget(
+    report: Any,
+    *,
+    max_words: int = 3_650,
+    min_words: int = 1_800,
+    min_section_words: int = 200,
+    min_paragraph_words: int = 35,
+) -> tuple[int, int]:
+    """Remove only redundant, unprotected prose sentences to meet the budget.
+
+    Evidence bullets, source URLs, numeric claims, section titles, leads,
+    management implications, takeaways and actions are immutable. Paragraph
+    count is unchanged, and every removal is checked against the publication
+    floor for both its paragraph and section. If those constraints leave no
+    safe candidate, the report remains over budget and the normal gate fails.
+    """
+
+    if not isinstance(report, dict):
+        return 0, 0
+    before = _word_count(_report_narrative_text(report))
+    current = before
+    if current <= max_words:
+        return before, current
+
+    protected = re.compile(
+        r"https?://|\[Chunk:|\b(?:WEB-E|RAG-E|E)\d+\b|\d",
+        re.I,
+    )
+    semantic_guard = re.compile(
+        r"\b(?:because|therefore|however|although|unless|counter|risk|"
+        r"management|leadership|board|should|must|decision|implication)\b|"
+        r"因为|因此|但是|然而|除非|反例|风险|管理层|领导|董事会|应当|必须|决策|意味着",
+        re.I,
+    )
+
+    while current > max_words:
+        candidates: List[tuple[tuple[int, int, int, int], int, int, int, List[str]]] = []
+        for section_index, section in enumerate(report.get("sections", []) or []):
+            if not isinstance(section, dict):
+                continue
+            paragraphs = section.get("paragraphs")
+            if not isinstance(paragraphs, list) or not 3 <= len(paragraphs) <= 6:
+                continue
+            section_words = _word_count(" ".join([
+                str(section.get("lead") or ""),
+                *(str(item or "") for item in paragraphs),
+                str(section.get("so_what") or ""),
+            ]))
+            for paragraph_index, paragraph in enumerate(paragraphs):
+                sentences = _compression_sentences(paragraph)
+                if len(sentences) < 2:
+                    continue
+                for sentence_index, sentence in enumerate(sentences[1:], start=1):
+                    sentence_words = _word_count(sentence)
+                    if sentence_words < 8 or protected.search(sentence):
+                        continue
+                    remaining = sentences[:sentence_index] + sentences[sentence_index + 1:]
+                    remaining_paragraph = _compression_join(remaining)
+                    if _word_count(remaining_paragraph) < min_paragraph_words:
+                        continue
+                    if section_words - sentence_words < min_section_words:
+                        continue
+                    if current - sentence_words < min_words:
+                        continue
+                    sentence_tokens = _evidence_relevance_tokens(sentence)
+                    retained_tokens = _evidence_relevance_tokens(" ".join(remaining))
+                    overlap = len(sentence_tokens & retained_tokens)
+                    excess = current - max_words
+                    candidates.append((
+                        (
+                            1 if semantic_guard.search(sentence) else 0,
+                            -overlap,
+                            abs(excess - sentence_words),
+                            -sentence_words,
+                        ),
+                        section_index,
+                        paragraph_index,
+                        sentence_index,
+                        sentences,
+                    ))
+        if not candidates:
+            break
+        _rank, section_index, paragraph_index, sentence_index, sentences = min(candidates)
+        remaining = sentences[:sentence_index] + sentences[sentence_index + 1:]
+        report["sections"][section_index]["paragraphs"][paragraph_index] = _compression_join(remaining)
+        current = _word_count(_report_narrative_text(report))
+
+    return before, current
+
 CLIENT_TEXT_REPLACEMENTS: Tuple[Tuple[str, str], ...] = (
     (r"\bThis analysis is based on a structured research plan with [^.]+?hypotheses?, each tested against publicly available evidence from\b", "This analysis draws on publicly available evidence from"),
     (r"\bMarket sizing should be built as a bridge, not a single TAM claim\b", "Build the opportunity case from demand, adoption, economics and constraints"),

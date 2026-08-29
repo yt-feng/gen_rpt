@@ -24,6 +24,7 @@ from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merg
 from .web_publication_contract import (
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
+    compress_report_to_word_budget,
     convert_evidence_to_human_readable,
     ground_rag_section_evidence,
     normalize_report_section_prose,
@@ -404,6 +405,13 @@ class WebReportPipeline:
                 )
             if quality_issues:
                 # Automatic remediation: prune unsupported claims and re-normalize
+                if any("reader-visible decision brief" in issue for issue in quality_issues):
+                    before_words, after_words = compress_report_to_word_budget(report)
+                    if after_words < before_words:
+                        self._log(
+                            "PHASE synthesis deterministic compression "
+                            f"| words={before_words}->{after_words}"
+                        )
                 prune_unsupported_numeric_claims(report, grounding_text)
                 normalize_report_section_prose(report)
                 report, quality_issues = self._prepare_report_draft(
@@ -930,6 +938,44 @@ class WebReportPipeline:
         source_chunks: Dict[str, str],
         approved_evidence: List[Dict[str, Any]],
     ) -> tuple[Dict[str, Any], List[str]]:
+        if any("reader-visible decision brief" in issue for issue in issues):
+            before_words, after_words = compress_report_to_word_budget(report)
+            if after_words < before_words:
+                self._log(
+                    "PHASE final_quality deterministic compression "
+                    f"| words={before_words}->{after_words}"
+                )
+                report, _ = self._prepare_report_draft(
+                    report,
+                    topic=topic,
+                    grounding_text=grounding_text,
+                    source_count=source_count,
+                    source_chunks=source_chunks,
+                    approved_evidence=approved_evidence,
+                )
+                report = normalize_web_report(
+                    report,
+                    topic=topic,
+                    language=self.language,
+                    allow_synthetic_fallbacks=not bool(self.rag_context),
+                )
+                normalize_report_section_prose(report)
+                issues = (
+                    rag_report_quality_issues(
+                        report,
+                        topic=topic,
+                        context_text=grounding_text,
+                        source_count=source_count,
+                        source_chunks=source_chunks,
+                    )
+                    if self.rag_context
+                    else report_content_quality_issues(
+                        report,
+                        topic=topic,
+                        context_text=grounding_text,
+                        source_count=source_count,
+                    )
+                )
         for attempt in range(1, 4):
             if not issues:
                 break

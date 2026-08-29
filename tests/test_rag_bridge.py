@@ -29,6 +29,7 @@ from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
+    compress_report_to_word_budget,
     ground_rag_section_evidence,
     normalize_report_section_prose,
     prune_unsupported_numeric_claims,
@@ -36,6 +37,8 @@ from gen_rpt.web_publication_contract import (
     rag_report_quality_issues,
     rag_rendered_output_issues,
     rag_visible_numbers_supported,
+    _report_narrative_text,
+    _word_count,
 )
 from gen_rpt.web_report_pipeline import WebReportPipeline
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html
@@ -618,6 +621,41 @@ class RAGBridgeTests(unittest.TestCase):
             "https://www.sec.gov/data-research/sec-markets-data/form-13f-data-sets"
         ])
 
+    @patch("gen_rpt.web_fetch._search_bing")
+    @patch("gen_rpt.web_fetch._search_duckduckgo")
+    def test_fallback_search_drops_single_generic_word_matches(self, duckduckgo, bing):
+        duckduckgo.__name__ = "_search_duckduckgo"
+        bing.__name__ = "_search_bing"
+        duckduckgo.return_value = [
+            SearchResult(
+                title="Consensus definition",
+                url="https://dictionary.example/consensus",
+                snippet="A definition of consensus.",
+                query="analyst consensus accuracy stock returns valuation",
+            ),
+            SearchResult(
+                title="Analyst consensus forecasts and stock returns",
+                url="https://nber.org/papers/example",
+                snippet="Research on forecast accuracy, valuation, and subsequent returns.",
+                query="analyst consensus accuracy stock returns valuation",
+            ),
+        ]
+        bing.return_value = []
+
+        with patch.dict(
+            os.environ,
+            {"TAVILY_API_KEY": "", "SEARXNG_URL": ""},
+            clear=False,
+        ):
+            results = search_web(
+                "analyst consensus accuracy stock returns valuation",
+                max_results=5,
+            )
+
+        self.assertEqual([result.url for result in results], [
+            "https://nber.org/papers/example"
+        ])
+
     def test_missing_section_evidence_is_backfilled_only_from_approved_ledger(self):
         report = {
             "sections": [{
@@ -684,6 +722,93 @@ class RAGBridgeTests(unittest.TestCase):
         backfill_section_evidence_from_ledger(report, approved)
 
         self.assertEqual(report["sections"][0]["evidence"], ["One item."])
+
+    def test_deterministic_compression_preserves_protected_report_contract(self):
+        protected = (
+            "In 2025, the retained source recorded 68 percent as the validated baseline, "
+            "so this numeric claim and its source meaning must remain unchanged."
+        )
+        redundant = (
+            "The surrounding discussion repeats the same descriptive context in greater detail "
+            "without adding a number, citation, causal qualification, or new direction "
+            "that changes the supported conclusion for the reader."
+        )
+        sections = []
+        for index in range(6):
+            sections.append({
+                "title": f"Validated positioning evidence supports a bounded decision in segment {index}",
+                "lead": "The retained sources establish a conclusion while preserving the limits of the available record for management review.",
+                "paragraphs": [
+                    " ".join([protected, redundant, redundant, redundant])
+                    for _paragraph in range(5)
+                ],
+                "evidence": [
+                    "The 2025 baseline is retained — Source A (https://example.com/a).",
+                    "The independent comparison is retained — Source B (https://example.com/b).",
+                ],
+                "so_what": (
+                    "Management should keep the decision conditional, assign a named owner, "
+                    "and preserve a documented pause gate until the remaining operating evidence "
+                    "has been independently verified and accepted."
+                ),
+            })
+        report = {
+            "title": "Validated evidence supports a bounded consensus-positioning decision",
+            "dek": "A source-linked management brief.",
+            "intro": ["The report separates retained facts from descriptive repetition."],
+            "key_takeaways": ["One grounded takeaway.", "A second grounded takeaway.", "A third grounded takeaway."],
+            "sections": sections,
+            "action_steps": [
+                {
+                    "horizon": "Decision gate",
+                    "action": "Verify the retained operating condition.",
+                    "success_metric": "A documented pass or pause decision.",
+                    "rationale": "The retained evidence supports action only after the accountable owner confirms the operating condition.",
+                }
+                for _index in range(4)
+            ],
+        }
+        evidence_before = [list(section["evidence"]) for section in sections]
+        implications_before = [section["so_what"] for section in sections]
+        actions_before = [dict(action) for action in report["action_steps"]]
+        numeric_mentions = _report_narrative_text(report).count("2025")
+
+        before, after = compress_report_to_word_budget(report)
+
+        self.assertGreater(before, 3_800)
+        self.assertLessEqual(after, 3_650)
+        self.assertGreaterEqual(after, 1_800)
+        self.assertEqual(_report_narrative_text(report).count("2025"), numeric_mentions)
+        self.assertEqual([section["evidence"] for section in sections], evidence_before)
+        self.assertEqual([section["so_what"] for section in sections], implications_before)
+        self.assertEqual(report["action_steps"], actions_before)
+        for section in sections:
+            self.assertTrue(3 <= len(section["paragraphs"]) <= 6)
+            self.assertTrue(all(_word_count(item) >= 35 for item in section["paragraphs"]))
+            section_words = _word_count(" ".join([
+                section["lead"],
+                *section["paragraphs"],
+                section["so_what"],
+            ]))
+            self.assertGreaterEqual(section_words, 200)
+
+    def test_deterministic_compression_keeps_gate_closed_when_only_evidence_is_long(self):
+        report = {
+            "sections": [{
+                "lead": "Protected lead.",
+                "paragraphs": [
+                    "In 2025, 68 validated observations remain protected in this paragraph. " * 4
+                    for _index in range(3)
+                ],
+                "evidence": ["https://example.com/source " + "validated evidence " * 1_000],
+                "so_what": "Management should preserve the decision gate because the evidence remains protected.",
+            }],
+        }
+
+        before, after = compress_report_to_word_budget(report, max_words=500, min_words=0)
+
+        self.assertEqual(after, before)
+        self.assertGreater(after, 500)
 
     def test_deterministic_exhibits_do_not_repeat_existing_rag_facts(self):
         fact = "The validated investment is $45.5 million."
