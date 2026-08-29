@@ -1,0 +1,400 @@
+{
+  "objective": "Assess the market outlook, yield economics, and geopolitical supply chain risks for HBM4/HBM4E and CoWoS advanced packaging in AI accelerators from 2026 to 2032, using the provided document as the primary source of truth and supplementing with external context.",
+  "audience": "Senior semiconductor industry strategists, AI infrastructure investors, and supply chain risk managers.",
+  "decision_question": "Should we invest in or expand capacity for HBM4/HBM4E and CoWoS packaging, and how should we mitigate geopolitical supply chain risks over the next six years?",
+  "issue_tree": {
+    "market_forecast": {
+      "demand_drivers": [
+        "AI accelerator adoption in data centers",
+        "Increasing memory bandwidth requirements for large language models",
+        "HBM4/HBM4E adoption timeline"
+      ],
+      "supply_side": [
+        "HBM supplier landscape (SK hynix, Samsung, Micron)",
+        "CoWoS capacity expansion by TSMC and competitors",
+        "Yield ramp and learning curve effects"
+      ],
+      "market_size": [
+        "Revenue projections for HBM and CoWoS",
+        "Unit shipment forecasts"
+      ]
+    },
+    "yield_economics": {
+      "yield_factors": [
+        "Stacking complexity and thermal management",
+        "Test and repair strategies",
+        "Material and process innovations"
+      ],
+      "cost_structure": [
+        "Capital expenditure for fabs and packaging lines",
+        "Cost per bit and cost per package",
+        "Impact of yield on profitability"
+      ]
+    },
+    "geopolitical_supply_chain_risks": {
+      "export_controls": [
+        "US restrictions on advanced memory and packaging to China",
+        "Potential retaliatory measures"
+      ],
+      "supply_concentration": [
+        "Dependence on Taiwan for CoWoS",
+        "Dependence on South Korea for HBM"
+      ],
+      "mitigation_strategies": [
+        "Diversification of manufacturing bases",
+        "Stockpiling and alternative suppliers"
+      ]
+    }
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "HBM4/HBM4E will become the dominant memory technology for AI accelerators by 2028, driven by demand for higher bandwidth and capacity.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "CoWoS packaging will remain a critical bottleneck, with capacity constraints persisting through 2026-2027, but yield improvements will ease supply by 2028.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Yield rates for HBM4 will initially be lower than HBM3E, but will improve rapidly with process maturity, impacting cost per package.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Geopolitical risks, particularly US-China tensions and Taiwan's centrality, will drive supply chain diversification and reshoring efforts.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The market will see a shift towards more integrated packaging solutions, potentially reducing the need for standalone CoWoS.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Historical and projected HBM market size and growth rates",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "CoWoS capacity and utilization rates from TSMC and competitors",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Yield data for HBM4 and CoWoS from industry reports",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "Export control regulations and their impact on HBM and packaging",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "Investment announcements for new fabs and packaging lines",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "AI accelerator shipment forecasts and memory requirements",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D1",
+      "metric": "Market size",
+      "decision_use": "Quantify TAM/SAM before writing a growth claim.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks market size forecast data"
+      ]
+    },
+    {
+      "id": "D2",
+      "metric": "Demand volume",
+      "decision_use": "Cross-check revenue pools with physical or usage demand.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks demand volume official data"
+      ]
+    },
+    {
+      "id": "D3",
+      "metric": "Customer or user count",
+      "decision_use": "Build a bottom-up buyer base.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks customer count users"
+      ]
+    },
+    {
+      "id": "D4",
+      "metric": "Adoption or penetration rate",
+      "decision_use": "Estimate realistic conversion from demand to revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks adoption rate penetration"
+      ]
+    },
+    {
+      "id": "D5",
+      "metric": "Price, ARPU or ASP",
+      "decision_use": "Turn demand units into revenue.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks price ARPU ASP"
+      ]
+    },
+    {
+      "id": "D6",
+      "metric": "Cost, CAPEX or OPEX",
+      "decision_use": "Test whether the opportunity can earn attractive economics.",
+      "preferred_sources": [
+        "official data",
+        "filings",
+        "annual reports",
+        "industry association",
+        "credible research"
+      ],
+      "search_queries": [
+        "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks cost CAPEX OPEX"
+      ]
+    }
+  ],
+  "search_queries": [
+    "HBM4 market forecast 2026 2032",
+    "CoWoS capacity expansion TSMC 2026",
+    "HBM4 yield rate improvement",
+    "AI accelerator memory bandwidth requirements 2026",
+    "US export controls advanced memory packaging China",
+    "HBM supply chain geopolitical risks",
+    "Advanced packaging market size 2026 2032",
+    "HBM4E specifications and adoption timeline",
+    "TSMC CoWoS bottleneck AI chips",
+    "SK hynix Samsung Micron HBM4 roadmap",
+    "Semiconductor packaging yield economics",
+    "Supply chain diversification semiconductor packaging"
+  ],
+  "source_strategy": "Prioritize industry reports from reputable firms (e.g., Gartner, Yole, TrendForce), official company announcements, government regulatory documents, and academic papers. Cross-reference data from multiple sources to ensure accuracy. Use the provided document as the primary source for any facts about the 2026 China floods, but do not use it for semiconductor-specific data.",
+  "outline": [
+    "HBM4/HBM4E Will Dominate AI Accelerator Memory by 2028, Driving a $XX Billion Market",
+    "CoWoS Packaging Remains a Critical Bottleneck, but Capacity Expansion and Yield Improvements Will Ease Supply by 2027",
+    "Yield Economics: HBM4 Initial Yields Will Be Lower, but Rapid Learning Curves Will Reduce Costs by 2028",
+    "Geopolitical Risks: US-China Tensions and Taiwan's Centrality Will Force Supply Chain Diversification",
+    "Investment Implications: Prioritize Companies with Strong Yield Management and Diversified Manufacturing",
+    "Counter-Evidence and Risks: Potential Technology Shifts and Regulatory Changes Could Alter the Outlook"
+  ],
+  "exhibit_ideas": [
+    "Chart: HBM4/HBM4E market size forecast (2026-2032) with scenario analysis",
+    "Table: CoWoS capacity and utilization rates by supplier (2026-2032)",
+    "Graph: Yield learning curves for HBM generations (HBM2E, HBM3E, HBM4)",
+    "Map: Geopolitical risk heatmap for HBM and CoWoS supply chain",
+    "Sensitivity analysis: Impact of yield variations on cost per package",
+    "Comparison: HBM4 vs. alternative memory technologies (e.g., CXL, MRAM)"
+  ],
+  "risks": [
+    "The provided document contains no semiconductor-specific data; all semiconductor facts must come from external sources, which may introduce bias or inaccuracies.",
+    "Market forecasts are inherently uncertain, especially over a six-year horizon.",
+    "Geopolitical events could escalate unpredictably, affecting supply chains.",
+    "Technological breakthroughs could disrupt the HBM/CoWoS market.",
+    "Yield improvements may not follow historical trends due to increased complexity."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks total market size segment share",
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks customer count price ARPU",
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks pilot customer conversion",
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks ROI cost savings case study",
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks capacity utilization unit price",
+          "Next-Generation High-Bandwidth Memory (HBM4/HBM4E) and Advanced Packaging (CoWoS) Bottlenecks in AI Accelerators: 2026–2032 Market Forecast, Yield Economics, and Geopolitical Supply Chain Risks project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "critical_evidence_required": [
+    {
+      "id": "BASE-1",
+      "description": "Product-specific demand: procurement records, tenders, RFPs, orders, or contracts for the specific product category in the target market",
+      "type": "demand_signal",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-2",
+      "description": "Identifiable customer or procurement route: named buyer, procurement channel, or comparable contract in the target geography",
+      "type": "customer",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-3",
+      "description": "Competitive alternatives: named competing products, services, or suppliers with at least one comparable data point",
+      "type": "competition",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-4",
+      "description": "Indicative commercial economics: pricing, contract value, margin, or cost benchmark from a comparable transaction or product",
+      "type": "financial",
+      "required_for": "invest"
+    }
+  ]
+}

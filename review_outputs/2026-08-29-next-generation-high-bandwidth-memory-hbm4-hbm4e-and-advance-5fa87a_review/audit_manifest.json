@@ -1,0 +1,24 @@
+{
+  "review_timestamp": "2026-08-29T19:17:05.741861Z",
+  "report_title": "HBM4/CoWoS Investment Report: Yield Gains, Capacity Dynamics, and Geopolitical Risks (2026–2032)",
+  "report_path": "/home/runner/work/gen_rpt/gen_rpt/reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/report.md",
+  "overall_score": 89,
+  "grade": "Silver",
+  "total_claims": 15,
+  "high_risk_claims": 0,
+  "unsupported_claims": 0,
+  "improvement_tasks": 10,
+  "minister_ready": false,
+  "board_ready": false,
+  "swf_ready": false,
+  "output_dir": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews",
+  "files": {
+    "review_json": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/review.json",
+    "review_md": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/review.md",
+    "review_html": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/review.html",
+    "claims_json": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/claims.json",
+    "findings_json": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/findings.json",
+    "scores_json": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/scores.json",
+    "audit_manifest": "reports_web/2026-08-29-next-generation-high-bandwidth-memory-hbm4-hbm4e-and-advance-5fa87a/reviews/audit_manifest.json"
+  }
+}

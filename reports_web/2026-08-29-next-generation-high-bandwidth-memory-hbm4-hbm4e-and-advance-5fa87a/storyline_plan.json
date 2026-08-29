@@ -1,0 +1,128 @@
+{
+  "report_archetype": "market_investment",
+  "selected_modules": [
+    "source and forecast comparison",
+    "base, upside and downside scenarios",
+    "sensitivity drivers",
+    "segment and micro-market implications",
+    "investment recommendations"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "Should we invest in or expand capacity for HBM4/HBM4E and CoWoS packaging, and how should we mitigate geopolitical supply chain risks over the next six years?",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: market, timeline, adoption, capacity",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "Simultaneous 80% yield attainment by both Samsung and SK Hynix on HBM4 structurally increases effective wafer output without new fab capacity, which should compress per-unit HBM cost and modestly relieve the chronic supply tightness that has inflated AI accelerator BOMs since 2024 — however, with 2027 capacity already fully booked per industry sources, near-",
+    "Key Topics Covered: Chapter 1 - The Global DRAM Market Overview 1.1 DRAM Market Overview and Macro Drivers 1.2 AI Supercycle and the Road to $400B 1.3 DRAM Market Cyclicality - Historical Perspective (1982-2026) 1.4 Market Segmentation: Conventional DRAM vs",
+    "According to Economic Daily News , institutional investors said that as TSMC and its partners aggressively build out new advanced packaging capacity, the CoWoS supply-demand gap is expected to narrow significantly from around 20% currently to about 10% by the end of 2026, with conditions likely to improve further in 2027.",
+    "According to Economic Daily News , institutional investors said that as TSMC and its partners aggressively build out new advanced packaging capacity, the CoWoS supply-demand gap is expected to narrow significantly from around 20% currently to about 10% by the end of 2026, with conditions likely to improve further in 2027.",
+    "TSMC's CoWoS capacity expansion and allocation has emerged as a key leading indicator for global AI GPU and AI ASIC revenue, with the company planning to expand CoWoS capacity another 80% y/y, to around 125kwpm by 2026, reinforcing its pivotal role in driving semiconductor industry capacity and revenue growth",
+    "Our Morgan Stanley Greater China Semiconductor team expects SMIC's leading-edge fab expansion to gradually remove the equipment bottleneck, and forecasts it to further raise China's local GPU self-sufficiency ratio from 27% in 2025 to 39% in 2026E"
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "HBM4/HBM4E will become the dominant memory technology for AI accelerators by 2028, driven by demand for higher bandwidth and capacity.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "CoWoS packaging will remain a critical bottleneck, with capacity constraints persisting through 2026-2027, but yield improvements will ease supply by 2028.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Yield rates for HBM4 will initially be lower than HBM3E, but will improve rapidly with process maturity, impacting cost per package.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Geopolitical risks, particularly US-China tensions and Taiwan's centrality, will drive supply chain diversification and reshoring efforts.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "The market will see a shift towards more integrated packaging solutions, potentially reducing the need for standalone CoWoS.",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

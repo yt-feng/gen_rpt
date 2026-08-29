@@ -1,0 +1,28 @@
+Title: [News] TSMC CoWoS Supply-Demand Gap Reportedly Seen ...
+URL: https://www.trendforce.com/news/2026/06/15/news-tsmc-cowos-supply-demand-gap-reportedly-seen-narrowing-from-20-to-10-by-end-2026-as-capacity-expands/
+Source Type: html
+Domain: trendforce.com
+Content Type: text/html; charset=UTF-8
+Search Query: CoWoS capacity expansion TSMC 2026
+
+[News] TSMC CoWoS Supply-Demand Gap Reportedly Seen Narrowing from 20% to 10% by End-2026
+
+[News] TSMC CoWoS Supply-Demand Gap Reportedly Seen Narrowing from 20% to 10% by End-2026
+TrendForce News operates independently from our research team, curating key semiconductor and tech updates to support timely, informed decisions.
+TSMC continues to accelerate its advanced packaging capacity expansion, helping move the industry closer to supply-demand balance. According to Economic Daily News , institutional investors said that as TSMC and its partners aggressively build out new advanced packaging capacity, the CoWoS supply-demand gap is expected to narrow significantly from around 20% currently to about 10% by the end of 2026, with conditions likely to improve further in 2027.
+A key driver of this capacity expansion is the rapid buildout of the CoWoS family. The report estimates that TSMC’s monthly CoWoS capacity could reach a record 120,000 to 140,000 wafers in 2026. Including an additional 50,000 to 60,000 wafers of new capacity from OSAT partners, total industry capacity could approach 200,000 wafers per month.
+The anticipated capacity additions are expected to help ease industry bottlenecks. TrendForce expects the severe shortage of global 2.5D packaging capacity to begin moderating by 2027, supported by order spillover and TSMC’s plan to expand CoWoS capacity by more than 60% by 2027.
+Underscoring the scale of that expansion, TSMC forecast during its Taiwan Technology Symposium in May that CoWoS advanced packaging capacity will achieve a CAGR of more than 80% from 2022 to 2027, according to Reuters .
+Meanwhile, as reticle sizes continue to expand, TSMC is also advancing its next-generation advanced packaging platform, CoPoS (Chip-on-Panel-on-Substrate). Commercial Times notes that TSMC established an R&D production line for CoPoS at its subsidiary VisEra in 2025. Material and equipment qualification is expected to be completed as early as June 2026, with pilot production targeted for mid-2027.
+According to TrendForce on Substack , NVIDIA’s Feynman platform is expected to be the first customer to adopt the technology. The platform is projected to enter full-scale mass production between 2028 and 2029, with major deployment planned at the company’s Chiayi facilities and its Arizona fabs in the U.S.
+Research Report Research Directory Semiconductor Research Display Research Optoelectronics Research Green Energy Research ICT Applications Research Semiconductors DRAM NAND Flash MLCC Wafer Foundries Compound Semiconductor AI/HBM/Server Display LCD OLED Upstream Components Panel Industry Display Supply Chain Display Technologies LED LED Demand / Supply Database Micro/Mini LED Near-Eye Display LED Video Wall Automotive LED - Lighting and Display General / Agricultural Lighting UV LED Infrared Sensing - IR LED / VCSEL / EEL Sapphire Market Energy Solar PV Lithium Battery and Energy Storage Consumer Electronics Notebook Computers TVs Smartphones Tablets Monitors / AIO Emerging Technologies Cloud / Edge Computing Artificial Intelligence Automotive Technologies Robot Selected Topics Semiconductors Telecommunications Computer System Consumer Electronics Automotive & EV Green Energy & Storage Display Panel & LED Economics
+Membership Semiconductor Research Display Research Optoelectronics Research Green Energy Research ICT Applications Research Selected Topics
+Price Trends DRAM (Index) DRAM Spot Price DRAM Contract Price Module Spot Price GDDR Spot Price LPDDR Spot Price Mobile DRAM Contract Price NAND Flash NAND Flash Spot Price NAND Flash Contract Price Wafer Spot Price Memory Card Spot Price PC-Client OEM SSD Contract Price SSD Street Price NAND Flash Wafer Contract Price eMMC Spot Price eMMC/UFS Contract Price TFT-LCD (Index) Large Size Panel Price LCD Smartphone Panel Price Street Price Large Size Panel Shipment PV Polysilicon Wafer Cell Module PV Glass Li-Ion Battery Battery Cell & Pack Precursor and Cathode Material Anode Material Separator Electrolyte Li & Co & Ni Other
+DRAM (Index) DRAM Spot Price DRAM Contract Price Module Spot Price GDDR Spot Price LPDDR Spot Price Mobile DRAM Contract Price
+NAND Flash NAND Flash Spot Price NAND Flash Contract Price Wafer Spot Price Memory Card Spot Price PC-Client OEM SSD Contract Price SSD Street Price NAND Flash Wafer Contract Price eMMC Spot Price eMMC/UFS Contract Price
+TFT-LCD (Index) Large Size Panel Price LCD Smartphone Panel Price Street Price Large Size Panel Shipment
+PV Polysilicon Wafer Cell Module PV Glass
+Li-Ion Battery Battery Cell & Pack Precursor and Cathode Material Anode Material Separator Electrolyte Li & Co & Ni Other
+[News] TSMC Sees AI Wafer Demand Rising 11x From 2022–2026, Targets CoWoS With 24 HBM Stacks in 2029
+[News] TSMC Says CoWoS Offers Industry’s Largest Packaging Amid Intel EMIB Rivalry; CoPoS Advances
+© 2026 TrendForce Corp. All rights reserved

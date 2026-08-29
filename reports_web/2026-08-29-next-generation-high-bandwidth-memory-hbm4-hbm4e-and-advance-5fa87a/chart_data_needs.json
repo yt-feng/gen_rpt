@@ -1,0 +1,217 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "HBM Market Size Forecast by Generation (2026-2032)",
+    "chart_type": "line",
+    "executive_question": "How will the HBM market evolve across generations from 2026 to 2032?",
+    "required_metrics": [
+      "HBM market revenue by generation (HBM3E, HBM4, HBM4E) for years 2026-2032 (USD billions)",
+      "HBM unit shipments by generation (millions of units) for years 2026-2032",
+      "Average selling price (ASP) per HBM unit by generation (USD) for years 2026-2032"
+    ],
+    "comparison_set": [
+      "HBM3E vs HBM4 vs HBM4E"
+    ],
+    "preferred_sources": [
+      "TrendForce",
+      "Yole Développement",
+      "Gartner",
+      "SK hynix, Samsung, Micron annual reports"
+    ],
+    "search_queries": [
+      "HBM market size forecast 2026 2032 by generation",
+      "HBM4 HBM4E revenue forecast 2026 2032",
+      "HBM unit shipment forecast 2026 2032"
+    ],
+    "data_quality_rule": "Use annual data points from the same source for consistency. If only two endpoints are available, apply a transparent CAGR and mark intermediate values as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the overall market opportunity and the shift from HBM3E to HBM4/HBM4E.",
+    "pre_exhibit_context": "The report argues that HBM4/HBM4E will dominate AI accelerator memory by 2028, but we need to quantify the market size and adoption timeline.",
+    "post_exhibit_takeaway": "The HBM market is projected to grow from $X billion in 2026 to $Y billion by 2032, with HBM4/HBM4E accounting for the majority of revenue by 2028."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "CoWoS Capacity and Utilization by Supplier (2026-2032)",
+    "chart_type": "line",
+    "executive_question": "How will CoWoS capacity and utilization evolve across suppliers from 2026 to 2032?",
+    "required_metrics": [
+      "CoWoS monthly capacity (in 300mm wafer equivalents) for TSMC, Samsung, and others for years 2026-2032",
+      "CoWoS utilization rate (%) for each supplier for years 2026-2032",
+      "CoWoS capacity expansion announcements (additional wafers per month) with year"
+    ],
+    "comparison_set": [
+      "TSMC vs Samsung vs Others"
+    ],
+    "preferred_sources": [
+      "TSMC quarterly earnings reports",
+      "TrendForce",
+      "Samsung foundry announcements",
+      "Industry news (DigiTimes, Tom's Hardware)"
+    ],
+    "search_queries": [
+      "TSMC CoWoS capacity 2026 2032 forecast",
+      "CoWoS capacity expansion 2026 2027 2028",
+      "CoWoS utilization rate 2026 2032"
+    ],
+    "data_quality_rule": "Use official company announcements for capacity figures. If utilization rates are not disclosed, estimate based on demand forecasts and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the CoWoS bottleneck and the impact of capacity expansion on supply availability.",
+    "pre_exhibit_context": "The report claims CoWoS packaging will remain a critical bottleneck through 2026-2027, but capacity expansion will ease supply by 2028. We need to show the capacity trajectory.",
+    "post_exhibit_takeaway": "TSMC's CoWoS capacity is expected to grow from X thousand wafers per month in 2026 to Y thousand by 2032, with utilization rates remaining above 90% until 2028."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "Yield Learning Curves for HBM Generations",
+    "chart_type": "line",
+    "executive_question": "How do HBM4 yields compare to previous generations over time?",
+    "required_metrics": [
+      "HBM yield rate (%) for HBM2E, HBM3E, HBM4 for years 2020-2032 (annual data points)",
+      "Yield improvement rate (percentage points per year) for each generation",
+      "Time to reach mature yield (years from start of production)"
+    ],
+    "comparison_set": [
+      "HBM2E vs HBM3E vs HBM4"
+    ],
+    "preferred_sources": [
+      "Industry reports (Yole, TechInsights)",
+      "Academic papers on HBM yield",
+      "Company statements (SK hynix, Samsung, Micron)"
+    ],
+    "search_queries": [
+      "HBM yield rate HBM3E HBM4 2026 2027 2028",
+      "HBM yield learning curve",
+      "HBM4 yield improvement forecast"
+    ],
+    "data_quality_rule": "Use historical yield data for HBM2E/HBM3E from credible sources. For HBM4, use analyst forecasts and mark as estimates. Ensure at least 4 annual data points per generation.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Supports the yield economics argument by showing the expected yield ramp for HBM4 relative to HBM3E.",
+    "pre_exhibit_context": "The report hypothesizes that HBM4 initial yields will be lower but improve rapidly. We need to visualize the yield learning curve.",
+    "post_exhibit_takeaway": "HBM4 yields are expected to start at X% in 2026 and improve to Y% by 2028, following a similar learning curve to HBM3E but with a steeper ramp."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Geopolitical Risk Heatmap for HBM and CoWoS Supply Chain",
+    "chart_type": "bubble",
+    "executive_question": "Which regions pose the highest geopolitical risk to HBM and CoWoS supply chains?",
+    "required_metrics": [
+      "HBM production share by country (South Korea, US, etc.) for 2026 (percentage)",
+      "CoWoS production share by country (Taiwan, US, etc.) for 2026 (percentage)",
+      "Geopolitical risk index score by country (e.g., from World Bank, Economist Intelligence Unit) for 2026",
+      "Supply chain concentration (e.g., Herfindahl-Hirschman Index) for HBM and CoWoS"
+    ],
+    "comparison_set": [
+      "Countries: Taiwan, South Korea, US, Japan, China, others"
+    ],
+    "preferred_sources": [
+      "World Bank Governance Indicators",
+      "EIU Country Risk Service",
+      "TrendForce for production shares",
+      "Company announcements on fab locations"
+    ],
+    "search_queries": [
+      "HBM production share by country 2026",
+      "CoWoS production share by country 2026",
+      "geopolitical risk index semiconductor supply chain 2026"
+    ],
+    "data_quality_rule": "Use official or widely cited risk indices. Production shares should be based on actual capacity data from industry reports. If risk index is not available, use a qualitative assessment and mark as such.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Visualizes the concentration of supply and the risk exposure across regions.",
+    "pre_exhibit_context": "The report argues that geopolitical risks, particularly US-China tensions and Taiwan's centrality, will drive supply chain diversification. We need to show the risk landscape.",
+    "post_exhibit_takeaway": "Taiwan and South Korea are high-risk, high-supply-concentration regions, while the US and Japan offer lower risk but limited current capacity."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "HBM and CoWoS Market Size by Segment (2026-2032)",
+    "chart_type": "bar",
+    "executive_question": "What is the market size for HBM and CoWoS by application segment?",
+    "required_metrics": [
+      "HBM revenue by segment (data center AI accelerators, HPC, networking, others) for years 2026, 2028, 2030, 2032 (USD billions)",
+      "CoWoS revenue by segment (same segments) for years 2026, 2028, 2030, 2032 (USD billions)",
+      "AI accelerator unit shipments by segment (millions of units) for years 2026-2032"
+    ],
+    "comparison_set": [
+      "Segments: Data center AI accelerators, HPC, Networking, Others"
+    ],
+    "preferred_sources": [
+      "TrendForce",
+      "Yole",
+      "Gartner",
+      "IDC"
+    ],
+    "search_queries": [
+      "HBM market by application 2026 2032",
+      "CoWoS market by application 2026 2032",
+      "AI accelerator shipment forecast 2026 2032"
+    ],
+    "data_quality_rule": "Use consistent segment definitions across sources. If segment splits are not available, use top-down estimates and mark as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Breaks down the market opportunity by end-use segment (data center AI accelerators, HPC, etc.) to inform investment decisions.",
+    "pre_exhibit_context": "The report needs to quantify the demand drivers for HBM and CoWoS. We need to show which segments will drive growth.",
+    "post_exhibit_takeaway": "Data center AI accelerators will account for over 80% of HBM and CoWoS demand by 2032, growing at a CAGR of X%."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "Investment and Capacity Expansion Timeline for HBM and CoWoS",
+    "chart_type": "timeline",
+    "executive_question": "What are the key investment and capacity expansion milestones for HBM and CoWoS from 2026 to 2032?",
+    "required_metrics": [
+      "Announced capacity expansion projects for HBM and CoWoS with start year and expected completion year",
+      "Investment amount (USD billions) for each project",
+      "Expected additional capacity (wafers per month or units per year) for each project"
+    ],
+    "comparison_set": [
+      "Companies: TSMC, SK hynix, Samsung, Micron, others"
+    ],
+    "preferred_sources": [
+      "Company press releases",
+      "Government investment announcements",
+      "Industry news (Reuters, Bloomberg)"
+    ],
+    "search_queries": [
+      "TSMC CoWoS capacity expansion 2026 2027 2028",
+      "SK hynix HBM4 investment 2026 2027",
+      "Samsung HBM4 fab investment 2026 2027"
+    ],
+    "data_quality_rule": "Use official announcements for project details. If exact dates are not available, use the year of announcement and expected production start.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows the timeline of capacity additions and investments to assess supply-side response.",
+    "pre_exhibit_context": "The report needs to evaluate the supply-side response to demand. We need to see when new capacity will come online.",
+    "post_exhibit_takeaway": "Major capacity expansions are expected from TSMC, SK hynix, and Samsung between 2026 and 2028, with significant investments in new fabs and packaging lines."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Cost per Package and Yield Sensitivity Analysis for HBM4",
+    "chart_type": "bar",
+    "executive_question": "How does yield variation impact the cost per HBM4 package?",
+    "required_metrics": [
+      "HBM4 cost per package (USD) at different yield levels (e.g., 50%, 60%, 70%, 80%, 90%) for a given year (e.g., 2026)",
+      "HBM4 manufacturing cost breakdown (materials, labor, depreciation, etc.) in USD per package",
+      "HBM4 ASP (USD) for comparison"
+    ],
+    "comparison_set": [
+      "Yield levels: 50%, 60%, 70%, 80%, 90%"
+    ],
+    "preferred_sources": [
+      "Industry cost models (e.g., IC Insights, SemiEngineering)",
+      "Academic papers on semiconductor cost modeling",
+      "Company financial reports (for cost structure)"
+    ],
+    "search_queries": [
+      "HBM4 cost per package yield sensitivity",
+      "HBM4 manufacturing cost breakdown",
+      "semiconductor packaging cost yield model"
+    ],
+    "data_quality_rule": "Use a transparent cost model based on public data. If exact cost data is not available, use estimates from industry experts and clearly label as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the economic impact of yield on HBM4 cost, supporting the yield economics argument.",
+    "pre_exhibit_context": "The report argues that yield improvements will reduce costs by 2028. We need to show the cost sensitivity to yield.",
+    "post_exhibit_takeaway": "A 10 percentage point improvement in yield can reduce cost per package by X%, making yield management critical for profitability."
+  }
+]

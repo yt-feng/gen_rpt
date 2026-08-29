@@ -1,0 +1,202 @@
+{
+  "strengths": [
+    {
+      "finding": "The report cites specific sources for the DRAM market forecast, providing a clear reference for the $400 billion projection.",
+      "location_ref": "Location -> [Market Forecast: DRAM Supercycle and HBM4 Adoption Trajectory] | Para 7 | \"Provides a market size anchor for the DRAM supercycle\"",
+      "severity": "Low"
+    },
+    {
+      "finding": "The report references multiple industry reports and news articles, enhancing the credibility of the yield and capacity expansion data.",
+      "location_ref": "Location -> [References] | Para 1 | \"[text.md (Fragment 9fc0f0c7)]\"",
+      "severity": "Low"
+    }
+  ],
+  "weaknesses": [
+    {
+      "finding": "The report includes a private document on climate resilience and climate-related disruptions, which is not directly related to the main analysis and does not serve as evidence.",
+      "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 4 | \"A private document on China's climate resilience\"",
+      "severity": "High"
+    },
+    {
+      "finding": "The report relies on supplementary web evidence for yield data, which is not as robust as primary data from industry reports.",
+      "location_ref": "Location -> [Yield Economics: HBM4 Yield Improvements and Cost Implications] | Para 3 | \"The private document does not provide\"",
+      "severity": "High"
+    }
+  ],
+  "data_gaps": [
+    {
+      "section": "Yield Economics: HBM4 Yield Improvements and Cost Implications",
+      "claim": "The private document does not provide semiconductor yield data, so this analysis relies on supplementary web evidence, which should be treated with caution.",
+      "location_ref": "Location -> [Yield Economics: HBM4 Yield Improvements and Cost Implications] | Para 3 | \"The private document does not provide\" -> \"so this analysis relies on supplementary web evidence\"",
+      "missing_data": [
+        "semiconductor yield data from the private document"
+      ],
+      "severity": "High"
+    },
+    {
+      "section": "Geopolitical Risks and Supply Chain Diversification",
+      "claim": "A private document on climate-related disasters in China is included as contextual background only; it is not directly related to semiconductor geopolitics and does not serve as evidence for geopolitical risk.",
+      "location_ref": "Location -> [Geopolitical Risks and Supply Chain Diversification] | Para 3 | \"A private document on climate-related disasters\" -> \"not directly related to semiconductor geopolitics\"",
+      "missing_data": [
+        "specific data on semiconductor supply chain disruptions due to climate-related events"
+      ],
+      "severity": "High"
+    }
+  ],
+  "weak_assumptions": [
+    {
+      "forecast_or_claim": "The adoption of HBM4 by 2028 is an assumption based on current trends, but technological shifts or alternative memory solutions could alter the trajectory.",
+      "location_ref": "Location -> [Market Forecast: DRAM Supercycle and HBM4 Adoption Trajectory] | Para 4 | \"The adoption of HBM4 by 2028\" -> \"could alter the trajectory\"",
+      "missing_evidence": "Specific data on the adoption rates of alternative memory solutions and potential technological shifts",
+      "severity": "High"
+    },
+    {
+      "forecast_or_claim": "China's local GPU self-sufficiency is projected to rise from 27% in 2025 to 39% in 2026, reshaping the competitive landscape.",
+      "location_ref": "Location -> [Geopolitical Risks and Supply Chain Diversification] | Para 2 | \"China is actively working to increase\" -> \"with forecasts showing a rise\"",
+      "missing_evidence": "Detailed projections and supporting data on China's GPU self-sufficiency efforts",
+      "severity": "High"
+    }
+  ],
+  "writing_flaws": [
+    {
+      "flaw_type": "repeated_phrase",
+      "example": "A private document on climate-related disruptions in China is included as contextual background only; it is not directly related to semiconductor packaging and does not serve as evidence for geopolitical risk.",
+      "location_ref": "Location -> [CoWoS Bottleneck: Capacity Expansion and Supply-Demand Dynamics] | Para 3 | \"A private document on climate-related disruptions\"",
+      "severity": "Medium",
+      "suggestion": "Consider removing or rephrasing the repeated contextual background statement."
+    },
+    {
+      "flaw_type": "vague_statement",
+      "example": "The validation-only approach recommends monitoring adoption metrics and market signals before committing significant capital, ensuring alignment with actual market developments.",
+      "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 5 | \"The validation-only approach recommends\"",
+      "severity": "Medium",
+      "suggestion": "Specify what adoption metrics and market signals to monitor."
+    }
+  ],
+  "narrative_gaps": [
+    {
+      "gap_type": "orphaned",
+      "finding": "The inclusion of climate resilience and climate-related disruptions in the report does not contribute to the main analysis and feels orphaned.",
+      "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 4 | \"A private document on China's climate resilience\"",
+      "severity": "High"
+    },
+    {
+      "gap_type": "weak_intro",
+      "finding": "The introduction lacks a clear and concise overview of the report's purpose and key findings, making it less engaging for the reader.",
+      "location_ref": "Location -> [HBM4/CoWoS Investment Report: Yield Gains, Capacity Dynamics, and Geopolitical Risks (2026–2032)] | Para 1 | \"A validation-only assessment of\"",
+      "severity": "Medium"
+    }
+  ],
+  "strategic_gaps": [
+    {
+      "gap_type": "missing_so_what",
+      "finding": "The report does not clearly articulate the strategic implications of the yield improvements and capacity expansions for investors and companies.",
+      "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 5 | \"The yield gains and capacity expansion\"",
+      "severity": "High"
+    },
+    {
+      "gap_type": "generic_recommendation",
+      "finding": "The investment recommendations are too generic and do not provide specific actionable steps for investors.",
+      "location_ref": "Location -> [Investment Recommendations: Validation-Only Approach] | Para 1 | \"Based on the evidence, we recommend\"",
+      "severity": "High"
+    },
+    {
+      "gap_type": "no_risk_opportunity_split",
+      "finding": "The report does not clearly separate the risks and opportunities, making it difficult for investors to assess the investment landscape.",
+      "location_ref": "Location -> [Investment Recommendations: Validation-Only Approach] | Para 1 | \"Based on the evidence, we recommend\"",
+      "severity": "High"
+    }
+  ],
+  "audience_relevance_gaps": [
+    {
+      "audience": "Minister",
+      "finding": "The report lacks a clear and concise summary of the strategic implications for government policy and regulatory actions.",
+      "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 5 | \"The yield gains and capacity expansion\"",
+      "severity": "High"
+    },
+    {
+      "audience": "Board",
+      "finding": "The report does not provide a detailed risk assessment and mitigation plan, which is crucial for board-level decision-making.",
+      "location_ref": "Location -> [Investment Recommendations: Validation-Only Approach] | Para 1 | \"Based on the evidence, we recommend\"",
+      "severity": "High"
+    },
+    {
+      "audience": "SWF",
+      "finding": "The report lacks specific investment opportunities and a clear risk-reward analysis, which is essential for strategic investment decisions.",
+      "location_ref": "Location -> [Investment Recommendations: Validation-Only Approach] | Para 1 | \"Based on the evidence, we recommend\"",
+      "severity": "High"
+    }
+  ],
+  "improvement_tasks": [
+    {
+      "priority": "Critical",
+      "section": "Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape",
+      "issue": "Lacks clear strategic implications for government policy and regulatory actions",
+      "fix": "Add a dedicated paragraph summarizing the strategic implications for government policy and regulatory actions, including specific recommendations.",
+      "expected_impact": "Improves relevance and actionability for government stakeholders."
+    },
+    {
+      "priority": "Critical",
+      "section": "Investment Recommendations: Validation-Only Approach",
+      "issue": "Lacks detailed risk assessment and mitigation plan",
+      "fix": "Develop a detailed risk assessment and mitigation plan, including specific actions to address key risks identified in the report.",
+      "expected_impact": "Enhances the report's utility for board-level decision-making."
+    },
+    {
+      "priority": "Critical",
+      "section": "Investment Recommendations: Validation-Only Approach",
+      "issue": "Lacks specific investment opportunities and clear risk-reward analysis",
+      "fix": "Identify and list specific investment opportunities, along with a clear risk-reward analysis for each opportunity.",
+      "expected_impact": "Improves the report's value for strategic investment decisions."
+    },
+    {
+      "priority": "High",
+      "section": "Yield Economics: HBM4 Yield Improvements and Cost Implications",
+      "issue": "Relies on supplementary web evidence for yield data",
+      "fix": "Obtain and cite primary data from industry reports or expert interviews to support the yield data analysis.",
+      "expected_impact": "Strengthens the credibility of the yield economics section."
+    },
+    {
+      "priority": "High",
+      "section": "Geopolitical Risks and Supply Chain Diversification",
+      "issue": "Lacks specific data on semiconductor supply chain disruptions due to climate-related events",
+      "fix": "Incorporate specific data and case studies on semiconductor supply chain disruptions caused by climate-related events.",
+      "expected_impact": "Enhances the depth and relevance of the geopolitical risks section."
+    },
+    {
+      "priority": "High",
+      "section": "Market Forecast: DRAM Supercycle and HBM4 Adoption Trajectory",
+      "issue": "Assumes HBM4 adoption by 2028 without robust evidence",
+      "fix": "Include specific data on the adoption rates of alternative memory solutions and potential technological shifts to support the forecast.",
+      "expected_impact": "Improves the accuracy and reliability of the market forecast."
+    },
+    {
+      "priority": "High",
+      "section": "Geopolitical Risks and Supply Chain Diversification",
+      "issue": "Lacks detailed projections and supporting data on China's GPU self-sufficiency efforts",
+      "fix": "Gather and include detailed projections and supporting data on China's GPU self-sufficiency efforts.",
+      "expected_impact": "Enhances the credibility of the geopolitical risks section."
+    },
+    {
+      "priority": "Medium",
+      "section": "Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape",
+      "issue": "Includes climate resilience and climate-related disruptions that do not contribute to the main analysis",
+      "fix": "Remove or recontextualize the climate resilience and climate-related disruptions to ensure they contribute to the main analysis.",
+      "expected_impact": "Improves the focus and coherence of the report."
+    },
+    {
+      "priority": "Medium",
+      "section": "HBM4/CoWoS Investment Report: Yield Gains, Capacity Dynamics, and Geopolitical Risks (2026–2032)",
+      "issue": "Introduction lacks a clear and concise overview of the report's purpose and key findings",
+      "fix": "Revise the introduction to provide a clear and concise overview of the report's purpose and key findings.",
+      "expected_impact": "Enhances the reader's understanding and engagement with the report."
+    },
+    {
+      "priority": "Medium",
+      "section": "Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape",
+      "issue": "Validation-only approach recommendation is vague",
+      "fix": "Specify what adoption metrics and market signals to monitor, and provide clear criteria for decision-making.",
+      "expected_impact": "Improves the clarity and actionability of the investment recommendations."
+    }
+  ]
+}

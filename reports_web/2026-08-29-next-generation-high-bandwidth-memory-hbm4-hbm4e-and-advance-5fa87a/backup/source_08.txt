@@ -1,0 +1,99 @@
+Title: Hot Chips 2026: High Bandwidth Flash promises massive ...
+URL: https://www.tomshardware.com/pc-components/ssds/hot-chips-2026-high-bandwidth-flash-promises-massive-bandwidth-and-capacity-but-its-usability-is-extremely-limited-new-memory-format-strikes-a-balance-between-hbm-and-nand-flash
+Source Type: html
+Domain: tomshardware.com
+Content Type: text/html; charset=utf-8
+Search Query: AI accelerator memory bandwidth requirements 2026
+
+Hot Chips 2026: High Bandwidth Flash promises massive bandwidth and capacity, but its usability is extremely limited — new memory format strikes a balance between HBM and NAND flash | Tom's Hardware
+
+Hot Chips 2026: High Bandwidth Flash promises massive bandwidth and capacity, but its usability is extremely limited — new memory format strikes a balance between HBM and NAND flash
+Keep exploring and earning more as a member.
+Reviews, benchmarks, and updates on current GPUs.
+Keep exploring with your premium access.
+Get Tom's Hardware's best news and in-depth reviews, straight to your inbox.
+Will it ever take off, if it does not make sense for a broad set of AI workloads?
+When you purchase through links on our site, we may earn an affiliate commission. Here’s how it works .
+OXMIQ Labs, a GPU IP company, revealed at Hot Chips 2026 that High Bandwidth Flash (HBF) cannot replace High Bandwidth Memory (HBM) across the vast majority of workloads. For some, HBF could emerge as a specialized memory tier for huge but relatively cold datasets. For others, HBF can do more harm than good.
+When SanDisk unveiled its High-Bandwidth Flash (HBF) concept in early 2025, the technology pledged to equip AI accelerators with terabytes of relatively inexpensive memory and reduce the need for traditional High-Bandwidth Memory (HBM), a promise that raised a number of doubts from the very beginning.
+The emerging HBF specification includes three performance grades. Grade 1 uses an 8-Hi 256GB NAND stack with an 8 GT/s UCIe interface and 384 GB/s bandwidth. Grade 2 uses a 512GB NAND stack with a 16 GT/s UCIe interface and supports 1.536 TB/s bandwidth. Grade 3 reaches 3.072 TB/s using 32 GT/s UCIe 2.0 while retaining the same 512 GB capacity.
+Since HBF relies on 3D NAND , it supports read block sizes between 64 bytes and 4 kilobytes, 4KB writes, and 4KB page sizes. While HBF Grade 1 can barely compete against contemporary HBM, HBF Grade 3 can compete against HBM4E, though we have no idea when such memory will be available. However, the main feature of HBF is not necessarily performance per se, but 8 – 16 times more capacity than HBM at roughly the same cost.
+Indeed, OXMIQ believes that HBF should be viewed as a high-capacity memory technology rather than inexpensive HBM. Memory economics depend not only on how many gigabytes an application needs to store, but also on how quickly those bytes must be delivered to the processor. As bandwidth demand rises, adding inexpensive but relatively slow HBF eventually becomes less economical than using HBM, according to estimates by OXMIQ.
+OXMIQ demonstrated the trade-off by modeling a 72-GPU rack running the 1-trillion-parameter Kimi-K2 model at FP4. At cost and power parity, an HBM-only configuration provides 20.7 TB of memory and 1,584 TB/s of aggregate bandwidth. Replacing HBM with HBF increases rack capacity by 14 times to a whopping 294.9 TB, but reduces aggregate bandwidth to 922 TB/s. A hybrid configuration with HBM and HBF provides 89.3 TB and between 279 TB/s and 1,418 TB/s, depending on workload conditions. The difference between HBM and HBF bandwidth is the reason why HBF looks excellent when memory capacity limits the system. However, HBF eventually loses when bandwidth/throughput becomes the limiting factor.
+In OXMIQ's model, an HBF-only configuration enables each GPU to hold its own Kimi-K2 instance and run 72 model instances per rack. Whereas an HBM-only configuration requires eight GPUs to hold each model instance (meaning compute performance gets wasted) and can therefore run only nine instances per rack. This makes HBF particularly attractive when memory capacity determines the number of GPUs required. However, as the number of simultaneous users and their token-generation rate increase, HBF's lower bandwidth becomes the bottleneck, while the HBM-based rack can make better use of its substantially higher memory bandwidth and ultimately deliver lower cost per token, according to OXMIQ's model.
+As a result, HBF can dramatically reduce the number of GPUs needed simply to accommodate a very large model (i.e., enable one HBF-equipped GPU to do the capacity job of eight HBM-equipped GPUs). Nonetheless, if the objective is maximum inference throughput from a fully utilized rack, HBM may remain the better, more economical choice. At the end of the presentation, OXMIQ concludes: 'HBM for the rack, HBF for the box.'
+Although HBF does not benefit all AI workloads and may even harm the performance of many, there are applications that can benefit from a surplus of local memory.
+Mixture-of-experts (MoE) models appear to be particularly suitable for HBF. OXMIQ's Kimi-K3 example has 1.56 TB of weights, of which 1.45 TB, or 93%, consists of MoE expert weights. Since only selected experts are activated for each token, this enormous pool is largely write-once and relatively infrequently read. OXMIQ proposes keeping such experts in HBF while placing the remaining, frequently accessed weights in HBM.
+Additionally, more local capacity could also reduce communication between accelerators. Conventional expert parallelism distributes experts across GPUs and requires all-to-all communication at every layer. OXMIQ claims that inexpensive HBF capacity could allow considerably more experts to reside locally, reduce the number of expert-parallel shards, and reduce network traffic. In this case, HBF effectively trades memory capacity for interconnect bandwidth and power consumption.
+Long-context inference is another potential use case. Sparse-attention models access only a small portion of their large KV cache during each decoding step, which allows the rest to remain in slower HBF memory. OXMIQ believes that HBF could store this large KV cache while the accelerator fetches only the data needed for each step from HBF to HBM.
+The HBM-as-cache idea has a serious limitation. Intuitively, one would put popular experts in HBM and cold experts in HBF. Such a strategy works mainly at low batch sizes or when similar queries can be deliberately batched. As batch size rises and queries become more heterogeneous, however, expert popularity flattens, and the workload accesses a broader range of experts, according to OXMIQ. The working set can then outgrow the relatively small HBM cache, which results in more frequent expert transfers from HBF and reduces the performance benefit provided by HBM caching.
+OXMIQ does not expect HBF to work simply as slower GPU memory. Instead, it proposes using HBF in place of host DRAM to store large amounts of less frequently accessed data, such as MoE experts and KV cache. Frequently used data would remain in HBM, while even colder data could still be kept in remote memory or SSDs. This certainly contradicts SanDisk's original vision for HBF: sitting next to AI accelerators. Furthermore, adding HBF support will be complicated on many levels.
+The software side of HBF is particularly complicated. To achieve maximum bandwidth, HBF requires large transfers — 64 KB reads and 1 MB writes — and data is moved through DMA rather than the CPU/GPU cache hierarchy. When HBF and HBM are used together, software must also decide which data goes into each memory type and manage HBF's limited write endurance.
+Meanwhile, current inference software is not ready for such a configuration. OXMIQ says vLLM would need dedicated HBF support to manage memory allocation and data placement, prefetch data before it is needed, and monitor flash endurance, which requires a major software overhaul. An effort like this has to be a joint effort between the HBF hardware vendors, AI accelerator vendors, and inference-framework developers. At the lowest level, AMD, Nvidia, and other accelerator vendors would need to provide the hardware/driver/runtime mechanisms for efficiently moving data between HBF and HBM. Then vLLM developers, who work with vendors, would implement the higher-level memory allocator and policies that decide which experts/KV blocks live in HBM and which reside in HBF, when they should move, and how to hide HBF latency.
+On the one hand, if AMD or Nvidia adopt HBF, they will provide its partners with everything needed to use it, and while this would take time before everything works as intended, this is a straightforward way to add HBF support to AI platforms. On the other hand, the biggest question is whether hardware vendors like AMD or Nvidia need HBF. As per OXMIQ, HBF's advantage is limited to select use cases, so it may not make sense for AMD or Nvidia to support it universally, especially keeping in mind that managing multi-tier memory hierarchy is hard.
+SambaNova is perhaps the most obvious candidate to support HBF. Its SN40L already uses a three-tier hierarchy: SRAM => HBM => DDR, with up to 520MB of SRAM, 64GB HBM, and 1.5 TB of DDR. Conceptually, HBF could become another tier or replace some of that DDR capacity. Then again, this is merely speculation.
+While we still have a lot to learn about how HBF works, OXMIQ's model suggests that HBF has a much weaker general-purpose value proposition than the original claim made in early 2025 suggested. It is not useless: it is a specialized solution whose strongest applications depend on particular workload characteristics.
+The fundamental problem is that HBF solves memory capacity, while modern AI accelerators are frequently constrained by memory bandwidth. OXMIQ's simulation makes this rather obvious: HBF provides about 14X more memory capacity but only 0.6X the aggregate bandwidth of HBM. Once the workload becomes sufficiently bandwidth-intensive, the enormous capacity stops offsetting the bandwidth deficit.
+While the hybrid HBM+HBF solution makes sense for some use cases, it is not a magic fix. When HBM is used as an expert cache, heterogeneous requests at larger batch sizes flatten expert popularity, cause the workload to touch more experts, and reduce cache efficiency dramatically.
+For now, HBF has three particularly compelling use cases: reduce the number of GPUs required simply to fit huge models, store massive but infrequently accessed MoE expert pools, and keep large KV caches for sparse long-context inference. For MoE models, its large local capacity could also reduce expert parallelism and expensive all-to-all communication between GPUs. In all three cases, HBF makes sense because capacity requirements are enormous while bandwidth demand remains relatively low.
+Anton Shilov is a contributing writer at Tom’s Hardware. Over the past couple of decades, he has covered everything from CPUs and GPUs to supercomputers and from modern process technologies and latest fab tools to high-tech industry trends.
+Tom's Hardware is part of Future US Inc, an international media group and leading digital publisher. Visit our corporate site .
+© Future US, Inc. Full 7th Floor, 130 West 42nd Street, New York, NY 10036.
+Best Picks CPU Buying Advice CPU Best Picks CPU Reviews GPU Buying Advice GPU Best Picks GPU Reviews Laptop Buying Advice Laptop Best Picks Laptop Reviews More Buying Advice Keyboard Best Picks Gaming Monitor Best Picks Gaming Headset Best Picks 3D Printer Best Picks Webcam Best Picks Mice Best Picks How We Test
+CPU Buying Advice CPU Best Picks CPU Reviews
+GPU Buying Advice GPU Best Picks GPU Reviews
+Laptop Buying Advice Laptop Best Picks Laptop Reviews
+More Buying Advice Keyboard Best Picks Gaming Monitor Best Picks Gaming Headset Best Picks 3D Printer Best Picks Webcam Best Picks Mice Best Picks How We Test
+CPUs CPU Brands AMD Ryzen Intel Lunar Lake Nvidia Qualcomm Apple Benchmarking Platforms X86 ARM Panther Lake Zen 5 AM5 Chipmaking DUV EUV Rare Earth Metals
+CPU Brands AMD Ryzen Intel Lunar Lake Nvidia Qualcomm Apple Benchmarking
+Platforms X86 ARM Panther Lake Zen 5 AM5
+GPUs GPU Brands Nvidia Blackwell Nvidia Geforce AMD Radeon Intel Arc Snapdragon X Benchmarking Memory Tech GDDR7 GDDR8 HBM AI Architecture Nvidia Vera Rubin Meta MTIA Google TPU AMD Instinct Microsoft Maia Drivers
+GPU Brands Nvidia Blackwell Nvidia Geforce AMD Radeon Intel Arc Snapdragon X Benchmarking
+AI Architecture Nvidia Vera Rubin Meta MTIA Google TPU AMD Instinct Microsoft Maia
+PC Components Memory RAM DRAM DDR5 Storage HDDs SSDs Cooling Air Cooling Liquid Cooling Thermal Paste Networking Routers Motherboards Overclocking PC Cases PC Building Power Supplies
+Cooling Air Cooling Liquid Cooling Thermal Paste
+News Tech Industry News CPU News GPU News Chips Act Semiconductors Cybersecurity Supercomputers Quantum Computing Company News AMD Intel Nvidia Radeon Microsoft TSMC Ryzen IBM Newsletter
+Tech Industry News CPU News GPU News Chips Act Semiconductors Cybersecurity Supercomputers Quantum Computing
+Company News AMD Intel Nvidia Radeon Microsoft TSMC Ryzen IBM
+Laptops Gaming Laptops Ultrabooks MacBooks Laptop Brands Asus Razer HP MSI
+Desktops PC Building PC Cases Gaming PCs Monitors Gaming Monitors Peripherals Keyboards Mice 3D Printers Headphones Desktop Brands Alienware Corsair GeForce Intel Arc Gigabyte Acer
+Peripherals Keyboards Mice 3D Printers Headphones
+Desktop Brands Alienware Corsair GeForce Intel Arc Gigabyte Acer
+Software & AI Artificial Intelligence Machine Learning R&D Intel Gaudi Cerebras xAI LLMs OpenAI Anthropic DeepSeek Gemini Grok Operating Systems Windows MacOS iOS ChromeOS Linux Software Programming Applications Microsoft Office Web Browsers
+Artificial Intelligence Machine Learning R&D Intel Gaudi Cerebras xAI
+LLMs OpenAI Anthropic DeepSeek Gemini Grok
+Operating Systems Windows MacOS iOS ChromeOS Linux
+Software Programming Applications Microsoft Office Web Browsers
+Coupons Laptop and PC Coupons Dell Coupon Codes Asus Coupon Codes Logitech Promo Codes Samsung Promo codes Hardware Coupons Newegg Promo Codes Corsair Discount Codes Razer Promo Codes Anycubic Discount codes Software Coupons Bitdefender Coupons Simplisafe Coupons MacPaw Coupons Squarespace Coupon Codes Gaming Coupons Kinguin Discount Codes Loaded Discount Codes Logitech G Promo Codes SteelSeries Coupons
+Laptop and PC Coupons Dell Coupon Codes Asus Coupon Codes Logitech Promo Codes Samsung Promo codes
+Hardware Coupons Newegg Promo Codes Corsair Discount Codes Razer Promo Codes Anycubic Discount codes
+Software Coupons Bitdefender Coupons Simplisafe Coupons MacPaw Coupons Squarespace Coupon Codes
+Gaming Coupons Kinguin Discount Codes Loaded Discount Codes Logitech G Promo Codes SteelSeries Coupons
+Best Picks View Best Picks CPU Buying Advice CPU Best Picks CPU Reviews GPU Buying Advice GPU Best Picks GPU Reviews Laptop Buying Advice Laptop Best Picks Laptop Reviews More Buying Advice Keyboard Best Picks Gaming Monitor Best Picks Gaming Headset Best Picks 3D Printer Best Picks Webcam Best Picks Mice Best Picks How We Test
+CPU Buying Advice CPU Best Picks CPU Reviews
+GPU Buying Advice GPU Best Picks GPU Reviews
+Laptop Buying Advice Laptop Best Picks Laptop Reviews
+More Buying Advice Keyboard Best Picks Gaming Monitor Best Picks Gaming Headset Best Picks 3D Printer Best Picks Webcam Best Picks Mice Best Picks How We Test
+CPUs View CPUs CPU Brands AMD Ryzen Intel Lunar Lake Nvidia Qualcomm Apple Benchmarking Platforms X86 ARM Panther Lake Zen 5 AM5 Chipmaking View Chipmaking DUV EUV Rare Earth Metals
+CPU Brands AMD Ryzen Intel Lunar Lake Nvidia Qualcomm Apple Benchmarking
+Platforms X86 ARM Panther Lake Zen 5 AM5
+Chipmaking View Chipmaking DUV EUV Rare Earth Metals
+GPUs View GPUs GPU Brands Nvidia Blackwell Nvidia Geforce AMD Radeon Intel Arc Snapdragon X Benchmarking Memory Tech GDDR7 GDDR8 HBM AI Architecture Nvidia Vera Rubin Meta MTIA Google TPU AMD Instinct Microsoft Maia Drivers
+GPU Brands Nvidia Blackwell Nvidia Geforce AMD Radeon Intel Arc Snapdragon X Benchmarking
+AI Architecture Nvidia Vera Rubin Meta MTIA Google TPU AMD Instinct Microsoft Maia
+PC Components View PC Components Memory RAM DRAM DDR5 Storage View Storage HDDs SSDs Cooling View Cooling Air Cooling Liquid Cooling Thermal Paste Networking View Networking Routers Motherboards Overclocking PC Cases PC Building Power Supplies
+Cooling View Cooling Air Cooling Liquid Cooling Thermal Paste
+News View News Tech Industry News View Tech Industry News CPU News GPU News Chips Act Semiconductors Cybersecurity Supercomputers Quantum Computing Company News AMD Intel Nvidia Radeon Microsoft TSMC Ryzen IBM Newsletter
+Tech Industry News View Tech Industry News CPU News GPU News Chips Act Semiconductors Cybersecurity Supercomputers Quantum Computing
+Company News AMD Intel Nvidia Radeon Microsoft TSMC Ryzen IBM
+Laptops View Laptops Gaming Laptops Ultrabooks MacBooks Laptop Brands Asus Razer HP MSI
+Desktops View Desktops PC Building View PC Building PC Cases Gaming PCs Monitors View Monitors Gaming Monitors Peripherals View Peripherals Keyboards Mice 3D Printers Headphones Desktop Brands Alienware Corsair GeForce Intel Arc Gigabyte Acer
+Peripherals View Peripherals Keyboards Mice 3D Printers Headphones
+Desktop Brands Alienware Corsair GeForce Intel Arc Gigabyte Acer
+Software & AI View Software & AI Artificial Intelligence View Artificial Intelligence Machine Learning R&D Intel Gaudi Cerebras xAI LLMs View LLMs OpenAI Anthropic DeepSeek Gemini Grok Operating Systems View Operating Systems Windows MacOS iOS ChromeOS Linux Software View Software Programming Applications Microsoft Office Web Browsers
+Artificial Intelligence View Artificial Intelligence Machine Learning R&D Intel Gaudi Cerebras xAI
+LLMs View LLMs OpenAI Anthropic DeepSeek Gemini Grok
+Operating Systems View Operating Systems Windows MacOS iOS ChromeOS Linux
+Software View Software Programming Applications Microsoft Office Web Browsers
+Coupons View Coupons Laptop and PC Coupons View Laptop and PC Coupons Dell Coupon Codes Asus Coupon Codes Logitech Promo Codes Samsung Promo codes Hardware Coupons View Hardware Coupons Newegg Promo Codes Corsair Discount Codes Razer Promo Codes Anycubic Discount codes Software Coupons View Software Coupons Bitdefender Coupons Simplisafe Coupons MacPaw Coupons Squarespace Coupon Codes Gaming Coupons View Gaming Coupons Kinguin Discount Codes Loaded Discount Codes Logitech G Promo Codes SteelSeries Coupons
+Laptop and PC Coupons View Laptop and PC Coupons Dell Coupon Codes Asus Coupon Codes Logitech Promo Codes Sa

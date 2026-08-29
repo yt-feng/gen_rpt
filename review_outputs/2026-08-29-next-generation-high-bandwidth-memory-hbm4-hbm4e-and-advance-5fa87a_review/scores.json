@@ -1,0 +1,92 @@
+{
+  "overall_score": 89,
+  "grade": "Silver",
+  "research_quality": {
+    "score": 26,
+    "max_points": 30,
+    "what_works": [
+      {
+        "point": "The report provides a detailed analysis of yield improvements and capacity expansions, including specific data and timelines for Samsung and TSMC."
+      },
+      {
+        "point": "The report includes a thorough examination of geopolitical risks and their impact on the HBM4 and CoWoS supply chains, with specific forecasts and implications for investors."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report could benefit from more detailed scenario analysis, particularly for potential risks and uncertainties in the market.",
+        "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 5 | "
+      },
+      {
+        "point": "The report mentions a private document on climate resilience and climate-related disruptions, but these are not directly related to the main topics and do not serve as evidence for the claims.",
+        "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 4 | "
+      }
+    ]
+  },
+  "evidence_and_citations": {
+    "score": 23,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report provides specific yield data and timelines, such as Samsung's 80% yield rate and TSMC's 80% capacity expansion."
+      },
+      {
+        "point": "The bibliography includes a diverse range of sources, including industry reports, news articles, and financial analyses, which support the claims made in the report."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "Some claims are based on web evidence and private documents that are not directly related to the semiconductor industry, which could reduce the reliability of the analysis.",
+        "location_ref": "Location -> [Yield Economics: HBM4 Yield Improvements and Cost Implications] | Para 3 | "
+      },
+      {
+        "point": "The report mentions a private document on climate-related disruptions in China, which is not directly relevant to the semiconductor supply chain and does not serve as evidence for the claims.",
+        "location_ref": "Location -> [CoWoS Bottleneck: Capacity Expansion and Supply-Demand Dynamics] | Para 3 | "
+      }
+    ]
+  },
+  "strategic_clarity": {
+    "score": 22,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report clearly outlines the implications of yield improvements and capacity expansions for investors, emphasizing the need for a validation-only approach."
+      },
+      {
+        "point": "The management implications section provides actionable recommendations, such as monitoring yield rates, capacity expansion, and geopolitical risks."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report could provide more specific metrics or thresholds for when to transition from a validation-only approach to more aggressive expansion.",
+        "location_ref": "Location -> [Investment Recommendations: Validation-Only Approach] | Para 3 | "
+      },
+      {
+        "point": "The management agenda could benefit from more detailed action plans for each decision gate, including specific steps and responsible parties.",
+        "location_ref": "Location -> [Management Agenda] | Para 1 | "
+      }
+    ]
+  },
+  "writing_and_structure": {
+    "score": 18,
+    "max_points": 20,
+    "what_works": [
+      {
+        "point": "The report is well-structured with clear section titles that match the content, making it easy to navigate."
+      },
+      {
+        "point": "The language is generally clear and concise, avoiding unnecessary jargon and filler language."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "Some sections contain repeated information, such as the mention of the private document on climate resilience, which is not directly relevant.",
+        "location_ref": "Location -> [Executive Thesis: Yield Gains and Capacity Expansion Reshape the HBM4/CoWoS Landscape] | Para 4 | "
+      },
+      {
+        "point": "The report could benefit from more consistent formatting, particularly in the evidence and management implication sections, to enhance readability.",
+        "location_ref": "Location -> [Yield Economics: HBM4 Yield Improvements and Cost Implications] | Para 6 | "
+      }
+    ]
+  }
+}

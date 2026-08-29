@@ -1,0 +1,36 @@
+{
+  "status": "active",
+  "required": false,
+  "source_mode": "web_only",
+  "context_characters": 2680,
+  "validated_chunk_count": 1,
+  "document_count": 1,
+  "chunk_ids": [
+    "9fc0f0c7-3f26-4ef4-a7ac-d5e4018b1f5f"
+  ],
+  "document_ids": [
+    "d5ac33d3-0235-4d20-a99b-1bd4934e3623"
+  ],
+  "internal_evidence_points": 0,
+  "rag_source_count": 1,
+  "web_source_count": 8,
+  "rag_evidence_points": 0,
+  "web_evidence_points": 24,
+  "conflict_count": 0,
+  "web_search_status": "success",
+  "web_search_required": false,
+  "web_search_query_count": 4,
+  "web_search_providers": [
+    "searxng"
+  ],
+  "editorial_route": {
+    "primaryModel": "deepseek-chat",
+    "primaryRoute": "DeepSeek Chat Completions",
+    "fallbackModel": null,
+    "fallbackRoute": null,
+    "activeModel": "deepseek-chat",
+    "activeRoute": "DeepSeek Chat Completions",
+    "fallbackUsed": false,
+    "failoverReason": null
+  }
+}

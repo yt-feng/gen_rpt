@@ -1,0 +1,27 @@
+Title: Samsung HBM4 Hits 80% 'Golden Yield' — Four Months Ahead of ...
+URL: https://siliconanalysts.com/market/samsung-hbm4-hits-80-golden-yield-four-months-ahead-of-schedule-supply-tightness-2026-08-10
+Source Type: html
+Domain: siliconanalysts.com
+Content Type: text/html; charset=utf-8
+Search Query: HBM4 yield rate improvement
+
+Samsung HBM4 Hits 80% 'Golden Yield' — Four Months Ahead of Schedule, Supply Tightness Set to Ease — Silicon Analysts
+
+Samsung HBM4 Hits 80% 'Golden Yield' — Four Months Ahead of Schedule, Supply Tightness Set to Ease
+Model the impact — HBM -5 % on AI accelerator BOMs
+Get the weekly supply-chain & pricing brief
+Samsung Electronics' HBM4 yield rate has reached approximately 80% — the industry-standard 'golden yield' threshold for mass-production maturity — roughly four months ahead of original internal targets, having started at below 60% at the February 2026 production launch. Corroborating Korean-language reporting (Seoul Economy, Nate News) and English-language trade coverage (Dataconomy, BigGo Finance) confirm the milestone, with Samsung now accelerating HBM4E ramp targeting a 70% yield before a planned H1 2027 launch; industry sources also note SK Hynix's HBM4 yield has independently reached the 80% band, meaning both leading suppliers have simultaneously achieved mass-production maturity on the sixth-generation node.
+Simultaneous 80% yield attainment by both Samsung and SK Hynix on HBM4 structurally increases effective wafer output without new fab capacity, which should compress per-unit HBM cost and modestly relieve the chronic supply tightness that has inflated AI accelerator BOMs since 2024 — however, with 2027 capacity already fully booked per industry sources, near-term pricing relief for H200/B100-class systems is likely limited until incremental capacity additions come online. Samsung's accelerated yield trajectory also reopens the competitive dual-source dynamic for Nvidia and AMD procurement teams, reducing single-supplier concentration risk on SK Hynix.
+Computed from Silicon Analysts’ published cost models. Each row opens the calculator pre-filled at the new price.
+Follow this signal over time — every brief threaded by entity.
+All benchmarks and data are derived from publicly available sources (earnings calls, press releases, analyst reports, regulatory filings). Figures are estimates for educational purposes only and should not be used as the sole basis for business or investment decisions. Public sources only — no insider data. Generated from the cited reports; verify against the originals before acting. Full Terms & Data Provenance
+HBM, wafer, and capacity movements each week — sourced, dated, human-reviewed.
+One short email a week — only when the data moves. No marketing, ever. One-click unsubscribe.
+© 2026 Silicon Analysts. All rights reserved.
+All benchmarks derived from publicly available sources. For educational and estimation purposes only.
+The views expressed on this site are my own and do not represent those of my employer. This is a personal research project for educational purposes. All data is sourced exclusively from public filings, press releases, and published industry reports. No proprietary or confidential information is used.
+Dataconomy — Samsung Reaches Profitable 80% Yield For HBM4 Memory
+BigGo Finance — Japan's Hidden Champions Murata and Ibiden Ride AI Chip Boom to Record Profits
+Seoul Economy (서울경제) — 삼성 HBM4 '황금 수율' 달성…HBM4E 양산도 앞당긴다
+Nate News — 삼성 HBM4 수율 80% 돌파…SK하이닉스 추격 본격화
+Daum / iNews24 — 삼성·SK하이닉스, 美 핫칩스서 차세대 HBM 기술 맞대결
