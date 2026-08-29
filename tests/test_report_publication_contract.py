@@ -399,6 +399,32 @@ class TestReportPublicationContract(unittest.TestCase):
         self.assertNotIn("2028000000000000", tokens)
         self.assertNotIn("2032000000", tokens)
 
+    def test_convert_evidence_supplements_sparse_sections(self):
+        report = {
+            "sections": [
+                {
+                    "title": "Advanced Semiconductor Packaging Constraints",
+                    "lead": "CoWoS packaging capacity limits AI accelerator production through 2027.",
+                    "paragraphs": ["Capacity bottlenecks constrain supply.", "High-bandwidth memory yields remain limited."],
+                    "evidence": ["WEB-E1"],
+                }
+            ]
+        }
+        approved = [
+            {"id": "WEB-E1", "source_title": "TSMC Quarterly Report", "fact": "CoWoS packaging capacity will expand by 100% by 2026."},
+            {"id": "WEB-E2", "source_title": "TrendForce Analysis", "fact": "HBM market demand will exceed supply by 20% in 2026."},
+        ]
+        convert_evidence_to_human_readable(
+            report,
+            {},
+            {},
+            approved,
+            language="en",
+        )
+        self.assertGreaterEqual(len(report["sections"][0]["evidence"]), 2)
+        self.assertIn("TSMC Quarterly Report — CoWoS packaging capacity will expand by 100% by 2026.", report["sections"][0]["evidence"])
+        self.assertIn("TrendForce Analysis — HBM market demand will exceed supply by 20% in 2026.", report["sections"][0]["evidence"])
+
 
 if __name__ == "__main__":
     unittest.main()

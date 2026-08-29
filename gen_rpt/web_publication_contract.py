@@ -1118,7 +1118,39 @@ def convert_evidence_to_human_readable(
 
             human_readable.append(_clean_prose_internal_ids(text_item))
 
-        section["evidence"] = human_readable
+        deduped: list[str] = []
+        for x in human_readable:
+            clean_x = str(x or "").strip()
+            if clean_x and clean_x not in deduped and clean_x.lower() != "retained evidence":
+                deduped.append(clean_x)
+
+        if len(deduped) < 2 and approved_evidence:
+            section_text = (
+                str(section.get("title") or "") + " " +
+                str(section.get("lead") or "") + " " +
+                " ".join(str(p or "") for p in section.get("paragraphs", []) or [])
+            ).lower()
+            candidates = []
+            for ev in approved_evidence:
+                if not isinstance(ev, dict):
+                    continue
+                stitle = str(ev.get("source_title") or ev.get("domain") or "Validated Source").strip()
+                sfact = str(ev.get("fact") or ev.get("display_value") or "").strip()
+                if not sfact:
+                    continue
+                cand_citation = f"{stitle} — {sfact}" if stitle and sfact and stitle not in sfact else (sfact or stitle)
+                if cand_citation in deduped:
+                    continue
+                overlap = sum(1 for word in re.findall(r"\w+", sfact.lower()) if len(word) > 3 and word in section_text)
+                candidates.append((overlap, cand_citation))
+            candidates.sort(key=lambda c: -c[0])
+            for _, cand_citation in candidates:
+                if cand_citation not in deduped:
+                    deduped.append(cand_citation)
+                if len(deduped) >= 2:
+                    break
+
+        section["evidence"] = deduped
 
         for key in ("lead", "so_what"):
             if key in section and isinstance(section[key], str):
