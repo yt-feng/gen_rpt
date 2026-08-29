@@ -1305,6 +1305,18 @@ def _point_from_sentence(sentence: str, source: SourceDocument, source_idx: int,
 
 def _points_from_sentence(sentence: str, source: SourceDocument, source_idx: int, topic: str) -> List[EvidencePoint]:
     cleaned = _clean_sentence(sentence)
+    if source.metadata.get("gatex_private_content"):
+        try:
+            quote_limit = max(
+                80,
+                min(
+                    180,
+                    int(source.metadata.get("max_quote_characters") or 180),
+                ),
+            )
+        except (TypeError, ValueError):
+            quote_limit = 180
+        cleaned = cleaned[:quote_limit]
     if len(cleaned) < 35 or _is_noise(cleaned):
         return []
     parsed_values = _parse_values(cleaned)

@@ -42,6 +42,87 @@ class ReportQualityError(RuntimeError):
     """The evidence or editorial contract is too weak for publication."""
 
 
+def _source_artifact_dict(source: SourceDocument) -> Dict[str, Any]:
+    """Redact generation-only source bodies before writing report artifacts."""
+
+    payload = dict(source.__dict__)
+    metadata = dict(source.metadata or {})
+    if metadata.get("gatex_private_content"):
+        try:
+            max_quote = max(
+                0,
+                min(180, int(metadata.get("max_quote_characters") or 180)),
+            )
+        except (TypeError, ValueError):
+            max_quote = 180
+        payload["content"] = str(source.snippet or "")[:max_quote]
+        metadata["private_content_redacted"] = True
+        for key in ("content_url", "download_url", "local_path", "object_key"):
+            metadata.pop(key, None)
+    payload["metadata"] = metadata
+    return payload
+
+
+def _private_source_reproduction_violations(
+    report: Dict[str, Any],
+    sources: List[SourceDocument],
+) -> List[str]:
+    """Detect verbatim private-source passages beyond the editorial quote cap."""
+
+    report_strings: List[str] = []
+
+    def collect(value: Any) -> None:
+        if isinstance(value, str):
+            normalized = re.sub(r"\s+", " ", value).strip()
+            if normalized:
+                report_strings.append(normalized)
+        elif isinstance(value, list):
+            for item in value:
+                collect(item)
+        elif isinstance(value, dict):
+            for item in value.values():
+                collect(item)
+
+    collect(report)
+    violations: List[str] = []
+    for source in sources:
+        if not source.metadata.get("gatex_private_content"):
+            continue
+        try:
+            quote_limit = max(
+                80,
+                min(
+                    180,
+                    int(source.metadata.get("max_quote_characters") or 180),
+                ),
+            )
+        except (TypeError, ValueError):
+            quote_limit = 180
+        private_text = re.sub(r"\s+", " ", str(source.content or "")).strip()
+        window = quote_limit + 1
+        if len(private_text) < window:
+            continue
+        for report_text in report_strings:
+            if len(report_text) < window:
+                continue
+            offsets = list(
+                range(0, len(report_text) - window + 1, max(1, window // 2))
+            )
+            final_offset = len(report_text) - window
+            if not offsets or offsets[-1] != final_offset:
+                offsets.append(final_offset)
+            if any(
+                report_text[offset : offset + window] in private_text
+                for offset in offsets
+            ):
+                identity = (
+                    source.metadata.get("source_id") or source.title or source.url
+                )
+                violations.append(str(identity)[:200])
+                break
+    return violations
+
+
 class WebReportPipeline:
     """HTML-first research report pipeline.
 
@@ -67,6 +148,7 @@ class WebReportPipeline:
         rag_required: bool = False,
         *,
         private_sources: List[SourceDocument] | None = None,
+        seed_sources: List[SourceDocument] | None = None,
         source_mode: str = "web_only",
     ) -> Dict[str, Any]:
         run_start = time.monotonic()
@@ -77,6 +159,7 @@ class WebReportPipeline:
             raise RuntimeError("RAG report generation requires both validated context text and structured sources")
         normalized_source_mode = normalize_source_mode(source_mode)
         private_source_list = list(private_sources or [])
+        seed_source_list = list(seed_sources or [])
         if normalized_source_mode != "web_only" and not private_source_list:
             raise ValueError(
                 f"source_mode={normalized_source_mode!r} requires at least one private source"
@@ -90,7 +173,8 @@ class WebReportPipeline:
             "START web report pipeline "
             f"| topic={display_topic!r} | output_dir={output_dir} "
             f"| mode={rag_mode_label} | source_mode={normalized_source_mode} "
-            f"| rag_sources={len(self.rag_sources)} | private_sources={len(private_source_list)}"
+            f"| rag_sources={len(self.rag_sources)} | private_sources={len(private_source_list)} "
+            f"| seed_sources={len(seed_source_list)}"
         )
         self._log("ETA planning=15-90s, chart_data_needs=10-60s, source_collection=60-300s, evidence=5-15s, synthesis=60-180s, visuals=60-360s")
 
@@ -157,7 +241,10 @@ class WebReportPipeline:
             private_source_list,
             normalized_source_mode,
         )
-        sources = merge_sources(self.rag_sources, supplemental_sources)
+        sources = merge_sources(
+            self.rag_sources,
+            merge_sources(seed_source_list, supplemental_sources),
+        )
         if self.rag_required and not any(source.source_type == "internal" for source in sources):
             raise RuntimeError("Validated RAG sources were lost before evidence generation")
         rag_source_chunks = {
@@ -175,12 +262,13 @@ class WebReportPipeline:
             for idx, source in enumerate(self.rag_sources)
             if source.metadata.get("chunk_id")
         }
-        source_dicts = [source.__dict__ for source in sources]
+        source_dicts = [_source_artifact_dict(source) for source in sources]
         domains = sorted({source.domain for source in sources if source.domain})
         self._log(
             "PHASE source_collection completed "
             f"| elapsed={self._elapsed(phase_start)} | sources={len(sources)} "
             f"| rag_sources={len(self.rag_sources)} | web_sources={len(public_sources)} "
+            f"| seed_sources={len(seed_source_list)} "
             f"| private_sources={len(private_source_list) if normalized_source_mode != 'web_only' else 0} "
             f"| domains={', '.join(domains[:8]) or 'none'}"
         )
@@ -478,6 +566,20 @@ class WebReportPipeline:
             approved_evidence,
             language=self.language,
         )
+
+        private_reproduction = _private_source_reproduction_violations(
+            report,
+            seed_source_list,
+        )
+        if private_reproduction:
+            message = "Private source quotation limit exceeded: " + ", ".join(
+                private_reproduction[:8]
+            )
+            (output_dir / "web_report_quality_error.txt").write_text(
+                message,
+                encoding="utf-8",
+            )
+            raise ReportQualityError(message)
 
         visible_hits = output_leak_hits(self._client_visible_text(report))
         if visible_hits:
@@ -1308,6 +1410,27 @@ Requirements:
         source_blocks = []
         synthesis_sources = [] if self.rag_context else sources
         for idx, source in enumerate(synthesis_sources[:14], start=1):
+            private_editorial_rule = ""
+            if source.metadata.get("gatex_private_content"):
+                try:
+                    max_quote = max(
+                        80,
+                        min(
+                            180,
+                            int(
+                                source.metadata.get("max_quote_characters")
+                                or 180
+                            ),
+                        ),
+                    )
+                except (TypeError, ValueError):
+                    max_quote = 180
+                private_editorial_rule = (
+                    "\nEditorial restriction: generation-only private source; "
+                    "paraphrase and independently corroborate. Never reproduce "
+                    "the source body, and do not quote more than "
+                    f"{max_quote} characters."
+                )
             source_blocks.append(
                 f"[Source {idx}]\n"
                 f"Title: {source.title}\n"
@@ -1315,7 +1438,7 @@ Requirements:
                 f"Domain: {source.domain}\n"
                 f"Type: {source.source_type}\n"
                 f"Snippet: {source.snippet}\n"
-                f"Excerpt:\n{source.content[:2200]}"
+                f"Excerpt:\n{source.content[:2200]}{private_editorial_rule}"
             )
         source_text = "\n\n".join(source_blocks) or ("No reliable source text was fetched." if self.language == "en" else "未抓取到可靠资料正文。")
         if self.rag_context:

@@ -35,6 +35,7 @@ from gen_rpt.web_report_pipeline import WebReportPipeline
 
 SOURCE_MODES = {"web_only", "collection_only", "web_and_collection"}
 MAX_SOURCE_BYTES = 50 * 1024 * 1024
+MAX_INTELLIGENCE_SOURCE_BYTES = 2_000_000
 MAX_EXTRACTED_CHARS = 100_000
 MAX_OPENXML_MEMBER_BYTES = 20 * 1024 * 1024
 MAX_OPENXML_TOTAL_BYTES = 40 * 1024 * 1024
@@ -176,6 +177,10 @@ class GateXApi:
 
 
 def _request_with_retries(method: str, url: str, **kwargs: Any) -> requests.Response:
+    # Callback and private-source requests are pinned to the URL reviewed by
+    # GateX. A redirect must be surfaced instead of silently changing the
+    # destination or authentication boundary.
+    kwargs.setdefault("allow_redirects", False)
     last_error: Exception | None = None
     for attempt in range(4):
         try:
@@ -254,6 +259,285 @@ def _manifest_items(manifest: Dict[str, Any]) -> List[Dict[str, Any]]:
         if isinstance(value, list):
             return [item for item in value if isinstance(item, dict)]
     return []
+
+
+def discovered_sources_from_manifest(
+    manifest: Dict[str, Any],
+) -> tuple[List[SourceDocument], List[Dict[str, Any]]]:
+    """Convert GateX-normalized public evidence into bounded seed documents.
+
+    The editor-approved excerpt is always available as a bounded seed. A
+    generation-only body, when present, is downloaded and verified separately;
+    the normal web-research pass still corroborates it with independent sources.
+    """
+
+    candidate: Any = manifest
+    if isinstance(candidate, dict) and isinstance(candidate.get("data"), dict):
+        candidate = candidate["data"]
+    items = candidate.get("discoveredSources") if isinstance(candidate, dict) else None
+    if not isinstance(items, list):
+        return [], []
+
+    documents: List[SourceDocument] = []
+    summaries: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, raw in enumerate(items[:80], start=1):
+        if not isinstance(raw, dict):
+            continue
+        metadata = raw.get("metadata") if isinstance(raw.get("metadata"), dict) else {}
+        deletion_status = str(metadata.get("deletionStatus") or "").strip().lower()
+        url = str(raw.get("url") or "").strip()
+        parsed = urlparse(url)
+        summary: Dict[str, Any] = {
+            "id": str(raw.get("id") or "")[:160],
+            "url": url[:1_500],
+            "status": "skipped",
+        }
+        if deletion_status in {"removed", "unknown"}:
+            summary["message"] = "Source is withdrawn or has unknown deletion status."
+            summaries.append(summary)
+            continue
+        if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.password:
+            summary["message"] = "Source URL is not a valid public HTTPS URL."
+            summaries.append(summary)
+            continue
+        normalized_url = parsed._replace(fragment="").geturl()
+        if normalized_url in seen:
+            summary["message"] = "Duplicate source URL."
+            summaries.append(summary)
+            continue
+        seen.add(normalized_url)
+
+        title = re.sub(
+            r"\s+",
+            " ",
+            str(raw.get("title") or "GateX source evidence"),
+        ).strip()[:300]
+        publisher = re.sub(
+            r"\s+",
+            " ",
+            str(raw.get("publisher") or parsed.hostname),
+        ).strip()[:200]
+        excerpt = re.sub(r"\s+", " ", str(raw.get("excerpt") or "")).strip()
+        try:
+            configured_limit = int(metadata.get("maxQuoteCharacters") or 800)
+        except (TypeError, ValueError):
+            configured_limit = 800
+        excerpt_limit = max(80, min(configured_limit, 1_200))
+        bounded_excerpt = excerpt[:excerpt_limit]
+        if not bounded_excerpt:
+            bounded_excerpt = (
+                f"GateX editors registered {title} from {publisher} as a source "
+                "requiring independent verification."
+            )
+        confidence_value = raw.get("confidence")
+        try:
+            confidence = (
+                float(confidence_value) if confidence_value is not None else None
+            )
+        except (TypeError, ValueError):
+            confidence = None
+        if confidence is not None and confidence > 1:
+            confidence /= 100
+        if confidence is not None:
+            confidence = max(0.0, min(confidence, 1.0))
+
+        content = "\n".join(
+            part
+            for part in (
+                f"GateX reviewed source seed: {title}",
+                f"Publisher: {publisher}",
+                (
+                    f"Published: {str(raw.get('publishedAt') or '').strip()[:80]}"
+                    if raw.get("publishedAt")
+                    else ""
+                ),
+                f"Evidence summary: {bounded_excerpt}",
+                "Editorial rule: use this as a lead and corroborate material "
+                "claims with independent sources.",
+            )
+            if part
+        )
+        documents.append(
+            SourceDocument(
+                title=title,
+                url=normalized_url,
+                query=f"GateX editorial seed evidence: {title}"[:500],
+                snippet=bounded_excerpt,
+                content=content,
+                source_type=(
+                    "gatex_seed_"
+                    f"{str(raw.get('kind') or 'web').strip().lower()[:60]}"
+                ),
+                content_type="text/plain",
+                domain=parsed.hostname.lower(),
+                confidence=confidence,
+                metadata={
+                    "gatex_seed": True,
+                    "source_id": str(raw.get("id") or "")[:160],
+                    "content_hash": str(raw.get("contentHash") or "")[:64],
+                    "publisher": publisher,
+                    "published_at": str(raw.get("publishedAt") or "")[:80],
+                    "claim_ids": [
+                        str(value)[:200]
+                        for value in (
+                            raw.get("claimIds")
+                            if isinstance(raw.get("claimIds"), list)
+                            else []
+                        )[:100]
+                    ],
+                    "quality_score": raw.get("qualityScore"),
+                    "relevance_score": raw.get("relevanceScore"),
+                    "reuse_policy": str(metadata.get("reusePolicy") or "")[:120],
+                    "max_quote_characters": excerpt_limit,
+                },
+            )
+        )
+        summary.update(
+            {
+                "status": "ready",
+                "title": title,
+                "publisher": publisher,
+                "excerptChars": len(bounded_excerpt),
+            }
+        )
+        summaries.append(summary)
+    return documents, summaries
+
+
+def download_intelligence_seed_sources(
+    api: GateXApi,
+    manifest: Dict[str, Any],
+    target_dir: Path,
+) -> tuple[List[SourceDocument], List[Dict[str, Any]]]:
+    """Hydrate callback-authorized GateX seed bodies without persisting them."""
+
+    documents, summaries = discovered_sources_from_manifest(manifest)
+    documents_by_id = {
+        str(document.metadata.get("source_id") or ""): document
+        for document in documents
+        if document.metadata.get("source_id")
+    }
+    summaries_by_id = {
+        str(summary.get("id") or ""): summary
+        for summary in summaries
+        if summary.get("id")
+    }
+    candidate: Any = (
+        manifest.get("data")
+        if isinstance(manifest.get("data"), dict)
+        else manifest
+    )
+    items = candidate.get("discoveredSources") if isinstance(candidate, dict) else None
+    if not isinstance(items, list):
+        return documents, summaries
+    target_dir.mkdir(parents=True, exist_ok=True)
+
+    for index, raw in enumerate(items[:80], start=1):
+        if not isinstance(raw, dict):
+            continue
+        content_url = str(
+            raw.get("contentUrl") or raw.get("content_url") or ""
+        ).strip()
+        if not content_url:
+            continue
+        source_id = str(raw.get("id") or "").strip()
+        document = documents_by_id.get(source_id)
+        if not document:
+            raise BridgeError(
+                f"Private GateX source {source_id or index} has no valid evidence record."
+            )
+        expected_hash = str(
+            raw.get("contentSha256")
+            or raw.get("content_sha256")
+            or raw.get("contentHash")
+            or ""
+        ).strip().lower()
+        source_hash = str(raw.get("contentHash") or "").strip().lower()
+        if not re.fullmatch(r"[0-9a-f]{64}", expected_hash) or (
+            source_hash and source_hash != expected_hash
+        ):
+            raise BridgeError(
+                f"Private GateX source {source_id or index} has inconsistent SHA-256 metadata."
+            )
+        content_type = str(
+            raw.get("contentType") or raw.get("content_type") or ""
+        ).strip().lower()
+        if content_type != "text/plain; charset=utf-8":
+            raise BridgeError(
+                f"Private GateX source {source_id or index} is not UTF-8 plain text."
+            )
+        declared_size = int(
+            raw.get("contentByteSize") or raw.get("content_byte_size") or 0
+        )
+        if declared_size < 1 or declared_size > MAX_INTELLIGENCE_SOURCE_BYTES:
+            raise BridgeError(
+                f"Private GateX source {source_id or index} exceeds the "
+                "2,000,000-byte limit."
+            )
+
+        target = target_dir / (
+            f"intelligence-{index:03d}-{source_id[:36] or 'source'}.txt"
+        )
+        api.download(content_url, target)
+        raw_bytes = target.read_bytes()
+        if (
+            len(raw_bytes) != declared_size
+            or len(raw_bytes) > MAX_INTELLIGENCE_SOURCE_BYTES
+        ):
+            raise BridgeError(
+                f"Private GateX source {source_id or index} byte size did not "
+                "match its manifest."
+            )
+        if hashlib.sha256(raw_bytes).hexdigest() != expected_hash:
+            raise BridgeError(
+                f"Private GateX source {source_id or index} failed SHA-256 verification."
+            )
+        try:
+            content = raw_bytes.decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise BridgeError(
+                f"Private GateX source {source_id or index} is not valid UTF-8."
+            ) from exc
+        if not content.strip():
+            raise BridgeError(
+                f"Private GateX source {source_id or index} is empty."
+            )
+
+        metadata = dict(document.metadata or {})
+        metadata.update(
+            {
+                "gatex_private_content": True,
+                "content_hash": expected_hash,
+                "content_byte_size": len(raw_bytes),
+                "reuse_policy": str(
+                    metadata.get("reuse_policy") or "original_summary_only"
+                )[:120],
+                "max_quote_characters": min(
+                    180,
+                    max(80, int(metadata.get("max_quote_characters") or 180)),
+                ),
+            }
+        )
+        document.content = content
+        document.content_type = "text/plain; charset=utf-8"
+        document.source_type = (
+            "gatex_private_"
+            f"{str(raw.get('kind') or 'source').strip().lower()[:60]}"
+        )
+        document.metadata = metadata
+        summary = summaries_by_id.get(source_id)
+        if summary is not None:
+            summary.update(
+                {
+                    "status": "ready",
+                    "privateContent": True,
+                    "contentByteSize": len(raw_bytes),
+                    "contentSha256": expected_hash,
+                }
+            )
+
+    return documents, summaries
 
 
 def _safe_file_name(value: str, index: int) -> str:
@@ -442,6 +726,7 @@ def _run_generator(
     model: str,
     source_mode: str,
     private_sources: Sequence[SourceDocument],
+    seed_sources: Sequence[SourceDocument],
     output_dir: Path,
 ) -> Dict[str, Any]:
     client = DeepSeekClient(model=model)
@@ -450,6 +735,7 @@ def _run_generator(
         topic=topic,
         output_dir=output_dir,
         private_sources=list(private_sources),
+        seed_sources=list(seed_sources),
         source_mode=source_mode,
     )
 
@@ -660,9 +946,22 @@ def run_job(args: argparse.Namespace) -> int:
         api.progress("ingesting", 3, "GateX generation runner started.")
         private_sources: List[SourceDocument] = []
         private_source_summary: List[Dict[str, Any]] = []
+        api.progress("ingesting", 6, "Loading the GateX source manifest.")
+        manifest = api.source_manifest()
+        seed_sources, intelligence_source_summary = download_intelligence_seed_sources(
+            api,
+            manifest,
+            private_dir / "intelligence",
+        )
+        provenance_type = str(manifest.get("provenanceType") or "").strip().lower()
+        if provenance_type == "source_channel" and not any(
+            source.metadata.get("gatex_private_content") for source in seed_sources
+        ):
+            raise BridgeError(
+                "A source-channel generation job requires verified private source content."
+            )
         if source_mode in {"collection_only", "web_and_collection"}:
             api.progress("ingesting", 8, "Downloading the private source collection.")
-            manifest = api.source_manifest()
             private_sources, private_source_summary = download_private_sources(api, manifest, private_dir)
             if not private_sources:
                 raise BridgeError(
@@ -681,6 +980,7 @@ def run_job(args: argparse.Namespace) -> int:
             model=str(args.model or "deepseek-chat"),
             source_mode=source_mode,
             private_sources=private_sources,
+            seed_sources=seed_sources,
             output_dir=output_dir,
         )
 
@@ -709,6 +1009,7 @@ def run_job(args: argparse.Namespace) -> int:
             "assets": assets,
             "audit": audit,
             "privateSourceIngestion": private_source_summary,
+            "intelligenceSourceIngestion": intelligence_source_summary,
         }
         api.complete(completion)
         _write_github_output("report_dir", str(output_dir))

@@ -442,6 +442,18 @@ def build_research_fact_pack(topic: str, plan: Dict[str, Any], sources: List[Sou
         if source.source_type == "pdf":
             source_bonus += 2
         for sentence in _split_sentences("\n".join([source.snippet or "", source.content or ""])):
+            if source.metadata.get("gatex_private_content"):
+                try:
+                    quote_limit = max(
+                        80,
+                        min(
+                            180,
+                            int(source.metadata.get("max_quote_characters") or 180),
+                        ),
+                    )
+                except (TypeError, ValueError):
+                    quote_limit = 180
+                sentence = sentence[:quote_limit]
             if _is_scrape_noise(sentence):
                 continue
             score = _score_sentence(sentence, topic) + source_bonus
