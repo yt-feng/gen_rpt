@@ -668,6 +668,24 @@ def normalize_report_section_prose(report: Any) -> Any:
             unique_paragraphs.append(paragraph)
         if len(unique_paragraphs) != len(paragraphs):
             paragraphs = _three_balanced_paragraphs(unique_paragraphs) or unique_paragraphs
+        if any(_word_count(item) < 35 for item in paragraphs):
+            merged = []
+            buf = ""
+            for p in paragraphs:
+                if not buf:
+                    buf = p
+                elif _word_count(buf) < 35:
+                    buf = f"{buf} {p}"
+                else:
+                    merged.append(buf)
+                    buf = p
+            if buf:
+                if merged and _word_count(buf) < 35:
+                    merged[-1] = f"{merged[-1]} {buf}"
+                else:
+                    merged.append(buf)
+            if len(merged) >= 3:
+                paragraphs = merged
         seen_paragraphs.update(_normalized_words(paragraph) for paragraph in paragraphs)
         section["paragraphs"] = paragraphs
 
@@ -1279,7 +1297,7 @@ def _word_count(value: Any) -> int:
 
 def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
     text = "\n".join(paragraphs)
-    if _word_count(text) < 90:
+    if _word_count(text) < 105:
         return []
     sentences = [
         item.strip()
@@ -1302,7 +1320,7 @@ def _three_balanced_paragraphs(paragraphs: List[str]) -> List[str]:
             candidate_key = (-min_c, spread)
             if best is None or candidate_key < best[0]:
                 best = (candidate_key, groups)
-    if best and -best[0][0] >= 28:
+    if best and -best[0][0] >= 35:
         return best[1]
     return []
 

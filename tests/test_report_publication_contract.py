@@ -425,6 +425,18 @@ class TestReportPublicationContract(unittest.TestCase):
         self.assertIn("TSMC Quarterly Report — CoWoS packaging capacity will expand by 100% by 2026.", report["sections"][0]["evidence"])
         self.assertIn("TrendForce Analysis — HBM market demand will exceed supply by 20% in 2026.", report["sections"][0]["evidence"])
 
+    def test_three_balanced_paragraphs_never_creates_paragraphs_under_35_words(self):
+        from gen_rpt.web_publication_contract import _three_balanced_paragraphs, _word_count
+        paragraphs = [
+            "CoWoS packaging yields remain constrained by die placement complexity and thermal dissipation challenges across high-density interposers.",
+            "Substrate suppliers are expanding capacity, but qualification cycles require twelve to eighteen months.",
+            "Equipment lead times for advanced bonders remain elevated.",
+        ]
+        result = _three_balanced_paragraphs(paragraphs)
+        if result:
+            for p in result:
+                self.assertGreaterEqual(_word_count(p), 35)
+
 
 if __name__ == "__main__":
     unittest.main()
