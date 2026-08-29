@@ -11,12 +11,14 @@ from .brand_assets import copy_or_generate_brand_assets, write_reference_backup
 from .deepseek_client import DeepSeekClient
 from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
+from .openalex_fetch import collect_openalex_sources
 from .private_sources import combine_source_documents, normalize_source_mode
 from .research_quality import ResearchFactPack, build_research_fact_pack
 from .web_evidence import (
     build_evidence_exhibits,
     build_evidence_ledger,
     build_storyline_plan,
+    build_verified_private_seed_evidence,
     merge_evidence_exhibits,
     reconcile_rag_web_evidence,
 )
@@ -57,7 +59,9 @@ def _source_artifact_dict(source: SourceDocument) -> Dict[str, Any]:
             )
         except (TypeError, ValueError):
             max_quote = 180
-        payload["content"] = str(source.snippet or "")[:max_quote]
+        bounded_snippet = str(source.snippet or "")[:max_quote]
+        payload["snippet"] = bounded_snippet
+        payload["content"] = bounded_snippet
         metadata["private_content_redacted"] = True
         for key in ("content_url", "download_url", "local_path", "object_key"):
             metadata.pop(key, None)
@@ -69,7 +73,7 @@ def _private_source_reproduction_violations(
     report: Dict[str, Any],
     sources: List[SourceDocument],
 ) -> List[str]:
-    """Detect verbatim private-source passages beyond the editorial quote cap."""
+    """Detect continuous or cumulative verbatim private-source leakage."""
 
     report_strings: List[str] = []
 
@@ -101,27 +105,57 @@ def _private_source_reproduction_violations(
         except (TypeError, ValueError):
             quote_limit = 180
         private_text = re.sub(r"\s+", " ", str(source.content or "")).strip()
-        window = quote_limit + 1
-        if len(private_text) < window:
+        if len(private_text) <= quote_limit:
             continue
+        allowed_texts = [
+            re.sub(r"\s+", " ", str(source.title or "")).strip(),
+            re.sub(r"\s+", " ", str(source.snippet or "")[:quote_limit]).strip(),
+        ]
+        allowed_texts = [value for value in allowed_texts if value]
+        intervals: List[tuple[int, int]] = []
+        minimum_match = 24
         for report_text in report_strings:
-            if len(report_text) < window:
+            if len(report_text) < minimum_match:
                 continue
-            offsets = list(
-                range(0, len(report_text) - window + 1, max(1, window // 2))
-            )
-            final_offset = len(report_text) - window
-            if not offsets or offsets[-1] != final_offset:
-                offsets.append(final_offset)
-            if any(
-                report_text[offset : offset + window] in private_text
-                for offset in offsets
-            ):
-                identity = (
-                    source.metadata.get("source_id") or source.title or source.url
-                )
-                violations.append(str(identity)[:200])
-                break
+            cursor = 0
+            while cursor <= len(report_text) - minimum_match:
+                fragment = report_text[cursor : cursor + minimum_match]
+                body_start = private_text.find(fragment)
+                if body_start < 0:
+                    cursor += 1
+                    continue
+                report_start = cursor
+                while (
+                    report_start > 0
+                    and body_start > 0
+                    and report_text[report_start - 1] == private_text[body_start - 1]
+                ):
+                    report_start -= 1
+                    body_start -= 1
+                report_end = cursor + minimum_match
+                body_end = body_start + (report_end - report_start)
+                while (
+                    report_end < len(report_text)
+                    and body_end < len(private_text)
+                    and report_text[report_end] == private_text[body_end]
+                ):
+                    report_end += 1
+                    body_end += 1
+                matched = report_text[report_start:report_end]
+                if not any(matched in allowed for allowed in allowed_texts):
+                    intervals.append((body_start, body_end))
+                cursor = max(cursor + 1, report_end)
+        merged: List[tuple[int, int]] = []
+        for start, end in sorted(intervals):
+            if merged and start <= merged[-1][1]:
+                merged[-1] = (merged[-1][0], max(merged[-1][1], end))
+            else:
+                merged.append((start, end))
+        unique_coverage = sum(end - start for start, end in merged)
+        longest_passage = max((end - start for start, end in merged), default=0)
+        if unique_coverage > quote_limit or longest_passage > quote_limit:
+            identity = source.metadata.get("source_id") or source.title or source.url
+            violations.append(str(identity)[:200])
     return violations
 
 
@@ -140,6 +174,7 @@ class WebReportPipeline:
         self.rag_context: str | None = None
         self.rag_sources: List[SourceDocument] = []
         self.rag_required = False
+        self.source_profile: Dict[str, Any] = {}
 
     def build_report(
         self,
@@ -152,6 +187,7 @@ class WebReportPipeline:
         private_sources: List[SourceDocument] | None = None,
         seed_sources: List[SourceDocument] | None = None,
         source_mode: str = "web_only",
+        source_profile: Dict[str, Any] | None = None,
     ) -> Dict[str, Any]:
         run_start = time.monotonic()
         self.rag_context = rag_context
@@ -162,6 +198,26 @@ class WebReportPipeline:
         normalized_source_mode = normalize_source_mode(source_mode)
         private_source_list = list(private_sources or [])
         seed_source_list = list(seed_sources or [])
+        self.source_profile = dict(source_profile or {})
+        if self._source_channel_mode():
+            verified_seed_sources = [
+                source
+                for source in seed_source_list
+                if source.metadata.get("gatex_private_content") is True
+                and str(source.content or "").strip()
+                and re.fullmatch(
+                    r"[0-9a-f]{64}",
+                    str(source.metadata.get("content_hash") or "").strip().lower(),
+                )
+            ]
+            if not verified_seed_sources:
+                raise RuntimeError(
+                    "Source-channel planning requires a verified private source body."
+                )
+            if not self._source_profile_anchors():
+                raise RuntimeError(
+                    "Source-channel planning requires safe anchors derived from the verified private source."
+                )
         if normalized_source_mode != "web_only" and not private_source_list:
             raise ValueError(
                 f"source_mode={normalized_source_mode!r} requires at least one private source"
@@ -220,7 +276,9 @@ class WebReportPipeline:
         search_queries = self._expanded_search_queries(plan, chart_data_needs)[:max_queries]
         phase_start = time.monotonic()
         public_sources: List[SourceDocument] = []
-        web_required = normalized_source_mode != "collection_only" and self._rag_web_required()
+        web_required = normalized_source_mode != "collection_only" and (
+            self._rag_web_required() or self._source_channel_mode()
+        )
         if normalized_source_mode == "collection_only":
             self._log(
                 "PHASE source_collection web search skipped "
@@ -237,6 +295,7 @@ class WebReportPipeline:
                 search_queries,
                 per_query=per_query,
                 max_sources=max_sources,
+                topic=display_topic,
             )
         supplemental_sources = combine_source_documents(
             public_sources,
@@ -279,7 +338,16 @@ class WebReportPipeline:
         self._log("PHASE fact_pack started | expected <10s")
         rag_fact_pack = build_research_fact_pack(display_topic, plan, self.rag_sources) if self.rag_context else None
         web_fact_pack = build_research_fact_pack(display_topic, plan, supplemental_sources) if self.rag_context and supplemental_sources else None
-        fact_pack = rag_fact_pack or build_research_fact_pack(display_topic, plan, sources)
+        source_channel_fact_pack = (
+            build_research_fact_pack(display_topic, plan, public_sources)
+            if self._source_channel_mode()
+            else None
+        )
+        fact_pack = (
+            rag_fact_pack
+            or source_channel_fact_pack
+            or build_research_fact_pack(display_topic, plan, sources)
+        )
         self._log(
             "PHASE fact_pack completed "
             f"| elapsed={self._elapsed(phase_start)} | source_count={fact_pack.source_count} "
@@ -316,6 +384,34 @@ class WebReportPipeline:
                 evidence_ledger = [*rag_evidence_ledger, *web_evidence_ledger]
                 approved_evidence = reconciliation["approved"]
                 evidence_conflicts = reconciliation["conflicts"]
+            elif self._source_channel_mode():
+                web_evidence_ledger = (
+                    build_evidence_ledger(
+                        display_topic,
+                        public_sources,
+                        source_channel_fact_pack or fact_pack,
+                        limit=30,
+                        id_prefix="WEB-E",
+                        plan=plan,
+                    )
+                    if public_sources
+                    else []
+                )
+                private_seed_evidence = build_verified_private_seed_evidence(
+                    display_topic,
+                    seed_source_list,
+                    limit=8,
+                    id_prefix="PRIVATE-E",
+                    plan=plan,
+                )
+                if not private_seed_evidence:
+                    raise RuntimeError(
+                        "Verified private source content produced no traceable primary evidence."
+                    )
+                evidence_ledger = [*private_seed_evidence, *web_evidence_ledger]
+                rag_evidence_ledger = []
+                approved_evidence = evidence_ledger
+                evidence_conflicts = []
             else:
                 evidence_ledger = build_evidence_ledger(display_topic, sources, fact_pack, plan=plan)
                 rag_evidence_ledger = []
@@ -337,6 +433,7 @@ class WebReportPipeline:
             max(
                 fact_pack.authoritative_source_count,
                 web_fact_pack.authoritative_source_count if web_fact_pack else 0,
+                source_channel_fact_pack.authoritative_source_count if source_channel_fact_pack else 0,
             ),
             approved_evidence,
             web_evidence_ledger,
@@ -471,9 +568,12 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE evidence_exhibits started | expected <10s")
         report["conflicts"] = evidence_conflicts
+        exhibit_evidence = (
+            web_evidence_ledger if self._source_channel_mode() else approved_evidence
+        )
         evidence_exhibits = build_evidence_exhibits(
             display_topic,
-            approved_evidence,
+            exhibit_evidence,
             fact_pack,
             plan=plan,
             chart_data_needs=chart_data_needs,
@@ -577,7 +677,21 @@ class WebReportPipeline:
         )
 
         private_reproduction = _private_source_reproduction_violations(
-            report,
+            {
+                "report": report,
+                "research_plan": plan,
+                "chart_data_needs": chart_data_needs,
+                "analysis_framework": self._analysis_framework(
+                    plan,
+                    chart_data_needs,
+                    storyline_plan,
+                ),
+                "research_fact_pack": fact_pack.to_dict(),
+                "evidence_ledger": evidence_ledger,
+                "approved_evidence": approved_evidence,
+                "storyline_plan": storyline_plan,
+                "sources": source_dicts,
+            },
             seed_source_list,
         )
         if private_reproduction:
@@ -833,7 +947,21 @@ class WebReportPipeline:
         *,
         per_query: int,
         max_sources: int,
+        topic: str = "",
     ) -> List[SourceDocument]:
+        if self._source_channel_mode():
+            web_sources = collect_sources(
+                search_queries,
+                per_query=per_query,
+                max_sources=max_sources,
+            )
+            academic_sources = collect_openalex_sources(
+                " ".join(search_queries[:2])[:500]
+                or topic
+                or " ".join(self._source_profile_anchors()[:3]),
+                search_queries,
+            )
+            return merge_sources(web_sources, academic_sources)[:max_sources]
         if not self.rag_context:
             return collect_sources(search_queries, per_query=per_query, max_sources=max_sources)
         max_queries = max(1, min(8, int(os.getenv("GEN_RPT_RAG_WEB_MAX_QUERIES", "4"))))
@@ -850,6 +978,143 @@ class WebReportPipeline:
             self.rag_context
             and str(os.getenv("GEN_RPT_RAG_WEB_REQUIRED", "true")).strip().lower() in {"1", "true", "yes", "on"}
         )
+
+    def _source_channel_mode(self) -> bool:
+        return str(self.source_profile.get("mode") or "").strip().lower() == "source_channel"
+
+    def _source_profile_anchors(self) -> List[str]:
+        values: List[Any] = list(_as_list(self.source_profile.get("anchors")))
+        for source in _as_list(self.source_profile.get("sources")):
+            if isinstance(source, dict):
+                values.extend(_as_list(source.get("anchors")))
+        anchors: List[str] = []
+        seen: set[str] = set()
+        for value in values:
+            anchor = re.sub(r"\s+", " ", str(value or "")).strip()[:64]
+            key = re.sub(r"\W+", "", anchor.lower())
+            if len(key) < 2 or key in seen:
+                continue
+            seen.add(key)
+            anchors.append(anchor)
+            if len(anchors) >= 16:
+                break
+        return anchors
+
+    def _planning_source_profile(self) -> Dict[str, Any]:
+        """Return only bounded fields that are safe to send to the planner."""
+
+        sources: List[Dict[str, Any]] = []
+        for source in _as_list(self.source_profile.get("sources"))[:8]:
+            if not isinstance(source, dict):
+                continue
+            sources.append(
+                {
+                    "title": str(source.get("title") or "")[:300],
+                    "publisher": str(source.get("publisher") or "")[:200],
+                    "approvedExcerpt": str(source.get("approvedExcerpt") or "")[:180],
+                    "anchors": [str(item)[:64] for item in _as_list(source.get("anchors"))[:12]],
+                }
+            )
+        return {
+            "mode": "source_channel",
+            "anchors": self._source_profile_anchors(),
+            "sources": sources,
+        }
+
+    def _query_contains_source_anchor(self, query: str) -> bool:
+        query_key = re.sub(r"\W+", "", str(query or "").lower())
+        return bool(
+            query_key
+            and any(
+                (anchor_key := re.sub(r"\W+", "", anchor.lower()))
+                and anchor_key in query_key
+                for anchor in self._source_profile_anchors()
+            )
+        )
+
+    def _source_channel_search_queries(self, values: List[Any]) -> List[str]:
+        """Keep only source-anchored corroboration queries and fill gaps safely."""
+
+        retained = [
+            query
+            for query in self._dedupe_queries(values)
+            if self._query_contains_source_anchor(query)
+        ][:8]
+        anchors = self._source_profile_anchors()
+        if self.language == "zh":
+            suffixes = (
+                "实证研究 学术 证据",
+                "管理决策 研究 官方 指引",
+                "系统综述 site:edu",
+                "政策研究 site:gov.cn",
+            )
+        else:
+            suffixes = (
+                "empirical study academic evidence",
+                "management decision research official guidance",
+                "systematic review site:edu",
+                "policy research site:gov",
+            )
+        for index in range(max(8, len(anchors)) * 2):
+            if len(retained) >= 8 or not anchors:
+                break
+            anchor = anchors[index % len(anchors)].strip(' \t\r\n"\'“”‘’')
+            if not anchor:
+                continue
+            secondary = anchors[(index + 1) % len(anchors)].strip(
+                ' \t\r\n"\'“”‘’'
+            )
+            secondary_key = re.sub(r"\W+", "", secondary.lower())
+            anchor_key = re.sub(r"\W+", "", anchor.lower())
+            paired_anchor = (
+                f' "{secondary}"'
+                if secondary_key and secondary_key not in anchor_key
+                else ""
+            )
+            query = (
+                f'"{anchor}"{paired_anchor} '
+                f"{suffixes[index % len(suffixes)]}"
+            )
+            if query not in retained:
+                retained.append(query)
+
+        paired: List[str] = []
+        for query in retained:
+            paired.append(query)
+            discovery_query = self._site_discovery_query(query)
+            if discovery_query:
+                paired.append(discovery_query)
+        return self._dedupe_texts(paired)[:12]
+
+    def _site_discovery_query(self, query: str) -> str:
+        """Pair a strict site query with institution-name discovery search."""
+
+        match = re.search(r"(?:^|\s)site:([a-z0-9.-]+)", query, flags=re.I)
+        if not match:
+            return ""
+        domain = match.group(1).lower().strip(".")
+        if domain in {"edu", "gov", "gov.cn", "ac.uk"}:
+            return ""
+        labels = {
+            "bis.org": "BIS",
+            "oecd.org": "OECD",
+            "worldbank.org": "World Bank",
+            "imf.org": "IMF",
+            "sec.gov": "SEC",
+            "nber.org": "NBER",
+        }
+        institution = labels.get(domain)
+        if not institution:
+            first_label = domain.split(".", 1)[0]
+            if len(first_label) < 2:
+                return ""
+            institution = first_label.upper()
+        base = re.sub(r"(?:^|\s)site:[a-z0-9.-]+", " ", query, flags=re.I)
+        base = re.sub(r"\s+", " ", base).strip()
+        if not base or not self._query_contains_source_anchor(base):
+            return ""
+        suffix = "官方研究" if self.language == "zh" else "official research"
+        return f"{institution} {base} {suffix}"[:500]
 
     def _combined_grounding_text(
         self,
@@ -882,6 +1147,23 @@ class WebReportPipeline:
             issues.append("at least one authority-weighted public source is required")
         if self.rag_context and web_required and len(web_evidence) < 2:
             issues.append(f"at least two supplementary public evidence points are required; found {len(web_evidence)}")
+        if self._source_channel_mode() and len(web_evidence) < 2:
+            issues.append(
+                "at least two independently corroborating public evidence points "
+                f"are required for a source-channel report; found {len(web_evidence)}"
+            )
+        if self._source_channel_mode():
+            public_source_keys = {
+                str(item.get("domain") or item.get("source_url") or "").strip().lower()
+                for item in web_evidence
+                if str(item.get("domain") or item.get("source_url") or "").strip()
+            }
+            if len(public_source_keys) < 2:
+                issues.append(
+                    "source-channel corroboration requires at least two distinct "
+                    "public source domains or identities; found "
+                    f"{len(public_source_keys)}"
+                )
         return issues
 
     def _prepare_report_draft(
@@ -1216,6 +1498,55 @@ Rules:
 - Build a compact decision brief around a thesis, source-backed findings, causal drivers, counter-evidence or risk, decision implications and actions. For investment topics include source comparison, scenarios, sensitivities and segment implications when the evidence supports them.
 - CRITICAL: Do not invent salary figures, compensation amounts, job titles, years of experience or any other values not explicitly in the document.
 """
+        elif self._source_channel_mode():
+            profile = json.dumps(
+                self._planning_source_profile(),
+                ensure_ascii=False,
+                indent=2,
+            )
+            system = (
+                "You are a source-linked research planner. Use the verified, "
+                "bounded source profile before planning and return strict JSON only."
+            )
+            if self.language == "zh":
+                user = f"""为 GateX source-channel 扫描生成外部佐证研究计划，输出 JSON。
+
+主题：{topic}
+
+VERIFIED PRIVATE SOURCE PROFILE（只含审核摘要与从已校验正文提取的安全关键词）：
+{profile}
+
+必须包含字段：objective、audience、decision_question、issue_tree、hypotheses、validation_data_needs、search_queries、source_strategy、outline、exhibit_ideas、risks。
+
+规则：
+- 先围绕 source profile 中真实出现的观点、实体和关键词定义研究问题；不要把标题泛化成投资、基金、资产配置或市场规模报告。
+- search_queries 8-12 条，只用于寻找独立的公开佐证、反证、可比案例或机制研究。
+- 每一条 search query 必须逐字包含 profile.anchors 中至少一个关键词或实体，确保检索可追溯到原文，而不是泛化模板。
+- 面向大学、论文和 OpenAlex 的 query 同时加入该概念准确的英文对应词，但仍须保留原始 anchor。
+- 优先政府、监管机构、大学、同行评审论文、国际组织、行业协会和公司原始披露；权威来源不足时明确保留证据缺口。
+- 不要搜索或复述私有正文；approvedExcerpt 仅用于确定主题边界。私有来源不能算作公开权威来源。
+- 仅当 source profile 本身涉及市场规模、融资或交易数据时才规划相关检索；否则聚焦其实际机制、案例、反例和管理含义。
+- outline 5-6 个结论先行章节，必须反映 source profile 的实际主题。
+"""
+            else:
+                user = f"""Create an external-corroboration plan for a GateX source-channel scan and return JSON.
+
+Topic: {topic}
+
+VERIFIED PRIVATE SOURCE PROFILE (bounded approved excerpts and safe anchors extracted from verified content only):
+{profile}
+
+Required fields: objective, audience, decision_question, issue_tree, hypotheses, validation_data_needs, search_queries, source_strategy, outline, exhibit_ideas, risks.
+
+Rules:
+- Frame the research around claims, entities and concepts actually present in the source profile. Do not turn the title into a generic investment, fund, asset-allocation or market-sizing report.
+- Provide 8-12 queries only for independent public corroboration, counter-evidence, comparable cases or mechanism research.
+- Every search query must literally include at least one item from profile.anchors so collection stays traceable to the verified source rather than a generic template.
+- Prioritize governments, regulators, universities, peer-reviewed research, international organizations, industry associations and primary company disclosures. Preserve evidence gaps when authority-grade corroboration is unavailable.
+- Do not search for or reproduce the private body. approvedExcerpt sets the topic boundary only, and the private source is not a public authority.
+- Plan market-size, funding or transaction searches only when the source profile itself concerns them; otherwise focus on its actual mechanism, examples, counter-evidence and management implications.
+- Use 5-6 conclusion-first outline headings that reflect the source profile's actual subject.
+"""
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.1)
 
     def _plan_chart_data_needs(self, topic: str, plan: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -1261,11 +1592,79 @@ Requirements:
 - search_queries: 2-3 targeted queries per chart, prioritizing official sources, regulators, industry associations, company announcements, PDF reports and authoritative datasets.
 - Charts may use only real public data. If a dataset cannot be found, the report should frame it as a business question still needing proof rather than invent values or display a backstage validation checklist.
 """
+        if self._source_channel_mode():
+            system = (
+                "You design evidence exhibits for a source-linked management "
+                "brief. Return strict JSON only."
+            )
+            user = f"""Define 4-6 evidence exhibit needs for a source-linked report and return JSON only.
+
+Topic: {topic}
+Source-grounded research plan:
+{json.dumps(plan, ensure_ascii=False, indent=2)}
+
+Return field chart_data_needs. Each item includes title, chart_type, executive_question, narrative_role, pre_exhibit_context, post_exhibit_takeaway, required_metrics, comparison_set, preferred_sources, search_queries and data_quality_rule.
+
+Rules:
+- Stay on the actual source-grounded claims, mechanisms, counter-evidence, cases and management implications in the plan.
+- Do not add market sizing, funding, investment, pricing, capacity or regulatory exhibits unless the plan itself explicitly concerns them.
+- Prefer a source-comparison matrix, dated evidence timeline, mechanism/counter-evidence comparison and case comparison. Use quantitative charts only when the plan requests a real comparable metric.
+- Every search query must retain at least one source anchor already present in plan.search_queries.
+- Use only independently traceable public evidence; missing data remains an explicit evidence gap.
+"""
         payload = self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.05)
         return self._normalize_chart_data_needs(payload.get("chart_data_needs") or payload.get("needs") or payload.get("charts") or [])
 
     def _fallback_chart_data_needs(self, topic: str, plan: Dict[str, Any], reason: str) -> List[Dict[str, Any]]:
         base_queries = self._dedupe_queries(_as_list(plan.get("search_queries")))
+        if self._source_channel_mode():
+            query = base_queries[0] if base_queries else " ".join(
+                self._source_profile_anchors()[:2]
+            )
+            needs = [
+                {
+                    "title": f"{topic}: independent source comparison",
+                    "chart_type": "matrix",
+                    "executive_question": "Which source-linked claims have independent support or counter-evidence?",
+                    "required_metrics": ["claim", "source", "support or contradiction", "publication date"],
+                    "comparison_set": ["source thesis", "public corroboration", "public counter-evidence"],
+                    "preferred_sources": ["government", "university", "peer-reviewed research", "international organization"],
+                    "search_queries": [query],
+                    "data_quality_rule": "Keep private primary evidence separate from public corroboration and do not score unsupported claims.",
+                    "narrative_role": "Separate the source thesis from independent corroboration and counter-evidence.",
+                    "pre_exhibit_context": "State the claim that needs independent verification.",
+                    "post_exhibit_takeaway": "Explain which parts can inform management and which remain open.",
+                },
+                {
+                    "title": f"{topic}: dated evidence sequence",
+                    "chart_type": "timeline",
+                    "executive_question": "How has the public evidence on the source-linked mechanism developed over time?",
+                    "required_metrics": ["publication date", "event or finding", "source identity"],
+                    "comparison_set": ["dated studies", "official guidance", "documented cases"],
+                    "preferred_sources": ["official publication", "academic paper", "documented case"],
+                    "search_queries": [query],
+                    "data_quality_rule": "Use only dated public records and retain conflicting findings.",
+                    "narrative_role": "Show whether corroboration is persistent, recent or contradicted.",
+                    "pre_exhibit_context": "Explain why timing changes the strength of the source thesis.",
+                    "post_exhibit_takeaway": "Translate the evidence sequence into a monitoring implication.",
+                },
+                {
+                    "title": f"{topic}: mechanism and counter-evidence",
+                    "chart_type": "matrix",
+                    "executive_question": "Which causal mechanisms and boundary conditions are supported?",
+                    "required_metrics": ["mechanism", "observed setting", "counter-evidence", "boundary condition"],
+                    "comparison_set": ["mechanisms", "contexts", "failure modes"],
+                    "preferred_sources": ["peer-reviewed research", "official guidance", "case evidence"],
+                    "search_queries": [query],
+                    "data_quality_rule": "Do not convert qualitative findings into synthetic scores.",
+                    "narrative_role": "Connect the source thesis to mechanisms and limits that management can test.",
+                    "pre_exhibit_context": "Identify the proposed mechanism before presenting evidence.",
+                    "post_exhibit_takeaway": "State the conditions under which the thesis should or should not guide action.",
+                },
+            ]
+            if reason:
+                needs[0]["fallback_reason"] = reason[:240]
+            return self._normalize_chart_data_needs(needs)
         if self.language == "zh":
             title_prefix = topic
         else:
@@ -1434,7 +1833,7 @@ Requirements:
 
     def _expanded_search_queries(self, plan: Dict[str, Any], chart_data_needs: List[Dict[str, Any]]) -> List[str]:
         plan_queries = self._dedupe_queries(_as_list(plan.get("search_queries")))
-        if self.rag_context:
+        if self.rag_context or self._source_channel_mode():
             return self._dedupe_texts(plan_queries)
         chart_queries = self._chart_need_queries(chart_data_needs)
         framework_queries = self._analysis_framework_queries(plan)
@@ -1698,12 +2097,20 @@ CRITICAL RULES (violation = failure):
             )
             seen_ref_urls.add(source.url)
         report["references"] = refs
-        report.setdefault(
-            "disclaimer",
-            "Prepared for strategy discussion; validate source data before investment, transaction or operating decisions."
-            if self.language == "en"
-            else "本报告用于战略讨论；用于投资、交易或运营决策前需独立核验来源数据。",
-        )
+        if self._source_channel_mode():
+            report.setdefault(
+                "disclaimer",
+                "Prepared for management discussion; independently verify the source-linked thesis and public corroboration before acting."
+                if self.language == "en"
+                else "本报告用于管理讨论；采取行动前需独立核验来源主张及其公开佐证。",
+            )
+        else:
+            report.setdefault(
+                "disclaimer",
+                "Prepared for strategy discussion; validate source data before investment, transaction or operating decisions."
+                if self.language == "en"
+                else "本报告用于战略讨论；用于投资、交易或运营决策前需独立核验来源数据。",
+            )
 
     def _filter_rag_exhibits(
         self,
@@ -1788,9 +2195,26 @@ CRITICAL RULES (violation = failure):
     def _normalize_research_plan(self, plan: Dict[str, Any], topic: str) -> Dict[str, Any]:
         normalized = dict(plan or {})
         normalized["search_queries"] = self._dedupe_queries(_as_list(normalized.get("search_queries")))[:18]
-        normalized["hypotheses"] = self._normalize_hypotheses(normalized.get("hypotheses"), topic)
-        normalized["market_sizing_plan"] = self._normalize_market_sizing_plan(normalized.get("market_sizing_plan"), topic)
-        normalized["validation_data_needs"] = self._normalize_validation_data_needs(normalized.get("validation_data_needs"), topic)
+        if self._source_channel_mode():
+            normalized["search_queries"] = self._source_channel_search_queries(
+                normalized["search_queries"]
+            )
+        fill_framework_defaults = not self._source_channel_mode()
+        normalized["hypotheses"] = self._normalize_hypotheses(
+            normalized.get("hypotheses"),
+            topic,
+            fill_defaults=fill_framework_defaults,
+        )
+        normalized["market_sizing_plan"] = self._normalize_market_sizing_plan(
+            normalized.get("market_sizing_plan"),
+            topic,
+            fill_defaults=fill_framework_defaults,
+        )
+        normalized["validation_data_needs"] = self._normalize_validation_data_needs(
+            normalized.get("validation_data_needs"),
+            topic,
+            fill_defaults=fill_framework_defaults,
+        )
 
         critical_reqs = list(normalized.get("critical_evidence_required") or [])
         existing_ids = {str(req.get("id") or "") for req in critical_reqs if isinstance(req, dict)}
@@ -1836,14 +2260,15 @@ CRITICAL RULES (violation = failure):
             },
         ]
 
-        for item in baseline_investment:
-            if item["id"] not in existing_ids:
-                critical_reqs.append(item)
-                existing_ids.add(item["id"])
+        if not self._source_channel_mode():
+            for item in baseline_investment:
+                if item["id"] not in existing_ids:
+                    critical_reqs.append(item)
+                    existing_ids.add(item["id"])
 
         topic_lower = f"{topic} {normalized.get('decision_question') or ''}".lower()
         regulated_keywords = ("medical", "pharmaceutical", "infrastructure", "hardware", "device", "construction", "installation", "grid", "power", "water", "flood")
-        if any(kw in topic_lower for kw in regulated_keywords):
+        if not self._source_channel_mode() and any(kw in topic_lower for kw in regulated_keywords):
             for item in baseline_regulated:
                 if item["id"] not in existing_ids:
                     critical_reqs.append(item)
@@ -1851,7 +2276,7 @@ CRITICAL RULES (violation = failure):
 
         normalized["critical_evidence_required"] = critical_reqs
 
-        if not self.rag_context:
+        if not self.rag_context and not self._source_channel_mode():
             for query in self._analysis_framework_queries(normalized):
                 if query not in normalized["search_queries"]:
                     normalized["search_queries"].append(query)
@@ -1911,6 +2336,21 @@ CRITICAL RULES (violation = failure):
                 "do_not_proceed": f"现有证据不支持推进{topic}；需要人工审核。",
             },
         }
+        if self._source_channel_mode():
+            stance_sentences = {
+                "en": {
+                    "invest": f"Independent corroboration is strong enough to translate the source-linked thesis on {topic} into a bounded management action.",
+                    "conditional_pilot": f"The source-linked thesis on {topic} supports a limited management test, subject to the unresolved evidence conditions.",
+                    "validation_only": f"The source-linked thesis on {topic} still requires independent validation before it is used as management guidance.",
+                    "do_not_proceed": f"Independent evidence does not currently support using the source-linked thesis on {topic} as management guidance.",
+                },
+                "zh": {
+                    "invest": f"围绕{topic}的来源主张已获得足够独立佐证，可转化为边界明确的管理行动。",
+                    "conditional_pilot": f"围绕{topic}的来源主张可进入有限范围的管理实践测试，但仍需满足未闭合的证据条件。",
+                    "validation_only": f"围绕{topic}的来源主张仍需独立核验，之后才能作为管理指引。",
+                    "do_not_proceed": f"当前独立证据不足以支持把围绕{topic}的来源主张作为管理指引。",
+                },
+            }
         lang = "zh" if str(self.language or "").lower().startswith("zh") else "en"
         sentence = stance_sentences[lang].get(stance) or stance_sentences[lang]["validation_only"]
 
@@ -1977,7 +2417,13 @@ CRITICAL RULES (violation = failure):
         return report
 
 
-    def _normalize_hypotheses(self, value: Any, topic: str) -> List[Dict[str, Any]]:
+    def _normalize_hypotheses(
+        self,
+        value: Any,
+        topic: str,
+        *,
+        fill_defaults: bool = True,
+    ) -> List[Dict[str, Any]]:
         items = []
         for idx, item in enumerate(_as_list(value), start=1):
             if isinstance(item, dict):
@@ -2003,7 +2449,7 @@ CRITICAL RULES (violation = failure):
                     "search_queries": queries[:4],
                 }
             )
-        if len(items) < 5:
+        if fill_defaults and len(items) < 5:
             defaults = self._default_hypotheses(topic)
             seen = {self._norm_key(item["hypothesis"]) for item in items}
             for item in defaults:
@@ -2014,7 +2460,13 @@ CRITICAL RULES (violation = failure):
                     break
         return items[:7]
 
-    def _normalize_market_sizing_plan(self, value: Any, topic: str) -> Dict[str, Any]:
+    def _normalize_market_sizing_plan(
+        self,
+        value: Any,
+        topic: str,
+        *,
+        fill_defaults: bool = True,
+    ) -> Dict[str, Any]:
         raw = dict(value or {}) if isinstance(value, dict) else {}
         methods = []
         method_source = raw.get("methods") or raw.get("approaches") or ([] if isinstance(value, dict) else value)
@@ -2038,7 +2490,7 @@ CRITICAL RULES (violation = failure):
                         "known_limitations": limitations[:4],
                     }
                 )
-        if len(methods) < 3:
+        if fill_defaults and len(methods) < 3:
             defaults = self._default_market_sizing_plan(topic)["methods"]
             seen = {self._norm_key(item["method"]) for item in methods}
             for item in defaults:
@@ -2049,12 +2501,22 @@ CRITICAL RULES (violation = failure):
                     break
         default_plan = self._default_market_sizing_plan(topic)
         return {
-            "sizing_question": str(raw.get("sizing_question") or raw.get("question") or default_plan["sizing_question"]).strip(),
+            "sizing_question": str(
+                raw.get("sizing_question")
+                or raw.get("question")
+                or (default_plan["sizing_question"] if fill_defaults else "")
+            ).strip(),
             "methods": methods[:5],
             "evidence_rule": str(raw.get("evidence_rule") or "Use public source values when available; keep missing variables as validation tasks.").strip(),
         }
 
-    def _normalize_validation_data_needs(self, value: Any, topic: str) -> List[Dict[str, Any]]:
+    def _normalize_validation_data_needs(
+        self,
+        value: Any,
+        topic: str,
+        *,
+        fill_defaults: bool = True,
+    ) -> List[Dict[str, Any]]:
         needs = []
         for idx, item in enumerate(_as_list(value), start=1):
             if isinstance(item, dict):
@@ -2069,7 +2531,7 @@ CRITICAL RULES (violation = failure):
                 queries = []
             if metric:
                 needs.append({"id": f"D{idx}", "metric": metric, "decision_use": reason, "preferred_sources": sources[:5], "search_queries": queries[:4]})
-        if len(needs) < 8:
+        if fill_defaults and len(needs) < 8:
             defaults = self._default_validation_data_needs(topic)
             seen = {self._norm_key(item["metric"]) for item in needs}
             for item in defaults:

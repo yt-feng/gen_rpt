@@ -1,4 +1,5 @@
 import hashlib
+import json
 import unittest
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -14,6 +15,7 @@ from tools.gatex_generation_bridge import (
     _private_reference_url,
     _request_with_retries,
     _run_generator,
+    build_intelligence_source_profile,
     discovered_sources_from_manifest,
     download_intelligence_seed_sources,
     download_private_sources,
@@ -56,8 +58,9 @@ class GateXGenerationBridgeTests(unittest.TestCase):
 
     def test_source_channel_private_body_is_verified_and_passed_as_seed(self):
         source_text = (
-            "Canonical source body with market observations.\n\n"
-            "A second paragraph for synthesis."
+            "Asterion Robotics uses counter-positioning stress tests before "
+            "major product decisions.\n\n"
+            "A second private paragraph explains the operating discipline."
         )
         source_bytes = source_text.encode("utf-8")
         digest = hashlib.sha256(source_bytes).hexdigest()
@@ -76,7 +79,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
                     "url": "https://example.com/source/1",
                     "title": "Tracked source",
                     "publisher": "Example publisher",
-                    "excerpt": "Editor-approved summary.",
+                    "excerpt": "E" * 180 + "SENTINEL_AFTER_QUOTE_CAP",
                     "contentHash": digest,
                     "contentSha256": digest,
                     "contentByteSize": len(source_bytes),
@@ -104,8 +107,28 @@ class GateXGenerationBridgeTests(unittest.TestCase):
             self.assertEqual(documents[0].content, source_text)
             self.assertTrue(documents[0].metadata["gatex_private_content"])
             self.assertEqual(documents[0].metadata["content_hash"], digest)
+            self.assertEqual(len(documents[0].snippet), 180)
+            self.assertNotIn("SENTINEL_AFTER_QUOTE_CAP", documents[0].snippet)
             self.assertEqual(summaries[0]["contentSha256"], digest)
             self.assertTrue(summaries[0]["privateContent"])
+
+            source_profile = build_intelligence_source_profile(
+                manifest,
+                documents,
+            )
+            self.assertEqual(source_profile["mode"], "source_channel")
+            self.assertIn("Asterion Robotics", source_profile["anchors"])
+            serialized_profile = json.dumps(source_profile, ensure_ascii=False)
+            self.assertNotIn("second private paragraph", serialized_profile)
+            self.assertNotIn("SENTINEL_AFTER_QUOTE_CAP", serialized_profile)
+            serialized_source_artifact = json.dumps(
+                _source_artifact_dict(documents[0]),
+                ensure_ascii=False,
+            )
+            self.assertNotIn(
+                "SENTINEL_AFTER_QUOTE_CAP",
+                serialized_source_artifact,
+            )
 
             with patch("tools.gatex_generation_bridge.DeepSeekClient"), patch(
                 "tools.gatex_generation_bridge.WebReportPipeline"
@@ -119,6 +142,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
                     private_sources=[],
                     seed_sources=documents,
                     output_dir=Path(directory),
+                    source_profile=source_profile,
                 )
 
         self.assertEqual(result, {"ok": True})
@@ -126,6 +150,32 @@ class GateXGenerationBridgeTests(unittest.TestCase):
             "seed_sources"
         ][0]
         self.assertEqual(passed_seed.content, source_text)
+        self.assertEqual(
+            pipeline_class.return_value.build_report.call_args.kwargs[
+                "source_profile"
+            ]["mode"],
+            "source_channel",
+        )
+
+    def test_source_channel_profile_fails_closed_without_verified_body(self):
+        manifest = {
+            "provenanceType": "manual_retry",
+            "effectiveProvenanceType": "source_channel",
+            "requiresPrivateSourceContent": True,
+        }
+        excerpt_only = SourceDocument(
+            title="Tracked source",
+            url="https://example.com/source",
+            query="seed",
+            snippet="Editor-approved excerpt",
+            content="Excerpt-only seed",
+            source_type="gatex_seed_social",
+            domain="example.com",
+            metadata={"source_id": "source-1", "gatex_seed": True},
+        )
+
+        with self.assertRaisesRegex(BridgeError, "verified private source content"):
+            build_intelligence_source_profile(manifest, [excerpt_only])
 
     def test_trend_manifest_stays_excerpt_seed_and_requires_web_corroboration(self):
         documents, summaries = discovered_sources_from_manifest(
@@ -161,7 +211,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
             title="Private source",
             url="https://example.com/source",
             query="seed",
-            snippet="Approved summary",
+            snippet="S" * 180 + "SENTINEL_AFTER_QUOTE_CAP",
             content="SECRET FULL BODY " * 100,
             source_type="gatex_private_social",
             content_type="text/plain; charset=utf-8",
@@ -174,8 +224,10 @@ class GateXGenerationBridgeTests(unittest.TestCase):
 
         payload = _source_artifact_dict(document)
 
-        self.assertEqual(payload["content"], "Approved summary")
+        self.assertEqual(payload["content"], "S" * 180)
+        self.assertEqual(payload["snippet"], "S" * 180)
         self.assertNotIn("SECRET FULL BODY", payload["content"])
+        self.assertNotIn("SENTINEL_AFTER_QUOTE_CAP", json.dumps(payload))
         self.assertTrue(payload["metadata"]["private_content_redacted"])
 
         exact_passage = "A" * 181
@@ -190,6 +242,48 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         self.assertEqual(
             _private_source_reproduction_violations(
                 {"sections": [{"body": "A" * 180}]},
+                [document],
+            ),
+            [],
+        )
+
+    def test_private_source_leak_guard_counts_unique_fragments_across_artifacts(self):
+        segments = [
+            f"private-segment-{index:02d}-" + chr(65 + index) * 55
+            for index in range(5)
+        ]
+        document = SourceDocument(
+            title="Public source title",
+            url="https://example.com/source",
+            query="seed",
+            snippet="Approved public summary.",
+            content=" | ".join(segments),
+            source_type="gatex_private_social",
+            domain="example.com",
+            metadata={
+                "gatex_private_content": True,
+                "source_id": "source-1",
+                "max_quote_characters": 180,
+            },
+        )
+
+        artifacts = {
+            "report": {"lead": segments[0]},
+            "research_plan": {"note": segments[2]},
+            "evidence": [{"fact": segments[4]}],
+        }
+        self.assertEqual(
+            _private_source_reproduction_violations(artifacts, [document]),
+            ["source-1"],
+        )
+
+        repeated_approved_excerpt = {
+            "report": document.snippet,
+            "evidence": [document.snippet, document.snippet],
+        }
+        self.assertEqual(
+            _private_source_reproduction_violations(
+                repeated_approved_excerpt,
                 [document],
             ),
             [],

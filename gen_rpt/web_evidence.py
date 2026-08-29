@@ -170,6 +170,95 @@ def build_evidence_ledger(
     return out
 
 
+def build_verified_private_seed_evidence(
+    topic: str,
+    sources: List[SourceDocument],
+    *,
+    limit: int = 8,
+    id_prefix: str = "PRIVATE-E",
+    plan: Dict[str, Any] | None = None,
+) -> List[Dict[str, Any]]:
+    """Register one bounded, traceable primary claim per verified private seed.
+
+    Private source bodies are useful primary inputs but are neither public web
+    evidence nor authority-weighted corroboration.  Only the editor-approved
+    excerpt is admitted to the persisted ledger; the verified body hash keeps
+    the claim traceable without reproducing the private content.
+    """
+
+    evidence: List[Dict[str, Any]] = []
+    seen: set[str] = set()
+    for source in sources:
+        metadata = source.metadata if isinstance(source.metadata, dict) else {}
+        content_hash = str(metadata.get("content_hash") or "").strip().lower()
+        source_id = str(metadata.get("source_id") or "").strip()
+        parsed_url = urlparse(str(source.url or ""))
+        if not (
+            metadata.get("gatex_private_content") is True
+            and str(source.content or "").strip()
+            and source_id
+            and re.fullmatch(r"[0-9a-f]{64}", content_hash)
+            and parsed_url.scheme == "https"
+            and parsed_url.hostname
+        ):
+            continue
+        try:
+            quote_limit = max(
+                80,
+                min(180, int(metadata.get("max_quote_characters") or 180)),
+            )
+        except (TypeError, ValueError):
+            quote_limit = 180
+        approved_excerpt = _clean_sentence(str(source.snippet or ""))[:quote_limit]
+        if len(approved_excerpt) < 12 or _is_noise(approved_excerpt):
+            continue
+        dedupe_key = re.sub(r"\W+", "", approved_excerpt.lower())[:180]
+        if not dedupe_key or dedupe_key in seen:
+            continue
+        seen.add(dedupe_key)
+        relevance_type, decision_relevance, critical_requirement_id = (
+            classify_evidence_relevance(
+                approved_excerpt,
+                topic,
+                str(source.query or ""),
+                plan,
+            )
+        )
+        point = EvidencePoint(
+            id=f"{id_prefix}{len(evidence) + 1}",
+            fact=approved_excerpt,
+            value=None,
+            unit="",
+            display_value="",
+            year=None,
+            metric_family="source_thesis",
+            source_title=source.title or source.domain or "Verified source seed",
+            source_url=source.url,
+            domain=source.domain or _domain(source.url),
+            source_type=source.source_type,
+            origin="private_seed",
+            authoritative=False,
+            score=8,
+            relevance_type=relevance_type,
+            decision_relevance=decision_relevance,
+            source_query=str(source.query or "")[:500],
+            critical_requirement_id=critical_requirement_id,
+        ).to_dict()
+        point.update(
+            {
+                "status": "primary_verified",
+                "source_id": source_id[:160],
+                "content_sha256": content_hash,
+                "reuse_policy": str(metadata.get("reuse_policy") or "")[:120],
+                "public_authority": False,
+            }
+        )
+        evidence.append(point)
+        if len(evidence) >= max(1, limit):
+            break
+    return evidence
+
+
 def reconcile_rag_web_evidence(evidence_ledger: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
     """Keep RAG authoritative while separating corroboration, gaps, and conflicts."""
     rag = [dict(item, origin="rag", status="primary") for item in evidence_ledger if item.get("origin") == "rag"]

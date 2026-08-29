@@ -37,6 +37,22 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn(secret_mapping, step("Run GateX generation bridge"))
         self.assertIn(secret_mapping, step("Generate report"))
 
+    def test_gatex_bridge_receives_configured_research_providers_step_scoped(self):
+        workflow = (ROOT / ".github/workflows/generate_deep_research.yml").read_text(encoding="utf-8")
+        match = re.search(
+            r"^      - name: Run GateX generation bridge\n(?P<body>.*?)(?=^      - name: |\Z)",
+            workflow,
+            re.MULTILINE | re.DOTALL,
+        )
+        self.assertIsNotNone(match)
+        step = match.group("body")
+
+        self.assertIn("TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}", step)
+        self.assertIn("SEARXNG_URL: ${{ vars.SEARXNG_URL || secrets.SEARXNG_URL }}", step)
+        self.assertIn("SEARXNG_API_KEY: ${{ secrets.SEARXNG_API_KEY }}", step)
+        self.assertIn("OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}", step)
+        self.assertNotIn("BRAVE_SEARCH_API_KEY", workflow)
+
     def test_gatex_pdf_release_is_manual_version_bound_and_cjk_ready(self):
         workflow = (ROOT / ".github/workflows/render_gatex_release_pdf.yml").read_text(encoding="utf-8")
 

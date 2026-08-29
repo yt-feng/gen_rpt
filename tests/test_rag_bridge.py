@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import os
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -22,6 +23,7 @@ from gen_rpt.web_fetch import (
 )
 from gen_rpt.web_evidence import (
     build_evidence_ledger,
+    build_verified_private_seed_evidence,
     merge_evidence_exhibits,
     reconcile_rag_web_evidence,
 )
@@ -40,7 +42,7 @@ from gen_rpt.web_publication_contract import (
     _report_narrative_text,
     _word_count,
 )
-from gen_rpt.web_report_pipeline import WebReportPipeline
+from gen_rpt.web_report_pipeline import ReportQualityError, WebReportPipeline
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html
 
 
@@ -555,6 +557,359 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertEqual(queries, ["external regulation gap", "external market benchmark"])
+
+    def test_source_channel_planning_consumes_verified_body_anchors(self):
+        client = Mock()
+        client.chat_json.return_value = {
+            "search_queries": [
+                "generic asset allocation statistics",
+                "Asterion Robotics counter-positioning evidence site:oecd.org",
+            ],
+            "outline": ["Counter-positioning changes the decision process"],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {
+            "mode": "source_channel",
+            "anchors": ["Asterion Robotics", "counter-positioning"],
+            "sources": [{
+                "title": "Asterion decision note",
+                "publisher": "Example publisher",
+                "approvedExcerpt": "A bounded editorial summary.",
+                "anchors": ["Asterion Robotics", "counter-positioning"],
+            }],
+        }
+
+        raw_plan = pipeline._plan_research("Source-linked decision scan")
+        planner_prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("Asterion Robotics", planner_prompt)
+        self.assertNotIn("SECRET FULL SOURCE BODY", planner_prompt)
+
+        plan = pipeline._normalize_research_plan(
+            raw_plan,
+            "Source-linked decision scan",
+        )
+        self.assertFalse(
+            any("generic asset allocation" in query for query in plan["search_queries"])
+        )
+        self.assertEqual(plan["market_sizing_plan"]["methods"], [])
+        self.assertEqual(plan["critical_evidence_required"], [])
+        self.assertTrue(
+            all(
+                "asterionrobotics" in re.sub(r"\W+", "", query.lower())
+                or "counterpositioning" in re.sub(r"\W+", "", query.lower())
+                for query in plan["search_queries"]
+            )
+        )
+        expanded = pipeline._expanded_search_queries(
+            plan,
+            [{"search_queries": ["generic chart market sizing"]}],
+        )
+        self.assertNotIn("generic chart market sizing", expanded)
+        self.assertTrue(any(query.startswith("OECD ") for query in expanded))
+
+        report = {"intro": ["The source thesis needs a decision boundary."]}
+        pipeline._enforce_stance_intro_sentence(
+            report,
+            "validation_only",
+            "Source-linked decision scan",
+        )
+        self.assertIn("management guidance", report["intro"][0])
+        self.assertNotIn("capital", report["intro"][0].lower())
+
+        client.chat_json.reset_mock()
+        client.chat_json.return_value = {
+            "chart_data_needs": [{
+                "title": "Independent source comparison",
+                "chart_type": "matrix",
+                "search_queries": [
+                    "Asterion Robotics counter-positioning evidence"
+                ],
+            }]
+        }
+        pipeline._plan_chart_data_needs(
+            "Source-linked decision scan",
+            plan,
+        )
+        chart_prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("Do not add market sizing", chart_prompt)
+
+    def test_generic_planning_still_expands_chart_and_framework_queries(self):
+        pipeline = WebReportPipeline(Mock())
+        expanded = pipeline._expanded_search_queries(
+            {"search_queries": ["topic primary query"]},
+            [{"search_queries": ["topic chart query"]}],
+        )
+
+        self.assertIn("topic primary query", expanded)
+        self.assertIn("topic chart query", expanded)
+
+    @patch("gen_rpt.web_report_pipeline.collect_openalex_sources")
+    @patch("gen_rpt.web_report_pipeline.collect_sources")
+    def test_source_channel_collection_adds_openalex_without_changing_generic_path(
+        self,
+        collect,
+        openalex,
+    ):
+        web_source = SourceDocument(
+            title="Official guidance",
+            url="https://oecd.org/guidance",
+            query="Asterion Robotics evidence",
+            snippet="Guidance",
+            content="Official guidance with enough source text for collection.",
+            domain="oecd.org",
+        )
+        academic_source = SourceDocument(
+            title="Peer-reviewed study",
+            url="https://doi.org/10.1000/example",
+            query="Asterion Robotics evidence",
+            snippet="Study",
+            content="Peer-reviewed abstract with enough source text for collection.",
+            source_type="academic",
+            domain="doi.org",
+        )
+        collect.return_value = [web_source]
+        openalex.return_value = [academic_source]
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {
+            "mode": "source_channel",
+            "anchors": ["Asterion Robotics"],
+        }
+
+        sources = pipeline._collect_public_sources(
+            ["Asterion Robotics evidence"],
+            per_query=3,
+            max_sources=8,
+            topic="Decision discipline",
+        )
+
+        self.assertEqual(sources, [web_source, academic_source])
+        openalex.assert_called_once_with(
+            "Asterion Robotics evidence",
+            ["Asterion Robotics evidence"],
+        )
+
+    def test_verified_private_seed_is_traceable_but_not_public_authority(self):
+        private_source = SourceDocument(
+            title="Private source title",
+            url="https://example.com/private-source",
+            query="GateX editorial seed",
+            snippet="Counter-positioning is the editor-approved source thesis.",
+            content="SECRET BODY " * 80,
+            source_type="gatex_private_social",
+            domain="example.com",
+            metadata={
+                "gatex_private_content": True,
+                "source_id": "source-1",
+                "content_hash": "a" * 64,
+                "max_quote_characters": 180,
+                "reuse_policy": "original_summary_only",
+            },
+        )
+
+        evidence = build_verified_private_seed_evidence(
+            "Decision discipline",
+            [private_source],
+        )
+
+        self.assertEqual(len(evidence), 1)
+        self.assertEqual(evidence[0]["origin"], "private_seed")
+        self.assertFalse(evidence[0]["authoritative"])
+        self.assertFalse(evidence[0]["public_authority"])
+        self.assertEqual(evidence[0]["status"], "primary_verified")
+        self.assertNotIn("SECRET BODY", evidence[0]["fact"])
+
+        private_source.metadata.pop("content_hash")
+        self.assertEqual(
+            build_verified_private_seed_evidence(
+                "Decision discipline",
+                [private_source],
+            ),
+            [],
+        )
+
+    def test_source_channel_public_gate_requires_distinct_source_domains(self):
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {
+            "mode": "source_channel",
+            "anchors": ["Asterion Robotics"],
+        }
+        same_document_points = [
+            {
+                "source_url": "https://oecd.org/report",
+                "domain": "oecd.org",
+            },
+            {
+                "source_url": "https://oecd.org/report",
+                "domain": "oecd.org",
+            },
+        ]
+
+        issues = pipeline._evidence_base_issues(
+            1,
+            [{"id": f"E{index}"} for index in range(10)],
+            same_document_points,
+            web_required=True,
+        )
+
+        self.assertTrue(any("distinct public source" in issue for issue in issues))
+
+    def test_generic_evidence_gate_still_rejects_nine_points(self):
+        pipeline = WebReportPipeline(Mock())
+
+        issues = pipeline._evidence_base_issues(
+            1,
+            [{"id": f"E{index}"} for index in range(9)],
+            [{"id": f"E{index}"} for index in range(9)],
+            web_required=False,
+        )
+
+        self.assertTrue(
+            any("at least 10 approved evidence points" in issue for issue in issues)
+        )
+
+    def test_generic_private_seed_never_enters_source_channel_qualitative_lane(self):
+        private_seed = SourceDocument(
+            title="Verified seed",
+            url="https://example.com/source",
+            query="seed",
+            snippet="Approved source thesis.",
+            content="PRIVATE BODY " * 100,
+            source_type="gatex_private_social",
+            domain="example.com",
+            metadata={
+                "gatex_private_content": True,
+                "source_id": "source-1",
+                "content_hash": "a" * 64,
+            },
+        )
+        public_source = SourceDocument(
+            title="Official source",
+            url="https://oecd.org/source",
+            query="topic evidence",
+            snippet="Official source summary.",
+            content="Official source content.",
+            domain="oecd.org",
+        )
+        fact_pack = ResearchFactPack(
+            topic="Generic market report",
+            objective="Generic market report",
+            decision_question="What does the evidence show?",
+            source_count=2,
+            authoritative_source_count=1,
+            source_domains=["example.com", "oecd.org"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        pipeline = WebReportPipeline(Mock())
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(
+            pipeline,
+            "_plan_research",
+            return_value={
+                "search_queries": ["generic topic official evidence"],
+                "outline": ["Generic evidence conclusion"],
+            },
+        ), patch.object(
+            pipeline,
+            "_plan_chart_data_needs",
+            return_value=[{
+                "title": "Evidence",
+                "chart_type": "bar",
+                "search_queries": ["generic topic evidence"],
+            }],
+        ), patch.object(
+            pipeline,
+            "_collect_public_sources",
+            return_value=[public_source],
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_research_fact_pack",
+            return_value=fact_pack,
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_evidence_ledger",
+            return_value=[{"id": f"E{index}"} for index in range(9)],
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_verified_private_seed_evidence",
+        ) as private_evidence_builder:
+            with self.assertRaisesRegex(
+                ReportQualityError,
+                "at least 10 approved evidence points",
+            ):
+                pipeline.build_report(
+                    "Generic market report",
+                    Path(directory),
+                    seed_sources=[private_seed],
+                )
+
+        private_evidence_builder.assert_not_called()
+
+    def test_source_channel_fact_pack_is_built_from_public_sources_only(self):
+        class StopAfterFactPack(RuntimeError):
+            pass
+
+        private_source = SourceDocument(
+            title="Verified source",
+            url="https://example.com/source",
+            query="seed",
+            snippet="Approved source thesis.",
+            content="PRIVATE BODY " * 100,
+            source_type="gatex_private_social",
+            domain="example.com",
+            metadata={
+                "gatex_private_content": True,
+                "source_id": "source-1",
+                "content_hash": "a" * 64,
+            },
+        )
+        public_source = SourceDocument(
+            title="Official study",
+            url="https://oecd.org/study",
+            query="Asterion Robotics evidence",
+            snippet="Official source summary.",
+            content="Official source content with dated and numeric evidence.",
+            domain="oecd.org",
+        )
+        pipeline = WebReportPipeline(Mock())
+        source_profile = {
+            "mode": "source_channel",
+            "anchors": ["Asterion Robotics"],
+            "sources": [],
+        }
+
+        with tempfile.TemporaryDirectory() as directory, patch.object(
+            pipeline,
+            "_plan_research",
+            return_value={
+                "search_queries": ["Asterion Robotics official evidence"],
+                "outline": ["Source-linked conclusion"],
+            },
+        ), patch.object(
+            pipeline,
+            "_plan_chart_data_needs",
+            return_value=[{
+                "title": "Evidence",
+                "chart_type": "bar",
+                "search_queries": ["generic chart query"],
+            }],
+        ), patch.object(
+            pipeline,
+            "_collect_public_sources",
+            return_value=[public_source],
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_research_fact_pack",
+            side_effect=StopAfterFactPack,
+        ) as fact_pack_builder:
+            with self.assertRaises(StopAfterFactPack):
+                pipeline.build_report(
+                    "Source-linked scan",
+                    Path(directory),
+                    seed_sources=[private_source],
+                    source_profile=source_profile,
+                )
+
+        self.assertEqual(fact_pack_builder.call_args.args[2], [public_source])
 
     def test_structured_planner_queries_are_unwrapped_before_search(self):
         pipeline = WebReportPipeline(Mock())

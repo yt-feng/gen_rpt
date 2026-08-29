@@ -13,6 +13,7 @@ import time
 import traceback
 import uuid
 import zipfile
+from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Sequence
@@ -289,6 +290,242 @@ def manifest_requires_private_source_content(manifest: Dict[str, Any]) -> bool:
     )
 
 
+_SOURCE_PROFILE_ENGLISH_STOPWORDS = {
+    "about",
+    "after",
+    "also",
+    "been",
+    "being",
+    "between",
+    "could",
+    "from",
+    "have",
+    "into",
+    "more",
+    "most",
+    "other",
+    "source",
+    "that",
+    "their",
+    "there",
+    "these",
+    "this",
+    "through",
+    "using",
+    "were",
+    "which",
+    "with",
+    "would",
+}
+_SOURCE_PROFILE_CHINESE_TERMS = (
+    "创业者",
+    "管理者",
+    "决策者",
+    "消费者",
+    "投资者",
+    "认知偏差",
+    "群体思维",
+    "逆向思考",
+    "风险决策",
+    "战略决策",
+    "叙事",
+    "共识",
+    "顺向",
+    "逆向",
+    "拥挤",
+    "风险",
+    "决策",
+    "战略",
+    "组织",
+    "治理",
+    "创新",
+    "产品",
+    "技术",
+    "政策",
+    "监管",
+    "行业",
+    "市场",
+)
+
+
+def _manifest_payload(manifest: Dict[str, Any]) -> Dict[str, Any]:
+    if isinstance(manifest, dict) and isinstance(manifest.get("data"), dict):
+        return manifest["data"]
+    return manifest if isinstance(manifest, dict) else {}
+
+
+def _verified_private_seed(source: SourceDocument) -> bool:
+    metadata = source.metadata if isinstance(source.metadata, dict) else {}
+    return bool(
+        metadata.get("gatex_private_content") is True
+        and str(source.content or "").strip()
+        and str(metadata.get("source_id") or "").strip()
+        and re.fullmatch(
+            r"[0-9a-f]{64}",
+            str(metadata.get("content_hash") or "").strip().lower(),
+        )
+    )
+
+
+def _source_profile_anchor_candidates(source: SourceDocument) -> List[str]:
+    """Extract bounded research anchors without forwarding a private body."""
+
+    title = re.sub(r"\s+", " ", str(source.title or "")).strip()
+    body = re.sub(r"\s+", " ", str(source.content or "")).strip()
+    text = f"{title}\n{body}"[:MAX_EXTRACTED_CHARS]
+    scored: List[tuple[int, int, str]] = []
+
+    def add(value: str, score: int) -> None:
+        clean = re.sub(r"\s+", " ", str(value or "")).strip(
+            " \t\r\n,.;:!?，。；：！？、‘’“”\"'《》「」『』()（）[]【】"
+        )
+        if 2 <= len(clean) <= 64 and not clean.isdigit():
+            scored.append((score, len(clean), clean))
+
+    if title:
+        for part in re.split(r"[|｜:：,，。;；!?！？—–]+", title):
+            add(part, 120)
+
+    quoted = re.findall(
+        r"[\"'“”‘’《》「」『』]([^\"'“”‘’《》「」『』]{2,48})[\"'“”‘’《》「」『』]",
+        text,
+    )
+    quote_counts = Counter(re.sub(r"\s+", " ", item).strip() for item in quoted)
+    for phrase, count in quote_counts.items():
+        if len(phrase) <= 24:
+            add(phrase, 100 + min(20, count * 4))
+        for part in re.split(r"[,，。;；:：!?！？—–]+", phrase):
+            if len(part) <= 24:
+                add(part, 88 + min(16, count * 3))
+
+    for term in _SOURCE_PROFILE_CHINESE_TERMS:
+        count = text.count(term)
+        if count:
+            generic = term in {
+                "叙事",
+                "战略",
+                "组织",
+                "治理",
+                "创新",
+                "产品",
+                "技术",
+                "政策",
+                "监管",
+                "行业",
+                "市场",
+            }
+            add(
+                term,
+                (76 if generic else 104) + min(20, count * 3) + len(term),
+            )
+
+    for phrase in re.findall(
+        r"\b(?:[A-Z][A-Za-z0-9&.+-]{2,}(?:\s+[A-Z][A-Za-z0-9&.+-]{2,}){0,3})\b",
+        text,
+    ):
+        add(phrase, 92)
+
+    english_counts = Counter(
+        token.lower()
+        for token in re.findall(r"\b[A-Za-z][A-Za-z0-9&.+-]{3,}\b", text)
+        if token.lower() not in _SOURCE_PROFILE_ENGLISH_STOPWORDS
+    )
+    for token, count in english_counts.most_common(20):
+        if count >= 2:
+            add(token, 60 + min(24, count * 4))
+
+    anchors: List[str] = []
+    seen: set[str] = set()
+    for _score, _length, candidate in sorted(
+        scored,
+        key=lambda item: (-item[0], -item[1], item[2].lower()),
+    ):
+        key = re.sub(r"\W+", "", candidate.lower())
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        anchors.append(candidate)
+        if len(anchors) >= 12:
+            break
+    return anchors
+
+
+def build_intelligence_source_profile(
+    manifest: Dict[str, Any],
+    seed_sources: Sequence[SourceDocument],
+) -> Dict[str, Any] | None:
+    """Build a bounded, verified planning contract for a source-channel job.
+
+    The profile contains editor-approved excerpts and deterministic anchors, not
+    the private source body. It stays in memory and is not a report artifact.
+    """
+
+    if not manifest_requires_private_source_content(manifest):
+        return None
+    verified_sources = [source for source in seed_sources if _verified_private_seed(source)]
+    if not verified_sources:
+        raise BridgeError(
+            "A source-channel generation job or retry requires verified private source content before planning."
+        )
+
+    payload = _manifest_payload(manifest)
+    effective_provenance = str(
+        payload.get("effectiveProvenanceType")
+        or payload.get("rootProvenanceType")
+        or payload.get("provenanceType")
+        or "source_channel"
+    ).strip().lower()
+    source_profiles: List[Dict[str, Any]] = []
+    all_anchors: List[str] = []
+    for source in verified_sources[:8]:
+        metadata = source.metadata if isinstance(source.metadata, dict) else {}
+        try:
+            quote_limit = max(
+                80,
+                min(180, int(metadata.get("max_quote_characters") or 180)),
+            )
+        except (TypeError, ValueError):
+            quote_limit = 180
+        anchors = _source_profile_anchor_candidates(source)
+        all_anchors.extend(anchors)
+        source_profiles.append(
+            {
+                "sourceId": str(metadata.get("source_id") or "")[:160],
+                "title": re.sub(r"\s+", " ", str(source.title or "")).strip()[:300],
+                "publisher": re.sub(
+                    r"\s+", " ", str(metadata.get("publisher") or source.domain or "")
+                ).strip()[:200],
+                "publicUrl": str(source.url or "")[:1_500],
+                "approvedExcerpt": re.sub(
+                    r"\s+", " ", str(source.snippet or "")
+                ).strip()[:quote_limit],
+                "anchors": anchors,
+                "contentSha256": str(metadata.get("content_hash") or "")[:64],
+            }
+        )
+
+    deduped_anchors: List[str] = []
+    seen: set[str] = set()
+    for anchor in all_anchors:
+        key = re.sub(r"\W+", "", anchor.lower())
+        if key and key not in seen:
+            seen.add(key)
+            deduped_anchors.append(anchor)
+        if len(deduped_anchors) >= 16:
+            break
+    if not deduped_anchors:
+        raise BridgeError(
+            "Verified source-channel content did not yield safe research anchors."
+        )
+    return {
+        "mode": "source_channel",
+        "effectiveProvenanceType": effective_provenance,
+        "requiresPrivateSourceContent": True,
+        "anchors": deduped_anchors,
+        "sources": source_profiles,
+    }
+
+
 def discovered_sources_from_manifest(
     manifest: Dict[str, Any],
 ) -> tuple[List[SourceDocument], List[Dict[str, Any]]]:
@@ -547,6 +784,10 @@ def download_intelligence_seed_sources(
                 ),
             }
         )
+        quote_limit = int(metadata["max_quote_characters"])
+        document.snippet = re.sub(
+            r"\s+", " ", str(document.snippet or "")
+        ).strip()[:quote_limit]
         document.content = content
         document.content_type = "text/plain; charset=utf-8"
         document.source_type = (
@@ -756,6 +997,7 @@ def _run_generator(
     private_sources: Sequence[SourceDocument],
     seed_sources: Sequence[SourceDocument],
     output_dir: Path,
+    source_profile: Dict[str, Any] | None = None,
 ) -> Dict[str, Any]:
     client = DeepSeekClient(model=model)
     pipeline = WebReportPipeline(client=client, language=language)
@@ -765,6 +1007,7 @@ def _run_generator(
         private_sources=list(private_sources),
         seed_sources=list(seed_sources),
         source_mode=source_mode,
+        source_profile=source_profile,
     )
 
 
@@ -990,6 +1233,7 @@ def run_job(args: argparse.Namespace) -> int:
             raise BridgeError(
                 "A source-channel generation job or retry requires verified private source content."
             )
+        source_profile = build_intelligence_source_profile(manifest, seed_sources)
         api.progress(
             "ingesting",
             8,
@@ -1018,6 +1262,7 @@ def run_job(args: argparse.Namespace) -> int:
             private_sources=private_sources,
             seed_sources=seed_sources,
             output_dir=output_dir,
+            source_profile=source_profile,
         )
 
         api.progress("reviewing", 74, "Running the deterministic publication audit.")
