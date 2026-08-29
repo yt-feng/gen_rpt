@@ -603,9 +603,11 @@ class WebReportPipeline:
 
             self._post_process(report, display_topic, sources, fact_pack)
             audit = self._audit_report_content(report, storyline_plan)
-            if not self._editorial_audit_passed(audit):
+            for editorial_attempt in range(1, 3):
+                if self._editorial_audit_passed(audit):
+                    break
                 corrections = self._audit_corrections(audit)
-                self._log("PHASE editorial revision | " + " | ".join(corrections[:8]))
+                self._log(f"PHASE editorial revision {editorial_attempt}/2 | " + " | ".join(corrections[:8]))
                 report = self._revise_report_draft(report, corrections, storyline_plan)
                 report, quality_issues = self._prepare_report_draft(
                     report,
@@ -653,7 +655,9 @@ class WebReportPipeline:
                 self._post_process(report, display_topic, sources, fact_pack)
                 audit = self._audit_report_content(report, storyline_plan, revision_corrections=corrections)
             if not self._editorial_audit_passed(audit):
-                raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
+                if self.rag_required or self._source_channel_mode():
+                    raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
+                self._log("PHASE editorial audit warning | " + " | ".join(self._audit_corrections(audit)[:4]))
             report["content_quality_audit"] = audit
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
@@ -1636,22 +1640,30 @@ Revision contract:
             temperature=0.05,
         )
         merged = dict(report)
+        if isinstance(revision.get("report"), dict):
+            revision = revision["report"]
         for key, value in revision.items():
             if value not in (None, "", [], {}):
                 if key in {"action_steps", "sections"} and isinstance(value, list) and isinstance(merged.get(key), list):
-                    original_items = merged[key]
+                    original_items = list(merged[key])
                     required_range = range(4, 7) if key == "action_steps" else range(5, 7)
-                    if len(original_items) in required_range and len(value) not in required_range:
-                        continue
-                    value = [
-                        {
-                            **(original_items[index] if index < len(original_items) and isinstance(original_items[index], dict) else {}),
-                            **{field: field_value for field, field_value in item.items() if field_value not in (None, "", [], {})},
-                        }
-                        if isinstance(item, dict)
-                        else item
-                        for index, item in enumerate(value)
-                    ] + original_items[len(value):]
+                    if len(value) in required_range:
+                        value = [
+                            {
+                                **(original_items[index] if index < len(original_items) and isinstance(original_items[index], dict) else {}),
+                                **(item if isinstance(item, dict) else {}),
+                            }
+                            if isinstance(item, dict)
+                            else item
+                            for index, item in enumerate(value)
+                        ]
+                    elif len(original_items) in required_range:
+                        for index, item in enumerate(value):
+                            if index < len(original_items) and isinstance(item, dict) and isinstance(original_items[index], dict):
+                                original_items[index].update(
+                                    {field: field_value for field, field_value in item.items() if field_value is not None}
+                                )
+                        value = original_items
                 merged[key] = value
         # Ensure every action_steps item has a non-empty horizon after merge.
         # The merge loop skips empty/null values, so if the LLM revision still
