@@ -388,6 +388,17 @@ class TestReportPublicationContract(unittest.TestCase):
         self.assertIn("Prepared by: Human Reviewer", html)
         self.assertNotIn("洪水造成了严重基础设施损失", html)
 
+    def test_number_tokens_does_not_scale_on_following_words(self):
+        from gen_rpt.web_publication_contract import _number_tokens
+        text = "From 2028 to 2032 market trajectory. Expected $100B by 2030."
+        tokens = _number_tokens(text)
+        self.assertIn("2028", tokens)
+        self.assertIn("2032", tokens)
+        self.assertIn("2030", tokens)
+        self.assertIn("100000000000", tokens)
+        self.assertNotIn("2028000000000000", tokens)
+        self.assertNotIn("2032000000", tokens)
+
 
 if __name__ == "__main__":
     unittest.main()

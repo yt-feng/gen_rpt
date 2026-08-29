@@ -1368,7 +1368,7 @@ def _number_tokens(text: Any) -> set[str]:
     # Use an ASCII boundary. Python's Unicode ``\w`` treats a preceding
     # Chinese character as part of the same word and would miss values such
     # as ``转移340万人``.
-    pattern = rf"(?<![A-Za-z0-9_])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|thousand|million|billion|trillion|[kmbt])?"
+    pattern = rf"(?<![A-Za-z0-9_])({number})(?:\s*[-–—]\s*({number}))?\s*(%|万亿|亿|万|(?:thousand|million|billion|trillion|[kmbt])(?![A-Za-z0-9_]))?"
     for match in re.finditer(pattern, claim_text, re.I):
         scale = units.get(str(match.group(3) or "").lower(), Decimal(1))
         for token in match.group(1), match.group(2):
