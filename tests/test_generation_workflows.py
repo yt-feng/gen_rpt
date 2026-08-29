@@ -21,6 +21,22 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn("::error title=Generator failure::", workflow)
         self.assertLess(workflow.index('cat "$GEN_LOG"'), workflow.index('exit "$GEN_STATUS"'))
 
+    def test_legacy_workflow_passes_apimart_secret_to_both_generation_paths(self):
+        workflow = (ROOT / ".github/workflows/generate_deep_research.yml").read_text(encoding="utf-8")
+        secret_mapping = "APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}"
+
+        def step(name: str) -> str:
+            match = re.search(
+                rf"^      - name: {re.escape(name)}\n(?P<body>.*?)(?=^      - name: |\Z)",
+                workflow,
+                re.MULTILINE | re.DOTALL,
+            )
+            self.assertIsNotNone(match, f"Missing workflow step: {name}")
+            return match.group("body")
+
+        self.assertIn(secret_mapping, step("Run GateX generation bridge"))
+        self.assertIn(secret_mapping, step("Generate report"))
+
     def test_gatex_pdf_release_is_manual_version_bound_and_cjk_ready(self):
         workflow = (ROOT / ".github/workflows/render_gatex_release_pdf.yml").read_text(encoding="utf-8")
 
