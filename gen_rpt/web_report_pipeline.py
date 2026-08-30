@@ -32,6 +32,8 @@ from .web_evidence import (
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
+    _report_narrative_text,
+    _word_count,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     compress_report_to_word_budget,
@@ -73,6 +75,7 @@ SOURCE_CHANNEL_CREATIVE_SECTION_MAX = 235
 SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS = 2
+SOURCE_CHANNEL_ATOMIC_REVISION_MAX_FIELDS = 36
 
 _SOURCE_CHANNEL_CEILING_ISSUE_PREFIX = (
     "The source-channel reader-visible publication ceiling is "
@@ -87,6 +90,7 @@ _SOURCE_CHANNEL_LENGTH_ISSUE_PREFIXES = (
 _SOURCE_CHANNEL_BOUND_NARRATIVE_TOKEN = re.compile(
     r"(?:"
     r"\d|"
+    r"(?<![A-Za-z0-9_])(?:doi|openalex|ssrn)(?![A-Za-z0-9_])|"
     r"\b[a-z][a-z0-9+.-]*:[^\s]|"
     r"(?<![:\w])//(?:\[[^\]\s]+\]|[^\s/]+)(?:/[^\s\"'<>]*)?|"
     r"\bwww\.|"
@@ -189,6 +193,370 @@ def _freeze_source_channel_bound_narrative(
     ):
         return copy.deepcopy(original)
     return copy.deepcopy(proposed)
+
+
+def _source_channel_reader_fields(report: Any) -> List[Dict[str, Any]]:
+    """Return every field counted by the reader-visible publication budget.
+
+    The entries retain values for internal exact-invariance comparisons, while
+    the dedicated budget logger emits only paths and counts.  Keeping this
+    traversal aligned with ``_report_narrative_text`` makes a length failure
+    diagnosable at top-level, section, and action-field depth.
+    """
+
+    if not isinstance(report, dict):
+        return []
+
+    fields: List[Dict[str, Any]] = []
+
+    def add(
+        path: tuple[Any, ...],
+        value: Any,
+        *,
+        group: str,
+        kind: str,
+        section_index: int | None = None,
+    ) -> None:
+        text_value = str(value or "")
+        fields.append(
+            {
+                "path": ".".join(str(part) for part in path),
+                "path_parts": path,
+                "group": group,
+                "kind": kind,
+                "section_index": section_index,
+                "value": text_value,
+                "words": _word_count(text_value),
+            }
+        )
+
+    for key in ("title", "dek", "methodology", "evidence_quality", "disclaimer"):
+        add((key,), report.get(key), group="top", kind=key)
+    for key in ("intro", "key_takeaways"):
+        for index, value in enumerate(report.get(key, []) or []):
+            add((key, index), value, group="top", kind=key)
+
+    for section_index, section in enumerate(report.get("sections", []) or []):
+        if not isinstance(section, dict):
+            continue
+        group = f"section_{section_index + 1}"
+        for key in ("title", "lead", "body", "so_what"):
+            add(
+                ("sections", section_index, key),
+                section.get(key),
+                group=group,
+                kind=f"section_{key}",
+                section_index=section_index,
+            )
+        for key in ("paragraphs", "evidence"):
+            for index, value in enumerate(section.get(key, []) or []):
+                add(
+                    ("sections", section_index, key, index),
+                    value,
+                    group=group,
+                    kind=f"section_{key}",
+                    section_index=section_index,
+                )
+
+    for action_index, action in enumerate(report.get("action_steps", []) or []):
+        if not isinstance(action, dict):
+            continue
+        group = f"action_{action_index + 1}"
+        for key in ("horizon", "action", "success_metric", "rationale"):
+            add(
+                ("action_steps", action_index, key),
+                action.get(key),
+                group=group,
+                kind=f"action_{key}",
+            )
+    return fields
+
+
+def _source_channel_reader_snapshot(report: Any) -> Dict[str, str]:
+    """Snapshot exact reader-visible values by their deterministic JSON path."""
+
+    return {
+        str(entry["path"]): str(entry["value"])
+        for entry in _source_channel_reader_fields(report)
+    }
+
+
+def _source_channel_atomic_floor(kind: str, words: int) -> int | None:
+    """Return the smallest model-authored whole-field budget we will accept."""
+
+    requested = {
+        "dek": 8,
+        "intro": 20,
+        "key_takeaways": 10,
+        "section_lead": 20,
+        "section_body": 20,
+        "section_paragraphs": 35,
+        "section_so_what": 35,
+        "action_rationale": 12,
+    }.get(kind)
+    if requested is None or words <= 0:
+        return None
+    return min(words, requested)
+
+
+def _source_channel_length_budget(report: Any) -> Dict[str, Any]:
+    """Quantify fixed, protected, mutable, and minimum-feasible word budgets."""
+
+    fields = _source_channel_reader_fields(report)
+    for entry in fields:
+        kind = str(entry["kind"])
+        value = entry["value"]
+        reason: str | None = None
+        if kind == "section_evidence":
+            reason = "evidence"
+        elif kind in {"methodology", "evidence_quality", "disclaimer"}:
+            reason = "pipeline_fixed"
+        elif _source_channel_has_bound_narrative_token(value):
+            reason = "bound_token"
+        floor = _source_channel_atomic_floor(kind, int(entry["words"]))
+        if reason is None and floor is None:
+            reason = "semantic_anchor"
+        entry["protected_reason"] = reason
+        entry["mutable"] = reason is None and floor is not None
+        entry["min_words"] = floor if entry["mutable"] else int(entry["words"])
+
+    # The shared contract requires 200 words of lead + paragraphs + so_what in
+    # every section.  Raise per-field floors before allocating a total budget so
+    # the model is never instructed to produce a collectively invalid section.
+    for section_index in sorted(
+        {
+            int(entry["section_index"])
+            for entry in fields
+            if entry["section_index"] is not None
+        }
+    ):
+        analysis_entries = [
+            entry
+            for entry in fields
+            if entry["section_index"] == section_index
+            and entry["kind"]
+            in {"section_lead", "section_paragraphs", "section_so_what"}
+        ]
+        section_floor = sum(int(entry["min_words"]) for entry in analysis_entries)
+        needed = max(0, 200 - section_floor)
+        if needed:
+            adjustable = sorted(
+                (entry for entry in analysis_entries if entry["mutable"]),
+                key=lambda entry: (
+                    -(int(entry["words"]) - int(entry["min_words"])),
+                    str(entry["path"]),
+                ),
+            )
+            for entry in adjustable:
+                capacity = int(entry["words"]) - int(entry["min_words"])
+                addition = min(needed, capacity)
+                entry["min_words"] = int(entry["min_words"]) + addition
+                needed -= addition
+                if needed <= 0:
+                    break
+
+    total_words = sum(int(entry["words"]) for entry in fields)
+    protected_words = sum(
+        int(entry["words"])
+        for entry in fields
+        if entry["protected_reason"] in {"bound_token", "evidence"}
+    )
+    fixed_words = sum(
+        int(entry["words"])
+        for entry in fields
+        if not entry["mutable"]
+    )
+    minimum_feasible = sum(int(entry["min_words"]) for entry in fields)
+    mutable_capacity = sum(
+        int(entry["words"]) - int(entry["min_words"])
+        for entry in fields
+        if entry["mutable"]
+    )
+
+    if minimum_feasible <= SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:
+        target_words = max(SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET, minimum_feasible)
+    else:
+        target_words = min(
+            SOURCE_CHANNEL_PUBLICATION_MAX_WORDS,
+            minimum_feasible + 50,
+        )
+    desired_reduction = max(0, total_words - target_words)
+    mutable_entries = [
+        entry
+        for entry in fields
+        if entry["mutable"]
+        and int(entry["words"]) > int(entry["min_words"])
+    ]
+    allocation: Dict[str, int] = {str(entry["path"]): 0 for entry in mutable_entries}
+    if desired_reduction and mutable_capacity:
+        bounded_reduction = min(desired_reduction, mutable_capacity)
+        shares: List[tuple[float, str, int]] = []
+        allocated = 0
+        for entry in mutable_entries:
+            path = str(entry["path"])
+            capacity = int(entry["words"]) - int(entry["min_words"])
+            exact = bounded_reduction * capacity / mutable_capacity
+            base = min(capacity, int(exact))
+            allocation[path] = base
+            allocated += base
+            shares.append((exact - base, path, capacity))
+        remainder = bounded_reduction - allocated
+        for _fraction, path, capacity in sorted(
+            shares,
+            key=lambda item: (-item[0], item[1]),
+        ):
+            if remainder <= 0:
+                break
+            if allocation[path] < capacity:
+                allocation[path] += 1
+                remainder -= 1
+
+    for entry in fields:
+        reduction = allocation.get(str(entry["path"]), 0)
+        entry["target_max_words"] = int(entry["words"]) - reduction
+
+    return {
+        "total_words": total_words,
+        "protected_words": protected_words,
+        "fixed_words": fixed_words,
+        "mutable_words": total_words - fixed_words,
+        "minimum_feasible_words": minimum_feasible,
+        "mutable_capacity_words": mutable_capacity,
+        "target_words": target_words,
+        "fields": fields,
+    }
+
+
+def _source_channel_budget_log_lines(budget: Dict[str, Any]) -> List[str]:
+    lines = [
+        "PHASE synthesis source_length_budget summary "
+        f"| total={budget.get('total_words', 0)} "
+        f"| protected={budget.get('protected_words', 0)} "
+        f"| fixed={budget.get('fixed_words', 0)} "
+        f"| mutable={budget.get('mutable_words', 0)} "
+        f"| minimum_feasible={budget.get('minimum_feasible_words', 0)} "
+        f"| target={budget.get('target_words', 0)}"
+    ]
+    groups: Dict[str, List[str]] = {}
+    for entry in budget.get("fields", []) or []:
+        group = str(entry.get("group") or "other")
+        marker = "M" if entry.get("mutable") else "F"
+        reason = str(entry.get("protected_reason") or "editable")
+        groups.setdefault(group, []).append(
+            f"{entry.get('path')}={entry.get('words')}:"
+            f"{entry.get('min_words')}-{entry.get('target_max_words')}:{marker}:{reason}"
+        )
+    lines.extend(
+        "PHASE synthesis source_length_budget fields "
+        f"| group={group} | " + ",".join(entries)
+        for group, entries in groups.items()
+    )
+    return lines
+
+
+def _source_channel_path_value(report: Any, path: tuple[Any, ...]) -> Any:
+    value = report
+    for part in path:
+        if isinstance(part, int):
+            if not isinstance(value, list) or not 0 <= part < len(value):
+                return None
+            value = value[part]
+        else:
+            if not isinstance(value, dict) or part not in value:
+                return None
+            value = value[part]
+    return value
+
+
+def _source_channel_set_path(
+    report: Any,
+    path: tuple[Any, ...],
+    value: str,
+) -> bool:
+    if not path:
+        return False
+    parent = report
+    for part in path[:-1]:
+        if isinstance(part, int):
+            if not isinstance(parent, list) or not 0 <= part < len(parent):
+                return False
+            parent = parent[part]
+        else:
+            if not isinstance(parent, dict) or part not in parent:
+                return False
+            parent = parent[part]
+    final = path[-1]
+    if isinstance(final, int):
+        if not isinstance(parent, list) or not 0 <= final < len(parent):
+            return False
+        parent[final] = value
+    else:
+        if not isinstance(parent, dict) or final not in parent:
+            return False
+        parent[final] = value
+    return True
+
+
+def _source_channel_evidence_snapshot(report: Any) -> Any:
+    if not isinstance(report, dict):
+        return None
+    return {
+        "references": copy.deepcopy(report.get("references")),
+        "sections": [
+            {
+                "evidence": copy.deepcopy(section.get("evidence")),
+                "evidence_internal": copy.deepcopy(section.get("evidence_internal")),
+                "references": copy.deepcopy(section.get("references")),
+            }
+            for section in report.get("sections", []) or []
+            if isinstance(section, dict)
+        ],
+    }
+
+
+def _source_channel_guard_metrics(
+    original: Any,
+    proposed: Any,
+    guarded: Any,
+) -> Dict[str, Any]:
+    original_fields = {
+        str(entry["path"]): entry for entry in _source_channel_reader_fields(original)
+    }
+    proposed_fields = {
+        str(entry["path"]): entry for entry in _source_channel_reader_fields(proposed)
+    }
+    guarded_fields = {
+        str(entry["path"]): entry for entry in _source_channel_reader_fields(guarded)
+    }
+    restored: List[Dict[str, Any]] = []
+    for path, original_entry in original_fields.items():
+        proposed_entry = proposed_fields.get(path)
+        guarded_entry = guarded_fields.get(path)
+        if proposed_entry is None or guarded_entry is None:
+            continue
+        if (
+            proposed_entry["value"] != guarded_entry["value"]
+            and guarded_entry["value"] == original_entry["value"]
+        ):
+            restored.append(
+                {
+                    "path": path,
+                    "original_words": int(original_entry["words"]),
+                    "candidate_words": int(proposed_entry["words"]),
+                }
+            )
+    return {
+        "candidate_words": _word_count(_report_narrative_text(proposed)),
+        "guarded_words": _word_count(_report_narrative_text(guarded)),
+        "restored_path_count": len(restored),
+        "restored_original_words": sum(item["original_words"] for item in restored),
+        "discarded_candidate_words": sum(item["candidate_words"] for item in restored),
+        "net_restored_words": (
+            _word_count(_report_narrative_text(guarded))
+            - _word_count(_report_narrative_text(proposed))
+        ),
+        "restored": restored,
+    }
 
 _EDITORIAL_FAILOVER_FAILURE_KINDS = frozenset(
     {
@@ -439,6 +807,7 @@ class WebReportPipeline:
         self.rag_sources: List[SourceDocument] = []
         self.rag_required = False
         self.source_profile: Dict[str, Any] = {}
+        self._last_source_length_revision_metrics: Dict[str, Any] = {}
 
     def build_report(
         self,
@@ -792,22 +1161,35 @@ class WebReportPipeline:
                 source_chunks=rag_source_chunks,
                 approved_evidence=approved_evidence,
             )
-            for revision_attempt in range(1, 4):
-                if not quality_issues:
-                    break
-                self._log(
-                    f"PHASE synthesis revision {revision_attempt}/3 | "
-                    + " | ".join(quality_issues[:8])
-                )
-                report = self._revise_report_draft(report, quality_issues, storyline_plan)
-                report, quality_issues = self._prepare_report_draft(
-                    report,
-                    topic=display_topic,
-                    grounding_text=grounding_text,
-                    source_count=len(sources),
-                    source_chunks=rag_source_chunks,
-                    approved_evidence=approved_evidence,
-                )
+            if not (
+                self._source_channel_mode()
+                and self._source_channel_length_ceiling_only(quality_issues)
+            ):
+                for revision_attempt in range(1, 4):
+                    if not quality_issues:
+                        break
+                    self._log(
+                        f"PHASE synthesis revision {revision_attempt}/3 | "
+                        + " | ".join(quality_issues[:8])
+                    )
+                    report = self._revise_report_draft(
+                        report,
+                        quality_issues,
+                        storyline_plan,
+                    )
+                    report, quality_issues = self._prepare_report_draft(
+                        report,
+                        topic=display_topic,
+                        grounding_text=grounding_text,
+                        source_count=len(sources),
+                        source_chunks=rag_source_chunks,
+                        approved_evidence=approved_evidence,
+                    )
+                    if (
+                        self._source_channel_mode()
+                        and self._source_channel_length_ceiling_only(quality_issues)
+                    ):
+                        break
             if (
                 self._source_channel_mode()
                 and self._source_channel_length_ceiling_only(quality_issues)
@@ -1617,6 +1999,267 @@ class WebReportPipeline:
                 return int(match.group(1).replace(",", ""))
         return None
 
+    def _revise_source_channel_fields(
+        self,
+        report: Dict[str, Any],
+        issues: List[str],
+        *,
+        storyline_plan: Dict[str, Any],
+        topic: str,
+        grounding_text: str,
+        source_count: int,
+        source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]],
+    ) -> tuple[Dict[str, Any], List[str]]:
+        """Apply model-authored, whole-field source-only length patches.
+
+        A field is eligible only when its complete original value has no
+        number, URL, DOI, research identifier, or hidden-network token.  Every
+        proposed field is applied to a complete report candidate and run
+        through the ordinary preparation, source, numeric, evidence, and
+        publication gates before it can become the next baseline.  Nothing is
+        truncated or deleted locally.
+        """
+
+        if (
+            not self._source_channel_mode()
+            or not self._source_channel_length_ceiling_only(issues)
+        ):
+            return report, issues
+
+        budget = _source_channel_length_budget(report)
+        for line in _source_channel_budget_log_lines(budget):
+            self._log(line)
+        minimum_feasible = int(budget["minimum_feasible_words"])
+        if minimum_feasible > SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:
+            raise ReportQualityError(
+                "Source-channel atomic length revision is infeasible: protected "
+                "and required field subtotal is "
+                f"{minimum_feasible} words, above the "
+                f"{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,}-word publication ceiling."
+            )
+
+        candidate_entries = sorted(
+            (
+                entry
+                for entry in budget["fields"]
+                if entry["mutable"]
+                and int(entry["target_max_words"]) < int(entry["words"])
+            ),
+            key=lambda entry: (
+                -(int(entry["words"]) - int(entry["target_max_words"])),
+                str(entry["path"]),
+            ),
+        )[:SOURCE_CHANNEL_ATOMIC_REVISION_MAX_FIELDS]
+        if not candidate_entries:
+            raise ReportQualityError(
+                "Source-channel atomic length revision is infeasible: no complete "
+                "reader-visible field without protected tokens has removable headroom."
+            )
+
+        requested_fields = [
+            {
+                "path": str(entry["path"]),
+                "current_words": int(entry["words"]),
+                "minimum_words": int(entry["min_words"]),
+                "maximum_words": int(entry["target_max_words"]),
+                "text": str(entry["value"]),
+            }
+            for entry in candidate_entries
+        ]
+        prompt = f"""Shorten only the explicitly listed complete fields from a rejected GateX source-channel report. Return one JSON object only.
+
+Topic: {topic}
+Language: {self.language}
+Current reader-visible total: {budget['total_words']}
+Target reader-visible total: {budget['target_words']}
+Publication range: {SOURCE_CHANNEL_PUBLICATION_MIN_WORDS}-{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS}
+
+Selected content modules:
+{json.dumps(storyline_plan.get('selected_modules') or [], ensure_ascii=False)}
+
+Eligible complete fields and hard budgets:
+{json.dumps(requested_fields, ensure_ascii=False)}
+
+Rules:
+- Return exactly {{"field_revisions":[{{"path":"exact.path","text":"complete replacement field"}}]}}.
+- Use only the listed exact paths. Return a complete replacement for each field; never return a sentence deletion, substring, diff, or partial JSON report.
+- Keep the existing conclusion, causal mechanism, counterpoint or execution boundary, and management implication. Remove repetition and filler only through a concise whole-field rewrite.
+- Meet every field's minimum_words and maximum_words using the deterministic GateX count: each Chinese character is one unit and each Latin word or number is one unit.
+- The eligible originals contain no protected token. Introduce no number, date, percentage, currency, URL, domain, DOI, OpenAlex/SSRN identifier, source label, citation, or new fact.
+- Do not return evidence, references, section arrays, action arrays, field names not listed, or commentary.
+"""
+        response = self.client.chat_json(
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a strict institutional copy editor. Rewrite only "
+                        "the supplied complete fields within their exact budgets and "
+                        "return one valid JSON object."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.0,
+            max_tokens=SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS,
+            fallback_max_tokens=SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS,
+            strict_output_budget=True,
+        )
+        if not isinstance(response, dict):
+            self._log(
+                "PHASE synthesis source_length_atomic rejected "
+                "| reason=non_object_response"
+            )
+            return report, issues
+        raw_revisions = response.get("field_revisions")
+        if not isinstance(raw_revisions, list):
+            self._log(
+                "PHASE synthesis source_length_atomic rejected "
+                "| reason=missing_field_revisions"
+            )
+            return report, issues
+
+        allowed = {str(entry["path"]): entry for entry in candidate_entries}
+        budget_by_path = {
+            str(entry["path"]): entry for entry in budget["fields"]
+        }
+        baseline_evidence = _source_channel_evidence_snapshot(report)
+        protected_paths = {
+            str(entry["path"]): copy.deepcopy(
+                _source_channel_path_value(report, tuple(entry["path_parts"]))
+            )
+            for entry in budget["fields"]
+            if entry["protected_reason"] in {"bound_token", "evidence"}
+        }
+        current = copy.deepcopy(report)
+        current_issues = list(issues)
+        current_words = _word_count(_report_narrative_text(current))
+        accepted_paths: set[str] = set()
+
+        for raw_revision in raw_revisions:
+            if not isinstance(raw_revision, dict):
+                continue
+            raw_path = str(raw_revision.get("path") or "").strip()
+            path = raw_path if raw_path in allowed else ""
+            entry = allowed.get(path)
+            if entry is None or path in accepted_paths:
+                self._log(
+                    "PHASE synthesis source_length_atomic candidate_rejected "
+                    "| reason=path_not_allowed"
+                )
+                continue
+            text_value = str(raw_revision.get("text") or "").strip()
+            candidate_field_words = _word_count(text_value)
+            if not text_value:
+                reason = "empty_field"
+            elif _source_channel_has_bound_narrative_token(text_value):
+                reason = "introduced_protected_token"
+            elif candidate_field_words < int(entry["min_words"]):
+                reason = "below_field_minimum"
+            elif candidate_field_words > int(entry["target_max_words"]):
+                reason = "above_field_maximum"
+            else:
+                reason = ""
+            if reason:
+                self._log(
+                    "PHASE synthesis source_length_atomic candidate_rejected "
+                    f"| path={path} | candidate_words={candidate_field_words} "
+                    f"| reason={reason}"
+                )
+                continue
+
+            reader_before = _source_channel_reader_snapshot(current)
+            candidate = copy.deepcopy(current)
+            if not _source_channel_set_path(
+                candidate,
+                tuple(entry["path_parts"]),
+                text_value,
+            ):
+                self._log(
+                    "PHASE synthesis source_length_atomic candidate_rejected "
+                    f"| path={path} | reason=path_resolution_failed"
+                )
+                continue
+            candidate, candidate_issues = self._prepare_report_draft(
+                candidate,
+                topic=topic,
+                grounding_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+                approved_evidence=approved_evidence,
+            )
+            reader_after = _source_channel_reader_snapshot(candidate)
+            candidate_words = _word_count(_report_narrative_text(candidate))
+            target_preserved = (
+                path in reader_after
+                and reader_after[path] == text_value
+            )
+            reader_paths_unchanged = reader_after.keys() == reader_before.keys()
+            changed_non_target_paths = [
+                reader_path
+                for reader_path, original_value in reader_before.items()
+                if reader_path != path
+                and reader_after.get(reader_path) != original_value
+            ]
+            protected_unchanged = all(
+                _source_channel_path_value(
+                    candidate,
+                    tuple(budget_by_path[protected_path]["path_parts"]),
+                )
+                == original_value
+                for protected_path, original_value in protected_paths.items()
+            )
+            non_length_issues = [
+                issue
+                for issue in candidate_issues
+                if not str(issue).startswith(_SOURCE_CHANNEL_CEILING_ISSUE_PREFIX)
+            ]
+            if not target_preserved:
+                reason = "target_field_changed_by_prepare"
+            elif not reader_paths_unchanged:
+                reason = "reader_path_set_changed_by_prepare"
+            elif changed_non_target_paths:
+                reason = "non_target_reader_field_changed_by_prepare"
+            elif _source_channel_evidence_snapshot(candidate) != baseline_evidence:
+                reason = "evidence_changed"
+            elif not protected_unchanged:
+                reason = "protected_field_changed"
+            elif non_length_issues:
+                reason = "complete_gate_failed"
+            elif candidate_words >= current_words:
+                reason = "no_word_progress"
+            else:
+                reason = ""
+            if reason:
+                self._log(
+                    "PHASE synthesis source_length_atomic candidate_rejected "
+                    f"| path={path} | words={current_words}->{candidate_words} "
+                    f"| changed_non_target_paths={len(changed_non_target_paths)} "
+                    f"| reason={reason}"
+                )
+                continue
+
+            current = candidate
+            current_issues = candidate_issues
+            current_words = candidate_words
+            accepted_paths.add(path)
+            self._log(
+                "PHASE synthesis source_length_atomic candidate_accepted "
+                f"| path={path} | field_words={entry['words']}->"
+                f"{candidate_field_words} | total_words={current_words}"
+            )
+            if not current_issues:
+                break
+
+        self._log(
+            "PHASE synthesis source_length_atomic completed "
+            f"| accepted_fields={len(accepted_paths)} "
+            f"| words={budget['total_words']}->{current_words} "
+            f"| remaining_issues={len(current_issues)}"
+        )
+        return current, current_issues
+
     def _converge_source_channel_length(
         self,
         report: Dict[str, Any],
@@ -1645,6 +2288,9 @@ class WebReportPipeline:
         ):
             return report, issues
 
+        initial_budget = _source_channel_length_budget(report)
+        for line in _source_channel_budget_log_lines(initial_budget):
+            self._log(line)
         previous_words = self._source_channel_reported_word_count(issues)
         for attempt in range(1, SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS + 1):
             self._log(
@@ -1660,6 +2306,17 @@ class WebReportPipeline:
                 issues,
                 storyline_plan,
             )
+            metrics = dict(self._last_source_length_revision_metrics or {})
+            if metrics:
+                self._log(
+                    "PHASE synthesis source_length_guard "
+                    f"| candidate_words={metrics.get('candidate_words', 'unknown')} "
+                    f"| guarded_words={metrics.get('guarded_words', 'unknown')} "
+                    f"| restored_paths={metrics.get('restored_path_count', 0)} "
+                    f"| restored_original_words={metrics.get('restored_original_words', 0)} "
+                    f"| discarded_candidate_words={metrics.get('discarded_candidate_words', 0)} "
+                    f"| net_restored_words={metrics.get('net_restored_words', 0)}"
+                )
             report, issues = self._prepare_report_draft(
                 report,
                 topic=topic,
@@ -1671,17 +2328,40 @@ class WebReportPipeline:
             if not issues or not self._source_channel_length_only(issues):
                 break
             current_words = self._source_channel_reported_word_count(issues)
-            if (
+            no_progress = (
                 previous_words is not None
                 and current_words is not None
                 and abs(current_words - SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET)
                 >= abs(previous_words - SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET)
-            ):
+            )
+            if no_progress:
                 self._log(
                     "PHASE synthesis source_length_convergence no_progress "
                     f"| words={previous_words}->{current_words}"
                 )
+                if self._source_channel_length_ceiling_only(issues):
+                    return self._revise_source_channel_fields(
+                        report,
+                        issues,
+                        storyline_plan=storyline_plan,
+                        topic=topic,
+                        grounding_text=grounding_text,
+                        source_count=source_count,
+                        source_chunks=source_chunks,
+                        approved_evidence=approved_evidence,
+                    )
             previous_words = current_words
+        if self._source_channel_length_ceiling_only(issues):
+            return self._revise_source_channel_fields(
+                report,
+                issues,
+                storyline_plan=storyline_plan,
+                topic=topic,
+                grounding_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+                approved_evidence=approved_evidence,
+            )
         return report, issues
 
     def _rescue_final_report(
@@ -1917,6 +2597,8 @@ class WebReportPipeline:
             self._source_channel_mode()
             and self._source_channel_length_only(corrections)
         )
+        if source_length_convergence:
+            self._last_source_length_revision_metrics = {}
         measured_words = self._source_channel_reported_word_count(corrections)
         length_adjustment_instruction = (
             "Add or deepen only the smallest necessary connective analysis using "
@@ -2131,7 +2813,13 @@ Revision contract:
             if isinstance(action, dict) and not str(action.get("horizon") or "").strip():
                 action["horizon"] = "Decision gate"
         if bound_baseline is not None:
+            unguarded_merged = copy.deepcopy(merged)
             merged = _freeze_source_channel_bound_narrative(bound_baseline, merged)
+            self._last_source_length_revision_metrics = _source_channel_guard_metrics(
+                bound_baseline,
+                unguarded_merged,
+                merged,
+            )
         return merged
 
     def _audit_report_content(

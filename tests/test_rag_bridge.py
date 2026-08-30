@@ -48,7 +48,13 @@ from gen_rpt.web_publication_contract import (
     _report_narrative_text,
     _word_count,
 )
-from gen_rpt.web_report_pipeline import ReportQualityError, WebReportPipeline
+from gen_rpt.web_report_pipeline import (
+    ReportQualityError,
+    WebReportPipeline,
+    _freeze_source_channel_bound_narrative,
+    _source_channel_has_bound_narrative_token,
+    _source_channel_length_budget,
+)
 from gen_rpt.web_report_renderer import normalize_web_report, render_web_report_html
 
 
@@ -272,6 +278,9 @@ class RAGBridgeTests(unittest.TestCase):
         revised_reports,
         audit_results,
         expected_message,
+        client_response=None,
+        post_process_side_effect=None,
+        expected_exception=ReportQualityError,
     ):
         public_sources = [
             SourceDocument(
@@ -353,6 +362,8 @@ class RAGBridgeTests(unittest.TestCase):
         }
 
         client = Mock()
+        if client_response is not None:
+            client.chat_json.return_value = copy.deepcopy(client_response)
         pipeline = WebReportPipeline(client)
         revision = patch.object(
             pipeline,
@@ -364,10 +375,18 @@ class RAGBridgeTests(unittest.TestCase):
             "_audit_report_content",
             side_effect=[copy.deepcopy(item) for item in audit_results],
         )
-        post_process = patch.object(
-            pipeline,
-            "_post_process",
-            wraps=pipeline._post_process,
+        post_process = (
+            patch.object(
+                pipeline,
+                "_post_process",
+                side_effect=post_process_side_effect,
+            )
+            if post_process_side_effect is not None
+            else patch.object(
+                pipeline,
+                "_post_process",
+                wraps=pipeline._post_process,
+            )
         )
         compression = patch(
             "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
@@ -406,7 +425,7 @@ class RAGBridgeTests(unittest.TestCase):
             "gen_rpt.web_report_pipeline.build_storyline_plan",
             return_value={"selected_modules": ["mechanism", "boundary"]},
         ), revision as revision_mock, audit as audit_mock, post_process as post_process_mock, compression as compression_mock:
-            with self.assertRaisesRegex(ReportQualityError, expected_message):
+            with self.assertRaisesRegex(expected_exception, expected_message):
                 pipeline.build_report(
                     "Bounded market response",
                     Path(directory),
@@ -432,11 +451,55 @@ class RAGBridgeTests(unittest.TestCase):
             expected_message="Report content quality gate failed",
         )
 
-        self.assertEqual(result["revision_mock"].call_count, 5)
+        self.assertEqual(result["revision_mock"].call_count, 1)
         result["audit_mock"].assert_not_called()
         result["post_process_mock"].assert_not_called()
         result["compression_mock"].assert_not_called()
-        result["client"].chat_json.assert_not_called()
+        result["client"].chat_json.assert_called_once()
+
+    def test_build_report_routes_2952_2900_2882_to_atomic_compliance(self):
+        class AtomicConvergenceReached(ReportQualityError):
+            pass
+
+        captured = {}
+
+        def stop_after_compliance(report, *_args, **_kwargs):
+            captured["report"] = copy.deepcopy(report)
+            raise AtomicConvergenceReached("atomic report reached downstream")
+
+        result = self._run_source_channel_build_until_quality_failure(
+            synthesized_report=_source_channel_target_overage(2_952),
+            revised_reports=[
+                _source_channel_target_overage(2_900),
+                _source_channel_target_overage(2_882),
+            ],
+            audit_results=[],
+            expected_message="atomic report reached downstream",
+            client_response={
+                "field_revisions": [{
+                    "path": "intro.0",
+                    "text": _source_channel_quality_report()["intro"][0],
+                }],
+            },
+            post_process_side_effect=stop_after_compliance,
+            expected_exception=AtomicConvergenceReached,
+        )
+
+        revision_inputs = [
+            _word_count(_report_narrative_text(call.args[0]))
+            for call in result["revision_mock"].call_args_list
+        ]
+        self.assertEqual(revision_inputs, [2_952, 2_900])
+        self.assertEqual(result["revision_mock"].call_count, 2)
+        result["client"].chat_json.assert_called_once()
+        atomic_prompt = result["client"].chat_json.call_args.args[0][1]["content"]
+        self.assertIn("Current reader-visible total: 2882", atomic_prompt)
+        result["post_process_mock"].assert_called_once()
+        result["audit_mock"].assert_not_called()
+        self.assertEqual(
+            _word_count(_report_narrative_text(captured["report"])),
+            2_106,
+        )
 
     def test_source_channel_length_convergence_repairs_attempt15_shape_without_deletion(self):
         rejected = _source_channel_target_overage(2_765)
@@ -506,6 +569,343 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertEqual(pipeline._revise_report_draft.call_count, 2)
         compression.assert_not_called()
+
+    def test_source_channel_atomic_revision_repairs_production_shaped_2907_no_progress(self):
+        rejected = _source_channel_target_overage(2_907)
+        concise_intro = _source_channel_quality_report()["intro"][0]
+        original_evidence = [
+            copy.deepcopy(section["evidence"])
+            for section in rejected["sections"]
+        ]
+        client = Mock()
+        client.chat_json.return_value = {
+            "field_revisions": [
+                {
+                    "path": "private://model-returned-path-must-not-be-logged",
+                    "text": "Untrusted model output.",
+                },
+                {
+                    "path": "sections.0.evidence.0",
+                    "text": "A model cannot replace protected evidence.",
+                },
+                {"path": "intro.0", "text": concise_intro},
+            ]
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+        pipeline._revise_report_draft = Mock(return_value=copy.deepcopy(rejected))
+        issues = source_channel_report_quality_issues(
+            rejected,
+            topic="Bounded market response",
+            context_text=(
+                "The validated public record supports a conditional operating response."
+            ),
+            source_count=2,
+        )
+
+        with patch.object(
+            pipeline,
+            "_log",
+        ) as log, patch.object(
+            pipeline,
+            "_prepare_report_draft",
+            wraps=pipeline._prepare_report_draft,
+        ) as prepare:
+            revised, remaining = pipeline._converge_source_channel_length(
+                rejected,
+                issues,
+                storyline_plan={"selected_modules": ["mechanism", "boundary"]},
+                topic="Bounded market response",
+                grounding_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        final_words = _word_count(_report_narrative_text(revised))
+        self.assertEqual(remaining, [])
+        self.assertLessEqual(final_words, 2_300)
+        self.assertGreaterEqual(final_words, 2_100)
+        self.assertEqual(
+            [section["evidence"] for section in revised["sections"]],
+            original_evidence,
+        )
+        pipeline._revise_report_draft.assert_called_once()
+        client.chat_json.assert_called_once()
+        self.assertEqual(prepare.call_count, 2)
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("Eligible complete fields and hard budgets", prompt)
+        self.assertIn('"path": "intro.0"', prompt)
+        self.assertNotIn('"path": "sections.0.evidence.0"', prompt)
+        log_text = "\n".join(str(call.args[0]) for call in log.call_args_list)
+        self.assertNotIn("private://model-returned-path-must-not-be-logged", log_text)
+
+    def test_source_channel_atomic_budget_quantifies_every_production_shaped_field(self):
+        budget = _source_channel_length_budget(
+            _source_channel_target_overage(2_907)
+        )
+        fields = {entry["path"]: entry for entry in budget["fields"]}
+
+        self.assertEqual(budget["total_words"], 2_907)
+        self.assertEqual(budget["protected_words"], 495)
+        self.assertEqual(budget["fixed_words"], 651)
+        self.assertEqual(budget["mutable_words"], 2_256)
+        self.assertEqual(budget["minimum_feasible_words"], 1_757)
+        self.assertEqual(budget["target_words"], 2_200)
+        self.assertEqual(sum(entry["words"] for entry in fields.values()), 2_907)
+        self.assertEqual(fields["intro.0"]["words"], 851)
+        self.assertEqual(fields["intro.0"]["target_max_words"], 340)
+        self.assertTrue(fields["intro.0"]["mutable"])
+        self.assertEqual(
+            fields["sections.0.evidence.0"]["protected_reason"],
+            "evidence",
+        )
+        self.assertFalse(fields["sections.0.evidence.0"]["mutable"])
+        for section_index in range(5):
+            section_analysis_floor = sum(
+                entry["min_words"]
+                for entry in fields.values()
+                if entry["section_index"] == section_index
+                and entry["kind"]
+                in {"section_lead", "section_paragraphs", "section_so_what"}
+            )
+            self.assertGreaterEqual(section_analysis_floor, 200)
+
+    def test_source_channel_atomic_rejects_prepare_that_rebalances_target_paragraph(self):
+        def paragraph(label, count):
+            return " ".join([f"{label}word"] * count) + "."
+
+        report = {
+            "title": "Bounded conclusion",
+            "dek": "Concise decision context",
+            "intro": [paragraph("intro", 2_400)],
+            "key_takeaways": [],
+            "sections": [{
+                "title": "Operating mechanism",
+                "lead": paragraph("lead", 30),
+                "paragraphs": [
+                    paragraph("first", 40),
+                    paragraph("second", 60),
+                    paragraph("third", 60),
+                    paragraph("fourth", 80),
+                ],
+                "evidence": [],
+                "so_what": paragraph("implication", 40),
+            }],
+            "action_steps": [],
+            "methodology": "",
+            "evidence_quality": "",
+            "disclaimer": "",
+        }
+        total_words = _word_count(_report_narrative_text(report))
+        issues = [
+            "The source-channel reader-visible publication ceiling is "
+            f"2,600 words; found {total_words}."
+        ]
+        replacement = paragraph("concise", 60)
+        client = Mock()
+        client.chat_json.return_value = {
+            "field_revisions": [{
+                "path": "sections.0.paragraphs.3",
+                "text": replacement,
+            }]
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        with patch.object(pipeline, "_log") as log, patch.object(
+            pipeline,
+            "_prepare_report_draft",
+            wraps=pipeline._prepare_report_draft,
+        ) as prepare:
+            revised, remaining = pipeline._revise_source_channel_fields(
+                report,
+                issues,
+                storyline_plan={},
+                topic="Bounded conclusion",
+                grounding_text="",
+                source_count=1,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertEqual(revised, report)
+        self.assertEqual(remaining, issues)
+        prepare.assert_called_once()
+        client.chat_json.assert_called_once()
+        log_text = "\n".join(str(call.args[0]) for call in log.call_args_list)
+        self.assertIn("reason=target_field_changed_by_prepare", log_text)
+
+    def test_source_channel_atomic_rejects_prepare_that_changes_another_reader_field(self):
+        report = _source_channel_target_overage(2_907)
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text=(
+                "The validated public record supports a conditional operating response."
+            ),
+            source_count=2,
+        )
+        replacement = _source_channel_quality_report()["intro"][0]
+        client = Mock()
+        client.chat_json.return_value = {
+            "field_revisions": [{"path": "intro.0", "text": replacement}]
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        def mutate_non_target(candidate, **_kwargs):
+            candidate["dek"] = "Prepare unexpectedly changed another reader field."
+            return candidate, []
+
+        with patch.object(pipeline, "_log") as log, patch.object(
+            pipeline,
+            "_prepare_report_draft",
+            side_effect=mutate_non_target,
+        ) as prepare:
+            revised, remaining = pipeline._revise_source_channel_fields(
+                report,
+                issues,
+                storyline_plan={},
+                topic="Bounded market response",
+                grounding_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertEqual(revised, report)
+        self.assertEqual(remaining, issues)
+        prepare.assert_called_once()
+        log_text = "\n".join(str(call.args[0]) for call in log.call_args_list)
+        self.assertIn(
+            "reason=non_target_reader_field_changed_by_prepare",
+            log_text,
+        )
+
+    def test_source_channel_attribution_labels_are_bound_with_unicode_boundaries(self):
+        protected_labels = [
+            "OpenAlex",
+            "openalex",
+            "OPENALEX",
+            "ＯｐｅｎＡｌｅｘ",
+            "DOI",
+            "ＤＯＩ",
+            "sSrN",
+            "来源OpenAlex显示",
+            "(DOI)",
+        ]
+        for label in protected_labels:
+            with self.subTest(label=label):
+                original = f"The retained {label} attribution supports the conclusion."
+                proposed = "The shortened field omits the original attribution."
+                self.assertTrue(_source_channel_has_bound_narrative_token(original))
+                self.assertEqual(
+                    _freeze_source_channel_bound_narrative(original, proposed),
+                    original,
+                )
+
+        for safe_text in ("OpenAlexical", "preDOIpost", "ssrnish"):
+            with self.subTest(safe_text=safe_text):
+                self.assertFalse(
+                    _source_channel_has_bound_narrative_token(safe_text)
+                )
+
+    def test_source_channel_atomic_rejects_bare_attribution_label_injection(self):
+        report = _source_channel_target_overage(2_907)
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text=(
+                "The validated public record supports a conditional operating response."
+            ),
+            source_count=2,
+        )
+        client = Mock()
+        client.chat_json.return_value = {
+            "field_revisions": [
+                {
+                    "path": "intro.0",
+                    "text": _source_channel_words(
+                        "A bare openalex attribution must not enter safe prose",
+                        60,
+                        "safecontext",
+                    ),
+                },
+                {
+                    "path": "intro.0",
+                    "text": _source_channel_words(
+                        "A bare ＤＯＩ attribution must not enter safe prose",
+                        60,
+                        "safecontext",
+                    ),
+                },
+                {
+                    "path": "intro.0",
+                    "text": _source_channel_words(
+                        "A bare sSrN attribution must not enter safe prose",
+                        60,
+                        "safecontext",
+                    ),
+                },
+            ]
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        with patch.object(pipeline, "_log") as log:
+            revised, remaining = pipeline._revise_source_channel_fields(
+                report,
+                issues,
+                storyline_plan={},
+                topic="Bounded market response",
+                grounding_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertEqual(revised, report)
+        self.assertEqual(remaining, issues)
+        client.chat_json.assert_called_once()
+        log_text = "\n".join(str(call.args[0]) for call in log.call_args_list)
+        self.assertEqual(log_text.count("reason=introduced_protected_token"), 3)
+
+    def test_source_channel_atomic_revision_fails_closed_when_protected_subtotal_is_infeasible(self):
+        report = {
+            "intro": [
+                "2025 " + " ".join(["protectedcontext"] * 2_650)
+            ]
+        }
+        client = Mock()
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        with self.assertRaisesRegex(
+            ReportQualityError,
+            "protected and required field subtotal is 2651 words",
+        ):
+            pipeline._revise_source_channel_fields(
+                report,
+                [
+                    "The source-channel reader-visible publication ceiling is "
+                    "2,600 words; found 2651."
+                ],
+                storyline_plan={},
+                topic="Protected source report",
+                grounding_text="",
+                source_count=1,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        client.chat_json.assert_not_called()
 
     def test_build_report_editorial_revision_path_fails_closed_without_compaction(self):
         valid_report = _source_channel_quality_report()
@@ -3353,6 +3753,21 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertNotIn("10.9999/replacement", json.dumps(revised, ensure_ascii=False))
         self.assertNotIn("W9999999999", json.dumps(revised, ensure_ascii=False))
         self.assertNotIn("999999", json.dumps(revised, ensure_ascii=False))
+        guard_metrics = pipeline._last_source_length_revision_metrics
+        restored_paths = {
+            item["path"] for item in guard_metrics["restored"]
+        }
+        self.assertEqual(
+            restored_paths,
+            {
+                "intro.0",
+                "sections.0.lead",
+                "action_steps.0.rationale",
+            },
+        )
+        self.assertEqual(guard_metrics["restored_path_count"], 3)
+        self.assertGreater(guard_metrics["restored_original_words"], 0)
+        self.assertGreaterEqual(guard_metrics["net_restored_words"], 0)
 
     def test_source_channel_length_convergence_rejects_new_numeric_and_url_tokens(self):
         rejected = _source_channel_target_overage(2_765)
