@@ -6,7 +6,11 @@ from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Tuple
 from urllib.parse import urlparse
 
-from .research_quality import ResearchFactPack
+from .research_quality import (
+    AUTHORITY_DOMAIN_HINTS,
+    TECHNICAL_AUTHORITY_DOMAIN_HINTS,
+    ResearchFactPack,
+)
 from .web_fetch import SourceDocument
 
 
@@ -44,6 +48,48 @@ VALUE_RE = re.compile(
 )
 YEAR_RE = re.compile(r"\b(?:19|20)\d{2}\b")
 URL_RE = re.compile(r"https?://[^\s,;)\]]+")
+
+_QUALITATIVE_TERM_STOPWORDS = {
+    "about",
+    "analysis",
+    "data",
+    "evidence",
+    "from",
+    "latest",
+    "management",
+    "market",
+    "official",
+    "public",
+    "report",
+    "research",
+    "scan",
+    "source",
+    "study",
+    "that",
+    "their",
+    "this",
+    "with",
+    "should",
+    "guidance",
+    "公开",
+    "分析",
+    "市场",
+    "报告",
+    "数据",
+    "最新",
+    "来源",
+    "研究",
+    "相关",
+    "显示",
+    "管理",
+    "官方",
+    "指引",
+    "指导",
+    "应该",
+    "等于",
+    "并不",
+    "并非",
+}
 
 
 @dataclass
@@ -168,6 +214,221 @@ def build_evidence_ledger(
         point.critical_requirement_id = crit_id
         out.append(point.to_dict())
     return out
+
+
+def build_source_channel_qualitative_evidence(
+    topic: str,
+    sources: List[SourceDocument],
+    *,
+    limit: int = 30,
+    id_prefix: str = "WEB-E",
+    plan: Dict[str, Any] | None = None,
+    anchors: List[str] | None = None,
+) -> List[Dict[str, Any]]:
+    """Build a bounded public-evidence lane for non-numeric source reports.
+
+    This lane is deliberately source-channel-only.  It accepts at most one
+    traceable statement per public HTTPS document, requires literal English or
+    Chinese term overlap with the report topic or the query that found the
+    document, requires at least two substantive anchors, and never treats a
+    verified private seed as public evidence.
+    """
+
+    candidates: List[EvidencePoint] = []
+    seen_urls: set[str] = set()
+    seen_facts: set[str] = set()
+    topic_anchor_terms = _qualitative_terms(
+        " ".join([str(topic or ""), *(str(anchor or "") for anchor in anchors or [])])
+    )
+    for source_idx, source in enumerate(sources, start=1):
+        metadata = source.metadata if isinstance(source.metadata, dict) else {}
+        source_type = str(source.source_type or "").strip()
+        private_marker = metadata.get("gatex_private_content")
+        if (
+            private_marker is True
+            or str(private_marker or "").strip().lower() in {"1", "true", "yes", "on"}
+            or source_type.lower() == "internal"
+            or "private" in source_type.lower()
+        ):
+            # Do not even construct candidate text from a private body.
+            continue
+        parsed_url = urlparse(str(source.url or "").strip())
+        if parsed_url.scheme.lower() != "https" or not parsed_url.hostname:
+            continue
+        source_url = str(source.url or "").strip()
+        url_key = _qualitative_url_key(source_url)
+        if not url_key or url_key in seen_urls:
+            continue
+        relevance_terms = topic_anchor_terms | _qualitative_terms(source.query or "")
+        if not relevance_terms:
+            continue
+
+        best: tuple[int, str] | None = None
+        # Search snippets before the longer fetched body.  Titles cannot by
+        # themselves become an evidence statement.
+        for text in (source.snippet or "", source.content or ""):
+            for sentence in _split_sentences(text):
+                cleaned = _bounded_qualitative_sentence(sentence)
+                if not cleaned or _is_noise(cleaned):
+                    continue
+                # A qualitative row must not disguise a numeric/date row while
+                # declaring value/year null.  Those claims stay in the numeric
+                # evidence builder and are merged below.
+                if _parse_values(cleaned) or YEAR_RE.search(cleaned):
+                    continue
+                sentence_terms = _qualitative_terms(cleaned)
+                overlap = relevance_terms & sentence_terms
+                anchor_overlap = topic_anchor_terms & sentence_terms
+                if not anchor_overlap or len(overlap) < 2:
+                    continue
+                fact_key = _qualitative_fact_key(cleaned)
+                if not fact_key or fact_key in seen_facts:
+                    continue
+                score = (
+                    len(overlap) * 4
+                    + (
+                        5
+                        if _is_source_channel_authoritative(
+                            _qualitative_source_identity(source_url),
+                            source_type,
+                        )
+                        else 0
+                    )
+                    + min(3, len(cleaned) // 100)
+                )
+                if best is None or score > best[0]:
+                    best = (score, cleaned)
+        if best is None:
+            continue
+
+        score, fact = best
+        domain = _qualitative_source_identity(source_url)
+        authoritative = _is_source_channel_authoritative(domain, source_type)
+        relevance_type, decision_relevance, critical_requirement_id = (
+            classify_evidence_relevance(
+                fact,
+                topic,
+                str(source.query or ""),
+                plan,
+            )
+        )
+        candidates.append(
+            EvidencePoint(
+                id="",
+                fact=fact,
+                value=None,
+                unit="",
+                display_value="",
+                year=None,
+                metric_family="qualitative_corroboration",
+                source_title=source.title or domain or f"Source {source_idx}",
+                source_url=source_url,
+                domain=domain,
+                source_type=source_type,
+                origin="web",
+                authoritative=authoritative,
+                score=score,
+                relevance_type=relevance_type,
+                decision_relevance=decision_relevance,
+                source_query=str(source.query or "")[:500],
+                critical_requirement_id=critical_requirement_id,
+            )
+        )
+        seen_urls.add(url_key)
+        seen_facts.add(_qualitative_fact_key(fact))
+        if len(candidates) >= max(0, limit):
+            break
+
+    out: List[Dict[str, Any]] = []
+    for idx, point in enumerate(candidates[: max(0, limit)], start=1):
+        point.id = f"{id_prefix}{idx}"
+        out.append(point.to_dict())
+    return out
+
+
+def merge_source_channel_public_evidence(
+    numeric_evidence: List[Dict[str, Any]],
+    qualitative_evidence: List[Dict[str, Any]],
+    *,
+    limit: int = 30,
+    id_prefix: str = "WEB-E",
+    max_per_identity: int = 5,
+) -> List[Dict[str, Any]]:
+    """Merge public source-channel lanes without one dense source crowding out others."""
+
+    if limit <= 0 or max_per_identity <= 0:
+        return []
+
+    candidates: List[tuple[int, Dict[str, Any], str, float]] = []
+    seen_claims: set[tuple[str, str]] = set()
+    for position, raw in enumerate([*numeric_evidence, *qualitative_evidence]):
+        item = dict(raw)
+        source_url = str(item.get("source_url") or "").strip()
+        parsed_url = urlparse(source_url)
+        url_key = _qualitative_url_key(source_url)
+        if (
+            str(item.get("origin") or "").strip().lower() != "web"
+            or parsed_url.scheme.lower() != "https"
+            or not parsed_url.hostname
+            or not url_key
+        ):
+            continue
+        fact_key = _qualitative_fact_key(str(item.get("fact") or ""))
+        if not fact_key:
+            continue
+        claim_key = (url_key, fact_key)
+        if claim_key in seen_claims:
+            continue
+        seen_claims.add(claim_key)
+        identity = _qualitative_source_identity(source_url)
+        if not identity:
+            continue
+        # Derive the persisted domain from the accepted URL so a caller cannot
+        # promote a mismatched domain label into an authority identity.
+        item["domain"] = identity
+        item["authoritative"] = _is_source_channel_authoritative(
+            identity,
+            str(item.get("source_type") or ""),
+        )
+        try:
+            score = float(item.get("score") or 0)
+        except (TypeError, ValueError):
+            score = 0.0
+        candidates.append((position, item, identity, score))
+
+    by_identity: Dict[str, List[tuple[int, Dict[str, Any], str, float]]] = defaultdict(list)
+    for candidate in candidates:
+        by_identity[candidate[2]].append(candidate)
+
+    # Phase one reserves the best traceable claim from every identity.  This is
+    # the critical protection when one numeric-heavy page yields many rows.
+    representatives = [
+        sorted(group, key=lambda row: (-row[3], row[0]))[0]
+        for group in by_identity.values()
+    ]
+    representatives.sort(key=lambda row: (-row[3], row[0]))
+    selected = representatives[:limit]
+    selected_positions = {row[0] for row in selected}
+    identity_counts = Counter(row[2] for row in selected)
+
+    # Phase two fills remaining capacity by evidence score while bounding any
+    # single identity.  Generic and RAG ledgers never call this merger.
+    supplements = sorted(candidates, key=lambda row: (-row[3], row[0]))
+    for candidate in supplements:
+        if len(selected) >= limit:
+            break
+        position, _item, identity, _score = candidate
+        if position in selected_positions or identity_counts[identity] >= max_per_identity:
+            continue
+        selected.append(candidate)
+        selected_positions.add(position)
+        identity_counts[identity] += 1
+
+    merged: List[Dict[str, Any]] = []
+    for _position, item, _identity, _score in selected:
+        item["id"] = f"{id_prefix}{len(merged) + 1}"
+        merged.append(item)
+    return merged
 
 
 def build_verified_private_seed_evidence(
@@ -1772,6 +2033,112 @@ def _as_list(value: Any) -> List[Any]:
     if isinstance(value, list):
         return value
     return [value]
+
+
+def _qualitative_terms(text: Any) -> set[str]:
+    """Return exact, auditable English tokens and Chinese n-grams."""
+
+    value = str(text or "").lower()
+    terms = {
+        token
+        for token in re.findall(r"[a-z][a-z0-9&+-]{2,}", value)
+        if token not in _QUALITATIVE_TERM_STOPWORDS and len(token) >= 4
+    }
+    for run in re.findall(r"[\u3400-\u9fff]+", value):
+        if len(run) == 2 and run not in _QUALITATIVE_TERM_STOPWORDS:
+            terms.add(run)
+            continue
+        for width in (2, 3):
+            for index in range(max(0, len(run) - width + 1)):
+                token = run[index:index + width]
+                if token not in _QUALITATIVE_TERM_STOPWORDS:
+                    terms.add(token)
+    return terms
+
+
+def _bounded_qualitative_sentence(text: Any, *, max_characters: int = 360) -> str:
+    cleaned = _clean_sentence(str(text or ""))
+    if len(cleaned) < 28:
+        return ""
+    english_words = re.findall(r"[A-Za-z][A-Za-z&+-]*", cleaned)
+    chinese_characters = re.findall(r"[\u3400-\u9fff]", cleaned)
+    if len(english_words) < 6 and len(chinese_characters) < 12:
+        return ""
+    if len(cleaned) <= max_characters:
+        return cleaned
+    bounded = cleaned[:max_characters]
+    punctuation = max(bounded.rfind(mark) for mark in ("。", "！", "？", ".", "!", "?", ";", "；"))
+    if punctuation >= 80:
+        bounded = bounded[: punctuation + 1]
+    elif " " in bounded:
+        bounded = bounded.rsplit(" ", 1)[0]
+    return bounded.strip()
+
+
+def _qualitative_fact_key(text: Any) -> str:
+    return re.sub(r"[\W_]+", "", str(text or "").lower(), flags=re.UNICODE)[:360]
+
+
+def _qualitative_url_key(url: Any) -> str:
+    parsed = urlparse(str(url or "").strip())
+    if (
+        parsed.scheme.lower() != "https"
+        or not parsed.hostname
+        or parsed.username is not None
+        or parsed.password is not None
+    ):
+        return ""
+    host = parsed.hostname.lower().removeprefix("www.")
+    try:
+        parsed_port = parsed.port
+    except ValueError:
+        return ""
+    port = f":{parsed_port}" if parsed_port and parsed_port != 443 else ""
+    path = re.sub(r"/{2,}", "/", parsed.path or "/").rstrip("/") or "/"
+    return f"https://{host}{port}{path}?{parsed.query}".rstrip("?")
+
+
+def _qualitative_source_identity(url: Any) -> str:
+    parsed = urlparse(str(url or "").strip())
+    if parsed.scheme.lower() != "https" or not parsed.hostname:
+        return ""
+    return parsed.hostname.lower().removeprefix("www.")
+
+
+def _is_source_channel_authoritative(domain: str, _source_type: str) -> bool:
+    """Apply the existing authority-domain lists with hostname boundaries."""
+
+    domain_l = str(domain or "").strip().lower().strip(".")
+    if not domain_l:
+        return False
+    labels = domain_l.split(".")
+    authority_hints = (
+        *AUTHORITY_HINTS,
+        *AUTHORITY_DOMAIN_HINTS,
+        *TECHNICAL_AUTHORITY_DOMAIN_HINTS,
+    )
+    for raw_hint in authority_hints:
+        hint = str(raw_hint or "").strip().lower()
+        if not hint or hint in {"investor.", "ir."}:
+            continue
+        if hint in {".gov", ".edu"}:
+            label = hint[1:]
+            if domain_l.endswith(hint) or (
+                len(labels) >= 2
+                and labels[-2] == label
+                and len(labels[-1]) == 2
+            ):
+                return True
+            continue
+        if hint.endswith("."):
+            label = hint[:-1]
+            if label and label in labels[:-1]:
+                return True
+            continue
+        authority_domain = hint.strip(".")
+        if domain_l == authority_domain or domain_l.endswith(f".{authority_domain}"):
+            return True
+    return False
 
 
 def _split_sentences(text: str) -> List[str]:

@@ -17,9 +17,11 @@ from .research_quality import ResearchFactPack, build_research_fact_pack
 from .web_evidence import (
     build_evidence_exhibits,
     build_evidence_ledger,
+    build_source_channel_qualitative_evidence,
     build_storyline_plan,
     build_verified_private_seed_evidence,
     merge_evidence_exhibits,
+    merge_source_channel_public_evidence,
     reconcile_rag_web_evidence,
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
@@ -475,7 +477,7 @@ class WebReportPipeline:
                 approved_evidence = reconciliation["approved"]
                 evidence_conflicts = reconciliation["conflicts"]
             elif self._source_channel_mode():
-                web_evidence_ledger = (
+                numeric_web_evidence = (
                     build_evidence_ledger(
                         display_topic,
                         public_sources,
@@ -486,6 +488,34 @@ class WebReportPipeline:
                     )
                     if public_sources
                     else []
+                )
+                qualitative_web_evidence = (
+                    build_source_channel_qualitative_evidence(
+                        display_topic,
+                        public_sources,
+                        limit=30,
+                        id_prefix="WEB-E",
+                        plan=plan,
+                        anchors=self._source_profile_anchors(),
+                    )
+                    if public_sources
+                    else []
+                )
+                web_evidence_ledger = merge_source_channel_public_evidence(
+                    numeric_web_evidence,
+                    qualitative_web_evidence,
+                    limit=30,
+                    id_prefix="WEB-E",
+                )
+                source_channel_authority_count = self._public_authority_domain_count(
+                    web_evidence_ledger
+                )
+                self._log(
+                    "PHASE source_channel_public_evidence "
+                    f"| numeric={len(numeric_web_evidence)} "
+                    f"| qualitative={len(qualitative_web_evidence)} "
+                    f"| merged={len(web_evidence_ledger)} "
+                    f"| authority_domains={source_channel_authority_count}"
                 )
                 private_seed_evidence = build_verified_private_seed_evidence(
                     display_topic,
@@ -519,12 +549,16 @@ class WebReportPipeline:
             self._log(f"PHASE evidence_ledger fallback used | reason={str(exc)[:240]!r}")
         if web_required and not web_evidence_ledger:
             raise RuntimeError("Combined web search returned sources but zero structured evidence points")
-        evidence_base_issues = self._evidence_base_issues(
-            max(
+        authoritative_source_count = (
+            self._public_authority_domain_count(web_evidence_ledger)
+            if self._source_channel_mode()
+            else max(
                 fact_pack.authoritative_source_count,
                 web_fact_pack.authoritative_source_count if web_fact_pack else 0,
-                source_channel_fact_pack.authoritative_source_count if source_channel_fact_pack else 0,
-            ),
+            )
+        )
+        evidence_base_issues = self._evidence_base_issues(
+            authoritative_source_count,
             approved_evidence,
             web_evidence_ledger,
             web_required=web_required,
@@ -1302,6 +1336,15 @@ class WebReportPipeline:
                     f"{len(public_source_keys)}"
                 )
         return issues
+
+    @staticmethod
+    def _public_authority_domain_count(web_evidence: List[Dict[str, Any]]) -> int:
+        return len({
+            str(item.get("domain") or "").strip().lower()
+            for item in web_evidence
+            if item.get("authoritative") is True
+            and str(item.get("domain") or "").strip()
+        })
 
     def _prepare_report_draft(
         self,

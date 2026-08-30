@@ -24,8 +24,10 @@ from gen_rpt.web_fetch import (
 )
 from gen_rpt.web_evidence import (
     build_evidence_ledger,
+    build_source_channel_qualitative_evidence,
     build_verified_private_seed_evidence,
     merge_evidence_exhibits,
+    merge_source_channel_public_evidence,
     reconcile_rag_web_evidence,
 )
 from gen_rpt.research_quality import ResearchFactPack
@@ -196,20 +198,20 @@ class RAGBridgeTests(unittest.TestCase):
     ):
         public_sources = [
             SourceDocument(
-                title="OpenAlex corroboration",
-                url="https://openalex.org/W1234567890",
+                title="OECD corroboration",
+                url="https://oecd.org/W1234567890",
                 query="bounded response evidence",
                 snippet="Independent corroboration supports the bounded response.",
                 content="The public record supports a conditional operating response.",
-                domain="openalex.org",
+                domain="oecd.org",
             ),
             SourceDocument(
-                title="DOI corroboration",
-                url="https://doi.org/10.1234/example.5678",
+                title="University corroboration",
+                url="https://governance.example.edu/10.1234/example.5678",
                 query="bounded response mechanism",
                 snippet="Independent research corroborates the operating mechanism.",
                 content="The unresolved limitation remains visible in the public record.",
-                domain="doi.org",
+                domain="governance.example.edu",
             ),
         ]
         seed_text = "A verified source thesis requires independent corroboration before management use."
@@ -233,7 +235,7 @@ class RAGBridgeTests(unittest.TestCase):
             decision_question="What remains supported?",
             source_count=2,
             authoritative_source_count=2,
-            source_domains=["openalex.org", "doi.org"],
+            source_domains=["oecd.org", "governance.example.edu"],
             source_refs=[source.url for source in public_sources],
             high_confidence_facts=[source.content for source in public_sources],
             numeric_facts=[],
@@ -247,9 +249,15 @@ class RAGBridgeTests(unittest.TestCase):
                     "The public record supports a conditional operating response."
                     if index % 2
                     else "The unresolved limitation remains visible in the public record."
-                ),
+                ) + f" Evidence checkpoint {index}.",
+                "value": index,
+                "year": None,
                 "source_url": public_sources[index % 2].url,
                 "domain": public_sources[index % 2].domain,
+                "source_type": "html",
+                "origin": "web",
+                "authoritative": True,
+                "score": 10,
                 "status": "approved",
             }
             for index in range(1, 11)
@@ -312,6 +320,7 @@ class RAGBridgeTests(unittest.TestCase):
             return_value=fact_pack,
         ), patch(
             "gen_rpt.web_report_pipeline.build_evidence_ledger",
+            autospec=True,
             return_value=web_evidence,
         ), patch(
             "gen_rpt.web_report_pipeline.build_verified_private_seed_evidence",
@@ -1035,6 +1044,393 @@ class RAGBridgeTests(unittest.TestCase):
             [],
         )
 
+    def test_source_channel_builds_traceable_qualitative_public_evidence(self):
+        sources = [
+            SourceDocument(
+                title="OECD decision guidance",
+                url="https://oecd.org/guidance",
+                query="consensus decision discipline",
+                snippet=(
+                    "Consensus decision discipline improves when management teams "
+                    "record dissent before committing operating resources."
+                ),
+                content="",
+                domain="oecd.org",
+            ),
+            SourceDocument(
+                title="University governance study",
+                url="https://governance.example.edu/study",
+                query="consensus decision discipline",
+                snippet=(
+                    "Decision discipline depends on independent challenge and a "
+                    "documented pause gate for management teams."
+                ),
+                content="",
+                domain="governance.example.edu",
+            ),
+            SourceDocument(
+                title="治理研究",
+                url="https://policy.example.cn/research",
+                query="共识 决策纪律",
+                snippet="治理团队应当保留不同意见，并在形成共识之后再次检查决策纪律是否有效。",
+                content="",
+                domain="policy.example.cn",
+            ),
+        ]
+
+        evidence = build_source_channel_qualitative_evidence(
+            "共识与 consensus decision discipline",
+            sources,
+        )
+
+        self.assertEqual(len(evidence), 3)
+        self.assertEqual([item["id"] for item in evidence], ["WEB-E1", "WEB-E2", "WEB-E3"])
+        self.assertEqual({item["origin"] for item in evidence}, {"web"})
+        self.assertEqual(
+            {item["metric_family"] for item in evidence},
+            {"qualitative_corroboration"},
+        )
+        self.assertTrue(all(item["value"] is None and item["year"] is None for item in evidence))
+        self.assertEqual(
+            {item["source_url"] for item in evidence},
+            {source.url for source in sources},
+        )
+        self.assertTrue(evidence[0]["authoritative"])
+        self.assertTrue(evidence[1]["authoritative"])
+        self.assertFalse(evidence[2]["authoritative"])
+        pipeline = WebReportPipeline(Mock())
+        self.assertEqual(pipeline._public_authority_domain_count(evidence), 2)
+
+    def test_source_channel_qualitative_lane_rejects_untraceable_inputs_and_duplicates(self):
+        accepted_fact = (
+            "Consensus discipline requires a documented challenge before management "
+            "teams commit operating resources."
+        )
+        sources = [
+            SourceDocument(
+                title="Accepted",
+                url="https://example.com/accepted",
+                query="consensus discipline",
+                snippet=accepted_fact,
+                content="",
+                domain="oecd.org",
+            ),
+            SourceDocument(
+                title="Same URL",
+                url="https://example.com/accepted",
+                query="consensus discipline",
+                snippet="Consensus discipline also requires an accountable decision owner.",
+                content="",
+            ),
+            SourceDocument(
+                title="Repeated sentence",
+                url="https://second.example/repeated",
+                query="consensus discipline",
+                snippet=accepted_fact,
+                content="",
+            ),
+            SourceDocument(
+                title="Insecure",
+                url="http://third.example/insecure",
+                query="consensus discipline",
+                snippet="Consensus discipline improves when teams challenge assumptions openly.",
+                content="",
+            ),
+            SourceDocument(
+                title="Private seed",
+                url="https://private.example/seed",
+                query="consensus discipline",
+                snippet="Approved private thesis.",
+                content="SECRET PRIVATE BODY consensus discipline " * 30,
+                source_type="pdf",
+                metadata={"gatex_private_content": "true"},
+            ),
+            SourceDocument(
+                title="Navigation",
+                url="https://fourth.example/navigation",
+                query="consensus discipline",
+                snippet="Subscribe to the newsletter for consensus discipline updates and click here.",
+                content="",
+            ),
+            SourceDocument(
+                title="Unrelated",
+                url="https://fifth.example/unrelated",
+                query="consensus discipline",
+                snippet="Marine habitats benefit when coastal restoration protects native species.",
+                content="",
+            ),
+        ]
+
+        evidence = build_source_channel_qualitative_evidence(
+            "consensus discipline",
+            sources,
+        )
+
+        self.assertEqual(len(evidence), 1)
+        self.assertEqual(evidence[0]["source_url"], "https://example.com/accepted")
+        self.assertNotIn("SECRET PRIVATE BODY", repr(evidence))
+        self.assertFalse(evidence[0]["authoritative"])
+
+    def test_source_channel_qualitative_requires_two_substantive_anchors_and_bound_authority(self):
+        sources = [
+            SourceDocument(
+                title="Unrelated Chinese advice",
+                url="https://restaurant.example.cn/advice",
+                query="共识 顺向 决策",
+                snippet="餐饮企业应该改善门店卫生并培训员工，从而为顾客提供更加稳定可靠的服务。",
+                content="",
+            ),
+            SourceDocument(
+                title="Unrelated English review",
+                url="https://restaurant.example/review",
+                query="consensus decision discipline",
+                snippet=(
+                    "Restaurant reviewers reached consensus about the seasonal menu "
+                    "after tasting several dishes with local ingredients."
+                ),
+                content="",
+            ),
+            SourceDocument(
+                title="Generic Chinese query suffix",
+                url="https://operations.example.cn/process",
+                query="共识对 管理决策 研究 官方 指引",
+                snippet="企业管理团队需要建立清晰决策流程，并持续提高执行效率和组织沟通质量。",
+                content="",
+            ),
+            SourceDocument(
+                title="Generic English query suffix",
+                url="https://restaurant.example/menu-process",
+                query="consensus management decision guidance",
+                snippet=(
+                    "Restaurant management uses decision guidance to coordinate "
+                    "seasonal menu updates and staff communication."
+                ),
+                content="",
+            ),
+            SourceDocument(
+                title="Hostname-bound authority",
+                url="https://oecd.org.evil.example/research",
+                query="consensus decision discipline",
+                snippet=(
+                    "Consensus decision discipline requires independent challenge "
+                    "before management commits operating resources."
+                ),
+                content="",
+                domain="oecd.org",
+            ),
+            SourceDocument(
+                title="IR label is not authority",
+                url="https://ir.evil.example/research",
+                query="consensus decision discipline",
+                snippet=(
+                    "Consensus decision discipline preserves independent challenge "
+                    "before management commits operating resources."
+                ),
+                content="",
+            ),
+            SourceDocument(
+                title="Embedded gov label is not authority",
+                url="https://agency.gov.com/research",
+                query="consensus decision discipline",
+                snippet=(
+                    "Consensus decision discipline retains independent review "
+                    "before management commits operating resources."
+                ),
+                content="",
+            ),
+            SourceDocument(
+                title="PDF type alone is not authority",
+                url="https://publisher.example/paper.pdf",
+                query="consensus decision discipline",
+                snippet=(
+                    "Consensus decision discipline records independent objections "
+                    "before management commits operating resources."
+                ),
+                content="",
+                source_type="pdf",
+            ),
+        ]
+
+        evidence = build_source_channel_qualitative_evidence(
+            "共识对，也并不等于应该做顺向 consensus decision discipline",
+            sources,
+        )
+
+        self.assertEqual(len(evidence), 4)
+        self.assertEqual(
+            {item["domain"] for item in evidence},
+            {
+                "oecd.org.evil.example",
+                "ir.evil.example",
+                "agency.gov.com",
+                "publisher.example",
+            },
+        )
+        self.assertFalse(any(item["authoritative"] for item in evidence))
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {"mode": "source_channel", "anchors": ["consensus"]}
+        authority_count = pipeline._public_authority_domain_count(evidence)
+        self.assertEqual(authority_count, 0)
+        issues = pipeline._evidence_base_issues(
+            authority_count,
+            [{"id": f"E{index}"} for index in range(10)],
+            evidence,
+            web_required=True,
+        )
+        self.assertTrue(any("authority-weighted" in issue for issue in issues))
+
+    def test_source_channel_merge_reserves_identity_diversity_before_score_fill(self):
+        numeric = [
+            {
+                "id": f"OLD-{index}",
+                "fact": f"Consensus adoption reached {index + 10}% across the tracked cohort.",
+                "value": index + 10,
+                "year": None,
+                "source_url": "https://dense.example/metrics",
+                "domain": "dense.example",
+                "source_type": "html",
+                "origin": "web",
+                "authoritative": False,
+                "score": 100 - index,
+            }
+            for index in range(35)
+        ]
+        qualitative = [
+            {
+                "id": f"QUAL-{index}",
+                "fact": f"Consensus discipline preserves independent challenge for team {name}.",
+                "value": None,
+                "year": None,
+                "source_url": f"https://{name}.example/research",
+                "domain": f"{name}.example",
+                "source_type": "html",
+                "origin": "web",
+                "authoritative": False,
+                "score": 5,
+            }
+            for index, name in enumerate(("alpha", "bravo", "charlie"))
+        ]
+        qualitative.append(
+            {
+                **numeric[0],
+                "id": "DUPLICATE",
+                "value": None,
+                "score": 1,
+            }
+        )
+        qualitative.append(
+            {
+                "id": "URL-CREDENTIALS",
+                "fact": "Consensus discipline documents independent review before commitment.",
+                "value": None,
+                "year": None,
+                "source_url": "https://user:secret@credential.example/research",
+                "domain": "credential.example",
+                "source_type": "html",
+                "origin": "web",
+                "authoritative": False,
+                "score": 998,
+            }
+        )
+        qualitative.append(
+            {
+                "id": "INVALID-PORT",
+                "fact": "Consensus discipline uses a second documented challenge before commitment.",
+                "value": None,
+                "year": None,
+                "source_url": "https://invalid.example:bad/research",
+                "domain": "oecd.org",
+                "source_type": "html",
+                "origin": "web",
+                "authoritative": True,
+                "score": 999,
+            }
+        )
+
+        merged = merge_source_channel_public_evidence(
+            numeric,
+            qualitative,
+            limit=10,
+        )
+
+        domains = [item["domain"] for item in merged]
+        self.assertEqual(set(domains), {"dense.example", "alpha.example", "bravo.example", "charlie.example"})
+        self.assertNotIn("invalid.example", domains)
+        self.assertNotIn("credential.example", domains)
+        self.assertLessEqual(domains.count("dense.example"), 5)
+        self.assertTrue(any(item["value"] is not None for item in merged))
+        self.assertTrue(any(item["value"] is None for item in merged))
+        self.assertEqual(
+            sum(item["fact"] == numeric[0]["fact"] for item in merged),
+            1,
+        )
+        self.assertEqual([item["id"] for item in merged], [f"WEB-E{index}" for index in range(1, len(merged) + 1)])
+
+    def test_source_channel_production_shape_passes_without_weakening_public_gates(self):
+        labels = [
+            "alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf",
+            "hotel", "india", "juliet", "kilo", "lima", "mike", "november",
+            "oscar", "papa", "quebec", "romeo", "sierra", "tango", "uniform",
+            "victor", "whiskey", "xray", "yankee",
+        ]
+        public_sources = [
+            SourceDocument(
+                title=f"Publisher {label}",
+                url=f"https://{label}.example/research",
+                query="consensus decision discipline",
+                snippet=(
+                    f"Consensus decision discipline at publisher {label} depends on "
+                    "independent challenge before management commits resources."
+                ),
+                content="",
+            )
+            for label in labels
+        ]
+        qualitative = build_source_channel_qualitative_evidence(
+            "consensus decision discipline",
+            public_sources,
+        )
+        numeric = [
+            {
+                "id": f"NUM-{index}",
+                "fact": f"Consensus adoption reached {index + 10}% in the measured cohort.",
+                "value": index + 10,
+                "year": None,
+                "source_url": "https://oecd.org/dense-metrics",
+                "domain": "oecd.org",
+                "source_type": "html",
+                "origin": "web",
+                "authoritative": True,
+                "score": 20,
+            }
+            for index in range(12)
+        ]
+        merged = merge_source_channel_public_evidence(numeric, qualitative, limit=30)
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {"mode": "source_channel", "anchors": ["consensus"]}
+
+        self.assertGreaterEqual(len(merged), 10)
+        self.assertGreaterEqual(len({item["domain"] for item in merged}), 2)
+        self.assertEqual(
+            pipeline._evidence_base_issues(
+                1,
+                [{"id": "PRIVATE-E1", "origin": "private_seed"}, *merged],
+                merged,
+                web_required=True,
+            ),
+            [],
+        )
+
+        thin = merged[:1]
+        issues = pipeline._evidence_base_issues(
+            1,
+            [{"id": "PRIVATE-E1", "origin": "private_seed"}, *thin],
+            thin,
+            web_required=True,
+        )
+        self.assertTrue(any("at least 10 approved" in issue for issue in issues))
+        self.assertTrue(any("independently corroborating" in issue for issue in issues))
+
     def test_source_channel_public_gate_requires_distinct_source_domains(self):
         pipeline = WebReportPipeline(Mock())
         pipeline.source_profile = {
@@ -1137,10 +1533,13 @@ class RAGBridgeTests(unittest.TestCase):
             return_value=fact_pack,
         ), patch(
             "gen_rpt.web_report_pipeline.build_evidence_ledger",
+            autospec=True,
             return_value=[{"id": f"E{index}"} for index in range(9)],
         ), patch(
             "gen_rpt.web_report_pipeline.build_verified_private_seed_evidence",
-        ) as private_evidence_builder:
+        ) as private_evidence_builder, patch(
+            "gen_rpt.web_report_pipeline.build_source_channel_qualitative_evidence",
+        ) as qualitative_evidence_builder:
             with self.assertRaisesRegex(
                 ReportQualityError,
                 "at least 10 approved evidence points",
@@ -1152,6 +1551,7 @@ class RAGBridgeTests(unittest.TestCase):
                 )
 
         private_evidence_builder.assert_not_called()
+        qualitative_evidence_builder.assert_not_called()
 
     def test_source_channel_fact_pack_is_built_from_public_sources_only(self):
         class StopAfterFactPack(RuntimeError):
