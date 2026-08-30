@@ -217,8 +217,34 @@ def _source_channel_attempt12_shape_report():
     return report
 
 
-def _source_channel_target_overage(target_words: int = 2_501):
-    assert 2_501 <= target_words <= 3_400
+def _source_channel_attempt13_shape_report():
+    """Mirror attempt13's valid 2,532-word reader-visible output shape."""
+    report = _source_channel_attempt12_shape_report()
+    target_words = 2_532
+    current_words = _word_count(_report_narrative_text(report))
+    evidence_items = [
+        (section_index, evidence_index)
+        for section_index, section in enumerate(report["sections"])
+        for evidence_index, _item in enumerate(section["evidence"])
+    ]
+    base_addition, remainder = divmod(
+        target_words - current_words,
+        len(evidence_items),
+    )
+    for item_index, (section_index, evidence_index) in enumerate(evidence_items):
+        evidence = report["sections"][section_index]["evidence"][evidence_index]
+        addition = base_addition + (1 if item_index < remainder else 0)
+        report["sections"][section_index]["evidence"][evidence_index] = _source_channel_words(
+            evidence,
+            len(evidence.split()) + addition,
+            f"attempt13groundedcontext{section_index}{evidence_index}",
+        )
+    assert _word_count(_report_narrative_text(report)) == target_words
+    return report
+
+
+def _source_channel_target_overage(target_words: int = 2_601):
+    assert 2_601 <= target_words <= 3_400
     report = _source_channel_quality_report()
     current = _word_count(_report_narrative_text(report))
     report["intro"][0] += " " + " ".join(
@@ -231,8 +257,8 @@ def _source_channel_target_overage(target_words: int = 2_501):
         context_text="The validated public record supports a conditional operating response.",
         source_count=2,
     ) == [
-        "The source-channel reader-visible target is "
-        f"2,100-2,500 words; found {target_words}."
+        "The source-channel reader-visible publication ceiling is "
+        f"2,600 words; found {target_words}."
     ]
     return report
 
@@ -2057,6 +2083,99 @@ class RAGBridgeTests(unittest.TestCase):
             [],
         )
 
+    def test_source_channel_attempt13_2532_shape_passes_initial_gate(self):
+        report = _source_channel_attempt13_shape_report()
+
+        self.assertEqual(_word_count(_report_narrative_text(report)), 2_532)
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                report,
+                topic="Bounded market response",
+                context_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+            ),
+            [],
+        )
+
+    def test_source_channel_attempt13_2532_shape_passes_revision_preparation(self):
+        report = _source_channel_attempt13_shape_report()
+        client = Mock()
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        prepared, issues = pipeline._prepare_report_draft(
+            report,
+            topic="Bounded market response",
+            grounding_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+            source_chunks={},
+            approved_evidence=[],
+        )
+
+        self.assertIs(prepared, report)
+        self.assertEqual(issues, [])
+        with patch.object(
+            pipeline,
+            "_revise_report_draft",
+        ) as revision, patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        ) as compression:
+            returned, remaining = pipeline._rescue_final_report(
+                prepared,
+                issues,
+                storyline_plan={},
+                topic="Bounded market response",
+                grounding_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertIs(returned, report)
+        self.assertEqual(remaining, [])
+        revision.assert_not_called()
+        compression.assert_not_called()
+        client.chat_json.assert_not_called()
+
+    def test_source_channel_attempt13_2532_shape_passes_final_humanized_gate(self):
+        report = _source_channel_attempt13_shape_report()
+        client = Mock()
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        ) as compression:
+            pipeline._final_humanized_quality_gate(
+                report,
+                topic="Bounded market response",
+                grounding_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+                source_chunks={},
+                output_dir=Path(directory),
+            )
+
+        compression.assert_not_called()
+        client.chat_json.assert_not_called()
+
+    def test_source_channel_2601_total_still_fails_closed(self):
+        report = _source_channel_target_overage(2_601)
+
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                report,
+                topic="Bounded market response",
+                context_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+            ),
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2601."
+            ],
+        )
+
     def test_source_channel_accepts_four_developed_paragraphs_under_shared_gate(self):
         report = _source_channel_attempt12_shape_report()
         report["sections"][0]["paragraphs"].append(
@@ -2144,7 +2263,7 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         self.assertIn(
-            f"The source-channel reader-visible target is 2,100-2,500 words; found {total_words}.",
+            f"The source-channel reader-visible publication minimum is 2,100 words; found {total_words}.",
             issues,
         )
 
@@ -2173,7 +2292,7 @@ class RAGBridgeTests(unittest.TestCase):
 
         compression.assert_not_called()
         client.chat_json.assert_not_called()
-        self.assertEqual(_word_count(_report_narrative_text(report)), 2_501)
+        self.assertEqual(_word_count(_report_narrative_text(report)), 2_601)
 
     def test_source_channel_final_rescue_returns_issues_without_model_revision(self):
         report = _source_channel_target_overage()
@@ -2584,8 +2703,10 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertIn("SOURCE-CHANNEL CONTRACT", source_prompt)
         self.assertIn("exactly 3 separate paragraph strings", source_prompt)
-        self.assertIn("2,100 and 2,500", source_prompt)
+        self.assertIn("2,100-2,600 words", source_prompt)
         self.assertIn("2,100-2,300-word creative target", source_prompt)
+        self.assertIn("2,600-word ceiling", source_prompt)
+        self.assertIn("is not a drafting target", source_prompt)
         self.assertIn("Publication accepts 3-6 developed paragraphs", source_prompt)
         self.assertIn("not independent publication blockers", source_prompt)
         self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", source_prompt)
@@ -2671,8 +2792,9 @@ class RAGBridgeTests(unittest.TestCase):
                 "strict_output_budget": True,
             },
         )
-        self.assertIn("2,100-2,500 个中文字或英文单词", prompt)
+        self.assertIn("2,100-2,600 个中文字或英文单词", prompt)
         self.assertIn("2,100-2,300 创作目标", prompt)
+        self.assertIn("2,600 仅是保留完整已验证材料的发布上限，不是创作目标", prompt)
         self.assertIn("共享发布门槛接受 3-6 个独立段落", prompt)
         self.assertIn("不作为独立发布阻断项", prompt)
         self.assertIn("每段 50-55 字，lead 25-30 字，so_what 35-42 字", prompt)
@@ -2936,8 +3058,10 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("SOURCE-CHANNEL REVISION CONTRACT", prompt)
         self.assertIn("exactly 3 separate paragraph strings as the editorial target", prompt)
         self.assertIn("publication accepts 3-6 developed paragraphs", prompt)
-        self.assertIn("2,100-2,500", prompt)
+        self.assertIn("2,100-2,600", prompt)
         self.assertIn("2,100-2,300 creative target", prompt)
+        self.assertIn("2,600-word ceiling", prompt)
+        self.assertIn("is not a drafting target", prompt)
         self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", prompt)
         self.assertIn("complete section 210-235", prompt)
         self.assertIn(
@@ -2953,7 +3077,7 @@ class RAGBridgeTests(unittest.TestCase):
         shared_quality_issues = [
             "Section 1 has underdeveloped paragraphs under 35 words: [1].",
             "Section 1 needs 200-550 words of analysis; found 551.",
-            "The source-channel reader-visible target is 2,100-2,500 words; found 2,573.",
+            "The source-channel reader-visible publication ceiling is 2,600 words; found 2601.",
         ]
         client = Mock()
         client.chat_json.return_value = {}

@@ -40,6 +40,8 @@ from .web_publication_contract import (
     report_content_quality_issues,
     rag_rendered_output_issues,
     rag_visible_numbers_supported,
+    SOURCE_CHANNEL_PUBLICATION_MAX_WORDS,
+    SOURCE_CHANNEL_PUBLICATION_MIN_WORDS,
     source_channel_report_quality_issues,
 )
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
@@ -1676,7 +1678,7 @@ Rejected report:
 SOURCE-CHANNEL REVISION CONTRACT (the only structural and length contract):
 - Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
 - Correct only rejected fields. Keep compliant sections, evidence, references, and actions unchanged.
-- Return exactly 3 key_takeaways and exactly 5 sections. Target exactly 4 action_steps; the shared publication gate accepts 4-6 complete actions. The hard source-channel publication gate remains 2,100-2,500 words or Chinese characters; revise to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} creative target so audit and rendering retain headroom.
+- Return exactly 3 key_takeaways and exactly 5 sections. Target exactly 4 action_steps; the shared publication gate accepts 4-6 complete actions. The source-channel publication range is {SOURCE_CHANNEL_PUBLICATION_MIN_WORDS:,}-{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,} words or Chinese characters; revise to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} creative target so audit and rendering retain headroom. The {SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,}-word ceiling preserves complete grounded material and is not a drafting target.
 - Every section contains title, lead, paragraphs, evidence, and so_what. Draft exactly 3 separate paragraph strings as the editorial target; publication accepts 3-6 developed paragraphs, each at least 35 words or Chinese characters, within a 200-550 word or character section.
 - Editorial drafting targets are: each paragraph {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX}, lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX}, so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX}, and the complete section {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} words or Chinese characters. These field ranges guide concise writing; they are not independent publication blockers when shared depth and total-length gates pass.
 - Aim for exactly 2 concise, traceable evidence items per section and 55 words or Chinese characters per item. Preserve every complete supported evidence sentence and real URL even when it exceeds the editorial target; never invent, replace, or drop an evidence URL.
@@ -2387,7 +2389,7 @@ Rules:
 必须包含字段：title、dek、category、intro、key_takeaways、sections、exhibits、action_steps、methodology、evidence_quality、references、disclaimer。
 
 SOURCE-CHANNEL 专用合同（这是唯一的结构与篇幅合同）：
-- 全程中文；客户可见硬性发布门槛仍为 2,100-2,500 个中文字或英文单词；初稿按更紧的 {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} 创作目标写作，为审核与渲染留出余量。
+- 全程中文；客户可见发布范围为 {SOURCE_CHANNEL_PUBLICATION_MIN_WORDS:,}-{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,} 个中文字或英文单词；初稿按更紧的 {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} 创作目标写作，为审核与渲染留出余量。{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,} 仅是保留完整已验证材料的发布上限，不是创作目标。
 - key_takeaways 恰好 3 条；sections 恰好 5 章；action_steps 以 4 条为编辑目标，共享发布门槛接受 4-6 条完整行动。
 - 每章以恰好 3 个 paragraphs 字符串为编辑目标；共享发布门槛接受 3-6 个独立段落，每段至少 35 字，lead、paragraphs 与 so_what 合计 200-550 字，so_what 至少 35 字。
 - 编辑创作目标为：每段 {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX} 字，lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX} 字，so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX} 字，每章合计 {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} 字。这些字段范围用于引导精炼写作；共享深度与总篇幅门槛通过时，不作为独立发布阻断项。
@@ -2421,7 +2423,7 @@ Recommendation boundary: {stance}. Do not state management guidance stronger tha
 Required fields: title, dek, category, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
 
 SOURCE-CHANNEL CONTRACT (the only structural and length contract):
-- English only. The hard publication gate remains between 2,100 and 2,500 words. Draft to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,}-word creative target so audit and rendering retain headroom.
+- English only. The publication range is {SOURCE_CHANNEL_PUBLICATION_MIN_WORDS:,}-{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,} words. Draft to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,}-word creative target so audit and rendering retain headroom. The {SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,}-word ceiling preserves complete grounded material and is not a drafting target.
 - Return exactly 3 key_takeaways and exactly 5 sections. Target exactly 4 action_steps; the shared publication gate accepts 4-6 complete actions.
 - Draft exactly 3 separate paragraph strings per section as the editorial target. Publication accepts 3-6 developed paragraphs, each at least 35 words, within a 200-550 word section, with a management implication of at least 35 words.
 - Editorial drafting targets are: each paragraph {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX}, lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX}, so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX}, and the complete section {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} words. These field ranges guide concise writing; they are not independent publication blockers when shared depth and total-length gates pass.

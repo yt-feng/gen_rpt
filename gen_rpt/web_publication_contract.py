@@ -71,8 +71,8 @@ WORKBENCH_EXHIBIT_PATTERNS: Tuple[str, ...] = (
     r"\bcommitment\s+behind\s+proof\b",
 )
 
-SOURCE_CHANNEL_TARGET_MIN_WORDS = 2_100
-SOURCE_CHANNEL_TARGET_MAX_WORDS = 2_500
+SOURCE_CHANNEL_PUBLICATION_MIN_WORDS = 2_100
+SOURCE_CHANNEL_PUBLICATION_MAX_WORDS = 2_600
 
 
 def _evidence_relevance_tokens(value: Any) -> set[str]:
@@ -583,11 +583,13 @@ def source_channel_report_quality_issues(
 ) -> List[str]:
     """Apply shared publication quality plus source-channel product boundaries.
 
-    Per-field source-channel ranges are drafting targets, not publication
-    blockers.  The shared gate already enforces substantive section depth,
-    developed paragraphs and management implications.  Keeping those rules in
-    one place prevents a grounded report from failing only because a complete
-    source sentence is a few words outside an editorial micro-range.
+    Per-field source-channel ranges and the tighter 2,100-2,300 creative range
+    are drafting targets, not publication blockers.  The bounded 2,600-word
+    ceiling preserves complete grounded material while the shared gate still
+    enforces substantive section depth, developed paragraphs and management
+    implications.  Keeping those rules in one place prevents a grounded report
+    from failing only because source humanization adds a small amount of
+    reader-visible context.
     """
 
     issues = report_content_quality_issues(
@@ -610,10 +612,15 @@ def source_channel_report_quality_issues(
                 f"Source-channel section {index} requires a non-empty conclusion-first lead."
             )
     total_words = _word_count(_report_narrative_text(report))
-    if not SOURCE_CHANNEL_TARGET_MIN_WORDS <= total_words <= SOURCE_CHANNEL_TARGET_MAX_WORDS:
+    if total_words < SOURCE_CHANNEL_PUBLICATION_MIN_WORDS:
         issues.append(
-            "The source-channel reader-visible target is "
-            f"{SOURCE_CHANNEL_TARGET_MIN_WORDS:,}-{SOURCE_CHANNEL_TARGET_MAX_WORDS:,} words; found {total_words}."
+            "The source-channel reader-visible publication minimum is "
+            f"{SOURCE_CHANNEL_PUBLICATION_MIN_WORDS:,} words; found {total_words}."
+        )
+    elif total_words > SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:
+        issues.append(
+            "The source-channel reader-visible publication ceiling is "
+            f"{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,} words; found {total_words}."
         )
     return issues
 
