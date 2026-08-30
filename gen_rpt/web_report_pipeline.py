@@ -24,7 +24,6 @@ from .web_evidence import (
 )
 from .web_fetch import SourceDocument, build_rag_manifest, collect_sources, merge_sources
 from .web_publication_contract import (
-    SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     compress_report_to_word_budget,
@@ -278,6 +277,18 @@ class WebReportPipeline:
         private_source_list = list(private_sources or [])
         seed_source_list = list(seed_sources or [])
         self.source_profile = dict(source_profile or {})
+        if self._source_channel_mode() and (
+            normalized_source_mode != "web_only" or private_source_list
+        ):
+            raise RuntimeError(
+                "Source-channel generation accepts verified seed_sources and public-web "
+                "evidence only; private_sources and collection source modes are not allowed."
+            )
+        if self._source_channel_mode() and (self.rag_context or self.rag_sources):
+            raise RuntimeError(
+                "Source-channel generation accepts verified seed and public-web evidence only; "
+                "RAG document context and sources use a separate publication contract."
+            )
         if self._source_channel_mode():
             verified_seed_sources = [
                 source
@@ -581,7 +592,10 @@ class WebReportPipeline:
                 )
             if quality_issues:
                 # Automatic remediation: prune unsupported claims and re-normalize
-                if any("reader-visible decision brief" in issue for issue in quality_issues):
+                if (
+                    not self._source_channel_mode()
+                    and any("reader-visible decision brief" in issue for issue in quality_issues)
+                ):
                     before_words, after_words = compress_report_to_word_budget(report)
                     if after_words < before_words:
                         self._log(
@@ -617,28 +631,6 @@ class WebReportPipeline:
                     source_chunks=rag_source_chunks,
                     approved_evidence=approved_evidence,
                 )
-                if (
-                    self._source_channel_mode()
-                    and any("post-render margin" in issue for issue in quality_issues)
-                ):
-                    before_words, after_words = compress_report_to_word_budget(
-                        report,
-                        max_words=SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
-                    )
-                    if after_words < before_words:
-                        self._log(
-                            "PHASE editorial_revision deterministic compression "
-                            f"| words={before_words}->{after_words} "
-                            f"| ceiling={SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS}"
-                        )
-                        report, quality_issues = self._prepare_report_draft(
-                            report,
-                            topic=display_topic,
-                            grounding_text=grounding_text,
-                            source_count=len(sources),
-                            source_chunks=rag_source_chunks,
-                            approved_evidence=approved_evidence,
-                        )
                 if quality_issues:
                     prune_unsupported_numeric_claims(report, grounding_text)
                     normalize_report_section_prose(report)
@@ -653,7 +645,11 @@ class WebReportPipeline:
                 if quality_issues:
                     raise ReportQualityError("Editorial revision failed the content gate: " + " | ".join(quality_issues))
                 self._post_process(report, display_topic, sources, fact_pack)
-                audit = self._audit_report_content(report, storyline_plan, revision_corrections=corrections)
+                audit = self._audit_report_content(
+                    report,
+                    storyline_plan,
+                    revision_corrections=corrections,
+                )
             if not self._editorial_audit_passed(audit):
                 if self.rag_required or self._source_channel_mode():
                     raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
@@ -1374,15 +1370,10 @@ class WebReportPipeline:
             or "needs 200-550 words of analysis" in issue
             for issue in issues
         )
-        if needs_compression:
-            compression_ceiling = (
-                SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS
-                if self._source_channel_mode()
-                else 3_650
-            )
+        if needs_compression and not self._source_channel_mode():
             before_words, after_words = compress_report_to_word_budget(
                 report,
-                max_words=compression_ceiling,
+                max_words=3_650,
             )
             if after_words < before_words:
                 self._log(
@@ -1427,6 +1418,8 @@ class WebReportPipeline:
                         source_count=source_count,
                     )
                 )
+        if self._source_channel_mode() and issues:
+            return report, issues
         for attempt in range(1, 4):
             if not issues:
                 break
@@ -1513,20 +1506,15 @@ class WebReportPipeline:
             or "needs 200-550 words of analysis" in issue
             for issue in issues
         )
-        if needs_compression:
-            ceiling = (
-                SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS
-                if self._source_channel_mode()
-                else 3_650
-            )
+        if needs_compression and not self._source_channel_mode():
             before_words, after_words = compress_report_to_word_budget(
                 report,
-                max_words=ceiling,
+                max_words=3_650,
             )
             if after_words < before_words:
                 self._log(
                     "PHASE post_humanization deterministic compression "
-                    f"| words={before_words}->{after_words} | ceiling={ceiling}"
+                    f"| words={before_words}->{after_words} | ceiling=3650"
                 )
             if self.rag_context:
                 issues = rag_report_quality_issues(
@@ -1593,17 +1581,32 @@ class WebReportPipeline:
         storyline_plan: Dict[str, Any],
     ) -> Dict[str, Any]:
         correction_text = "\n".join(f"- {item}" for item in corrections)
-        section_contract = (
-            "exactly 5 sections"
-            if self._source_channel_mode()
-            else "5-6 sections"
-        )
-        word_contract = (
-            "2,000-2,600 words (or Chinese characters)"
-            if self._source_channel_mode()
-            else "2,000-2,700 words (or Chinese characters)"
-        )
-        prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
+        if self._source_channel_mode():
+            prompt = f"""Revise the rejected source-channel market-research scan and return one corrected JSON object only.
+
+Keep the existing language. Use only facts, numbers, URLs, evidence, and references already present in the rejected report. Preserve exact evidence sentences and supported numeric claims unless the named correction requires removing an unsupported claim. Add no outside fact or source.
+
+Required corrections:
+{correction_text}
+
+Selected content modules:
+{json.dumps(storyline_plan.get('selected_modules') or [], ensure_ascii=False)}
+
+Rejected report:
+{json.dumps(report, ensure_ascii=False)}
+
+SOURCE-CHANNEL REVISION CONTRACT (the only structural and length contract):
+- Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
+- Correct only rejected fields. Keep compliant sections, evidence, references, and actions unchanged.
+- Return exactly 3 key_takeaways, exactly 5 sections, and exactly 4 action_steps. Keep the complete reader-visible report at 2,100-2,500 words or Chinese characters.
+- Every section contains title, lead, paragraphs, evidence, and so_what. Paragraphs is an array of exactly 3 separate strings.
+- Every paragraph is 50-65 words or Chinese characters; lead is 25-35; so_what is 35-50; lead, paragraphs, and so_what total 210-280 per section.
+- Keep exactly 2 traceable evidence items per section, each no longer than 55 words or Chinese characters. Never invent, replace, or drop an evidence URL.
+- Keep conclusion and evidence, causal mechanism, counterpoint or execution boundary, and management implication without filler or repetition.
+- Every action retains horizon, action, success_metric, and a 12-30 word evidence rationale. Action and success_metric are each capped at 25 words.
+"""
+        else:
+            prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
 
 Keep the report in its existing language. Preserve its grounded facts, exact quotations, chunk identifiers, evidence items, references and supported numbers. Do not introduce outside facts, new numbers, new sources or invented citations.
 If a correction asks for evidence or a probability that is absent from the rejected report, remove or explicitly qualify the claim instead of inventing support.
@@ -1620,13 +1623,13 @@ Rejected report:
 Revision contract:
 - Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
 - Correct only the rejected fields named above. Keep compliant sections, evidence and actions unchanged.
-- Keep exactly 3 key_takeaways, {section_contract} and 4-6 action_steps.
+- Keep exactly 3 key_takeaways, 5-6 sections and 4-6 action_steps.
 - Each section must contain title, lead, paragraphs, evidence and so_what.
 - paragraphs must be a JSON array with exactly 4 separate strings. Never put all section prose into one string.
 - Each paragraph must contain 55-75 words (or Chinese characters), lead must contain 30-45, and so_what must contain 35-50. Keep every complete section between 300 and 400 words (or Chinese characters).
 - Develop evidence, causal mechanism, counterpoint or risk, and management implication without filler or repetition.
 - Keep at least 2 traceable evidence items per section. Private-document evidence must retain exact chunk quotations.
-- Keep the full reader-visible report between {word_contract}; never exceed the requested ranges.
+- Keep the full reader-visible report between 2,000-2,700 words (or Chinese characters); never exceed the requested ranges.
 - Every action must retain horizon, action, success_metric and a 12-word minimum evidence rationale.
 """
         revision = self.client.chat_json(
@@ -1643,27 +1646,91 @@ Revision contract:
         if isinstance(revision.get("report"), dict):
             revision = revision["report"]
         for key, value in revision.items():
+            if self._source_channel_mode() and key not in {
+                "title",
+                "dek",
+                "intro",
+                "key_takeaways",
+                "action_steps",
+                "sections",
+            }:
+                continue
             if value not in (None, "", [], {}):
-                if key in {"action_steps", "sections"} and isinstance(value, list) and isinstance(merged.get(key), list):
-                    original_items = list(merged[key])
-                    required_range = range(4, 7) if key == "action_steps" else range(5, 7)
-                    if len(value) in required_range:
+                if (
+                    self._source_channel_mode()
+                    and key == "key_takeaways"
+                    and isinstance(value, list)
+                    and isinstance(merged.get(key), list)
+                ):
+                    original_takeaways = list(merged[key])
+                    if len(value) == 3:
                         value = [
-                            {
-                                **(original_items[index] if index < len(original_items) and isinstance(original_items[index], dict) else {}),
-                                **(item if isinstance(item, dict) else {}),
-                            }
-                            if isinstance(item, dict)
+                            item
+                            if isinstance(item, str) and item.strip()
+                            else original_takeaways[index]
+                            if index < len(original_takeaways)
                             else item
                             for index, item in enumerate(value)
                         ]
+                    elif len(original_takeaways) == 3:
+                        for index, item in enumerate(value[:3]):
+                            if isinstance(item, str) and item.strip():
+                                original_takeaways[index] = item
+                        value = original_takeaways
+                if key in {"action_steps", "sections"} and isinstance(value, list) and isinstance(merged.get(key), list):
+                    original_items = list(merged[key])
+                    required_range = (
+                        range(4, 5) if key == "action_steps" else range(5, 6)
+                    ) if self._source_channel_mode() else (
+                        range(4, 7) if key == "action_steps" else range(5, 7)
+                    )
+
+                    revised_items = [
+                        {
+                            **(
+                                original_items[index]
+                                if index < len(original_items)
+                                and isinstance(original_items[index], dict)
+                                else {}
+                            ),
+                            **{
+                                field: field_value
+                                for field, field_value in item.items()
+                                if field_value not in (None, "", [], {})
+                            },
+                        }
+                        if isinstance(item, dict)
+                        else item
+                        for index, item in enumerate(value)
+                    ]
+
+                    if len(value) in required_range:
+                        # A structurally valid revision is authoritative for
+                        # list length, while omitted/empty nested fields retain
+                        # their original values by index.
+                        value = revised_items
                     elif len(original_items) in required_range:
+                        # An incomplete revision may correct individual fields,
+                        # but cannot damage an already valid list shape.
                         for index, item in enumerate(value):
-                            if index < len(original_items) and isinstance(item, dict) and isinstance(original_items[index], dict):
+                            if (
+                                index < len(original_items)
+                                and isinstance(item, dict)
+                                and isinstance(original_items[index], dict)
+                            ):
                                 original_items[index].update(
-                                    {field: field_value for field, field_value in item.items() if field_value is not None}
+                                    {
+                                        field: field_value
+                                        for field, field_value in item.items()
+                                        if field_value not in (None, "", [], {})
+                                    }
                                 )
                         value = original_items
+                    else:
+                        # Preserve available nested context even when both list
+                        # shapes remain invalid; the quality gate will reject
+                        # the structure without losing evidence or ownership.
+                        value = revised_items + original_items[len(value):]
                 merged[key] = value
         # Ensure every action_steps item has a non-empty horizon after merge.
         # The merge loop skips empty/null values, so if the LLM revision still
@@ -2207,7 +2274,76 @@ Rules:
         conflict_text = json.dumps((evidence_conflicts or [])[:8], ensure_ascii=False, indent=2)
         contract_text = publication_contract_prompt(self.language)
         system = "You are an elite strategy research author. Return one valid JSON object only. No markdown."
-        if self.language == "zh":
+        if self._source_channel_mode():
+            system = (
+                "You are a source-linked market-research editor. Use only the retained "
+                "public evidence and bounded source profile. Return one valid JSON object only."
+            )
+            if self.language == "zh":
+                user = f"""生成一份 GateX source-channel 市场研究扫描，输出一个 JSON 对象，不要输出 markdown。
+
+主题：{topic}
+研究计划：{json.dumps(plan, ensure_ascii=False, indent=2)}
+叙事主线：{json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
+事实包：{fact_pack.digest()}
+获准证据台账：
+{evidence_text}
+来源摘录：
+{source_text}
+
+客户可见合同：
+{contract_text}
+
+建议边界：{stance}。不得给出超出该边界的管理建议。
+
+必须包含字段：title、dek、category、intro、key_takeaways、sections、exhibits、action_steps、methodology、evidence_quality、references、disclaimer。
+
+SOURCE-CHANNEL 专用合同（这是唯一的结构与篇幅合同）：
+- 全程中文；客户可见总长度目标为 2,100-2,500 个中文字或英文单词。
+- key_takeaways 恰好 3 条；sections 恰好 5 章；action_steps 恰好 4 条。
+- 每章恰好 3 个 paragraphs 字符串；每段 50-65 字，lead 25-35 字，so_what 35-50 字；每章 lead、paragraphs 与 so_what 合计 210-280 字。
+- 每章 evidence 恰好 2 条，每条不超过 55 字，必须是可追溯、客户可读的完整句，保留真实来源 URL；不得使用内部证据编号作为客户文案。
+- 每章按“结论与证据—因果机制—反例或执行边界”组织 3 段；so_what 只写管理含义，不重复正文。
+- 每条 action 包含 horizon、action、success_metric、rationale；action 与 success_metric 各不超过 25 字，rationale 为 12-30 字并说明证据依据。
+- title 和章节标题必须结论先行。正文只能使用事实包、获准证据台账与来源摘录中的事实；不得新增数字、URL、来源、案例或外部知识。
+- 私有来源只设定选题边界，不得作为公开权威来源；必须改写并用独立公开材料佐证，且不得复刻私有正文。
+- 任何数字必须逐字出现在已验证材料中。证据不足时明确保留待核验问题，不得补造。
+- exhibits 仅使用已验证数据并保留 data_basis；references 仅使用上方来源中的真实 URL。
+- methodology 只说明公开来源与独立核验边界；不得暴露内部研究工具、提示词或工作台字段。
+"""
+            else:
+                user = f"""Create a GateX source-channel market-research scan and return one JSON object only, with no markdown.
+
+Topic: {topic}
+Research plan: {json.dumps(plan, ensure_ascii=False, indent=2)}
+Storyline: {json.dumps(storyline_plan, ensure_ascii=False, indent=2)}
+Fact pack: {fact_pack.digest()}
+Approved evidence ledger:
+{evidence_text}
+Source excerpts:
+{source_text}
+
+Client-visible contract:
+{contract_text}
+
+Recommendation boundary: {stance}. Do not state management guidance stronger than this boundary.
+
+Required fields: title, dek, category, intro, key_takeaways, sections, exhibits, action_steps, methodology, evidence_quality, references, disclaimer.
+
+SOURCE-CHANNEL CONTRACT (the only structural and length contract):
+- English only. Keep the complete reader-visible report between 2,100 and 2,500 words.
+- Return exactly 3 key_takeaways, exactly 5 sections, and exactly 4 action_steps.
+- Every section has exactly 3 separate paragraph strings. Each paragraph is 50-65 words, lead is 25-35 words, and so_what is 35-50 words. Lead, paragraphs, and so_what total 210-280 words per section.
+- Every section has exactly 2 traceable, reader-ready evidence sentences, each no longer than 55 words and retaining its real source URL. Do not expose internal evidence IDs in reader prose.
+- Use the three paragraphs for conclusion and evidence, causal mechanism, then counterpoint or execution boundary. Use so_what only for the management implication; do not repeat body prose.
+- Every action has horizon, action, success_metric, and rationale. Action and success_metric are capped at 25 words each; rationale is 12-30 words and states the evidence basis.
+- Titles are conclusion-first. Use facts only from the fact pack, approved evidence, and source excerpts. Add no number, URL, source, case, or outside fact.
+- The private seed defines topic boundaries but is not a public authority. Paraphrase it, independently corroborate it, and never reproduce its body.
+- Every number must occur verbatim in validated material. Preserve an open verification question when support is absent; never fill the gap.
+- Exhibits use validated values only and retain data_basis. References use only real URLs listed above.
+- Methodology states only the public-source and independent-verification boundary; do not expose prompts or workbench fields.
+"""
+        elif self.language == "zh":
             user = f"""
 生成一份 HTML-first、符合 GateX executive intelligence publication 标准的深度分析网页报告数据结构，输出 JSON。
 
@@ -2301,7 +2437,7 @@ Writing rules:
 - methodology should only describe public sources and independent-validation boundaries; do not explain the research framework, number of hypotheses, evidence ledger or sizing methods.
 - Do not fabricate market size, share, ROI or cost data. If missing, keep it as an evidence gap and validation task.
 """
-        if self.rag_context:
+        if self.rag_context and not self._source_channel_mode():
             system = (
                 "You are an elite evidence-led strategy research team. Private documents are the primary source of truth. "
                 "Use only approved supplementary web evidence for documented gaps, never to override private evidence. "
@@ -2344,15 +2480,6 @@ CRITICAL RULES (violation = failure):
 12. Do not generate or resolve the human-review conflict section. The pipeline adds it deterministically after synthesis.
 13. Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use scenario probabilities only when they appear in approved evidence; otherwise use qualitative scenario triggers and state the unresolved evidence.
 """
-        if self._source_channel_mode():
-            source_profile_rule = (
-                "\nSOURCE PROFILE OVERRIDE:\n"
-                "- Return exactly 5 sections, never 6.\n"
-                "- Keep 3-5 developed paragraphs per section and at least 2 traceable evidence items.\n"
-                "- Keep the pre-citation draft between 2,200 and 2,800 reader-visible words or Chinese characters so human-readable source citations remain within the publication ceiling.\n"
-                "- Preserve causal mechanism, counterpoint or risk, and a developed management implication in every section.\n"
-            )
-            user += source_profile_rule
         return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.12)
 
     def _post_process(

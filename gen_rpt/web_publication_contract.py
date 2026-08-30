@@ -71,11 +71,9 @@ WORKBENCH_EXHIBIT_PATTERNS: Tuple[str, ...] = (
     r"\bcommitment\s+behind\s+proof\b",
 )
 
+SOURCE_CHANNEL_TARGET_MIN_WORDS = 2_100
+SOURCE_CHANNEL_DRAFT_TARGET_MAX_WORDS = 2_500
 SOURCE_CHANNEL_TARGET_MAX_WORDS = 3_400
-# Deterministic compression aims below the publication ceiling so later
-# normalization, citation humanization, and editorial corrections have bounded
-# room without turning a harmless few-word overage into a failed report.
-SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS = 3_300
 
 
 def _evidence_relevance_tokens(value: Any) -> set[str]:
@@ -586,10 +584,11 @@ def source_channel_report_quality_issues(
 ) -> List[str]:
     """Apply the shared publication gate plus the tighter source-channel profile.
 
-    Source-channel reports retain the same evidence, paragraph-development and
-    numeric-grounding requirements as every report.  Their five-section shape
-    and lower word ceiling leave room for citation humanization and rendering
-    without drifting beyond the 3,800-word public limit.
+    Source-channel reports retain the shared evidence and numeric-grounding
+    requirements, then apply a dedicated compact editorial shape.  The exact
+    paragraph budget is deliberately non-overlapping: its lower and upper
+    bounds sum to the section bounds, so synthesis and revision never receive
+    contradictory length instructions.
     """
 
     issues = report_content_quality_issues(
@@ -606,7 +605,98 @@ def source_channel_report_quality_issues(
         issues.append(
             f"A source-channel report requires exactly 5 substantive sections; found {section_count}."
         )
+    for index, section in enumerate(sections or [], start=1):
+        if not isinstance(section, dict):
+            continue
+        paragraphs = [
+            str(item).strip()
+            for item in section.get("paragraphs", []) or []
+            if str(item).strip()
+        ]
+        lead_words = _word_count(section.get("lead"))
+        so_what_words = _word_count(section.get("so_what"))
+        if len(paragraphs) != 3:
+            issues.append(
+                f"Source-channel section {index} requires exactly 3 analytical paragraphs; found {len(paragraphs)}."
+            )
+        for position, paragraph in enumerate(paragraphs, start=1):
+            paragraph_words = _word_count(paragraph)
+            if not 50 <= paragraph_words <= 65:
+                issues.append(
+                    f"Source-channel section {index} paragraph {position} requires 50-65 words; found {paragraph_words}."
+                )
+        if not 25 <= lead_words <= 35:
+            issues.append(
+                f"Source-channel section {index} lead requires 25-35 words; found {lead_words}."
+            )
+        if not 35 <= so_what_words <= 50:
+            issues.append(
+                f"Source-channel section {index} management implication requires 35-50 words; found {so_what_words}."
+            )
+        section_words = _word_count(
+            " ".join(
+                [
+                    str(section.get("lead") or ""),
+                    *paragraphs,
+                    str(section.get("so_what") or ""),
+                ]
+            )
+        )
+        if not 210 <= section_words <= 280:
+            issues.append(
+                f"Source-channel section {index} requires 210-280 words of analysis; found {section_words}."
+            )
+        evidence = [
+            str(item).strip()
+            for item in section.get("evidence", []) or []
+            if str(item).strip()
+        ]
+        if len(evidence) > 2:
+            issues.append(
+                f"Source-channel section {index} is capped at 2 traceable evidence items; found {len(evidence)}."
+            )
+        long_evidence = [
+            position
+            for position, item in enumerate(evidence, start=1)
+            if _word_count(item) > 55
+        ]
+        if long_evidence:
+            issues.append(
+                f"Source-channel section {index} has evidence items over the 55-word reader cap: {long_evidence}."
+            )
+    actions = [
+        item
+        for item in report.get("action_steps", []) or []
+        if isinstance(item, dict)
+    ]
+    if len(actions) > 4:
+        issues.append(
+            f"A source-channel report is capped at 4 management actions; found {len(actions)}."
+        )
+    for index, action in enumerate(actions, start=1):
+        rationale_words = _word_count(action.get("rationale"))
+        if rationale_words > 30:
+            issues.append(
+                f"Source-channel action {index} rationale exceeds the 30-word cap; found {rationale_words}."
+            )
+        action_words = _word_count(action.get("action"))
+        metric_words = _word_count(
+            action.get("success_metric") or action.get("decision_gate")
+        )
+        if action_words > 25:
+            issues.append(
+                f"Source-channel action {index} exceeds the 25-word action cap; found {action_words}."
+            )
+        if metric_words > 25:
+            issues.append(
+                f"Source-channel action {index} exceeds the 25-word success-metric cap; found {metric_words}."
+            )
     total_words = _word_count(_report_narrative_text(report))
+    if not SOURCE_CHANNEL_TARGET_MIN_WORDS <= total_words <= SOURCE_CHANNEL_DRAFT_TARGET_MAX_WORDS:
+        issues.append(
+            "The source-channel reader-visible target is "
+            f"{SOURCE_CHANNEL_TARGET_MIN_WORDS:,}-{SOURCE_CHANNEL_DRAFT_TARGET_MAX_WORDS:,} words; found {total_words}."
+        )
     if total_words > SOURCE_CHANNEL_TARGET_MAX_WORDS:
         issues.append(
             "The source-channel report needs post-render margin at or below "

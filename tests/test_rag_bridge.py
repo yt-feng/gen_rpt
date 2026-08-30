@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import copy
 import os
 import re
 import tempfile
@@ -29,8 +30,6 @@ from gen_rpt.web_evidence import (
 )
 from gen_rpt.research_quality import ResearchFactPack
 from gen_rpt.web_publication_contract import (
-    SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
-    SOURCE_CHANNEL_TARGET_MAX_WORDS,
     backfill_section_evidence_from_ledger,
     combined_evidence_quality_issues,
     compress_report_to_word_budget,
@@ -71,43 +70,58 @@ def _context_payload():
     }
 
 
-def _source_channel_quality_report(*, extra_sentences: int = 1):
+def _source_channel_words(seed: str, target: int, filler: str) -> str:
+    words = seed.split()
+    while len(words) < target:
+        words.append(filler)
+    return " ".join(words[:target])
+
+
+def _source_channel_quality_report():
     section_names = ["demand", "supply", "policy", "adoption", "execution"]
-    paragraph_names = ["signal", "mechanism", "constraint", "response"]
+    paragraph_names = ["evidence", "mechanism", "boundary"]
     sections = []
     for section_name in section_names:
         paragraphs = []
         for paragraph_name in paragraph_names:
-            core = (
+            paragraphs.append(_source_channel_words(
                 f"The {section_name} {paragraph_name} evidence connects the retained public record "
-                "to a clear operating mechanism while preserving the counterpoint, the unresolved "
+                "to a clear operating mechanism and preserves the counterpoint, the unresolved "
                 "constraint, and the decision boundary that an accountable executive owner must "
-                "review before committing additional organisational capacity."
-            )
-            redundant = (
-                "Additional descriptive context repeats the same supported conclusion without "
-                "changing its evidence, causal interpretation, decision boundary, or accountable "
-                "management response."
-            )
-            paragraphs.append(" ".join([core] + [redundant] * extra_sentences))
+                "review before committing additional organisational capacity",
+                60,
+                f"{section_name}{paragraph_name}context",
+            ))
         sections.append(
             {
                 "title": f"Validated {section_name} evidence supports a bounded operating decision",
-                "lead": (
+                "lead": _source_channel_words(
                     f"The retained {section_name} record supports a conclusion-first decision while "
                     "keeping the remaining uncertainty visible. Independent corroboration determines "
-                    "how quickly management can move and which commitment must remain conditional."
+                    "how quickly management can move and which commitment must remain conditional",
+                    30,
+                    f"{section_name}leadcontext",
                 ),
                 "paragraphs": paragraphs,
                 "evidence": [
-                    "The public record supports this conclusion — OpenAlex (https://openalex.org/W1234567890).",
-                    "Independent research corroborates the mechanism — DOI (https://doi.org/10.1234/example.5678).",
+                    _source_channel_words(
+                        f"The retained {section_name} public record supports the bounded conclusion and preserves the operating condition for independent review through OpenAlex https://openalex.org/W1234567890",
+                        45,
+                        f"{section_name}publicsource",
+                    ),
+                    _source_channel_words(
+                        f"Independent {section_name} research corroborates the causal mechanism while keeping the unresolved limitation visible through the retained DOI source https://doi.org/10.1234/example.5678",
+                        45,
+                        f"{section_name}researchsource",
+                    ),
                 ],
-                "so_what": (
+                "so_what": _source_channel_words(
                     "Management should assign an accountable owner, document the unresolved condition, "
                     "and preserve a clear pause gate until independent evidence confirms that the "
                     "operating mechanism remains valid under the identified constraint. The next review "
-                    "must record the evidence accepted, the counterpoint tested, and the resulting response."
+                    "must record the evidence accepted, the counterpoint tested, and the resulting response",
+                    40,
+                    f"{section_name}implication",
                 ),
             }
         )
@@ -115,33 +129,254 @@ def _source_channel_quality_report(*, extra_sentences: int = 1):
         "title": "Verified public evidence supports a bounded market response",
         "dek": "Independent corroboration narrows the decision without overstating certainty.",
         "intro": [
-            "The brief separates the supported conclusion from the conditions that still require management verification."
+            _source_channel_words(
+                "The brief separates the supported conclusion from the conditions that still require management verification and keeps independent corroboration visible for accountable operating decisions",
+                50,
+                "introcontext",
+            )
         ],
         "key_takeaways": [
-            "Independent evidence supports a conditional operating response.",
-            "The causal mechanism remains more important than narrative momentum.",
-            "Management ownership and a documented pause gate preserve decision quality.",
+            _source_channel_words("Independent evidence supports a conditional operating response", 25, "firsttakeaway"),
+            _source_channel_words("The causal mechanism remains more important than narrative momentum", 25, "secondtakeaway"),
+            _source_channel_words("Management ownership and a documented pause gate preserve decision quality", 25, "thirdtakeaway"),
         ],
         "sections": sections,
         "action_steps": [
             {
                 "horizon": "Decision gate",
-                "action": f"Assign the {section_name} evidence owner.",
-                "success_metric": "Documented acceptance or pause decision.",
-                "rationale": (
+                "action": f"Assign the {section_name} evidence owner",
+                "success_metric": "Documented acceptance or pause decision",
+                "rationale": _source_channel_words(
                     "The retained evidence supports action only after an accountable owner confirms "
-                    "the operating condition and records the decision boundary."
+                    "the operating condition and records the decision boundary",
+                    18,
+                    f"{section_name}actionbasis",
                 ),
             }
             for section_name in section_names[:4]
         ],
-        "methodology": "The brief uses retained public sources and independent corroboration.",
-        "evidence_quality": "The public evidence is corroborated but the response remains conditional.",
-        "disclaimer": "This editorial market research does not provide personalised advice.",
+        "methodology": _source_channel_words("The brief uses retained public sources and independent corroboration", 25, "methodcontext"),
+        "evidence_quality": _source_channel_words("The public evidence is corroborated but the response remains conditional", 20, "qualitycontext"),
+        "disclaimer": _source_channel_words("This editorial market research does not provide personalised advice", 15, "disclaimercontext"),
+        "references": [
+            {"title": "OpenAlex", "url": "https://openalex.org/W1234567890"},
+            {"title": "DOI", "url": "https://doi.org/10.1234/example.5678"},
+        ],
     }
 
 
+def _source_channel_target_overage(target_words: int = 2_501):
+    assert 2_501 <= target_words <= 3_400
+    report = _source_channel_quality_report()
+    current = _word_count(_report_narrative_text(report))
+    report["intro"][0] += " " + " ".join(
+        ["targetceilingcontext"] * (target_words - current)
+    )
+    assert _word_count(_report_narrative_text(report)) == target_words
+    assert source_channel_report_quality_issues(
+        report,
+        topic="Bounded market response",
+        context_text="The validated public record supports a conditional operating response.",
+        source_count=2,
+    ) == [
+        "The source-channel reader-visible target is "
+        f"2,100-2,500 words; found {target_words}."
+    ]
+    return report
+
+
 class RAGBridgeTests(unittest.TestCase):
+    def _run_source_channel_build_until_quality_failure(
+        self,
+        *,
+        synthesized_report,
+        revised_reports,
+        audit_results,
+        expected_message,
+    ):
+        public_sources = [
+            SourceDocument(
+                title="OpenAlex corroboration",
+                url="https://openalex.org/W1234567890",
+                query="bounded response evidence",
+                snippet="Independent corroboration supports the bounded response.",
+                content="The public record supports a conditional operating response.",
+                domain="openalex.org",
+            ),
+            SourceDocument(
+                title="DOI corroboration",
+                url="https://doi.org/10.1234/example.5678",
+                query="bounded response mechanism",
+                snippet="Independent research corroborates the operating mechanism.",
+                content="The unresolved limitation remains visible in the public record.",
+                domain="doi.org",
+            ),
+        ]
+        seed_text = "A verified source thesis requires independent corroboration before management use."
+        private_seed = SourceDocument(
+            title="Verified source thesis",
+            url="https://example.com/private-source",
+            query="seed",
+            snippet="Verified source thesis.",
+            content=seed_text,
+            source_type="gatex_private_social",
+            domain="example.com",
+            metadata={
+                "gatex_private_content": True,
+                "content_hash": "a" * 64,
+                "source_id": "source-1",
+            },
+        )
+        fact_pack = ResearchFactPack(
+            topic="Bounded market response",
+            objective="Assess the independently corroborated operating mechanism",
+            decision_question="What remains supported?",
+            source_count=2,
+            authoritative_source_count=2,
+            source_domains=["openalex.org", "doi.org"],
+            source_refs=[source.url for source in public_sources],
+            high_confidence_facts=[source.content for source in public_sources],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        web_evidence = [
+            {
+                "id": f"WEB-E{index}",
+                "fact": (
+                    "The public record supports a conditional operating response."
+                    if index % 2
+                    else "The unresolved limitation remains visible in the public record."
+                ),
+                "source_url": public_sources[index % 2].url,
+                "domain": public_sources[index % 2].domain,
+                "status": "approved",
+            }
+            for index in range(1, 11)
+        ]
+        private_evidence = [{
+            "id": "PRIVATE-E1",
+            "fact": seed_text,
+            "source_url": private_seed.url,
+            "domain": private_seed.domain,
+            "status": "approved",
+        }]
+        source_profile = {
+            "mode": "source_channel",
+            "anchors": ["verified source thesis"],
+            "sources": [],
+        }
+
+        client = Mock()
+        pipeline = WebReportPipeline(client)
+        revision = patch.object(
+            pipeline,
+            "_revise_report_draft",
+            side_effect=[copy.deepcopy(item) for item in revised_reports],
+        )
+        audit = patch.object(
+            pipeline,
+            "_audit_report_content",
+            side_effect=[copy.deepcopy(item) for item in audit_results],
+        )
+        post_process = patch.object(
+            pipeline,
+            "_post_process",
+            wraps=pipeline._post_process,
+        )
+        compression = patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        )
+        with tempfile.TemporaryDirectory() as directory, patch.object(
+            pipeline,
+            "_plan_research",
+            return_value={
+                "search_queries": ["bounded response evidence"],
+                "outline": ["Evidence", "Mechanism", "Boundary"],
+            },
+        ), patch.object(
+            pipeline,
+            "_plan_chart_data_needs",
+            return_value=[],
+        ), patch.object(
+            pipeline,
+            "_collect_public_sources",
+            return_value=public_sources,
+        ), patch.object(
+            pipeline,
+            "_synthesize_web_report",
+            return_value=copy.deepcopy(synthesized_report),
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_research_fact_pack",
+            return_value=fact_pack,
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_evidence_ledger",
+            return_value=web_evidence,
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_verified_private_seed_evidence",
+            return_value=private_evidence,
+        ), patch(
+            "gen_rpt.web_report_pipeline.build_storyline_plan",
+            return_value={"selected_modules": ["mechanism", "boundary"]},
+        ), revision as revision_mock, audit as audit_mock, post_process as post_process_mock, compression as compression_mock:
+            with self.assertRaisesRegex(ReportQualityError, expected_message):
+                pipeline.build_report(
+                    "Bounded market response",
+                    Path(directory),
+                    seed_sources=[private_seed],
+                    source_profile=source_profile,
+                )
+
+        return {
+            "client": client,
+            "revision_mock": revision_mock,
+            "audit_mock": audit_mock,
+            "post_process_mock": post_process_mock,
+            "compression_mock": compression_mock,
+        }
+
+    def test_build_report_initial_revision_path_fails_closed_without_compaction(self):
+        overage = _source_channel_target_overage()
+
+        result = self._run_source_channel_build_until_quality_failure(
+            synthesized_report=overage,
+            revised_reports=[overage, overage, overage],
+            audit_results=[],
+            expected_message="Report content quality gate failed",
+        )
+
+        self.assertEqual(result["revision_mock"].call_count, 3)
+        result["audit_mock"].assert_not_called()
+        result["post_process_mock"].assert_not_called()
+        result["compression_mock"].assert_not_called()
+        result["client"].chat_json.assert_not_called()
+
+    def test_build_report_editorial_revision_path_fails_closed_without_compaction(self):
+        valid_report = _source_channel_quality_report()
+        overage = _source_channel_target_overage()
+        failing_audit = {
+            "score": 75,
+            "thesis_and_logic": 19,
+            "evidence_and_citations": 20,
+            "uncertainty_and_scenarios": 18,
+            "strategic_usefulness": 18,
+            "critical_issues": ["The operating boundary needs a tighter synthesis."],
+            "revision_instructions": ["Tighten the operating boundary."],
+        }
+
+        result = self._run_source_channel_build_until_quality_failure(
+            synthesized_report=valid_report,
+            revised_reports=[overage],
+            audit_results=[failing_audit],
+            expected_message="Editorial revision failed the content gate",
+        )
+
+        self.assertEqual(result["revision_mock"].call_count, 1)
+        self.assertEqual(result["audit_mock"].call_count, 1)
+        self.assertEqual(result["post_process_mock"].call_count, 1)
+        result["compression_mock"].assert_not_called()
+        result["client"].chat_json.assert_not_called()
     def test_validated_chunks_become_traceable_sources(self):
         sources = sources_from_validated_context(_context_payload(), "Fleet launch decision")
 
@@ -984,6 +1219,102 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertEqual(fact_pack_builder.call_args.args[2], [public_source])
 
+    def test_source_channel_rejects_rag_context_before_mixing_publication_contracts(self):
+        client = Mock()
+        pipeline = WebReportPipeline(client)
+
+        with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(
+            RuntimeError,
+            "verified seed and public-web evidence only",
+        ):
+            pipeline.build_report(
+                "Source-linked scan",
+                Path(directory),
+                rag_context="[Chunk: chunk-1] Validated private document context.",
+                rag_sources=[
+                    SourceDocument(
+                        title="Validated document",
+                        url="internal://documents/doc-1#chunk=chunk-1",
+                        query="source-linked scan",
+                        snippet="Validated private document context.",
+                        content="Validated private document context.",
+                        source_type="internal",
+                        metadata={"chunk_id": "chunk-1"},
+                    )
+                ],
+                source_profile={
+                    "mode": "source_channel",
+                    "anchors": ["source-linked scan"],
+                },
+            )
+
+        client.chat_json.assert_not_called()
+
+    def test_source_channel_rejects_rag_sources_without_context_before_planning(self):
+        client = Mock()
+        pipeline = WebReportPipeline(client)
+
+        with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(
+            RuntimeError,
+            "verified seed and public-web evidence only",
+        ):
+            pipeline.build_report(
+                "Source-linked scan",
+                Path(directory),
+                rag_sources=[
+                    SourceDocument(
+                        title="Validated document",
+                        url="internal://documents/doc-1#chunk=chunk-1",
+                        query="source-linked scan",
+                        snippet="Validated private document context.",
+                        content="Validated private document context.",
+                        source_type="internal",
+                        metadata={"chunk_id": "chunk-1"},
+                    )
+                ],
+                source_profile={
+                    "mode": "source_channel",
+                    "anchors": ["source-linked scan"],
+                },
+            )
+
+        client.chat_json.assert_not_called()
+
+    def test_source_channel_rejects_private_collection_inputs_before_planning(self):
+        private_source = SourceDocument(
+            title="Private collection document",
+            url="private://collection/document-1",
+            query="private collection",
+            snippet="Private collection content.",
+            content="Private collection content.",
+            source_type="private",
+        )
+        cases = [
+            ("collection_only", []),
+            ("web_and_collection", [private_source]),
+            ("web_only", [private_source]),
+        ]
+
+        for source_mode, private_sources in cases:
+            with self.subTest(source_mode=source_mode, has_private=bool(private_sources)):
+                client = Mock()
+                pipeline = WebReportPipeline(client)
+                with tempfile.TemporaryDirectory() as directory, self.assertRaisesRegex(
+                    RuntimeError,
+                    "verified seed_sources and public-web evidence only",
+                ):
+                    pipeline.build_report(
+                        "Source-linked scan",
+                        Path(directory),
+                        private_sources=private_sources,
+                        source_mode=source_mode,
+                        source_profile={
+                            "mode": "source_channel",
+                            "anchors": ["source-linked scan"],
+                        },
+                    )
+                client.chat_json.assert_not_called()
+
     def test_structured_planner_queries_are_unwrapped_before_search(self):
         pipeline = WebReportPipeline(Mock())
         plan = pipeline._normalize_research_plan(
@@ -1243,79 +1574,66 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertTrue(any("Numeric claims not found" in issue for issue in issues))
 
-    def test_post_humanization_source_channel_compression_reproduces_3860_word_gate(self):
-        report = _source_channel_quality_report(extra_sentences=6)
-        before = _word_count(_report_narrative_text(report))
-        pipeline = WebReportPipeline(Mock())
+    def test_post_humanization_source_channel_overage_fails_without_deletion(self):
+        report = _source_channel_target_overage()
+        client = Mock()
+        pipeline = WebReportPipeline(client)
         pipeline.source_profile = {"mode": "source_channel"}
 
-        self.assertGreater(before, 3_800)
-        with tempfile.TemporaryDirectory() as directory:
-            pipeline._final_humanized_quality_gate(
-                report,
-                topic="Bounded market response",
-                grounding_text="The validated public record supports a conditional operating response.",
-                source_count=2,
-                source_chunks={},
-                output_dir=Path(directory),
-            )
+        with tempfile.TemporaryDirectory() as directory, patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        ) as compression:
+            with self.assertRaisesRegex(
+                ReportQualityError,
+                "Post-humanization report quality gate failed",
+            ):
+                pipeline._final_humanized_quality_gate(
+                    report,
+                    topic="Bounded market response",
+                    grounding_text="The validated public record supports a conditional operating response.",
+                    source_count=2,
+                    source_chunks={},
+                    output_dir=Path(directory),
+                )
 
-        after = _word_count(_report_narrative_text(report))
-        self.assertLessEqual(after, SOURCE_CHANNEL_TARGET_MAX_WORDS)
-        self.assertGreaterEqual(after, 1_800)
-        self.assertEqual(len(report["sections"]), 5)
-        self.assertTrue(
-            all(3 <= len(section["paragraphs"]) <= 6 for section in report["sections"])
-        )
-        self.assertEqual(
-            source_channel_report_quality_issues(
-                report,
-                topic="Bounded market response",
-                context_text="The validated public record supports a conditional operating response.",
-                source_count=2,
-            ),
-            [],
-        )
+        compression.assert_not_called()
+        client.chat_json.assert_not_called()
+        self.assertEqual(_word_count(_report_narrative_text(report)), 2_501)
 
-    def test_editorial_revision_3433_word_overage_compresses_with_render_margin(self):
-        report = _source_channel_quality_report(extra_sentences=5)
-        final_paragraph = report["sections"][-1]["paragraphs"][-1]
-        sentences = [item.strip() for item in final_paragraph.split(".") if item.strip()]
-        report["sections"][-1]["paragraphs"][-1] = ". ".join(sentences[:-2]) + "."
-        before = _word_count(_report_narrative_text(report))
-        evidence_before = [list(section["evidence"]) for section in report["sections"]]
-        implications_before = [section["so_what"] for section in report["sections"]]
-        actions_before = [dict(action) for action in report["action_steps"]]
-
-        self.assertEqual(before, 3_433)
+    def test_source_channel_final_rescue_returns_issues_without_model_revision(self):
+        report = _source_channel_target_overage()
         issues = source_channel_report_quality_issues(
             report,
             topic="Bounded market response",
             context_text="The validated public record supports a conditional operating response.",
             source_count=2,
         )
-        self.assertTrue(any("post-render margin" in issue for issue in issues))
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {"mode": "source_channel"}
 
-        compressed_before, after = compress_report_to_word_budget(
-            report,
-            max_words=SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS,
-        )
-
-        self.assertEqual(compressed_before, 3_433)
-        self.assertLessEqual(after, SOURCE_CHANNEL_COMPRESSION_TARGET_WORDS)
-        self.assertEqual([section["evidence"] for section in report["sections"]], evidence_before)
-        self.assertEqual([section["so_what"] for section in report["sections"]], implications_before)
-        self.assertEqual(report["action_steps"], actions_before)
-        self.assertEqual(len(report["sections"]), 5)
-        self.assertEqual(
-            source_channel_report_quality_issues(
+        with patch.object(
+            pipeline,
+            "_revise_report_draft",
+        ) as revision, patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        ) as compression:
+            returned, remaining = pipeline._rescue_final_report(
                 report,
+                issues,
+                storyline_plan={},
                 topic="Bounded market response",
-                context_text="The validated public record supports a conditional operating response.",
+                grounding_text="The validated public record supports a conditional operating response.",
                 source_count=2,
-            ),
-            [],
-        )
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertIs(returned, report)
+        self.assertEqual(remaining, issues)
+        revision.assert_not_called()
+        compression.assert_not_called()
 
     def test_source_channel_final_gate_rejects_six_section_half_product(self):
         report = _source_channel_quality_report()
@@ -1642,6 +1960,68 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("paragraphs must be a JSON array", prompt)
         self.assertEqual(prompt.count("A conflicting raw source reports 72% acceptance."), 1)
 
+    def test_source_channel_synthesis_uses_a_non_conflicting_dedicated_profile(self):
+        source = SourceDocument(
+            title="Verified topic seed",
+            url="https://example.com/seed",
+            query="topic",
+            snippet="Bounded topic seed.",
+            content="Public corroboration supports a bounded operating mechanism.",
+        )
+        fact_pack = ResearchFactPack(
+            topic="Bounded response",
+            objective="Assess the operating mechanism",
+            decision_question="What remains independently supported?",
+            source_count=2,
+            authoritative_source_count=1,
+            source_domains=["example.com", "openalex.org"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        source_client = Mock()
+        source_client.chat_json.return_value = {"title": "Bounded response"}
+        source_pipeline = WebReportPipeline(source_client)
+        source_pipeline.source_profile = {"mode": "source_channel"}
+
+        source_pipeline._synthesize_web_report(
+            "Bounded response",
+            {},
+            [],
+            [source],
+            fact_pack,
+            [],
+            {},
+        )
+
+        source_prompt = source_client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("SOURCE-CHANNEL CONTRACT", source_prompt)
+        self.assertIn("exactly 3 separate paragraph strings", source_prompt)
+        self.assertIn("2,100 and 2,500", source_prompt)
+        self.assertNotIn("5-6 substantial sections", source_prompt)
+        self.assertNotIn("250-450 words", source_prompt)
+        self.assertNotIn("2,000-3,000 word", source_prompt)
+
+        generic_client = Mock()
+        generic_client.chat_json.return_value = {"title": "Generic response"}
+        generic_pipeline = WebReportPipeline(generic_client)
+        generic_pipeline._synthesize_web_report(
+            "Generic response",
+            {},
+            [],
+            [source],
+            fact_pack,
+            [],
+            {},
+        )
+        generic_prompt = generic_client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("5-6 substantial sections", generic_prompt)
+        self.assertIn("250-450 words", generic_prompt)
+        self.assertIn("2,000-3,000 word", generic_prompt)
+        self.assertNotIn("SOURCE-CHANNEL CONTRACT", generic_prompt)
+
     def test_section_normalization_preserves_body_paragraph_breaks(self):
         report = normalize_structured_payload(
             {
@@ -1854,6 +2234,129 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(revised["action_steps"][0]["action"], "Use the corrected action.")
         self.assertEqual(revised["sections"][0]["paragraphs"], ["Corrected developed paragraph."])
         self.assertEqual(revised["sections"][0]["evidence"], ["Grounded evidence."])
+
+    def test_source_channel_revision_uses_dedicated_three_paragraph_contract(self):
+        rejected = _source_channel_quality_report()
+        client = Mock()
+        client.chat_json.return_value = {
+            "sections": [
+                {
+                    "title": section["title"],
+                    "lead": section["lead"],
+                    "paragraphs": section["paragraphs"],
+                }
+                for section in rejected["sections"]
+            ]
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        pipeline._revise_report_draft(
+            rejected,
+            ["Shorten the reader-visible report."],
+            {},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("SOURCE-CHANNEL REVISION CONTRACT", prompt)
+        self.assertIn("exactly 3 separate strings", prompt)
+        self.assertIn("2,100-2,500", prompt)
+        self.assertNotIn("exactly 4 separate strings", prompt)
+        self.assertNotIn("300 and 400 words", prompt)
+
+    def test_source_channel_revision_ignores_extra_top_level_fields(self):
+        rejected = _source_channel_quality_report()
+        original_references = copy.deepcopy(rejected["references"])
+        original_methodology = rejected["methodology"]
+        client = Mock()
+        client.chat_json.return_value = {
+            "title": "A corrected bounded title",
+            "references": [{"title": "Invented", "url": "https://invalid.example/new"}],
+            "methodology": "A replacement methodology that was not requested.",
+            "category": "Unapproved category",
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            ["Correct the title only."],
+            {},
+        )
+
+        self.assertEqual(revised["title"], "A corrected bounded title")
+        self.assertEqual(revised["references"], original_references)
+        self.assertEqual(revised["methodology"], original_methodology)
+        self.assertNotIn("category", revised)
+
+    def test_source_channel_revision_corrects_exact_list_counts_without_old_tail(self):
+        rejected = _source_channel_quality_report()
+        rejected["sections"].append(copy.deepcopy(rejected["sections"][-1]))
+        rejected["action_steps"].append(copy.deepcopy(rejected["action_steps"][-1]))
+        rejected["key_takeaways"] = rejected["key_takeaways"][:2]
+        client = Mock()
+        client.chat_json.return_value = {
+            "key_takeaways": [
+                "Corrected first takeaway",
+                "Corrected second takeaway",
+                "Corrected third takeaway",
+            ],
+            "sections": [
+                {"title": f"Corrected section {index + 1}"}
+                for index in range(5)
+            ],
+            "action_steps": [
+                {"action": f"Corrected action {index + 1}"}
+                for index in range(4)
+            ],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            ["Restore the exact source-channel list counts."],
+            {},
+        )
+
+        self.assertEqual(len(revised["sections"]), 5)
+        self.assertEqual(len(revised["action_steps"]), 4)
+        self.assertEqual(len(revised["key_takeaways"]), 3)
+        self.assertEqual(revised["key_takeaways"][2], "Corrected third takeaway")
+        self.assertEqual(revised["sections"][0]["title"], "Corrected section 1")
+        self.assertEqual(revised["sections"][0]["evidence"], rejected["sections"][0]["evidence"])
+        self.assertEqual(revised["action_steps"][0]["action"], "Corrected action 1")
+        self.assertEqual(revised["action_steps"][0]["horizon"], rejected["action_steps"][0]["horizon"])
+
+    def test_source_channel_partial_revision_preserves_valid_shapes_and_takeaways(self):
+        rejected = _source_channel_quality_report()
+        original_third_takeaway = rejected["key_takeaways"][2]
+        original_evidence = copy.deepcopy(rejected["sections"][0]["evidence"])
+        original_horizon = rejected["action_steps"][0]["horizon"]
+        client = Mock()
+        client.chat_json.return_value = {
+            "key_takeaways": ["Corrected first takeaway", "Corrected second takeaway"],
+            "sections": [{"lead": "Corrected bounded section lead"}],
+            "action_steps": [{"action": "Corrected bounded action", "horizon": ""}],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            ["Apply bounded field corrections without changing valid list shapes."],
+            {},
+        )
+
+        self.assertEqual(len(revised["sections"]), 5)
+        self.assertEqual(len(revised["action_steps"]), 4)
+        self.assertEqual(len(revised["key_takeaways"]), 3)
+        self.assertEqual(revised["key_takeaways"][:2], ["Corrected first takeaway", "Corrected second takeaway"])
+        self.assertEqual(revised["key_takeaways"][2], original_third_takeaway)
+        self.assertEqual(revised["sections"][0]["lead"], "Corrected bounded section lead")
+        self.assertEqual(revised["sections"][0]["evidence"], original_evidence)
+        self.assertEqual(revised["action_steps"][0]["action"], "Corrected bounded action")
+        self.assertEqual(revised["action_steps"][0]["horizon"], original_horizon)
 
     def test_report_revision_rejects_structurally_incomplete_rescue(self):
         client = Mock()

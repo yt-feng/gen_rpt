@@ -12,6 +12,7 @@ from gen_rpt.deepseek_client import EditorialServiceExhausted
 from gen_rpt.web_fetch import SourceDocument
 from gen_rpt.web_report_pipeline import (
     EditorialFailoverClient,
+    ReportQualityError,
     _private_source_reproduction_violations,
     _source_artifact_dict,
 )
@@ -90,6 +91,20 @@ class GateXGenerationBridgeTests(unittest.TestCase):
             primary.chat_json.side_effect = failure
             with self.assertRaises(type(failure)):
                 client.chat_json([])
+
+        fallback.chat_json.assert_not_called()
+        self.assertFalse(client.route_record()["fallbackUsed"])
+
+    def test_editorial_failover_does_not_switch_on_report_quality_failure(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary.chat_json.side_effect = ReportQualityError(
+            "source-channel publication contract failed closed"
+        )
+        client = EditorialFailoverClient(primary, fallback)
+
+        with self.assertRaises(ReportQualityError):
+            client.chat_json([])
 
         fallback.chat_json.assert_not_called()
         self.assertFalse(client.route_record()["fallbackUsed"])
