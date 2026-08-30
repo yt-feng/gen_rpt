@@ -1676,13 +1676,13 @@ Rejected report:
 SOURCE-CHANNEL REVISION CONTRACT (the only structural and length contract):
 - Return only these top-level fields, in this order: title, dek, intro, key_takeaways, action_steps, sections. The pipeline preserves all other approved fields.
 - Correct only rejected fields. Keep compliant sections, evidence, references, and actions unchanged.
-- Return exactly 3 key_takeaways, exactly 5 sections, and exactly 4 action_steps. The hard publication gate remains 2,100-2,500 words or Chinese characters; revise to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} creative target so audit and rendering retain headroom.
-- Every section contains title, lead, paragraphs, evidence, and so_what. Paragraphs is an array of exactly 3 separate strings.
-- Hard publication gates remain 50-65 per paragraph, 25-35 for lead, 35-50 for so_what, and 210-280 per section. Write to the tighter creative targets: each paragraph {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX}, lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX}, so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX}, and the complete section {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} words or Chinese characters.
-- Keep exactly 2 traceable evidence items per section, each no longer than 55 words or Chinese characters. Never invent, replace, or drop an evidence URL.
+- Return exactly 3 key_takeaways and exactly 5 sections. Target exactly 4 action_steps; the shared publication gate accepts 4-6 complete actions. The hard source-channel publication gate remains 2,100-2,500 words or Chinese characters; revise to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} creative target so audit and rendering retain headroom.
+- Every section contains title, lead, paragraphs, evidence, and so_what. Draft exactly 3 separate paragraph strings as the editorial target; publication accepts 3-6 developed paragraphs, each at least 35 words or Chinese characters, within a 200-550 word or character section.
+- Editorial drafting targets are: each paragraph {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX}, lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX}, so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX}, and the complete section {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} words or Chinese characters. These field ranges guide concise writing; they are not independent publication blockers when shared depth and total-length gates pass.
+- Aim for exactly 2 concise, traceable evidence items per section and 55 words or Chinese characters per item. Preserve every complete supported evidence sentence and real URL even when it exceeds the editorial target; never invent, replace, or drop an evidence URL.
 - Reach the tighter target through concise revision of rejected prose only. Never gain headroom by deleting, weakening, or truncating traceable evidence, supported numbers, real source URLs, any so_what management implication, or any required action field.
 - Keep conclusion and evidence, causal mechanism, counterpoint or execution boundary, and management implication without filler or repetition.
-- Every action retains horizon, action, success_metric, and a 12-30 word evidence rationale. Action and success_metric are each capped at 25 words.
+- Every action retains horizon, action, success_metric, and an evidence rationale of at least 12 words. Aim for a 12-30 word rationale and 25 words each for action and success_metric, but preserve complete supported meaning.
 """
         else:
             prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
@@ -2388,12 +2388,13 @@ Rules:
 
 SOURCE-CHANNEL 专用合同（这是唯一的结构与篇幅合同）：
 - 全程中文；客户可见硬性发布门槛仍为 2,100-2,500 个中文字或英文单词；初稿按更紧的 {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,} 创作目标写作，为审核与渲染留出余量。
-- key_takeaways 恰好 3 条；sections 恰好 5 章；action_steps 恰好 4 条。
-- 每章恰好 3 个 paragraphs 字符串。硬性发布门槛仍为：每段 50-65 字，lead 25-35 字，so_what 35-50 字，每章合计 210-280 字；创作目标收紧为：每段 {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX} 字，lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX} 字，so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX} 字，每章合计 {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} 字。
-- 每章 evidence 恰好 2 条，每条不超过 55 字，必须是可追溯、客户可读的完整句，保留真实来源 URL；不得使用内部证据编号作为客户文案。
+- key_takeaways 恰好 3 条；sections 恰好 5 章；action_steps 以 4 条为编辑目标，共享发布门槛接受 4-6 条完整行动。
+- 每章以恰好 3 个 paragraphs 字符串为编辑目标；共享发布门槛接受 3-6 个独立段落，每段至少 35 字，lead、paragraphs 与 so_what 合计 200-550 字，so_what 至少 35 字。
+- 编辑创作目标为：每段 {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX} 字，lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX} 字，so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX} 字，每章合计 {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} 字。这些字段范围用于引导精炼写作；共享深度与总篇幅门槛通过时，不作为独立发布阻断项。
+- 每章 evidence 以 2 条、每条不超过 55 字为编辑目标，且至少保留 2 条可追溯、客户可读的完整证据；若完整的已支持证据句超出目标，必须保留原句和真实来源 URL；不得使用内部证据编号作为客户文案。
 - 必须在首稿中用精炼表达达到更紧的创作目标；不得通过删除、弱化或截断可追溯证据、已支持数字、真实来源 URL、任何 so_what 管理含义或必填 action 字段来换取余量。
 - 每章按“结论与证据—因果机制—反例或执行边界”组织 3 段；so_what 只写管理含义，不重复正文。
-- 每条 action 包含 horizon、action、success_metric、rationale；action 与 success_metric 各不超过 25 字，rationale 为 12-30 字并说明证据依据。
+- 每条 action 包含 horizon、action、success_metric、rationale；rationale 至少 12 字并说明证据依据。以 action 与 success_metric 各 25 字、rationale 12-30 字为编辑目标，但不得删减已支持的完整含义。
 - title 和章节标题必须结论先行。正文只能使用事实包、获准证据台账与来源摘录中的事实；不得新增数字、URL、来源、案例或外部知识。
 - 私有来源只设定选题边界，不得作为公开权威来源；必须改写并用独立公开材料佐证，且不得复刻私有正文。
 - 任何数字必须逐字出现在已验证材料中。证据不足时明确保留待核验问题，不得补造。
@@ -2421,12 +2422,13 @@ Required fields: title, dek, category, intro, key_takeaways, sections, exhibits,
 
 SOURCE-CHANNEL CONTRACT (the only structural and length contract):
 - English only. The hard publication gate remains between 2,100 and 2,500 words. Draft to the tighter {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,}-word creative target so audit and rendering retain headroom.
-- Return exactly 3 key_takeaways, exactly 5 sections, and exactly 4 action_steps.
-- Every section has exactly 3 separate paragraph strings. Hard publication gates remain 50-65 words per paragraph, 25-35 for lead, 35-50 for so_what, and 210-280 per complete section. Write to the tighter creative targets: each paragraph {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX}, lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX}, so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX}, and the complete section {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} words.
-- Every section has exactly 2 traceable, reader-ready evidence sentences, each no longer than 55 words and retaining its real source URL. Do not expose internal evidence IDs in reader prose.
+- Return exactly 3 key_takeaways and exactly 5 sections. Target exactly 4 action_steps; the shared publication gate accepts 4-6 complete actions.
+- Draft exactly 3 separate paragraph strings per section as the editorial target. Publication accepts 3-6 developed paragraphs, each at least 35 words, within a 200-550 word section, with a management implication of at least 35 words.
+- Editorial drafting targets are: each paragraph {SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN}-{SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX}, lead {SOURCE_CHANNEL_CREATIVE_LEAD_MIN}-{SOURCE_CHANNEL_CREATIVE_LEAD_MAX}, so_what {SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN}-{SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX}, and the complete section {SOURCE_CHANNEL_CREATIVE_SECTION_MIN}-{SOURCE_CHANNEL_CREATIVE_SECTION_MAX} words. These field ranges guide concise writing; they are not independent publication blockers when shared depth and total-length gates pass.
+- Aim for exactly 2 traceable, reader-ready evidence sentences per section and 55 words per item. Preserve every complete supported evidence sentence and real URL even when it exceeds the editorial target. Do not expose internal evidence IDs in reader prose.
 - Meet the tighter targets through concise first-pass prose. Never gain headroom by deleting, weakening, or truncating traceable evidence, supported numbers, real source URLs, any so_what management implication, or any required action field.
 - Use the three paragraphs for conclusion and evidence, causal mechanism, then counterpoint or execution boundary. Use so_what only for the management implication; do not repeat body prose.
-- Every action has horizon, action, success_metric, and rationale. Action and success_metric are capped at 25 words each; rationale is 12-30 words and states the evidence basis.
+- Every action has horizon, action, success_metric, and a rationale of at least 12 words. Aim for 25 words each for action and success_metric and 12-30 words for rationale, but preserve complete supported meaning.
 - Titles are conclusion-first. Use facts only from the fact pack, approved evidence, and source excerpts. Add no number, URL, source, case, or outside fact.
 - The private seed defines topic boundaries but is not a public authority. Paraphrase it, independently corroborate it, and never reproduce its body.
 - Every number must occur verbatim in validated material. Preserve an open verification question when support is absent; never fill the gap.

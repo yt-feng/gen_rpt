@@ -168,6 +168,55 @@ def _source_channel_quality_report():
     }
 
 
+def _source_channel_attempt12_shape_report():
+    """Mirror the field lengths that survived attempt12's shared quality gate."""
+    report = _source_channel_quality_report()
+    paragraph_counts = [
+        [60, 44, 60],
+        [60, 60, 66],
+        [44, 44, 47],
+        [47, 74, 60],
+        [60, 46, 46],
+    ]
+    lead_counts = [13, 20, 22, 18, 19]
+    implication_counts = [87, 65, 83, 51, 56]
+    evidence_counts = [
+        [60, 51],
+        [48, 60],
+        [60, 51],
+        [60, 60],
+        [60, 51],
+    ]
+    for section_index, section in enumerate(report["sections"]):
+        section["lead"] = _source_channel_words(
+            section["lead"],
+            lead_counts[section_index],
+            f"attempt12lead{section_index}",
+        )
+        section["paragraphs"] = [
+            _source_channel_words(
+                paragraph,
+                paragraph_counts[section_index][paragraph_index],
+                f"attempt12paragraph{section_index}{paragraph_index}",
+            )
+            for paragraph_index, paragraph in enumerate(section["paragraphs"])
+        ]
+        section["so_what"] = _source_channel_words(
+            section["so_what"],
+            implication_counts[section_index],
+            f"attempt12implication{section_index}",
+        )
+        section["evidence"] = [
+            _source_channel_words(
+                evidence,
+                evidence_counts[section_index][evidence_index],
+                f"attempt12evidence{section_index}{evidence_index}",
+            )
+            for evidence_index, evidence in enumerate(section["evidence"])
+        ]
+    return report
+
+
 def _source_channel_target_overage(target_words: int = 2_501):
     assert 2_501 <= target_words <= 3_400
     report = _source_channel_quality_report()
@@ -1975,6 +2024,130 @@ class RAGBridgeTests(unittest.TestCase):
 
         self.assertTrue(any("Numeric claims not found" in issue for issue in issues))
 
+    def test_source_channel_attempt12_shape_passes_when_shared_quality_is_substantive(self):
+        report = _source_channel_attempt12_shape_report()
+
+        self.assertLess(_word_count(report["sections"][0]["lead"]), 25)
+        self.assertLess(_word_count(report["sections"][0]["paragraphs"][1]), 50)
+        self.assertGreater(_word_count(report["sections"][3]["paragraphs"][1]), 65)
+        self.assertGreater(_word_count(report["sections"][0]["so_what"]), 50)
+        self.assertGreater(_word_count(report["sections"][0]["evidence"][0]), 55)
+        self.assertTrue(
+            2_100 <= _word_count(_report_narrative_text(report)) <= 2_500
+        )
+        for section in report["sections"]:
+            self.assertTrue(3 <= len(section["paragraphs"]) <= 6)
+            self.assertTrue(
+                all(_word_count(paragraph) >= 35 for paragraph in section["paragraphs"])
+            )
+            section_words = _word_count(
+                " ".join(
+                    [section["lead"], *section["paragraphs"], section["so_what"]]
+                )
+            )
+            self.assertTrue(200 <= section_words <= 550)
+
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                report,
+                topic="Bounded market response",
+                context_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+            ),
+            [],
+        )
+
+    def test_source_channel_accepts_four_developed_paragraphs_under_shared_gate(self):
+        report = _source_channel_attempt12_shape_report()
+        report["sections"][0]["paragraphs"].append(
+            _source_channel_words(
+                "A fourth developed paragraph can preserve an additional supported mechanism or execution boundary without becoming a structural publication failure",
+                35,
+                "fourthparagraphcontext",
+            )
+        )
+
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                report,
+                topic="Bounded market response",
+                context_text="The validated public record supports a conditional operating response.",
+                source_count=2,
+            ),
+            [],
+        )
+
+    def test_source_channel_attempt12_shape_still_rejects_shallow_paragraph(self):
+        report = _source_channel_attempt12_shape_report()
+        report["sections"][0]["paragraphs"][0] = _source_channel_words(
+            report["sections"][0]["paragraphs"][0],
+            34,
+            "shallowcontext",
+        )
+
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+
+        self.assertTrue(any("underdeveloped paragraphs under 35 words" in issue for issue in issues))
+
+    def test_source_channel_still_rejects_a_missing_lead(self):
+        report = _source_channel_attempt12_shape_report()
+        report["sections"][0]["lead"] = ""
+        report["intro"][0] += " " + " ".join(["leadmargin"] * 13)
+
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+
+        self.assertIn(
+            "Source-channel section 1 requires a non-empty conclusion-first lead.",
+            issues,
+        )
+
+    def test_source_channel_attempt12_shape_still_rejects_overlong_section(self):
+        report = _source_channel_attempt12_shape_report()
+        report["intro"] = []
+        report["sections"][0]["paragraphs"][0] = _source_channel_words(
+            report["sections"][0]["paragraphs"][0],
+            360,
+            "overlongsectioncontext",
+        )
+        self.assertLessEqual(_word_count(_report_narrative_text(report)), 2_500)
+
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+
+        self.assertTrue(any("needs 200-550 words of analysis" in issue for issue in issues))
+
+    def test_source_channel_still_rejects_under_target_total(self):
+        report = _source_channel_quality_report()
+        report["intro"] = []
+        total_words = _word_count(_report_narrative_text(report))
+        self.assertTrue(1_800 <= total_words < 2_100)
+
+        issues = source_channel_report_quality_issues(
+            report,
+            topic="Bounded market response",
+            context_text="The validated public record supports a conditional operating response.",
+            source_count=2,
+        )
+
+        self.assertIn(
+            f"The source-channel reader-visible target is 2,100-2,500 words; found {total_words}.",
+            issues,
+        )
+
     def test_post_humanization_source_channel_overage_fails_without_deletion(self):
         report = _source_channel_target_overage()
         client = Mock()
@@ -2413,6 +2586,8 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("exactly 3 separate paragraph strings", source_prompt)
         self.assertIn("2,100 and 2,500", source_prompt)
         self.assertIn("2,100-2,300-word creative target", source_prompt)
+        self.assertIn("Publication accepts 3-6 developed paragraphs", source_prompt)
+        self.assertIn("not independent publication blockers", source_prompt)
         self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", source_prompt)
         self.assertIn("complete section 210-235 words", source_prompt)
         self.assertIn(
@@ -2498,6 +2673,8 @@ class RAGBridgeTests(unittest.TestCase):
         )
         self.assertIn("2,100-2,500 个中文字或英文单词", prompt)
         self.assertIn("2,100-2,300 创作目标", prompt)
+        self.assertIn("共享发布门槛接受 3-6 个独立段落", prompt)
+        self.assertIn("不作为独立发布阻断项", prompt)
         self.assertIn("每段 50-55 字，lead 25-30 字，so_what 35-42 字", prompt)
         self.assertIn("每章合计 210-235 字", prompt)
         self.assertIn(
@@ -2724,7 +2901,7 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertEqual(revised["sections"][0]["paragraphs"], ["Corrected developed paragraph."])
         self.assertEqual(revised["sections"][0]["evidence"], ["Grounded evidence."])
 
-    def test_source_channel_revision_uses_dedicated_three_paragraph_contract(self):
+    def test_source_channel_revision_uses_three_paragraph_editorial_target(self):
         rejected = _source_channel_quality_report()
         client = Mock()
         client.chat_json.return_value = {
@@ -2757,7 +2934,8 @@ class RAGBridgeTests(unittest.TestCase):
             },
         )
         self.assertIn("SOURCE-CHANNEL REVISION CONTRACT", prompt)
-        self.assertIn("exactly 3 separate strings", prompt)
+        self.assertIn("exactly 3 separate paragraph strings as the editorial target", prompt)
+        self.assertIn("publication accepts 3-6 developed paragraphs", prompt)
         self.assertIn("2,100-2,500", prompt)
         self.assertIn("2,100-2,300 creative target", prompt)
         self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", prompt)
@@ -2770,13 +2948,11 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertNotIn("exactly 4 separate strings", prompt)
         self.assertNotIn("300 and 400 words", prompt)
 
-    def test_source_channel_revision_prompt_handles_production_overage_shape_with_headroom(self):
+    def test_source_channel_revision_prompt_handles_shared_quality_failures_with_headroom(self):
         rejected = _source_channel_quality_report()
-        production_shape_issues = [
-            "Source-channel section 1 paragraph 1 requires 50-65 words; found 66.",
-            "Source-channel section 1 lead requires 25-35 words; found 37.",
-            "Source-channel section 1 management implication requires 35-50 words; found 54.",
-            "Source-channel section 1 requires 210-280 words of analysis; found 282.",
+        shared_quality_issues = [
+            "Section 1 has underdeveloped paragraphs under 35 words: [1].",
+            "Section 1 needs 200-550 words of analysis; found 551.",
             "The source-channel reader-visible target is 2,100-2,500 words; found 2,573.",
         ]
         client = Mock()
@@ -2786,12 +2962,12 @@ class RAGBridgeTests(unittest.TestCase):
 
         revised = pipeline._revise_report_draft(
             rejected,
-            production_shape_issues,
+            shared_quality_issues,
             {"selected_modules": ["mechanism", "execution boundary"]},
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
-        for issue in production_shape_issues:
+        for issue in shared_quality_issues:
             self.assertIn(issue, prompt)
         self.assertIn("2,100-2,300 creative target", prompt)
         self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", prompt)
