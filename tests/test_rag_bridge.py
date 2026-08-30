@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import copy
 import hashlib
+import json
 import os
 import re
 import tempfile
@@ -426,16 +427,85 @@ class RAGBridgeTests(unittest.TestCase):
 
         result = self._run_source_channel_build_until_quality_failure(
             synthesized_report=overage,
-            revised_reports=[overage, overage, overage],
+            revised_reports=[overage, overage, overage, overage, overage],
             audit_results=[],
             expected_message="Report content quality gate failed",
         )
 
-        self.assertEqual(result["revision_mock"].call_count, 3)
+        self.assertEqual(result["revision_mock"].call_count, 5)
         result["audit_mock"].assert_not_called()
         result["post_process_mock"].assert_not_called()
         result["compression_mock"].assert_not_called()
         result["client"].chat_json.assert_not_called()
+
+    def test_source_channel_length_convergence_repairs_attempt15_shape_without_deletion(self):
+        rejected = _source_channel_target_overage(2_765)
+        converged = _source_channel_quality_report()
+        under_minimum = copy.deepcopy(converged)
+        under_minimum["intro"][0] = " ".join(
+            under_minimum["intro"][0].split()[:-20]
+        )
+        self.assertEqual(
+            _word_count(_report_narrative_text(under_minimum)),
+            2_086,
+        )
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                under_minimum,
+                topic="Bounded market response",
+                context_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+            ),
+            [
+                "The source-channel reader-visible publication minimum is "
+                "2,100 words; found 2086."
+            ],
+        )
+        protected_evidence = [
+            copy.deepcopy(section["evidence"])
+            for section in rejected["sections"]
+        ]
+        pipeline = WebReportPipeline(Mock())
+        pipeline.source_profile = {"mode": "source_channel"}
+        pipeline._revise_report_draft = Mock(
+            side_effect=[under_minimum, converged]
+        )
+        issues = source_channel_report_quality_issues(
+            rejected,
+            topic="Bounded market response",
+            context_text=(
+                "The validated public record supports a conditional operating response."
+            ),
+            source_count=2,
+        )
+
+        with patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        ) as compression:
+            revised, remaining = pipeline._converge_source_channel_length(
+                rejected,
+                issues,
+                storyline_plan={"selected_modules": ["mechanism", "boundary"]},
+                topic="Bounded market response",
+                grounding_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertEqual(remaining, [])
+        self.assertEqual(_word_count(_report_narrative_text(revised)), 2_106)
+        self.assertEqual(
+            [section["evidence"] for section in revised["sections"]],
+            protected_evidence,
+        )
+        self.assertEqual(pipeline._revise_report_draft.call_count, 2)
+        compression.assert_not_called()
 
     def test_build_report_editorial_revision_path_fails_closed_without_compaction(self):
         valid_report = _source_channel_quality_report()
@@ -3099,6 +3169,458 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn(rejected["sections"][0]["evidence"][0], prompt)
         self.assertIn(rejected["action_steps"][0]["success_metric"], prompt)
         self.assertEqual(revised, rejected)
+
+    def test_source_channel_length_convergence_prompt_keeps_evidence_immutable(self):
+        rejected = _source_channel_target_overage(2_765)
+        original_evidence = [
+            copy.deepcopy(section["evidence"])
+            for section in rejected["sections"]
+        ]
+        client = Mock()
+        client.chat_json.return_value = {
+            "intro": ["A more concise but still complete decision framing."],
+            "sections": [
+                {
+                    "paragraphs": section["paragraphs"],
+                    "evidence": ["A model-proposed replacement must not be accepted."],
+                }
+                for section in rejected["sections"]
+            ],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2765."
+            ],
+            {"selected_modules": ["mechanism", "execution boundary"]},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("SOURCE-CHANNEL LENGTH CONVERGENCE OVERRIDE", prompt)
+        self.assertIn("counter measured 2765", prompt)
+        self.assertIn("aim near 2,200", prompt)
+        self.assertIn("whole-report prose convergence pass", prompt)
+        self.assertIn("Preserve every section evidence array exactly", prompt)
+        self.assertEqual(
+            [section["evidence"] for section in revised["sections"]],
+            original_evidence,
+        )
+        self.assertEqual(
+            client.chat_json.call_args.kwargs,
+            {
+                "temperature": 0.05,
+                "max_tokens": 8_000,
+                "fallback_max_tokens": 8_000,
+                "strict_output_budget": True,
+            },
+        )
+
+        client.chat_json.return_value["sections"] = client.chat_json.return_value[
+            "sections"
+        ][:4]
+        incomplete_revision = pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2765."
+            ],
+            {"selected_modules": ["mechanism", "execution boundary"]},
+        )
+        self.assertEqual(
+            [section["evidence"] for section in incomplete_revision["sections"]],
+            original_evidence,
+        )
+
+        client.chat_json.return_value = {}
+        pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication minimum is "
+                "2,100 words; found 2086."
+            ],
+            {"selected_modules": ["mechanism", "execution boundary"]},
+        )
+        minimum_prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("counter measured 2086", minimum_prompt)
+        self.assertIn(
+            "Add or deepen only the smallest necessary connective analysis",
+            minimum_prompt,
+        )
+
+    def test_source_channel_length_convergence_restores_numeric_url_and_research_id_fields(self):
+        rejected = _source_channel_target_overage(2_765)
+        rejected["intro"][0] += (
+            " The 2025 baseline at https://old.example/market remains binding."
+        )
+        rejected["sections"][0]["lead"] = (
+            "DOI 10.1234/original and OpenAlex W1234567890 anchor the retained conclusion."
+        )
+        rejected["action_steps"][0]["rationale"] = (
+            "SSRN ID 456789 supports the original 15% execution boundary."
+        )
+        rejected["sections"][0]["evidence_internal"] = [
+            "Internal retained evidence for 2025."
+        ]
+        rejected["sections"][0]["references"] = [
+            {"title": "Retained source", "url": "https://old.example/reference"}
+        ]
+        original_intro = rejected["intro"][0]
+        original_lead = rejected["sections"][0]["lead"]
+        original_rationale = rejected["action_steps"][0]["rationale"]
+        original_evidence = copy.deepcopy(rejected["sections"][0]["evidence"])
+        original_evidence_internal = copy.deepcopy(
+            rejected["sections"][0]["evidence_internal"]
+        )
+        original_section_references = copy.deepcopy(
+            rejected["sections"][0]["references"]
+        )
+        original_references = copy.deepcopy(rejected["references"])
+        safe_implication = "A shorter grounded implication keeps the existing boundary visible."
+        client = Mock()
+        client.chat_json.return_value = {
+            "intro": [
+                "The 2026 baseline at https://new.example/market replaces the old record."
+            ],
+            "action_steps": [
+                {
+                    "rationale": (
+                        "SSRN ID 999999 supports a replacement 25% execution boundary."
+                    )
+                },
+                {},
+                {},
+                {},
+            ],
+            "sections": [
+                {
+                    "lead": (
+                        "DOI 10.9999/replacement and OpenAlex W9999999999 "
+                        "replace the retained conclusion."
+                    ),
+                    "evidence": ["https://new.example/unapproved-evidence"],
+                    "evidence_internal": ["Replacement internal evidence for 2026."],
+                    "references": [
+                        {
+                            "title": "Replacement source",
+                            "url": "https://new.example/reference",
+                        }
+                    ],
+                },
+                {"so_what": safe_implication},
+                {},
+                {},
+                {},
+            ],
+            "references": [
+                {"title": "Replacement", "url": "https://new.example/top-level"}
+            ],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2765."
+            ],
+            {"selected_modules": ["mechanism", "execution boundary"]},
+        )
+
+        self.assertEqual(revised["intro"][0], original_intro)
+        self.assertEqual(revised["sections"][0]["lead"], original_lead)
+        self.assertEqual(
+            revised["action_steps"][0]["rationale"],
+            original_rationale,
+        )
+        self.assertEqual(revised["sections"][0]["evidence"], original_evidence)
+        self.assertEqual(
+            revised["sections"][0]["evidence_internal"],
+            original_evidence_internal,
+        )
+        self.assertEqual(
+            revised["sections"][0]["references"],
+            original_section_references,
+        )
+        self.assertEqual(revised["references"], original_references)
+        self.assertEqual(revised["sections"][1]["so_what"], safe_implication)
+        self.assertNotIn("2026", json.dumps(revised, ensure_ascii=False))
+        self.assertNotIn("new.example", json.dumps(revised, ensure_ascii=False))
+        self.assertNotIn("10.9999/replacement", json.dumps(revised, ensure_ascii=False))
+        self.assertNotIn("W9999999999", json.dumps(revised, ensure_ascii=False))
+        self.assertNotIn("999999", json.dumps(revised, ensure_ascii=False))
+
+    def test_source_channel_length_convergence_rejects_new_numeric_and_url_tokens(self):
+        rejected = _source_channel_target_overage(2_765)
+        original_title = rejected["title"]
+        original_takeaway = rejected["key_takeaways"][0]
+        original_lead = rejected["sections"][0]["lead"]
+        original_paragraphs = copy.deepcopy(rejected["sections"][0]["paragraphs"])
+        safe_lead = "A concise grounded lead preserves the existing operating boundary."
+        client = Mock()
+        client.chat_json.return_value = {
+            "title": f"{original_title} for 2026",
+            "key_takeaways": [
+                f"{original_takeaway} at 20%",
+                rejected["key_takeaways"][1],
+                rejected["key_takeaways"][2],
+            ],
+            "sections": [
+                {
+                    "lead": f"{original_lead} source.new-example.org/path",
+                    "paragraphs": original_paragraphs
+                    + ["A new 2026 paragraph cites https://new.example/source."],
+                    "new_metric": "2026 https://new.example/source",
+                },
+                {"lead": safe_lead},
+                {},
+                {},
+                {},
+            ],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2765."
+            ],
+            {},
+        )
+
+        self.assertEqual(revised["title"], original_title)
+        self.assertEqual(revised["key_takeaways"][0], original_takeaway)
+        self.assertEqual(revised["sections"][0]["lead"], original_lead)
+        self.assertEqual(revised["sections"][0]["paragraphs"], original_paragraphs)
+        self.assertNotIn("new_metric", revised["sections"][0])
+        self.assertEqual(revised["sections"][1]["lead"], safe_lead)
+
+    def test_source_channel_length_convergence_uses_immutable_baseline_for_incomplete_shapes(self):
+        rejected = _source_channel_target_overage(2_765)
+        rejected["sections"][0]["lead"] = (
+            "The 2025 boundary remains tied to https://old.example/market."
+        )
+        rejected["action_steps"][0]["rationale"] = (
+            "SSRN ID 456789 supports the retained 15% execution boundary."
+        )
+        immutable_input = copy.deepcopy(rejected)
+        client = Mock()
+        client.chat_json.return_value = {
+            "sections": [
+                {
+                    "lead": (
+                        "The 2026 boundary replaces it with "
+                        "https://new.example/market."
+                    )
+                },
+                {},
+                {},
+                {},
+            ],
+            "action_steps": [
+                {
+                    "rationale": (
+                        "SSRN ID 999999 supports a replacement 25% boundary."
+                    )
+                },
+                {},
+                {},
+            ],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2765."
+            ],
+            {},
+        )
+
+        self.assertEqual(rejected, immutable_input)
+        self.assertEqual(len(revised["sections"]), 5)
+        self.assertEqual(len(revised["action_steps"]), 4)
+        self.assertEqual(
+            revised["sections"][0]["lead"],
+            immutable_input["sections"][0]["lead"],
+        )
+        self.assertEqual(
+            revised["action_steps"][0]["rationale"],
+            immutable_input["action_steps"][0]["rationale"],
+        )
+
+    def test_source_channel_length_convergence_rejects_opaque_network_and_unicode_urls(self):
+        rejected = _source_channel_target_overage(2_765)
+        immutable_input = copy.deepcopy(rejected)
+        client = Mock()
+        client.chat_json.return_value = {
+            "title": "A replacement points to example\u00ad.com/path.",
+            "dek": "A replacement points to 例子．公司/报告.",
+            "intro": ["A replacement points to urn:example:market."],
+            "key_takeaways": [
+                "A replacement points to www｡例子｡公司.",
+                rejected["key_takeaways"][1],
+                rejected["key_takeaways"][2],
+            ],
+            "sections": [
+                {
+                    "lead": "A replacement points to ipfs:Qmabcdef.",
+                    "paragraphs": rejected["sections"][0]["paragraphs"]
+                    + ["A replacement points to //intranet/source."],
+                    "new_links": {
+                        "magnet": "magnet:?xt=urn:btih:abcdef",
+                        "idn": "www。例子。公司",
+                    },
+                },
+                {
+                    "paragraphs": rejected["sections"][1]["paragraphs"]
+                    + ["A replacement points to münche\u0308.de/report."],
+                    "so_what": "A replacement points to //[::ffff]/source.",
+                },
+                {
+                    "title": "A replacement points to 例子.公司/报告.",
+                    "paragraphs": rejected["sections"][2]["paragraphs"]
+                    + ["A replacement points to example\u200c.com/path."],
+                    "new_hidden_link": {
+                        "url": "example\u200b.com/path",
+                    },
+                },
+                {"lead": "A replacement points to münchen.de/report."},
+                {"title": "A replacement points to 例子。公司/报告."},
+            ],
+        }
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            [
+                "The source-channel reader-visible publication ceiling is "
+                "2,600 words; found 2765."
+            ],
+            {},
+        )
+
+        self.assertEqual(rejected, immutable_input)
+        self.assertEqual(revised["title"], immutable_input["title"])
+        self.assertEqual(revised["dek"], immutable_input["dek"])
+        self.assertEqual(revised["intro"], immutable_input["intro"])
+        self.assertEqual(
+            revised["key_takeaways"],
+            immutable_input["key_takeaways"],
+        )
+        self.assertEqual(
+            revised["sections"][0]["lead"],
+            immutable_input["sections"][0]["lead"],
+        )
+        self.assertEqual(
+            revised["sections"][0]["paragraphs"],
+            immutable_input["sections"][0]["paragraphs"],
+        )
+        self.assertNotIn("new_links", revised["sections"][0])
+        self.assertEqual(
+            revised["sections"][1]["so_what"],
+            immutable_input["sections"][1]["so_what"],
+        )
+        self.assertEqual(
+            revised["sections"][1]["paragraphs"],
+            immutable_input["sections"][1]["paragraphs"],
+        )
+        self.assertEqual(
+            revised["sections"][2]["title"],
+            immutable_input["sections"][2]["title"],
+        )
+        self.assertEqual(
+            revised["sections"][2]["paragraphs"],
+            immutable_input["sections"][2]["paragraphs"],
+        )
+        self.assertNotIn("new_hidden_link", revised["sections"][2])
+        self.assertEqual(
+            revised["sections"][3]["lead"],
+            immutable_input["sections"][3]["lead"],
+        )
+        self.assertEqual(
+            revised["sections"][4]["title"],
+            immutable_input["sections"][4]["title"],
+        )
+
+    def test_source_channel_length_convergence_stops_on_structural_issue(self):
+        rejected = _source_channel_target_overage(2_765)
+        proposed_sections = [
+            {"paragraphs": ["Too short for the source publication contract."]},
+            {},
+            {},
+            {},
+            {},
+        ]
+        client = Mock()
+        client.chat_json.return_value = {"sections": proposed_sections}
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+        issues = source_channel_report_quality_issues(
+            rejected,
+            topic="Bounded market response",
+            context_text=(
+                "The validated public record supports a conditional operating response."
+            ),
+            source_count=2,
+        )
+
+        with patch(
+            "gen_rpt.web_report_pipeline.compress_report_to_word_budget",
+            wraps=compress_report_to_word_budget,
+        ) as compression:
+            _revised, remaining = pipeline._converge_source_channel_length(
+                rejected,
+                issues,
+                storyline_plan={"selected_modules": ["mechanism", "boundary"]},
+                topic="Bounded market response",
+                grounding_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+                source_chunks={},
+                approved_evidence=[],
+            )
+
+        self.assertTrue(
+            any("needs 3-6 developed analytical paragraphs" in issue for issue in remaining)
+        )
+        self.assertEqual(client.chat_json.call_count, 1)
+        compression.assert_not_called()
+
+    def test_source_length_invariant_does_not_change_generic_revision(self):
+        client = Mock()
+        client.chat_json.return_value = {"title": "Generic revised title"}
+        pipeline = WebReportPipeline(client)
+        rejected = {
+            "title": "2025 https://old.example/path",
+            "intro": ["Original generic narrative."],
+            "sections": [],
+            "action_steps": [],
+        }
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            ["Correct generic prose."],
+            {"selected_modules": ["mechanism"]},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(revised["title"], "Generic revised title")
+        self.assertEqual(client.chat_json.call_args.kwargs, {"temperature": 0.05})
+        self.assertEqual(
+            hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+            "97905b92d7bdb9e5619580597ef5678bea02fbdd8a61520620dc840498538193",
+        )
 
     def test_source_channel_revision_ignores_extra_top_level_fields(self):
         rejected = _source_channel_quality_report()

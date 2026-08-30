@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import copy
 import json
 import os
 import re
 import time
+import unicodedata
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -57,6 +59,9 @@ class ReportQualityError(RuntimeError):
 
 SOURCE_CHANNEL_CREATIVE_TOTAL_MIN = 2_100
 SOURCE_CHANNEL_CREATIVE_TOTAL_MAX = 2_300
+SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET = (
+    SOURCE_CHANNEL_CREATIVE_TOTAL_MIN + SOURCE_CHANNEL_CREATIVE_TOTAL_MAX
+) // 2
 SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MIN = 50
 SOURCE_CHANNEL_CREATIVE_PARAGRAPH_MAX = 55
 SOURCE_CHANNEL_CREATIVE_LEAD_MIN = 25
@@ -67,6 +72,123 @@ SOURCE_CHANNEL_CREATIVE_SECTION_MIN = 210
 SOURCE_CHANNEL_CREATIVE_SECTION_MAX = 235
 SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS = 8_000
+SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS = 2
+
+_SOURCE_CHANNEL_CEILING_ISSUE_PREFIX = (
+    "The source-channel reader-visible publication ceiling is "
+)
+_SOURCE_CHANNEL_MINIMUM_ISSUE_PREFIX = (
+    "The source-channel reader-visible publication minimum is "
+)
+_SOURCE_CHANNEL_LENGTH_ISSUE_PREFIXES = (
+    _SOURCE_CHANNEL_CEILING_ISSUE_PREFIX,
+    _SOURCE_CHANNEL_MINIMUM_ISSUE_PREFIX,
+)
+_SOURCE_CHANNEL_BOUND_NARRATIVE_TOKEN = re.compile(
+    r"(?:"
+    r"\d|"
+    r"\b[a-z][a-z0-9+.-]*:[^\s]|"
+    r"(?<![:\w])//(?:\[[^\]\s]+\]|[^\s/]+)(?:/[^\s\"'<>]*)?|"
+    r"\bwww\.|"
+    r"\b(?:[\w-]+\.)+(?:[^\W\d_]{2,63}|xn--[a-z0-9-]{2,59})"
+    r"(?:/[^\s\"'<>]*)?|"
+    r"\bdoi\s*:|"
+    r"\bopenalex\s*:|"
+    r"\bssrn(?:\s+(?:id|no\.?))?\s*[:#]"
+    r")",
+    re.IGNORECASE,
+)
+
+
+def _source_channel_has_bound_narrative_token(value: Any) -> bool:
+    if value is None or isinstance(value, bool):
+        return False
+    if isinstance(value, (int, float)):
+        return True
+    if isinstance(value, str):
+        if any(unicodedata.category(character) == "Cf" for character in value):
+            return True
+        normalized = unicodedata.normalize("NFKC", value).translate(
+            {
+                ord("\u3002"): ".",
+                ord("\uff61"): ".",
+            }
+        )
+        return bool(_SOURCE_CHANNEL_BOUND_NARRATIVE_TOKEN.search(normalized))
+    if isinstance(value, list):
+        return any(_source_channel_has_bound_narrative_token(item) for item in value)
+    if isinstance(value, dict):
+        return any(
+            _source_channel_has_bound_narrative_token(key)
+            or _source_channel_has_bound_narrative_token(item)
+            for key, item in value.items()
+        )
+    return False
+
+
+def _freeze_source_channel_bound_narrative(
+    original: Any,
+    proposed: Any,
+) -> Any:
+    """Restore protected narrative leaves by exact JSON path.
+
+    A length-only model revision may rewrite unbound prose, but it cannot alter
+    or remove an original field containing a number, URL, or research-source
+    identifier, nor introduce one at a previously unbound path.  Protection is
+    exact at the string/value path; it does not infer semantic qualifiers or
+    accept token subsequences.
+    """
+
+    if isinstance(original, dict) and isinstance(proposed, dict):
+        restored: Dict[Any, Any] = {}
+        for key, proposed_value in proposed.items():
+            if key in original:
+                restored[key] = _freeze_source_channel_bound_narrative(
+                    original[key],
+                    proposed_value,
+                )
+            elif not (
+                _source_channel_has_bound_narrative_token(key)
+                or _source_channel_has_bound_narrative_token(proposed_value)
+            ):
+                restored[key] = copy.deepcopy(proposed_value)
+        for key, original_value in original.items():
+            if (
+                key not in proposed
+                and _source_channel_has_bound_narrative_token(original_value)
+            ):
+                restored[key] = copy.deepcopy(original_value)
+        return restored
+
+    if isinstance(original, list) and isinstance(proposed, list):
+        restored_list = [
+            _freeze_source_channel_bound_narrative(original[index], proposed_value)
+            for index, proposed_value in enumerate(proposed[: len(original)])
+        ]
+        if len(proposed) > len(original):
+            proposed_tail = proposed[len(original) :]
+            if not _source_channel_has_bound_narrative_token(proposed_tail):
+                restored_list.extend(copy.deepcopy(proposed_tail))
+        elif len(proposed) < len(original):
+            protected_missing_indexes = [
+                index
+                for index in range(len(proposed), len(original))
+                if _source_channel_has_bound_narrative_token(original[index])
+            ]
+            if protected_missing_indexes:
+                restored_list.extend(
+                    copy.deepcopy(
+                        original[len(proposed) : max(protected_missing_indexes) + 1]
+                    )
+                )
+        return restored_list
+
+    if (
+        _source_channel_has_bound_narrative_token(original)
+        or _source_channel_has_bound_narrative_token(proposed)
+    ):
+        return copy.deepcopy(original)
+    return copy.deepcopy(proposed)
 
 _EDITORIAL_FAILOVER_FAILURE_KINDS = frozenset(
     {
@@ -680,6 +802,20 @@ class WebReportPipeline:
                 report = self._revise_report_draft(report, quality_issues, storyline_plan)
                 report, quality_issues = self._prepare_report_draft(
                     report,
+                    topic=display_topic,
+                    grounding_text=grounding_text,
+                    source_count=len(sources),
+                    source_chunks=rag_source_chunks,
+                    approved_evidence=approved_evidence,
+                )
+            if (
+                self._source_channel_mode()
+                and self._source_channel_length_ceiling_only(quality_issues)
+            ):
+                report, quality_issues = self._converge_source_channel_length(
+                    report,
+                    quality_issues,
+                    storyline_plan=storyline_plan,
                     topic=display_topic,
                     grounding_text=grounding_text,
                     source_count=len(sources),
@@ -1457,6 +1593,97 @@ class WebReportPipeline:
             )
         return report, issues
 
+    @staticmethod
+    def _source_channel_length_ceiling_only(issues: List[str]) -> bool:
+        return bool(issues) and all(
+            str(issue).startswith(_SOURCE_CHANNEL_CEILING_ISSUE_PREFIX)
+            for issue in issues
+        )
+
+    @staticmethod
+    def _source_channel_length_only(issues: List[str]) -> bool:
+        return bool(issues) and all(
+            str(issue).startswith(_SOURCE_CHANNEL_LENGTH_ISSUE_PREFIXES)
+            for issue in issues
+        )
+
+    @staticmethod
+    def _source_channel_reported_word_count(issues: List[str]) -> int | None:
+        for issue in issues:
+            if not str(issue).startswith(_SOURCE_CHANNEL_LENGTH_ISSUE_PREFIXES):
+                continue
+            match = re.search(r"found\s+([\d,]+)\.$", str(issue))
+            if match:
+                return int(match.group(1).replace(",", ""))
+        return None
+
+    def _converge_source_channel_length(
+        self,
+        report: Dict[str, Any],
+        issues: List[str],
+        *,
+        storyline_plan: Dict[str, Any],
+        topic: str,
+        grounding_text: str,
+        source_count: int,
+        source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]],
+    ) -> tuple[Dict[str, Any], List[str]]:
+        """Give a pure source-channel ceiling failure bounded model retries.
+
+        The ordinary three revision slots may be consumed by structural repairs
+        before total length becomes the only remaining issue.  These extra
+        attempts are source-only and length-only: every returned draft still
+        passes the complete publication contract, and a non-convergent result
+        remains a ReportQualityError at the caller.  No local prose deletion or
+        generic fallback is introduced here.
+        """
+
+        if (
+            not self._source_channel_mode()
+            or not self._source_channel_length_ceiling_only(issues)
+        ):
+            return report, issues
+
+        previous_words = self._source_channel_reported_word_count(issues)
+        for attempt in range(1, SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS + 1):
+            self._log(
+                "PHASE synthesis source_length_convergence "
+                f"{attempt}/{SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS} "
+                f"| measured_words={previous_words or 'unknown'} "
+                f"| creative_target={SOURCE_CHANNEL_CREATIVE_TOTAL_MIN}-"
+                f"{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX} "
+                f"| publication_ceiling={SOURCE_CHANNEL_PUBLICATION_MAX_WORDS}"
+            )
+            report = self._revise_report_draft(
+                report,
+                issues,
+                storyline_plan,
+            )
+            report, issues = self._prepare_report_draft(
+                report,
+                topic=topic,
+                grounding_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+                approved_evidence=approved_evidence,
+            )
+            if not issues or not self._source_channel_length_only(issues):
+                break
+            current_words = self._source_channel_reported_word_count(issues)
+            if (
+                previous_words is not None
+                and current_words is not None
+                and abs(current_words - SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET)
+                >= abs(previous_words - SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET)
+            ):
+                self._log(
+                    "PHASE synthesis source_length_convergence no_progress "
+                    f"| words={previous_words}->{current_words}"
+                )
+            previous_words = current_words
+        return report, issues
+
     def _rescue_final_report(
         self,
         report: Dict[str, Any],
@@ -1686,6 +1913,34 @@ class WebReportPipeline:
         storyline_plan: Dict[str, Any],
     ) -> Dict[str, Any]:
         correction_text = "\n".join(f"- {item}" for item in corrections)
+        source_length_convergence = (
+            self._source_channel_mode()
+            and self._source_channel_length_only(corrections)
+        )
+        measured_words = self._source_channel_reported_word_count(corrections)
+        length_adjustment_instruction = (
+            "Add or deepen only the smallest necessary connective analysis using "
+            "conclusions, mechanisms, boundaries, and implications already present; "
+            "introduce no new fact, number, source, URL, or evidence item."
+            if measured_words is not None
+            and measured_words < SOURCE_CHANNEL_PUBLICATION_MIN_WORDS
+            else "Shorten only repetitive or nonessential wording in the intro, "
+            "takeaways, leads, analytical paragraphs, so_what implications, and "
+            "action prose; retain each conclusion, causal mechanism, counterpoint, "
+            "management implication, supported number, and required action field."
+        )
+        length_convergence_contract = (
+            f"""
+
+SOURCE-CHANNEL LENGTH CONVERGENCE OVERRIDE (mandatory for this revision):
+- The deterministic reader-visible counter measured {measured_words or 'outside the publication range'} words or Chinese characters, including evidence and actions. Return a complete corrected object that measures {SOURCE_CHANNEL_CREATIVE_TOTAL_MIN:,}-{SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:,}; aim near {SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET:,} and never use the {SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,}-word publication ceiling as the target.
+- This is a whole-report prose convergence pass, not a partial patch. Return all 3 takeaways, all 4 actions, and all 5 sections with exactly 3 developed paragraphs per section so the counter can validate one coherent bounded draft.
+- Count every Chinese character as one unit and every Latin word or number as one unit before returning. The evidence arrays already consume part of the total budget.
+- Preserve every section evidence array exactly as supplied. {length_adjustment_instruction}
+"""
+            if source_length_convergence
+            else ""
+        )
         if self._source_channel_mode():
             prompt = f"""Revise the rejected source-channel market-research scan and return one corrected JSON object only.
 
@@ -1710,6 +1965,7 @@ SOURCE-CHANNEL REVISION CONTRACT (the only structural and length contract):
 - Reach the tighter target through concise revision of rejected prose only. Never gain headroom by deleting, weakening, or truncating traceable evidence, supported numbers, real source URLs, any so_what management implication, or any required action field.
 - Keep conclusion and evidence, causal mechanism, counterpoint or execution boundary, and management implication without filler or repetition.
 - Every action retains horizon, action, success_metric, and an evidence rationale of at least 12 words. Aim for a 12-30 word rationale and 25 words each for action and success_metric, but preserve complete supported meaning.
+{length_convergence_contract}
 """
         else:
             prompt = f"""Revise the rejected executive report below and return one corrected JSON object only.
@@ -1757,7 +2013,12 @@ Revision contract:
                 else {}
             ),
         )
-        merged = dict(report)
+        bound_baseline = (
+            copy.deepcopy(report) if source_length_convergence else None
+        )
+        merged = (
+            copy.deepcopy(report) if source_length_convergence else dict(report)
+        )
         if isinstance(revision.get("report"), dict):
             revision = revision["report"]
         for key, value in revision.items():
@@ -1812,6 +2073,12 @@ Revision contract:
                                 field: field_value
                                 for field, field_value in item.items()
                                 if field_value not in (None, "", [], {})
+                                and not (
+                                    source_length_convergence
+                                    and key == "sections"
+                                    and field
+                                    in {"evidence", "evidence_internal", "references"}
+                                )
                             },
                         }
                         if isinstance(item, dict)
@@ -1838,6 +2105,16 @@ Revision contract:
                                         field: field_value
                                         for field, field_value in item.items()
                                         if field_value not in (None, "", [], {})
+                                        and not (
+                                            source_length_convergence
+                                            and key == "sections"
+                                            and field
+                                            in {
+                                                "evidence",
+                                                "evidence_internal",
+                                                "references",
+                                            }
+                                        )
                                     }
                                 )
                         value = original_items
@@ -1853,6 +2130,8 @@ Revision contract:
         for action in merged.get("action_steps", []) or []:
             if isinstance(action, dict) and not str(action.get("horizon") or "").strip():
                 action["horizon"] = "Decision gate"
+        if bound_baseline is not None:
+            merged = _freeze_source_channel_bound_narrative(bound_baseline, merged)
         return merged
 
     def _audit_report_content(
