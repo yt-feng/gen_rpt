@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import ast
 import copy
+import hashlib
 import os
 import re
 import tempfile
@@ -2055,15 +2056,13 @@ class RAGBridgeTests(unittest.TestCase):
     def test_source_channel_synthesis_failure_never_emits_generic_fallback(self):
         pipeline = WebReportPipeline(Mock())
         upstream_failure = RuntimeError("both editorial routes unavailable")
+        publication_failure = ReportQualityError("publication contract failed")
 
         self.assertFalse(pipeline._synthesis_error_must_fail_closed(upstream_failure))
+        self.assertTrue(pipeline._synthesis_error_must_fail_closed(publication_failure))
         pipeline.source_profile = {"mode": "source_channel"}
         self.assertTrue(pipeline._synthesis_error_must_fail_closed(upstream_failure))
-        self.assertTrue(
-            pipeline._synthesis_error_must_fail_closed(
-                ReportQualityError("publication contract failed")
-            )
-        )
+        self.assertTrue(pipeline._synthesis_error_must_fail_closed(publication_failure))
 
     def test_deterministic_compression_keeps_gate_closed_when_only_evidence_is_long(self):
         report = {
@@ -2400,6 +2399,14 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("SOURCE-CHANNEL CONTRACT", source_prompt)
         self.assertIn("exactly 3 separate paragraph strings", source_prompt)
         self.assertIn("2,100 and 2,500", source_prompt)
+        self.assertIn("2,100-2,300-word creative target", source_prompt)
+        self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", source_prompt)
+        self.assertIn("complete section 210-235 words", source_prompt)
+        self.assertIn(
+            "Never gain headroom by deleting, weakening, or truncating traceable evidence, "
+            "supported numbers, real source URLs, any so_what management implication, or any required action field.",
+            source_prompt,
+        )
         self.assertNotIn("5-6 substantial sections", source_prompt)
         self.assertNotIn("250-450 words", source_prompt)
         self.assertNotIn("2,000-3,000 word", source_prompt)
@@ -2421,6 +2428,58 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("250-450 words", generic_prompt)
         self.assertIn("2,000-3,000 word", generic_prompt)
         self.assertNotIn("SOURCE-CHANNEL CONTRACT", generic_prompt)
+        self.assertEqual(
+            hashlib.sha256(generic_prompt.encode("utf-8")).hexdigest(),
+            "655c02ee17b60aaff07fa825bc6d35e254801997630e7f23cade4ca481015cd5",
+        )
+
+    def test_source_channel_chinese_synthesis_uses_production_headroom_targets(self):
+        source = SourceDocument(
+            title="公开交叉验证",
+            url="https://example.com/public-corroboration",
+            query="经营机制 交叉验证",
+            snippet="公开材料支持有边界的经营判断。",
+            content="独立公开材料支持这一经营机制，同时保留待核验条件。",
+        )
+        fact_pack = ResearchFactPack(
+            topic="有边界的经营判断",
+            objective="评估公开证据支持的经营机制",
+            decision_question="哪些结论已获得独立交叉验证？",
+            source_count=2,
+            authoritative_source_count=1,
+            source_domains=["example.com", "openalex.org"],
+            source_refs=[],
+            high_confidence_facts=[],
+            numeric_facts=[],
+            dated_facts=[],
+            validation_issues=[],
+        )
+        client = Mock()
+        client.chat_json.return_value = {"title": "有边界的经营判断"}
+        pipeline = WebReportPipeline(client, language="zh")
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        pipeline._synthesize_web_report(
+            "有边界的经营判断",
+            {},
+            [],
+            [source],
+            fact_pack,
+            [],
+            {},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertIn("2,100-2,500 个中文字或英文单词", prompt)
+        self.assertIn("2,100-2,300 创作目标", prompt)
+        self.assertIn("每段 50-55 字，lead 25-30 字，so_what 35-42 字", prompt)
+        self.assertIn("每章合计 210-235 字", prompt)
+        self.assertIn(
+            "不得通过删除、弱化或截断可追溯证据、已支持数字、真实来源 URL、"
+            "任何 so_what 管理含义或必填 action 字段来换取余量",
+            prompt,
+        )
+        self.assertNotIn("2,000-3,000 字", prompt)
 
     def test_section_normalization_preserves_body_paragraph_breaks(self):
         report = normalize_structured_payload(
@@ -2661,8 +2720,46 @@ class RAGBridgeTests(unittest.TestCase):
         self.assertIn("SOURCE-CHANNEL REVISION CONTRACT", prompt)
         self.assertIn("exactly 3 separate strings", prompt)
         self.assertIn("2,100-2,500", prompt)
+        self.assertIn("2,100-2,300 creative target", prompt)
+        self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", prompt)
+        self.assertIn("complete section 210-235", prompt)
+        self.assertIn(
+            "Never gain headroom by deleting, weakening, or truncating traceable evidence, "
+            "supported numbers, real source URLs, any so_what management implication, or any required action field.",
+            prompt,
+        )
         self.assertNotIn("exactly 4 separate strings", prompt)
         self.assertNotIn("300 and 400 words", prompt)
+
+    def test_source_channel_revision_prompt_handles_production_overage_shape_with_headroom(self):
+        rejected = _source_channel_quality_report()
+        production_shape_issues = [
+            "Source-channel section 1 paragraph 1 requires 50-65 words; found 66.",
+            "Source-channel section 1 lead requires 25-35 words; found 37.",
+            "Source-channel section 1 management implication requires 35-50 words; found 54.",
+            "Source-channel section 1 requires 210-280 words of analysis; found 282.",
+            "The source-channel reader-visible target is 2,100-2,500 words; found 2,573.",
+        ]
+        client = Mock()
+        client.chat_json.return_value = {}
+        pipeline = WebReportPipeline(client)
+        pipeline.source_profile = {"mode": "source_channel"}
+
+        revised = pipeline._revise_report_draft(
+            rejected,
+            production_shape_issues,
+            {"selected_modules": ["mechanism", "execution boundary"]},
+        )
+
+        prompt = client.chat_json.call_args.args[0][1]["content"]
+        for issue in production_shape_issues:
+            self.assertIn(issue, prompt)
+        self.assertIn("2,100-2,300 creative target", prompt)
+        self.assertIn("each paragraph 50-55, lead 25-30, so_what 35-42", prompt)
+        self.assertIn("complete section 210-235", prompt)
+        self.assertIn(rejected["sections"][0]["evidence"][0], prompt)
+        self.assertIn(rejected["action_steps"][0]["success_metric"], prompt)
+        self.assertEqual(revised, rejected)
 
     def test_source_channel_revision_ignores_extra_top_level_fields(self):
         rejected = _source_channel_quality_report()
