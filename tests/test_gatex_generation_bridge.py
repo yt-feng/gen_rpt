@@ -126,7 +126,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
 
         kwargs = {
             "max_tokens": 8_000,
-            "fallback_max_tokens": 6_000,
+            "fallback_max_tokens": 8_000,
             "strict_output_budget": True,
         }
         self.assertEqual(client.chat_json([], **kwargs)["title"], "complete source report")
@@ -139,7 +139,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         )
         self.assertEqual(fallback.chat_json.call_count, 2)
         for fallback_call in fallback.chat_json.call_args_list:
-            self.assertEqual(fallback_call.kwargs["max_tokens"], 6_000)
+            self.assertEqual(fallback_call.kwargs["max_tokens"], 8_000)
             self.assertTrue(fallback_call.kwargs["strict_output_budget"])
         self.assertEqual(client.route_record()["failoverReason"], "output_budget")
 
@@ -164,7 +164,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
             client.chat_json(
                 [],
                 max_tokens=8_000,
-                fallback_max_tokens=6_000,
+                fallback_max_tokens=8_000,
                 strict_output_budget=True,
             )
 
@@ -172,7 +172,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         primary.chat_json.assert_called_once()
         fallback.chat_json.assert_called_once_with(
             [],
-            max_tokens=6_000,
+            max_tokens=8_000,
             strict_output_budget=True,
         )
 

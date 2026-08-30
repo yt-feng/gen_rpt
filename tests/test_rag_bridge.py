@@ -2405,7 +2405,7 @@ class RAGBridgeTests(unittest.TestCase):
             {
                 "temperature": 0.12,
                 "max_tokens": 8_000,
-                "fallback_max_tokens": 6_000,
+                "fallback_max_tokens": 8_000,
                 "strict_output_budget": True,
             },
         )
@@ -2492,7 +2492,7 @@ class RAGBridgeTests(unittest.TestCase):
             {
                 "temperature": 0.12,
                 "max_tokens": 8_000,
-                "fallback_max_tokens": 6_000,
+                "fallback_max_tokens": 8_000,
                 "strict_output_budget": True,
             },
         )
@@ -2752,7 +2752,7 @@ class RAGBridgeTests(unittest.TestCase):
             {
                 "temperature": 0.05,
                 "max_tokens": 8_000,
-                "fallback_max_tokens": 6_000,
+                "fallback_max_tokens": 8_000,
                 "strict_output_budget": True,
             },
         )

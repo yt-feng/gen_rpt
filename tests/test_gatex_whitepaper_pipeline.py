@@ -617,7 +617,7 @@ def test_deepseek_retries_reasoning_only_completion_with_larger_budget() -> None
     assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 11_000
 
 
-def test_deepseek_strict_budget_rejects_nonempty_truncation_without_growth() -> None:
+def test_deepseek_source_fallback_budget_rejects_nonempty_truncation_without_growth() -> None:
     truncated = mock.Mock()
     truncated.status_code = 200
     truncated.headers = {}
@@ -629,7 +629,7 @@ def test_deepseek_strict_budget_rejects_nonempty_truncation_without_growth() -> 
                 "message": {"content": '{"title":"clipped"}'},
             }
         ],
-        "usage": {"completion_tokens": 6_000},
+        "usage": {"completion_tokens": 8_000},
     }
     environment = {
         "DEEPSEEK_API_KEY": "test-key",
@@ -646,13 +646,13 @@ def test_deepseek_strict_budget_rejects_nonempty_truncation_without_growth() -> 
             with pytest.raises(EditorialServiceExhausted) as exc_info:
                 client.chat_json(
                     [{"role": "user", "content": "Return JSON."}],
-                    max_tokens=6_000,
+                    max_tokens=8_000,
                     strict_output_budget=True,
                 )
 
     assert exc_info.value.failure_kind == "output_budget"
     assert post.call_count == 1
-    assert post.call_args.kwargs["json"]["max_tokens"] == 6_000
+    assert post.call_args.kwargs["json"]["max_tokens"] == 8_000
 
 
 def test_source_packet_prefers_official_and_requires_https() -> None:
