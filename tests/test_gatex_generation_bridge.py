@@ -109,6 +109,89 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         fallback.chat_json.assert_not_called()
         self.assertFalse(client.route_record()["fallbackUsed"])
 
+    def test_source_output_budget_failover_maps_route_budgets_and_sticks(self):
+        exhausted = EditorialServiceExhausted(
+            "Responses API",
+            failure_kind="output_budget",
+            status_code=200,
+        )
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Responses")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary.chat_json.side_effect = exhausted
+        fallback.chat_json.side_effect = [
+            {"title": "complete source report"},
+            {"title": "complete source revision"},
+        ]
+        client = EditorialFailoverClient(primary, fallback)
+
+        kwargs = {
+            "max_tokens": 8_000,
+            "fallback_max_tokens": 6_000,
+            "strict_output_budget": True,
+        }
+        self.assertEqual(client.chat_json([], **kwargs)["title"], "complete source report")
+        self.assertEqual(client.chat_json([], **kwargs)["title"], "complete source revision")
+
+        primary.chat_json.assert_called_once_with(
+            [],
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
+        self.assertEqual(fallback.chat_json.call_count, 2)
+        for fallback_call in fallback.chat_json.call_args_list:
+            self.assertEqual(fallback_call.kwargs["max_tokens"], 6_000)
+            self.assertTrue(fallback_call.kwargs["strict_output_budget"])
+        self.assertEqual(client.route_record()["failoverReason"], "output_budget")
+
+    def test_source_output_budget_fails_closed_when_both_routes_exhaust(self):
+        primary_failure = EditorialServiceExhausted(
+            "Responses API",
+            failure_kind="output_budget",
+            status_code=200,
+        )
+        fallback_failure = EditorialServiceExhausted(
+            "Chat Completions",
+            failure_kind="output_budget",
+            status_code=200,
+        )
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Responses")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary.chat_json.side_effect = primary_failure
+        fallback.chat_json.side_effect = fallback_failure
+        client = EditorialFailoverClient(primary, fallback)
+
+        with self.assertRaises(EditorialServiceExhausted) as raised:
+            client.chat_json(
+                [],
+                max_tokens=8_000,
+                fallback_max_tokens=6_000,
+                strict_output_budget=True,
+            )
+
+        self.assertIs(raised.exception, fallback_failure)
+        primary.chat_json.assert_called_once()
+        fallback.chat_json.assert_called_once_with(
+            [],
+            max_tokens=6_000,
+            strict_output_budget=True,
+        )
+
+    def test_typed_nonavailability_failure_does_not_stick_to_fallback(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Responses")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary.chat_json.side_effect = EditorialServiceExhausted(
+            "Responses API",
+            failure_kind="invalid_schema",
+            status_code=200,
+        )
+        client = EditorialFailoverClient(primary, fallback)
+
+        with self.assertRaises(EditorialServiceExhausted):
+            client.chat_json([])
+
+        fallback.chat_json.assert_not_called()
+        self.assertFalse(client.route_record()["fallbackUsed"])
+
     def test_bridge_builds_independent_deepseek_fallback_for_apimart(self):
         primary = Mock(
             model="gpt-5.6-sol",

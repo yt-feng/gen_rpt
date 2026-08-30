@@ -2353,6 +2353,10 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(
+            client.chat_json.call_args.kwargs,
+            {"temperature": 0.12},
+        )
         self.assertIn("documented corridor approval", prompt)
         self.assertIn("CONFLICT REGISTER", prompt)
         self.assertIn("RECOMMENDATION BOUNDARY: validation_only", prompt)
@@ -2396,6 +2400,15 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         source_prompt = source_client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(
+            source_client.chat_json.call_args.kwargs,
+            {
+                "temperature": 0.12,
+                "max_tokens": 8_000,
+                "fallback_max_tokens": 6_000,
+                "strict_output_budget": True,
+            },
+        )
         self.assertIn("SOURCE-CHANNEL CONTRACT", source_prompt)
         self.assertIn("exactly 3 separate paragraph strings", source_prompt)
         self.assertIn("2,100 and 2,500", source_prompt)
@@ -2424,6 +2437,10 @@ class RAGBridgeTests(unittest.TestCase):
             {},
         )
         generic_prompt = generic_client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(
+            generic_client.chat_json.call_args.kwargs,
+            {"temperature": 0.12},
+        )
         self.assertIn("5-6 substantial sections", generic_prompt)
         self.assertIn("250-450 words", generic_prompt)
         self.assertIn("2,000-3,000 word", generic_prompt)
@@ -2470,6 +2487,15 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(
+            client.chat_json.call_args.kwargs,
+            {
+                "temperature": 0.12,
+                "max_tokens": 8_000,
+                "fallback_max_tokens": 6_000,
+                "strict_output_budget": True,
+            },
+        )
         self.assertIn("2,100-2,500 个中文字或英文单词", prompt)
         self.assertIn("2,100-2,300 创作目标", prompt)
         self.assertIn("每段 50-55 字，lead 25-30 字，so_what 35-42 字", prompt)
@@ -2667,6 +2693,10 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(
+            client.chat_json.call_args.kwargs,
+            {"temperature": 0.05},
+        )
         self.assertEqual(revised["title"], "Revised report")
         self.assertEqual(revised["action_steps"], rejected["action_steps"])
         self.assertEqual(revised["sections"], rejected["sections"])
@@ -2717,6 +2747,15 @@ class RAGBridgeTests(unittest.TestCase):
         )
 
         prompt = client.chat_json.call_args.args[0][1]["content"]
+        self.assertEqual(
+            client.chat_json.call_args.kwargs,
+            {
+                "temperature": 0.05,
+                "max_tokens": 8_000,
+                "fallback_max_tokens": 6_000,
+                "strict_output_budget": True,
+            },
+        )
         self.assertIn("SOURCE-CHANNEL REVISION CONTRACT", prompt)
         self.assertIn("exactly 3 separate strings", prompt)
         self.assertIn("2,100-2,500", prompt)

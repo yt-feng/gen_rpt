@@ -89,6 +89,7 @@ class DeepSeekClient:
         model: Optional[str] = None,
         json_mode: bool = False,
         max_tokens: Optional[int] = None,
+        strict_output_budget: bool = False,
     ) -> str:
         backend_url = os.getenv("BACKEND_URL")
         if backend_url:
@@ -117,7 +118,16 @@ class DeepSeekClient:
                 response = requests.post(url, headers=headers, json=payload, timeout=self.timeout)
             response.raise_for_status()
             data = response.json()
-            return data["choices"][0]["message"]["content"]
+            choice = data["choices"][0]
+            if strict_output_budget and str(
+                choice.get("finish_reason") or ""
+            ).strip().lower() in {"length", "max_tokens"}:
+                raise EditorialServiceExhausted(
+                    "Backend Chat Completions",
+                    failure_kind="output_budget",
+                    status_code=response.status_code,
+                )
+            return choice["message"]["content"]
 
         if self.use_apimart and _bool_env("APIMART_USE_RESPONSES", False):
             try:
@@ -126,8 +136,15 @@ class DeepSeekClient:
                     model=model,
                     json_mode=json_mode,
                     max_tokens=max_tokens,
+                    strict_output_budget=strict_output_budget,
                 )
             except Exception as exc:
+                # A strict source-channel call owns one provider route and one
+                # fixed response budget.  Its typed exhaustion/availability
+                # failure must reach the report-level failover instead of
+                # silently changing API shape inside the same route.
+                if strict_output_budget:
+                    raise
                 if not _bool_env("APIMART_ALLOW_CHAT_FALLBACK", False):
                     raise
                 print(
@@ -159,11 +176,15 @@ class DeepSeekClient:
 
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
-        requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=self.use_apimart)
+        requested_max_tokens = _requested_output_tokens(
+            max_tokens,
+            use_apimart=self.use_apimart,
+            strict_output_budget=strict_output_budget,
+        )
         if requested_max_tokens > 0:
             payload["max_tokens"] = requested_max_tokens
         maximum_output_tokens = requested_max_tokens
-        if not self.use_apimart and requested_max_tokens > 0:
+        if not self.use_apimart and requested_max_tokens > 0 and not strict_output_budget:
             maximum_output_tokens = max(
                 requested_max_tokens,
                 _int_env("DEEPSEEK_MAX_TOKENS", requested_max_tokens),
@@ -199,7 +220,10 @@ class DeepSeekClient:
                 response.raise_for_status()
             try:
                 response.raise_for_status()
-                content = _completion_content(response)
+                content = _completion_content(
+                    response,
+                    reject_truncated=strict_output_budget,
+                )
                 if content.strip():
                     return content
                 last_error = _empty_completion_diagnostic(response)
@@ -218,6 +242,8 @@ class DeepSeekClient:
                 last_status_code = response.status_code
                 if json_mode and "response_format" in payload:
                     payload.pop("response_format", None)
+                if strict_output_budget:
+                    break
                 if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
                     requested_max_tokens = min(
                         maximum_output_tokens,
@@ -256,6 +282,7 @@ class DeepSeekClient:
         model: Optional[str],
         json_mode: bool,
         max_tokens: Optional[int],
+        strict_output_budget: bool = False,
     ) -> str:
         url = f"{self.base_url}/responses"
         headers = {
@@ -292,10 +319,18 @@ class DeepSeekClient:
             payload["reasoning"] = reasoning
         if json_mode and _bool_env("APIMART_RESPONSES_JSON_FORMAT", False):
             payload["text"] = {"format": {"type": "json_object"}}
-        requested_max_tokens = _requested_output_tokens(max_tokens, use_apimart=True)
-        maximum_output_tokens = max(
-            requested_max_tokens,
-            _int_env("APIMART_MAX_OUTPUT_TOKENS", 64_000),
+        requested_max_tokens = _requested_output_tokens(
+            max_tokens,
+            use_apimart=True,
+            strict_output_budget=strict_output_budget,
+        )
+        maximum_output_tokens = (
+            requested_max_tokens
+            if strict_output_budget
+            else max(
+                requested_max_tokens,
+                _int_env("APIMART_MAX_OUTPUT_TOKENS", 64_000),
+            )
         )
         if requested_max_tokens > 0:
             # APIMart's Responses-compatible endpoint documents max_tokens,
@@ -334,6 +369,8 @@ class DeepSeekClient:
                 last_error = str(exc)
                 last_failure_kind = "output_budget"
                 last_status_code = response.status_code
+                if strict_output_budget:
+                    break
                 if attempt < attempts - 1 and requested_max_tokens < maximum_output_tokens:
                     requested_max_tokens = min(maximum_output_tokens, requested_max_tokens * 2)
                     payload["max_tokens"] = requested_max_tokens
@@ -367,14 +404,31 @@ class DeepSeekClient:
         temperature: float = 0.2,
         model: Optional[str] = None,
         max_tokens: Optional[int] = None,
+        fallback_max_tokens: Optional[int] = None,
+        strict_output_budget: bool = False,
     ) -> Dict[str, Any]:
+        # ``fallback_max_tokens`` is part of the shared editorial-client
+        # interface.  A single-route client has no fallback and deliberately
+        # ignores it; EditorialFailoverClient maps it onto its second route.
+        _ = fallback_max_tokens
         raw = self.chat(
             messages,
             temperature=temperature,
             model=model,
             json_mode=_json_mode_enabled(),
             max_tokens=max_tokens,
+            strict_output_budget=strict_output_budget,
         )
+        if strict_output_budget:
+            try:
+                return normalize_structured_payload(_extract_strict_json_object(raw))
+            except (ValueError, json.JSONDecodeError, TypeError) as exc:
+                # Source-channel drafts are publication inputs.  Do not turn a
+                # clipped or malformed route response into a plausible partial
+                # report with either heuristic or model-based JSON repair.
+                raise ValueError(
+                    "Editorial route returned invalid JSON under the strict output contract."
+                ) from exc
         try:
             return normalize_structured_payload(extract_json_object(raw))
         except Exception as first_error:
@@ -435,6 +489,15 @@ def extract_json_object(text: str) -> Dict[str, Any]:
     return parsed
 
 
+def _extract_strict_json_object(text: str) -> Dict[str, Any]:
+    """Accept exactly one complete JSON object without repair or extraction."""
+
+    parsed = json.loads(str(text or "").strip())
+    if not isinstance(parsed, dict):
+        raise ValueError(f"Expected a JSON object, got {type(parsed).__name__}")
+    return parsed
+
+
 def _uses_apimart(model: str) -> bool:
     if os.getenv("APIMART_FORCE_CHAT", "").strip().lower() in {"1", "true", "yes", "on"}:
         return True
@@ -442,15 +505,21 @@ def _uses_apimart(model: str) -> bool:
     return normalized.startswith(("gpt-", "o1", "o3", "o4"))
 
 
-def _completion_content(response: requests.Response) -> str:
+def _completion_content(
+    response: requests.Response,
+    *,
+    reject_truncated: bool = False,
+) -> str:
     try:
         data = response.json()
         choice = data["choices"][0]
         message = choice["message"]
         content = str(message.get("content") or "")
+        finish_reason = str(choice.get("finish_reason") or "").lower()
+        if reject_truncated and finish_reason in {"length", "max_tokens"}:
+            raise _ResponseBudgetExhausted(_empty_completion_diagnostic(response))
         if content.strip():
             return content
-        finish_reason = str(choice.get("finish_reason") or "").lower()
         reasoning = message.get("reasoning_content") or message.get("reasoning") or ""
         if finish_reason in {"length", "max_tokens"} or str(reasoning).strip():
             raise _ResponseBudgetExhausted(_empty_completion_diagnostic(response))
@@ -914,10 +983,15 @@ def _bool_env(name: str, default: bool) -> bool:
     return os.getenv(name, fallback).strip().lower() in {"1", "true", "yes", "on"}
 
 
-def _requested_output_tokens(max_tokens: Optional[int], *, use_apimart: bool) -> int:
+def _requested_output_tokens(
+    max_tokens: Optional[int],
+    *,
+    use_apimart: bool,
+    strict_output_budget: bool = False,
+) -> int:
     if max_tokens is not None:
         requested = max(0, int(max_tokens))
-        if use_apimart:
+        if use_apimart and not strict_output_budget:
             # Responses budgets include hidden reasoning tokens. Scale the
             # requested visible JSON budget without forcing every call to the
             # global 24k floor, which can overflow the gateway context window
@@ -925,6 +999,12 @@ def _requested_output_tokens(max_tokens: Optional[int], *, use_apimart: bool) ->
             multiplier = max(1.0, min(8.0, _float_env("APIMART_EXPLICIT_TOKEN_MULTIPLIER", 3.0)))
             explicit_floor = max(0, _int_env("APIMART_EXPLICIT_MIN_OUTPUT_TOKENS", 0))
             requested = max(explicit_floor, int(requested * multiplier))
+        elif use_apimart:
+            # A strict source-channel budget is the complete Responses budget,
+            # including hidden reasoning.  It must remain a hard ceiling: a
+            # global multiplier or floor would silently turn it back into an
+            # 18k/24k response allowance and defeat the route contract.
+            requested = max(0, requested)
         return requested
     requested = _int_env("DEEPSEEK_MAX_TOKENS", 0)
     if use_apimart:

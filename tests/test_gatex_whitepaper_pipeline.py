@@ -318,6 +318,151 @@ def test_apimart_responses_increases_exhausted_output_budget() -> None:
     assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 6_000
 
 
+def test_apimart_responses_strict_budget_bypasses_multiplier_floor_and_growth() -> None:
+    incomplete = mock.Mock()
+    incomplete.status_code = 200
+    incomplete.headers = {}
+    incomplete.raise_for_status.return_value = None
+    incomplete.json.return_value = {
+        "status": "incomplete",
+        "incomplete_details": {"reason": "max_output_tokens"},
+    }
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_MIN_OUTPUT_TOKENS": "24000",
+        "APIMART_EXPLICIT_MIN_OUTPUT_TOKENS": "24000",
+        "APIMART_EXPLICIT_TOKEN_MULTIPLIER": "3",
+        "APIMART_MAX_OUTPUT_TOKENS": "64000",
+        "APIMART_RETRY_ATTEMPTS": "4",
+        "APIMART_RETRY_BASE_SECONDS": "0",
+        "APIMART_ALLOW_CHAT_FALLBACK": "true",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=incomplete,
+        ) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            with pytest.raises(EditorialServiceExhausted) as exc_info:
+                client.chat_json(
+                    [{"role": "user", "content": "Return JSON."}],
+                    max_tokens=8_000,
+                    fallback_max_tokens=6_000,
+                    strict_output_budget=True,
+                )
+
+    assert exc_info.value.failure_kind == "output_budget"
+    assert post.call_count == 1
+    payload = post.call_args.kwargs["json"]
+    assert payload["max_tokens"] == 8_000
+    assert payload["max_output_tokens"] == 8_000
+
+
+def test_apimart_strict_json_rejects_invalid_payload_without_model_repair() -> None:
+    invalid = mock.Mock()
+    invalid.status_code = 200
+    invalid.headers = {}
+    invalid.raise_for_status.return_value = None
+    invalid.json.return_value = {"output_text": '{"title":"partial",}'}
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "true",
+        "APIMART_ALLOW_CHAT_FALLBACK": "true",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=invalid,
+        ) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            with pytest.raises(ValueError, match="strict output contract"):
+                client.chat_json(
+                    [{"role": "user", "content": "Return JSON."}],
+                    max_tokens=8_000,
+                    strict_output_budget=True,
+                )
+
+    assert post.call_count == 1
+
+
+def test_apimart_chat_strict_budget_is_exact_and_accepts_shared_route_kwargs() -> None:
+    complete = mock.Mock()
+    complete.status_code = 200
+    complete.headers = {}
+    complete.raise_for_status.return_value = None
+    complete.json.return_value = {
+        "choices": [
+            {
+                "finish_reason": "stop",
+                "message": {"content": '{"status":"ready"}'},
+            }
+        ]
+    }
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "false",
+        "APIMART_MIN_OUTPUT_TOKENS": "24000",
+        "APIMART_EXPLICIT_MIN_OUTPUT_TOKENS": "24000",
+        "APIMART_EXPLICIT_TOKEN_MULTIPLIER": "3",
+        "BACKEND_URL": "",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=complete,
+        ) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat_json(
+                [{"role": "user", "content": "Return JSON."}],
+                max_tokens=8_000,
+                fallback_max_tokens=6_000,
+                strict_output_budget=True,
+            ) == {"status": "ready"}
+
+    assert post.call_count == 1
+    payload = post.call_args.kwargs["json"]
+    assert payload["max_tokens"] == 8_000
+    assert "max_output_tokens" not in payload
+
+
+def test_backend_truncation_check_is_strict_only() -> None:
+    truncated = mock.Mock()
+    truncated.status_code = 200
+    truncated.raise_for_status.return_value = None
+    truncated.json.return_value = {
+        "choices": [
+            {
+                "finish_reason": "length",
+                "message": {"content": "legacy partial content"},
+            }
+        ]
+    }
+    environment = {
+        "BACKEND_URL": "https://backend.example",
+        "INTERNAL_TOKEN": "test-token",
+        "DEEPSEEK_API_KEY": "test-key",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=truncated,
+        ) as post:
+            client = DeepSeekClient(model="deepseek-chat")
+            assert client.chat([{"role": "user", "content": "Return text."}]) == (
+                "legacy partial content"
+            )
+            with pytest.raises(EditorialServiceExhausted) as exc_info:
+                client.chat(
+                    [{"role": "user", "content": "Return text."}],
+                    max_tokens=6_000,
+                    strict_output_budget=True,
+                )
+
+    assert exc_info.value.failure_kind == "output_budget"
+    assert post.call_count == 2
+
+
 def test_apimart_responses_retries_transient_500() -> None:
     failed = mock.Mock()
     failed.status_code = 500
@@ -470,6 +615,44 @@ def test_deepseek_retries_reasoning_only_completion_with_larger_budget() -> None
 
     assert post.call_args_list[0].kwargs["json"]["max_tokens"] == 5_500
     assert post.call_args_list[1].kwargs["json"]["max_tokens"] == 11_000
+
+
+def test_deepseek_strict_budget_rejects_nonempty_truncation_without_growth() -> None:
+    truncated = mock.Mock()
+    truncated.status_code = 200
+    truncated.headers = {}
+    truncated.raise_for_status.return_value = None
+    truncated.json.return_value = {
+        "choices": [
+            {
+                "finish_reason": "length",
+                "message": {"content": '{"title":"clipped"}'},
+            }
+        ],
+        "usage": {"completion_tokens": 6_000},
+    }
+    environment = {
+        "DEEPSEEK_API_KEY": "test-key",
+        "DEEPSEEK_MAX_TOKENS": "16000",
+        "DEEPSEEK_RETRY_ATTEMPTS": "3",
+        "APIMART_RETRY_BASE_SECONDS": "0",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=truncated,
+        ) as post:
+            client = DeepSeekClient(model="deepseek-chat")
+            with pytest.raises(EditorialServiceExhausted) as exc_info:
+                client.chat_json(
+                    [{"role": "user", "content": "Return JSON."}],
+                    max_tokens=6_000,
+                    strict_output_budget=True,
+                )
+
+    assert exc_info.value.failure_kind == "output_budget"
+    assert post.call_count == 1
+    assert post.call_args.kwargs["json"]["max_tokens"] == 6_000
 
 
 def test_source_packet_prefers_official_and_requires_https() -> None:

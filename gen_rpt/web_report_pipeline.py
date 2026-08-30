@@ -59,6 +59,18 @@ SOURCE_CHANNEL_CREATIVE_SO_WHAT_MIN = 35
 SOURCE_CHANNEL_CREATIVE_SO_WHAT_MAX = 42
 SOURCE_CHANNEL_CREATIVE_SECTION_MIN = 210
 SOURCE_CHANNEL_CREATIVE_SECTION_MAX = 235
+SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS = 8_000
+SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS = 6_000
+
+_EDITORIAL_FAILOVER_FAILURE_KINDS = frozenset(
+    {
+        "network_or_timeout",
+        "retryable_http",
+        "retryable_upstream",
+        "empty_completion",
+        "output_budget",
+    }
+)
 
 
 class EditorialFailoverClient:
@@ -84,12 +96,20 @@ class EditorialFailoverClient:
     def route_label(self) -> str:
         return self.active_route
 
-    def chat_json(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
+    def chat_json(
+        self,
+        *args: Any,
+        fallback_max_tokens: int | None = None,
+        **kwargs: Any,
+    ) -> Dict[str, Any]:
         if not self.primary_disabled:
             try:
                 return self.primary.chat_json(*args, **kwargs)
             except EditorialServiceExhausted as exc:
-                if self.fallback is None:
+                if (
+                    self.fallback is None
+                    or exc.failure_kind not in _EDITORIAL_FAILOVER_FAILURE_KINDS
+                ):
                     raise
                 self.primary_disabled = True
                 self.active_model = self.fallback.model
@@ -109,7 +129,10 @@ class EditorialFailoverClient:
             raise RuntimeError(
                 "The primary editorial route is unavailable and no fallback is configured."
             )
-        return self.fallback.chat_json(*args, **kwargs)
+        fallback_kwargs = dict(kwargs)
+        if fallback_max_tokens is not None:
+            fallback_kwargs["max_tokens"] = fallback_max_tokens
+        return self.fallback.chat_json(*args, **fallback_kwargs)
 
     def route_record(self) -> Dict[str, Any]:
         fallback_model = self.fallback.model if self.fallback is not None else None
@@ -1697,6 +1720,15 @@ Revision contract:
                 {"role": "user", "content": prompt},
             ],
             temperature=0.05,
+            **(
+                {
+                    "max_tokens": SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS,
+                    "fallback_max_tokens": SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS,
+                    "strict_output_budget": True,
+                }
+                if self._source_channel_mode()
+                else {}
+            ),
         )
         merged = dict(report)
         if isinstance(revision.get("report"), dict):
@@ -2538,7 +2570,19 @@ CRITICAL RULES (violation = failure):
 12. Do not generate or resolve the human-review conflict section. The pipeline adds it deterministically after synthesis.
 13. Follow Storyline plan.selected_modules. Compare named source positions where relevant. Use scenario probabilities only when they appear in approved evidence; otherwise use qualitative scenario triggers and state the unresolved evidence.
 """
-        return self.client.chat_json([{"role": "system", "content": system}, {"role": "user", "content": user}], temperature=0.12)
+        synthesis_kwargs: Dict[str, Any] = {"temperature": 0.12}
+        if self._source_channel_mode():
+            synthesis_kwargs.update(
+                {
+                    "max_tokens": SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS,
+                    "fallback_max_tokens": SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS,
+                    "strict_output_budget": True,
+                }
+            )
+        return self.client.chat_json(
+            [{"role": "system", "content": system}, {"role": "user", "content": user}],
+            **synthesis_kwargs,
+        )
 
     def _post_process(
         self,
