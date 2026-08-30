@@ -8,7 +8,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from .brand_assets import copy_or_generate_brand_assets, write_reference_backup
-from .deepseek_client import DeepSeekClient, EditorialServiceExhausted
+from .deepseek_client import (
+    DeepSeekClient,
+    EditorialFormatContractError,
+    EditorialServiceExhausted,
+)
 from .graphics import ensure_dir
 from .image_generator import generate_ai_image_assets
 from .openalex_fetch import collect_openalex_sources
@@ -74,6 +78,13 @@ _EDITORIAL_FAILOVER_FAILURE_KINDS = frozenset(
     }
 )
 
+_EDITORIAL_FORMAT_FAILOVER_FAILURE_KINDS = frozenset(
+    {
+        "invalid_strict_json",
+        "empty_structured_output",
+    }
+)
+
 
 class EditorialFailoverClient:
     """Keep a report on one editorial route, with bounded availability failover."""
@@ -113,20 +124,16 @@ class EditorialFailoverClient:
                     or exc.failure_kind not in _EDITORIAL_FAILOVER_FAILURE_KINDS
                 ):
                     raise
-                self.primary_disabled = True
-                self.active_model = self.fallback.model
-                self.active_route = getattr(
-                    self.fallback,
-                    "route_label",
-                    "fallback editorial route",
-                )
-                self.failover_reason = exc.failure_kind
-                print(
-                    "[gen_rpt.editorial] primary route exhausted; "
-                    f"switching report to model={self.active_model!r} "
-                    f"route={self.active_route!r} reason={exc.failure_kind!r}",
-                    flush=True,
-                )
+                self._activate_fallback(exc.failure_kind)
+            except EditorialFormatContractError as exc:
+                if (
+                    self.fallback is None
+                    or kwargs.get("strict_output_budget") is not True
+                    or exc.failure_kind
+                    not in _EDITORIAL_FORMAT_FAILOVER_FAILURE_KINDS
+                ):
+                    raise
+                self._activate_fallback(exc.failure_kind)
         if self.fallback is None:
             raise RuntimeError(
                 "The primary editorial route is unavailable and no fallback is configured."
@@ -135,6 +142,24 @@ class EditorialFailoverClient:
         if fallback_max_tokens is not None:
             fallback_kwargs["max_tokens"] = fallback_max_tokens
         return self.fallback.chat_json(*args, **fallback_kwargs)
+
+    def _activate_fallback(self, failure_kind: str) -> None:
+        if self.fallback is None:
+            raise RuntimeError("Cannot activate an unconfigured editorial fallback.")
+        self.primary_disabled = True
+        self.active_model = self.fallback.model
+        self.active_route = getattr(
+            self.fallback,
+            "route_label",
+            "fallback editorial route",
+        )
+        self.failover_reason = failure_kind
+        print(
+            "[gen_rpt.editorial] primary route did not complete its contract; "
+            f"switching report to model={self.active_model!r} "
+            f"route={self.active_route!r} reason={failure_kind!r}",
+            flush=True,
+        )
 
     def route_record(self) -> Dict[str, Any]:
         fallback_model = self.fallback.model if self.fallback is not None else None

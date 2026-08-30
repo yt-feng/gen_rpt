@@ -8,7 +8,13 @@ from tempfile import TemporaryDirectory
 from typing import Any, Dict
 from unittest.mock import Mock, call, patch
 
-from gen_rpt.deepseek_client import EditorialServiceExhausted
+import requests
+
+from gen_rpt.deepseek_client import (
+    DeepSeekClient,
+    EditorialFormatContractError,
+    EditorialServiceExhausted,
+)
 from gen_rpt.web_fetch import SourceDocument
 from gen_rpt.web_report_pipeline import (
     EditorialFailoverClient,
@@ -31,6 +37,32 @@ from tools.local_web_report_audit import required_reference_count, section_quali
 
 
 class GateXGenerationBridgeTests(unittest.TestCase):
+    @staticmethod
+    def _completion_response(content: str) -> Mock:
+        response = Mock()
+        response.status_code = 200
+        response.headers = {}
+        response.raise_for_status.return_value = None
+        response.json.return_value = {
+            "choices": [
+                {
+                    "finish_reason": "stop",
+                    "message": {"content": content},
+                }
+            ]
+        }
+        return response
+
+    @staticmethod
+    def _responses_response(payload: Dict[str, Any]) -> Mock:
+        response = Mock()
+        response.status_code = 200
+        response.headers = {}
+        response.raise_for_status.return_value = None
+        response.json.return_value = payload
+        response.text = json.dumps(payload)
+        return response
+
     def test_editorial_failover_is_retry_exhaustion_only_sticky_and_secret_safe(self):
         class StubClient:
             def __init__(self, model: str, route: str, responses: list[object]) -> None:
@@ -94,6 +126,307 @@ class GateXGenerationBridgeTests(unittest.TestCase):
 
         fallback.chat_json.assert_not_called()
         self.assertFalse(client.route_record()["fallbackUsed"])
+
+    def test_editorial_failover_does_not_switch_on_nonretryable_http_errors(self):
+        for status_code in (400, 401, 403, 422):
+            with self.subTest(status_code=status_code):
+                response = requests.Response()
+                response.status_code = status_code
+                failure = requests.HTTPError(
+                    f"HTTP {status_code}",
+                    response=response,
+                )
+                primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+                fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+                primary.chat_json.side_effect = failure
+                client = EditorialFailoverClient(primary, fallback)
+
+                with self.assertRaises(requests.HTTPError) as raised:
+                    client.chat_json(
+                        [],
+                        max_tokens=8_000,
+                        fallback_max_tokens=8_000,
+                        strict_output_budget=True,
+                    )
+
+                self.assertIs(raised.exception, failure)
+                fallback.chat_json.assert_not_called()
+                self.assertFalse(client.route_record()["fallbackUsed"])
+
+    def test_source_strict_json_contract_failure_switches_once_and_sticks(self):
+        primary = DeepSeekClient(
+            api_key="primary-key",
+            base_url="https://primary.example/v1",
+            model="gpt-5.6-sol",
+            provider="apimart",
+        )
+        fallback = DeepSeekClient(
+            api_key="fallback-key",
+            base_url="https://fallback.example/v1",
+            model="deepseek-chat",
+            provider="deepseek",
+        )
+        responses = [
+            self._completion_response('{"title":"SENTINEL_UNTERMINATED"'),
+            self._completion_response('{"title":"complete source report"}'),
+            self._completion_response('{"title":"complete source revision"}'),
+        ]
+        client = EditorialFailoverClient(primary, fallback)
+        kwargs = {
+            "max_tokens": 8_000,
+            "fallback_max_tokens": 8_000,
+            "strict_output_budget": True,
+        }
+        environment = {
+            "APIMART_USE_RESPONSES": "false",
+            "APIMART_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_JSON_MODE": "true",
+            "BACKEND_URL": "",
+        }
+
+        stream = io.StringIO()
+        with patch.dict("os.environ", environment, clear=False), patch(
+            "gen_rpt.deepseek_client.requests.post",
+            side_effect=responses,
+        ) as post, redirect_stdout(stream):
+            self.assertEqual(
+                client.chat_json([{"role": "user", "content": "Return JSON."}], **kwargs),
+                {"title": "complete source report"},
+            )
+            self.assertEqual(
+                client.chat_json([{"role": "user", "content": "Revise JSON."}], **kwargs),
+                {"title": "complete source revision"},
+            )
+
+        self.assertEqual(post.call_count, 3)
+        self.assertEqual(
+            [entry.args[0] for entry in post.call_args_list],
+            [
+                "https://primary.example/v1/chat/completions",
+                "https://fallback.example/v1/chat/completions",
+                "https://fallback.example/v1/chat/completions",
+            ],
+        )
+        self.assertTrue(
+            all(entry.kwargs["json"]["max_tokens"] == 8_000 for entry in post.call_args_list)
+        )
+        self.assertNotIn("SENTINEL_UNTERMINATED", stream.getvalue())
+        self.assertEqual(client.route_record()["failoverReason"], "invalid_strict_json")
+        self.assertTrue(client.route_record()["fallbackUsed"])
+
+    def test_source_responses_empty_output_switches_once_to_strict_fallback(self):
+        primary = DeepSeekClient(
+            api_key="primary-key",
+            base_url="https://primary.example/v1",
+            model="gpt-5.6-sol",
+            provider="apimart",
+        )
+        fallback = DeepSeekClient(
+            api_key="fallback-key",
+            base_url="https://fallback.example/v1",
+            model="deepseek-chat",
+            provider="deepseek",
+        )
+        client = EditorialFailoverClient(primary, fallback)
+        environment = {
+            "APIMART_USE_RESPONSES": "true",
+            "APIMART_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_JSON_MODE": "true",
+            "BACKEND_URL": "",
+        }
+        responses = [
+            self._responses_response({"output_text": ""}),
+            self._completion_response('{"title":"complete fallback report"}'),
+        ]
+
+        with patch.dict("os.environ", environment, clear=False), patch(
+            "gen_rpt.deepseek_client.requests.post",
+            side_effect=responses,
+        ) as post, patch.object(
+            fallback,
+            "chat_json",
+            wraps=fallback.chat_json,
+        ) as fallback_chat:
+            self.assertEqual(
+                client.chat_json(
+                    [{"role": "user", "content": "Return JSON."}],
+                    max_tokens=8_000,
+                    fallback_max_tokens=8_000,
+                    strict_output_budget=True,
+                ),
+                {"title": "complete fallback report"},
+            )
+
+        self.assertEqual(post.call_count, 2)
+        self.assertEqual(fallback_chat.call_count, 1)
+        fallback_chat.assert_called_once_with(
+            [{"role": "user", "content": "Return JSON."}],
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
+        self.assertEqual(
+            [entry.args[0] for entry in post.call_args_list],
+            [
+                "https://primary.example/v1/responses",
+                "https://fallback.example/v1/chat/completions",
+            ],
+        )
+        self.assertTrue(client.route_record()["fallbackUsed"])
+        self.assertEqual(
+            client.route_record()["failoverReason"],
+            "empty_structured_output",
+        )
+
+    def test_source_responses_empty_then_malformed_fallback_fails_closed(self):
+        primary = DeepSeekClient(
+            api_key="primary-key",
+            base_url="https://primary.example/v1",
+            model="gpt-5.6-sol",
+            provider="apimart",
+        )
+        fallback = DeepSeekClient(
+            api_key="fallback-key",
+            base_url="https://fallback.example/v1",
+            model="deepseek-chat",
+            provider="deepseek",
+        )
+        client = EditorialFailoverClient(primary, fallback)
+        environment = {
+            "APIMART_USE_RESPONSES": "true",
+            "APIMART_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_JSON_MODE": "true",
+            "BACKEND_URL": "",
+        }
+        responses = [
+            self._responses_response({"output_text": ""}),
+            self._completion_response('{"title":"fallback remains unterminated"'),
+        ]
+
+        with patch.dict("os.environ", environment, clear=False), patch(
+            "gen_rpt.deepseek_client.requests.post",
+            side_effect=responses,
+        ) as post, patch.object(
+            fallback,
+            "chat_json",
+            wraps=fallback.chat_json,
+        ) as fallback_chat:
+            with self.assertRaises(EditorialFormatContractError) as raised:
+                client.chat_json(
+                    [{"role": "user", "content": "Return JSON."}],
+                    max_tokens=8_000,
+                    fallback_max_tokens=8_000,
+                    strict_output_budget=True,
+                )
+
+        self.assertEqual(raised.exception.failure_kind, "invalid_strict_json")
+        self.assertEqual(post.call_count, 2)
+        self.assertEqual(fallback_chat.call_count, 1)
+        self.assertTrue(client.route_record()["fallbackUsed"])
+        self.assertEqual(
+            client.route_record()["failoverReason"],
+            "empty_structured_output",
+        )
+
+    def test_source_valid_json_wrong_top_level_schema_does_not_switch(self):
+        primary = DeepSeekClient(
+            api_key="primary-key",
+            base_url="https://primary.example/v1",
+            model="gpt-5.6-sol",
+            provider="apimart",
+        )
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        client = EditorialFailoverClient(primary, fallback)
+        environment = {
+            "APIMART_USE_RESPONSES": "false",
+            "APIMART_RETRY_ATTEMPTS": "1",
+            "DEEPSEEK_JSON_MODE": "true",
+            "BACKEND_URL": "",
+        }
+
+        with patch.dict("os.environ", environment, clear=False), patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=self._completion_response("[]"),
+        ) as post:
+            with self.assertRaisesRegex(ValueError, "Expected a JSON object"):
+                client.chat_json(
+                    [{"role": "user", "content": "Return JSON."}],
+                    max_tokens=8_000,
+                    fallback_max_tokens=8_000,
+                    strict_output_budget=True,
+                )
+
+        post.assert_called_once()
+        fallback.chat_json.assert_not_called()
+        self.assertFalse(client.route_record()["fallbackUsed"])
+
+    def test_source_fallback_invalid_strict_json_fails_closed_without_repair(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary_failure = EditorialFormatContractError(
+            "APIMart Chat",
+            failure_kind="invalid_strict_json",
+        )
+        fallback_failure = EditorialFormatContractError(
+            "DeepSeek Chat",
+            failure_kind="invalid_strict_json",
+        )
+        primary.chat_json.side_effect = primary_failure
+        fallback.chat_json.side_effect = fallback_failure
+        client = EditorialFailoverClient(primary, fallback)
+
+        with self.assertRaises(EditorialFormatContractError) as raised:
+            client.chat_json(
+                [],
+                max_tokens=8_000,
+                fallback_max_tokens=8_000,
+                strict_output_budget=True,
+            )
+
+        self.assertIs(raised.exception, fallback_failure)
+        primary.chat_json.assert_called_once_with(
+            [],
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
+        fallback.chat_json.assert_called_once_with(
+            [],
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
+
+    def test_format_contract_failover_is_strict_source_boundary_only(self):
+        failure = EditorialFormatContractError(
+            "APIMart Chat",
+            failure_kind="invalid_strict_json",
+        )
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary.chat_json.side_effect = failure
+        fallback.chat_json.return_value = {"title": "strict fallback"}
+        client = EditorialFailoverClient(primary, fallback)
+
+        with self.assertRaises(EditorialFormatContractError):
+            client.chat_json([], max_tokens=8_000)
+
+        fallback.chat_json.assert_not_called()
+        self.assertFalse(client.route_record()["fallbackUsed"])
+        self.assertEqual(
+            client.chat_json(
+                [],
+                max_tokens=8_000,
+                fallback_max_tokens=8_000,
+                strict_output_budget=True,
+            ),
+            {"title": "strict fallback"},
+        )
+        fallback.chat_json.assert_called_once_with(
+            [],
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
 
     def test_editorial_failover_does_not_switch_on_report_quality_failure(self):
         primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")

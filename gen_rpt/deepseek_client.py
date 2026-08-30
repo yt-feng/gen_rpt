@@ -38,6 +38,27 @@ class EditorialServiceExhausted(RuntimeError):
         )
 
 
+class EditorialFormatContractError(ValueError):
+    """A strict editorial route did not return one syntactically valid JSON object.
+
+    The exception intentionally carries only a bounded reason code and route
+    label.  It must never include the raw completion, prompt, or provider body.
+    Report-level clients may use it for one source-channel provider switch,
+    while valid JSON with an invalid report schema remains an ordinary
+    ``ValueError`` and fails closed on the active route.
+    """
+
+    def __init__(self, route: str, *, failure_kind: str) -> None:
+        if failure_kind not in {"invalid_strict_json", "empty_structured_output"}:
+            raise ValueError("Unsupported editorial format-contract failure kind.")
+        self.route = route
+        self.failure_kind = failure_kind
+        super().__init__(
+            f"{route} did not fulfill the strict structured-output contract "
+            f"({failure_kind})."
+        )
+
+
 class DeepSeekClient:
     def __init__(
         self,
@@ -359,7 +380,10 @@ class DeepSeekClient:
                 response.raise_for_status()
             try:
                 response.raise_for_status()
-                content = _response_content(response)
+                content = _response_content(
+                    response,
+                    strict_route_label=(self.route_label if strict_output_budget else None),
+                )
                 if content.strip():
                     return content
                 last_error = f"HTTP {response.status_code} returned an empty response"
@@ -420,15 +444,26 @@ class DeepSeekClient:
             strict_output_budget=strict_output_budget,
         )
         if strict_output_budget:
+            strict_raw = str(raw or "").strip()
+            if not strict_raw:
+                raise EditorialFormatContractError(
+                    self.route_label,
+                    failure_kind="empty_structured_output",
+                )
             try:
-                return normalize_structured_payload(_extract_strict_json_object(raw))
-            except (ValueError, json.JSONDecodeError, TypeError) as exc:
+                parsed = _extract_strict_json_object(strict_raw)
+            except json.JSONDecodeError as exc:
                 # Source-channel drafts are publication inputs.  Do not turn a
                 # clipped or malformed route response into a plausible partial
-                # report with either heuristic or model-based JSON repair.
-                raise ValueError(
-                    "Editorial route returned invalid JSON under the strict output contract."
+                # report with either heuristic or model-based JSON repair.  A
+                # syntactically complete non-object is deliberately *not*
+                # wrapped here: it is a valid-JSON schema failure and must not
+                # trigger cross-provider failover.
+                raise EditorialFormatContractError(
+                    self.route_label,
+                    failure_kind="invalid_strict_json",
                 ) from exc
+            return normalize_structured_payload(parsed)
         try:
             return normalize_structured_payload(extract_json_object(raw))
         except Exception as first_error:
@@ -577,7 +612,11 @@ def _empty_completion_diagnostic(response: requests.Response) -> str:
         return f"HTTP {response.status_code} returned an empty completion"
 
 
-def _response_content(response: requests.Response) -> str:
+def _response_content(
+    response: requests.Response,
+    *,
+    strict_route_label: str | None = None,
+) -> str:
     try:
         payload = response.json()
     except ValueError as exc:
@@ -621,6 +660,23 @@ def _response_content(response: requests.Response) -> str:
                 chunks.append(str(value["value"]))
     if chunks:
         return "".join(chunks)
+    if (
+        strict_route_label is not None
+        and isinstance(output_text, str)
+        and not output_text.strip()
+        and "choices" not in data
+        and "output" not in data
+    ):
+        # APIMart Responses may return HTTP 200 with the declared
+        # ``output_text`` field present but empty and no alternative output
+        # collection.  In the strict source-channel contract this is a bounded
+        # empty structured output, not a report-schema failure.  Keep the
+        # legacy diagnostic (including its payload excerpt) for non-strict
+        # callers, while the strict exception remains safe to log.
+        raise EditorialFormatContractError(
+            strict_route_label,
+            failure_kind="empty_structured_output",
+        )
     raise ValueError(f"Responses endpoint returned no text output: {str(data)[:500]}")
 
 

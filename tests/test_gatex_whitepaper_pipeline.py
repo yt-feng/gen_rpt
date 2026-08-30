@@ -15,6 +15,7 @@ from PIL import Image
 
 from gen_rpt.deepseek_client import (
     DeepSeekClient,
+    EditorialFormatContractError,
     EditorialServiceExhausted,
     _completion_content,
     _response_content,
@@ -260,6 +261,16 @@ def test_responses_parser_accepts_apimart_wrapped_choices() -> None:
     assert _response_content(response) == "GateX"
 
 
+def test_responses_empty_output_keeps_legacy_non_strict_value_error() -> None:
+    response = mock.Mock()
+    response.json.return_value = {"output_text": ""}
+
+    with pytest.raises(ValueError, match="returned no text output") as exc_info:
+        _response_content(response)
+
+    assert not isinstance(exc_info.value, EditorialFormatContractError)
+
+
 def test_responses_parser_rejects_truncated_apimart_choice() -> None:
     response = mock.Mock()
     response.json.return_value = {
@@ -376,12 +387,67 @@ def test_apimart_strict_json_rejects_invalid_payload_without_model_repair() -> N
             return_value=invalid,
         ) as post:
             client = DeepSeekClient(model="gpt-5.6-sol")
-            with pytest.raises(ValueError, match="strict output contract"):
+            with pytest.raises(EditorialFormatContractError) as exc_info:
                 client.chat_json(
                     [{"role": "user", "content": "Return JSON."}],
                     max_tokens=8_000,
                     strict_output_budget=True,
                 )
+
+    assert post.call_count == 1
+    assert exc_info.value.failure_kind == "invalid_strict_json"
+    assert "partial" not in str(exc_info.value)
+
+
+def test_strict_empty_structured_output_is_typed_without_repair() -> None:
+    with mock.patch.dict(
+        os.environ,
+        {"APIMART_API_KEY": "test-key", "APIMART_USE_RESPONSES": "false"},
+        clear=False,
+    ):
+        client = DeepSeekClient(model="gpt-5.6-sol")
+
+    with mock.patch.object(client, "chat", return_value="") as chat:
+        with pytest.raises(EditorialFormatContractError) as exc_info:
+            client.chat_json(
+                [{"role": "user", "content": "Return JSON."}],
+                max_tokens=8_000,
+                strict_output_budget=True,
+            )
+
+    chat.assert_called_once()
+    assert exc_info.value.failure_kind == "empty_structured_output"
+
+
+def test_non_strict_json_keeps_existing_local_syntax_repair() -> None:
+    invalid_but_locally_repairable = mock.Mock()
+    invalid_but_locally_repairable.status_code = 200
+    invalid_but_locally_repairable.headers = {}
+    invalid_but_locally_repairable.raise_for_status.return_value = None
+    invalid_but_locally_repairable.json.return_value = {
+        "choices": [
+            {
+                "finish_reason": "stop",
+                "message": {"content": '{"status":"ready",}'},
+            }
+        ]
+    }
+    environment = {
+        "APIMART_API_KEY": "test-key",
+        "APIMART_USE_RESPONSES": "false",
+        "DEEPSEEK_JSON_MODE": "true",
+        "BACKEND_URL": "",
+    }
+    with mock.patch.dict(os.environ, environment, clear=False):
+        with mock.patch(
+            "gen_rpt.deepseek_client.requests.post",
+            return_value=invalid_but_locally_repairable,
+        ) as post:
+            client = DeepSeekClient(model="gpt-5.6-sol")
+            assert client.chat_json(
+                [{"role": "user", "content": "Return JSON."}],
+                strict_output_budget=False,
+            ) == {"status": "ready"}
 
     assert post.call_count == 1
 
