@@ -76,6 +76,7 @@ SOURCE_CHANNEL_PRIMARY_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS = 2
 SOURCE_CHANNEL_ATOMIC_REVISION_MAX_FIELDS = 36
+SOURCE_CHANNEL_SECTION_REPAIR_OUTPUT_TOKENS = 1_000
 
 _SOURCE_CHANNEL_CEILING_ISSUE_PREFIX = (
     "The source-channel reader-visible publication ceiling is "
@@ -86,6 +87,18 @@ _SOURCE_CHANNEL_MINIMUM_ISSUE_PREFIX = (
 _SOURCE_CHANNEL_LENGTH_ISSUE_PREFIXES = (
     _SOURCE_CHANNEL_CEILING_ISSUE_PREFIX,
     _SOURCE_CHANNEL_MINIMUM_ISSUE_PREFIX,
+)
+_SOURCE_CHANNEL_TWO_PARAGRAPH_ISSUE = re.compile(
+    r"^Section ([1-9]\d*) needs 3-6 developed analytical paragraphs; found 2\.$"
+)
+_SOURCE_CHANNEL_SECTION_REPAIR_ATTRIBUTION_TOKEN = re.compile(
+    r"(?:"
+    r"(?<![A-Za-z0-9_])(?:source|citation|reference)s?\s*[:#]|"
+    r"\[\s*(?:chunk|source|citation|reference)\s*:|"
+    r"\baccording\s+to\b|"
+    r"(?:来源|出处|引用|引文|资料)\s*[:：#]"
+    r")",
+    re.IGNORECASE,
 )
 _SOURCE_CHANNEL_BOUND_NARRATIVE_TOKEN = re.compile(
     r"(?:"
@@ -1190,6 +1203,18 @@ class WebReportPipeline:
                         and self._source_channel_length_ceiling_only(quality_issues)
                     ):
                         break
+            if self._source_channel_mode():
+                report, quality_issues = (
+                    self._repair_source_channel_single_section_paragraphs(
+                        report,
+                        quality_issues,
+                        topic=display_topic,
+                        grounding_text=grounding_text,
+                        source_count=len(sources),
+                        source_chunks=rag_source_chunks,
+                        approved_evidence=approved_evidence,
+                    )
+                )
             if (
                 self._source_channel_mode()
                 and self._source_channel_length_ceiling_only(quality_issues)
@@ -1974,6 +1999,249 @@ class WebReportPipeline:
                 source_count=source_count,
             )
         return report, issues
+
+    def _repair_source_channel_single_section_paragraphs(
+        self,
+        report: Dict[str, Any],
+        issues: List[str],
+        *,
+        topic: str,
+        grounding_text: str,
+        source_count: int,
+        source_chunks: Dict[str, str],
+        approved_evidence: List[Dict[str, Any]],
+    ) -> tuple[Dict[str, Any], List[str]]:
+        """Append one guarded paragraph for one exact source structural failure.
+
+        This is deliberately not a report revision.  It exposes only the
+        rejected section to the model, accepts one unbound paragraph, and then
+        requires the ordinary preparation and complete source quality gate to
+        leave every pre-existing report value byte-for-byte equivalent.
+        """
+
+        if not self._source_channel_mode() or len(issues) != 1:
+            return report, issues
+        issue_match = _SOURCE_CHANNEL_TWO_PARAGRAPH_ISSUE.fullmatch(
+            str(issues[0])
+        )
+        if issue_match is None:
+            return report, issues
+
+        section_number = int(issue_match.group(1))
+        section_index = section_number - 1
+        sections = report.get("sections") if isinstance(report, dict) else None
+        if (
+            not isinstance(sections, list)
+            or not 0 <= section_index < len(sections)
+            or not isinstance(sections[section_index], dict)
+        ):
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=section_not_found"
+            )
+            return report, issues
+
+        section = sections[section_index]
+        paragraphs = section.get("paragraphs")
+        if (
+            not isinstance(paragraphs, list)
+            or len(paragraphs) != 2
+            or any(
+                not isinstance(paragraph, str) or not paragraph.strip()
+                for paragraph in paragraphs
+            )
+        ):
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=paragraph_shape_mismatch"
+            )
+            return report, issues
+
+        original_report = copy.deepcopy(report)
+        original_paragraphs = copy.deepcopy(paragraphs)
+        original_reader = _source_channel_reader_snapshot(original_report)
+        original_evidence = _source_channel_evidence_snapshot(original_report)
+        section_context = {
+            key: copy.deepcopy(section.get(key))
+            for key in ("title", "lead", "paragraphs", "so_what")
+        }
+        prompt = f"""Repair one rejected GateX source-channel section. Return one JSON object only.
+
+Topic: {topic}
+Language: {self.language}
+Section number: {section_number}
+
+Rejected target section only:
+{json.dumps(section_context, ensure_ascii=False)}
+
+Rules:
+- Return exactly {{"additional_paragraph":"one complete paragraph"}} with no other key or commentary.
+- Write 45-55 words or Chinese characters using only the conclusion, mechanism, execution boundary, uncertainty, and implication already present in this section.
+- Add no fact, number, date, percentage, currency, URL, domain, citation, source label, DOI, OpenAlex/SSRN identifier, or claim of external validation.
+- Do not repeat either existing paragraph. Do not edit, quote, summarize, or return any existing report field, section array, evidence item, reference, action, or metadata.
+"""
+
+        self._log(
+            "PHASE synthesis source_section_repair started "
+            f"| section={section_number} | existing_paragraphs=2"
+        )
+        try:
+            response = self.client.chat_json(
+                [
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a strict institutional copy editor. Add one "
+                            "grounded analytical paragraph to the supplied section "
+                            "and return one valid JSON object only."
+                        ),
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.0,
+                max_tokens=SOURCE_CHANNEL_SECTION_REPAIR_OUTPUT_TOKENS,
+                fallback_max_tokens=SOURCE_CHANNEL_SECTION_REPAIR_OUTPUT_TOKENS,
+                strict_output_budget=True,
+            )
+        except Exception:
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=model_error"
+            )
+            return report, issues
+
+        if not isinstance(response, dict) or set(response) != {
+            "additional_paragraph"
+        }:
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=invalid_response_shape"
+            )
+            return report, issues
+
+        additional_paragraph = response.get("additional_paragraph")
+        if not isinstance(additional_paragraph, str):
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=invalid_paragraph_type"
+            )
+            return report, issues
+        additional_paragraph = additional_paragraph.strip()
+        paragraph_words = _word_count(additional_paragraph)
+        normalized_paragraph = unicodedata.normalize(
+            "NFKC",
+            additional_paragraph,
+        )
+        if not additional_paragraph:
+            reason = "empty_paragraph"
+        elif paragraph_words < 45:
+            reason = "below_paragraph_minimum"
+        elif paragraph_words > 55:
+            reason = "above_paragraph_maximum"
+        elif _source_channel_has_bound_narrative_token(additional_paragraph):
+            reason = "introduced_protected_token"
+        elif _SOURCE_CHANNEL_SECTION_REPAIR_ATTRIBUTION_TOKEN.search(
+            normalized_paragraph
+        ):
+            reason = "introduced_attribution_token"
+        elif any(
+            " ".join(re.findall(r"\w+", additional_paragraph.lower()))
+            == " ".join(re.findall(r"\w+", paragraph.lower()))
+            for paragraph in original_paragraphs
+        ):
+            reason = "duplicate_paragraph"
+        else:
+            reason = ""
+        if reason:
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | candidate_words={paragraph_words} "
+                f"| reason={reason}"
+            )
+            return report, issues
+
+        expected = copy.deepcopy(original_report)
+        expected["sections"][section_index]["paragraphs"] = [
+            *copy.deepcopy(original_paragraphs),
+            additional_paragraph,
+        ]
+        added_path = f"sections.{section_index}.paragraphs.2"
+        expected_reader = _source_channel_reader_snapshot(expected)
+        if (
+            set(expected_reader) != set(original_reader) | {added_path}
+            or expected_reader.get(added_path) != additional_paragraph
+            or any(
+                expected_reader.get(path) != value
+                for path, value in original_reader.items()
+            )
+        ):
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=preparation_baseline_invalid"
+            )
+            return report, issues
+
+        try:
+            candidate, candidate_issues = self._prepare_report_draft(
+                copy.deepcopy(expected),
+                topic=topic,
+                grounding_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks,
+                approved_evidence=approved_evidence,
+            )
+        except Exception:
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=prepare_error"
+            )
+            return report, issues
+
+        if not isinstance(candidate, dict) or not isinstance(
+            candidate_issues,
+            list,
+        ):
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} | reason=invalid_prepare_result"
+            )
+            return report, issues
+
+        candidate_reader = _source_channel_reader_snapshot(candidate)
+        changed_original_paths = [
+            path
+            for path, value in original_reader.items()
+            if candidate_reader.get(path) != value
+        ]
+        if set(candidate_reader) != set(original_reader) | {added_path}:
+            reason = "reader_path_set_changed_by_prepare"
+        elif candidate_reader.get(added_path) != additional_paragraph:
+            reason = "target_paragraph_changed_by_prepare"
+        elif changed_original_paths:
+            reason = "original_reader_field_changed_by_prepare"
+        elif _source_channel_evidence_snapshot(candidate) != original_evidence:
+            reason = "evidence_changed"
+        elif candidate != expected:
+            reason = "non_reader_field_changed_by_prepare"
+        elif candidate_issues:
+            reason = "complete_gate_failed"
+        else:
+            reason = ""
+        if reason:
+            self._log(
+                "PHASE synthesis source_section_repair rejected "
+                f"| section={section_number} "
+                f"| changed_original_paths={len(changed_original_paths)} "
+                f"| remaining_issues={len(candidate_issues)} | reason={reason}"
+            )
+            return report, issues
+
+        self._log(
+            "PHASE synthesis source_section_repair completed "
+            f"| section={section_number} | paragraphs=2->3 "
+            "| remaining_issues=0"
+        )
+        return candidate, candidate_issues
 
     @staticmethod
     def _source_channel_length_ceiling_only(issues: List[str]) -> bool:

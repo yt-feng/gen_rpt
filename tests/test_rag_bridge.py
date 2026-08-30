@@ -270,6 +270,44 @@ def _source_channel_target_overage(target_words: int = 2_601):
     return report
 
 
+def _source_channel_two_paragraph_report():
+    """Keep the production-shaped budget while exposing one exact defect."""
+
+    report = _source_channel_quality_report()
+    report["exhibits"] = []
+    removed_words = report["sections"][4]["paragraphs"].pop().split()
+    report["sections"][4]["paragraphs"][0] += (
+        " " + " ".join(removed_words[:30])
+    )
+    report["sections"][4]["paragraphs"][1] += (
+        " " + " ".join(removed_words[30:])
+    )
+    assert _word_count(_report_narrative_text(report)) == 2_106
+    assert source_channel_report_quality_issues(
+        report,
+        topic="Bounded market response",
+        context_text=(
+            "The validated public record supports a conditional operating response."
+        ),
+        source_count=2,
+    ) == [
+        "Section 5 needs 3-6 developed analytical paragraphs; found 2."
+    ]
+    return report
+
+
+def _source_channel_repair_paragraph():
+    return _source_channel_words(
+        "The execution boundary remains conditional because management must connect the "
+        "retained conclusion to the operating mechanism, test the unresolved constraint, "
+        "and preserve an explicit pause gate. Accountable ownership keeps the implication "
+        "actionable without overstating certainty while the organisation reviews whether "
+        "the bounded response remains coherent",
+        50,
+        "repaircontext",
+    )
+
+
 class RAGBridgeTests(unittest.TestCase):
     def _run_source_channel_build_until_quality_failure(
         self,
@@ -500,6 +538,363 @@ class RAGBridgeTests(unittest.TestCase):
             _word_count(_report_narrative_text(captured["report"])),
             2_106,
         )
+
+    def test_build_report_repairs_one_two_paragraph_section_after_three_revisions(self):
+        class SectionRepairReached(ReportQualityError):
+            pass
+
+        rejected = _source_channel_two_paragraph_report()
+        immutable_rejected = copy.deepcopy(rejected)
+        captured = {}
+
+        def stop_after_compliance(report, *_args, **_kwargs):
+            captured["report"] = copy.deepcopy(report)
+            raise SectionRepairReached("section repair reached downstream")
+
+        result = self._run_source_channel_build_until_quality_failure(
+            synthesized_report=rejected,
+            revised_reports=[rejected, rejected, rejected],
+            audit_results=[],
+            expected_message="section repair reached downstream",
+            client_response={
+                "additional_paragraph": _source_channel_repair_paragraph(),
+            },
+            post_process_side_effect=stop_after_compliance,
+            expected_exception=SectionRepairReached,
+        )
+
+        self.assertEqual(result["revision_mock"].call_count, 3)
+        result["client"].chat_json.assert_called_once()
+        result["post_process_mock"].assert_called_once()
+        result["audit_mock"].assert_not_called()
+        repaired = captured["report"]
+        self.assertEqual(
+            repaired["sections"][4]["paragraphs"],
+            [
+                *immutable_rejected["sections"][4]["paragraphs"],
+                _source_channel_repair_paragraph(),
+            ],
+        )
+        reconstructed = copy.deepcopy(repaired)
+        reconstructed["sections"][4]["paragraphs"].pop()
+        self.assertEqual(reconstructed, immutable_rejected)
+        self.assertEqual(
+            source_channel_report_quality_issues(
+                repaired,
+                topic="Bounded market response",
+                context_text=(
+                    "The validated public record supports a conditional operating response."
+                ),
+                source_count=2,
+            ),
+            [],
+        )
+        repair_prompt = result["client"].chat_json.call_args.args[0][1]["content"]
+        self.assertIn("Section number: 5", repair_prompt)
+        self.assertIn(immutable_rejected["sections"][4]["title"], repair_prompt)
+        self.assertNotIn(immutable_rejected["sections"][0]["title"], repair_prompt)
+        self.assertNotIn("https://openalex.org", repair_prompt)
+        self.assertEqual(
+            result["client"].chat_json.call_args.kwargs,
+            {
+                "temperature": 0.0,
+                "max_tokens": 1_000,
+                "fallback_max_tokens": 1_000,
+                "strict_output_budget": True,
+            },
+        )
+
+    def test_build_report_section_repair_failure_keeps_original_quality_error(self):
+        rejected = _source_channel_two_paragraph_report()
+
+        result = self._run_source_channel_build_until_quality_failure(
+            synthesized_report=rejected,
+            revised_reports=[rejected, rejected, rejected],
+            audit_results=[],
+            expected_message=(
+                "Section 5 needs 3-6 developed analytical paragraphs; found 2"
+            ),
+            client_response={
+                "additional_paragraph": _source_channel_repair_paragraph(),
+                "unexpected_report_patch": {},
+            },
+        )
+
+        self.assertEqual(result["revision_mock"].call_count, 3)
+        result["client"].chat_json.assert_called_once()
+        result["post_process_mock"].assert_not_called()
+        result["audit_mock"].assert_not_called()
+
+    def test_source_section_repair_rejects_bound_tokens_and_bad_shapes(self):
+        rejected = _source_channel_two_paragraph_report()
+        issue = [
+            "Section 5 needs 3-6 developed analytical paragraphs; found 2."
+        ]
+        injected_values = {
+            "number": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " 2025",
+            "url": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " https://example.com/source",
+            "doi": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " DOI",
+            "openalex": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " OpenAlex",
+            "ssrn": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " SSRN",
+            "hidden_cf": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                50,
+                "repaircontext",
+            ) + "\u200b",
+            "source_label": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " Source: attribution",
+            "citation_label": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " Citation: attribution",
+            "chunk_label": _source_channel_words(
+                "Management keeps the bounded response conditional while testing the retained "
+                "mechanism and unresolved constraint through an accountable decision gate",
+                49,
+                "repaircontext",
+            ) + " [Chunk: excerpt]",
+        }
+        responses = [
+            None,
+            {},
+            {"additional_paragraph": "Too short."},
+            {
+                "additional_paragraph": _source_channel_repair_paragraph(),
+                "extra": "not allowed",
+            },
+            *(
+                {"additional_paragraph": value}
+                for value in injected_values.values()
+            ),
+        ]
+
+        for response in responses:
+            with self.subTest(response=response):
+                client = Mock()
+                client.chat_json.return_value = copy.deepcopy(response)
+                pipeline = WebReportPipeline(client)
+                pipeline.source_profile = {"mode": "source_channel"}
+                immutable = copy.deepcopy(rejected)
+                with patch.object(
+                    pipeline,
+                    "_prepare_report_draft",
+                ) as prepare:
+                    returned, remaining = (
+                        pipeline._repair_source_channel_single_section_paragraphs(
+                            rejected,
+                            issue,
+                            topic="Bounded market response",
+                            grounding_text=(
+                                "The validated public record supports a conditional operating response."
+                            ),
+                            source_count=2,
+                            source_chunks={},
+                            approved_evidence=[],
+                        )
+                    )
+
+                self.assertIs(returned, rejected)
+                self.assertIs(remaining, issue)
+                self.assertEqual(rejected, immutable)
+                client.chat_json.assert_called_once()
+                prepare.assert_not_called()
+
+    def test_source_section_repair_rejects_any_prepare_mutation_or_gate_issue(self):
+        rejected = _source_channel_two_paragraph_report()
+        issue = [
+            "Section 5 needs 3-6 developed analytical paragraphs; found 2."
+        ]
+
+        def mutate_target(candidate, **_kwargs):
+            candidate["sections"][4]["paragraphs"][2] += " changed"
+            return candidate, []
+
+        def mutate_other_reader(candidate, **_kwargs):
+            candidate["dek"] = "Prepare changed an existing field."
+            return candidate, []
+
+        def mutate_evidence(candidate, **_kwargs):
+            candidate["references"][0]["url"] = "https://changed.example/source"
+            return candidate, []
+
+        def mutate_non_reader(candidate, **_kwargs):
+            candidate["internal_metadata"] = {"changed": True}
+            return candidate, []
+
+        def leave_gate_issue(candidate, **_kwargs):
+            return candidate, ["A complete source quality gate still failed."]
+
+        def return_invalid_gate_shape(candidate, **_kwargs):
+            return candidate, None
+
+        for prepare_side_effect in (
+            mutate_target,
+            mutate_other_reader,
+            mutate_evidence,
+            mutate_non_reader,
+            leave_gate_issue,
+            return_invalid_gate_shape,
+        ):
+            with self.subTest(prepare_side_effect=prepare_side_effect.__name__):
+                client = Mock()
+                client.chat_json.return_value = {
+                    "additional_paragraph": _source_channel_repair_paragraph(),
+                }
+                pipeline = WebReportPipeline(client)
+                pipeline.source_profile = {"mode": "source_channel"}
+                immutable = copy.deepcopy(rejected)
+                with patch.object(
+                    pipeline,
+                    "_prepare_report_draft",
+                    side_effect=prepare_side_effect,
+                ) as prepare:
+                    returned, remaining = (
+                        pipeline._repair_source_channel_single_section_paragraphs(
+                            rejected,
+                            issue,
+                            topic="Bounded market response",
+                            grounding_text=(
+                                "The validated public record supports a conditional operating response."
+                            ),
+                            source_count=2,
+                            source_chunks={},
+                            approved_evidence=[],
+                        )
+                    )
+
+                self.assertIs(returned, rejected)
+                self.assertIs(remaining, issue)
+                self.assertEqual(rejected, immutable)
+                client.chat_json.assert_called_once()
+                prepare.assert_called_once()
+
+    def test_source_section_repair_model_and_prepare_errors_fail_closed(self):
+        rejected = _source_channel_two_paragraph_report()
+        issue = [
+            "Section 5 needs 3-6 developed analytical paragraphs; found 2."
+        ]
+
+        for failing_stage in ("model", "prepare"):
+            with self.subTest(failing_stage=failing_stage):
+                client = Mock()
+                if failing_stage == "model":
+                    client.chat_json.side_effect = RuntimeError(
+                        "editorial route unavailable"
+                    )
+                else:
+                    client.chat_json.return_value = {
+                        "additional_paragraph": _source_channel_repair_paragraph(),
+                    }
+                pipeline = WebReportPipeline(client)
+                pipeline.source_profile = {"mode": "source_channel"}
+                immutable = copy.deepcopy(rejected)
+                prepare_side_effect = (
+                    RuntimeError("prepare contract unavailable")
+                    if failing_stage == "prepare"
+                    else None
+                )
+                with patch.object(
+                    pipeline,
+                    "_prepare_report_draft",
+                    side_effect=prepare_side_effect,
+                ) as prepare:
+                    returned, remaining = (
+                        pipeline._repair_source_channel_single_section_paragraphs(
+                            rejected,
+                            issue,
+                            topic="Bounded market response",
+                            grounding_text=(
+                                "The validated public record supports a conditional operating response."
+                            ),
+                            source_count=2,
+                            source_chunks={},
+                            approved_evidence=[],
+                        )
+                    )
+
+                self.assertIs(returned, rejected)
+                self.assertIs(remaining, issue)
+                self.assertEqual(rejected, immutable)
+                client.chat_json.assert_called_once()
+                if failing_stage == "model":
+                    prepare.assert_not_called()
+                else:
+                    prepare.assert_called_once()
+
+    def test_source_section_repair_is_inert_outside_the_exact_source_failure(self):
+        rejected = _source_channel_two_paragraph_report()
+        exact_issue = (
+            "Section 5 needs 3-6 developed analytical paragraphs; found 2."
+        )
+        cases = [
+            ({}, [exact_issue]),
+            ({}, ["Section 5 needs 3-6 developed analytical paragraphs; found 1."]),
+            (
+                {"mode": "source_channel"},
+                [exact_issue, "A second quality issue remains."],
+            ),
+            (
+                {"mode": "source_channel"},
+                ["Section 5 needs 3-6 developed analytical paragraphs; found 2"],
+            ),
+        ]
+
+        for source_profile, issues in cases:
+            with self.subTest(source_profile=source_profile, issues=issues):
+                client = Mock()
+                pipeline = WebReportPipeline(client)
+                pipeline.source_profile = source_profile
+                if not source_profile:
+                    pipeline.rag_context = "Validated private document context."
+                returned, remaining = (
+                    pipeline._repair_source_channel_single_section_paragraphs(
+                        rejected,
+                        issues,
+                        topic="Bounded market response",
+                        grounding_text=(
+                            "The validated public record supports a conditional operating response."
+                        ),
+                        source_count=2,
+                        source_chunks={},
+                        approved_evidence=[],
+                    )
+                )
+
+                self.assertIs(returned, rejected)
+                self.assertIs(remaining, issues)
+                client.chat_json.assert_not_called()
 
     def test_source_channel_length_convergence_repairs_attempt15_shape_without_deletion(self):
         rejected = _source_channel_target_overage(2_765)
