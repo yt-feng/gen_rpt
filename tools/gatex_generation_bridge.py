@@ -1051,9 +1051,14 @@ def _run_audit(output_dir: Path) -> Dict[str, Any]:
         raise BridgeError(f"Generated report failed the deterministic audit (exit {result.returncode}).")
     try:
         parsed = json.loads(result.stdout)
-        return parsed if isinstance(parsed, dict) else {"passed": True}
-    except json.JSONDecodeError:
-        return {"passed": True}
+    except json.JSONDecodeError as exc:
+        raise BridgeError("Generated report audit did not return valid JSON.") from exc
+    if not isinstance(parsed, dict):
+        raise BridgeError("Generated report audit must return a JSON object.")
+    issues = parsed.get("issues")
+    if parsed.get("ok") is not True or not isinstance(issues, list) or issues:
+        raise BridgeError("Generated report audit did not return an explicit clean result.")
+    return parsed
 
 
 def _review_unavailable(status: str, summary: str, error: str = "") -> Dict[str, Any]:

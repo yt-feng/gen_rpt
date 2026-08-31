@@ -26,6 +26,7 @@ from tools.gatex_generation_bridge import (
     BridgeError,
     _private_reference_url,
     _request_with_retries,
+    _run_audit,
     _run_generator,
     build_intelligence_source_profile,
     discovered_sources_from_manifest,
@@ -62,6 +63,29 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         response.json.return_value = payload
         response.text = json.dumps(payload)
         return response
+
+    def test_deterministic_audit_requires_explicit_clean_json(self):
+        clean = {"ok": True, "issues": [], "metrics": {"sections": 5}}
+        cases = (
+            ("not-json", "valid JSON"),
+            (json.dumps([clean]), "JSON object"),
+            (json.dumps({"ok": True}), "explicit clean result"),
+            (json.dumps({"ok": True, "issues": ["held"]}), "explicit clean result"),
+            (json.dumps({"passed": True, "issues": []}), "explicit clean result"),
+        )
+        for stdout, message in cases:
+            with self.subTest(stdout=stdout), patch(
+                "tools.gatex_generation_bridge.subprocess.run",
+                return_value=Mock(stdout=stdout, stderr="", returncode=0),
+            ):
+                with self.assertRaisesRegex(BridgeError, message):
+                    _run_audit(Path("/tmp/report"))
+
+        with patch(
+            "tools.gatex_generation_bridge.subprocess.run",
+            return_value=Mock(stdout=json.dumps(clean), stderr="", returncode=0),
+        ):
+            self.assertEqual(_run_audit(Path("/tmp/report")), clean)
 
     def test_editorial_failover_is_retry_exhaustion_only_sticky_and_secret_safe(self):
         class StubClient:

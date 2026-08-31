@@ -335,6 +335,14 @@ class SimplifiedEditorialGateTests(unittest.TestCase):
 
         pipeline._revise_report_draft.assert_not_called()
 
+    def test_any_simplified_synthesis_failure_is_fail_closed(self) -> None:
+        pipeline = WebReportPipeline(object())
+        pipeline.report_mode = "gatex_simplified_v1"
+        pipeline.source_profile = {}
+        pipeline.rag_required = False
+
+        self.assertTrue(pipeline._synthesis_error_must_fail_closed(ValueError("provider response failed")))
+
     def test_final_quality_rescue_never_rewrites_a_simplified_report(self) -> None:
         pipeline = WebReportPipeline(object())
         pipeline.report_mode = "gatex_simplified_v1"

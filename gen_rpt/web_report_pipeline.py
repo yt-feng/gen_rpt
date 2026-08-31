@@ -1812,6 +1812,7 @@ class WebReportPipeline:
         return bool(
             self.rag_required
             or self._source_channel_mode()
+            or self._simplified_report_mode()
             or isinstance(exc, ReportQualityError)
         )
 
