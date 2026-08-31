@@ -599,9 +599,14 @@ class EditorialFailoverClient:
         self,
         primary: DeepSeekClient,
         fallback: DeepSeekClient | None = None,
+        *,
+        allow_one_strict_fallback_format_retry: bool = False,
     ) -> None:
         self.primary = primary
         self.fallback = fallback
+        self.allow_one_strict_fallback_format_retry = bool(
+            allow_one_strict_fallback_format_retry
+        )
         self.primary_disabled = False
         self.active_model = primary.model
         self.active_route = getattr(primary, "route_label", "primary editorial route")
@@ -621,6 +626,7 @@ class EditorialFailoverClient:
         fallback_max_tokens: int | None = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
+        activated_fallback_for_call = False
         if not self.primary_disabled:
             try:
                 return self.primary.chat_json(*args, **kwargs)
@@ -631,6 +637,7 @@ class EditorialFailoverClient:
                 ):
                     raise
                 self._activate_fallback(exc.failure_kind)
+                activated_fallback_for_call = True
             except EditorialFormatContractError as exc:
                 if (
                     self.fallback is None
@@ -640,6 +647,7 @@ class EditorialFailoverClient:
                 ):
                     raise
                 self._activate_fallback(exc.failure_kind)
+                activated_fallback_for_call = True
         if self.fallback is None:
             raise RuntimeError(
                 "The primary editorial route is unavailable and no fallback is configured."
@@ -647,7 +655,25 @@ class EditorialFailoverClient:
         fallback_kwargs = dict(kwargs)
         if fallback_max_tokens is not None:
             fallback_kwargs["max_tokens"] = fallback_max_tokens
-        return self.fallback.chat_json(*args, **fallback_kwargs)
+        try:
+            return self.fallback.chat_json(*args, **fallback_kwargs)
+        except EditorialFormatContractError as exc:
+            if not (
+                activated_fallback_for_call
+                and self.allow_one_strict_fallback_format_retry
+                and fallback_kwargs.get("strict_output_budget") is True
+                and fallback_kwargs.get("max_tokens")
+                == SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS
+                and exc.failure_kind in _EDITORIAL_FORMAT_FAILOVER_FAILURE_KINDS
+            ):
+                raise
+            print(
+                "[gen_rpt.editorial] fallback route did not complete the strict "
+                "JSON contract; retrying once "
+                f"reason={exc.failure_kind!r}",
+                flush=True,
+            )
+            return self.fallback.chat_json(*args, **fallback_kwargs)
 
     def _activate_fallback(self, failure_kind: str) -> None:
         if self.fallback is None:
@@ -3688,6 +3714,13 @@ Rules:
                 "public evidence and bounded source profile. Return one valid JSON object only."
             )
             if self.language == "zh":
+                source_channel_visual_contract = (
+                    '- simplified GateX 格式必须原样返回空数组 `"exhibits": []` '
+                    '和 `"charts": []`；保留这两个 JSON 键，不得生成任何图表或 exhibit。'
+                    'references 仅使用上方来源中的真实 URL。'
+                    if self._simplified_report_mode()
+                    else "- exhibits 仅使用已验证数据并保留 data_basis；references 仅使用上方来源中的真实 URL。"
+                )
                 user = f"""生成一份 GateX source-channel 市场研究扫描，输出一个 JSON 对象，不要输出 markdown。
 
 主题：{topic}
@@ -3718,10 +3751,17 @@ SOURCE-CHANNEL 专用合同（这是唯一的结构与篇幅合同）：
 - title 和章节标题必须结论先行。正文只能使用事实包、获准证据台账与来源摘录中的事实；不得新增数字、URL、来源、案例或外部知识。
 - 私有来源只设定选题边界，不得作为公开权威来源；必须改写并用独立公开材料佐证，且不得复刻私有正文。
 - 任何数字必须逐字出现在已验证材料中。证据不足时明确保留待核验问题，不得补造。
-- exhibits 仅使用已验证数据并保留 data_basis；references 仅使用上方来源中的真实 URL。
+{source_channel_visual_contract}
 - methodology 只说明公开来源与独立核验边界；不得暴露内部研究工具、提示词或工作台字段。
 """
             else:
+                source_channel_visual_contract = (
+                    '- The simplified GateX format must return the exact empty arrays `"exhibits": []` '
+                    'and `"charts": []`. Keep both JSON keys and do not draft any chart or exhibit. '
+                    "References use only real URLs listed above."
+                    if self._simplified_report_mode()
+                    else "- Exhibits use validated values only and retain data_basis. References use only real URLs listed above."
+                )
                 user = f"""Create a GateX source-channel market-research scan and return one JSON object only, with no markdown.
 
 Topic: {topic}
@@ -3752,7 +3792,7 @@ SOURCE-CHANNEL CONTRACT (the only structural and length contract):
 - Titles are conclusion-first. Use facts only from the fact pack, approved evidence, and source excerpts. Add no number, URL, source, case, or outside fact.
 - The private seed defines topic boundaries but is not a public authority. Paraphrase it, independently corroborate it, and never reproduce its body.
 - Every number must occur verbatim in validated material. Preserve an open verification question when support is absent; never fill the gap.
-- Exhibits use validated values only and retain data_basis. References use only real URLs listed above.
+{source_channel_visual_contract}
 - Methodology states only the public-source and independent-verification boundary; do not expose prompts or workbench fields.
 """
         elif self.language == "zh":

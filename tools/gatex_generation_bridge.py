@@ -1021,7 +1021,16 @@ def _run_generator(
                 "the APIMart route will remain fail-closed.",
                 flush=True,
             )
-    client = EditorialFailoverClient(primary, fallback)
+    simplified_source_channel = bool(
+        report_mode == GATEX_SIMPLIFIED_REPORT_MODE
+        and str((source_profile or {}).get("mode") or "").strip().lower()
+        == "source_channel"
+    )
+    client = EditorialFailoverClient(
+        primary,
+        fallback,
+        allow_one_strict_fallback_format_retry=simplified_source_channel,
+    )
     fallback_label = fallback.model if fallback is not None else "disabled"
     print(
         f"[gatex.bridge] editorial route primary_model={primary.model!r} "

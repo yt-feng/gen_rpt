@@ -421,6 +421,131 @@ class GateXGenerationBridgeTests(unittest.TestCase):
             strict_output_budget=True,
         )
 
+    def test_simplified_source_strict_format_failure_gets_one_fresh_fallback_generation(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary_failure = EditorialFormatContractError(
+            "APIMart Chat",
+            failure_kind="invalid_strict_json",
+        )
+        fallback_failure = EditorialFormatContractError(
+            "DeepSeek Chat",
+            failure_kind="empty_structured_output",
+        )
+        fallback_failure.args = ("SENTINEL_MALFORMED_PRIVATE_BODY",)
+        primary.chat_json.side_effect = primary_failure
+        fallback.chat_json.side_effect = [
+            fallback_failure,
+            {"title": "complete simplified source report"},
+        ]
+        client = EditorialFailoverClient(
+            primary,
+            fallback,
+            allow_one_strict_fallback_format_retry=True,
+        )
+        messages = [
+            {
+                "role": "user",
+                "content": "SENTINEL_PRIVATE_PROMPT_EVIDENCE",
+            }
+        ]
+
+        stream = io.StringIO()
+        with redirect_stdout(stream):
+            result = client.chat_json(
+                messages,
+                max_tokens=8_000,
+                fallback_max_tokens=8_000,
+                strict_output_budget=True,
+            )
+
+        self.assertEqual(result["title"], "complete simplified source report")
+        primary.chat_json.assert_called_once_with(
+            messages,
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
+        self.assertEqual(fallback.chat_json.call_count, 2)
+        self.assertEqual(fallback.chat_json.call_args_list[0], fallback.chat_json.call_args_list[1])
+        for fallback_call in fallback.chat_json.call_args_list:
+            self.assertEqual(fallback_call.args, (messages,))
+            self.assertEqual(
+                fallback_call.kwargs,
+                {"max_tokens": 8_000, "strict_output_budget": True},
+            )
+        logs = stream.getvalue()
+        self.assertIn("reason='empty_structured_output'", logs)
+        self.assertNotIn("SENTINEL_PRIVATE_PROMPT_EVIDENCE", logs)
+        self.assertNotIn("SENTINEL_MALFORMED_PRIVATE_BODY", logs)
+
+    def test_simplified_source_third_strict_format_failure_remains_fail_closed(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        failures = [
+            EditorialFormatContractError(
+                "APIMart Chat",
+                failure_kind="invalid_strict_json",
+            ),
+            EditorialFormatContractError(
+                "DeepSeek Chat",
+                failure_kind="invalid_strict_json",
+            ),
+            EditorialFormatContractError(
+                "DeepSeek Chat",
+                failure_kind="empty_structured_output",
+            ),
+        ]
+        primary.chat_json.side_effect = failures[0]
+        fallback.chat_json.side_effect = failures[1:]
+        client = EditorialFailoverClient(
+            primary,
+            fallback,
+            allow_one_strict_fallback_format_retry=True,
+        )
+
+        with self.assertRaises(EditorialFormatContractError) as raised:
+            client.chat_json(
+                [],
+                max_tokens=8_000,
+                fallback_max_tokens=8_000,
+                strict_output_budget=True,
+            )
+
+        self.assertIs(raised.exception, failures[2])
+        primary.chat_json.assert_called_once()
+        self.assertEqual(fallback.chat_json.call_count, 2)
+
+    def test_simplified_source_valid_json_wrong_top_level_does_not_get_third_attempt(self):
+        primary = Mock(model="gpt-5.6-sol", route_label="APIMart Chat")
+        fallback = Mock(model="deepseek-chat", route_label="DeepSeek Chat")
+        primary.chat_json.side_effect = EditorialFormatContractError(
+            "APIMart Chat",
+            failure_kind="invalid_strict_json",
+        )
+        wrong_top_level = ValueError("Expected a JSON object, received a list")
+        fallback.chat_json.side_effect = wrong_top_level
+        client = EditorialFailoverClient(
+            primary,
+            fallback,
+            allow_one_strict_fallback_format_retry=True,
+        )
+
+        with self.assertRaises(ValueError) as raised:
+            client.chat_json(
+                [],
+                max_tokens=8_000,
+                fallback_max_tokens=8_000,
+                strict_output_budget=True,
+            )
+
+        self.assertIs(raised.exception, wrong_top_level)
+        primary.chat_json.assert_called_once()
+        fallback.chat_json.assert_called_once_with(
+            [],
+            max_tokens=8_000,
+            strict_output_budget=True,
+        )
+
     def test_format_contract_failover_is_strict_source_boundary_only(self):
         failure = EditorialFormatContractError(
             "APIMart Chat",
@@ -596,10 +721,44 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         self.assertIsInstance(editorial_client, EditorialFailoverClient)
         self.assertIs(editorial_client.primary, primary)
         self.assertIs(editorial_client.fallback, fallback)
+        self.assertFalse(editorial_client.allow_one_strict_fallback_format_retry)
         self.assertEqual(
             pipeline_class.return_value.build_report.call_args.kwargs["report_mode"],
             "gatex_simplified_v1",
         )
+
+    def test_bridge_enables_third_strict_attempt_only_for_simplified_source_channel(self):
+        primary = Mock(
+            model="gpt-5.6-sol",
+            route_label="APIMart Chat",
+            use_apimart=True,
+            timeout=180,
+        )
+        fallback = Mock(
+            model="deepseek-chat",
+            route_label="DeepSeek Chat",
+            use_apimart=False,
+            timeout=180,
+        )
+        with patch(
+            "tools.gatex_generation_bridge.DeepSeekClient",
+            side_effect=[primary, fallback],
+        ), patch("tools.gatex_generation_bridge.WebReportPipeline") as pipeline_class:
+            pipeline_class.return_value.build_report.return_value = {"ok": True}
+            _run_generator(
+                topic="Tracked source theme",
+                language="en",
+                model="gpt-5.6-sol",
+                source_mode="web_only",
+                private_sources=[],
+                seed_sources=[],
+                output_dir=Path("/tmp/report"),
+                source_profile={"mode": "source_channel"},
+                report_mode="gatex_simplified_v1",
+            )
+
+        editorial_client = pipeline_class.call_args.kwargs["client"]
+        self.assertTrue(editorial_client.allow_one_strict_fallback_format_retry)
 
     def test_source_channel_local_audit_uses_shared_section_depth_contract(self):
         paragraph = (

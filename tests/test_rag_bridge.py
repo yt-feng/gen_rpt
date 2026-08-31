@@ -3545,6 +3545,7 @@ class RAGBridgeTests(unittest.TestCase):
         source_client.chat_json.return_value = {"title": "Bounded response"}
         source_pipeline = WebReportPipeline(source_client)
         source_pipeline.source_profile = {"mode": "source_channel"}
+        source_pipeline.report_mode = "gatex_simplified_v1"
 
         source_pipeline._synthesize_web_report(
             "Bounded response",
@@ -3567,6 +3568,8 @@ class RAGBridgeTests(unittest.TestCase):
             },
         )
         self.assertIn("SOURCE-CHANNEL CONTRACT", source_prompt)
+        self.assertIn('exact empty arrays `"exhibits": []` and `"charts": []`', source_prompt)
+        self.assertIn("Keep both JSON keys and do not draft any chart or exhibit", source_prompt)
         self.assertIn("exactly 3 separate paragraph strings", source_prompt)
         self.assertIn("2,100-2,600 words", source_prompt)
         self.assertIn("2,100-2,300-word creative target", source_prompt)
@@ -3636,6 +3639,7 @@ class RAGBridgeTests(unittest.TestCase):
         client.chat_json.return_value = {"title": "有边界的经营判断"}
         pipeline = WebReportPipeline(client, language="zh")
         pipeline.source_profile = {"mode": "source_channel"}
+        pipeline.report_mode = "gatex_simplified_v1"
 
         pipeline._synthesize_web_report(
             "有边界的经营判断",
@@ -3658,6 +3662,8 @@ class RAGBridgeTests(unittest.TestCase):
             },
         )
         self.assertIn("2,100-2,600 个中文字或英文单词", prompt)
+        self.assertIn('原样返回空数组 `"exhibits": []` 和 `"charts": []`', prompt)
+        self.assertIn("保留这两个 JSON 键，不得生成任何图表或 exhibit", prompt)
         self.assertIn("2,100-2,300 创作目标", prompt)
         self.assertIn("2,600 仅是保留完整已验证材料的发布上限，不是创作目标", prompt)
         self.assertIn("共享发布门槛接受 3-6 个独立段落", prompt)
