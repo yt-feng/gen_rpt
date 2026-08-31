@@ -77,6 +77,9 @@ SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS = 2
 SOURCE_CHANNEL_ATOMIC_REVISION_MAX_FIELDS = 36
 SOURCE_CHANNEL_SECTION_REPAIR_OUTPUT_TOKENS = 1_000
+STANDARD_REPORT_MODE = "standard_v1"
+GATEX_SIMPLIFIED_REPORT_MODE = "gatex_simplified_v1"
+REPORT_MODES = {STANDARD_REPORT_MODE, GATEX_SIMPLIFIED_REPORT_MODE}
 
 _SOURCE_CHANNEL_CEILING_ISSUE_PREFIX = (
     "The source-channel reader-visible publication ceiling is "
@@ -820,6 +823,7 @@ class WebReportPipeline:
         self.rag_sources: List[SourceDocument] = []
         self.rag_required = False
         self.source_profile: Dict[str, Any] = {}
+        self.report_mode = STANDARD_REPORT_MODE
         self._last_source_length_revision_metrics: Dict[str, Any] = {}
 
     def build_report(
@@ -834,6 +838,7 @@ class WebReportPipeline:
         seed_sources: List[SourceDocument] | None = None,
         source_mode: str = "web_only",
         source_profile: Dict[str, Any] | None = None,
+        report_mode: str = STANDARD_REPORT_MODE,
     ) -> Dict[str, Any]:
         run_start = time.monotonic()
         self.rag_context = rag_context
@@ -845,6 +850,10 @@ class WebReportPipeline:
         private_source_list = list(private_sources or [])
         seed_source_list = list(seed_sources or [])
         self.source_profile = dict(source_profile or {})
+        normalized_report_mode = str(report_mode or STANDARD_REPORT_MODE).strip().lower()
+        if normalized_report_mode not in REPORT_MODES:
+            raise ValueError(f"Unsupported report_mode: {normalized_report_mode}")
+        self.report_mode = normalized_report_mode
         if self._source_channel_mode() and (
             normalized_source_mode != "web_only" or private_source_list
         ):
@@ -889,6 +898,7 @@ class WebReportPipeline:
             "START web report pipeline "
             f"| topic={display_topic!r} | output_dir={output_dir} "
             f"| mode={rag_mode_label} | source_mode={normalized_source_mode} "
+            f"| report_mode={self.report_mode} "
             f"| rag_sources={len(self.rag_sources)} | private_sources={len(private_source_list)} "
             f"| seed_sources={len(seed_source_list)}"
         )
@@ -1255,24 +1265,30 @@ class WebReportPipeline:
                 raise ReportQualityError("Report content quality gate failed: " + " | ".join(quality_issues))
 
             self._post_process(report, display_topic, sources, fact_pack)
-            audit = self._audit_report_content(report, storyline_plan)
-            for editorial_attempt in range(1, 3):
-                if self._editorial_audit_passed(audit):
-                    break
-                corrections = self._audit_corrections(audit)
-                self._log(f"PHASE editorial revision {editorial_attempt}/2 | " + " | ".join(corrections[:8]))
-                report = self._revise_report_draft(report, corrections, storyline_plan)
-                report, quality_issues = self._prepare_report_draft(
-                    report,
-                    topic=display_topic,
-                    grounding_text=grounding_text,
-                    source_count=len(sources),
-                    source_chunks=rag_source_chunks,
-                    approved_evidence=approved_evidence,
+            if self._simplified_report_mode():
+                # Keep the semantic editorial audit as a hard publication
+                # gate, but do not let it trigger a whole-report rewrite that
+                # can expand an already compliant source-grounded draft.
+                audit = self._audit_simplified_report_content(report, storyline_plan)
+                report["content_quality_audit"] = audit
+                report["presentation_format"] = GATEX_SIMPLIFIED_REPORT_MODE
+                report["exhibits"] = []
+                report["charts"] = []
+                for section_index, section in enumerate(report.get("sections", []) or []):
+                    if isinstance(section, dict):
+                        section["visual_hint"] = "image-1.png" if section_index == 0 else ""
+                self._log(
+                    "PHASE simplified editorial contract passed "
+                    "| semantic audit passed | whole-report editorial rewrite skipped | exhibits=0"
                 )
-                if quality_issues:
-                    prune_unsupported_numeric_claims(report, grounding_text)
-                    normalize_report_section_prose(report)
+            else:
+                audit = self._audit_report_content(report, storyline_plan)
+                for editorial_attempt in range(1, 3):
+                    if self._editorial_audit_passed(audit):
+                        break
+                    corrections = self._audit_corrections(audit)
+                    self._log(f"PHASE editorial revision {editorial_attempt}/2 | " + " | ".join(corrections[:8]))
+                    report = self._revise_report_draft(report, corrections, storyline_plan)
                     report, quality_issues = self._prepare_report_draft(
                         report,
                         topic=display_topic,
@@ -1281,19 +1297,30 @@ class WebReportPipeline:
                         source_chunks=rag_source_chunks,
                         approved_evidence=approved_evidence,
                     )
-                if quality_issues:
-                    raise ReportQualityError("Editorial revision failed the content gate: " + " | ".join(quality_issues))
-                self._post_process(report, display_topic, sources, fact_pack)
-                audit = self._audit_report_content(
-                    report,
-                    storyline_plan,
-                    revision_corrections=corrections,
-                )
-            if not self._editorial_audit_passed(audit):
-                if self.rag_required or self._source_channel_mode():
-                    raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
-                self._log("PHASE editorial audit warning | " + " | ".join(self._audit_corrections(audit)[:4]))
-            report["content_quality_audit"] = audit
+                    if quality_issues:
+                        prune_unsupported_numeric_claims(report, grounding_text)
+                        normalize_report_section_prose(report)
+                        report, quality_issues = self._prepare_report_draft(
+                            report,
+                            topic=display_topic,
+                            grounding_text=grounding_text,
+                            source_count=len(sources),
+                            source_chunks=rag_source_chunks,
+                            approved_evidence=approved_evidence,
+                        )
+                    if quality_issues:
+                        raise ReportQualityError("Editorial revision failed the content gate: " + " | ".join(quality_issues))
+                    self._post_process(report, display_topic, sources, fact_pack)
+                    audit = self._audit_report_content(
+                        report,
+                        storyline_plan,
+                        revision_corrections=corrections,
+                    )
+                if not self._editorial_audit_passed(audit):
+                    if self.rag_required or self._source_channel_mode():
+                        raise ReportQualityError("Editorial audit held publication: " + " | ".join(self._audit_corrections(audit)))
+                    self._log("PHASE editorial audit warning | " + " | ".join(self._audit_corrections(audit)[:4]))
+                report["content_quality_audit"] = audit
         except Exception as exc:
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
             if self._synthesis_error_must_fail_closed(exc):
@@ -1308,46 +1335,49 @@ class WebReportPipeline:
         phase_start = time.monotonic()
         self._log("PHASE evidence_exhibits started | expected <10s")
         report["conflicts"] = evidence_conflicts
-        exhibit_evidence = (
-            web_evidence_ledger if self._source_channel_mode() else approved_evidence
-        )
-        evidence_exhibits = build_evidence_exhibits(
-            display_topic,
-            exhibit_evidence,
-            fact_pack,
-            plan=plan,
-            chart_data_needs=chart_data_needs,
-            language=self.language,
-            allow_fallbacks=not bool(self.rag_context),
-        )
-        if self.rag_context:
-            self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
-            evidence_exhibits = [
-                exhibit
-                for exhibit in evidence_exhibits
-                if rag_visible_numbers_supported(exhibit, grounding_text)
-                and not combined_evidence_quality_issues(
-                    {"exhibits": [exhibit]},
-                    approved_evidence=approved_evidence,
-                    conflicts=evidence_conflicts,
-                    source_chunks=rag_source_chunks,
-                )
-            ]
-        report = merge_evidence_exhibits(
-            report,
-            evidence_exhibits,
-            preserve_existing=bool(self.rag_context),
-        )
-        report = self._filter_post_merge_exhibits(
-            report,
-            approved_evidence,
-            grounding_text,
-            conflicts=evidence_conflicts,
-            source_chunks=rag_source_chunks,
-        )
-        if self.rag_context:
-            self._label_exhibit_origins(report, rag_source_chunks, approved_evidence)
-            self._apply_source_aware_exhibit_text(report)
+        exhibit_evidence = web_evidence_ledger if self._source_channel_mode() else approved_evidence
+        evidence_exhibits: List[Dict[str, Any]] = []
+        if self._simplified_report_mode():
+            report["exhibits"] = []
+            report["charts"] = []
+        else:
+            evidence_exhibits = build_evidence_exhibits(
+                display_topic,
+                exhibit_evidence,
+                fact_pack,
+                plan=plan,
+                chart_data_needs=chart_data_needs,
+                language=self.language,
+                allow_fallbacks=not bool(self.rag_context),
+            )
+            if self.rag_context:
+                self._filter_rag_exhibits(report, rag_source_chunks, approved_evidence, grounding_text)
+                evidence_exhibits = [
+                    exhibit
+                    for exhibit in evidence_exhibits
+                    if rag_visible_numbers_supported(exhibit, grounding_text)
+                    and not combined_evidence_quality_issues(
+                        {"exhibits": [exhibit]},
+                        approved_evidence=approved_evidence,
+                        conflicts=evidence_conflicts,
+                        source_chunks=rag_source_chunks,
+                    )
+                ]
+            report = merge_evidence_exhibits(
+                report,
+                evidence_exhibits,
+                preserve_existing=bool(self.rag_context),
+            )
+            report = self._filter_post_merge_exhibits(
+                report,
+                approved_evidence,
+                grounding_text,
+                conflicts=evidence_conflicts,
+                source_chunks=rag_source_chunks,
+            )
+            if self.rag_context:
+                self._label_exhibit_origins(report, rag_source_chunks, approved_evidence)
+                self._apply_source_aware_exhibit_text(report)
         self._log(
             "PHASE evidence_exhibits completed "
             f"| elapsed={self._elapsed(phase_start)} | exhibits={len(evidence_exhibits)} "
@@ -1360,8 +1390,11 @@ class WebReportPipeline:
             report,
             topic=display_topic,
             language=self.language,
-            allow_synthetic_fallbacks=not bool(self.rag_context),
+            allow_synthetic_fallbacks=not bool(self.rag_context) and not self._simplified_report_mode(),
         )
+        if self._simplified_report_mode():
+            report["presentation_format"] = GATEX_SIMPLIFIED_REPORT_MODE
+            report["exhibits"] = []
         normalize_report_section_prose(report)
         if self.rag_context:
             final_quality_issues = rag_report_quality_issues(
@@ -1413,7 +1446,7 @@ class WebReportPipeline:
 
         # Step 12: Deterministic Stance Enforcement & Humanization
         report["recommendation_stance"] = computed_stance
-        report["authors"] = ["Human Reviewer"]
+        report["authors"] = ["GateX Intelligence"] if self._simplified_report_mode() else ["Human Reviewer"]
         self._enforce_stance_intro_sentence(report, computed_stance, display_topic)
         convert_evidence_to_human_readable(
             report,
@@ -1482,6 +1515,7 @@ class WebReportPipeline:
                 Path(backup_dir),
                 language=self.language,
                 sources=source_dicts,
+                single_editorial_image=self._simplified_report_mode(),
             )
         )
         self._log(
@@ -1491,7 +1525,7 @@ class WebReportPipeline:
 
         phase_start = time.monotonic()
         self._log("PHASE render_and_write started | expected <10s")
-        allow_synthetic_fallbacks = not bool(self.rag_context)
+        allow_synthetic_fallbacks = not bool(self.rag_context) and not self._simplified_report_mode()
         web_query_count = min(
             len(search_queries),
             max(1, min(8, int(os.getenv("GEN_RPT_RAG_WEB_MAX_QUERIES", "4")))),
@@ -1509,6 +1543,8 @@ class WebReportPipeline:
         )
         if self._source_channel_mode():
             rag_manifest["generation_profile"] = "source_channel"
+        if self._simplified_report_mode():
+            rag_manifest["presentation_format"] = GATEX_SIMPLIFIED_REPORT_MODE
         editorial_route = self._editorial_route_record()
         rag_manifest["editorial_route"] = editorial_route
 
@@ -1750,6 +1786,27 @@ class WebReportPipeline:
 
     def _source_channel_mode(self) -> bool:
         return str(self.source_profile.get("mode") or "").strip().lower() == "source_channel"
+
+    def _simplified_report_mode(self) -> bool:
+        return self.report_mode == GATEX_SIMPLIFIED_REPORT_MODE
+
+    def _audit_simplified_report_content(
+        self,
+        report: Dict[str, Any],
+        storyline_plan: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        try:
+            audit = self._audit_report_content(report, storyline_plan)
+        except ReportQualityError:
+            raise
+        except Exception as exc:
+            raise ReportQualityError("Simplified editorial audit was unavailable.") from exc
+        if not self._editorial_audit_passed(audit):
+            raise ReportQualityError(
+                "Editorial audit held simplified publication: "
+                + " | ".join(self._audit_corrections(audit))
+            )
+        return audit
 
     def _synthesis_error_must_fail_closed(self, exc: Exception) -> bool:
         return bool(
@@ -2672,7 +2729,7 @@ Rules:
                     report,
                     topic=topic,
                     language=self.language,
-                    allow_synthetic_fallbacks=not bool(self.rag_context),
+                    allow_synthetic_fallbacks=not bool(self.rag_context) and not self._simplified_report_mode(),
                 )
                 normalize_report_section_prose(report)
                 issues = (
@@ -2698,7 +2755,7 @@ Rules:
                         source_count=source_count,
                     )
                 )
-        if self._source_channel_mode() and issues:
+        if (self._source_channel_mode() or self._simplified_report_mode()) and issues:
             return report, issues
         for attempt in range(1, 4):
             if not issues:
@@ -2717,7 +2774,7 @@ Rules:
                 report,
                 topic=topic,
                 language=self.language,
-                allow_synthetic_fallbacks=not bool(self.rag_context),
+                allow_synthetic_fallbacks=not bool(self.rag_context) and not self._simplified_report_mode(),
             )
             normalize_report_section_prose(report)
             issues = (
@@ -4379,6 +4436,7 @@ CRITICAL RULES (violation = failure):
 
     def _publication_contract_metadata(self) -> Dict[str, Any]:
         return {
+            "presentation_format": self.report_mode,
             "root_cause": "DeepSeek is treated as a diligent low-agency worker. It can collect data and draft structured text, but it is not trusted to decide what belongs in client-visible prose.",
             "architecture": [
                 "Step 1: DeepSeek creates a backstage research plan with falsifiable hypotheses, opportunity-sizing methods and searchable data needs.",

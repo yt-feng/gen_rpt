@@ -11,7 +11,7 @@ import traceback
 import uuid
 from pathlib import Path
 from typing import Any, Dict, Mapping, Sequence
-from urllib.parse import quote, urlparse
+from urllib.parse import quote, urljoin, urlparse
 
 import requests
 
@@ -24,6 +24,7 @@ from gen_rpt.gatex_pdf_renderer import GatexPdfError, render_gatex_release_pdf
 
 USER_AGENT = "GateX-PDF-Release/1.0"
 MAX_PDF_BYTES = 50 * 1024 * 1024
+MAX_VISUAL_BYTES = 20 * 1024 * 1024
 
 
 class ReleaseBridgeError(RuntimeError):
@@ -48,6 +49,55 @@ class GateXReleaseApi:
         if not isinstance(payload, dict):
             raise ReleaseBridgeError("GateX returned an invalid PDF release payload.")
         return payload
+
+    def download_visual(self, download_url: str, target: Path) -> None:
+        relative = str(download_url or "").strip()
+        parsed_relative = urlparse(relative)
+        if (
+            parsed_relative.scheme
+            or parsed_relative.netloc
+            or parsed_relative.query
+            or parsed_relative.fragment
+            or not re.fullmatch(
+                r"/api/generation/jobs/[0-9a-f-]{36}/assets/[A-Za-z0-9._~%-]+",
+                parsed_relative.path,
+                re.I,
+            )
+        ):
+            raise ReleaseBridgeError("GateX returned an invalid report visual download URL.")
+        response = _request_with_retries(
+            "GET",
+            urljoin(f"{self.base_url}/", relative.lstrip("/")),
+            headers={
+                "authorization": f"Bearer {self.token}",
+                "accept": "image/png,image/jpeg,image/webp",
+                "user-agent": USER_AGENT,
+            },
+            stream=True,
+            timeout=120,
+            allow_redirects=False,
+        )
+        declared_size = int(response.headers.get("content-length") or 0)
+        content_type = str(response.headers.get("content-type") or "").lower()
+        if declared_size > MAX_VISUAL_BYTES or not re.match(r"^image/(?:png|jpeg|webp)\b", content_type):
+            response.close()
+            raise ReleaseBridgeError("The GateX report visual is missing or has an invalid format.")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        written = 0
+        with target.open("wb") as output:
+            for chunk in response.iter_content(chunk_size=64 * 1024):
+                if not chunk:
+                    continue
+                written += len(chunk)
+                if written > MAX_VISUAL_BYTES:
+                    response.close()
+                    target.unlink(missing_ok=True)
+                    raise ReleaseBridgeError("The GateX report visual exceeds 20 MB.")
+                output.write(chunk)
+        response.close()
+        if written < 1_024:
+            target.unlink(missing_ok=True)
+            raise ReleaseBridgeError("The GateX report visual is too small for publication.")
 
     def upload_pdf(self, artifact: Mapping[str, Any], content_checksum: str) -> Dict[str, Any]:
         pdf_path = Path(str(artifact.get("path") or ""))
@@ -204,6 +254,61 @@ def _checksum_text(value: Any, field: str = "checksum") -> str:
     return result
 
 
+def _materialize_visual_assets(
+    api: GateXReleaseApi,
+    envelope: Mapping[str, Any],
+    release_payload: Dict[str, Any],
+    target_dir: Path,
+) -> None:
+    rows = envelope.get("visualAssets")
+    visual_assets = rows if isinstance(rows, list) else []
+    sections = release_payload.get("contentSections")
+    content_sections = sections if isinstance(sections, list) else []
+    asset_sections = [
+        section
+        for section in content_sections
+        if isinstance(section, dict)
+        and str(section.get("kind") or "") == "section"
+        and str(section.get("asset_key") or "").strip()
+    ]
+    requires_editorial_visual = (
+        len(asset_sections) == 1
+        and str(asset_sections[0].get("asset_key") or "").strip() == "assets/image-1.png"
+    )
+    if len(visual_assets) > 1:
+        raise ReleaseBridgeError("A simplified GateX report accepts exactly one editorial visual.")
+    if requires_editorial_visual and len(visual_assets) != 1:
+        raise ReleaseBridgeError("The simplified GateX report is missing its editorial visual envelope.")
+    if not visual_assets:
+        return
+    item = visual_assets[0] if isinstance(visual_assets[0], Mapping) else {}
+    section_id = str(item.get("sectionId") or "").strip()
+    download_url = str(item.get("downloadUrl") or "").strip()
+    target_section = next(
+        (
+            section
+            for section in content_sections
+            if isinstance(section, dict)
+            and str(section.get("id") or "").strip() == section_id
+            and str(section.get("kind") or "") == "section"
+        ),
+        None,
+    )
+    if target_section is None:
+        raise ReleaseBridgeError("The GateX report visual is not bound to a release section.")
+    if requires_editorial_visual and (
+        target_section is not asset_sections[0]
+        or str(item.get("path") or "").strip() != "assets/image-1.png"
+    ):
+        raise ReleaseBridgeError("The simplified GateX editorial visual binding changed before rendering.")
+    suffix = Path(str(item.get("path") or "image-1.png")).suffix.lower()
+    if suffix not in {".png", ".jpg", ".jpeg", ".webp"}:
+        raise ReleaseBridgeError("The GateX report visual uses an unsupported file extension.")
+    visual_path = target_dir / f"editorial-visual{suffix}"
+    api.download_visual(download_url, visual_path)
+    target_section["visualPath"] = str(visual_path)
+
+
 def run_release(args: argparse.Namespace) -> int:
     api = GateXReleaseApi(
         args.callback_base,
@@ -234,6 +339,7 @@ def run_release(args: argparse.Namespace) -> int:
             raise ReleaseBridgeError("Release payload versionId does not match the requested version.")
 
         target_dir = Path(args.out_root).resolve() / api.item_id / api.version_id
+        _materialize_visual_assets(api, envelope, release_payload, target_dir)
         artifact = render_gatex_release_pdf(release_payload, target_dir)
         api.upload_pdf(artifact, server_checksum)
         result = api.complete(artifact, server_checksum)

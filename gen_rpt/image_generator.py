@@ -48,6 +48,7 @@ def generate_ai_image_assets(
     *,
     language: str = "en",
     sources: List[Dict[str, Any]] | None = None,
+    single_editorial_image: bool = False,
 ) -> Dict[str, str]:
     """Select web-sourced editorial visuals, with AI as the final fallback.
 
@@ -71,6 +72,71 @@ def generate_ai_image_assets(
     source_records: List[Dict[str, Any]] = []
     result: Dict[str, str] = {}
     used_hashes: set[str] = set()
+
+    if single_editorial_image:
+        sections = report.get("sections", []) or []
+        first_section = sections[0] if sections and isinstance(sections[0], dict) else {}
+        title = _section_title_for_prompt(first_section, 1)
+        lead = _shorten(first_section.get("lead", ""), 220)
+        prompt = _sanitize(
+            f"{topic}; {title}; {lead}; one signature editorial image for a GateX executive intelligence report; "
+            "a sophisticated, topic-specific real-world scene or concrete strategic metaphor; "
+            "photorealistic magazine-quality composition, crisp foreground detail, layered depth, natural materials, "
+            "human-scale context when relevant, cinematic but credible lighting; restrained navy, white and cool-blue accents; "
+            "no readable words, no logo, no chart, no UI, no generic stock-photo pose"
+        )
+        target = assets_dir / "image-1.png"
+        status, reason = _download_pollinations_or_fallback(
+            prompt,
+            target,
+            kind="section",
+            timeout_seconds=timeout_seconds,
+            retries=retries,
+            allow_fallback=False,
+        )
+        if status != "pollinations" or not target.exists() or target.stat().st_size <= 0:
+            target.unlink(missing_ok=True)
+            raise RuntimeError("The simplified GateX report did not produce its required editorial image.")
+        try:
+            with Image.open(target) as image:
+                width, height = image.size
+                image.verify()
+        except Exception as exc:
+            target.unlink(missing_ok=True)
+            raise RuntimeError("The simplified GateX editorial image is invalid.") from exc
+        if width < 1_000 or height < 650:
+            target.unlink(missing_ok=True)
+            raise RuntimeError("The simplified GateX editorial image is below publication resolution.")
+        quality_issues = _editorial_image_quality_issues(target)
+        if quality_issues:
+            target.unlink(missing_ok=True)
+            raise RuntimeError(
+                "The simplified GateX editorial image failed publication quality: "
+                + "; ".join(quality_issues)
+            )
+        result["image-1"] = f"assets/{target.name}"
+        prompt_records.append(
+            {
+                "id": "image-1",
+                "keywords": f"{topic}; {title}; {lead}",
+                "prompt": prompt,
+                "url": _url(prompt),
+                "status": status,
+                "reason": reason,
+            }
+        )
+        report["image_assets"] = []
+        (backup_dir / "image_prompts.json").write_text(
+            json.dumps(prompt_records, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        (backup_dir / "image_sources.json").write_text("[]\n", encoding="utf-8")
+        _log(
+            "AI image generation completed | mode=single_editorial "
+            f"| status={status} | generated_assets=1"
+        )
+        return result
+
     web_candidates = _discover_source_image_candidates(sources or [], timeout_seconds=min(10, timeout_seconds))
 
     cover_keywords = (
@@ -455,6 +521,30 @@ def _download_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_
         retries=retries,
         allow_fallback=allow_fallback,
     )
+
+
+def _editorial_image_quality_issues(path: Path) -> List[str]:
+    try:
+        with Image.open(path) as image:
+            image.load()
+            sample = image.convert("RGB")
+    except Exception as exc:
+        return [f"image cannot be decoded ({exc})"]
+    sample.thumbnail((320, 240), Image.Resampling.LANCZOS)
+    grayscale = sample.convert("L")
+    histogram = grayscale.histogram()
+    pixels = max(1, sample.width * sample.height)
+    near_black = sum(histogram[:6]) / pixels
+    near_white = sum(histogram[250:]) / pixels
+    standard_deviation = float(ImageStat.Stat(grayscale).stddev[0])
+    issues: List[str] = []
+    if near_black > 0.58:
+        issues.append(f"{near_black:.0%} of sampled pixels are near-black")
+    if near_white > 0.88:
+        issues.append(f"{near_white:.0%} of sampled pixels are near-white")
+    if standard_deviation < 10 or grayscale.entropy() < 3.2:
+        issues.append("image has insufficient tonal information")
+    return issues
 
 
 def _download_pollinations_or_fallback(prompt: str, output_path: Path, *, kind: str, timeout_seconds: int, retries: int, allow_fallback: bool) -> Tuple[str, str]:

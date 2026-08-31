@@ -13,6 +13,15 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn("workflow_dispatch:", workflow)
         self.assertIsNone(re.search(r"^  push:\s*$", workflow, re.MULTILINE))
 
+    def test_legacy_workflow_declares_and_forwards_simplified_report_mode(self):
+        workflow = (ROOT / ".github/workflows/generate_deep_research.yml").read_text(encoding="utf-8")
+
+        self.assertIn("report_mode:", workflow)
+        self.assertIn("default: standard_v1", workflow)
+        self.assertIn("gatex_simplified_v1", workflow)
+        self.assertIn("REPORT_MODE_INPUT: ${{ inputs.report_mode || 'standard_v1' }}", workflow)
+        self.assertIn('--report-mode "$REPORT_MODE_INPUT"', workflow)
+
     def test_v2_prints_generator_log_before_failing(self):
         workflow = (ROOT / ".github/workflows/generate_deep_research_v2.yml").read_text(encoding="utf-8")
 

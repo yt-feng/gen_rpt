@@ -89,6 +89,7 @@ def section_quality_issues(
     index: int,
     *,
     source_channel_profile: bool,
+    simplified_profile: bool = False,
 ) -> List[str]:
     """Return legacy presentation checks without duplicating profile contracts."""
 
@@ -100,15 +101,15 @@ def section_quality_issues(
     body = " ".join([lead] + paragraphs + evidence)
     if title.lower().strip(" .:-") in BAD_HEADINGS:
         issues.append(f"section {index} uses generic label heading: {title}")
-    if not source_channel_profile and len(title) < 24:
+    if not source_channel_profile and not simplified_profile and len(title) < 24:
         issues.append(f"section {index} title is too thin: {title}")
-    if not source_channel_profile and len(paragraphs) < 5:
+    if not source_channel_profile and not simplified_profile and len(paragraphs) < 5:
         issues.append(f"section {index} has too few paragraphs: {len(paragraphs)}")
-    if not source_channel_profile and len(body) < 1400:
+    if not source_channel_profile and not simplified_profile and len(body) < 1400:
         issues.append(f"section {index} lacks depth ({len(body)} chars): {title[:90]}")
     if not evidence:
         issues.append(f"section {index} has no explicit evidence bullets: {title[:90]}")
-    if not source_channel_profile and not re.search(
+    if not source_channel_profile and not simplified_profile and not re.search(
         r"\b(19|20)\d{2}\b|\b\d+(?:\.\d+)?%|\b\$\d+|\b\d+(?:\.\d+)?\s*(?:billion|million|trillion|GW|MW|kg|years?|months?)\b",
         body,
         re.I,
@@ -176,6 +177,8 @@ def main() -> int:
     generation_manifest = evidence_audit.get("manifest")
     generation_manifest = generation_manifest if isinstance(generation_manifest, dict) else {}
     source_channel_profile = generation_manifest.get("generation_profile") == "source_channel"
+    presentation_format = text(generation_manifest.get("presentation_format") or payload.get("presentation_format"))
+    simplified_profile = presentation_format == "gatex_simplified_v1"
     issues.extend(
         (
             source_channel_report_quality_issues(
@@ -213,20 +216,43 @@ def main() -> int:
             "payload_keys": sorted(payload.keys()) if isinstance(payload, dict) else [],
             "takeaway_candidate_counts": takeaway_candidates,
             "generation_profile": "source_channel" if source_channel_profile else "generic",
+            "presentation_format": presentation_format or "standard_v1",
         }
     )
 
-    if not (3 <= len(exhibits) <= 6):
+    if simplified_profile:
+        if exhibits:
+            issues.append(f"simplified GateX format requires zero exhibits, got {len(exhibits)}")
+        image_path = report_dir / "assets" / "image-1.png"
+        if not image_path.is_file() or image_path.stat().st_size <= 0:
+            issues.append("simplified GateX format is missing assets/image-1.png")
+        extra_images = sorted(
+            path
+            for path in (report_dir / "assets").glob("image-*")
+            if path.is_file() and path.name != "image-1.png"
+        )
+        if extra_images:
+            issues.append(
+                "simplified GateX format generated extra section images: "
+                + ", ".join(path.name for path in extra_images[:8])
+            )
+        image_prompt_path = report_dir / "backup" / "image_prompts.json"
+        image_prompts = read_json(image_prompt_path, issues) if image_prompt_path.is_file() else []
+        image_prompt_rows = image_prompts if isinstance(image_prompts, list) else []
+        image_prompt = image_prompt_rows[0] if len(image_prompt_rows) == 1 and isinstance(image_prompt_rows[0], dict) else {}
+        if text(image_prompt.get("status")) != "pollinations":
+            issues.append("simplified GateX format requires one verified AI editorial image")
+    elif not (3 <= len(exhibits) <= 6):
         issues.append(f"expected 3-6 exhibits, got {len(exhibits)}")
     if len(references) < minimum_references:
         issues.append(
             f"expected at least {minimum_references} retained references, got {len(references)}"
         )
-    if len(html_text) < 12000:
+    if not simplified_profile and len(html_text) < 12000:
         issues.append(f"HTML article appears too thin ({len(html_text)} text chars)")
     if len(ledger_items) < 3:
         issues.append(f"expected at least 3 chartable evidence ledger points, got {len(ledger_items)}")
-    if len(chart_needs) < 3:
+    if not simplified_profile and len(chart_needs) < 3:
         issues.append(f"expected at least 3 chart data needs, got {len(chart_needs)}")
     if not isinstance(storyline_plan, dict) or not text(storyline_plan.get("core_question")):
         issues.append("storyline_plan.json lacks a core_question")
@@ -240,12 +266,12 @@ def main() -> int:
         and text(need.get("post_exhibit_takeaway"))
     ]
     metrics["narrative_ready_chart_needs"] = len(narrative_ready_needs)
-    if len(narrative_ready_needs) < min(3, len(chart_needs)):
+    if not simplified_profile and len(narrative_ready_needs) < min(3, len(chart_needs)):
         issues.append(
             f"expected at least {min(3, len(chart_needs))} chart data needs with narrative role/setup/takeaway, "
             f"got {len(narrative_ready_needs)}"
         )
-    if len(data_backed_exhibits) < min(3, len(exhibits)):
+    if not simplified_profile and len(data_backed_exhibits) < min(3, len(exhibits)):
         issues.append(f"expected at least {min(3, len(exhibits))} exhibits with data_basis, got {len(data_backed_exhibits)}")
 
     for idx, section in enumerate(sections, start=1):
@@ -254,6 +280,7 @@ def main() -> int:
                 section,
                 idx,
                 source_channel_profile=source_channel_profile,
+                simplified_profile=simplified_profile,
             )
         )
 
@@ -261,13 +288,13 @@ def main() -> int:
     metrics["exhibit_types"] = sorted(exhibit_types)
     non_metric_exhibits = [x for x in exhibits if text(x.get("type")).lower() not in {"metric_row", "metrics", "big_numbers"}]
     metrics["non_metric_exhibits"] = len(non_metric_exhibits)
-    if len(exhibit_types) < 3:
+    if not simplified_profile and len(exhibit_types) < 3:
         issues.append("exhibit mix is too narrow; expected at least 3 chart/exhibit types")
-    if len(non_metric_exhibits) < 3:
+    if not simplified_profile and len(non_metric_exhibits) < 3:
         issues.append(f"expected at least 3 non-metric analytical charts/exhibits, got {len(non_metric_exhibits)}")
-    if not any(text(x.get("type")).lower() in {"bar", "line", "bubble", "scatter", "opportunity_map"} for x in exhibits):
+    if not simplified_profile and not any(text(x.get("type")).lower() in {"bar", "line", "bubble", "scatter", "opportunity_map"} for x in exhibits):
         issues.append("expected at least one data chart rendered as bar, line or bubble")
-    if not any(text(x.get("type")).lower() in {"line", "bubble", "scatter", "timeline"} for x in exhibits):
+    if not simplified_profile and not any(text(x.get("type")).lower() in {"line", "bubble", "scatter", "timeline"} for x in exhibits):
         issues.append("expected at least one non-bar analytical exhibit such as line, bubble/scatter or timeline")
     for idx, exhibit in enumerate(exhibits, start=1):
         title = text(exhibit.get("title"))

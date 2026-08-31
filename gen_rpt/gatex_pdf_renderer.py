@@ -571,7 +571,7 @@ def _legacy_body_html(report: Mapping[str, Any]) -> str:
     introduction = next((item for item in sections if item.get("kind") == "intro"), None)
     substantive = [
         item for item in sections
-        if item.get("kind") not in {"key_takeaways", "intro", "methodology", "disclaimer"}
+        if item.get("kind") not in {"key_takeaways", "intro", "methodology", "sources", "disclaimer"}
     ]
     notes = [item for item in sections if item.get("kind") in {"methodology", "disclaimer"}]
     parts = [
@@ -619,6 +619,9 @@ def _legacy_body_html(report: Mapping[str, Any]) -> str:
         for note in notes:
             parts.append(f"<article><h3>{_e(note.get('heading'))}</h3><p>{_e(_section_text(note))}</p></article>")
         parts.append("</section>")
+    sources = _render_whitepaper_sources(sections)
+    if sources:
+        parts.append(sources)
     parts.append("</body></html>")
     return "".join(parts)
 
@@ -1704,7 +1707,7 @@ html, body { margin: 0; padding: 0; }
 body { color: #18233a; background: #fff; font-family: "Noto Sans CJK SC", "Noto Sans CJK TC", "Source Han Sans SC", Arial, "Helvetica Neue", sans-serif; font-size: 9.5pt; line-height: 1.52; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 h1, h2, h3, p { margin-top: 0; }
 h1, h2, h3 { break-after: avoid-page; }
-.page, .analysis, .actions, .notes { break-before: page; }
+.page, .analysis, .actions, .notes, .whitepaper-sources { break-before: page; }
 .opening { min-height: 244mm; display: flex; flex-direction: column; }
 .eyebrow { margin-bottom: 7mm; color: #176ddc; font-size: 7pt; font-weight: 800; letter-spacing: .2em; }
 .opening h1 { max-width: 162mm; margin: 0 0 7mm; color: #061b46; font-family: "Noto Serif CJK SC", "Noto Serif CJK TC", "Source Han Serif SC", Georgia, "Times New Roman", serif; font-size: 28pt; font-weight: 400; line-height: 1.08; letter-spacing: -.02em; }
@@ -1756,6 +1759,16 @@ h1, h2, h3 { break-after: avoid-page; }
 .notes article { margin: 0 0 8mm; padding-top: 4mm; border-top: .3mm solid #cedbea; }
 .notes h3 { margin-bottom: 3mm; color: #153665; font-size: 11pt; }
 .notes p { color: #52657c; font-size: 8.5pt; }
+.whitepaper-sources { padding-top: 5mm; }
+.whitepaper-sources h2 { margin: 0 0 3mm; color: #071d43; font-family: Georgia, "Times New Roman", serif; font-size: 29pt; font-weight: 400; line-height: 1.05; }
+.sources-deck { max-width: 156mm; margin: 0 0 7mm; color: #5c6b7c; font-size: 10pt; line-height: 1.45; }
+.sources-register.sources-multi { column-count: 2; column-gap: 8mm; column-rule: .2mm solid #dfe6ee; }
+.source-entry { display: grid; gap: 3mm; margin: 0 0 4mm; padding: 0 0 3.5mm; grid-template-columns: 8mm 1fr; border-bottom: .25mm solid #d6dee6; break-inside: avoid; }
+.source-entry > span { color: #1587a6; font-family: Georgia, "Times New Roman", serif; font-size: 9.5pt; line-height: 1.2; }
+.source-entry p { margin: 0; color: #344256; font-size: 8.2pt; line-height: 1.38; }
+.source-entry a { display: inline-block; margin-top: 1mm; color: #176ddc; border-bottom: .15mm solid #a8bed2; font-size: 8pt; line-height: 1.3; text-decoration: none; overflow-wrap: anywhere; }
+.source-entry small { display: block; margin-top: 1.2mm; color: #738292; font-size: 8pt; line-height: 1.35; }
+.sources-register.sources-single .source-entry { margin-bottom: 0; padding: 3mm 0; grid-template-columns: 10mm 1fr; }
 .section-visual { margin: 7mm 0; break-inside: avoid-page; }
 .section-visual img { display: block; width: 100%; max-height: 89mm; object-fit: cover; border: .3mm solid #cad9e9; }
 .section-visual figcaption { display: flex; justify-content: space-between; gap: 8mm; margin-top: 2.5mm; color: #687b91; font-size: 7pt; }

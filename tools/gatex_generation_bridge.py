@@ -31,10 +31,16 @@ if str(ROOT) not in sys.path:
 from gen_rpt.deepseek_client import DeepSeekClient
 from gen_rpt.main_web import slugify
 from gen_rpt.web_fetch import SourceDocument
-from gen_rpt.web_report_pipeline import EditorialFailoverClient, WebReportPipeline
+from gen_rpt.web_report_pipeline import (
+    EditorialFailoverClient,
+    GATEX_SIMPLIFIED_REPORT_MODE,
+    STANDARD_REPORT_MODE,
+    WebReportPipeline,
+)
 
 
 SOURCE_MODES = {"web_only", "collection_only", "web_and_collection"}
+REPORT_MODES = {STANDARD_REPORT_MODE, GATEX_SIMPLIFIED_REPORT_MODE}
 MAX_SOURCE_BYTES = 50 * 1024 * 1024
 MAX_INTELLIGENCE_SOURCE_BYTES = 2_000_000
 MAX_EXTRACTED_CHARS = 100_000
@@ -998,6 +1004,7 @@ def _run_generator(
     seed_sources: Sequence[SourceDocument],
     output_dir: Path,
     source_profile: Dict[str, Any] | None = None,
+    report_mode: str = STANDARD_REPORT_MODE,
 ) -> Dict[str, Any]:
     primary = DeepSeekClient(model=model)
     fallback = None
@@ -1029,6 +1036,7 @@ def _run_generator(
         seed_sources=list(seed_sources),
         source_mode=source_mode,
         source_profile=source_profile,
+        report_mode=report_mode,
     )
 
 
@@ -1216,6 +1224,9 @@ def run_job(args: argparse.Namespace) -> int:
     source_mode = str(args.source_mode or "web_only").strip().lower()
     if source_mode not in SOURCE_MODES:
         raise BridgeError(f"Unsupported source_mode: {source_mode}")
+    report_mode = str(getattr(args, "report_mode", STANDARD_REPORT_MODE) or STANDARD_REPORT_MODE).strip().lower()
+    if report_mode not in REPORT_MODES:
+        raise BridgeError(f"Unsupported report_mode: {report_mode}")
     language = "zh" if str(args.language or "").lower().startswith("zh") else "en"
     topic = str(args.topic or "").strip()
     if not topic:
@@ -1284,6 +1295,7 @@ def run_job(args: argparse.Namespace) -> int:
             seed_sources=seed_sources,
             output_dir=output_dir,
             source_profile=source_profile,
+            report_mode=report_mode,
         )
 
         api.progress("reviewing", 74, "Running the deterministic publication audit.")
@@ -1308,6 +1320,7 @@ def run_job(args: argparse.Namespace) -> int:
             ).hexdigest(),
             "language": language,
             "sourceMode": source_mode,
+            "reportMode": report_mode,
             "assets": assets,
             "audit": audit,
             "privateSourceIngestion": private_source_summary,
@@ -1368,6 +1381,7 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     run.add_argument("--slug", default="")
     run.add_argument("--language", default="en")
     run.add_argument("--source-mode", default="web_only", choices=sorted(SOURCE_MODES))
+    run.add_argument("--report-mode", default=STANDARD_REPORT_MODE, choices=sorted(REPORT_MODES))
     run.add_argument("--callback-base", required=True)
     run.add_argument("--model", default="deepseek-chat")
     run.add_argument("--out-root", default="reports_web/gatex_jobs")

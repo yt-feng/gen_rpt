@@ -569,6 +569,47 @@ a { color: inherit; text-decoration-color: var(--green); text-underline-offset: 
   line-height: 1.45;
   border-top: 1px solid var(--line);
 }
+.report-sources {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 24px 38px;
+}
+.report-sources details {
+  border: 1px solid var(--line);
+  background: var(--sand-2);
+  padding: 16px 20px;
+}
+.report-sources summary {
+  color: var(--forest);
+  cursor: pointer;
+  font-weight: 700;
+}
+.report-sources ol { margin: 14px 0 0; padding-left: 24px; }
+.report-sources li { margin: 8px 0; color: var(--muted); }
+.gatex-back-cover {
+  min-height: 430px;
+  padding: 62px 24px;
+  color: #fff;
+  background-color: #061b46;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+}
+.gatex-back-cover-inner {
+  width: 100%;
+  max-width: var(--max);
+  margin: 0 auto;
+  border-top: 1px solid rgba(255,255,255,.35);
+  padding-top: 28px;
+}
+.gatex-back-cover strong {
+  display: block;
+  font-family: gatex-serif, Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 400;
+}
+.gatex-back-cover span { display: block; margin-top: 10px; opacity: .78; }
 .footer {
   padding: 32px 24px;
   color: #fff;
@@ -735,6 +776,20 @@ def render_web_report_html(
     parts.append("</main>")
 
     _render_methodology(parts, normalized, labels)
+    if normalized.get("presentation_format") == "gatex_simplified_v1":
+        _render_reference_sources(parts, normalized.get("references", []), labels)
+        background = (
+            f"background-image:linear-gradient(115deg,rgba(3,14,30,.94),rgba(6,27,70,.72)),url('{_e(hero)}')"
+            if hero
+            else ""
+        )
+        parts.append(
+            f"<section class='gatex-back-cover' style=\"{background}\">"
+            "<div class='gatex-back-cover-inner'>"
+            f"<strong>{_e(BRAND_NAME)} Intelligence</strong>"
+            f"<span>{_e(title)} · gatex.fund</span>"
+            "</div></section>"
+        )
     parts.append(
         "<footer class='footer'><div class='footer-inner'>"
         f"<span>{_e(BRAND_NAME)}</span>"
@@ -808,8 +863,13 @@ def render_web_report_markdown(
     if normalized.get("references"):
         lines.extend(["## References", ""])
         for reference in normalized["references"]:
-            title = reference.get("title") or reference.get("url") or "Source"
-            url = reference.get("url") or ""
+            url = _public_https_reference_url(reference.get("url"))
+            private_reference = reference.get("origin") == "rag" or (
+                bool(reference.get("url")) and not url
+            )
+            title = (
+                "私有来源" if str(language).lower().startswith("zh") else "Private source"
+            ) if private_reference else reference.get("title") or url or "Source"
             lines.append(f"- [{title}]({url})" if url else f"- {title}")
         lines.append("")
     if normalized.get("disclaimer"):
@@ -893,6 +953,7 @@ def normalize_web_report(
         "evidence_quality": _text(data.get("evidence_quality") or data.get("evidence_boundary") or ""),
         "disclaimer": _text(data.get("disclaimer") or ""),
         "content_quality_audit": data.get("content_quality_audit") or {},
+        "presentation_format": _text(data.get("presentation_format") or ""),
     }
 
 
@@ -1290,6 +1351,40 @@ def _render_methodology(parts: List[str], report: Dict[str, Any], labels: Dict[s
     parts.append("</section>")
 
 
+def _render_reference_sources(parts: List[str], references: Any, labels: Dict[str, str]) -> None:
+    rows = _normalize_references(references)
+    if not rows:
+        return
+    zh = labels.get("contents") == "目录"
+    summary = "来源" if zh else "Sources"
+    parts.append("<section class='report-sources'>")
+    parts.append(f"<details open><summary>{_e(summary)}</summary><ol>")
+    for reference in rows[:24]:
+        url = _public_https_reference_url(reference.get("url"))
+        private_reference = reference.get("origin") == "rag" or (
+            bool(reference.get("url")) and not url
+        )
+        title = (
+            "私有来源" if zh else "Private source"
+        ) if private_reference else _text(reference.get("title") or url or summary)
+        if url:
+            parts.append(f"<li><a href='{_e(url)}' rel='noopener noreferrer'>{_e(title)}</a></li>")
+        else:
+            parts.append(f"<li>{_e(title)}</li>")
+    parts.append("</ol></details></section>")
+
+
+def _public_https_reference_url(value: Any) -> str:
+    candidate = _text(value or "")
+    try:
+        parsed = urlparse(candidate)
+    except ValueError:
+        return ""
+    if parsed.scheme.lower() != "https" or not parsed.hostname or parsed.username or parsed.password:
+        return ""
+    return candidate
+
+
 def _action_summary(actions: Any, language: str) -> str:
     items = _normalize_actions(actions)[:3]
     if not items:
@@ -1535,6 +1630,7 @@ def _normalize_sections(value: Any, takeaways: List[str], language: str = "en") 
                 "so_what": so_what,
                 "image_caption": _text(section.get("image_caption") or ""),
                 "image_source": _text(section.get("image_source") or ""),
+                "visual_hint": _text(section.get("visual_hint") or ""),
             }
         )
     return [s for s in sections if s["title"] or s["paragraphs"]]

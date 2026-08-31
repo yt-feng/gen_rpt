@@ -553,6 +553,7 @@ class GateXGenerationBridgeTests(unittest.TestCase):
                 private_sources=[],
                 seed_sources=[],
                 output_dir=Path("/tmp/report"),
+                report_mode="gatex_simplified_v1",
             )
 
         self.assertEqual(result, {"ok": True})
@@ -571,6 +572,10 @@ class GateXGenerationBridgeTests(unittest.TestCase):
         self.assertIsInstance(editorial_client, EditorialFailoverClient)
         self.assertIs(editorial_client.primary, primary)
         self.assertIs(editorial_client.fallback, fallback)
+        self.assertEqual(
+            pipeline_class.return_value.build_report.call_args.kwargs["report_mode"],
+            "gatex_simplified_v1",
+        )
 
     def test_source_channel_local_audit_uses_shared_section_depth_contract(self):
         paragraph = (
@@ -725,6 +730,10 @@ class GateXGenerationBridgeTests(unittest.TestCase):
                 )
 
         self.assertEqual(result, {"ok": True})
+        self.assertEqual(
+            pipeline_class.return_value.build_report.call_args.kwargs["report_mode"],
+            "standard_v1",
+        )
         passed_seed = pipeline_class.return_value.build_report.call_args.kwargs[
             "seed_sources"
         ][0]

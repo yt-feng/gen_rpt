@@ -40,6 +40,14 @@ on:
           - web_only
           - collection_only
           - web_and_collection
+      report_mode:
+        description: GateX report production format
+        required: false
+        default: standard_v1
+        type: choice
+        options:
+          - standard_v1
+          - gatex_simplified_v1
       callback_base:
         description: GateX callback origin used only when job_id is set
         required: false
@@ -75,6 +83,7 @@ jobs:
       JOB_ID_INPUT: ${{ inputs.job_id || '' }}
       LANGUAGE_INPUT: ${{ inputs.language || 'en' }}
       SOURCE_MODE_INPUT: ${{ inputs.source_mode || 'web_only' }}
+      REPORT_MODE_INPUT: ${{ inputs.report_mode || 'standard_v1' }}
       CALLBACK_BASE_INPUT: ${{ inputs.callback_base || 'https://gatex.fund' }}
     steps:
       - name: Checkout
@@ -156,6 +165,7 @@ jobs:
             --slug "$SLUG_INPUT" \
             --language "$LANGUAGE_INPUT" \
             --source-mode "$SOURCE_MODE_INPUT" \
+            --report-mode "$REPORT_MODE_INPUT" \
             --callback-base "$CALLBACK_BASE_INPUT" \
             --model "${MODEL_INPUT:-deepseek-chat}" \
             --out-root reports_web/gatex_jobs
