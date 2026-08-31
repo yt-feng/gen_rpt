@@ -77,6 +77,7 @@ SOURCE_CHANNEL_FALLBACK_OUTPUT_TOKENS = 8_000
 SOURCE_CHANNEL_LENGTH_CONVERGENCE_ATTEMPTS = 2
 SOURCE_CHANNEL_ATOMIC_REVISION_MAX_FIELDS = 36
 SOURCE_CHANNEL_SECTION_REPAIR_OUTPUT_TOKENS = 1_000
+SOURCE_CHANNEL_SEMANTIC_REPAIR_OUTPUT_TOKENS = 3_000
 STANDARD_REPORT_MODE = "standard_v1"
 GATEX_SIMPLIFIED_REPORT_MODE = "gatex_simplified_v1"
 REPORT_MODES = {STANDARD_REPORT_MODE, GATEX_SIMPLIFIED_REPORT_MODE}
@@ -103,6 +104,139 @@ _SOURCE_CHANNEL_SECTION_REPAIR_ATTRIBUTION_TOKEN = re.compile(
     r")",
     re.IGNORECASE,
 )
+_SOURCE_CHANNEL_SEMANTIC_NUMBER_WORDS = {
+    "one": 1,
+    "first": 1,
+    "two": 2,
+    "second": 2,
+    "three": 3,
+    "third": 3,
+    "four": 4,
+    "fourth": 4,
+    "five": 5,
+    "fifth": 5,
+    "six": 6,
+    "sixth": 6,
+}
+_SOURCE_CHANNEL_SEMANTIC_SECTION_REFERENCE = re.compile(
+    r"(?:"
+    r"\bsection\s*(?:#\s*)?(\d+)\b|"
+    r"\bsection\s+(one|two|three|four|five|six|first|second|third|fourth|fifth|sixth)\b|"
+    r"\b(?:the\s+)?(first|second|third|fourth|fifth|sixth)\s+section\b|"
+    r"第\s*(\d+)\s*(?:章|节|部分)"
+    r")",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_SECTION_LIST_REFERENCE = re.compile(
+    r"\bsections?\s*(?:#\s*)?\d+\s*(?:,|and|&|及|和)\s*(?:#\s*)?\d+\b|"
+    r"\bsections\s+(?:\d+|one|two|three|four|five|six|first|second|third|fourth|fifth|sixth)\b",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_ACTION_REFERENCE = re.compile(
+    r"(?:"
+    r"\baction(?:\s+step)?\s*(?:#\s*)?(\d+)\b|"
+    r"\baction(?:\s+step)?\s+(one|two|three|four|five|six|first|second|third|fourth|fifth|sixth)\b|"
+    r"\b(?:the\s+)?(first|second|third|fourth|fifth|sixth)\s+action(?:\s+step)?\b|"
+    r"第\s*(\d+)\s*(?:项)?行动"
+    r")",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_ACTION_LIST_REFERENCE = re.compile(
+    r"\bactions?(?:\s+steps?)?\s*(?:#\s*)?\d+\s*(?:,|and|&|及|和)\s*(?:#\s*)?\d+\b|"
+    r"\bactions(?:\s+steps?)?\s+(?:\d+|one|two|three|four|five|six|first|second|third|fourth|fifth|sixth)\b",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_ALL_ACTIONS_CUE = re.compile(
+    r"(?:"
+    r"\b(?:all|each|every)\s+(?:action|recommendation)s?(?:\s+rationales?)?\b|"
+    r"\b(?:action|recommendation)s\s+(?:and\s+their\s+)?rationales?\b|"
+    r"\baction\s+rationales\b|"
+    r"\bmanagement\s+agenda\s+(?:actions|recommendations)\b|"
+    r"(?:所有|全部|每条|各项)(?:行动|建议)(?:的)?(?:依据|理由)?|"
+    r"(?:行动|建议)(?:依据|理由)(?:均|都|全部)"
+    r")",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_OPTION_CUE = re.compile(
+    r"\b(?:option(?:s)?|alternative(?:s)?|trade[- ]?offs?|priority|prioriti[sz]e)\b|"
+    r"方案|选项|替代路径|取舍|权衡|优先",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_LAST_SECTION_CUE = re.compile(
+    r"\b(?:last|final)\s+section\b|最后(?:一)?(?:章|节|部分)",
+    re.IGNORECASE,
+)
+_SOURCE_CHANNEL_SEMANTIC_SOURCE_CUE = re.compile(
+    r"(?:"
+    r"(?i:\b(?:according\s+to|reported\s+by|published\s+by)\b)|"
+    r"(?i:\b(?!(?:the|this|that|these|those|management|evidence|"
+    r"demand|supply|policy|adoption|research|analysis|finding|record|report|"
+    r"option|decision|market)\b)[a-z][a-z0-9&.'-]{2,}\s+"
+    r"(?:supports?|favors?|favours?|backs?)\b)|"
+    r"(?i:\b[A-Za-z][A-Za-z0-9&.'-]*(?:\s+[A-Za-z][A-Za-z0-9&.'-]*){0,4}\s+"
+    r"(?:says?|suggests?|reports?|states?|finds?|estimates?|projects?|argues?|"
+    r"notes?|indicates?|concludes?|warns?|observes?|believes?)\b)|"
+    r"\b(?:[A-Z][A-Za-z0-9&.'-]*\s+){0,4}[A-Z][A-Za-z0-9&.'-]*\s+"
+    r"(?:data|figures?|report|research|study|analysis)\b|"
+    r"(?:根据|来自|援引)[^。；，,]{1,40}(?:报告|研究|数据|资料)|"
+    r"[\u3400-\u9fff]{2,24}(?:通讯社|新闻社|出版社|研究院|研究所|咨询|银行|大学|"
+    r"日报|时报|报社|协会|委员会|基金会|集团|公司|机构|智库|媒体|证券|资本|社)"
+    r"(?:支持|赞成|主张)|"
+    r"[A-Za-z\u3400-\u9fff][A-Za-z0-9&.'\-\u3400-\u9fff]{1,30}"
+    r"(?:称|表示|指出|认为|建议|报告称|数据显示|研究显示)"
+    r")"
+)
+_SOURCE_CHANNEL_SEMANTIC_PROPER_NAME = re.compile(
+    r"(?<![A-Za-z0-9_])[A-Z][A-Za-z&.'-]*(?![A-Za-z0-9_])"
+)
+_SOURCE_CHANNEL_SEMANTIC_NON_LABEL_TITLE_WORDS = {
+    "a",
+    "all",
+    "although",
+    "an",
+    "because",
+    "decision",
+    "each",
+    "evidence",
+    "every",
+    "however",
+    "if",
+    "management",
+    "nevertheless",
+    "option",
+    "otherwise",
+    "preferred",
+    "prioritize",
+    "report",
+    "section",
+    "staged",
+    "that",
+    "the",
+    "therefore",
+    "these",
+    "this",
+    "those",
+    "when",
+    "while",
+    "yet",
+}
+_SOURCE_CHANNEL_SEMANTIC_CJK_SOURCE_LABEL = re.compile(
+    r"[\u3400-\u9fff]{2,24}(?:通讯社|新闻社|出版社|研究院|研究所|咨询|银行|大学|"
+    r"日报|时报|报社|协会|委员会|基金会|集团|公司|机构|智库|媒体|证券|资本|社)"
+)
+_SOURCE_CHANNEL_SEMANTIC_ACRONYM = re.compile(
+    r"(?<![A-Za-z0-9_])[A-Z][A-Z0-9&.-]{1,}(?![A-Za-z0-9_])"
+)
+_SOURCE_CHANNEL_REFERENCE_LABEL_FIELDS = {
+    "author",
+    "domain",
+    "label",
+    "name",
+    "publication",
+    "publisher",
+    "source",
+    "title",
+}
 _SOURCE_CHANNEL_BOUND_NARRATIVE_TOKEN = re.compile(
     r"(?:"
     r"\d|"
@@ -528,6 +662,236 @@ def _source_channel_evidence_snapshot(report: Any) -> Any:
             if isinstance(section, dict)
         ],
     }
+
+
+def _source_channel_semantic_repair_scope(
+    report: Dict[str, Any],
+    corrections: List[str],
+) -> tuple[List[int], List[int]]:
+    """Resolve the smallest editable scope named by the semantic audit.
+
+    Section indexes are zero-based internally.  Generic option language may
+    select a section only when its existing title already identifies it as the
+    options/trade-offs section; otherwise the repair fails closed instead of
+    guessing which reader-visible prose the auditor meant.
+    """
+
+    correction_text = "\n".join(str(item or "") for item in corrections)
+    if (
+        _SOURCE_CHANNEL_SEMANTIC_SECTION_LIST_REFERENCE.search(correction_text)
+        or _SOURCE_CHANNEL_SEMANTIC_ACTION_LIST_REFERENCE.search(correction_text)
+    ):
+        return [], []
+    sections = report.get("sections") if isinstance(report, dict) else None
+    section_count = len(sections) if isinstance(sections, list) else 0
+    def referenced_number(match: re.Match[str]) -> int:
+        for value in match.groups():
+            if not value:
+                continue
+            normalized = value.casefold()
+            if normalized.isdigit():
+                return int(normalized)
+            return _SOURCE_CHANNEL_SEMANTIC_NUMBER_WORDS[normalized]
+        raise ValueError("Semantic repair reference has no index.")
+
+    section_references = list(
+        _SOURCE_CHANNEL_SEMANTIC_SECTION_REFERENCE.finditer(correction_text)
+    )
+    section_numbers = [referenced_number(match) for match in section_references]
+    if any(not 1 <= number <= section_count for number in section_numbers):
+        return [], []
+    section_indexes: set[int] = {number - 1 for number in section_numbers}
+    if (
+        not section_references
+        and not section_indexes
+        and section_count
+        and _SOURCE_CHANNEL_SEMANTIC_LAST_SECTION_CUE.search(correction_text)
+    ):
+        section_indexes.add(section_count - 1)
+    if (
+        not section_references
+        and not section_indexes
+        and _SOURCE_CHANNEL_SEMANTIC_OPTION_CUE.search(correction_text)
+    ):
+        option_sections = [
+            index
+            for index, section in enumerate(sections or [])
+            if isinstance(section, dict)
+            and _SOURCE_CHANNEL_SEMANTIC_OPTION_CUE.search(
+                str(section.get("title") or "")
+            )
+        ]
+        if len(option_sections) == 1:
+            section_indexes.add(option_sections[0])
+    actions = report.get("action_steps") if isinstance(report, dict) else None
+    action_count = len(actions) if isinstance(actions, list) else 0
+    action_references = list(
+        _SOURCE_CHANNEL_SEMANTIC_ACTION_REFERENCE.finditer(correction_text)
+    )
+    action_numbers = [referenced_number(match) for match in action_references]
+    if any(not 1 <= number <= action_count for number in action_numbers):
+        return [], []
+    action_indexes = {number - 1 for number in action_numbers}
+    if (
+        not action_references
+        and not action_indexes
+        and action_count
+        and _SOURCE_CHANNEL_SEMANTIC_ALL_ACTIONS_CUE.search(correction_text)
+    ):
+        action_indexes.update(range(action_count))
+    return sorted(section_indexes), sorted(action_indexes)
+
+
+def _source_channel_semantic_source_labels(report: Any) -> set[str]:
+    """Collect explicit structured source labels that prose may not rewrite."""
+
+    labels: set[str] = set()
+
+    def collect(value: Any, *, source_context: bool = False) -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                key_is_label = str(key).strip().lower() in (
+                    _SOURCE_CHANNEL_REFERENCE_LABEL_FIELDS
+                )
+                if key_is_label and isinstance(item, str):
+                    label = re.sub(r"\s+", " ", item).strip()
+                    if (
+                        3 <= len(label) <= 160
+                        and not _source_channel_has_bound_narrative_token(label)
+                    ):
+                        labels.add(label.casefold())
+                collect(item, source_context=source_context or key_is_label)
+        elif isinstance(value, list):
+            for item in value:
+                collect(item, source_context=source_context)
+        elif source_context and isinstance(value, str):
+            label = re.sub(r"\s+", " ", value).strip()
+            if (
+                3 <= len(label) <= 160
+                and not _source_channel_has_bound_narrative_token(label)
+            ):
+                labels.add(label.casefold())
+
+    if not isinstance(report, dict):
+        return labels
+    collect(report.get("references"), source_context=True)
+    for section in report.get("sections", []) or []:
+        if not isinstance(section, dict):
+            continue
+        collect(section.get("references"), source_context=True)
+        collect(section.get("evidence"))
+        collect(section.get("evidence_internal"))
+    return labels
+
+
+def _source_channel_semantic_acronyms(value: Any) -> set[str]:
+    acronyms: set[str] = set()
+    if isinstance(value, str):
+        acronyms.update(_SOURCE_CHANNEL_SEMANTIC_ACRONYM.findall(value))
+    elif isinstance(value, list):
+        for item in value:
+            acronyms.update(_source_channel_semantic_acronyms(item))
+    elif isinstance(value, dict):
+        for key, item in value.items():
+            acronyms.update(_source_channel_semantic_acronyms(key))
+            acronyms.update(_source_channel_semantic_acronyms(item))
+    return acronyms
+
+
+def _source_channel_semantic_proper_name_labels(value: Any) -> set[str]:
+    """Extract conservative source-like names from editable prose.
+
+    A repair is allowed to add ordinary connective prose, but not a newly named
+    institution or publication.  This deliberately treats unfamiliar title-case
+    tokens and organisation-suffixed CJK names as protected instead of relying on
+    a finite list of attribution verbs.
+    """
+
+    labels: set[str] = set()
+
+    def collect(item: Any) -> None:
+        if isinstance(item, str):
+            normalized = unicodedata.normalize("NFKC", item)
+            for match in _SOURCE_CHANNEL_SEMANTIC_PROPER_NAME.finditer(normalized):
+                candidate = match.group(0).strip(" .'\"")
+                if (
+                    len(candidate) >= 2
+                    and candidate.casefold()
+                    not in _SOURCE_CHANNEL_SEMANTIC_NON_LABEL_TITLE_WORDS
+                ):
+                    labels.add(candidate.casefold())
+            labels.update(
+                match.group(0).casefold()
+                for match in _SOURCE_CHANNEL_SEMANTIC_CJK_SOURCE_LABEL.finditer(
+                    normalized
+                )
+            )
+        elif isinstance(item, list):
+            for child in item:
+                collect(child)
+        elif isinstance(item, dict):
+            for child in item.values():
+                collect(child)
+
+    collect(value)
+    return labels
+
+
+def _source_channel_semantic_source_bound(
+    original: Any,
+    proposed: Any,
+    *,
+    source_labels: set[str],
+    baseline_acronyms: set[str],
+) -> bool:
+    """Reject any changed leaf that could alter or introduce a source label."""
+
+    if original == proposed:
+        return False
+    values: List[str] = []
+
+    def collect_strings(value: Any) -> None:
+        if isinstance(value, str):
+            values.append(value)
+        elif isinstance(value, list):
+            for item in value:
+                collect_strings(item)
+        elif isinstance(value, dict):
+            for key, item in value.items():
+                collect_strings(key)
+                collect_strings(item)
+
+    collect_strings(original)
+    collect_strings(proposed)
+    for value in values:
+        normalized = re.sub(r"\s+", " ", value).strip()
+        normalized_casefold = normalized.casefold()
+        if (
+            _SOURCE_CHANNEL_SECTION_REPAIR_ATTRIBUTION_TOKEN.search(normalized)
+            or _SOURCE_CHANNEL_SEMANTIC_SOURCE_CUE.search(normalized)
+            or any(label in normalized_casefold for label in source_labels)
+        ):
+            return True
+    if _source_channel_semantic_acronyms(proposed) - baseline_acronyms:
+        return True
+    return bool(
+        _source_channel_semantic_proper_name_labels(proposed)
+        ^ _source_channel_semantic_proper_name_labels(original)
+    )
+
+
+def _source_channel_semantic_masked_report(
+    report: Dict[str, Any],
+    editable_paths: List[tuple[Any, ...]],
+) -> Dict[str, Any]:
+    masked = copy.deepcopy(report)
+    for index, path in enumerate(editable_paths):
+        _source_channel_set_path(
+            masked,
+            path,
+            f"__GATEX_SEMANTIC_REPAIR_FIELD_{index}__",
+        )
+    return masked
 
 
 def _source_channel_guard_metrics(
@@ -1295,7 +1659,15 @@ class WebReportPipeline:
                 # Keep the semantic editorial audit as a hard publication
                 # gate, but do not let it trigger a whole-report rewrite that
                 # can expand an already compliant source-grounded draft.
-                audit = self._audit_simplified_report_content(report, storyline_plan)
+                audit = self._audit_simplified_report_content(
+                    report,
+                    storyline_plan,
+                    topic=display_topic,
+                    grounding_text=grounding_text,
+                    source_count=len(sources),
+                    source_chunks=rag_source_chunks,
+                    approved_evidence=approved_evidence,
+                )
                 report["content_quality_audit"] = audit
                 report["presentation_format"] = GATEX_SIMPLIFIED_REPORT_MODE
                 report["exhibits"] = []
@@ -1820,6 +2192,12 @@ class WebReportPipeline:
         self,
         report: Dict[str, Any],
         storyline_plan: Dict[str, Any],
+        *,
+        topic: str | None = None,
+        grounding_text: str | None = None,
+        source_count: int | None = None,
+        source_chunks: Dict[str, str] | None = None,
+        approved_evidence: List[Dict[str, Any]] | None = None,
     ) -> Dict[str, Any]:
         try:
             audit = self._audit_report_content(report, storyline_plan)
@@ -1827,12 +2205,409 @@ class WebReportPipeline:
             raise
         except Exception as exc:
             raise ReportQualityError("Simplified editorial audit was unavailable.") from exc
-        if not self._editorial_audit_passed(audit):
-            raise ReportQualityError(
-                "Editorial audit held simplified publication: "
-                + " | ".join(self._audit_corrections(audit))
+        if self._editorial_audit_passed(audit):
+            return audit
+
+        corrections = self._audit_corrections(audit)
+        original_error = ReportQualityError(
+            "Editorial audit held simplified publication: "
+            + " | ".join(corrections)
+        )
+        repair_allowed = bool(
+            self._simplified_report_mode()
+            and self._source_channel_mode()
+            and not self.rag_required
+            and not self.rag_context
+            and not self.rag_sources
+            and topic is not None
+            and grounding_text is not None
+            and source_count is not None
+        )
+        if not repair_allowed:
+            raise original_error
+
+        original_report = copy.deepcopy(report)
+        original_evidence = _source_channel_evidence_snapshot(original_report)
+        original_references = copy.deepcopy(original_report.get("references"))
+        try:
+            candidate, editable_paths = self._repair_simplified_semantic_report(
+                original_report,
+                corrections,
             )
-        return audit
+            candidate_before_gates = copy.deepcopy(candidate)
+            prepared, quality_issues = self._prepare_report_draft(
+                copy.deepcopy(candidate),
+                topic=topic,
+                grounding_text=grounding_text,
+                source_count=source_count,
+                source_chunks=source_chunks or {},
+                approved_evidence=approved_evidence or [],
+            )
+            if prepared != candidate_before_gates:
+                raise ReportQualityError(
+                    "Targeted semantic repair was changed by deterministic preparation."
+                )
+            if quality_issues:
+                raise ReportQualityError(
+                    "Targeted semantic repair failed the source publication gate: "
+                    + " | ".join(quality_issues)
+                )
+
+            # Re-run the numeric gate independently so a repair can never pass
+            # merely because preparation pruned an unsupported reader claim.
+            numeric_probe = copy.deepcopy(prepared)
+            removed_numbers = prune_unsupported_numeric_claims(
+                numeric_probe,
+                grounding_text,
+            )
+            if removed_numbers or numeric_probe != prepared:
+                raise ReportQualityError(
+                    "Targeted semantic repair failed the numeric evidence gate."
+                )
+
+            publication_issues = source_channel_report_quality_issues(
+                prepared,
+                topic=topic,
+                context_text=grounding_text,
+                source_count=source_count,
+            )
+            if publication_issues:
+                raise ReportQualityError(
+                    "Targeted semantic repair failed the publication contract: "
+                    + " | ".join(publication_issues)
+                )
+            if _source_channel_evidence_snapshot(prepared) != original_evidence:
+                raise ReportQualityError(
+                    "Targeted semantic repair changed frozen section evidence."
+                )
+            if prepared.get("references") != original_references:
+                raise ReportQualityError(
+                    "Targeted semantic repair changed frozen references."
+                )
+            if _source_channel_semantic_masked_report(
+                prepared,
+                editable_paths,
+            ) != _source_channel_semantic_masked_report(
+                original_report,
+                editable_paths,
+            ):
+                raise ReportQualityError(
+                    "Targeted semantic repair changed a non-target report path."
+                )
+            if prepared.get("exhibits") not in (None, []) or prepared.get(
+                "charts"
+            ) not in (None, []):
+                raise ReportQualityError(
+                    "Targeted semantic repair changed the simplified visual contract."
+                )
+            visible_hits = output_leak_hits(self._client_visible_text(prepared))
+            if visible_hits:
+                raise ReportQualityError(
+                    "Targeted semantic repair exposed internal publication metadata."
+                )
+
+            repaired_audit = self._audit_report_content(
+                prepared,
+                storyline_plan,
+                revision_corrections=corrections,
+            )
+            if not self._editorial_audit_passed(repaired_audit):
+                raise ReportQualityError(
+                    "Targeted semantic repair failed the final editorial audit."
+                )
+        except Exception as exc:
+            self._log(
+                "PHASE simplified semantic repair rejected "
+                f"| reason={type(exc).__name__}"
+            )
+            raise original_error from exc
+
+        report.clear()
+        report.update(prepared)
+        self._log(
+            "PHASE simplified semantic repair passed "
+            f"| fields={len(editable_paths)} | semantic_audits=2"
+        )
+        return repaired_audit
+
+    def _repair_simplified_semantic_report(
+        self,
+        report: Dict[str, Any],
+        corrections: List[str],
+    ) -> tuple[Dict[str, Any], List[tuple[Any, ...]]]:
+        """Apply one model-authored semantic patch without a report rewrite."""
+
+        section_indexes, action_indexes = (
+            _source_channel_semantic_repair_scope(report, corrections)
+        )
+        if not section_indexes and not action_indexes:
+            raise ReportQualityError(
+                "The semantic audit did not identify a bounded repair scope."
+            )
+
+        sections = report.get("sections")
+        actions = report.get("action_steps")
+        if not isinstance(sections, list) or not isinstance(actions, list):
+            raise ReportQualityError(
+                "The semantic repair baseline is not structurally complete."
+            )
+
+        target_sections = []
+        for section_index in section_indexes:
+            section = sections[section_index]
+            if not isinstance(section, dict):
+                raise ReportQualityError(
+                    "The semantic repair target is not a section object."
+                )
+            target_sections.append(
+                {
+                    "index": section_index + 1,
+                    "title": section.get("title"),
+                    "lead": section.get("lead"),
+                    "paragraphs": section.get("paragraphs"),
+                    "so_what": section.get("so_what"),
+                    "evidence_read_only": section.get("evidence"),
+                }
+            )
+        evidence_context = [
+            {
+                "section": index + 1,
+                "title": section.get("title"),
+                "lead": section.get("lead"),
+                "evidence": section.get("evidence"),
+            }
+            for index, section in enumerate(sections)
+            if isinstance(section, dict)
+        ]
+        action_context = [
+            {"index": action_index + 1, **copy.deepcopy(actions[action_index])}
+            for action_index in action_indexes
+            if isinstance(actions[action_index], dict)
+        ]
+        correction_text = "\n".join(f"- {item}" for item in corrections)
+        prompt = f"""Repair only the named semantic defects in one GateX source-channel simplified report. Return one JSON patch object only; do not return or rewrite the whole report.
+
+Audit findings:
+{correction_text}
+
+Editable section context (evidence_read_only is frozen and must not be returned):
+{json.dumps(target_sections, ensure_ascii=False)}
+
+Reader-visible evidence available for action rationales (read-only):
+{json.dumps(evidence_context, ensure_ascii=False)}
+
+Editable action context:
+{json.dumps(action_context, ensure_ascii=False)}
+
+Return exactly this patch schema, omitting an unchanged field or collection:
+{{
+  "sections": [
+    {{
+      "index": <one-based section index>,
+      "title": "complete replacement only when required",
+      "lead": "complete replacement only when required",
+      "paragraphs": [{{"index": <one-based paragraph index>, "text": "complete replacement paragraph"}}],
+      "so_what": "complete replacement only when required"
+    }}
+  ],
+  "action_steps": [
+    {{"index": <one-based action index>, "rationale": "complete replacement rationale"}}
+  ]
+}}
+
+Mandatory repair rules:
+- Edit only the section indexes and action rationales implicated by the audit. Do not return evidence, evidence_internal, references, URLs, source labels, metadata, exhibits, charts, takeaways, intro, actions, horizons, or success metrics.
+- Add no fact, number, date, percentage, currency, URL, domain, DOI, OpenAlex/SSRN identifier, source, citation, or named publication. Do not alter or repeat a protected number, URL, identifier, or source label from the read-only context.
+- Preserve the language and every conclusion not named by the audit. Each replacement paragraph must remain a developed analytical paragraph; do not shorten the report below its publication floor.
+- An options passage must compare the credible options' trade-offs and state which option has priority, with the reason and execution boundary expressed only from conclusions already present.
+- Every repaired action rationale must link the action directly to qualitative evidence already presented in the reader-visible sections. Refer to the finding itself, without inventing a source label, number, threshold, or citation.
+- Return no markdown and no key outside the exact patch schema.
+"""
+        response = self.client.chat_json(
+            [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a strict institutional patch editor. Return one "
+                        "bounded JSON patch only and never rewrite the whole report."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature=0.0,
+            max_tokens=SOURCE_CHANNEL_SEMANTIC_REPAIR_OUTPUT_TOKENS,
+            fallback_max_tokens=SOURCE_CHANNEL_SEMANTIC_REPAIR_OUTPUT_TOKENS,
+            strict_output_budget=True,
+        )
+        if not isinstance(response, dict) or not response:
+            raise ReportQualityError(
+                "The semantic repair did not return a patch object."
+            )
+        if set(response) - {"sections", "action_steps"}:
+            raise ReportQualityError(
+                "The semantic repair returned a non-target top-level field."
+            )
+
+        candidate = copy.deepcopy(report)
+        source_labels = _source_channel_semantic_source_labels(report)
+        baseline_acronyms = _source_channel_semantic_acronyms(report)
+        editable_paths: List[tuple[Any, ...]] = []
+        seen_paths: set[tuple[Any, ...]] = set()
+
+        def apply_value(path: tuple[Any, ...], proposed: Any) -> None:
+            if path in seen_paths:
+                raise ReportQualityError(
+                    "The semantic repair returned the same target twice."
+                )
+            seen_paths.add(path)
+            original = _source_channel_path_value(report, path)
+            if not isinstance(original, str) or not isinstance(proposed, str):
+                raise ReportQualityError(
+                    "The semantic repair returned an invalid target value."
+                )
+            proposed_value = proposed.strip()
+            if not proposed_value or proposed_value == original:
+                return
+            if (
+                _source_channel_has_bound_narrative_token(original)
+                or _source_channel_has_bound_narrative_token(proposed_value)
+                or _source_channel_semantic_source_bound(
+                    original,
+                    proposed_value,
+                    source_labels=source_labels,
+                    baseline_acronyms=baseline_acronyms,
+                )
+            ):
+                raise ReportQualityError(
+                    "The semantic repair attempted to change a protected narrative value."
+                )
+            if not _source_channel_set_path(candidate, path, proposed_value):
+                raise ReportQualityError(
+                    "The semantic repair target path was not found."
+                )
+            editable_paths.append(path)
+
+        section_patches = response.get("sections", [])
+        if not isinstance(section_patches, list):
+            raise ReportQualityError(
+                "The semantic repair sections patch is not a list."
+            )
+        for patch in section_patches:
+            if not isinstance(patch, dict) or set(patch) - {
+                "index",
+                "title",
+                "lead",
+                "paragraphs",
+                "so_what",
+            }:
+                raise ReportQualityError(
+                    "The semantic repair returned a non-target section field."
+                )
+            section_number = patch.get("index")
+            if (
+                isinstance(section_number, bool)
+                or not isinstance(section_number, int)
+                or section_number - 1 not in section_indexes
+            ):
+                raise ReportQualityError(
+                    "The semantic repair targeted an unapproved section."
+                )
+            section_index = section_number - 1
+            for field in ("title", "lead", "so_what"):
+                if field in patch:
+                    apply_value(
+                        ("sections", section_index, field),
+                        patch[field],
+                    )
+            paragraph_patches = patch.get("paragraphs", [])
+            if not isinstance(paragraph_patches, list):
+                raise ReportQualityError(
+                    "The semantic repair paragraph patch is not a list."
+                )
+            original_paragraphs = sections[section_index].get("paragraphs")
+            if not isinstance(original_paragraphs, list):
+                raise ReportQualityError(
+                    "The semantic repair target has no paragraph list."
+                )
+            for paragraph_patch in paragraph_patches:
+                if not isinstance(paragraph_patch, dict) or set(
+                    paragraph_patch
+                ) != {"index", "text"}:
+                    raise ReportQualityError(
+                        "The semantic repair returned an invalid paragraph patch."
+                    )
+                paragraph_number = paragraph_patch.get("index")
+                if (
+                    isinstance(paragraph_number, bool)
+                    or not isinstance(paragraph_number, int)
+                    or not 1 <= paragraph_number <= len(original_paragraphs)
+                ):
+                    raise ReportQualityError(
+                        "The semantic repair targeted an invalid paragraph."
+                    )
+                apply_value(
+                    (
+                        "sections",
+                        section_index,
+                        "paragraphs",
+                        paragraph_number - 1,
+                    ),
+                    paragraph_patch["text"],
+                )
+
+        action_patches = response.get("action_steps", [])
+        if not isinstance(action_patches, list):
+            raise ReportQualityError(
+                "The semantic repair action patch is not a list."
+            )
+        if action_patches and not action_indexes:
+            raise ReportQualityError(
+                "The semantic repair targeted actions not named by the audit."
+            )
+        for patch in action_patches:
+            if not isinstance(patch, dict) or set(patch) != {
+                "index",
+                "rationale",
+            }:
+                raise ReportQualityError(
+                    "The semantic repair returned a non-target action field."
+                )
+            action_number = patch.get("index")
+            if (
+                isinstance(action_number, bool)
+                or not isinstance(action_number, int)
+                or action_number - 1 not in action_indexes
+            ):
+                raise ReportQualityError(
+                    "The semantic repair targeted an invalid action."
+                )
+            apply_value(
+                ("action_steps", action_number - 1, "rationale"),
+                patch["rationale"],
+            )
+
+        if not editable_paths:
+            raise ReportQualityError(
+                "The semantic repair did not change a target field."
+            )
+        if _freeze_source_channel_bound_narrative(report, candidate) != candidate:
+            raise ReportQualityError(
+                "The semantic repair changed or introduced a protected token."
+            )
+        if _source_channel_evidence_snapshot(candidate) != (
+            _source_channel_evidence_snapshot(report)
+        ):
+            raise ReportQualityError(
+                "The semantic repair changed evidence or references."
+            )
+        if _source_channel_semantic_masked_report(
+            candidate,
+            editable_paths,
+        ) != _source_channel_semantic_masked_report(report, editable_paths):
+            raise ReportQualityError(
+                "The semantic repair changed a non-target report path."
+            )
+        return candidate, editable_paths
 
     def _synthesis_error_must_fail_closed(self, exc: Exception) -> bool:
         return bool(
@@ -3181,6 +3956,13 @@ Revision contract:
         revision_corrections: Optional[List[str]] = None,
     ) -> Dict[str, Any]:
         audit_stage = ""
+        source_channel_audit_rules = ""
+        if self._source_channel_mode() and self._simplified_report_mode():
+            source_channel_audit_rules = """
+Source-channel simplified decision rules:
+- When the report presents strategic options, require an explicit comparison of their trade-offs and a reasoned priority. Do not request a synthetic score, new threshold, or outside fact.
+- Every action rationale must connect directly to qualitative or quantitative evidence already visible in the report, rather than relying on generic governance language.
+"""
         if revision_corrections:
             audit_stage = f"""
 This is the final verification after the report's single editorial revision. Verify the requested corrections below and reject any serious problem introduced or worsened by that revision. Do not introduce a new requirement for an issue that already existed but was omitted from the first audit.
@@ -3204,7 +3986,7 @@ Evidence-discipline rules:
 - Do not require direct numerical comparisons between unlike units, geographies or time bases. Require a qualitative comparison or an explicit comparability limitation instead.
 - Treat a clearly labeled unresolved possibility as uncertainty, not a critical issue. Reserve critical_issues for publication-blocking contradictions, unsupported material conclusions, fabricated evidence, or recommendations that remain ungrounded.
 - Every visible number has already passed a deterministic check against the complete validated corpus. Do not request a generic numeric cross-check merely because the full corpus is not repeated in this audit prompt; flag only an internal contradiction or misuse visible in the report.
-{audit_stage}
+{source_channel_audit_rules}{audit_stage}
 
 Return exactly:
 {{
@@ -3714,6 +4496,15 @@ Rules:
                 "public evidence and bounded source profile. Return one valid JSON object only."
             )
             if self.language == "zh":
+                source_channel_decision_contract = (
+                    "- 涉及战略方案时，必须比较各方案的取舍并明确优先方案、理由与执行边界；"
+                    "不得用自创评分代替判断。\n"
+                    "- 每条 action 包含 horizon、action、success_metric、rationale；rationale 至少 12 字，"
+                    "并直接连接本报告读者可见章节中已经呈现的证据依据，不得只写泛化治理语言。"
+                    "以 action 与 success_metric 各 25 字、rationale 12-30 字为编辑目标，但不得删减已支持的完整含义。"
+                    if self._simplified_report_mode()
+                    else "- 每条 action 包含 horizon、action、success_metric、rationale；rationale 至少 12 字并说明证据依据。以 action 与 success_metric 各 25 字、rationale 12-30 字为编辑目标，但不得删减已支持的完整含义。"
+                )
                 source_channel_visual_contract = (
                     '- simplified GateX 格式必须原样返回空数组 `"exhibits": []` '
                     '和 `"charts": []`；保留这两个 JSON 键，不得生成任何图表或 exhibit。'
@@ -3747,7 +4538,7 @@ SOURCE-CHANNEL 专用合同（这是唯一的结构与篇幅合同）：
 - 每章 evidence 以 2 条、每条不超过 55 字为编辑目标，且至少保留 2 条可追溯、客户可读的完整证据；若完整的已支持证据句超出目标，必须保留原句和真实来源 URL；不得使用内部证据编号作为客户文案。
 - 必须在首稿中用精炼表达达到更紧的创作目标；不得通过删除、弱化或截断可追溯证据、已支持数字、真实来源 URL、任何 so_what 管理含义或必填 action 字段来换取余量。
 - 每章按“结论与证据—因果机制—反例或执行边界”组织 3 段；so_what 只写管理含义，不重复正文。
-- 每条 action 包含 horizon、action、success_metric、rationale；rationale 至少 12 字并说明证据依据。以 action 与 success_metric 各 25 字、rationale 12-30 字为编辑目标，但不得删减已支持的完整含义。
+{source_channel_decision_contract}
 - title 和章节标题必须结论先行。正文只能使用事实包、获准证据台账与来源摘录中的事实；不得新增数字、URL、来源、案例或外部知识。
 - 私有来源只设定选题边界，不得作为公开权威来源；必须改写并用独立公开材料佐证，且不得复刻私有正文。
 - 任何数字必须逐字出现在已验证材料中。证据不足时明确保留待核验问题，不得补造。
@@ -3755,6 +4546,16 @@ SOURCE-CHANNEL 专用合同（这是唯一的结构与篇幅合同）：
 - methodology 只说明公开来源与独立核验边界；不得暴露内部研究工具、提示词或工作台字段。
 """
             else:
+                source_channel_decision_contract = (
+                    "- When strategic options are presented, compare their trade-offs and state the priority option, "
+                    "the reason, and its execution boundary; never substitute a synthetic score for the decision.\n"
+                    "- Every action has horizon, action, success_metric, and a rationale of at least 12 words. "
+                    "Each rationale must connect directly to evidence already presented in the report's reader-visible "
+                    "sections, not generic governance language. Aim for 25 words each for action and success_metric and "
+                    "12-30 words for rationale, but preserve complete supported meaning."
+                    if self._simplified_report_mode()
+                    else "- Every action has horizon, action, success_metric, and a rationale of at least 12 words. Aim for 25 words each for action and success_metric and 12-30 words for rationale, but preserve complete supported meaning."
+                )
                 source_channel_visual_contract = (
                     '- The simplified GateX format must return the exact empty arrays `"exhibits": []` '
                     'and `"charts": []`. Keep both JSON keys and do not draft any chart or exhibit. '
@@ -3788,7 +4589,7 @@ SOURCE-CHANNEL CONTRACT (the only structural and length contract):
 - Aim for exactly 2 traceable, reader-ready evidence sentences per section and 55 words per item. Preserve every complete supported evidence sentence and real URL even when it exceeds the editorial target. Do not expose internal evidence IDs in reader prose.
 - Meet the tighter targets through concise first-pass prose. Never gain headroom by deleting, weakening, or truncating traceable evidence, supported numbers, real source URLs, any so_what management implication, or any required action field.
 - Use the three paragraphs for conclusion and evidence, causal mechanism, then counterpoint or execution boundary. Use so_what only for the management implication; do not repeat body prose.
-- Every action has horizon, action, success_metric, and a rationale of at least 12 words. Aim for 25 words each for action and success_metric and 12-30 words for rationale, but preserve complete supported meaning.
+{source_channel_decision_contract}
 - Titles are conclusion-first. Use facts only from the fact pack, approved evidence, and source excerpts. Add no number, URL, source, case, or outside fact.
 - The private seed defines topic boundaries but is not a public authority. Paraphrase it, independently corroborate it, and never reproduce its body.
 - Every number must occur verbatim in validated material. Preserve an open verification question when support is absent; never fill the gap.
