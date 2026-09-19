@@ -10,6 +10,16 @@ from typing import Any, Dict, List, Optional
 import requests
 
 
+def _production_deepseek_model(model: str) -> str:
+    """Keep saved V4 selections on the current Flash route."""
+    if re.fullmatch(
+        r"deepseek-(?:v4(?:\.\d+)?-)?(?:pro|flash)(?:-[a-z0-9][a-z0-9._-]*)?",
+        str(model).strip().lower(),
+    ):
+        return "deepseek-flash"
+    return model
+
+
 class _ResponseBudgetExhausted(ValueError):
     pass
 
@@ -68,7 +78,6 @@ class DeepSeekClient:
         timeout: int = 180,
         provider: Optional[str] = None,
     ) -> None:
-        self.model = model
         provider_name = str(provider or "").strip().lower()
         if provider_name not in {"", "apimart", "deepseek"}:
             raise ValueError("provider must be 'apimart' or 'deepseek'.")
@@ -78,6 +87,7 @@ class DeepSeekClient:
             else _uses_apimart(model)
         )
         self.use_apimart = use_apimart
+        self.model = model if use_apimart else _production_deepseek_model(model)
         default_key_name = "APIMART_API_KEY" if use_apimart else "DEEPSEEK_API_KEY"
         default_base_url = (
             os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").rstrip("/") + "/v1"
@@ -112,6 +122,8 @@ class DeepSeekClient:
         max_tokens: Optional[int] = None,
         strict_output_budget: bool = False,
     ) -> str:
+        if model is not None and not self.use_apimart:
+            model = _production_deepseek_model(model)
         backend_url = os.getenv("BACKEND_URL")
         if backend_url:
             url = f"{backend_url.rstrip('/')}/api/v1/aigateway/chat/completions"
@@ -185,7 +197,10 @@ class DeepSeekClient:
         active_model = str(model or self.model)
         payload = {"model": active_model, "messages": messages, "temperature": temperature, "stream": False}
 
-        if not self.use_apimart and active_model.lower().startswith("deepseek-v4"):
+        if not self.use_apimart and (
+            active_model.lower() == "deepseek-flash"
+            or active_model.lower().startswith("deepseek-v4")
+        ):
             thinking_mode = os.getenv("DEEPSEEK_THINKING", "disabled").strip().lower()
             if thinking_mode not in {"enabled", "disabled"}:
                 raise ValueError("DEEPSEEK_THINKING must be 'enabled' or 'disabled'.")

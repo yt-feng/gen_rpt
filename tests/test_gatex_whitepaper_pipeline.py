@@ -34,6 +34,7 @@ from gen_rpt.gatex_whitepaper_pipeline import (
     _complete_sparse_exhibit,
     _english_source_title,
     _editorial_source_excerpt,
+    _editorial_client,
     _editorial_issues,
     _fallback_queries,
     _merge_named_region_evidence,
@@ -133,15 +134,25 @@ def test_retryable_apimart_exhaustion_is_typed_for_bounded_failover(
     assert "upstream body" not in str(exc_info.value)
 
 
-def test_deepseek_v4_pro_keeps_deepseek_endpoint() -> None:
+def test_deepseek_flash_keeps_deepseek_endpoint() -> None:
     with mock.patch.dict(os.environ, {"DEEPSEEK_API_KEY": "test-key"}, clear=False):
-        client = DeepSeekClient(model="deepseek-v4-pro")
+        client = DeepSeekClient(model="deepseek-flash")
     assert client.api_key == "test-key"
     assert client.base_url == "https://api.deepseek.com/v1"
     assert not client.use_apimart
 
 
-def test_deepseek_v4_structured_writing_disables_hidden_thinking() -> None:
+def test_saved_pro_fallback_does_not_duplicate_the_flash_route() -> None:
+    with mock.patch.dict(os.environ, {
+        "DEEPSEEK_API_KEY": "test-key",
+        "GATEX_EDITORIAL_FALLBACK_MODEL": "deepseek-v4-pro-0813",
+    }, clear=True):
+        client = _editorial_client("deepseek-flash")
+    assert client.primary.model == "deepseek-flash"
+    assert client.fallback is None
+
+
+def test_deepseek_flash_structured_writing_disables_hidden_thinking() -> None:
     response = mock.Mock()
     response.status_code = 200
     response.headers = {}
@@ -155,11 +166,11 @@ def test_deepseek_v4_structured_writing_disables_hidden_thinking() -> None:
         clear=False,
     ):
         with mock.patch("gen_rpt.deepseek_client.requests.post", return_value=response) as post:
-            client = DeepSeekClient(model="deepseek-v4-pro")
+            client = DeepSeekClient(model="deepseek-flash")
             assert client.chat_json([{"role": "user", "content": "Return JSON."}]) == {"status": "ready"}
 
     payload = post.call_args.kwargs["json"]
-    assert payload["model"] == "deepseek-v4-pro"
+    assert payload["model"] == "deepseek-flash"
     assert payload["thinking"] == {"type": "disabled"}
 
 
@@ -190,7 +201,7 @@ def test_deepseek_retries_empty_json_mode_without_response_format() -> None:
             "gen_rpt.deepseek_client.requests.post",
             side_effect=[empty, complete],
         ) as post:
-            client = DeepSeekClient(model="deepseek-v4-pro")
+            client = DeepSeekClient(model="deepseek-flash")
             assert client.chat_json([{"role": "user", "content": "Return JSON."}]) == {"status": "ready"}
 
     assert post.call_args_list[0].kwargs["json"]["response_format"] == {"type": "json_object"}
@@ -673,7 +684,7 @@ def test_deepseek_retries_reasoning_only_completion_with_larger_budget() -> None
             "gen_rpt.deepseek_client.requests.post",
             side_effect=[exhausted, complete],
         ) as post:
-            client = DeepSeekClient(model="deepseek-v4-pro")
+            client = DeepSeekClient(model="deepseek-flash")
             assert client.chat_json(
                 [{"role": "user", "content": "Return JSON."}],
                 max_tokens=5_500,

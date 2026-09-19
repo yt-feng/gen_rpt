@@ -66,7 +66,9 @@ def _editorial_client(model: str, *, timeout: int = 420) -> _FailoverEditorialCl
     fallback = None
     if fallback_model and fallback_model.lower() != str(model or "").strip().lower():
         try:
-            fallback = DeepSeekClient(model=fallback_model, timeout=timeout)
+            candidate = DeepSeekClient(model=fallback_model, timeout=timeout)
+            if (candidate.model, candidate.use_apimart) != (primary.model, primary.use_apimart):
+                fallback = candidate
         except ValueError as exc:
             print(f"[gatex.whitepaper] editorial fallback is not configured: {exc}", flush=True)
     client = _FailoverEditorialClient(primary, fallback)
@@ -860,7 +862,7 @@ def _collect_research(topic: str, brief: str, work_dir: Path) -> dict[str, Any]:
     fallback = _fallback_queries(topic)
     queries = list(fallback)
     try:
-        planner = DeepSeekClient(model=os.getenv("GATEX_RESEARCH_MODEL", "deepseek-v4-pro"), timeout=240)
+        planner = DeepSeekClient(model=os.getenv("GATEX_RESEARCH_MODEL", "deepseek-flash"), timeout=240)
         planned = planner.chat_json(
             [
                 {
@@ -3485,7 +3487,7 @@ def generate_gatex_whitepaper(
     slug: str,
     brief: str,
     output_root: Path,
-    model: str = "deepseek-v4-pro",
+    model: str = "deepseek-flash",
     publication_date: str | None = None,
 ) -> dict[str, Any]:
     output_root = Path(output_root).resolve()

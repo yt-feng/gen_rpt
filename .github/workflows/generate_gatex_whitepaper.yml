@@ -26,7 +26,7 @@ on:
       model:
         description: DeepSeek editorial model
         required: false
-        default: "deepseek-v4-pro"
+        default: "deepseek-flash"
         type: string
       resume_run_id:
         description: Optional prior workflow run ID whose review artifact should be resumed
@@ -60,7 +60,7 @@ jobs:
       DEEPSEEK_THINKING: disabled
       DEEPSEEK_MAX_TOKENS: "16000"
       GATEX_EDITORIAL_FALLBACK_MODEL: ""
-      GATEX_RESEARCH_MODEL: deepseek-v4-pro
+      GATEX_RESEARCH_MODEL: deepseek-flash
       APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
       APIMART_IMAGE_MODEL: gpt-image-2
       GEN_RPT_PER_QUERY: "4"
