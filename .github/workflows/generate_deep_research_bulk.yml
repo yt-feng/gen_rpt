@@ -11,6 +11,11 @@ on:
         description: Required unique output directory slug (must be unique per report).
         required: true
         type: string
+      rag_required:
+        description: Require the validated private context prepared for this job.
+        required: false
+        default: true
+        type: boolean
       model:
         description: DeepSeek model name
         required: false
@@ -48,6 +53,7 @@ jobs:
       SHOW_FALLBACK_IMAGES: true
       TOPIC_INPUT: ${{ inputs.topic }}
       SLUG_INPUT: ${{ inputs.slug }}
+      RAG_REQUIRED: ${{ inputs.rag_required }}
       MODEL_INPUT: ${{ inputs.model || 'deepseek-chat' }}
       
       # Review Config

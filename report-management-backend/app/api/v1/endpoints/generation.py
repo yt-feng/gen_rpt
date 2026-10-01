@@ -37,24 +37,40 @@ def _require_validated_evidence(
     validated_chunks: list,
     has_active_collections: bool = False,
 ) -> None:
-    """
-    Only hard-block with 422 when ALL THREE conditions are true:
-      1. caller explicitly set rag_required=True
-      2. the user actually has active knowledge collections (they intended RAG)
-      3. retrieval still returned no validated chunks (retrieval genuinely failed)
+    """Required grounding never degrades to public-only generation."""
+    if required and not validated_chunks:
+        raise HTTPException(status_code=422, detail="RAG generation requires validated evidence in the explicitly resolved source scope")
 
-    If the user has NO collections at all, allow the dispatch to proceed with
-    web-search fallback — do not penalise users who haven't uploaded documents yet.
-    """
-    if required and has_active_collections and not validated_chunks:
-        raise HTTPException(
-            status_code=422,
-            detail=(
-                "RAG generation requires validated evidence, but no matching evidence "
-                "was found in your knowledge collections. Upload and process relevant "
-                "documents, then try again."
-            ),
-        )
+
+async def _resolve_generation_scope(db, actor_id, requested_ids):
+    """Freeze the request's owner-default scope; an empty scope stays empty."""
+    from app.models.identity import User
+    from app.models.knowledge import KnowledgeCollection
+    from sqlalchemy import select
+    actor = await db.get(User, actor_id)
+    if not actor_id.int or not actor or actor.status != "active":
+        raise HTTPException(status_code=403, detail="Generation requires an active actor")
+    if requested_ids is not None:
+        return list(requested_ids)
+    result = await db.execute(select(KnowledgeCollection.id).where(
+        KnowledgeCollection.owner_id == actor_id,
+        KnowledgeCollection.status == "active",
+        KnowledgeCollection.deleted_at.is_(None),
+    ))
+    return list(result.scalars().all())
+
+
+def _prepared_rag_metadata(package, collection_ids):
+    """Persist only scope and validation identifiers, never raw private chunks."""
+    return {
+        "requested": True, "status": package.get("context_metadata", {}).get("rag_status", "ready"),
+        "chunk_count": len(package.get("validated_chunks", [])),
+        "estimated_tokens": package.get("context_metadata", {}).get("estimated_tokens", 0),
+        "collection_ids": [str(cid) for cid in collection_ids],
+        "source_scope": "explicit_resolved_collections",
+        "knowledge_snapshot_id": package.get("knowledge_snapshot_id"),
+        "validation_report_reference": package.get("validation_report_reference"),
+    }
 
 
 @router.post("/jobs", response_model=APIResponse[dict])
@@ -93,77 +109,35 @@ async def create_job(
     doc_obj = await db.get(Document, doc_id)
     slug_val = doc_obj.slug if doc_obj else f"doc-{str(doc_id)[:8]}"
 
-    rag_state = {"requested": bool(settings.RAG_ENABLED), "status": "disabled", "chunk_count": 0}
-    if settings.RAG_ENABLED:
+    if not doc_obj or (doc_obj.owner_id or doc_obj.created_by) != UUID(user["id"]):
+        raise HTTPException(status_code=403, detail="Generation requires the report document owner")
+    if not settings.RAG_ENABLED and req.collection_ids:
+        raise HTTPException(status_code=503, detail="RAG is disabled; requested private source scope was not dispatched")
+    effective_collection_ids = await _resolve_generation_scope(
+        db, UUID(user["id"]), req.collection_ids if settings.RAG_ENABLED else [],
+    )
+    rag_state = {"requested": False, "status": "public_only", "source_policy": "public_only", "chunk_count": 0, "collection_ids": []}
+    if req.rag_required and not settings.RAG_ENABLED:
+        raise HTTPException(status_code=503, detail="RAG is disabled; required report was not dispatched")
+    if settings.RAG_ENABLED and effective_collection_ids:
         from app.services.rag_integration import generation_context_service, RAGContextPreparationError
-        from app.logging.logger import logger
         try:
-            # Auto-resolve collection_ids: use provided ones or fall back to user's own collections
-            effective_collection_ids = req.collection_ids
-            if not effective_collection_ids:
-                from app.models.knowledge import KnowledgeCollection
-                from sqlalchemy import select as sa_select
-                col_stmt = sa_select(KnowledgeCollection.id).where(
-                    KnowledgeCollection.owner_id == UUID(user["id"]),
-                    KnowledgeCollection.status == "active"
-                )
-                col_result = await db.execute(col_stmt)
-                effective_collection_ids = col_result.scalars().all() or None
-                if effective_collection_ids:
-                    logger.info(f"RAG: Auto-resolved {len(effective_collection_ids)} collection(s) for user {user['id']}")
-
-            # Prepare context (retrieval + validation + snapshotting + caching)
             context_package = await generation_context_service.prepare_context(
-                db=db,
-                query=prompt,
-                collection_ids=effective_collection_ids,
-                user_id=UUID(user["id"]),
-                user_org_id=None,
-                slug=slug_val
+                db=db, query=prompt, collection_ids=effective_collection_ids,
+                user_id=UUID(user["id"]), user_org_id=None, slug=slug_val, force_refresh=True,
             )
             validated_chunks = context_package.get("validated_chunks", [])
-            _require_validated_evidence(
-                req.rag_required,
-                validated_chunks,
-                has_active_collections=bool(effective_collection_ids),
-            )
-            rag_state = {
-                "requested": True,
-                "status": (
-                    context_package.get("context_metadata", {}).get("rag_status", "ready")
-                    if validated_chunks else "no_matching_evidence"
-                ),
-                "chunk_count": len(validated_chunks),
-                "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
-                "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
-            }
-            logger.info(f"RAG context pre-warmed for slug={slug_val}, cache_key=context:slug:{slug_val}")
-        except Exception as e:
-            logger.exception(f"Failed to pre-warm RAG context for slug={slug_val}: {e}")
+            # Explicit source scopes are never silently replaced by web-only input.
+            _require_validated_evidence(True, validated_chunks)
+            rag_state = _prepared_rag_metadata(context_package, effective_collection_ids)
+        except HTTPException:
+            raise
+        except Exception as exc:
             await db.rollback()
-            if isinstance(e, HTTPException):
-                if e.status_code == 422:
-                    # A 422 from prepare_context means "no matching evidence".
-                    # Degrade gracefully to web-search fallback instead of blocking
-                    # the dispatch — the GitHub Actions workflow will handle the rest.
-                    logger.warning(
-                        f"RAG prepare_context returned 422 for slug={slug_val}; "
-                        f"falling back to web-only mode. Detail: {e.detail}"
-                    )
-                    rag_state = {
-                        "requested": True,
-                        "status": "fallback_to_web",
-                        "chunk_count": 0,
-                    }
-                    # fall through — dispatch proceeds normally
-                else:
-                    raise  # re-raise non-422 HTTP errors (401, 403, 503 …)
-            else:
-                stage = e.stage if isinstance(e, RAGContextPreparationError) else "unknown"
-                raise HTTPException(
-                    status_code=503,
-                    detail=f"RAG context preparation failed during {stage}. No report was dispatched.",
-                ) from e
+            stage = exc.stage if isinstance(exc, RAGContextPreparationError) else "unknown"
+            raise HTTPException(status_code=503, detail=f"RAG context preparation failed during {stage}; no report was dispatched") from exc
+    elif req.rag_required:
+        _require_validated_evidence(True, [])
 
 
     job = await generation_service.create_job(
@@ -173,10 +147,9 @@ async def create_job(
         prompt=prompt,
         report_type=req.report_type,
         created_by=UUID(user["id"]),
-        rag_required=req.rag_required,
+        rag_required=req.rag_required or bool(rag_state["requested"]),
+        rag_metadata=rag_state,
     )
-    job.audit_metadata = {**(job.audit_metadata or {}), "rag": rag_state}
-    await db.commit()
 
     from app.core.metrics import rag_generation_requests_total
     rag_generation_requests_total.labels(rag_enabled="true" if settings.RAG_ENABLED else "false").inc()
@@ -402,10 +375,10 @@ async def retry_job(
     user: dict = Depends(get_current_user_placeholder)
 ):
     """
-    Retry a failed or cancelled generation job.
+    Retry a failed generation job after validating its original evidence scope.
     """
     try:
-        job = await generation_service.retry_job(db, job_id)
+        job = await generation_service.retry_job(db, job_id, actor_id=UUID(str(user.get("id", ""))))
         return success_response(data={"job_id": str(job.id), "status": job.status.value}, message="Job retried")
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -526,15 +499,11 @@ async def create_bulk_jobs(
     dispatched_count = 0
     queued_count = 0
 
-    effective_collection_ids = req.collection_ids
-    if settings.RAG_ENABLED and not effective_collection_ids:
-        from app.models.knowledge import KnowledgeCollection
-        col_stmt = select(KnowledgeCollection.id).where(
-            KnowledgeCollection.owner_id == UUID(user["id"]),
-            KnowledgeCollection.status == "active",
-        )
-        col_result = await db.execute(col_stmt)
-        effective_collection_ids = list(col_result.scalars().all()) or None
+    if not settings.RAG_ENABLED and req.collection_ids:
+        raise HTTPException(status_code=503, detail="RAG is disabled; requested private source scope was not dispatched")
+    effective_collection_ids = await _resolve_generation_scope(
+        db, UUID(user["id"]), req.collection_ids if settings.RAG_ENABLED else [],
+    )
 
     for item in req.jobs:
         try:
@@ -557,8 +526,8 @@ async def create_bulk_jobs(
                 user_id=UUID(user["id"])
             )
 
-            rag_state = {"requested": bool(settings.RAG_ENABLED), "status": "disabled", "chunk_count": 0}
-            if settings.RAG_ENABLED:
+            rag_state = {"requested": False, "status": "public_only", "source_policy": "public_only", "chunk_count": 0, "collection_ids": []}
+            if settings.RAG_ENABLED and effective_collection_ids:
                 from app.services.rag_integration import generation_context_service
                 try:
                     context_package = await generation_context_service.prepare_context(
@@ -568,6 +537,7 @@ async def create_bulk_jobs(
                         user_id=UUID(user["id"]),
                         user_org_id=None,
                         slug=unique_slug,
+                        force_refresh=True,
                     )
                     validated_chunks = context_package.get("validated_chunks", [])
                     if not validated_chunks:
@@ -576,18 +546,12 @@ async def create_bulk_jobs(
                             "error": "No validated RAG evidence found; report was not dispatched.",
                         })
                         continue
-                    rag_state = {
-                        "requested": True,
-                        "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
-                        "chunk_count": len(validated_chunks),
-                        "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
-                        "collection_ids": [str(cid) for cid in (effective_collection_ids or [])],
-                    }
+                    rag_state = _prepared_rag_metadata(context_package, effective_collection_ids)
                 except Exception as exc:
                     await db.rollback()
                     errors.append({
                         "topic": topic,
-                        "error": f"RAG context preparation failed; report was not dispatched: {exc}",
+                        "error": "RAG context preparation failed; report was not dispatched.",
                     })
                     continue
 
@@ -601,18 +565,17 @@ async def create_bulk_jobs(
                 slug=unique_slug,
                 industry=industry,
                 created_by=UUID(user["id"]),
-                dispatch=should_dispatch
+                dispatch=should_dispatch,
+                rag_metadata=rag_state,
             )
-            job.audit_metadata = {**(job.audit_metadata or {}), "rag": rag_state}
-            await db.commit()
 
             status_val = job.status.value
-            if should_dispatch:
+            if should_dispatch and job.status != JobStatusType.failed:
                 slots_available -= 1
                 dispatched_count += 1
                 # Stagger dispatches to respect GitHub API rate limits
                 await asyncio.sleep(DISPATCH_STAGGER_SEC)
-            else:
+            elif not should_dispatch:
                 queued_count += 1
                 # If not dispatched, keep status as pending
                 status_val = "pending"

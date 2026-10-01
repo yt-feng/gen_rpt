@@ -324,9 +324,11 @@ async def get_internal_context(
                 "document_references": [],
                 "context_text": "",
                 "has_rag_context": False,
-                "document_count": 0
+                "document_count": 0,
+                "context_status": "missing_or_expired",
+                "recovery_action": "retry_original_job_with_scoped_context_preparation",
             },
-            message="No context found, fallback empty context provided"
+            message="Context is missing or expired; prepare and validate the original job scope before dispatch"
         )
 
     # Build a clean, pre-formatted context_text for direct prompt injection

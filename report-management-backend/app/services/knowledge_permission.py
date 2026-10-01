@@ -65,7 +65,8 @@ class KnowledgePermissionService:
         return has_perm
 
     async def batch_check_permissions(
-        self, db: AsyncSession, collection_ids: List[uuid.UUID], user_id: uuid.UUID, required_level: str
+        self, db: AsyncSession, collection_ids: List[uuid.UUID], user_id: uuid.UUID, required_level: str,
+        *, force_refresh: bool = False
     ) -> Set[uuid.UUID]:
         if not collection_ids:
             return set()
@@ -74,7 +75,7 @@ class KnowledgePermissionService:
         missing_ids = []
         for cid in collection_ids:
             cache_key = f"permission:{cid}:{user_id}:{required_level}"
-            cached = await knowledge_cache_service.get(cache_key)
+            cached = None if force_refresh else await knowledge_cache_service.get(cache_key)
             if cached is True:
                 allowed.add(cid)
             elif cached is False:
