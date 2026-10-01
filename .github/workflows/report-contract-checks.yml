@@ -1,0 +1,46 @@
+name: Report contract checks
+
+on:
+  pull_request:
+    paths:
+      - "gen_rpt/**"
+      - "tests/**"
+      - "tools/run_report_contract_checks.py"
+      - "requirements.txt"
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+    paths:
+      - "gen_rpt/**"
+      - "tests/**"
+      - "tools/run_report_contract_checks.py"
+      - "requirements.txt"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: report-contract-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  offline-contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.12"]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Standard, RAG and publication contract regressions
+        # No secrets, model/API calls, browser installation or browser launch.
+        # The runner rejects network/process attempts, including swallowed ones.
+        run: python tools/run_report_contract_checks.py

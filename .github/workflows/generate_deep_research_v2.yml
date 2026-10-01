@@ -116,7 +116,8 @@ jobs:
             --slug "$SLUG" \
             --language en \
             --model "$MODEL" \
-            --out-root reports_web > "$GEN_LOG" 2>&1
+            --out-root reports_web \
+            --checkpoint-path ".artifacts/report-generation/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json" > "$GEN_LOG" 2>&1
           GEN_STATUS="$?"
           set -e
 
@@ -146,6 +147,17 @@ jobs:
           # We extract the document ID if present, otherwise fallback to slug
           # In a full integration, the document ID would be returned by gen_rpt.main_web
           echo "document_id=$SLUG" >> "$GITHUB_OUTPUT"
+
+      - name: Preserve generation diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-generation-${{ github.run_id }}-${{ github.run_attempt }}
+          # Raw drafts, source URLs and RAG inputs remain runner-local.
+          path: .artifacts/report-generation/*.diagnostic.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Commit generated report back to repo
         run: |
