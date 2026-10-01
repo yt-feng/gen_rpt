@@ -51,6 +51,7 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn("    branches: [main]", workflow)
         self.assertIn("contents: read", workflow)
         self.assertIn("python tools/run_report_contract_checks.py", workflow)
+        self.assertIn("MPLCONFIGDIR: ${{ runner.temp }}/report-contract-fonts-${{ matrix.python }}", workflow)
         self.assertNotIn("secrets.", workflow)
         self.assertNotIn("playwright install", workflow)
         self.assertNotIn("gen_rpt.main_web", workflow)

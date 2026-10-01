@@ -43,4 +43,6 @@ jobs:
       - name: Standard, RAG and publication contract regressions
         # No secrets, model/API calls, browser installation or browser launch.
         # The runner rejects network/process attempts, including swallowed ones.
+        env:
+          MPLCONFIGDIR: ${{ runner.temp }}/report-contract-fonts-${{ matrix.python }}
         run: python tools/run_report_contract_checks.py
