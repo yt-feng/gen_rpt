@@ -53,6 +53,7 @@ from .web_publication_contract import (
     source_channel_report_quality_issues,
 )
 from .web_report_renderer import normalize_web_report, render_web_report_html, render_web_report_markdown
+from .report_draft_checkpoint import DraftCheckpoint
 
 
 class ReportQualityError(RuntimeError):
@@ -449,7 +450,13 @@ def _source_channel_atomic_floor(kind: str, words: int) -> int | None:
     return min(words, requested)
 
 
-def _source_channel_length_budget(report: Any) -> Dict[str, Any]:
+def _source_channel_length_budget(
+    report: Any,
+    *,
+    creative_target: int = SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET,
+    creative_max: int = SOURCE_CHANNEL_CREATIVE_TOTAL_MAX,
+    publication_max: int = SOURCE_CHANNEL_PUBLICATION_MAX_WORDS,
+) -> Dict[str, Any]:
     """Quantify fixed, protected, mutable, and minimum-feasible word budgets."""
 
     fields = _source_channel_reader_fields(report)
@@ -523,11 +530,11 @@ def _source_channel_length_budget(report: Any) -> Dict[str, Any]:
         if entry["mutable"]
     )
 
-    if minimum_feasible <= SOURCE_CHANNEL_CREATIVE_TOTAL_MAX:
-        target_words = max(SOURCE_CHANNEL_CREATIVE_TOTAL_TARGET, minimum_feasible)
+    if minimum_feasible <= creative_max:
+        target_words = max(creative_target, minimum_feasible)
     else:
         target_words = min(
-            SOURCE_CHANNEL_PUBLICATION_MAX_WORDS,
+            publication_max,
             minimum_feasible + 50,
         )
     desired_reduction = max(0, total_words - target_words)
@@ -1229,6 +1236,7 @@ class WebReportPipeline:
         source_mode: str = "web_only",
         source_profile: Dict[str, Any] | None = None,
         report_mode: str = STANDARD_REPORT_MODE,
+        checkpoint_path: Path | None = None,
     ) -> Dict[str, Any]:
         run_start = time.monotonic()
         self.rag_context = rag_context
@@ -1554,6 +1562,17 @@ class WebReportPipeline:
 
         phase_start = time.monotonic()
         self._log("PHASE synthesis started | expected 60-180s")
+        checkpoint = DraftCheckpoint(
+            checkpoint_path,
+            inputs={"topic": display_topic, "language": self.language,
+                    "report_mode": self.report_mode, "source_mode": normalized_source_mode,
+                    "rag_required": self.rag_required},
+            sources=sources, approved_evidence=approved_evidence,
+            storyline_plan=storyline_plan,
+        )
+        report = None
+        quality_issues = []
+        revision_attempt = 0
         try:
             report = self._synthesize_web_report(
                 display_topic,
@@ -1574,22 +1593,41 @@ class WebReportPipeline:
                 source_chunks=rag_source_chunks,
                 approved_evidence=approved_evidence,
             )
+            checkpoint.record("prepared", report, quality_issues, revisions_used=0,
+                              budget=_source_channel_length_budget(report, creative_target=3500,
+                                  creative_max=3650, publication_max=3800) if not self._source_channel_mode() else None)
             if not (
                 self._source_channel_mode()
                 and self._source_channel_length_ceiling_only(quality_issues)
             ):
-                for revision_attempt in range(1, 4):
+                for next_revision in range(1, 4):
                     if not quality_issues:
                         break
+                    revision_attempt = next_revision
                     self._log(
                         f"PHASE synthesis revision {revision_attempt}/3 | "
                         + " | ".join(quality_issues[:8])
                     )
-                    report = self._revise_report_draft(
-                        report,
-                        quality_issues,
-                        storyline_plan,
+                    standard_length_repair = (
+                        self.report_mode == STANDARD_REPORT_MODE
+                        and not self._source_channel_mode()
+                        and self._standard_length_ceiling_only(quality_issues)
                     )
+                    previous_words = _word_count(_report_narrative_text(report))
+                    if standard_length_repair:
+                        self._log(f"PHASE synthesis standard_length | revision={revision_attempt}/3 | words={previous_words}")
+                        # Global excess needs explicit whole-field budgets, not
+                        # another instruction to leave compliant sections alone.
+                        report, quality_issues = self._revise_source_channel_fields(
+                            report, quality_issues, storyline_plan=storyline_plan,
+                            topic=display_topic, grounding_text=grounding_text,
+                            source_count=len(sources), source_chunks=rag_source_chunks,
+                            approved_evidence=approved_evidence, standard_length_repair=True,
+                        )
+                    else:
+                        report = self._revise_report_draft(
+                            report, quality_issues, storyline_plan,
+                        )
                     report, quality_issues = self._prepare_report_draft(
                         report,
                         topic=display_topic,
@@ -1598,6 +1636,12 @@ class WebReportPipeline:
                         source_chunks=rag_source_chunks,
                         approved_evidence=approved_evidence,
                     )
+                    checkpoint.record("revision", report, quality_issues, revisions_used=revision_attempt,
+                                      budget=_source_channel_length_budget(report, creative_target=3500,
+                                          creative_max=3650, publication_max=3800) if standard_length_repair else None)
+                    if standard_length_repair and _word_count(_report_narrative_text(report)) >= previous_words:
+                        self._log("PHASE synthesis standard_length no_progress; exact draft retained")
+                        break
                     if (
                         self._source_channel_mode()
                         and self._source_channel_length_ceiling_only(quality_issues)
@@ -1651,6 +1695,7 @@ class WebReportPipeline:
                     source_chunks=rag_source_chunks,
                     approved_evidence=approved_evidence,
                 )
+            checkpoint.record("quality_checked", report, quality_issues, revisions_used=revision_attempt)
             if quality_issues:
                 raise ReportQualityError("Report content quality gate failed: " + " | ".join(quality_issues))
 
@@ -1720,6 +1765,7 @@ class WebReportPipeline:
                     self._log("PHASE editorial audit warning | " + " | ".join(self._audit_corrections(audit)[:4]))
                 report["content_quality_audit"] = audit
         except Exception as exc:
+            checkpoint.record("rejected", report, quality_issues, revisions_used=revision_attempt, error=str(exc))
             (output_dir / "web_synthesis_error.txt").write_text(str(exc), encoding="utf-8")
             if self._synthesis_error_must_fail_closed(exc):
                 raise
@@ -3126,6 +3172,16 @@ Rules:
                 return int(match.group(1).replace(",", ""))
         return None
 
+    @staticmethod
+    def _standard_length_ceiling_only(issues: List[str]) -> bool:
+        if len(issues) != 1:
+            return False
+        match = re.fullmatch(
+            r"The reader-visible decision brief needs 1,800-3,800 words; found (\d+)\.",
+            str(issues[0]),
+        )
+        return bool(match and int(match.group(1)) > 3800)
+
     def _revise_source_channel_fields(
         self,
         report: Dict[str, Any],
@@ -3137,6 +3193,7 @@ Rules:
         source_count: int,
         source_chunks: Dict[str, str],
         approved_evidence: List[Dict[str, Any]],
+        standard_length_repair: bool = False,
     ) -> tuple[Dict[str, Any], List[str]]:
         """Apply model-authored, whole-field source-only length patches.
 
@@ -3148,22 +3205,32 @@ Rules:
         truncated or deleted locally.
         """
 
-        if (
-            not self._source_channel_mode()
-            or not self._source_channel_length_ceiling_only(issues)
-        ):
+        eligible = (
+            self.report_mode == STANDARD_REPORT_MODE
+            and not self._source_channel_mode() and self._standard_length_ceiling_only(issues)
+            if standard_length_repair else
+            self._source_channel_mode() and self._source_channel_length_ceiling_only(issues)
+        )
+        if not eligible:
             return report, issues
 
-        budget = _source_channel_length_budget(report)
+        publication_min, publication_max = (
+            (1800, 3800) if standard_length_repair else
+            (SOURCE_CHANNEL_PUBLICATION_MIN_WORDS, SOURCE_CHANNEL_PUBLICATION_MAX_WORDS)
+        )
+        budget = _source_channel_length_budget(
+            report, creative_target=3500, creative_max=3650, publication_max=publication_max,
+        ) if standard_length_repair else _source_channel_length_budget(report)
         for line in _source_channel_budget_log_lines(budget):
-            self._log(line)
+            self._log(line.replace("source_length", "standard_length", 1) if standard_length_repair else line)
+        contract_label = "Standard-report" if standard_length_repair else "Source-channel"
         minimum_feasible = int(budget["minimum_feasible_words"])
-        if minimum_feasible > SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:
+        if minimum_feasible > publication_max:
             raise ReportQualityError(
-                "Source-channel atomic length revision is infeasible: protected "
+                f"{contract_label} atomic length revision is infeasible: protected "
                 "and required field subtotal is "
                 f"{minimum_feasible} words, above the "
-                f"{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS:,}-word publication ceiling."
+                f"{publication_max:,}-word publication ceiling."
             )
 
         candidate_entries = sorted(
@@ -3180,7 +3247,7 @@ Rules:
         )[:SOURCE_CHANNEL_ATOMIC_REVISION_MAX_FIELDS]
         if not candidate_entries:
             raise ReportQualityError(
-                "Source-channel atomic length revision is infeasible: no complete "
+                f"{contract_label} atomic length revision is infeasible: no complete "
                 "reader-visible field without protected tokens has removable headroom."
             )
 
@@ -3194,13 +3261,13 @@ Rules:
             }
             for entry in candidate_entries
         ]
-        prompt = f"""Shorten only the explicitly listed complete fields from a rejected GateX source-channel report. Return one JSON object only.
+        prompt = f"""Shorten only the explicitly listed complete fields from a rejected report. Return one JSON object only.
 
 Topic: {topic}
 Language: {self.language}
 Current reader-visible total: {budget['total_words']}
 Target reader-visible total: {budget['target_words']}
-Publication range: {SOURCE_CHANNEL_PUBLICATION_MIN_WORDS}-{SOURCE_CHANNEL_PUBLICATION_MAX_WORDS}
+Publication range: {publication_min}-{publication_max}
 
 Selected content modules:
 {json.dumps(storyline_plan.get('selected_modules') or [], ensure_ascii=False)}
@@ -3215,6 +3282,7 @@ Rules:
 - Meet every field's minimum_words and maximum_words using the deterministic GateX count: each Chinese character is one unit and each Latin word or number is one unit.
 - The eligible originals contain no protected token. Introduce no number, date, percentage, currency, URL, domain, DOI, OpenAlex/SSRN identifier, source label, citation, or new fact.
 - Do not return evidence, references, section arrays, action arrays, field names not listed, or commentary.
+- A total-length failure applies to every listed field, even when its original section individually passed its depth gate. The measured budget includes immutable evidence, titles, actions and all other reader-visible fields; do not return unchanged over-budget prose.
 """
         response = self.client.chat_json(
             [
@@ -3340,7 +3408,10 @@ Rules:
             non_length_issues = [
                 issue
                 for issue in candidate_issues
-                if not str(issue).startswith(_SOURCE_CHANNEL_CEILING_ISSUE_PREFIX)
+                if not (
+                    self._standard_length_ceiling_only([issue]) if standard_length_repair
+                    else str(issue).startswith(_SOURCE_CHANNEL_CEILING_ISSUE_PREFIX)
+                )
             ]
             if not target_preserved:
                 reason = "target_field_changed_by_prepare"
@@ -3376,7 +3447,9 @@ Rules:
                 f"| path={path} | field_words={entry['words']}->"
                 f"{candidate_field_words} | total_words={current_words}"
             )
-            if not current_issues:
+            if not current_issues and (
+                not standard_length_repair or current_words <= budget["target_words"]
+            ):
                 break
 
         self._log(

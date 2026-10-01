@@ -30,6 +30,32 @@ class GenerationWorkflowTests(unittest.TestCase):
         self.assertIn("::error title=Generator failure::", workflow)
         self.assertLess(workflow.index('cat "$GEN_LOG"'), workflow.index('exit "$GEN_STATUS"'))
 
+    def test_v2_keeps_failed_draft_outside_publication_and_uploads_after_failure(self):
+        workflow = (ROOT / ".github/workflows/generate_deep_research_v2.yml").read_text(encoding="utf-8")
+        diagnostic = workflow.split("      - name: Preserve generation diagnostics\n", 1)[1].split("      - name:", 1)[0]
+        self.assertIn("if: always()", diagnostic)
+        self.assertIn("actions/upload-artifact@v4", diagnostic)
+        self.assertIn("path: .artifacts/report-generation/*.diagnostic.json", diagnostic)
+        self.assertNotIn("reports_web/", diagnostic)
+        self.assertNotIn(".log", diagnostic)
+        self.assertNotIn("path: |", diagnostic)
+        self.assertIn("include-hidden-files: true", diagnostic)
+        self.assertIn("${{ github.run_attempt }}", diagnostic)
+        self.assertIn('--checkpoint-path ".artifacts/report-generation/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json"', workflow)
+        commit = workflow.split("      - name: Commit generated report back to repo\n", 1)[1].split("      - name:", 1)[0]
+        self.assertNotIn(".artifacts", commit)
+
+    def test_contract_ci_runs_offline_regressions_on_pull_requests_and_main(self):
+        workflow = (ROOT / ".github/workflows/report-contract-checks.yml").read_text(encoding="utf-8")
+        self.assertIn("  pull_request:", workflow)
+        self.assertIn("    branches: [main]", workflow)
+        self.assertIn("contents: read", workflow)
+        self.assertIn("python tools/run_report_contract_checks.py", workflow)
+        self.assertIn("MPLCONFIGDIR: ${{ runner.temp }}/report-contract-fonts-${{ matrix.python }}", workflow)
+        self.assertNotIn("secrets.", workflow)
+        self.assertNotIn("playwright install", workflow)
+        self.assertNotIn("gen_rpt.main_web", workflow)
+
     def test_legacy_workflow_passes_apimart_secret_to_both_generation_paths(self):
         workflow = (ROOT / ".github/workflows/generate_deep_research.yml").read_text(encoding="utf-8")
         secret_mapping = "APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}"

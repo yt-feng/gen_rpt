@@ -28,6 +28,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--language", default="en", help="Report language: en or zh.")
     parser.add_argument("--model", default="deepseek-chat", help="DeepSeek model name.")
     parser.add_argument("--out-root", default="reports_web", help="Output root directory.")
+    parser.add_argument("--checkpoint-path", type=Path, default=None,
+                        help="Optional diagnostic draft receipt outside the published report directory.")
     parser.add_argument(
         "--source-dir",
         type=Path,
@@ -155,6 +157,7 @@ def main() -> None:
         rag_required=rag_required,
         private_sources=private_sources,
         source_mode=source_mode,
+        checkpoint_path=getattr(args, "checkpoint_path", None),
     )
     print(f"HTML web report generated at: {result['html_path']}")
     print(f"Markdown generated at: {result['markdown_path']}")
