@@ -154,15 +154,19 @@ async def list_reports(
                     "full_name": owner.full_name,
                     "email": owner.email
                 }
+            else:
+                entry["assignedTo"] = None
             mock_reports_dict[doc_id] = entry
             MOCK_REPORTS[doc_id] = entry
         else:
-            if owner and not mock_reports_dict[doc_id].get("assignedTo"):
+            if owner:
                 mock_reports_dict[doc_id]["assignedTo"] = {
                     "id": str(owner.id),
                     "full_name": owner.full_name,
                     "email": owner.email
                 }
+            else:
+                mock_reports_dict[doc_id]["assignedTo"] = None
     
     reports_list = list(mock_reports_dict.values())
 
@@ -486,13 +490,13 @@ async def get_report_details(
     if not sections or (len(sections) == 1 and "View the full HTML report" in sections[0].get("body", "")):
         report = _populate_rich_report_from_r2(report, document_id)
 
-    # Sync owner details from DB if missing
-    if not report.get("assignedTo"):
-        try:
-            stmt = select(Document).where(Document.slug.in_([bare_slug, document_id]))
-            res = await db.execute(stmt)
-            doc = res.scalar_one_or_none()
-            if doc and doc.owner_id:
+    # Always sync owner details from DB (single source of truth for assignments)
+    try:
+        stmt = select(Document).where(Document.slug.in_([bare_slug, document_id]))
+        res = await db.execute(stmt)
+        doc = res.scalar_one_or_none()
+        if doc:
+            if doc.owner_id:
                 owner_res = await db.execute(select(User).where(User.id == doc.owner_id))
                 owner = owner_res.scalar_one_or_none()
                 if owner:
@@ -501,8 +505,12 @@ async def get_report_details(
                         "full_name": owner.full_name,
                         "email": owner.email
                     }
-        except Exception:
-            pass
+                else:
+                    report["assignedTo"] = None
+            else:
+                report["assignedTo"] = None
+    except Exception:
+        pass
 
     # Always refresh image presigned URLs dynamically to ensure they never expire (HTTP 403 prevention)
     try:
@@ -1103,26 +1111,43 @@ async def claim_report(
     """
     from app.models.document import Document
     from app.models.identity import User
-    from sqlalchemy import select
+    from sqlalchemy import select, func
     import uuid
+    import re
+
+    bare_slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', document_id)
     
     # 1. Verify user exists in the DB
-    stmt = select(User).where(User.email == user["email"])
+    stmt = select(User).where(func.lower(User.email) == user["email"].lower())
     res = await db.execute(stmt)
     db_user = res.scalar_one_or_none()
+
+    if not db_user:
+        try:
+            user_uuid = uuid.UUID(user["id"])
+            user_res = await db.execute(select(User).where(User.id == user_uuid))
+            db_user = user_res.scalar_one_or_none()
+        except (ValueError, TypeError):
+            pass
+
     if not db_user:
         # Create user record dynamically if missing
+        try:
+            user_uuid = uuid.UUID(user["id"])
+        except (ValueError, TypeError):
+            user_uuid = uuid.uuid4()
         db_user = User(
-            id=uuid.UUID(user["id"]),
-            full_name=user["full_name"],
+            id=user_uuid,
+            full_name=user.get("full_name") or user["email"].split("@")[0].title(),
             email=user["email"],
             status="active"
         )
         db.add(db_user)
         await db.commit()
+        await db.refresh(db_user)
     
-    # 2. Find document
-    stmt = select(Document).where(Document.slug == document_id)
+    # 2. Find document in DB
+    stmt = select(Document).where(Document.slug.in_([document_id, bare_slug]))
     res = await db.execute(stmt)
     doc = res.scalar_one_or_none()
     
@@ -1132,38 +1157,67 @@ async def claim_report(
             doc = await db.get(Document, doc_uuid)
         except ValueError:
             pass
-            
+
+    # If document does not exist in DB yet, create it dynamically
     if not doc:
-        return error_response(message="Document not found")
-        
-    # 3. Update owner_id in DB
-    doc.owner_id = db_user.id
-    await db.commit()
+        rep_data = MOCK_REPORTS.get(document_id) or MOCK_REPORTS.get(bare_slug)
+        title = (rep_data.get("title") if rep_data else None) or bare_slug.replace('-', ' ').title()
+        doc = Document(
+            id=uuid.uuid4(),
+            slug=bare_slug,
+            title=title,
+            owner_id=db_user.id,
+            status="in_review"
+        )
+        db.add(doc)
+        await db.commit()
+        await db.refresh(doc)
+    else:
+        # 3. Update owner_id in DB
+        doc.owner_id = db_user.id
+        await db.commit()
     
-    # 4. Update in-memory MOCK_REPORTS
+    # 4. Update in-memory MOCK_REPORTS under all possible alias keys
     report = MOCK_REPORTS.get(document_id)
     if not report:
-        report = MOCK_REPORTS.get(doc.slug) or MOCK_REPORTS.get(str(doc.id))
-        
-    if report:
-        report["assignedTo"] = {
-            "id": str(db_user.id),
-            "full_name": db_user.full_name,
-            "email": db_user.email
+        report = MOCK_REPORTS.get(bare_slug) or MOCK_REPORTS.get(doc.slug) or MOCK_REPORTS.get(str(doc.id))
+
+    assigned_info = {
+        "id": str(db_user.id),
+        "full_name": db_user.full_name,
+        "email": db_user.email
+    }
+
+    if not report:
+        report = {
+            "id": document_id,
+            "title": doc.title or bare_slug.replace('-', ' ').title(),
+            "slug": doc.slug or bare_slug,
+            "version": "v1",
+            "status": "Generated",
+            "humanStatus": "In Progress",
+            "aiScore": 0.0,
+            "aiGrade": "N/A",
+            "commentCount": 0,
+            "lastUpdated": "",
+            "publishReady": False,
+            "aiReview": None,
+            "reportContent": {"brand": "GateX", "label": "Intelligence Report", "date": "", "sections": []},
+            "comments": [],
+            "assignedTo": assigned_info
         }
+    else:
+        report["assignedTo"] = assigned_info
         report["humanStatus"] = "In Progress"
-        MOCK_REPORTS[document_id] = report
-        MOCK_REPORTS[doc.slug] = report
-        MOCK_REPORTS[str(doc.id)] = report
+
+    # Store in MOCK_REPORTS under document_id, bare_slug, doc.slug, and doc.id
+    for key in filter(None, [document_id, bare_slug, doc.slug, str(doc.id)]):
+        MOCK_REPORTS[key] = report
         
     return success_response(
         data={
             "document_id": document_id,
-            "assignedTo": {
-                "id": str(db_user.id),
-                "full_name": db_user.full_name,
-                "email": db_user.email
-            }
+            "assignedTo": assigned_info
         },
         message="Report claimed successfully"
     )

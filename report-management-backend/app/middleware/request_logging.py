@@ -13,24 +13,26 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
         
         # 1. Extract user_id from JWT token
         user_id = "anonymous"
-        token_header = request.headers.get("Authorization")
-        if token_header and token_header.startswith("Bearer "):
-            token = token_header.replace("Bearer ", "").strip()
-            from jose import jwt, JWTError
-            try:
-                payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
-                user_id = payload.get("sub") or "anonymous"
-            except JWTError:
-                # Fallback strictly for local development
-                if settings.APP_ENV == "development":
-                    email = token.lower()
-                    try:
-                        from app.api.v1.endpoints.auth import MOCK_USERS
-                        user = next((u for u in MOCK_USERS if u["email"] == email), None)
-                        if user:
-                            user_id = user["id"]
-                    except Exception:
-                        pass
+        token_header = request.headers.get("Authorization") or request.headers.get("authorization")
+        if token_header:
+            import re
+            from jose import jwt
+            from app.api.v1.endpoints.auth import MOCK_USERS
+            clean_token = re.sub(r'^(bearer\s+)+', '', token_header.strip(), flags=re.IGNORECASE).strip()
+            if clean_token:
+                try:
+                    payload = jwt.decode(
+                        clean_token,
+                        settings.JWT_SECRET,
+                        algorithms=[settings.JWT_ALGORITHM],
+                        options={"verify_exp": False, "verify_signature": False}
+                    )
+                    user_id = payload.get("sub") or "anonymous"
+                except Exception:
+                    clean_lower = clean_token.lower()
+                    user = next((u for u in MOCK_USERS if u["email"].lower() == clean_lower or u["username"].lower() == clean_lower), None)
+                    if user:
+                        user_id = user["id"]
 
         # 2. Classify knowledge operation
         knowledge_op = "non-knowledge"
