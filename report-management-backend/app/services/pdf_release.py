@@ -183,19 +183,9 @@ def _generate_pdf_bytes(html_content: str) -> bytes:
 
 async def _generate_pdf_via_playwright(html_content: str) -> bytes:
     """
-    Converts HTML to PDF bytes using Playwright.
+    Converts HTML to PDF bytes using Playwright in dedicated event loop.
     """
-    import re
-    clean_html = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(html_content or ""), flags=re.I)
-    from playwright.async_api import async_playwright
-
-    async with async_playwright() as p:
-        browser = await p.chromium.launch()
-        page = await browser.new_page()
-        await page.set_content(clean_html, wait_until="networkidle")
-        pdf_bytes = await page.pdf(format="A4", print_background=True)
-        await browser.close()
-        return pdf_bytes
+    return await pdf_release_service._generate_pdf(html_content)
 
 
 def _checksum(data: bytes) -> str:
@@ -589,26 +579,60 @@ class PdfReleaseService:
 
     async def _generate_pdf(self, html_content: str) -> bytes:
         import re
+        import sys
+        from anyio import to_thread
+
         clean_html = re.sub(r"\[Chunk:\s*[^\]]+\]\s*", "", str(html_content or ""), flags=re.I)
-        from playwright.async_api import async_playwright
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(
-                headless=True, 
-                args=['--no-sandbox', '--disable-setuid-sandbox']
-            )
-            page = await browser.new_page()
-            await page.set_content(clean_html, wait_until="domcontentloaded", timeout=20000)
+
+        def _render_in_dedicated_loop(html: str) -> bytes:
+            import asyncio
+            if sys.platform == "win32":
+                worker_loop = asyncio.ProactorEventLoop()
+            else:
+                worker_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(worker_loop)
+
+            async def _run_playwright() -> bytes:
+                from playwright.async_api import async_playwright
+                async with async_playwright() as p:
+                    browser = await p.chromium.launch(
+                        headless=True, 
+                        args=['--no-sandbox', '--disable-setuid-sandbox']
+                    )
+                    page = await browser.new_page()
+                    await page.set_content(html, wait_until="domcontentloaded", timeout=20000)
+                    try:
+                        await page.wait_for_load_state("load", timeout=15000)
+                    except Exception as e:
+                        logger.warning(f"[PdfRelease] Page asset load wait timed out or failed: {e}. Proceeding with rendered DOM.")
+                    pdf_bytes = await page.pdf(
+                        format="A4",
+                        print_background=True,
+                        margin={"top": "2cm", "bottom": "2cm", "left": "2.5cm", "right": "2.5cm"}
+                    )
+                    await browser.close()
+                    return pdf_bytes
+
             try:
-                await page.wait_for_load_state("load", timeout=15000)
-            except Exception as e:
-                logger.warning(f"[PdfRelease] Page asset load wait timed out or failed: {e}. Proceeding with rendered DOM.")
-            pdf_bytes = await page.pdf(
-                format="A4",
-                print_background=True,
-                margin={"top": "2cm", "bottom": "2cm", "left": "2.5cm", "right": "2.5cm"}
-            )
-            await browser.close()
-            return pdf_bytes
+                return worker_loop.run_until_complete(_run_playwright())
+            finally:
+                worker_loop.close()
+
+        try:
+            return await to_thread.run_sync(_render_in_dedicated_loop, clean_html)
+        except Exception as play_err:
+            logger.warning(f"[PdfRelease] Playwright render failed ({play_err}), attempting xhtml2pdf fallback...")
+            try:
+                from xhtml2pdf import pisa
+                import io
+                pdf_buffer = io.BytesIO()
+                pisa_status = pisa.CreatePDF(clean_html, dest=pdf_buffer)
+                if pisa_status.err:
+                    raise RuntimeError(f"xhtml2pdf failed with code {pisa_status.err}")
+                return pdf_buffer.getvalue()
+            except Exception as xhtml_err:
+                logger.error(f"[PdfRelease] Both Playwright and xhtml2pdf failed: {xhtml_err}")
+                raise play_err
 
     async def _get_latest_active(
         self, db: AsyncSession, doc_uuid: uuid.UUID
