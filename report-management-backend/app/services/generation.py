@@ -3,7 +3,7 @@ import asyncio
 from datetime import datetime, timezone
 from typing import Optional, Dict, Any, List
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, update
 
 from app.models.workflow import GenerationJob
 from app.models.enums import JobStatusType
@@ -68,7 +68,7 @@ class GitHubActionsWorker(WorkerInterface):
         print(f"Cancelling GitHub Action for Job {job.id} (not implemented)")
         return True
 
-    async def dispatch_bulk(self, slug: str, topic: str, model: str = "deepseek-chat") -> bool:
+    async def dispatch_bulk(self, slug: str, topic: str, model: str = "deepseek-chat", rag_required: bool = True) -> bool:
         """Dispatch a single job to generate_deep_research_bulk.yml."""
         if not settings.GITHUB_TOKEN:
             print("GITHUB_TOKEN not set. Cannot dispatch bulk job to GitHub Actions.")
@@ -86,6 +86,7 @@ class GitHubActionsWorker(WorkerInterface):
                 "topic": topic,
                 "slug": slug,
                 "model": model,
+                "rag_required": str(bool(rag_required)).lower(),
             }
         }
 
@@ -781,7 +782,7 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
         # Early exit if job has already reached a terminal state via webhook
         async with async_session_maker() as session:
             job = await session.get(GenerationJob, job_id)
-            if job and job.status in (JobStatusType.completed, JobStatusType.failed, JobStatusType.cancelled):
+            if job and job.status in (JobStatusType.completed, JobStatusType.failed):
                 print(f"[poll_r2] Job {job_id} already in terminal state '{job.status.value}', exiting poller.")
                 return
 
@@ -870,6 +871,10 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
             # Trigger queue manager to run next pending jobs
             await generation_service.process_bulk_queue(session)
 
+class GenerationClaimConflict(ValueError):
+    """Another request changed this job before dispatch was claimed."""
+
+
 class GenerationService:
     def __init__(self):
         self.worker = GitHubActionsWorker()
@@ -883,6 +888,7 @@ class GenerationService:
         report_type: str,
         created_by: uuid.UUID,
         rag_required: bool = False,
+        rag_metadata: Optional[dict] = None,
     ) -> GenerationJob:
         job = GenerationJob(
             id=uuid.uuid4(),
@@ -891,7 +897,7 @@ class GenerationService:
             prompt=prompt,
             report_type=report_type,
             created_by=created_by,
-            audit_metadata={"rag_required": rag_required},
+            audit_metadata={"rag_required": rag_required, "rag": rag_metadata or {}},
             status=JobStatusType.pending,
             started=datetime.now(timezone.utc)
         )
@@ -920,6 +926,7 @@ class GenerationService:
         industry: Optional[str] = None,
         created_by: Optional[uuid.UUID] = None,
         dispatch: bool = True,
+        rag_metadata: Optional[dict] = None,
     ) -> GenerationJob:
         """
         Create a single bulk report generation job.
@@ -934,7 +941,8 @@ class GenerationService:
             topic=topic,
             prompt=topic,
             report_type="bulk",
-            created_by=created_by or uuid.UUID("00000000-0000-0000-0000-000000000000"),
+            created_by=created_by,
+            audit_metadata={"rag_required": (rag_metadata or {}).get("source_policy") != "public_only", "rag": rag_metadata or {}},
             status=JobStatusType.pending,
             started=datetime.now(timezone.utc)
         )
@@ -944,7 +952,7 @@ class GenerationService:
 
         if dispatch:
             # Dispatch to the bulk workflow
-            success = await self.worker.dispatch_bulk(slug=slug, topic=topic)
+            success = await self.worker.dispatch_bulk(slug=slug, topic=topic, rag_required=bool((job.audit_metadata or {}).get("rag_required", True)))
             if not success:
                 job.status = JobStatusType.failed
                 job.errors = "Failed to dispatch bulk job to GitHub Actions"
@@ -963,17 +971,194 @@ class GenerationService:
         result = await db.execute(stmt)
         return result.scalars().all()
 
-    async def retry_job(self, db: AsyncSession, job_id: uuid.UUID) -> GenerationJob:
+    def _job_context_binding(self, job):
+        from copy import deepcopy
+        return {name: deepcopy(getattr(job, name)) for name in (
+            "id", "created_by", "document_id", "prompt", "topic", "audit_metadata", "retry_count", "report_type"
+        )}
+
+    async def _prepare_job_context(self, db, job, *, actor_id, binding, prepare=True):
+        """Prepare once within a recorded scope; never publish an unclaimed package."""
+        from copy import deepcopy
+        from app.models.document import Document
+        from app.models.identity import User
+        from app.services.rag_integration import generation_context_service, RAGContextPreparationError
+
+        if not actor_id or not actor_id.int or not binding["created_by"] or actor_id != binding["created_by"]:
+            raise ValueError("Retry requires the original job actor")
+        actor = await db.get(User, actor_id)
+        if not actor or actor.status != "active":
+            raise ValueError("Original job actor is missing or inactive")
+        doc = await db.get(Document, binding["document_id"])
+        if not doc or not doc.slug:
+            raise ValueError("Original report document or slug is unavailable")
+        if (doc.owner_id or doc.created_by) != actor_id:
+            raise ValueError("Original actor no longer owns the report document")
+        binding["slug"] = doc.slug
+        metadata = deepcopy(binding["audit_metadata"] or {})
+        if not isinstance(metadata, dict) or not isinstance(metadata.get("rag", {}), dict):
+            raise ValueError("Original RAG metadata is unavailable")
+        rag = metadata.get("rag", {})
+        # A legacy default false is not proof of public-only input. Only a
+        # recorded explicit source policy with no private intent can skip RAG.
+        public_only = (
+            metadata.get("rag_required") is False and rag.get("source_policy") == "public_only"
+            and rag.get("requested") is False and rag.get("chunk_count") == 0
+            and rag.get("collection_ids") == []
+        )
+        needs_rag = not public_only
+        package = None
+        if needs_rag:
+            if not settings.RAG_ENABLED:
+                raise ValueError("RAG is disabled; grounded retry was not dispatched")
+            raw_ids = rag.get("collection_ids")
+            if not isinstance(raw_ids, list) or not raw_ids:
+                raise ValueError("Original RAG collection scope is missing; create a new scoped request")
+            try:
+                collection_ids = [uuid.UUID(str(value)) for value in raw_ids]
+            except (ValueError, TypeError, AttributeError) as exc:
+                raise ValueError("Original RAG collection scope is invalid") from exc
+            if any(not cid.int for cid in collection_ids) or len(set(collection_ids)) != len(collection_ids):
+                raise ValueError("Original RAG collection scope is invalid")
+            query = binding["prompt"] or binding["topic"]
+            if not isinstance(query, str) or not query.strip():
+                raise ValueError("Original RAG query is missing")
+            if not prepare:
+                # A bulk retry only re-enters the queue. Expensive preparation
+                # belongs to the slot-owning queue consumer, exactly once.
+                return doc, metadata, None
+            try:
+                package = await generation_context_service.prepare_context(
+                    db=db, query=query, collection_ids=collection_ids,
+                    user_id=binding["created_by"], user_org_id=None,
+                    generation_job_id=binding["id"], slug=binding["slug"], force_refresh=True, cache_result=False,
+                )
+            except RAGContextPreparationError as exc:
+                raise ValueError(f"RAG retry preparation failed during {exc.stage}; no report was dispatched") from exc
+            except Exception as exc:
+                # Do not expose provider diagnostics, private queries or chunks.
+                raise ValueError("RAG retry preparation failed; no report was dispatched") from exc
+            chunks = package.get("validated_chunks") if isinstance(package, dict) else None
+            if not isinstance(chunks, list) or not chunks:
+                raise ValueError("No validated RAG evidence found; retry was not dispatched")
+            if any(
+                not isinstance(chunk, dict) or not isinstance(chunk.get("text"), str)
+                or not chunk["text"].strip() or not chunk.get("document_id")
+                or not chunk.get("chunk_id") or chunk.get("validation_status") != "validated"
+                for chunk in chunks
+            ):
+                raise ValueError("RAG retry returned malformed validated evidence; no report was dispatched")
+            snapshot = package.get("knowledge_snapshot")
+            if (not isinstance(snapshot, dict)
+                    or not isinstance(snapshot.get("collections"), list)
+                    or set(snapshot["collections"]) != {str(cid) for cid in collection_ids}
+                    or not package.get("knowledge_snapshot_id")
+                    or not package.get("validation_report_reference")):
+                raise ValueError("RAG retry validation provenance does not match the original scope")
+            try:
+                identifiers = [package["knowledge_snapshot_id"], package["validation_report_reference"]]
+                identifiers += [chunk[key] for chunk in chunks for key in ("chunk_id", "document_id")]
+                if any(not uuid.UUID(str(value)).int for value in identifiers):
+                    raise ValueError("Empty validation identifier")
+            except (ValueError, TypeError, AttributeError) as exc:
+                raise ValueError("RAG retry validation identifiers are invalid") from exc
+            metadata["rag_required"] = True
+            metadata["rag"] = {
+                **rag, "status": "ready", "chunk_count": len(chunks),
+                "estimated_tokens": package.get("context_metadata", {}).get("estimated_tokens", 0),
+                "knowledge_snapshot_id": package.get("knowledge_snapshot_id"),
+                "validation_report_reference": package.get("validation_report_reference"),
+                "context_prepared_for_job_id": str(binding["id"]),
+            }
+
+        return doc, metadata, package
+
+    async def _claim_prepared_job(
+        self, db, job, doc, metadata, package, *, binding, expected_status,
+        original_retry_count, target_status, increment_retry=False,
+    ):
+        from app.services.rag_integration import generation_context_service
+
+        # prepare_context commits snapshots/cache/analytics. Claim only afterward;
+        # a stale or concurrent caller cannot replay dispatch or overwrite state.
+        claim = await db.execute(
+            update(GenerationJob).where(
+                GenerationJob.id == binding["id"],
+                GenerationJob.status == expected_status,
+                GenerationJob.retry_count == original_retry_count,
+                GenerationJob.created_by == binding["created_by"],
+                GenerationJob.document_id == binding["document_id"],
+                GenerationJob.prompt == binding["prompt"],
+                GenerationJob.topic == binding["topic"],
+                GenerationJob.audit_metadata == binding["audit_metadata"],
+                GenerationJob.report_type == binding["report_type"],
+            ).values(
+                status=target_status, retry_count=original_retry_count + int(increment_retry),
+                errors=None, completed=None, duration=None, audit_metadata=metadata,
+            ).returning(GenerationJob.id).execution_options(synchronize_session=False)
+        )
+        if claim.scalar_one_or_none() is None:
+            await db.rollback()
+            raise GenerationClaimConflict("Job changed while preparing context; no report was dispatched")
+        await db.commit()
+        await db.refresh(job)
+        if package is not None:
+            try:
+                # Only the CAS winner publishes its freshly validated package.
+                # A losing concurrent prepare cannot overwrite this slug cache.
+                await generation_context_service.cache_service.set_cached_context(
+                    db, f"context:slug:{binding['slug']}", package,
+                    ttl_seconds=settings.RAG_CONTEXT_CACHE_TTL_SECONDS,
+                )
+            except Exception:
+                await db.rollback()
+                job.status = JobStatusType.failed
+                job.errors = "RAG retry cache publication failed; no report was dispatched"
+                await db.commit()
+                await db.refresh(job)
+                return False
+        return True
+
+    async def retry_job(
+        self, db: AsyncSession, job_id: uuid.UUID, *, actor_id: uuid.UUID
+    ) -> GenerationJob:
         job = await self.get_job(db, job_id)
         if not job:
             raise ValueError("Job not found")
-        
-        job.status = JobStatusType.pending
-        job.retry_count += 1
-        job.errors = None
-        await db.commit()
-        
-        await self.worker.dispatch(job)
+        if job.status != JobStatusType.failed:
+            raise ValueError("Only failed generation jobs can be retried")
+        original_retry_count = job.retry_count
+        if type(original_retry_count) is not int or original_retry_count < 0:
+            raise ValueError("Original retry state is unavailable")
+        binding = self._job_context_binding(job)
+        if binding["report_type"] == "bulk":
+            doc, metadata, _ = await self._prepare_job_context(
+                db, job, actor_id=actor_id, binding=binding, prepare=False,
+            )
+            await self._claim_prepared_job(
+                db, job, doc, metadata, None, binding=binding,
+                expected_status=JobStatusType.failed, original_retry_count=original_retry_count,
+                target_status=JobStatusType.pending, increment_retry=True,
+            )
+            await self.process_bulk_queue(db)
+            await db.refresh(job)
+            return job
+        doc, metadata, package = await self._prepare_job_context(db, job, actor_id=actor_id, binding=binding)
+        if not await self._claim_prepared_job(
+            db, job, doc, metadata, package, binding=binding, expected_status=JobStatusType.failed,
+            original_retry_count=original_retry_count, target_status=JobStatusType.pending,
+            increment_retry=True,
+        ):
+            return job
+        try:
+            dispatched = await self.worker.dispatch(job)
+        except Exception:
+            dispatched = False
+        if not dispatched:
+            job.status = JobStatusType.failed
+            job.errors = "Retry dispatch failed; no automatic redispatch was attempted"
+            await db.commit()
+            return job
         asyncio.create_task(poll_r2_for_completion(job.id))
         return job
 
@@ -1050,43 +1235,32 @@ class GenerationService:
         print(f"[process_bulk_queue] Promoting and dispatching {len(pending_jobs)} job(s) (headroom={slots_available}).")
 
         for job, doc in pending_jobs:
+            # A previous iteration may have rolled back and expired all ORM rows.
+            await db.refresh(job)
+            if job.status != JobStatusType.pending:
+                continue
+            queued_job_id = job.id
+            original_retry_count = job.retry_count
+            binding = self._job_context_binding(job)
             try:
-                # Refresh job-bound RAG context immediately before dispatch so a
-                # long queue wait cannot turn a grounded job into a silent fallback.
-                from app.core.config import settings
-                if settings.RAG_ENABLED and job.created_by:
-                    from app.services.rag_integration import generation_context_service
-                    rag_meta = (job.audit_metadata or {}).get("rag", {})
-                    collection_ids = [
-                        uuid.UUID(value) for value in rag_meta.get("collection_ids", [])
-                    ] or None
-                    context_package = await generation_context_service.prepare_context(
-                        db=db,
-                        query=job.prompt or job.topic or "",
-                        collection_ids=collection_ids,
-                        user_id=job.created_by,
-                        slug=doc.slug,
-                    )
-                    validated_chunks = context_package.get("validated_chunks", [])
-                    if not validated_chunks:
-                        raise ValueError("No validated RAG evidence found; queued report was not dispatched")
-                    job.audit_metadata = {
-                        **(job.audit_metadata or {}),
-                        "rag": {
-                            **rag_meta,
-                            "status": context_package.get("context_metadata", {}).get("rag_status", "ready"),
-                            "chunk_count": len(validated_chunks),
-                            "estimated_tokens": context_package.get("context_metadata", {}).get("estimated_tokens", 0),
-                        },
-                    }
-                # Set status to running immediately so they don't get double dispatched
-                job.status = JobStatusType.running
-                await db.commit()
+                if type(original_retry_count) is not int or original_retry_count < 0:
+                    raise ValueError("Original retry state is unavailable")
+                doc, metadata, package = await self._prepare_job_context(
+                    db, job, actor_id=binding["created_by"], binding=binding,
+                )
+                if not await self._claim_prepared_job(
+                    db, job, doc, metadata, package, binding=binding, expected_status=JobStatusType.pending,
+                    original_retry_count=original_retry_count, target_status=JobStatusType.running,
+                ):
+                    continue
 
                 slug = doc.slug or f"doc-{str(job.id)[:8]}"
                 topic = job.topic or "Unknown Topic"
 
-                success = await self.worker.dispatch_bulk(slug=slug, topic=topic)
+                try:
+                    success = await self.worker.dispatch_bulk(slug=slug, topic=topic, rag_required=bool((job.audit_metadata or {}).get("rag_required", True)))
+                except Exception:
+                    success = False
                 if not success:
                     job.status = JobStatusType.failed
                     job.errors = "Failed to dispatch bulk job to GitHub Actions"
@@ -1100,12 +1274,30 @@ class GenerationService:
                 # Stagger dispatches to respect rate limits
                 await asyncio.sleep(2.0)
 
-            except Exception as e:
+            except GenerationClaimConflict:
+                # A different queue worker owns this job now. Leave its state/cache alone.
+                continue
+            except Exception:
                 await db.rollback()
-                job.status = JobStatusType.failed
-                job.errors = str(e)
+                # A stale preparation may not fail a claimed or edited job.
+                # Match the same immutable input binding as the success claim.
+                await db.execute(
+                    update(GenerationJob).where(
+                        GenerationJob.id == queued_job_id,
+                        GenerationJob.status == JobStatusType.pending,
+                        GenerationJob.retry_count == original_retry_count,
+                        GenerationJob.created_by == binding["created_by"],
+                        GenerationJob.document_id == binding["document_id"],
+                        GenerationJob.prompt == binding["prompt"],
+                        GenerationJob.topic == binding["topic"],
+                        GenerationJob.audit_metadata == binding["audit_metadata"],
+                        GenerationJob.report_type == binding["report_type"],
+                    ).values(status=JobStatusType.failed, errors="RAG queue preparation failed; report was not dispatched")
+                    .execution_options(synchronize_session=False)
+                )
                 await db.commit()
-                print(f"[process_bulk_queue] Error dispatching job {job.id}: {e}")
+                print("[process_bulk_queue] RAG queue preparation failed; report was not dispatched")
+
 
 
 generation_service = GenerationService()

@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "gen_rpt/**"
+      - "report-management-backend/app/**"
       - "tests/**"
       - "tools/run_report_contract_checks.py"
       - "requirements.txt"
@@ -12,6 +13,7 @@ on:
     branches: [main]
     paths:
       - "gen_rpt/**"
+      - "report-management-backend/app/**"
       - "tests/**"
       - "tools/run_report_contract_checks.py"
       - "requirements.txt"
@@ -39,10 +41,11 @@ jobs:
           python-version: ${{ matrix.python }}
           cache: pip
       - name: Install Python dependencies
-        run: python -m pip install -r requirements.txt
+        run: python -m pip install -r requirements.txt "SQLAlchemy>=2.0.30,<3"
       - name: Standard, RAG and publication contract regressions
         # No secrets, model/API calls, browser installation or browser launch.
         # The runner rejects network/process attempts, including swallowed ones.
         env:
+          REQUIRE_SQLALCHEMY_CONTRACT: "1"
           MPLCONFIGDIR: ${{ runner.temp }}/report-contract-fonts-${{ matrix.python }}
         run: python tools/run_report_contract_checks.py

@@ -341,7 +341,9 @@ class GenerationContextService:
         user_org_id: Optional[uuid.UUID] = None,
         config: Optional[dict] = None,
         generation_job_id: Optional[uuid.UUID] = None,
-        slug: Optional[str] = None
+        slug: Optional[str] = None,
+        force_refresh: bool = False,
+        cache_result: bool = True
     ) -> Dict[str, Any]:
         ret_start = time.time()
         
@@ -358,7 +360,9 @@ class GenerationContextService:
 
         
         # 2. Check Context Cache
-        cached_pkg = await self.cache_service.get_cached_context(db, cache_key)
+        # A retry must re-read eligible sources and run validation, even when
+        # the slug-only context cache is still valid. Never extend the old package.
+        cached_pkg = None if force_refresh else await self.cache_service.get_cached_context(db, cache_key)
         if cached_pkg:
             ret_time = int((time.time() - ret_start) * 1000)
             logger.info("Context Cache hit!")
@@ -387,7 +391,8 @@ class GenerationContextService:
                 collection_ids=collection_ids,
                 user_id=user_id,
                 user_org_id=user_org_id,
-                token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET
+                token_budget=settings.RAG_CONTEXT_TOKEN_BUDGET,
+                **({"force_refresh": True} if force_refresh else {})
             )
         except Exception as exc:
             raise RAGContextPreparationError("retrieval") from exc
@@ -504,9 +509,10 @@ class GenerationContextService:
         pkg_data["knowledge_snapshot_id"] = str(snapshot.id)
         
         # 6. Cache package
-        await self.cache_service.set_cached_context(
-            db, cache_key, pkg_data, ttl_seconds=settings.RAG_CONTEXT_CACHE_TTL_SECONDS
-        )
+        if cache_result:
+            await self.cache_service.set_cached_context(
+                db, cache_key, pkg_data, ttl_seconds=settings.RAG_CONTEXT_CACHE_TTL_SECONDS
+            )
 
         
         # 7. Log Generation Analytics

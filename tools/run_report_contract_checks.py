@@ -21,6 +21,8 @@ SUITES = (
     "tests.test_report_publication_contract",
     "tests.test_simplified_report_mode",
     "tests.test_report_contract_runner",
+    "tests.test_generation_retry_context",
+    "tests.test_generation_retry_sqlalchemy",
 )
 
 

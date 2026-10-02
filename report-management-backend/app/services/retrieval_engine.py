@@ -32,13 +32,19 @@ class RetrievalEngineService:
         filters: Optional[Dict[str, Any]] = None,
         weights: Optional[Dict[str, float]] = None,
         freshness_policy: str = "exponential",
-        token_budget: int = 4000
+        token_budget: int = 4000,
+        force_refresh: bool = False
     ) -> Dict[str, Any]:
         start_time = time.time()
+        # Recovery never broadens an absent historical scope to all collections.
+        if force_refresh and (not collection_ids or not user_id):
+            raise ValueError("Fresh RAG retrieval requires the original actor and collection scope")
         
         # 1. Collection scope and authorization always run before cache access,
         # so permission revocation takes effect immediately.
         col_stmt = select(KnowledgeCollection).filter(KnowledgeCollection.deleted_at.is_(None))
+        if force_refresh:
+            col_stmt = col_stmt.filter(KnowledgeCollection.status == "active")
         if user_org_id:
             col_stmt = col_stmt.filter(KnowledgeCollection.organization_id == user_org_id)
             
@@ -50,7 +56,14 @@ class RetrievalEngineService:
         target_ids = []
         if collection_ids:
             candidates = [cid for cid in collection_ids if cid in allowed_ids]
-            permitted = await knowledge_permission_service.batch_check_permissions(db, candidates, user_id, "viewer")
+            if force_refresh and set(candidates) != set(collection_ids):
+                raise ValueError("Original RAG collection scope is missing or inactive")
+            permission_options = {"force_refresh": True} if force_refresh else {}
+            permitted = await knowledge_permission_service.batch_check_permissions(
+                db, candidates, user_id, "viewer", **permission_options
+            )
+            if force_refresh and set(permitted) != set(collection_ids):
+                raise ValueError("Original RAG collection permission is no longer available")
             target_ids = [cid for cid in candidates if cid in permitted]
         else:
             # Fallback to all allowed collections
@@ -97,7 +110,7 @@ class RetrievalEngineService:
             json.dumps(cache_signature, sort_keys=True, default=str).encode("utf-8")
         ).hexdigest()
         cache_key = f"retrieval:{cache_digest}"
-        cached = await knowledge_cache_service.get(cache_key)
+        cached = None if force_refresh else await knowledge_cache_service.get(cache_key)
         if cached:
             cached = copy.deepcopy(cached)
             elapsed = int((time.time() - start_time) * 1000)
