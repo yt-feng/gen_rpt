@@ -576,9 +576,9 @@ class PdfReleaseService:
                 args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             page = await browser.new_page()
-            await page.set_content(clean_html, wait_until="domcontentloaded", timeout=30000)
+            await page.set_content(clean_html, wait_until="domcontentloaded", timeout=20000)
             try:
-                await page.wait_for_load_state("load", timeout=45000)
+                await page.wait_for_load_state("load", timeout=15000)
             except Exception as e:
                 logger.warning(f"[PdfRelease] Page asset load wait timed out or failed: {e}. Proceeding with rendered DOM.")
             pdf_bytes = await page.pdf(
