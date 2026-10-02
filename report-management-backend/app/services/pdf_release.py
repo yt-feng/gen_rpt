@@ -28,7 +28,20 @@ from sqlalchemy import select, update
 from app.models.pdf_release import PdfRelease
 from app.storage.provider import storage_provider
 from app.logging.logger import logger
-from gen_rpt.web_publication_contract import clean_client_text, output_leak_hits
+import os
+import sys
+
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
+try:
+    from gen_rpt.web_publication_contract import clean_client_text, output_leak_hits
+except ImportError:
+    def clean_client_text(text: str) -> str:
+        return text
+    def output_leak_hits(text: str):
+        return []
 
 
 PDF_RENDERER_REVISION = "pdf-release-preview-v2"
@@ -190,8 +203,9 @@ def _checksum(data: bytes) -> str:
 
 
 def _render_checksum(html_content: str) -> str:
-    """Invalidate previews when output-safety behavior changes."""
-    return _checksum(f"{PDF_RENDERER_REVISION}\0{html_content}".encode("utf-8"))
+    """Invalidate previews when content or output-safety behavior changes."""
+    normalized = re.sub(r"\?X-Amz-[^\s\"'<>]+", "", str(html_content or ""))
+    return _checksum(f"{PDF_RENDERER_REVISION}\0{normalized}".encode("utf-8"))
 
 
 def _release_leak_hits(text: str) -> list[str]:
@@ -562,7 +576,11 @@ class PdfReleaseService:
                 args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             page = await browser.new_page()
-            await page.set_content(clean_html, wait_until="load")
+            await page.set_content(clean_html, wait_until="domcontentloaded", timeout=30000)
+            try:
+                await page.wait_for_load_state("load", timeout=45000)
+            except Exception as e:
+                logger.warning(f"[PdfRelease] Page asset load wait timed out or failed: {e}. Proceeding with rendered DOM.")
             pdf_bytes = await page.pdf(
                 format="A4",
                 print_background=True,

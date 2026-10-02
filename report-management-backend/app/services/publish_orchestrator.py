@@ -228,9 +228,35 @@ class PublishOrchestrator:
         except Exception as e:
             logger.warning(f"Failed to fetch latest PdfRelease path for {report_id}: {e}")
 
+        # Auto-generate PDF release if missing
+        if not pdf_path:
+            try:
+                from app.services.pdf_release import pdf_release_service
+                res_pdf = await pdf_release_service.get_or_generate(
+                    db=db,
+                    report_id=report_id,
+                    report=report,
+                    actor_id="system"
+                )
+                pdf_path = res_pdf.storage_path
+            except Exception as e:
+                logger.warning(f"Failed to auto-generate PDF during publish for {report_id}: {e}")
+
+        cover_path = report.get("coverImagePath")
+        if not cover_path and report.get("r2_prefix"):
+            cover_candidate = f"{report['r2_prefix']}current/assets/cover-ai.png"
+            try:
+                if await storage_provider.download(cover_candidate):
+                    cover_path = cover_candidate
+            except Exception:
+                pass
+
+        if not cover_path:
+            cover_path = settings.GATEX_DEFAULT_COVER_PATH or None
+
         return {
             "pdf_path": pdf_path,
-            "cover_path": report.get("coverImagePath") or settings.GATEX_DEFAULT_COVER_PATH or None,
+            "cover_path": cover_path,
         }
 
     # ------------------------------------------------------------------
