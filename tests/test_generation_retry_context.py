@@ -477,6 +477,29 @@ class BulkAndProducerTests(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(h.job.status, Status.failed)
             h.worker.dispatch_bulk.assert_awaited_once(); h.tasks.assert_not_called()
 
+    async def test_failed_preparation_cannot_fail_concurrently_edited_pending_job(self):
+        changes = [("created_by", uuid.UUID(int=99)), ("document_id", uuid.UUID(int=99)),
+                   ("prompt", "newer source query"), ("topic", "newer topic"),
+                   ("audit_metadata", {"rag_required": True, "rag": {
+                       "requested": True, "collection_ids": [str(uuid.UUID(int=99))]}}),
+                   ("report_type", "standard")]
+        for field, value in changes:
+            h = RetryHarness()
+            async def changed_then_failed(**kwargs):
+                setattr(h.job, field, deepcopy(value))
+                h.job.errors = "newer writer diagnostic"
+                raise PreparationError("validation")
+            h.context.prepare_context.side_effect = changed_then_failed
+            with self.subTest(field=field):
+                await self.bulk(h)
+                self.assertEqual(h.job.status, Status.pending)
+                self.assertEqual(getattr(h.job, field), value)
+                self.assertEqual(h.job.errors, "newer writer diagnostic")
+                self.assertEqual(h.job.retry_count, 0)
+                h.context.prepare_context.assert_awaited_once()
+                h.context.cache_service.set_cached_context.assert_not_awaited()
+                h.worker.dispatch_bulk.assert_not_awaited(); h.tasks.assert_not_called()
+
     async def test_bulk_explicit_public_policy_survives_but_legacy_false_is_not_public_proof(self):
         h = RetryHarness(); h.job.audit_metadata = {"rag_required": False, "rag": {
             "source_policy": "public_only", "requested": False, "chunk_count": 0, "collection_ids": []}}

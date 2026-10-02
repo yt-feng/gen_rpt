@@ -1278,12 +1278,19 @@ class GenerationService:
                 continue
             except Exception:
                 await db.rollback()
-                # Preparation failure may not overwrite a concurrently claimed job.
+                # A stale preparation may not fail a claimed or edited job.
+                # Match the same immutable input binding as the success claim.
                 await db.execute(
                     update(GenerationJob).where(
                         GenerationJob.id == queued_job_id,
                         GenerationJob.status == JobStatusType.pending,
                         GenerationJob.retry_count == original_retry_count,
+                        GenerationJob.created_by == binding["created_by"],
+                        GenerationJob.document_id == binding["document_id"],
+                        GenerationJob.prompt == binding["prompt"],
+                        GenerationJob.topic == binding["topic"],
+                        GenerationJob.audit_metadata == binding["audit_metadata"],
+                        GenerationJob.report_type == binding["report_type"],
                     ).values(status=JobStatusType.failed, errors="RAG queue preparation failed; report was not dispatched")
                     .execution_options(synchronize_session=False)
                 )
