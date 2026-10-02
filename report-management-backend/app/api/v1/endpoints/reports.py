@@ -5,6 +5,7 @@ import re
 from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -116,6 +117,13 @@ async def list_reports(
     from app.models.enums import JobStatusType
     from app.models.identity import User
 
+    if not MOCK_REPORTS:
+        try:
+            from app.services.startup_hydration import hydrate_mock_reports_from_r2
+            await hydrate_mock_reports_from_r2()
+        except Exception:
+            pass
+
     # Base list from MOCK_REPORTS
     mock_reports_dict = {r["id"]: r for r in MOCK_REPORTS.values() if "id" in r}
 
@@ -135,10 +143,9 @@ async def list_reports(
         job, doc, owner = row[0], row[1], row[2]
         doc_id = doc.slug or str(doc.id)
         if doc_id not in mock_reports_dict:
-            payload = await _load_report_payload_from_r2(doc_id)
             title = doc.title or job.topic
             slug = doc.slug or doc_id
-            entry = _build_mock_report_entry(doc_id, title, slug, payload or {})
+            entry = _build_mock_report_entry(doc_id, title, slug, {})
             if job.completed or job.started:
                 entry["lastUpdated"] = (job.completed or job.started).strftime("%Y-%m-%dT%H:%M:%SZ")
             if owner:
@@ -147,15 +154,19 @@ async def list_reports(
                     "full_name": owner.full_name,
                     "email": owner.email
                 }
+            else:
+                entry["assignedTo"] = None
             mock_reports_dict[doc_id] = entry
             MOCK_REPORTS[doc_id] = entry
         else:
-            if owner and not mock_reports_dict[doc_id].get("assignedTo"):
+            if owner:
                 mock_reports_dict[doc_id]["assignedTo"] = {
                     "id": str(owner.id),
                     "full_name": owner.full_name,
                     "email": owner.email
                 }
+            else:
+                mock_reports_dict[doc_id]["assignedTo"] = None
     
     reports_list = list(mock_reports_dict.values())
 
@@ -217,16 +228,187 @@ async def list_reports(
             if overall is not None:
                 r["aiScore"] = overall
     reports_list = deduped_reports
+    reports_list.sort(key=lambda x: str(x.get("lastUpdated") or ""), reverse=True)
 
     # Simple mock filtering to support frontend tabs
-    if filters.status:
-        reports_list = [r for r in reports_list if r["status"].lower() == filters.status.lower()]
+    status_filter = filters.status if isinstance(filters.status, str) else None
+    if status_filter:
+        reports_list = [r for r in reports_list if r.get("status") and r["status"].lower() == status_filter.lower()]
 
     return success_response(
         data=reports_list,
         message="Fetched mock reports successfully",
         metadata={"total": len(reports_list), "offset": page.offset, "limit": page.limit, "has_more": False}
     )
+
+def _populate_rich_report_from_r2(report: dict, document_id: str) -> dict:
+    from app.storage.provider import storage_provider
+    import json, re
+
+    if not storage_provider.is_configured:
+        return report
+
+    client = storage_provider.s3_client
+    bucket = storage_provider.bucket
+    bare_slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', document_id)
+
+    # 1. Resolve folder prefix
+    folder = report.get("r2_prefix")
+    if not folder:
+        candidates = [f"reports/{document_id}/", f"reports/{bare_slug}/"]
+        for c in candidates:
+            try:
+                client.head_object(Bucket=bucket, Key=f"{c}manifest.json")
+                folder = c
+                break
+            except Exception:
+                pass
+
+    if not folder:
+        try:
+            res = client.list_objects_v2(Bucket=bucket, Prefix="reports/", Delimiter="/")
+            for p in res.get("CommonPrefixes", []):
+                pref = p["Prefix"]
+                if bare_slug in pref or document_id in pref:
+                    folder = pref
+                    break
+        except Exception:
+            pass
+
+    if not folder:
+        return report
+
+    report["r2_prefix"] = folder
+
+    # 2. Load manifest
+    manifest = {}
+    try:
+        m_obj = client.get_object(Bucket=bucket, Key=f"{folder}manifest.json")
+        manifest = json.loads(m_obj["Body"].read().decode("utf-8"))
+    except Exception:
+        pass
+
+    files = manifest.get("files", {})
+
+    # 3. Load report.md & parse sections
+    md_text = ""
+    try:
+        md_key = files.get("report_md") or f"{folder}current/report.md"
+        md_obj = client.get_object(Bucket=bucket, Key=md_key)
+        md_text = md_obj["Body"].read().decode("utf-8")
+    except Exception:
+        pass
+
+    if md_text:
+        sections = []
+        lines = md_text.split("\n")
+        curr_h = "Executive Summary"
+        curr_b = []
+        for line in lines:
+            if line.startswith("#"):
+                if curr_b:
+                    sections.append({"heading": curr_h, "body": "\n".join(curr_b).strip()})
+                curr_h = re.sub(r"^#+\s*", "", line).strip()
+                curr_b = []
+            else:
+                curr_b.append(line)
+        if curr_h or curr_b:
+            sections.append({"heading": curr_h, "body": "\n".join(curr_b).strip()})
+
+        if sections:
+            report_content = report.setdefault("reportContent", {})
+            report_content["sections"] = sections
+
+    # 4. Load review.json
+    try:
+        rev_key = files.get("review_json") or f"{folder}reviews/review.json"
+        rev_obj = client.get_object(Bucket=bucket, Key=rev_key)
+        review_data = json.loads(rev_obj["Body"].read().decode("utf-8"))
+        if review_data:
+            scores_data = review_data.get("scores") or {}
+            recs = review_data.get("recommendations") or {}
+
+            def extract_strings(arr):
+                if not isinstance(arr, list): return []
+                return [x if isinstance(x, str) else x.get("finding") or x.get("point") or str(x) for x in arr]
+
+            ai_review = {
+                "scores": {
+                    "overall_score": scores_data.get("overall_score") or report.get("aiScore") or 0,
+                    "grade": scores_data.get("grade") or "N/A",
+                    "components": scores_data.get("components") or {}
+                },
+                "recommendations": {
+                    "strengths": extract_strings(recs.get("strengths") or review_data.get("strengths")),
+                    "weaknesses": extract_strings(recs.get("weaknesses") or review_data.get("weaknesses")),
+                    "priority_improvements": [
+                        {
+                            "issue": imp.get("issue") or imp.get("finding") or "Unknown issue",
+                            "impact": imp.get("impact") or imp.get("expected_impact") or "Needs review",
+                            "suggested_fix": imp.get("suggested_fix") or imp.get("fix") or imp.get("suggestion") or "Review manually",
+                            "priority_level": imp.get("priority_level") or imp.get("priority") or imp.get("severity") or "Medium"
+                        }
+                        for imp in (recs.get("priority_improvements") or recs.get("improvement_tasks") or review_data.get("priority_improvements") or [])
+                    ],
+                    "executive_readiness": recs.get("executive_readiness") or recs.get("executive_communication") or review_data.get("executive_readiness") or {
+                        "board_members": False, "ministers": False, "ceos": False, "sovereign_wealth_funds": False, "senior_executives": False, "justification": ""
+                    }
+                },
+                "dataGaps": extract_strings(review_data.get("dataGaps") or recs.get("data_gaps")),
+                "writingFlaws": extract_strings(review_data.get("writingFlaws") or recs.get("writing_flaws")),
+                "strategicGaps": extract_strings(review_data.get("strategicGaps") or recs.get("strategic_gaps")),
+                "gccGaps": extract_strings(review_data.get("gccGaps") or recs.get("gcc_gaps"))
+            }
+            report["aiReview"] = ai_review
+            if ai_review["scores"]["overall_score"]:
+                report["aiScore"] = ai_review["scores"]["overall_score"]
+    except Exception:
+        pass
+
+    # 5. Load sources/references
+    try:
+        src_key = files.get("sources_json") or f"{folder}metadata/sources.json"
+        src_obj = client.get_object(Bucket=bucket, Key=src_key)
+        sources_list = json.loads(src_obj["Body"].read().decode("utf-8"))
+        if sources_list and isinstance(sources_list, list):
+            report.setdefault("reportContent", {})["references"] = [
+                {
+                    "title": s.get("title") or s.get("name") or s.get("domain") or "Source",
+                    "url": s.get("url") or "",
+                    "note": s.get("note") or s.get("snippet") or s.get("excerpt") or "",
+                    "domain": s.get("domain") or "",
+                    "origin": s.get("origin") or "web"
+                }
+                for s in sources_list if isinstance(s, dict)
+            ]
+    except Exception:
+        pass
+
+    # 6. Presign images
+    try:
+        report_content = report.setdefault("reportContent", {})
+        res_list = client.list_objects_v2(Bucket=bucket, Prefix=f"{folder}current/assets/")
+        images = []
+        for obj in res_list.get("Contents", []):
+            k = obj["Key"]
+            fname = k.split("/")[-1]
+            if fname.startswith("image-") and fname.endswith(".png"):
+                url = client.generate_presigned_url(
+                    ClientMethod="get_object",
+                    Params={"Bucket": bucket, "Key": k},
+                    ExpiresIn=86400
+                )
+                images.append({"key": fname, "url": url})
+        if images:
+            report_content["images"] = images
+    except Exception:
+        pass
+
+    if manifest.get("title"):
+        report["title"] = manifest["title"]
+
+    return report
+
 
 @router.get("/{document_id}", response_model=APIResponse[dict])
 async def get_report_details(
@@ -236,19 +418,85 @@ async def get_report_details(
 ):
     """
     Get detailed metadata for a specific report document.
+    Loads real markdown sections, AI review scores & recommendations,
+    references, and signed assets from Cloudflare R2 on demand.
     """
     from app.models.identity import User
+    from app.models.document import Document
     from sqlalchemy import select
-    
-    if document_id in MOCK_REPORTS:
-        report = MOCK_REPORTS[document_id]
-        # Sync owner details just in case they're in DB but missing in cache
-        if not report.get("assignedTo"):
-            from app.models.document import Document
-            stmt = select(Document).where(Document.slug == document_id)
-            res = await db.execute(stmt)
-            doc = res.scalar_one_or_none()
-            if doc and doc.owner_id:
+    import re
+
+    bare_slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', document_id)
+    report = MOCK_REPORTS.get(document_id) or MOCK_REPORTS.get(bare_slug)
+
+    # If still not found, check DB
+    if not report:
+        try:
+            import uuid
+            doc = None
+            try:
+                doc_uuid = uuid.UUID(document_id)
+                doc = await db.get(Document, doc_uuid)
+            except ValueError:
+                pass
+            if not doc:
+                stmt = select(Document).where(Document.slug.in_([document_id, bare_slug]))
+                res = await db.execute(stmt)
+                doc = res.scalar_one_or_none()
+            if doc:
+                slug_val = doc.slug or str(doc.id)
+                report = {
+                    "id": slug_val,
+                    "title": doc.title or slug_val,
+                    "slug": slug_val,
+                    "version": "v1",
+                    "status": "Generated",
+                    "humanStatus": "pending",
+                    "aiScore": 0.0,
+                    "aiGrade": "N/A",
+                    "commentCount": 0,
+                    "lastUpdated": "",
+                    "publishReady": False,
+                    "aiReview": None,
+                    "reportContent": {"brand": "GateX", "label": "Intelligence Report", "date": "", "sections": []},
+                    "comments": [],
+                    "assignedTo": None
+                }
+        except Exception:
+            pass
+
+    # If still not found, initialize stub to load directly from R2
+    if not report:
+        report = {
+            "id": document_id,
+            "title": bare_slug.replace('-', ' ').title(),
+            "slug": bare_slug,
+            "version": "v1",
+            "status": "Generated",
+            "humanStatus": "pending",
+            "aiScore": 0.0,
+            "aiGrade": "N/A",
+            "commentCount": 0,
+            "lastUpdated": "",
+            "publishReady": False,
+            "aiReview": None,
+            "reportContent": {"brand": "GateX", "label": "Intelligence Report", "date": "", "sections": []},
+            "comments": [],
+            "assignedTo": None
+        }
+
+    # Ensure rich content is loaded from R2 if sections are missing or placeholder
+    sections = report.get("reportContent", {}).get("sections", [])
+    if not sections or (len(sections) == 1 and "View the full HTML report" in sections[0].get("body", "")):
+        report = _populate_rich_report_from_r2(report, document_id)
+
+    # Always sync owner details from DB (single source of truth for assignments)
+    try:
+        stmt = select(Document).where(Document.slug.in_([bare_slug, document_id]))
+        res = await db.execute(stmt)
+        doc = res.scalar_one_or_none()
+        if doc:
+            if doc.owner_id:
                 owner_res = await db.execute(select(User).where(User.id == doc.owner_id))
                 owner = owner_res.scalar_one_or_none()
                 if owner:
@@ -257,109 +505,106 @@ async def get_report_details(
                         "full_name": owner.full_name,
                         "email": owner.email
                     }
-        # Always refresh image presigned URLs on GET to ensure they never expire
-        report_content = report.get("reportContent", {})
-        try:
-            from app.storage.provider import storage_provider
-            slug = report.get("slug") or document_id
-            r2_prefix = report.get("r2_prefix") or f"reports/{slug}/"
-            if r2_prefix and not r2_prefix.endswith("/"):
-                r2_prefix += "/"
-            
-            prefix = f"{r2_prefix}current/assets/"
-            res_list = storage_provider.s3_client.list_objects_v2(
-                Bucket=storage_provider.bucket,
-                Prefix=prefix
-            )
-            images = []
-            for obj in res_list.get("Contents", []):
-                key = obj["Key"]
-                fname = key.split("/")[-1]
-                if fname.startswith("image-") and fname.endswith(".png"):
-                    url = storage_provider.s3_client.generate_presigned_url(
-                        ClientMethod="get_object",
-                        Params={"Bucket": storage_provider.bucket, "Key": key},
-                        ExpiresIn=86400
-                    )
-                    images.append({"key": fname, "url": url})
-            if images:
-                report_content["images"] = images
-        except Exception as e:
-            print(f"[get_report_details] Dynamic image presigned URL refresh failed: {e}")
+                else:
+                    report["assignedTo"] = None
+            else:
+                report["assignedTo"] = None
+    except Exception:
+        pass
 
-        # Synchronize top-level aiScore with aiReview.scores.overall_score
-        if report.get("aiReview") and isinstance(report["aiReview"].get("scores"), dict):
-            overall = report["aiReview"]["scores"].get("overall_score")
-            if overall is not None:
-                report["aiScore"] = overall
-
-        return success_response(data=report, message="Fetched report details")
-
-        
-    # If not in MOCK_REPORTS, try loading dynamically from R2
-    from app.models.document import Document
-    from app.services.generation import _load_report_payload_from_r2, _build_mock_report_entry
-    import uuid
-
-    stmt = select(Document).where(Document.slug == document_id)
-    result = await db.execute(stmt)
-    doc = result.scalar_one_or_none()
-    
-    if not doc:
-        try:
-            doc_uuid = uuid.UUID(document_id)
-            doc = await db.get(Document, doc_uuid)
-        except ValueError:
-            pass
-            
-    if doc:
-        slug = doc.slug or str(doc.id)
-        topic = doc.title or slug
-        payload = await _load_report_payload_from_r2(slug, topic)
-        entry = _build_mock_report_entry(document_id, topic, slug, payload)
-        
-        # Load owner details if set in DB
-        if doc.owner_id:
-            owner_res = await db.execute(select(User).where(User.id == doc.owner_id))
-            owner = owner_res.scalar_one_or_none()
-            if owner:
-                entry["assignedTo"] = {
-                    "id": str(owner.id),
-                    "full_name": owner.full_name,
-                    "email": owner.email
-                }
-        else:
-            entry["assignedTo"] = None
-
-        MOCK_REPORTS[document_id] = entry
-        MOCK_REPORTS[str(doc.id)] = entry
-        if doc.slug:
-            MOCK_REPORTS[doc.slug] = entry
-        return success_response(data=entry, message="Loaded report details from storage")
-
-    # No DB row — try loading directly from R2 by the slug itself.
-    # This handles bulk-generated reports that bypassed the frontend UI.
-    from app.logging.logger import logger
+    # Always refresh image presigned URLs dynamically to ensure they never expire (HTTP 403 prevention)
     try:
-        payload = await _load_report_payload_from_r2(document_id, document_id)
-        if payload:
-            title = (
-                payload.get("topic")
-                or payload.get("title")
-                or document_id.replace('-', ' ').title()
-            )
-            entry = _build_mock_report_entry(document_id, title, document_id, payload)
-            entry["assignedTo"] = None
-            MOCK_REPORTS[document_id] = entry
-            return success_response(data=entry, message="Loaded report details directly from R2")
+        from app.storage.provider import storage_provider
+        if storage_provider.is_configured:
+            client = storage_provider.s3_client
+            bucket = storage_provider.bucket
+            folder = report.get("r2_prefix")
+            if not folder:
+                for cand in [f"reports/{document_id}/", f"reports/{bare_slug}/"]:
+                    try:
+                        client.head_object(Bucket=bucket, Key=f"{cand}manifest.json")
+                        folder = cand
+                        break
+                    except Exception:
+                        pass
+            if not folder:
+                res_pref = client.list_objects_v2(Bucket=bucket, Prefix="reports/", Delimiter="/")
+                for p in res_pref.get("CommonPrefixes", []):
+                    pref = p["Prefix"]
+                    if bare_slug in pref or document_id in pref:
+                        folder = pref
+                        break
+            if folder:
+                report["r2_prefix"] = folder
+                res_imgs = client.list_objects_v2(Bucket=bucket, Prefix=f"{folder}current/assets/")
+                fresh_images = []
+                for obj in res_imgs.get("Contents", []):
+                    k = obj["Key"]
+                    fname = k.split("/")[-1]
+                    if (fname.startswith("image-") or fname.startswith("cover-")) and fname.endswith(".png"):
+                        fresh_url = client.generate_presigned_url(
+                            ClientMethod="get_object",
+                            Params={"Bucket": bucket, "Key": k},
+                            ExpiresIn=86400
+                        )
+                        fresh_images.append({"key": fname, "url": fresh_url})
+                if fresh_images:
+                    report.setdefault("reportContent", {})["images"] = fresh_images
     except Exception as e:
-        logger.warning(f"[get_report_details] R2 fallback failed for {document_id}: {e}")
+        pass
 
-    # Last-resort fallback
-    report = MOCK_REPORTS.get(document_id) or MOCK_REPORTS.get("doc-3333-review")
-    if not report:
-        raise HTTPException(status_code=404, detail="Report not found")
-    return success_response(data=report, message="Fetched fallback report details")
+    # Cache back into MOCK_REPORTS
+    MOCK_REPORTS[document_id] = report
+    MOCK_REPORTS[bare_slug] = report
+    if report.get("id"):
+        MOCK_REPORTS[report["id"]] = report
+
+    return success_response(data=report, message="Fetched report details")
+
+
+def get_review_md_text(report_id: str) -> str:
+    """Helper to locate and read review.md text from R2 for highlighter coordinates."""
+    from app.storage.provider import storage_provider
+    import re
+    if not storage_provider.is_configured:
+        return ""
+    client = storage_provider.s3_client
+    bucket = storage_provider.bucket
+    bare_slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', report_id)
+
+    candidates = [
+        f"reports/{report_id}/reviews/review.md",
+        f"reports/{bare_slug}/reviews/review.md",
+    ]
+    for c in candidates:
+        try:
+            obj = client.get_object(Bucket=bucket, Key=c)
+            return obj["Body"].read().decode("utf-8")
+        except Exception:
+            pass
+
+    try:
+        res = client.list_objects_v2(Bucket=bucket, Prefix="reports/", Delimiter="/")
+        for p in res.get("CommonPrefixes", []):
+            pref = p["Prefix"]
+            if bare_slug in pref or report_id in pref:
+                try:
+                    obj = client.get_object(Bucket=bucket, Key=f"{pref}reviews/review.md")
+                    return obj["Body"].read().decode("utf-8")
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return ""
+
+
+@router.get("/{document_id}/review", response_class=PlainTextResponse)
+async def get_report_review_markdown(document_id: str):
+    """
+    Returns raw review.md text for highlighter coordinates and quality annotations.
+    """
+    text = get_review_md_text(document_id)
+    return PlainTextResponse(text, media_type="text/plain; charset=utf-8")
 
 from pydantic import BaseModel
 from typing import Optional
@@ -866,26 +1111,43 @@ async def claim_report(
     """
     from app.models.document import Document
     from app.models.identity import User
-    from sqlalchemy import select
+    from sqlalchemy import select, func
     import uuid
+    import re
+
+    bare_slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', document_id)
     
     # 1. Verify user exists in the DB
-    stmt = select(User).where(User.email == user["email"])
+    stmt = select(User).where(func.lower(User.email) == user["email"].lower())
     res = await db.execute(stmt)
     db_user = res.scalar_one_or_none()
+
+    if not db_user:
+        try:
+            user_uuid = uuid.UUID(user["id"])
+            user_res = await db.execute(select(User).where(User.id == user_uuid))
+            db_user = user_res.scalar_one_or_none()
+        except (ValueError, TypeError):
+            pass
+
     if not db_user:
         # Create user record dynamically if missing
+        try:
+            user_uuid = uuid.UUID(user["id"])
+        except (ValueError, TypeError):
+            user_uuid = uuid.uuid4()
         db_user = User(
-            id=uuid.UUID(user["id"]),
-            full_name=user["full_name"],
+            id=user_uuid,
+            full_name=user.get("full_name") or user["email"].split("@")[0].title(),
             email=user["email"],
             status="active"
         )
         db.add(db_user)
         await db.commit()
+        await db.refresh(db_user)
     
-    # 2. Find document
-    stmt = select(Document).where(Document.slug == document_id)
+    # 2. Find document in DB
+    stmt = select(Document).where(Document.slug.in_([document_id, bare_slug]))
     res = await db.execute(stmt)
     doc = res.scalar_one_or_none()
     
@@ -895,38 +1157,67 @@ async def claim_report(
             doc = await db.get(Document, doc_uuid)
         except ValueError:
             pass
-            
+
+    # If document does not exist in DB yet, create it dynamically
     if not doc:
-        return error_response(message="Document not found")
-        
-    # 3. Update owner_id in DB
-    doc.owner_id = db_user.id
-    await db.commit()
+        rep_data = MOCK_REPORTS.get(document_id) or MOCK_REPORTS.get(bare_slug)
+        title = (rep_data.get("title") if rep_data else None) or bare_slug.replace('-', ' ').title()
+        doc = Document(
+            id=uuid.uuid4(),
+            slug=bare_slug,
+            title=title,
+            owner_id=db_user.id,
+            status="in_review"
+        )
+        db.add(doc)
+        await db.commit()
+        await db.refresh(doc)
+    else:
+        # 3. Update owner_id in DB
+        doc.owner_id = db_user.id
+        await db.commit()
     
-    # 4. Update in-memory MOCK_REPORTS
+    # 4. Update in-memory MOCK_REPORTS under all possible alias keys
     report = MOCK_REPORTS.get(document_id)
     if not report:
-        report = MOCK_REPORTS.get(doc.slug) or MOCK_REPORTS.get(str(doc.id))
-        
-    if report:
-        report["assignedTo"] = {
-            "id": str(db_user.id),
-            "full_name": db_user.full_name,
-            "email": db_user.email
+        report = MOCK_REPORTS.get(bare_slug) or MOCK_REPORTS.get(doc.slug) or MOCK_REPORTS.get(str(doc.id))
+
+    assigned_info = {
+        "id": str(db_user.id),
+        "full_name": db_user.full_name,
+        "email": db_user.email
+    }
+
+    if not report:
+        report = {
+            "id": document_id,
+            "title": doc.title or bare_slug.replace('-', ' ').title(),
+            "slug": doc.slug or bare_slug,
+            "version": "v1",
+            "status": "Generated",
+            "humanStatus": "In Progress",
+            "aiScore": 0.0,
+            "aiGrade": "N/A",
+            "commentCount": 0,
+            "lastUpdated": "",
+            "publishReady": False,
+            "aiReview": None,
+            "reportContent": {"brand": "GateX", "label": "Intelligence Report", "date": "", "sections": []},
+            "comments": [],
+            "assignedTo": assigned_info
         }
+    else:
+        report["assignedTo"] = assigned_info
         report["humanStatus"] = "In Progress"
-        MOCK_REPORTS[document_id] = report
-        MOCK_REPORTS[doc.slug] = report
-        MOCK_REPORTS[str(doc.id)] = report
+
+    # Store in MOCK_REPORTS under document_id, bare_slug, doc.slug, and doc.id
+    for key in filter(None, [document_id, bare_slug, doc.slug, str(doc.id)]):
+        MOCK_REPORTS[key] = report
         
     return success_response(
         data={
             "document_id": document_id,
-            "assignedTo": {
-                "id": str(db_user.id),
-                "full_name": db_user.full_name,
-                "email": db_user.email
-            }
+            "assignedTo": assigned_info
         },
         message="Report claimed successfully"
     )

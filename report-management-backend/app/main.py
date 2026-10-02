@@ -401,4 +401,12 @@ async def health_check():
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(internal_router, prefix="/api/internal")
 
+
+from fastapi.responses import PlainTextResponse
+
+@app.get("/api/reports/{document_id}/review", response_class=PlainTextResponse, tags=["Reports"])
+async def get_report_review_compat(document_id: str):
+    from app.api.v1.endpoints.reports import get_review_md_text
+    return PlainTextResponse(get_review_md_text(document_id), media_type="text/plain; charset=utf-8")
+
 logger.info("FastAPI application initialized.")

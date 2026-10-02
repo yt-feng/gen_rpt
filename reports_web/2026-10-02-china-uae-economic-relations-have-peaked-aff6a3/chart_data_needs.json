@@ -1,0 +1,223 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "China-UAE Bilateral Trade and Investment Trends (2015-2025)",
+    "chart_type": "line",
+    "executive_question": "Has the growth in China-UAE trade and investment plateaued, or is it merely shifting in composition?",
+    "required_metrics": [
+      "Annual bilateral trade value (exports + imports) in USD billions, 2015-2025",
+      "Annual FDI flows (China to UAE and UAE to China) in USD millions, 2015-2025",
+      "Year-over-year growth rates for trade and FDI"
+    ],
+    "comparison_set": [
+      "China-UAE vs. China-GCC average vs. global average for trade and FDI growth"
+    ],
+    "preferred_sources": [
+      "UN Comtrade database",
+      "China Customs statistics",
+      "UAE Federal Competitiveness and Statistics Centre",
+      "MOFCOM (China) outward FDI data",
+      "Central Bank of UAE annual reports"
+    ],
+    "search_queries": [
+      "China UAE bilateral trade statistics 2015-2025 UN Comtrade",
+      "China outward FDI UAE annual data MOFCOM",
+      "UAE foreign direct investment China statistics 2020-2025"
+    ],
+    "data_quality_rule": "Use at least 4 annual observations from the same source and basis. If only two endpoints are available, apply a transparent CAGR estimation rule, mark intermediate values as estimates, and never present two endpoints as a trend line.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the baseline trend in traditional economic ties to test the 'peaked' hypothesis before introducing climate resilience as a new growth vector.",
+    "pre_exhibit_context": "The report must first assess whether overall economic relations are slowing, as this frames the urgency of finding new growth areas like climate resilience.",
+    "post_exhibit_takeaway": "If trade and FDI growth have slowed or plateaued, the relationship may be peaking in traditional sectors, making diversification into climate resilience critical; if growth continues, the 'peaked' thesis is weakened."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "UAE Climate Risk Exposure and Infrastructure Gaps",
+    "chart_type": "bubble",
+    "executive_question": "Where are the most severe climate risks and infrastructure gaps in the UAE that could drive demand for Chinese resilience solutions?",
+    "required_metrics": [
+      "Flood risk index by emirate (e.g., number of flood events per year, 2015-2025)",
+      "Drainage infrastructure coverage (e.g., percentage of urban area served, km of drainage pipes per km²)",
+      "Population density in high-risk zones",
+      "Historical economic losses from climate events (USD millions)"
+    ],
+    "comparison_set": [
+      "UAE emirates (Abu Dhabi, Dubai, Sharjah, etc.) and critical infrastructure types (airports, industrial parks, free zones)"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Climate Change and Environment",
+      "World Bank Climate Change Knowledge Portal",
+      "UAE National Emergency Crisis and Disasters Management Authority",
+      "Municipal reports (e.g., Dubai Municipality drainage master plan)"
+    ],
+    "search_queries": [
+      "UAE flood risk map emirate drainage infrastructure data",
+      "UAE climate change adaptation infrastructure investment report PDF",
+      "Dubai urban drainage capacity statistics 2025"
+    ],
+    "data_quality_rule": "Use official risk assessments and infrastructure inventories. If data is missing for some emirates, note as a gap and avoid extrapolating without a clear estimation rule.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Maps the geographic and sectoral demand for climate resilience by correlating risk exposure with infrastructure deficits, identifying high-priority markets.",
+    "pre_exhibit_context": "The UAE faces increasing climate risks, but the specific locations and types of infrastructure gaps determine where Chinese solutions are most needed.",
+    "post_exhibit_takeaway": "Regions with high flood risk and low drainage capacity represent immediate opportunities for Chinese urban drainage and monitoring technologies, while areas with moderate risk may require longer-term engagement."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "China's Climate Resilience Technology Export Potential",
+    "chart_type": "bar",
+    "executive_question": "How competitive is China in exporting climate resilience technologies compared to other major suppliers?",
+    "required_metrics": [
+      "Global export value of climate resilience technologies (e.g., flood monitoring, early warning systems) by country, 2020-2025, in USD millions",
+      "China's market share in each technology segment",
+      "Year-over-year growth in China's exports of these technologies"
+    ],
+    "comparison_set": [
+      "China vs. Germany, USA, Japan, South Korea in climate resilience technology exports"
+    ],
+    "preferred_sources": [
+      "UN Comtrade (HS codes for relevant technologies)",
+      "China Customs statistics",
+      "International Trade Centre (ITC) trade maps",
+      "Industry reports from BloombergNEF or Wood Mackenzie"
+    ],
+    "search_queries": [
+      "China climate resilience technology export value 2020-2025",
+      "global flood monitoring equipment export market share by country",
+      "China environmental monitoring equipment exports UN Comtrade"
+    ],
+    "data_quality_rule": "Use consistent HS codes across countries. If specific technology codes are unavailable, use closest proxy and document limitations.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies China's current market position in climate resilience technology exports to assess whether it can capture share in the UAE market.",
+    "pre_exhibit_context": "China's recent disaster experiences have accelerated technology development, but its global export competitiveness relative to established players is unclear.",
+    "post_exhibit_takeaway": "If China holds a significant or growing share in relevant technology segments, it can leverage this in the UAE; if not, it may face an uphill battle against European, American, or Japanese competitors."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Competitive Landscape in UAE Climate Resilience Market",
+    "chart_type": "matrix",
+    "executive_question": "Who are the key competitors in the UAE climate resilience market, and how do they compare across technology segments and market presence?",
+    "required_metrics": [
+      "List of key players (Chinese, European, American, local) by technology segment (e.g., urban drainage, slope monitoring, disaster insurance)",
+      "Market share estimates (percentage) for each player in each segment, 2025",
+      "Number of projects or contracts awarded in UAE in last 3 years"
+    ],
+    "comparison_set": [
+      "Technology segments: urban drainage, reservoir monitoring, landslide early warning, emergency equipment, catastrophe insurance"
+    ],
+    "preferred_sources": [
+      "UAE government procurement portals (e.g., Dubai eTenders)",
+      "Company annual reports and press releases",
+      "Industry association directories (e.g., UAE Society of Engineers)",
+      "News articles from MEED, Gulf News"
+    ],
+    "search_queries": [
+      "UAE climate resilience market key players 2025",
+      "Dubai drainage project contracts awarded 2023-2025",
+      "Chinese companies UAE smart city projects list"
+    ],
+    "data_quality_rule": "Use public contract awards and company disclosures. If market share data is unavailable, present as a qualitative matrix with named players and note data gaps.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Assesses the competitive intensity and identifies gaps where Chinese firms could differentiate or partner.",
+    "pre_exhibit_context": "Chinese firms entering the UAE market will face competition from established international players and local firms; understanding their positioning is essential for strategy.",
+    "post_exhibit_takeaway": "Chinese firms may find opportunities in segments where competition is fragmented or where they have cost or technology advantages, but may struggle in segments dominated by incumbents with strong local relationships."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "Investment Screening Criteria for Climate Resilience Firms",
+    "chart_type": "bar",
+    "executive_question": "Which financial and operational metrics best predict success for Chinese climate resilience firms in the UAE?",
+    "required_metrics": [
+      "Order backlog (USD millions) for Chinese climate resilience firms, 2023-2025",
+      "O&M revenue as percentage of total revenue",
+      "Government clients as percentage of total revenue",
+      "Cash flow from operations (USD millions)",
+      "Disaster prevention revenue share (percentage)"
+    ],
+    "comparison_set": [
+      "Chinese climate resilience firms vs. peers in construction materials and traditional infrastructure"
+    ],
+    "preferred_sources": [
+      "Company annual reports (e.g., China Communications Construction, Beijing Watertek)",
+      "Stock exchange filings (HKEX, Shanghai)",
+      "Investor presentations",
+      "Industry reports from Frost & Sullivan"
+    ],
+    "search_queries": [
+      "China climate resilience company order backlog 2025 annual report",
+      "Beijing Watertek O&M revenue percentage",
+      "Chinese environmental monitoring firms government contracts"
+    ],
+    "data_quality_rule": "Use audited financial statements where available. If data is missing for private firms, note as a limitation and avoid estimates without disclosure.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Translates the investment thesis into measurable screening criteria, enabling stakeholders to evaluate potential targets.",
+    "pre_exhibit_context": "Investors need a data-driven framework to identify firms with sustainable competitive advantages in the UAE climate resilience market.",
+    "post_exhibit_takeaway": "Firms with high government order backlog, recurring O&M revenue, and strong cash flow are better positioned than those reliant on one-off construction contracts."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "UAE Climate Adaptation Funding and Financing Mechanisms",
+    "chart_type": "line",
+    "executive_question": "What funding is available for climate adaptation projects in the UAE, and how has it evolved over time?",
+    "required_metrics": [
+      "Annual green bond issuance in UAE (USD billions), 2018-2025",
+      "Belt and Road Initiative funding for climate-related projects in UAE (USD millions), 2018-2025",
+      "UAE government budget allocation for climate adaptation (USD millions), 2020-2025"
+    ],
+    "comparison_set": [
+      "UAE vs. other GCC countries in green finance and climate adaptation funding"
+    ],
+    "preferred_sources": [
+      "Climate Bonds Initiative",
+      "UAE Ministry of Finance",
+      "Central Bank of UAE",
+      "Belt and Road Initiative project databases (e.g., Green BRI)"
+    ],
+    "search_queries": [
+      "UAE green bond issuance 2018-2025 Climate Bonds Initiative",
+      "Belt and Road Initiative UAE climate projects funding",
+      "UAE federal budget climate adaptation allocation"
+    ],
+    "data_quality_rule": "Use at least 4 annual observations from the same source. If only two endpoints are available, apply a transparent CAGR estimation rule, mark intermediate values as estimates, and never present two endpoints as a trend line.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Assesses the financial feasibility of climate resilience projects by tracking the growth of green finance and bilateral funding.",
+    "pre_exhibit_context": "Even with technological readiness, projects require financing; understanding the funding landscape is critical to gauge market potential.",
+    "post_exhibit_takeaway": "If funding for climate adaptation is increasing, it lowers barriers for Chinese firms; if stagnant, projects may face financing gaps."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "Timeline of Key Policy and Project Milestones in China-UAE Climate Resilience Cooperation",
+    "chart_type": "timeline",
+    "executive_question": "What are the critical policy and project milestones that have shaped China-UAE climate resilience cooperation, and what is the trajectory?",
+    "required_metrics": [
+      "Date of bilateral agreements (e.g., MoUs on climate change, 2015-2026)",
+      "Date of major project announcements or completions (e.g., smart city, drainage projects)",
+      "Date of high-level visits or forums focused on climate resilience"
+    ],
+    "comparison_set": [
+      "Milestones in China-UAE vs. China-GCC or UAE-other partners"
+    ],
+    "preferred_sources": [
+      "UAE Ministry of Foreign Affairs and International Cooperation",
+      "China Ministry of Foreign Affairs",
+      "News archives (Reuters, Xinhua, Gulf News)",
+      "Belt and Road Initiative project portals"
+    ],
+    "search_queries": [
+      "China UAE climate change agreement timeline",
+      "UAE China smart city project announcement dates",
+      "China UAE bilateral visits climate cooperation 2020-2026"
+    ],
+    "data_quality_rule": "Use official government statements and reputable news sources. Cross-verify dates; if conflicting, note discrepancy.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Provides a chronological narrative of cooperation, highlighting momentum and potential inflection points.",
+    "pre_exhibit_context": "The relationship has evolved over time, and understanding key events helps assess whether cooperation is accelerating or decelerating.",
+    "post_exhibit_takeaway": "A steady stream of agreements and projects indicates growing commitment; a slowdown or lack of recent milestones may signal waning interest."
+  }
+]

@@ -513,9 +513,10 @@ async def get_pdf_release_preview(
         )
     except Exception as e:
         logger.exception(f"PDF release generation failed for {report_id}: {e}")
+        err_msg = str(e) or repr(e) or type(e).__name__
         raise HTTPException(
             status_code=500,
-            detail=f"PDF generation failed: {str(e)}",
+            detail=f"PDF generation failed: {err_msg}",
         )
 
     return success_response(

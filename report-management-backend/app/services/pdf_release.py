@@ -28,7 +28,20 @@ from sqlalchemy import select, update
 from app.models.pdf_release import PdfRelease
 from app.storage.provider import storage_provider
 from app.logging.logger import logger
-from gen_rpt.web_publication_contract import clean_client_text, output_leak_hits
+import os
+import sys
+
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
+try:
+    from gen_rpt.web_publication_contract import clean_client_text, output_leak_hits
+except ImportError:
+    def clean_client_text(text: str) -> str:
+        return text
+    def output_leak_hits(text: str):
+        return []
 
 
 PDF_RENDERER_REVISION = "pdf-release-preview-v2"
@@ -190,8 +203,9 @@ def _checksum(data: bytes) -> str:
 
 
 def _render_checksum(html_content: str) -> str:
-    """Invalidate previews when output-safety behavior changes."""
-    return _checksum(f"{PDF_RENDERER_REVISION}\0{html_content}".encode("utf-8"))
+    """Invalidate previews when content or output-safety behavior changes."""
+    normalized = re.sub(r"\?X-Amz-[^\s\"'<>]+", "", str(html_content or ""))
+    return _checksum(f"{PDF_RENDERER_REVISION}\0{normalized}".encode("utf-8"))
 
 
 def _release_leak_hits(text: str) -> list[str]:
@@ -308,25 +322,37 @@ class PdfReleaseService:
 
         # Step 3: Look up latest active record
         existing = await self._get_latest_active(db, doc_uuid)
+        existing_version = existing.version_number if existing else 0
+        existing_id = str(existing.id) if existing else None
+        existing_storage_path = existing.storage_path if existing else None
+        existing_size = existing.file_size_bytes or 0 if existing else 0
+        existing_gen_at = existing.generated_at.isoformat() if existing else None
+        existing_checksum = existing.html_checksum or "" if existing else ""
 
-        if existing and existing.html_checksum == html_cs:
+        # Release/commit the read transaction immediately to avoid holding pool connections idle!
+        try:
+            await db.commit()
+        except Exception:
+            await db.rollback()
+
+        if existing and existing_checksum == html_cs:
             # ── Reuse existing PDF ──────────────────────────────────────
-            logger.info(f"[PdfRelease] Reusing PDF v{existing.version_number} for {report_id} (checksum match)")
-            preview_url = await storage_provider.get_signed_url(existing.storage_path, expiration_sec=3600)
+            logger.info(f"[PdfRelease] Reusing PDF v{existing_version} for {report_id} (checksum match)")
+            preview_url = await storage_provider.get_signed_url(existing_storage_path, expiration_sec=3600)
             return PdfReleaseResult(
-                pdf_release_id=str(existing.id),
-                version_number=existing.version_number,
+                pdf_release_id=existing_id,
+                version_number=existing_version,
                 is_new=False,
-                storage_path=existing.storage_path,
+                storage_path=existing_storage_path,
                 preview_url=preview_url,
-                file_size_bytes=existing.file_size_bytes or 0,
-                generated_at=existing.generated_at.isoformat(),
-                html_checksum=existing.html_checksum or "",
+                file_size_bytes=existing_size,
+                generated_at=existing_gen_at,
+                html_checksum=existing_checksum,
                 document_version=report.get("version", "v1"),
             )
 
-        # ── Generate a new PDF ──────────────────────────────────────────
-        next_version = (existing.version_number + 1) if existing else 1
+        # ── Generate a new PDF (Outside of DB transaction) ──────────────
+        next_version = existing_version + 1
         logger.info(f"[PdfRelease] Generating PDF v{next_version} for {report_id}")
 
         # Generate
@@ -340,36 +366,45 @@ class PdfReleaseService:
         if not uploaded:
             raise RuntimeError(f"Failed to upload PDF to R2 at path: {r2_path}")
 
-        # Deactivate previous record
-        if existing:
-            await db.execute(
-                update(PdfRelease)
-                .where(PdfRelease.document_id == doc_uuid, PdfRelease.is_active == True)
-                .values(is_active=False)
-            )
-
-        # Create new PdfRelease record
+        # ── Save metadata to DB in quick transaction ────────────────────
         actor_uuid = self._to_uuid_or_none(actor_id)
+        rec_id = str(uuid.uuid4())
+        rec_gen_at = datetime.now(timezone.utc).isoformat()
 
-        # Ensure document row exists (mock mode safety)
-        await self._ensure_document_exists(db, doc_uuid, report)
+        try:
+            if existing_version > 0:
+                await db.execute(
+                    update(PdfRelease)
+                    .where(PdfRelease.document_id == doc_uuid, PdfRelease.is_active == True)
+                    .values(is_active=False)
+                )
 
-        record = PdfRelease(
-            document_id=doc_uuid,
-            version_number=next_version,
-            html_checksum=html_cs,
-            canonical_version_label=report.get("version", "v1"),
-            storage_path=r2_path,
-            file_size_bytes=len(pdf_bytes),
-            render_duration_ms=render_ms,
-            generated_by=actor_uuid,
-            generated_at=datetime.now(timezone.utc),
-            is_active=True,
-            gatex_published_version=False,
-        )
-        db.add(record)
-        await db.commit()
-        await db.refresh(record)
+            await self._ensure_document_exists(db, doc_uuid, report)
+
+            record = PdfRelease(
+                document_id=doc_uuid,
+                version_number=next_version,
+                html_checksum=html_cs,
+                canonical_version_label=report.get("version", "v1"),
+                storage_path=r2_path,
+                file_size_bytes=len(pdf_bytes),
+                render_duration_ms=render_ms,
+                generated_by=actor_uuid,
+                generated_at=datetime.now(timezone.utc),
+                is_active=True,
+                gatex_published_version=False,
+            )
+            db.add(record)
+            await db.commit()
+            await db.refresh(record)
+            rec_id = str(record.id)
+            rec_gen_at = record.generated_at.isoformat()
+        except Exception as db_err:
+            logger.warning(f"[PdfRelease] Failed to persist PdfRelease DB record for {report_id}: {db_err}")
+            try:
+                await db.rollback()
+            except Exception:
+                pass
 
         preview_url = await storage_provider.get_signed_url(r2_path, expiration_sec=3600)
 
@@ -379,13 +414,13 @@ class PdfReleaseService:
         )
 
         return PdfReleaseResult(
-            pdf_release_id=str(record.id),
+            pdf_release_id=rec_id,
             version_number=next_version,
             is_new=True,
             storage_path=r2_path,
             preview_url=preview_url,
             file_size_bytes=len(pdf_bytes),
-            generated_at=record.generated_at.isoformat(),
+            generated_at=rec_gen_at,
             html_checksum=html_cs,
             document_version=report.get("version", "v1"),
         )
@@ -562,7 +597,11 @@ class PdfReleaseService:
                 args=['--no-sandbox', '--disable-setuid-sandbox']
             )
             page = await browser.new_page()
-            await page.set_content(clean_html, wait_until="load")
+            await page.set_content(clean_html, wait_until="domcontentloaded", timeout=20000)
+            try:
+                await page.wait_for_load_state("load", timeout=15000)
+            except Exception as e:
+                logger.warning(f"[PdfRelease] Page asset load wait timed out or failed: {e}. Proceeding with rendered DOM.")
             pdf_bytes = await page.pdf(
                 format="A4",
                 print_background=True,

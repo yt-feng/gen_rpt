@@ -1,3 +1,13 @@
+import socket
+import platform
+
+if platform.system() == "Windows":
+    old_getaddrinfo = socket.getaddrinfo
+    def new_getaddrinfo(*args, **kwargs):
+        responses = old_getaddrinfo(*args, **kwargs)
+        return [r for r in responses if r[0] == socket.AF_INET]
+    socket.getaddrinfo = new_getaddrinfo
+
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from app.core.config import settings
@@ -13,9 +23,17 @@ _engine_kwargs = {
     "pool_pre_ping": True,
 }
 if not _is_sqlite:
+    connect_args = {}
+    if "asyncpg" in settings.DATABASE_URL:
+        # Disable prepared statement caching for Supabase transaction poolers (port 6543) / PgBouncer
+        connect_args["statement_cache_size"] = 0
+        connect_args["prepared_statement_cache_size"] = 0
+    if connect_args:
+        _engine_kwargs["connect_args"] = connect_args
+
     _engine_kwargs.update({
-        "pool_size": 10,
-        "max_overflow": 20,
+        "pool_size": 5,
+        "max_overflow": 10,
         "pool_recycle": 1800,
         "pool_timeout": 30,
     })

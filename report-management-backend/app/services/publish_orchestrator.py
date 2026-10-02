@@ -228,10 +228,73 @@ class PublishOrchestrator:
         except Exception as e:
             logger.warning(f"Failed to fetch latest PdfRelease path for {report_id}: {e}")
 
+        # Auto-generate PDF release if missing
+        if not pdf_path:
+            try:
+                from app.services.pdf_release import pdf_release_service
+                res_pdf = await pdf_release_service.get_or_generate(
+                    db=db,
+                    report_id=report_id,
+                    report=report,
+                    actor_id="system"
+                )
+                pdf_path = res_pdf.storage_path
+            except Exception as e:
+                logger.warning(f"Failed to auto-generate PDF during publish for {report_id}: {e}")
+
+        cover_path = report.get("coverImagePath")
+        if not cover_path and report.get("r2_prefix"):
+            cover_candidate = f"{report['r2_prefix']}current/assets/cover-ai.png"
+            try:
+                if await storage_provider.download(cover_candidate):
+                    cover_path = cover_candidate
+            except Exception:
+                pass
+
+        if not cover_path:
+            cover_path = settings.GATEX_DEFAULT_COVER_PATH or None
+
         return {
             "pdf_path": pdf_path,
-            "cover_path": report.get("coverImagePath") or settings.GATEX_DEFAULT_COVER_PATH or None,
+            "cover_path": cover_path,
         }
+
+    # ------------------------------------------------------------------
+    # Helper: generate teaser PDF from full PDF bytes
+    # ------------------------------------------------------------------
+    def _generate_teaser_pdf(self, pdf_bytes: bytes, max_pages: int = 2) -> bytes:
+        """
+        Generates a teaser PDF containing the initial pages of the report.
+        Follows GateX convention: 1 page for < 5 pages, 2 pages for >= 5 pages.
+        Falls back safely to full PDF bytes on any error.
+        """
+        try:
+            import io
+            import pypdf
+
+            reader = pypdf.PdfReader(io.BytesIO(pdf_bytes))
+            total_pages = len(reader.pages)
+            if total_pages <= 0:
+                return pdf_bytes
+
+            # GateX rule: < 5 pages -> 1 page teaser; >= 5 pages -> max_pages (default 2)
+            target_count = 1 if total_pages < 5 else min(max_pages, total_pages)
+            target_count = max(1, min(target_count, total_pages))
+
+            writer = pypdf.PdfWriter()
+            for page in reader.pages[:target_count]:
+                writer.add_page(page)
+
+            buf = io.BytesIO()
+            writer.write(buf)
+            teaser_bytes = buf.getvalue()
+            if len(teaser_bytes) > 0:
+                logger.info(f"Generated teaser PDF: {target_count}/{total_pages} pages, {len(teaser_bytes)} bytes")
+                return teaser_bytes
+        except Exception as e:
+            logger.warning(f"Failed to generate teaser PDF, falling back to full PDF bytes: {e}")
+
+        return pdf_bytes
 
     # ------------------------------------------------------------------
     # Step 3–14: Full publish pipeline
@@ -345,6 +408,18 @@ class PublishOrchestrator:
             await gatex_client.upload_file(pdf_presign, pdf_bytes)
             _audit(f"PDF uploaded to GateX storage: key={pdf_presign.key}")
 
+            # ---- Step 7b: Generate and upload teaser PDF ----
+            teaser_bytes = self._generate_teaser_pdf(pdf_bytes)
+            teaser_filename = f"teaser-{pdf_filename}"
+            teaser_presign = await gatex_client.get_presigned_url(
+                key=teaser_filename,
+                content_type="application/pdf",
+                upload_type="REPORT_TEASER",
+                file_size=len(teaser_bytes),
+            )
+            await gatex_client.upload_file(teaser_presign, teaser_bytes)
+            _audit(f"Teaser PDF uploaded to GateX storage: key={teaser_presign.key} size={len(teaser_bytes)}")
+
             # ---- Step 8: Presign URL for cover image ----
             cover_filename = cover_path.split("/")[-1] or "cover.jpg"
             cover_ext = cover_filename.rsplit(".", 1)[-1].lower() if "." in cover_filename else "jpg"
@@ -391,6 +466,7 @@ class PublishOrchestrator:
                 mime_type="application/pdf",
                 file_size=len(pdf_bytes),
                 original_object_key=pdf_presign.key,
+                teaser_object_key=teaser_presign.key,
                 top_image=img_presign.key,
                 category_id=category_id,
                 tag_ids=tag_ids,

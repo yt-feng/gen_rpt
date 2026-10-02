@@ -93,6 +93,7 @@ class GateXReportPayload:
     price: float = 5800.0     # GateX minimum price requirement is 5800
     is_featured: bool = False
     publish: bool = False      # Set True to publish immediately on creation
+    teaser_object_key: Optional[str] = None  # data.key from REPORT_TEASER presign
 
 
 @dataclass
@@ -340,6 +341,9 @@ class GateXClient:
         if payload.price < 5800.0:
             errors.append(f"Price {payload.price} is below GateX minimum requirement of 5800.0")
 
+        if payload.teaser_object_key is not None and not payload.teaser_object_key.strip():
+            errors.append("teaserObjectKey cannot be an empty string if provided")
+
         return errors
 
     # -----------------------------------------------------------------------
@@ -376,6 +380,7 @@ class GateXClient:
                     "publish": payload.publish,
                     **({"description": payload.description} if payload.description else {}),
                     **({"regionId": payload.region_id} if payload.region_id else {}),
+                    **({"teaserObjectKey": payload.teaser_object_key} if payload.teaser_object_key else {}),
                 }
             ]
         }
