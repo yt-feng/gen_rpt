@@ -452,6 +452,7 @@ def _build_mock_report_entry(
     Builds a MOCK_REPORTS entry from the report payload or a minimal stub.
     Pulls sections from the payload if present so the frontend shows real content.
     """
+    import re
     now = datetime.now(timezone.utc)
 
     # Try to extract sections from the web report payload
