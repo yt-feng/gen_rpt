@@ -1,0 +1,24 @@
+{
+  "review_timestamp": "2026-10-02T16:48:59.976241Z",
+  "report_title": "China–UAE Economic Relations Have Peaked: A Validation-Only Assessment of Climate Resilience Infrastructure Exposure",
+  "report_path": "/home/runner/work/gen_rpt/gen_rpt/reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/report.md",
+  "overall_score": 87,
+  "grade": "Silver",
+  "total_claims": 14,
+  "high_risk_claims": 0,
+  "unsupported_claims": 0,
+  "improvement_tasks": 10,
+  "minister_ready": false,
+  "board_ready": false,
+  "swf_ready": false,
+  "output_dir": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews",
+  "files": {
+    "review_json": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/review.json",
+    "review_md": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/review.md",
+    "review_html": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/review.html",
+    "claims_json": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/claims.json",
+    "findings_json": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/findings.json",
+    "scores_json": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/scores.json",
+    "audit_manifest": "reports_web/2026-10-02-china-uae-economic-relations-have-peaked-aff6a3/reviews/audit_manifest.json"
+  }
+}

@@ -1,0 +1,92 @@
+{
+  "overall_score": 87,
+  "grade": "Silver",
+  "research_quality": {
+    "score": 24,
+    "max_points": 30,
+    "what_works": [
+      {
+        "point": "The report provides a detailed analysis of the Chinese climate-resilience demand shock, including specific casualty and economic loss figures."
+      },
+      {
+        "point": "The report identifies and discusses four key failure modes that could limit the China–UAE climate-resilience opportunity, providing a balanced view of risks."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a detailed analysis of the UAE market beyond the top-down estimate of the $100 billion climate-adaptation pool.",
+        "location_ref": "Location -> [The UAE Opportunity Is Real but Unpriced: US$100 Billion Is a Top-Down Pool, Not a Serviceable Market] | Para 1 | "
+      },
+      {
+        "point": "The report lacks a comprehensive scenario analysis for the 'peaked' thesis, focusing more on validation than on potential future scenarios.",
+        "location_ref": "Location -> [The 'Peaked' Thesis Is Unresolved: Record Aggregate Trade Coexists With Flat Imports and Diversification] | Para 1 | "
+      }
+    ]
+  },
+  "evidence_and_citations": {
+    "score": 22,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report cites multiple sources for its claims, including private documents and web evidence, providing a traceable evidence base."
+      },
+      {
+        "point": "The report includes specific data points, such as casualty figures and economic losses, which are directly cited from the private document."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a bibliography or a comprehensive list of all sources used, which limits the traceability of some claims.",
+        "location_ref": "Location -> [References] | Para 1 | "
+      },
+      {
+        "point": "Some claims, such as the UAE-specific market value, are based on top-down estimates without supporting segment or reachability data.",
+        "location_ref": "Location -> [The UAE Opportunity Is Real but Unpriced: US$100 Billion Is a Top-Down Pool, Not a Serviceable Market] | Para 1 | "
+      }
+    ]
+  },
+  "strategic_clarity": {
+    "score": 23,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report clearly outlines the need for a validation-only approach, providing specific decision gates and evidence thresholds."
+      },
+      {
+        "point": "The report identifies clear management implications, such as the need for a structured market-sizing exercise and primary buyer evidence before committing resources."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a detailed action plan for each decision gate, which could make it harder for management to implement the recommendations.",
+        "location_ref": "Location -> [Staged Decision Gates: What Must Be True Before Exposure Changes] | Para 1 | "
+      },
+      {
+        "point": "The report could benefit from more explicit risk mitigation strategies for each of the identified failure modes.",
+        "location_ref": "Location -> [Failure Modes: Regulatory, Competitive, Financing and Volatility Risks Could Cap the Opportunity] | Para 1 | "
+      }
+    ]
+  },
+  "writing_and_structure": {
+    "score": 18,
+    "max_points": 20,
+    "what_works": [
+      {
+        "point": "The report is well-structured with clear section titles that match the content, making it easy to navigate."
+      },
+      {
+        "point": "The report uses specific and quantifiable data, enhancing the clarity and credibility of the analysis."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "Some sections contain repetitive language, such as the repeated emphasis on the validation-only approach.",
+        "location_ref": "Location -> [The Decision Baseline: Validation, Not Commitment, Is the Only Defensible Posture] | Para 1 | "
+      },
+      {
+        "point": "The report occasionally uses undefined jargon, such as 'serviceable segment share' and 'reachable geography share', which may not be clear to all readers.",
+        "location_ref": "Location -> [The UAE Opportunity Is Real but Unpriced: US$100 Billion Is a Top-Down Pool, Not a Serviceable Market] | Para 3 | "
+      }
+    ]
+  }
+}
