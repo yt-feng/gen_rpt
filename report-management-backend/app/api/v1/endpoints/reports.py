@@ -5,6 +5,7 @@ import re
 from typing import List, Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -503,6 +504,47 @@ async def get_report_details(
         except Exception:
             pass
 
+    # Always refresh image presigned URLs dynamically to ensure they never expire (HTTP 403 prevention)
+    try:
+        from app.storage.provider import storage_provider
+        if storage_provider.is_configured:
+            client = storage_provider.s3_client
+            bucket = storage_provider.bucket
+            folder = report.get("r2_prefix")
+            if not folder:
+                for cand in [f"reports/{document_id}/", f"reports/{bare_slug}/"]:
+                    try:
+                        client.head_object(Bucket=bucket, Key=f"{cand}manifest.json")
+                        folder = cand
+                        break
+                    except Exception:
+                        pass
+            if not folder:
+                res_pref = client.list_objects_v2(Bucket=bucket, Prefix="reports/", Delimiter="/")
+                for p in res_pref.get("CommonPrefixes", []):
+                    pref = p["Prefix"]
+                    if bare_slug in pref or document_id in pref:
+                        folder = pref
+                        break
+            if folder:
+                report["r2_prefix"] = folder
+                res_imgs = client.list_objects_v2(Bucket=bucket, Prefix=f"{folder}current/assets/")
+                fresh_images = []
+                for obj in res_imgs.get("Contents", []):
+                    k = obj["Key"]
+                    fname = k.split("/")[-1]
+                    if (fname.startswith("image-") or fname.startswith("cover-")) and fname.endswith(".png"):
+                        fresh_url = client.generate_presigned_url(
+                            ClientMethod="get_object",
+                            Params={"Bucket": bucket, "Key": k},
+                            ExpiresIn=86400
+                        )
+                        fresh_images.append({"key": fname, "url": fresh_url})
+                if fresh_images:
+                    report.setdefault("reportContent", {})["images"] = fresh_images
+    except Exception as e:
+        pass
+
     # Cache back into MOCK_REPORTS
     MOCK_REPORTS[document_id] = report
     MOCK_REPORTS[bare_slug] = report
@@ -510,6 +552,51 @@ async def get_report_details(
         MOCK_REPORTS[report["id"]] = report
 
     return success_response(data=report, message="Fetched report details")
+
+
+def get_review_md_text(report_id: str) -> str:
+    """Helper to locate and read review.md text from R2 for highlighter coordinates."""
+    from app.storage.provider import storage_provider
+    import re
+    if not storage_provider.is_configured:
+        return ""
+    client = storage_provider.s3_client
+    bucket = storage_provider.bucket
+    bare_slug = re.sub(r'^\d{4}-\d{2}-\d{2}-', '', report_id)
+
+    candidates = [
+        f"reports/{report_id}/reviews/review.md",
+        f"reports/{bare_slug}/reviews/review.md",
+    ]
+    for c in candidates:
+        try:
+            obj = client.get_object(Bucket=bucket, Key=c)
+            return obj["Body"].read().decode("utf-8")
+        except Exception:
+            pass
+
+    try:
+        res = client.list_objects_v2(Bucket=bucket, Prefix="reports/", Delimiter="/")
+        for p in res.get("CommonPrefixes", []):
+            pref = p["Prefix"]
+            if bare_slug in pref or report_id in pref:
+                try:
+                    obj = client.get_object(Bucket=bucket, Key=f"{pref}reviews/review.md")
+                    return obj["Body"].read().decode("utf-8")
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return ""
+
+
+@router.get("/{document_id}/review", response_class=PlainTextResponse)
+async def get_report_review_markdown(document_id: str):
+    """
+    Returns raw review.md text for highlighter coordinates and quality annotations.
+    """
+    text = get_review_md_text(document_id)
+    return PlainTextResponse(text, media_type="text/plain; charset=utf-8")
 
 from pydantic import BaseModel
 from typing import Optional
