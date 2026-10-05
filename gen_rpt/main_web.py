@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import time
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -69,12 +70,36 @@ def _fetch_rag_context(slug: str, backend_url: str, internal_token: str, topic: 
     url = f"{backend_url.rstrip('/')}/api/internal/context/{slug}"
     headers = {"Authorization": f"Bearer {internal_token}"}
     print(f"[RAG Bridge] Fetching context for slug '{slug}' from backend...")
-    try:
-        resp = requests.get(url, headers=headers, timeout=15)
-        resp.raise_for_status()
-        response_payload = resp.json()
-    except Exception as exc:
-        raise RAGBridgeError(f"Failed to retrieve validated context for slug '{slug}': {exc}") from exc
+    # This is an idempotent read of the same scoped package. A brief backend
+    # stall must not restart generation, change source scope or lose the job.
+    max_attempts = 3
+    transient_statuses = {408, 429, 500, 502, 503, 504}
+    for attempt in range(1, max_attempts + 1):
+        resp = None
+        try:
+            resp = requests.get(url, headers=headers, timeout=(10, 30))
+            resp.raise_for_status()
+            response_payload = resp.json()
+            break
+        except Exception as exc:
+            retryable = (
+                isinstance(exc, (requests.Timeout, requests.ConnectionError))
+                and not isinstance(exc, requests.exceptions.SSLError)
+            ) or (
+                isinstance(exc, requests.HTTPError)
+                and resp is not None
+                and resp.status_code in transient_statuses
+            )
+            if not retryable or attempt == max_attempts:
+                raise RAGBridgeError(
+                    f"Failed to retrieve validated context for slug '{slug}' "
+                    f"after {attempt} attempt(s): {exc}"
+                ) from exc
+            print(f"[RAG Bridge] Temporary backend failure; retrying context read ({attempt}/{max_attempts}).")
+            time.sleep(2 ** (attempt - 1))
+        finally:
+            if resp is not None:
+                resp.close()
 
     data = response_payload.get("data", {}) if isinstance(response_payload, dict) else {}
     if not isinstance(data, dict):
@@ -144,7 +169,11 @@ def main() -> None:
                 raise
             print("[RAG Bridge] Retrieval failed for an optional RAG run; continuing in public-research mode.")
     if rag_required and rag_package is None:
-        raise RAGBridgeError(f"RAG_REQUIRED is enabled but no validated context exists for slug '{slug}'")
+        raise RAGBridgeError(
+            f"RAG_REQUIRED is enabled but no validated context exists for slug '{slug}'. "
+            "Retry the original backend job to refresh its original source scope before dispatch; "
+            "rerunning GitHub Actions alone cannot restore expired context."
+        )
 
     client = DeepSeekClient(model=args.model)
     pipeline = WebReportPipeline(client=client, language=language)

@@ -9,12 +9,13 @@ import re
 import tempfile
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 import requests
 
 from gen_rpt.deepseek_client import normalize_structured_payload
-from gen_rpt.main_web import RAGBridgeError, _fetch_rag_context
+from gen_rpt.main_web import RAGBridgeError, _fetch_rag_context, main as run_web_report
 from gen_rpt.web_fetch import (
     SearchResult,
     SourceDocument,
@@ -1356,17 +1357,121 @@ class RAGBridgeTests(unittest.TestCase):
         mock_get.assert_called_once_with(
             "https://backend.example/api/internal/context/report-slug",
             headers={"Authorization": "Bearer secret"},
-            timeout=15,
+            timeout=(10, 30),
         )
+        response.close.assert_called_once()
 
+    @patch("gen_rpt.main_web.time.sleep")
     @patch("requests.get")
-    def test_bridge_surfaces_backend_failure(self, mock_get):
+    def test_bridge_surfaces_backend_failure_after_bounded_reads(self, mock_get, mock_sleep):
         response = Mock()
+        response.status_code = 503
         response.raise_for_status.side_effect = requests.HTTPError("503 Service Unavailable")
         mock_get.return_value = response
 
         with self.assertRaisesRegex(RAGBridgeError, "503 Service Unavailable"):
             _fetch_rag_context("report-slug", "https://backend.example", "secret")
+        self.assertEqual(mock_get.call_count, 3)
+        self.assertEqual(response.close.call_count, 3)
+        self.assertEqual([call.args[0] for call in mock_sleep.call_args_list], [1, 2])
+
+    @patch("gen_rpt.main_web.time.sleep")
+    @patch("requests.get")
+    def test_bridge_recovers_timeout_and_connection_reset_without_changing_scope(self, mock_get, mock_sleep):
+        response = Mock()
+        response.json.return_value = {"data": _context_payload()}
+        mock_get.side_effect = [requests.ReadTimeout("read timed out"), requests.ConnectionError("reset"), response]
+
+        package = _fetch_rag_context("original-slug", "https://backend.example", "secret", "Fleet launch decision")
+
+        self.assertEqual(package.sources[0].metadata["chunk_id"], "chunk-1")
+        self.assertEqual(mock_get.call_count, 3)
+        self.assertTrue(all(call == mock_get.call_args for call in mock_get.call_args_list))
+        response.close.assert_called_once()
+
+    @patch("gen_rpt.main_web.time.sleep")
+    @patch("requests.get")
+    def test_bridge_retries_only_transient_http_statuses(self, mock_get, mock_sleep):
+        for status in [408, 429, 500, 502, 503, 504]:
+            with self.subTest(status=status):
+                mock_get.reset_mock(); mock_sleep.reset_mock()
+                failed = Mock(status_code=status)
+                failed.raise_for_status.side_effect = requests.HTTPError(str(status))
+                success = Mock()
+                success.json.return_value = {"data": _context_payload()}
+                mock_get.side_effect = [failed, success]
+
+                self.assertIsNotNone(_fetch_rag_context("slug", "https://backend.example", "secret"))
+
+                self.assertEqual(mock_get.call_count, 2)
+                failed.close.assert_called_once()
+                success.close.assert_called_once()
+
+        for status in [400, 401, 403, 404, 409, 422]:
+            with self.subTest(status=status):
+                mock_get.reset_mock(); mock_sleep.reset_mock()
+                failed = Mock(status_code=status)
+                failed.raise_for_status.side_effect = requests.HTTPError(str(status))
+                mock_get.side_effect = [failed]
+                with self.assertRaisesRegex(RAGBridgeError, "after 1 attempt"):
+                    _fetch_rag_context("slug", "https://backend.example", "secret")
+                mock_get.assert_called_once()
+                mock_sleep.assert_not_called()
+                failed.close.assert_called_once()
+
+    @patch("gen_rpt.main_web.time.sleep")
+    @patch("requests.get")
+    def test_bridge_does_not_retry_tls_or_malformed_payload(self, mock_get, mock_sleep):
+        for error in [requests.exceptions.SSLError("certificate verification failed"), ValueError("invalid JSON")]:
+            with self.subTest(error=type(error).__name__):
+                mock_get.reset_mock(); mock_sleep.reset_mock()
+                response = Mock()
+                if isinstance(error, requests.exceptions.SSLError):
+                    mock_get.side_effect = error
+                else:
+                    mock_get.side_effect = None
+                    response.json.side_effect = error
+                mock_get.return_value = response
+                with self.assertRaisesRegex(RAGBridgeError, "after 1 attempt"):
+                    _fetch_rag_context("slug", "https://backend.example", "secret")
+                mock_get.assert_called_once()
+                mock_sleep.assert_not_called()
+                if not isinstance(error, requests.exceptions.SSLError):
+                    response.close.assert_called_once()
+
+    @patch("gen_rpt.main_web.time.sleep")
+    @patch("requests.get")
+    def test_bridge_does_not_poll_missing_or_expired_evidence(self, mock_get, mock_sleep):
+        response = Mock()
+        response.json.return_value = {"data": {"validated_chunks": [], "context_status": "missing_or_expired"}}
+        mock_get.return_value = response
+        self.assertIsNone(_fetch_rag_context("slug", "https://backend.example", "secret"))
+        mock_get.assert_called_once()
+        mock_sleep.assert_not_called()
+
+    @patch("gen_rpt.main_web.time.sleep")
+    @patch("requests.get", side_effect=requests.ReadTimeout("read timed out"))
+    def test_bridge_stops_after_three_timeouts(self, mock_get, mock_sleep):
+        with self.assertRaisesRegex(RAGBridgeError, "after 3 attempt"):
+            _fetch_rag_context("slug", "https://backend.example", "secret")
+        self.assertEqual(mock_get.call_count, 3)
+        self.assertEqual(mock_sleep.call_count, 2)
+
+    def test_required_context_never_starts_generation_after_empty_or_failed_read(self):
+        args = SimpleNamespace(language="en", slug="original-slug", topic="Original topic",
+                               out_root="reports_web", source_mode=None, source_dir=None)
+        for error in [None, RAGBridgeError("read budget exhausted")]:
+            with self.subTest(error=error), \
+                 patch.dict(os.environ, {"RAG_REQUIRED": "true", "BACKEND_URL": "https://backend.example", "INTERNAL_TOKEN": "secret"}), \
+                 patch("gen_rpt.main_web.parse_args", return_value=args), \
+                 patch("gen_rpt.main_web._fetch_rag_context", return_value=None, side_effect=error), \
+                 patch("gen_rpt.main_web.DeepSeekClient") as client, \
+                 patch("gen_rpt.main_web.WebReportPipeline") as pipeline:
+                message = "original backend job" if error is None else "read budget exhausted"
+                with self.assertRaisesRegex(RAGBridgeError, message):
+                    run_web_report()
+                client.assert_not_called()
+                pipeline.assert_not_called()
 
     def test_internal_sources_are_kept_ahead_of_public_sources(self):
         internal = sources_from_validated_context(_context_payload(), "Fleet launch decision")
