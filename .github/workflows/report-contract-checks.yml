@@ -35,7 +35,9 @@ jobs:
       matrix:
         python: ["3.11", "3.12"]
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # The repository includes historical report assets; allow checkout to finish
+    # before the short offline contracts without changing its transport or scope.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
