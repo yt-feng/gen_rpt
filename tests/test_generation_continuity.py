@@ -3,6 +3,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import re
 import sys
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -233,6 +234,18 @@ class ContinuityTests(unittest.TestCase):
             self.assertIn("inputs.content_policy == 'strict'", workflow)
             self.assertNotIn('$(find reports_web', workflow)
             self.assertIn('Backend job output requires configured R2 storage', workflow)
+
+    def test_pages_listener_matches_literal_generator_name(self):
+        workflows = ROOT / ".github/workflows"
+        generator = (workflows / "generate_deep_research_v2.yml").read_text()
+        name = json.loads(generator.splitlines()[0].split(":", 1)[1].strip())
+        # GitHub workflow_run.workflows is a glob filter, including [] classes.
+        # Derive the exact literal pattern from the real producer's name so a
+        # name change or unescaped glob cannot silently disconnect publication.
+        pattern = re.sub(r"([*+?!\[\]])", r"\\\1", name)
+        pages = (workflows / "publish_reports_pages.yml").read_text()
+        listeners = pages.split("workflows:\n", 1)[1].split("types:", 1)[0]
+        self.assertIn(f"- '{pattern}'", listeners)
 
     def test_cli_workflow_attempts_preserve_prior_report_for_same_slug(self):
         from gen_rpt import main_web
