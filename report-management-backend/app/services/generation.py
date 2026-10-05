@@ -35,6 +35,10 @@ class GitHubActionsWorker(WorkerInterface):
                 slug = doc.slug
             else:
                 slug = f"doc-{str(job.id)[:8]}"
+            stored_job = await session.get(GenerationJob, job.id)
+            if stored_job is not None:
+                stored_job.audit_metadata = {**(stored_job.audit_metadata or {}), "receipt_expected": True}
+                await session.commit()
 
         url = f"https://api.github.com/repos/{settings.GITHUB_REPO}/actions/workflows/generate_deep_research_v2.yml/dispatches"
         headers = {
@@ -48,6 +52,10 @@ class GitHubActionsWorker(WorkerInterface):
                 "topic": job.topic,
                 "slug": slug,
                 "rag_required": str(bool((job.audit_metadata or {}).get("rag_required", True))).lower(),
+                "content_policy": (job.audit_metadata or {}).get("content_policy", "seo_overview"),
+                "job_id": str(job.id),
+                "job_retry_count": str(job.retry_count),
+                "context_state": (job.audit_metadata or {}).get("rag", {}).get("status", "unknown"),
             }
         }
         
@@ -68,7 +76,7 @@ class GitHubActionsWorker(WorkerInterface):
         print(f"Cancelling GitHub Action for Job {job.id} (not implemented)")
         return True
 
-    async def dispatch_bulk(self, slug: str, topic: str, model: str = "deepseek-chat", rag_required: bool = True) -> bool:
+    async def dispatch_bulk(self, slug: str, topic: str, model: str = "deepseek-chat", rag_required: bool = True, job_id: str = "", job_retry_count: int = 0, content_policy: str = "seo_overview", context_state: str = "unknown") -> bool:
         """Dispatch a single job to generate_deep_research_bulk.yml."""
         if not settings.GITHUB_TOKEN:
             print("GITHUB_TOKEN not set. Cannot dispatch bulk job to GitHub Actions.")
@@ -87,6 +95,10 @@ class GitHubActionsWorker(WorkerInterface):
                 "slug": slug,
                 "model": model,
                 "rag_required": str(bool(rag_required)).lower(),
+                "content_policy": content_policy,
+                "job_id": job_id,
+                "job_retry_count": str(job_retry_count),
+                "context_state": context_state,
             }
         }
 
@@ -631,6 +643,12 @@ def _build_mock_report_entry(
         }
 
 
+    if payload.get("content_mode") == "general_overview":
+        # No fabricated review scores or RAG-verification claims for an overview.
+        ai_score, ai_grade = None, None
+        formatted_ai_review = {"status": "not_requested", "content_mode": "general_overview",
+                               "summary": payload.get("disclaimer", "General conceptual overview")}
+
     images = []
     try:
         from app.storage.provider import storage_provider
@@ -717,7 +735,7 @@ def _build_mock_report_entry(
         "slug": slug,
         "reportContent": {
             "brand": payload.get("brand") or "GateX Intelligence",
-            "label": payload.get("label") or "Deep Research",
+            "label": payload.get("label") or ("General Overview" if payload.get("content_mode") == "general_overview" else "Deep Research"),
             "date": date_formatted,
             "sections": sections,
             "images": images,
@@ -751,6 +769,10 @@ async def poll_r2_for_completion(job_id: uuid.UUID):
         job = await session.get(GenerationJob, job_id)
         if not job:
             print(f"[poll_r2] Job {job_id} not found.")
+            return
+        if (job.audit_metadata or {}).get("receipt_expected"):
+            # New workers acknowledge exact uploaded bytes via webhook. The
+            # legacy fuzzy R2 poller must not complete them from an older report.
             return
         if job.status == JobStatusType.pending:
             job.status = JobStatusType.running
@@ -889,6 +911,7 @@ class GenerationService:
         created_by: uuid.UUID,
         rag_required: bool = False,
         rag_metadata: Optional[dict] = None,
+        content_policy: str = "seo_overview",
     ) -> GenerationJob:
         job = GenerationJob(
             id=uuid.uuid4(),
@@ -897,7 +920,7 @@ class GenerationService:
             prompt=prompt,
             report_type=report_type,
             created_by=created_by,
-            audit_metadata={"rag_required": rag_required, "rag": rag_metadata or {}},
+            audit_metadata={"rag_required": rag_required, "rag": rag_metadata or {}, "content_policy": content_policy},
             status=JobStatusType.pending,
             started=datetime.now(timezone.utc)
         )
@@ -942,7 +965,7 @@ class GenerationService:
             prompt=topic,
             report_type="bulk",
             created_by=created_by,
-            audit_metadata={"rag_required": (rag_metadata or {}).get("source_policy") != "public_only", "rag": rag_metadata or {}},
+            audit_metadata={"rag_required": (rag_metadata or {}).get("source_policy") != "public_only", "rag": rag_metadata or {}, "content_policy": "seo_overview"},
             status=JobStatusType.pending,
             started=datetime.now(timezone.utc)
         )
@@ -952,7 +975,9 @@ class GenerationService:
 
         if dispatch:
             # Dispatch to the bulk workflow
-            success = await self.worker.dispatch_bulk(slug=slug, topic=topic, rag_required=bool((job.audit_metadata or {}).get("rag_required", True)))
+            job.audit_metadata = {**(job.audit_metadata or {}), "receipt_expected": True}
+            await db.commit()
+            success = await self.worker.dispatch_bulk(slug=slug, topic=topic, rag_required=bool((job.audit_metadata or {}).get("rag_required", True)), job_id=str(job.id), job_retry_count=job.retry_count, content_policy=(job.audit_metadata or {}).get("content_policy", "seo_overview"), context_state=(job.audit_metadata or {}).get("rag", {}).get("status", "unknown"))
             if not success:
                 job.status = JobStatusType.failed
                 job.errors = "Failed to dispatch bulk job to GitHub Actions"
@@ -1007,6 +1032,10 @@ class GenerationService:
             and rag.get("collection_ids") == []
         )
         needs_rag = not public_only
+        overview_allowed = metadata.get("content_policy") == "seo_overview"
+        if overview_allowed and (rag.get("status") == "overview_only" or not settings.RAG_ENABLED or not rag.get("collection_ids")):
+            metadata["rag"] = {**rag, "status": "overview_only", "fallback_reason": "private_context_unavailable"}
+            return doc, metadata, None
         package = None
         if needs_rag:
             if not settings.RAG_ENABLED:
@@ -1034,11 +1063,17 @@ class GenerationService:
                     generation_job_id=binding["id"], slug=binding["slug"], force_refresh=True, cache_result=False,
                 )
             except RAGContextPreparationError as exc:
+                if overview_allowed:
+                    metadata["rag"] = {**rag, "status": "overview_only", "fallback_reason": "context_preparation_unavailable"}
+                    return doc, metadata, None
                 raise ValueError(f"RAG retry preparation failed during {exc.stage}; no report was dispatched") from exc
             except Exception as exc:
                 # Do not expose provider diagnostics, private queries or chunks.
                 raise ValueError("RAG retry preparation failed; no report was dispatched") from exc
             chunks = package.get("validated_chunks") if isinstance(package, dict) else None
+            if isinstance(chunks, list) and not chunks and overview_allowed:
+                metadata["rag"] = {**rag, "status": "overview_only", "chunk_count": 0, "fallback_reason": "no_validated_context"}
+                return doc, metadata, None
             if not isinstance(chunks, list) or not chunks:
                 raise ValueError("No validated RAG evidence found; retry was not dispatched")
             if any(
@@ -1258,7 +1293,9 @@ class GenerationService:
                 topic = job.topic or "Unknown Topic"
 
                 try:
-                    success = await self.worker.dispatch_bulk(slug=slug, topic=topic, rag_required=bool((job.audit_metadata or {}).get("rag_required", True)))
+                    job.audit_metadata = {**(job.audit_metadata or {}), "receipt_expected": True}
+                    await db.commit()
+                    success = await self.worker.dispatch_bulk(slug=slug, topic=topic, rag_required=bool((job.audit_metadata or {}).get("rag_required", True)), job_id=str(job.id), job_retry_count=job.retry_count, content_policy=(job.audit_metadata or {}).get("content_policy", "seo_overview"), context_state=(job.audit_metadata or {}).get("rag", {}).get("status", "unknown"))
                 except Exception:
                     success = False
                 if not success:

@@ -21,6 +21,27 @@ on:
         required: false
         default: deepseek-chat
         type: string
+      content_policy:
+        description: Produce a disclosed general overview when private evidence or research quality is unavailable
+        required: false
+        default: seo_overview
+        type: choice
+        options: [seo_overview, strict]
+      job_id:
+        description: Original backend job ID (empty for standalone generation)
+        required: false
+        default: ""
+        type: string
+      job_retry_count:
+        description: Original backend attempt counter
+        required: false
+        default: ""
+        type: string
+      context_state:
+        description: Backend context readiness; overview_only never reads stale cached context
+        required: false
+        default: unknown
+        type: string
 
 permissions:
   contents: read
@@ -55,6 +76,11 @@ jobs:
       SLUG_INPUT: ${{ inputs.slug }}
       RAG_REQUIRED: ${{ inputs.rag_required }}
       MODEL_INPUT: ${{ inputs.model || 'deepseek-chat' }}
+      CONTENT_POLICY: ${{ inputs.content_policy || 'seo_overview' }}
+      GENERATION_JOB_ID: ${{ inputs.job_id || '' }}
+      GENERATION_JOB_RETRY_COUNT: ${{ inputs.job_retry_count || '' }}
+      RESULT_PATH: .artifacts/report-generation/result.json
+      GENERATION_CONTEXT_STATE: ${{ inputs.context_state || 'unknown' }}
       
       # Review Config
       REVIEW_MODEL: llama-3.3-70b-versatile
@@ -76,26 +102,6 @@ jobs:
           pip install -r requirements.txt
           pip install -r review_system/requirements.txt
 
-      - name: Validate API keys
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
-        run: |
-          if [ -z "$DEEPSEEK_API_KEY" ]; then
-            echo "::error::Missing DEEPSEEK_API_KEY secret" >&2
-            exit 1
-          fi
-          if [ -z "$OPENROUTER_API_KEY" ]; then
-            echo "::error::Missing OPENROUTER_API_KEY secret" >&2
-            exit 1
-          fi
-          if [ -z "$BACKEND_URL" ] || [ -z "$INTERNAL_TOKEN" ]; then
-            echo "::error::Missing BACKEND_URL or INTERNAL_TOKEN required for RAG context" >&2
-            exit 1
-          fi
-
       # ---------------------------------------------------------
       # PHASE 1: GENERATION
       # ---------------------------------------------------------
@@ -112,75 +118,32 @@ jobs:
           SLUG="$SLUG_INPUT"
           MODEL="$MODEL_INPUT"
 
-          # IMPORTANT FIX: Delete any existing reports_web folder that was checked out 
-          # from the git repo, so `find` below only matches the newly generated report.
-          rm -rf reports_web
-          mkdir -p reports_web
-          GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
-          
-          # Run the generation script — capture exit code rather than letting
-          # set -e kill the step. The script sometimes exits non-zero even
-          # after a successful report (soft warning at cleanup), so we validate
-          # success by checking for the actual output files instead.
+          mkdir -p .artifacts/report-generation
+          GEN_LOG=".artifacts/report-generation/generation-${GITHUB_RUN_ID:-local}.log"
           set +e
           python -u -m gen_rpt.main_web \
             --topic "$TOPIC" \
             --slug "$SLUG" \
             --language en \
             --model "$MODEL" \
-            --out-root reports_web > "$GEN_LOG" 2>&1
+            --out-root reports_web \
+            --content-policy "$CONTENT_POLICY" \
+            --result-path "$RESULT_PATH" > "$GEN_LOG" 2>&1
           GEN_EXIT=$?
           set -e
 
           # Always print the log so the step output is visible
           cat "$GEN_LOG" || true
 
-          # Validate success by checking that the report files actually exist
-          REPORT_MD="$(find reports_web -maxdepth 3 -name "report.md" | sort -r | head -1 || true)"
-          if [ -z "$REPORT_MD" ]; then
-            echo "::error::Generation failed — report.md not found. Generation exit code: $GEN_EXIT" >&2
-            exit 1
+          if [ "$GEN_EXIT" -ne 0 ]; then
+            echo "::error::Generator failed with exit code $GEN_EXIT" >&2
+            exit "$GEN_EXIT"
           fi
+          test -s "$RESULT_PATH"
 
-          REPORT_DIR="$(dirname "$REPORT_MD")"
-          REPORT_ID="$(basename "$REPORT_DIR")"
 
-          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
-          echo "report_id=$REPORT_ID"   >> "$GITHUB_OUTPUT"
-          echo "document_id=$SLUG"      >> "$GITHUB_OUTPUT"
-          echo "Generation succeeded. Report dir: $REPORT_DIR"
-
-      - name: Trigger Backend Failure Webhook
-        if: failure() && steps.generate_report.outcome == 'failure'
-        env:
-          BACKEND_URL: ${{ secrets.BACKEND_URL }}
-          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
-        run: |
-          if [ -z "$BACKEND_URL" ]; then
-            echo "BACKEND_URL secret missing, skipping failure webhook"
-            exit 0
-          fi
-          
-          curl --fail-with-body --show-error -i -X POST "$BACKEND_URL/api/internal/events/report-failed" \
-               -H "Content-Type: application/json" \
-               -H "x-internal-token: $INTERNAL_TOKEN" \
-               -d '{
-                 "document_id": "${{ inputs.slug }}",
-                 "idempotency_key": "github-actions-bulk-fail-${{ github.run_id }}-${{ github.run_attempt }}",
-                 "metadata": {
-                   "run_id": "${{ github.run_id }}",
-                   "slug": "${{ inputs.slug }}",
-                   "bulk": true,
-                   "error": "Final RAG report quality gate failed or generation crashed"
-                 }
-               }'
-
-      # NOTE: No Git Commit Step here. Makes workflow stateless & concurrent.
-
-      # ---------------------------------------------------------
-      # PHASE 2: AI REVIEW
-      # ---------------------------------------------------------
       - name: Run AI review pipeline
+        if: steps.generate_report.outputs.status == 'generated' && inputs.content_policy == 'strict'
         id: run_review
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -200,6 +163,7 @@ jobs:
             --model   "$REVIEW_MODEL"
 
       - name: Verify review outputs
+        if: steps.run_review.outcome == 'success'
         run: |
           set -euo pipefail
           OUTPUT_DIR="${{ steps.run_review.outputs.output_dir }}"
@@ -268,6 +232,10 @@ jobs:
             echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+            if [ -n "$GENERATION_JOB_ID" ]; then
+              echo "Backend job output requires configured R2 storage" >&2
+              exit 1
+            fi
           fi
 
       - name: Install R2 storage dependencies
@@ -277,7 +245,6 @@ jobs:
 
       - name: Upload GENERATED REPORT to R2
         if: steps.check_r2.outputs.has_r2_secrets == 'true'
-        continue-on-error: true
         env:
           R2_ACCOUNT_ID:        ${{ secrets.R2_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID:     ${{ secrets.R2_ACCESS_KEY_ID }}
@@ -294,27 +261,21 @@ jobs:
             --skip-catalog-update
 
       - name: Trigger Backend Report Webhook
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
-        run: |
-          if [ -z "$BACKEND_URL" ]; then
-            echo "BACKEND_URL secret missing, skipping webhook"
-            exit 0
-          fi
-          
-          curl --fail-with-body --show-error -i -X POST "$BACKEND_URL/api/internal/events/report-generated" \
-               -H "Content-Type: application/json" \
-               -H "x-internal-token: $INTERNAL_TOKEN" \
-               -d '{
-                 "document_id": "${{ inputs.slug }}",
-                 "idempotency_key": "github-actions-bulk-${{ github.run_id }}-${{ github.run_attempt }}",
-                 "metadata": {
-                   "run_id": "${{ github.run_id }}",
-                   "slug": "${{ inputs.slug }}",
-                   "bulk": true
-                 }
-               }'
+        run: python tools/notify_generation_result.py --receipt "$RESULT_PATH"
+
+      - name: Preserve structured generation result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-generation-outcome-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/report-generation/result.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Upload REVIEW to R2
         if: steps.check_r2.outputs.has_r2_secrets == 'true' && steps.run_review.outcome == 'success'
@@ -356,3 +317,10 @@ jobs:
                    "bulk": true
                  }
                }'
+
+      - name: Trigger Backend Failure Webhook
+        if: failure()
+        env:
+          BACKEND_URL: ${{ secrets.BACKEND_URL }}
+          INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
+        run: python tools/notify_generation_result.py --failure --slug "$SLUG_INPUT"

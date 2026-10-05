@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 SUITES = (
     "tests.test_standard_length_recovery",
     "tests.test_rag_bridge",
+    "tests.test_generation_continuity",
     "tests.test_generation_workflows",
     "tests.test_report_publication_contract",
     "tests.test_simplified_report_mode",
