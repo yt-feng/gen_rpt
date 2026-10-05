@@ -227,6 +227,7 @@ jobs:
             --status generated \
             --log-level INFO \
             --skip-catalog-update
+          python tools/notify_generation_result.py --verify-upload-only --receipt "$RESULT_PATH"
 
       - name: Trigger Backend Workflow Event
         if: steps.check_r2.outputs.has_r2_secrets == 'true'

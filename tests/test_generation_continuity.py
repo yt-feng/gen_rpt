@@ -15,7 +15,7 @@ import requests
 from gen_rpt.generation_continuity import run_continuity, template_overview, validate_overview
 from gen_rpt.main_web import RAGBridgeError
 from gen_rpt.web_report_pipeline import ReportQualityError
-from tools.notify_generation_result import notify
+from tools.notify_generation_result import notify, verify_upload
 from tests.test_generation_retry_context import exact_method, module, Status, DOC, JOB
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -140,6 +140,18 @@ class ContinuityTests(unittest.TestCase):
         files["current/report.html"] = b"stale document"
         with self.assertRaises(ValueError): asyncio.run(receipt_contract.load_receipted_report("test-topic", result, storage))
 
+    def test_standalone_r2_readback_verifies_uploaded_bytes_before_ack(self):
+        result = self.run_report()
+        prefix = f"reports/{result['report_id']}/"
+        files = {prefix + "metadata/web_report_payload.json": (self.output / "web_report_payload.json").read_bytes(),
+                 prefix + "current/report.html": (self.output / "report.html").read_bytes(),
+                 prefix + "current/report.md": (self.output / "report.md").read_bytes()}
+        storage = NS(download_bytes=Mock(side_effect=files.__getitem__))
+        self.assertEqual(verify_upload(result, storage)["status"], "verified")
+        self.assertEqual(storage.download_bytes.call_count, 3)
+        files[prefix + "current/report.md"] = b"old or incomplete file"
+        with self.assertRaises(RuntimeError): verify_upload(result, storage)
+
     def test_notification_http_and_backend_rejections_remain_failures(self):
         result = self.run_report()
         response = Mock(); response.json.return_value = {"data": {"status": "completed", "job_id": "job-id"}}
@@ -217,6 +229,7 @@ class ContinuityTests(unittest.TestCase):
             self.assertIn('--content-policy "$CONTENT_POLICY"', workflow)
             self.assertIn('--result-path "$RESULT_PATH"', workflow)
             self.assertIn('python tools/notify_generation_result.py --receipt "$RESULT_PATH"', workflow)
+            self.assertIn('--verify-upload-only --receipt "$RESULT_PATH"', workflow)
             self.assertIn("inputs.content_policy == 'strict'", workflow)
             self.assertNotIn('$(find reports_web', workflow)
             self.assertIn('Backend job output requires configured R2 storage', workflow)

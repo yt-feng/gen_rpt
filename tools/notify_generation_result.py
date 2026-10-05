@@ -1,10 +1,27 @@
 """Send the exact uploaded result; HTTP/application errors remain workflow errors."""
 import argparse
+import hashlib
 import json
 import os
 from pathlib import Path
+import sys
 
 import requests
+
+
+def verify_upload(receipt, storage):
+    """Read only this run's three uploaded files, never a catalog or old slug."""
+    prefix = f"reports/{receipt['report_id']}/"
+    files = {"metadata/web_report_payload.json": "payload_sha256",
+             "current/report.html": "report.html_sha256", "current/report.md": "report.md_sha256"}
+    verified = []
+    for suffix, field in files.items():
+        key = prefix + suffix
+        data = storage.download_bytes(key)
+        if not data or hashlib.sha256(data).hexdigest() != receipt[field]:
+            raise RuntimeError("R2 readback does not match the generated report receipt")
+        verified.append({"key": key, "sha256": receipt[field], "bytes": len(data)})
+    return {"status": "verified", "files": verified}
 
 
 def supports_receipts(backend_url, token, get=requests.get):
@@ -72,6 +89,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--receipt", type=Path)
     parser.add_argument("--failure", action="store_true")
+    parser.add_argument("--verify-upload-only", action="store_true")
     parser.add_argument("--slug", default="")
     args = parser.parse_args()
     if args.failure:
@@ -96,6 +114,13 @@ def main():
     if args.receipt is None:
         parser.error("--receipt is required for a generated result")
     receipt = json.loads(args.receipt.read_text())
+    if args.verify_upload_only:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from storage.r2_client import R2Client
+        receipt["upload_verification"] = verify_upload(receipt, R2Client())
+        args.receipt.write_text(json.dumps(receipt, indent=2) + "\n")
+        print("R2 readback verified: exact payload, HTML and Markdown match this run")
+        return
     result = notify(receipt, backend_url=os.getenv("BACKEND_URL", ""), token=os.getenv("INTERNAL_TOKEN", ""))
     receipt["backend_ack"] = result["status"]
     args.receipt.write_text(json.dumps(receipt, indent=2) + "\n")
