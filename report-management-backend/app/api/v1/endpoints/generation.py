@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 from app.api.deps import get_db, get_current_user_placeholder, PageParams
 from app.core.responses import APIResponse, success_response, error_response
@@ -30,6 +30,7 @@ class CreateJobRequest(BaseModel):
     report_type: str = "technical"
     collection_ids: Optional[List[UUID]] = None
     rag_required: bool = False
+    content_policy: Literal["seo_overview", "strict"] = "seo_overview"
 
 
 def _require_validated_evidence(
@@ -111,13 +112,14 @@ async def create_job(
 
     if not doc_obj or (doc_obj.owner_id or doc_obj.created_by) != UUID(user["id"]):
         raise HTTPException(status_code=403, detail="Generation requires the report document owner")
-    if not settings.RAG_ENABLED and req.collection_ids:
+    overview_allowed = getattr(req, "content_policy", "strict") == "seo_overview"
+    if not overview_allowed and not settings.RAG_ENABLED and req.collection_ids:
         raise HTTPException(status_code=503, detail="RAG is disabled; requested private source scope was not dispatched")
     effective_collection_ids = await _resolve_generation_scope(
         db, UUID(user["id"]), req.collection_ids if settings.RAG_ENABLED else [],
     )
     rag_state = {"requested": False, "status": "public_only", "source_policy": "public_only", "chunk_count": 0, "collection_ids": []}
-    if req.rag_required and not settings.RAG_ENABLED:
+    if not overview_allowed and req.rag_required and not settings.RAG_ENABLED:
         raise HTTPException(status_code=503, detail="RAG is disabled; required report was not dispatched")
     if settings.RAG_ENABLED and effective_collection_ids:
         from app.services.rag_integration import generation_context_service, RAGContextPreparationError
@@ -127,17 +129,27 @@ async def create_job(
                 user_id=UUID(user["id"]), user_org_id=None, slug=slug_val, force_refresh=True,
             )
             validated_chunks = context_package.get("validated_chunks", [])
-            # Explicit source scopes are never silently replaced by web-only input.
-            _require_validated_evidence(True, validated_chunks)
-            rag_state = _prepared_rag_metadata(context_package, effective_collection_ids)
+            if validated_chunks or not overview_allowed:
+                _require_validated_evidence(True, validated_chunks)
+                rag_state = _prepared_rag_metadata(context_package, effective_collection_ids)
+            else:
+                rag_state = {"requested": True, "status": "overview_only", "source_policy": "requested_private_unavailable",
+                             "chunk_count": 0, "collection_ids": [str(cid) for cid in effective_collection_ids]}
         except HTTPException:
             raise
         except Exception as exc:
             await db.rollback()
             stage = exc.stage if isinstance(exc, RAGContextPreparationError) else "unknown"
-            raise HTTPException(status_code=503, detail=f"RAG context preparation failed during {stage}; no report was dispatched") from exc
+            if not overview_allowed or not isinstance(exc, RAGContextPreparationError):
+                raise HTTPException(status_code=503, detail=f"RAG context preparation failed during {stage}; no report was dispatched") from exc
+            rag_state = {"requested": True, "status": "overview_only", "source_policy": "requested_private_unavailable",
+                         "chunk_count": 0, "collection_ids": [str(cid) for cid in effective_collection_ids],
+                         "fallback_reason": "context_preparation_unavailable"}
     elif req.rag_required:
-        _require_validated_evidence(True, [])
+        if not overview_allowed:
+            _require_validated_evidence(True, [])
+        rag_state = {"requested": True, "status": "overview_only", "source_policy": "requested_private_unavailable",
+                     "chunk_count": 0, "collection_ids": [str(cid) for cid in (req.collection_ids or [])]}
 
 
     job = await generation_service.create_job(
@@ -149,6 +161,7 @@ async def create_job(
         created_by=UUID(user["id"]),
         rag_required=req.rag_required or bool(rag_state["requested"]),
         rag_metadata=rag_state,
+        content_policy=getattr(req, "content_policy", "strict"),
     )
 
     from app.core.metrics import rag_generation_requests_total

@@ -435,7 +435,7 @@ class BulkAndProducerTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(h.job.status, Status.running); self.assertEqual(h.job.retry_count, 1)
         h.context.prepare_context.assert_awaited_once()
         h.worker.dispatch.assert_not_awaited()
-        h.worker.dispatch_bulk.assert_awaited_once_with(slug="synthetic-report", topic="Synthetic test topic", rag_required=True)
+        h.worker.dispatch_bulk.assert_awaited_once_with(slug="synthetic-report", topic="Synthetic test topic", rag_required=True, job_id=str(JOB), job_retry_count=h.job.retry_count, content_policy="seo_overview", context_state="ready")
         h.context.cache_service.set_cached_context.assert_awaited_once()
 
     async def test_failed_bulk_retry_loser_never_calls_queue_or_publishes(self):
@@ -452,7 +452,7 @@ class BulkAndProducerTests(unittest.IsolatedAsyncioTestCase):
         h = RetryHarness(); sleeps = await self.bulk(h)
         h.context.prepare_context.assert_awaited_once()
         h.worker.dispatch.assert_not_awaited()
-        h.worker.dispatch_bulk.assert_awaited_once_with(slug="synthetic-report", topic="Synthetic test topic", rag_required=True)
+        h.worker.dispatch_bulk.assert_awaited_once_with(slug="synthetic-report", topic="Synthetic test topic", rag_required=True, job_id=str(JOB), job_retry_count=h.job.retry_count, content_policy="seo_overview", context_state="ready")
         self.assertEqual(h.job.status, Status.running); self.assertEqual(h.job.retry_count, 0)
         self.assertLess(h.events.index("claim"), h.events.index("publish"))
         sleeps.sleep.assert_awaited_once_with(2.0)
@@ -504,7 +504,7 @@ class BulkAndProducerTests(unittest.IsolatedAsyncioTestCase):
         h = RetryHarness(); h.job.audit_metadata = {"rag_required": False, "rag": {
             "source_policy": "public_only", "requested": False, "chunk_count": 0, "collection_ids": []}}
         await self.bulk(h); h.context.prepare_context.assert_not_awaited()
-        h.worker.dispatch_bulk.assert_awaited_once_with(slug="synthetic-report", topic="Synthetic test topic", rag_required=False)
+        h.worker.dispatch_bulk.assert_awaited_once_with(slug="synthetic-report", topic="Synthetic test topic", rag_required=False, job_id=str(JOB), job_retry_count=h.job.retry_count, content_policy="seo_overview", context_state="unknown")
         for metadata in [{"rag_required": False}, {"rag_required": False, "rag": {}}]:
             h = RetryHarness(); h.job.audit_metadata = metadata
             with self.assertRaisesRegex(ValueError, "scope is missing"): await h.run()
@@ -556,7 +556,7 @@ class BulkAndProducerTests(unittest.IsolatedAsyncioTestCase):
                "validation_report_reference": "synthetic-validation", "knowledge_snapshot_id": "synthetic-snapshot"}
         for name in ["create_job", "create_bulk_job"]:
             seen = []
-            def new_job(**kwargs): return NS(**kwargs)
+            def new_job(**kwargs): return NS(retry_count=0, **kwargs)
             db = NS(add=lambda job: seen.append(job), commit=AsyncMock(), refresh=AsyncMock())
             async def dispatch(*args, **kwargs):
                 self.assertEqual(seen[0].audit_metadata["rag"], rag)
@@ -621,7 +621,7 @@ class CacheAndPollerTests(unittest.IsolatedAsyncioTestCase):
         enum_ns = {"enum": enum}
         exec(compile(ast.Module(body=[enum_node], type_ignores=[]), "actual_job_enum", "exec"), enum_ns)
         actual_status = enum_ns["JobStatusType"]
-        job = NS(id=JOB, document_id=DOC, topic="Synthetic", status=actual_status.pending)
+        job = NS(id=JOB, document_id=DOC, topic="Synthetic", status=actual_status.pending, audit_metadata={})
         doc = NS(id=DOC, slug="synthetic-report")
         async def get(model, _): return doc if model is DOC_MODEL else job
         session = NS(get=AsyncMock(side_effect=get), commit=AsyncMock())

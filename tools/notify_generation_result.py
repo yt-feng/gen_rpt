@@ -1,0 +1,134 @@
+"""Send the exact uploaded result; HTTP/application errors remain workflow errors."""
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import sys
+
+import requests
+
+
+def verify_upload(receipt, storage):
+    """Read only this run's three uploaded files, never a catalog or old slug."""
+    prefix = f"reports/{receipt['report_id']}/"
+    files = {"metadata/web_report_payload.json": "payload_sha256",
+             "current/report.html": "report.html_sha256", "current/report.md": "report.md_sha256"}
+    verified = []
+    for suffix, field in files.items():
+        key = prefix + suffix
+        data = storage.download_bytes(key)
+        if not data or hashlib.sha256(data).hexdigest() != receipt[field]:
+            raise RuntimeError("R2 readback does not match the generated report receipt")
+        verified.append({"key": key, "sha256": receipt[field], "bytes": len(data)})
+    return {"status": "verified", "files": verified}
+
+
+def supports_receipts(backend_url, token, get=requests.get):
+    capability = get(backend_url.rstrip("/") + "/api/internal/generation-contract",
+                     headers={"x-internal-token": token}, timeout=(10, 30))
+    try:
+        if capability.status_code == 404:
+            return False
+        capability.raise_for_status()
+        if capability.json().get("data", {}).get("generation_receipt_contract") != "v1":
+            return False
+    finally:
+        capability.close()
+    return True
+
+
+def notify(receipt, *, backend_url, token, post=requests.post, get=requests.get):
+    if not receipt.get("job_id"):
+        # A standalone report has no backend job to complete. In particular,
+        # republishing a topic must not depend on an unrelated legacy backend.
+        return {"status": "standalone_report", "job_completed": False}
+    try:
+        return _notify_exact(receipt, backend_url=backend_url, token=token, post=post, get=get)
+    except (requests.Timeout, requests.ConnectionError):
+        if receipt.get("content_policy") != "seo_overview":
+            raise
+    except requests.HTTPError as exc:
+        status = exc.response.status_code if exc.response is not None else None
+        unavailable = status in {408, 429} or (isinstance(status, int) and 500 <= status <= 599)
+        if receipt.get("content_policy") != "seo_overview" or not unavailable:
+            raise
+    # The upload already succeeded. Only acknowledgement is deferred, without
+    # claiming the job completed or letting backend availability stop Pages.
+    return {"status": "deferred_backend_unavailable", "job_completed": False}
+
+
+def _notify_exact(receipt, *, backend_url, token, post, get):
+    if not backend_url or not token:
+        if receipt.get("job_id"):
+            raise RuntimeError("Backend job requires its configured completion callback")
+        return {"status": "standalone_report"}
+    # Older backends ignore receipt metadata and claim the latest slug job.
+    # Keep publishing real content during rollout, but do not send that unsafe
+    # legacy acknowledgement or pretend that the backend job was completed.
+    if not supports_receipts(backend_url, token, get):
+        return {"status": "deferred_backend_upgrade", "job_completed": False}
+    response = post(backend_url.rstrip("/") + "/api/internal/events/report-generated",
+                    headers={"Content-Type": "application/json", "x-internal-token": token},
+                    json={"document_id": receipt["slug"],
+                          "idempotency_key": f"github-actions-{receipt['run_id']}-{receipt['run_attempt']}",
+                          "metadata": {"generation_receipt": receipt}}, timeout=(10, 30))
+    try:
+        response.raise_for_status()
+        result = response.json().get("data", {})
+        if result.get("status") != "completed":
+            raise RuntimeError("Backend did not acknowledge the generated report")
+        if receipt.get("job_id") and str(result.get("job_id")) != receipt["job_id"]:
+            raise RuntimeError("Backend acknowledged a different job")
+        return result
+    finally:
+        response.close()
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--receipt", type=Path)
+    parser.add_argument("--failure", action="store_true")
+    parser.add_argument("--verify-upload-only", action="store_true")
+    parser.add_argument("--slug", default="")
+    args = parser.parse_args()
+    if args.failure:
+        backend, token = os.getenv("BACKEND_URL"), os.getenv("INTERNAL_TOKEN")
+        if not backend or not token:
+            return
+        if not supports_receipts(backend, token):
+            print("Backend failure acknowledgement deferred until receipt-aware backend deployment")
+            return
+        response = requests.post(backend.rstrip("/") + "/api/internal/events/report-failed",
+            headers={"x-internal-token": token}, timeout=(10, 30),
+            json={"document_id": args.slug,
+                  "idempotency_key": f"github-actions-failed-{os.getenv('GITHUB_RUN_ID')}-{os.getenv('GITHUB_RUN_ATTEMPT')}",
+                  "metadata": {"error": "Report execution, upload or callback failed; see the exact workflow run",
+                               "generation_attempt": {"job_id": os.getenv("GENERATION_JOB_ID", ""),
+                                                      "job_retry_count": os.getenv("GENERATION_JOB_RETRY_COUNT", "")}}})
+        try:
+            response.raise_for_status()
+        finally:
+            response.close()
+        return
+    if args.receipt is None:
+        parser.error("--receipt is required for a generated result")
+    receipt = json.loads(args.receipt.read_text())
+    if args.verify_upload_only:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+        from storage.r2_client import R2Client
+        receipt["upload_verification"] = verify_upload(receipt, R2Client())
+        args.receipt.write_text(json.dumps(receipt, indent=2) + "\n")
+        print("R2 readback verified: exact payload, HTML and Markdown match this run")
+        return
+    result = notify(receipt, backend_url=os.getenv("BACKEND_URL", ""), token=os.getenv("INTERNAL_TOKEN", ""))
+    receipt["backend_ack"] = result["status"]
+    args.receipt.write_text(json.dumps(receipt, indent=2) + "\n")
+    if os.getenv("GITHUB_STEP_SUMMARY"):
+        with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as stream:
+            stream.write(f"- Backend acknowledgement: {result['status']} (uploaded content and backend job completion are separate)\n")
+    print(f"Generation callback: {result['status']}; outcome: {receipt['status']}; reason: {receipt['reason']}")
+
+
+if __name__ == "__main__":
+    main()

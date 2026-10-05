@@ -10,6 +10,7 @@ on:
   workflow_run:
     workflows:
       - Generate HTML Thought Leadership Report
+      - "[V2] Generate HTML Thought Leadership Report"
     types:
       - completed
     branches:

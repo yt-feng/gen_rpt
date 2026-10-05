@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
+import json
 import os
 import re
 import time
@@ -29,6 +31,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--language", default="en", help="Report language: en or zh.")
     parser.add_argument("--model", default="deepseek-chat", help="DeepSeek model name.")
     parser.add_argument("--out-root", default="reports_web", help="Output root directory.")
+    parser.add_argument("--content-policy", choices=("strict", "seo_overview"), default="strict",
+                        help="Explicitly allow a disclosed general overview when research evidence is unavailable.")
+    parser.add_argument("--result-path", type=Path, default=None,
+                        help="Machine-readable generation receipt outside the published directory.")
     parser.add_argument("--checkpoint-path", type=Path, default=None,
                         help="Optional diagnostic draft receipt outside the published report directory.")
     parser.add_argument(
@@ -145,6 +151,19 @@ def main() -> None:
     date_prefix = datetime.utcnow().strftime("%Y-%m-%d")
     slug = args.slug.strip() or slugify(args.topic)
     output_dir = Path(args.out_root) / f"{date_prefix}-{slug}"
+    if getattr(args, "content_policy", "strict") == "seo_overview":
+        from .generation_continuity import run_continuity
+        # A lower-evidence overview must never overwrite an earlier successful
+        # report for the same logical slug, including another run today.
+        run_id, attempt = os.getenv("GITHUB_RUN_ID", ""), os.getenv("GITHUB_RUN_ATTEMPT", "1")
+        if run_id:
+            if not run_id.isdigit() or not attempt.isdigit():
+                raise ValueError("Invalid workflow attempt identity")
+            output_dir = output_dir.with_name(f"{output_dir.name}--run{run_id}-{attempt}")
+        run_continuity(args=args, output_dir=output_dir, slug=slug,
+                       fetch_rag=_fetch_rag_context, client_factory=DeepSeekClient,
+                       pipeline_factory=WebReportPipeline)
+        return
     source_mode = args.source_mode or ("web_and_collection" if args.source_dir else "web_only")
     if source_mode != "web_only" and args.source_dir is None:
         raise SystemExit(f"--source-dir is required when --source-mode={source_mode}")
@@ -203,6 +222,31 @@ def main() -> None:
         f"web={result['web_source_count']} "
         f"private={result['private_source_count']}"
     )
+
+    if getattr(args, "result_path", None):
+        # Strict mode uses the same exact artifact receipt as overview mode.
+        outcome = {"status": "generated", "reason": "strict_report", "content_policy": "strict",
+                   "requested_rag_required": rag_required, "evidence_verified": bool(rag_package),
+                   "slug": slug, "report_id": output_dir.name,
+                   "run_id": os.getenv("GITHUB_RUN_ID", "local"),
+                   "run_attempt": os.getenv("GITHUB_RUN_ATTEMPT", "1"),
+                   "job_id": os.getenv("GENERATION_JOB_ID", ""),
+                   "job_retry_count": os.getenv("GENERATION_JOB_RETRY_COUNT", "")}
+        payload_path = output_dir / "web_report_payload.json"
+        payload = json.loads(payload_path.read_text(encoding="utf-8"))
+        payload["generation_outcome"] = outcome
+        payload_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        (output_dir / "report.html").write_bytes((output_dir / "index.html").read_bytes())
+        receipt = {**outcome, "report_dir": str(output_dir),
+                   "payload_sha256": hashlib.sha256(payload_path.read_bytes()).hexdigest()}
+        for name in ("report.html", "report.md"):
+            receipt[name + "_sha256"] = hashlib.sha256((output_dir / name).read_bytes()).hexdigest()
+        args.result_path.parent.mkdir(parents=True, exist_ok=True)
+        args.result_path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+        if os.getenv("GITHUB_OUTPUT"):
+            with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as stream:
+                for key in ("report_dir", "report_id", "slug", "status", "reason"):
+                    stream.write(f"{key}={receipt[key]}\n")
 
     step_summary = os.getenv("GITHUB_STEP_SUMMARY")
     if step_summary:

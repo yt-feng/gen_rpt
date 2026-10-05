@@ -19,10 +19,31 @@ on:
         default: deepseek-chat
         type: string
       rag_required:
-        description: Fail instead of publishing when validated private evidence is unavailable
+        description: Requested private-evidence contract (preserved in result; strict policy fails when unavailable)
         required: false
         default: false
         type: boolean
+      content_policy:
+        description: Produce a disclosed general overview when private evidence or research quality is unavailable
+        required: false
+        default: seo_overview
+        type: choice
+        options: [seo_overview, strict]
+      job_id:
+        description: Original backend job ID (empty for standalone generation)
+        required: false
+        default: ""
+        type: string
+      job_retry_count:
+        description: Original backend attempt counter
+        required: false
+        default: ""
+        type: string
+      context_state:
+        description: Backend context readiness; overview_only never reads stale cached context
+        required: false
+        default: unknown
+        type: string
 
 permissions:
   contents: write
@@ -55,6 +76,11 @@ jobs:
       SLUG_INPUT: ${{ inputs.slug || '' }}
       MODEL_INPUT: ${{ inputs.model || '' }}
       RAG_REQUIRED: ${{ inputs.rag_required || false }}
+      CONTENT_POLICY: ${{ inputs.content_policy || 'seo_overview' }}
+      GENERATION_JOB_ID: ${{ inputs.job_id || '' }}
+      GENERATION_JOB_RETRY_COUNT: ${{ inputs.job_retry_count || '' }}
+      RESULT_PATH: .artifacts/report-generation/result.json
+      GENERATION_CONTEXT_STATE: ${{ inputs.context_state || 'unknown' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -70,15 +96,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
-      - name: Validate secret
-        env:
-          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
-        run: |
-          if [ -z "$DEEPSEEK_API_KEY" ]; then
-            echo "Missing DEEPSEEK_API_KEY secret" >&2
-            exit 1
-          fi
 
       - name: Generate report
         id: generate_report
@@ -107,8 +124,8 @@ jobs:
             SLUG="auto-smoke-nuclear-fusion-${SHORT_SHA}"
           fi
 
-          mkdir -p reports_web
-          GEN_LOG="reports_web/generation-${GITHUB_RUN_ID:-local}.log"
+          mkdir -p .artifacts/report-generation
+          GEN_LOG=".artifacts/report-generation/generation-${GITHUB_RUN_ID:-local}.log"
           
           set +e
           python -u -m gen_rpt.main_web \
@@ -117,6 +134,8 @@ jobs:
             --language en \
             --model "$MODEL" \
             --out-root reports_web \
+            --content-policy "$CONTENT_POLICY" \
+            --result-path "$RESULT_PATH" \
             --checkpoint-path ".artifacts/report-generation/${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.json" > "$GEN_LOG" 2>&1
           GEN_STATUS="$?"
           set -e
@@ -137,16 +156,9 @@ jobs:
             exit "$GEN_STATUS"
           fi
 
-          REPORT_DIR="$(find reports_web -maxdepth 1 -type d -name "$(date -u +%F)-*" -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)"
-          if [ -z "$REPORT_DIR" ]; then
-            echo "Could not locate generated report directory" >&2
-            exit 1
-          fi
-          echo "report_dir=$REPORT_DIR" >> "$GITHUB_OUTPUT"
-          
-          # We extract the document ID if present, otherwise fallback to slug
-          # In a full integration, the document ID would be returned by gen_rpt.main_web
-          echo "document_id=$SLUG" >> "$GITHUB_OUTPUT"
+          # The generator writes its exact output path and status to GITHUB_OUTPUT.
+          # Never select an unrelated old report by directory modification time.
+          test -s "$RESULT_PATH"
 
       - name: Preserve generation diagnostics
         if: always()
@@ -186,6 +198,10 @@ jobs:
             echo "has_r2_secrets=true" >> "$GITHUB_OUTPUT"
           else
             echo "has_r2_secrets=false" >> "$GITHUB_OUTPUT"
+            if [ -n "$GENERATION_JOB_ID" ]; then
+              echo "Backend job output requires configured R2 storage" >&2
+              exit 1
+            fi
           fi
 
       - name: Install R2 storage dependencies
@@ -211,31 +227,28 @@ jobs:
             --status generated \
             --log-level INFO \
             --skip-catalog-update
+          python tools/notify_generation_result.py --verify-upload-only --receipt "$RESULT_PATH"
 
       - name: Trigger Backend Workflow Event
+        if: steps.check_r2.outputs.has_r2_secrets == 'true'
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
-        run: |
-          # V2 Actions no longer manage workflow state. They delegate this entirely to FastAPI.
-          if [ -z "$BACKEND_URL" ]; then
-            echo "BACKEND_URL secret missing, skipping webhook"
-            exit 0
-          fi
-          
-          curl -X POST "$BACKEND_URL/api/internal/events/report-generated" \
-               -H "Content-Type: application/json" \
-               -H "x-internal-token: $INTERNAL_TOKEN" \
-               -d '{
-                 "document_id": "${{ inputs.slug }}",
-                 "idempotency_key": "github-actions-${{ github.run_id }}-${{ github.run_attempt }}",
-                 "metadata": {
-                   "run_id": "${{ github.run_id }}",
-                   "slug": "${{ inputs.slug }}"
-                 }
-               }'
+        run: python tools/notify_generation_result.py --receipt "$RESULT_PATH"
+
+      - name: Preserve structured generation result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-generation-outcome-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .artifacts/report-generation/result.json
+          include-hidden-files: true
+          if-no-files-found: ignore
+          retention-days: 14
 
       - name: Trigger AI Review Workflow
+        # Overview is a disclosed different deliverable, not a failed research review.
+        if: steps.generate_report.outputs.status == 'generated' && inputs.content_policy == 'strict'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -249,19 +262,4 @@ jobs:
         env:
           BACKEND_URL: ${{ secrets.BACKEND_URL }}
           INTERNAL_TOKEN: ${{ secrets.INTERNAL_TOKEN }}
-        run: |
-          if [ -z "$BACKEND_URL" ]; then
-            exit 0
-          fi
-
-          curl --fail-with-body -X POST "$BACKEND_URL/api/internal/events/report-failed" \
-               -H "Content-Type: application/json" \
-               -H "x-internal-token: $INTERNAL_TOKEN" \
-               -d '{
-                 "document_id": "${{ inputs.slug }}",
-                 "idempotency_key": "github-actions-failed-${{ github.run_id }}-${{ github.run_attempt }}",
-                 "metadata": {
-                   "error": "Report generation or grounded-quality validation failed",
-                   "run_id": "${{ github.run_id }}"
-                 }
-               }'
+        run: python tools/notify_generation_result.py --failure --slug "$SLUG_INPUT"

@@ -32,7 +32,13 @@ class WorkflowEventPayload(BaseModel):
     actor_id: Optional[str] = None
 
 
-async def _mark_job_completed_by_slug(db: AsyncSession, slug: str):
+@router.get("/generation-contract", response_model=APIResponse[dict], dependencies=[Depends(verify_internal_token)])
+async def generation_contract():
+    """Read-only capability negotiation for independently deployed workers."""
+    return success_response(data={"generation_receipt_contract": "v1"}, message="Exact report receipt supported")
+
+
+async def _mark_job_completed_by_slug(db: AsyncSession, slug: str, receipt=None):
     """
     Finds a GenerationJob by document slug and marks it completed + injects MOCK_REPORTS.
     Called by the report-generated webhook so the frontend immediately shows the report.
@@ -66,42 +72,61 @@ async def _mark_job_completed_by_slug(db: AsyncSession, slug: str):
         doc_id_str = str(doc.id)
         title = doc.title or slug
 
-    # Find latest running/pending job for this document
-    job = None
-    if doc:
-        stmt = (
-            select(GenerationJob)
-            .where(GenerationJob.document_id == doc.id)
-            .order_by(GenerationJob.started.desc())
-            .limit(1)
-        )
-        job_result = await db.execute(stmt)
-        job = job_result.scalar_one_or_none()
+    # A receipt names exact uploaded bytes; no historical/fuzzy report can
+    # complete a new attempt. Legacy events must also load real content first.
+    if receipt is not None:
+        from app.services.generation_receipt import load_receipted_report
+        from app.storage.provider import storage_provider
+        try:
+            payload = await load_receipted_report(slug, receipt, storage_provider)
+        except (ValueError, TypeError, KeyError) as exc:
+            raise HTTPException(status_code=409, detail="Generated report receipt is not ready or invalid") from exc
+    else:
+        payload = await _load_report_payload_from_r2(slug, title)
+        if not isinstance(payload, dict) or not payload.get("sections"):
+            raise HTTPException(status_code=409, detail="Generated report content is not available")
 
-        if job and job.status in (JobStatusType.running, JobStatusType.pending):
+    job = None
+    if receipt is not None and receipt.get("job_id"):
+        try:
+            job = await db.get(GenerationJob, _uuid.UUID(receipt["job_id"]))
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail="Invalid generation job identity") from exc
+        if (not job or not doc or job.document_id != doc.id
+                or str(job.retry_count) != str(receipt.get("job_retry_count"))):
+            raise HTTPException(status_code=409, detail="Generation receipt belongs to a different job attempt")
+    elif receipt is None and doc:
+        job_result = await db.execute(select(GenerationJob).where(
+            GenerationJob.document_id == doc.id).order_by(GenerationJob.started.desc()).limit(1))
+        job = job_result.scalar_one_or_none()
+        if job and (job.audit_metadata or {}).get("receipt_expected"):
+            raise HTTPException(status_code=409, detail="This job requires an exact generation receipt")
+    # Manual/jobless workflows can publish a real report, but cannot claim a
+    # previous backend job merely because its slug happens to match.
+    if job:
+        prior = (job.audit_metadata or {}).get("generation_outcome", {})
+        if job.status == JobStatusType.completed and receipt is not None:
+            if prior.get("payload_sha256") != receipt.get("payload_sha256"):
+                raise HTTPException(status_code=409, detail="Completed job has a different generation receipt")
+        elif job.status not in (JobStatusType.running, JobStatusType.pending):
+            raise HTTPException(status_code=409, detail="Generation job is not awaiting this result")
+        else:
             from app.services.generation import generation_service
             job.status = JobStatusType.completed
             job.completed = datetime.now(timezone.utc)
+            if receipt is not None:
+                job.audit_metadata = {**(job.audit_metadata or {}), "generation_outcome": receipt}
             await db.commit()
-            logger.info(f"[webhook] Job {job.id} marked completed via webhook for slug={slug}")
             await generation_service.process_bulk_queue(db)
-
-    # Load payload from R2 and inject into MOCK_REPORTS
-    try:
-        payload = await _load_report_payload_from_r2(slug, title)
-        entry = _build_mock_report_entry(slug, title, slug, payload)
-        MOCK_REPORTS[slug] = entry
-        MOCK_REPORTS[doc_id_str] = entry
-        logger.info(f"[webhook] MOCK_REPORTS injected for slug={slug}")
-    except Exception as e:
-        logger.error(f"[webhook] Failed to load payload from R2 for slug={slug}: {e}")
-        if not doc:
-             return {"status": "document_not_found_and_r2_failed", "slug": slug}
-
-    return {"status": "completed", "slug": slug, "job_id": str(job.id) if job else None}
+    entry = _build_mock_report_entry(slug, title, slug, payload)
+    entry["generationOutcome"] = payload.get("generation_outcome", {})
+    MOCK_REPORTS[slug] = entry
+    MOCK_REPORTS[doc_id_str] = entry
+    return {"status": "completed", "slug": slug, "job_id": str(job.id) if job else None,
+            "generation_outcome": payload.get("generation_outcome", {})}
 
 
-async def _mark_job_failed_by_slug(db: AsyncSession, slug: str, error: str):
+async def _mark_job_failed_by_slug(db: AsyncSession, slug: str, error: str, attempt=None):
     """Release a failed generation job immediately instead of waiting for the R2 poller."""
     from app.models.workflow import GenerationJob
     from app.models.document import Document
@@ -120,13 +145,22 @@ async def _mark_job_failed_by_slug(db: AsyncSession, slug: str, error: str):
     if not doc:
         return {"status": "document_not_found", "slug": slug, "job_id": None}
 
-    job_result = await db.execute(
-        select(GenerationJob)
-        .where(GenerationJob.document_id == doc.id)
-        .order_by(GenerationJob.started.desc())
-        .limit(1)
-    )
-    job = job_result.scalar_one_or_none()
+    if attempt is not None:
+        if not attempt.get("job_id"):
+            return {"status": "untracked_failure", "slug": slug, "job_id": None}
+        try:
+            job = await db.get(GenerationJob, _uuid.UUID(attempt["job_id"]))
+        except ValueError as exc:
+            raise HTTPException(status_code=409, detail="Invalid failed job identity") from exc
+        if not job or job.document_id != doc.id or str(job.retry_count) != str(attempt.get("job_retry_count")):
+            raise HTTPException(status_code=409, detail="Failure belongs to a different generation attempt")
+    else:
+        job_result = await db.execute(
+            select(GenerationJob).where(GenerationJob.document_id == doc.id)
+            .order_by(GenerationJob.started.desc()).limit(1))
+        job = job_result.scalar_one_or_none()
+        if job and (job.audit_metadata or {}).get("receipt_expected"):
+            raise HTTPException(status_code=409, detail="This failure requires its generation attempt identity")
     if job and job.status in (JobStatusType.running, JobStatusType.pending):
         from app.services.generation import generation_service
 
@@ -152,7 +186,7 @@ async def handle_report_generated(
     slug = payload.document_id
     logger.info(f"[webhook] report-generated received for document_id/slug: {slug}")
 
-    result = await _mark_job_completed_by_slug(db, slug)
+    result = await _mark_job_completed_by_slug(db, slug, (payload.metadata or {}).get("generation_receipt"))
     return success_response(data=result, message="Report generation event processed")
 
 
@@ -165,7 +199,7 @@ async def handle_report_failed(
     slug = payload.document_id
     error = str((payload.metadata or {}).get("error") or "Report generation workflow failed")
     logger.warning(f"[webhook] report-failed received for document_id/slug: {slug}")
-    result = await _mark_job_failed_by_slug(db, slug, error)
+    result = await _mark_job_failed_by_slug(db, slug, error, (payload.metadata or {}).get("generation_attempt"))
     return success_response(data=result, message="Report failure event processed")
 
 
@@ -367,4 +401,3 @@ async def get_internal_context(
         "document_count": document_count,
     }
     return success_response(data=enriched_pkg, message="Fetched cached context package")
-
