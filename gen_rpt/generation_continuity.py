@@ -23,7 +23,7 @@ from .web_report_pipeline import ReportQualityError
 def availability_reason(error):
     if isinstance(error, EditorialServiceExhausted):
         return "model_temporarily_unavailable"
-    if isinstance(error, requests.ConnectionError) and not isinstance(error, requests.exceptions.SSLError):
+    if isinstance(error, requests.ConnectionError):
         return "model_temporarily_unavailable"
     if isinstance(error, requests.Timeout):
         return "model_timeout"

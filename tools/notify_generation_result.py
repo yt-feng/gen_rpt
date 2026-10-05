@@ -22,6 +22,26 @@ def supports_receipts(backend_url, token, get=requests.get):
 
 
 def notify(receipt, *, backend_url, token, post=requests.post, get=requests.get):
+    if not receipt.get("job_id"):
+        # A standalone report has no backend job to complete. In particular,
+        # republishing a topic must not depend on an unrelated legacy backend.
+        return {"status": "standalone_report", "job_completed": False}
+    try:
+        return _notify_exact(receipt, backend_url=backend_url, token=token, post=post, get=get)
+    except (requests.Timeout, requests.ConnectionError):
+        if receipt.get("content_policy") != "seo_overview":
+            raise
+    except requests.HTTPError as exc:
+        status = exc.response.status_code if exc.response is not None else None
+        unavailable = status in {408, 429} or (isinstance(status, int) and 500 <= status <= 599)
+        if receipt.get("content_policy") != "seo_overview" or not unavailable:
+            raise
+    # The upload already succeeded. Only acknowledgement is deferred, without
+    # claiming the job completed or letting backend availability stop Pages.
+    return {"status": "deferred_backend_unavailable", "job_completed": False}
+
+
+def _notify_exact(receipt, *, backend_url, token, post, get):
     if not backend_url or not token:
         if receipt.get("job_id"):
             raise RuntimeError("Backend job requires its configured completion callback")

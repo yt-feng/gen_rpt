@@ -96,6 +96,8 @@ class ContinuityTests(unittest.TestCase):
     def test_model_timeout_uses_template_but_programming_error_does_not(self):
         self.client.chat_json.side_effect = requests.ReadTimeout("model unavailable")
         self.assertEqual(self.run_report()["reason"], "model_timeout")
+        self.client.chat_json.side_effect = requests.exceptions.SSLError("certificate unavailable")
+        self.assertEqual(self.run_report()["reason"], "model_temporarily_unavailable")
         self.client.chat_json.side_effect = KeyError("programming error")
         self.args.result_path.unlink()
         with self.assertRaises(KeyError): self.run_report()
@@ -161,6 +163,34 @@ class ContinuityTests(unittest.TestCase):
         self.assertFalse(ack["job_completed"])
         post.assert_not_called()
         self.assertTrue((self.output / "report.html").exists())
+
+    def test_standalone_report_never_contacts_backend_even_when_it_is_unavailable(self):
+        result = {**self.run_report(), "job_id": "", "job_retry_count": ""}
+        get, post = Mock(side_effect=AssertionError("must not contact backend")), Mock(side_effect=AssertionError("must not contact backend"))
+        ack = notify(result, backend_url="https://old.invalid", token="fake", get=get, post=post)
+        self.assertEqual(ack["status"], "standalone_report")
+        get.assert_not_called(); post.assert_not_called()
+
+    def test_uploaded_overview_defers_unreachable_callback_but_not_identity_errors(self):
+        result = self.run_report()
+        capability = Mock(status_code=200)
+        capability.json.return_value = {"data": {"generation_receipt_contract": "v1"}}
+        for error in (requests.ConnectionError("DNS"), requests.exceptions.SSLError("TLS"),
+                      requests.ReadTimeout("timeout"), requests.HTTPError(response=NS(status_code=503))):
+            for phase in ("probe", "callback"):
+                with self.subTest(error=type(error).__name__, phase=phase):
+                    get = Mock(side_effect=error) if phase == "probe" else Mock(return_value=capability)
+                    post = Mock(side_effect=error)
+                    ack = notify(result, backend_url="https://old.invalid", token="fake", get=get, post=post)
+                    self.assertEqual(ack, {"status": "deferred_backend_unavailable", "job_completed": False})
+                    self.assertEqual(get.call_count, 1)
+                    self.assertLessEqual(post.call_count, 1)
+                    with self.assertRaises(type(error)):
+                        notify({**result, "content_policy": "strict"}, backend_url="https://old.invalid", token="fake", get=get, post=post)
+        for status in (401, 403, 409):
+            with self.subTest(status=status), self.assertRaises(requests.HTTPError):
+                notify(result, backend_url="https://old.invalid", token="fake", get=Mock(return_value=capability),
+                       post=Mock(side_effect=requests.HTTPError(response=NS(status_code=status))))
 
     def test_template_profiles_have_distinct_topic_specific_frameworks(self):
         profiles = [("Inflation and equity markets", "economy_market", "scenarios"),
