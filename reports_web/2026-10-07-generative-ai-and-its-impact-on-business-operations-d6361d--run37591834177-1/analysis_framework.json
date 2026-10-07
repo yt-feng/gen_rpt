@@ -1,0 +1,597 @@
+{
+  "decision_question": "Should we prioritize investment and partnership in climate-resilience infrastructure segments—especially water conservancy digitalization, monitoring and early warning, and drainage equipment—based on the 2026 China disaster evidence, and how should we structure a China-UAE cross-border solution?",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "The 2026 China flood and typhoon events will accelerate government spending on water conservancy digitalization, reservoir safety, and urban drainage, creating multi-year order pipelines for companies with existing government contracts and O&M revenue.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Geological disaster monitoring and early warning is a higher-barrier, higher-recurring-revenue segment than emergency equipment, because it requires slope radar, InSAR, BeiDou, sensors, and AI landslide warning with ongoing service income.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Emergency equipment and mobile infrastructure offer the most direct short-term orders but revenue is volatile and tied to disaster occurrence, making it less attractive for durable investment than monitoring and digitalization.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Traditional post-disaster reconstruction materials and engineering benefit from rebuilding but are not necessarily good equity investments due to intense competition and long receivables cycles.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Catastrophe insurance and climate finance have long-term potential, but traditional insurers face increased payouts in the short term, so 'larger disaster equals better insurance stocks' is not a valid simple conclusion.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H6",
+      "hypothesis": "A China-UAE cross-border solution integrating urban flood prevention, slope monitoring, mobile drainage, satellite communications, and insurance risk models can be exported to UAE municipal departments, real estate developers, industrial parks, airports, and free zones.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Generative AI and Its Impact on Business Operations, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations total market size segment share",
+          "Generative AI and Its Impact on Business Operations demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations customer count price ARPU",
+          "Generative AI and Its Impact on Business Operations adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations pilot customer conversion",
+          "Generative AI and Its Impact on Business Operations orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations ROI cost savings case study",
+          "Generative AI and Its Impact on Business Operations value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations capacity utilization unit price",
+          "Generative AI and Its Impact on Business Operations project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Official government procurement and tender data for water conservancy digitalization, reservoir safety, and urban drainage in China after July 2026.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Company-level order backlog, accounts receivable turnover, cash flow, and share of disaster-prevention revenue for listed Chinese infrastructure and monitoring firms.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Insurance regulatory data on catastrophe insurance, parametric insurance, and agricultural weather insurance penetration in China and UAE.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "UAE municipal, real estate, industrial park, airport, and free zone climate adaptation budgets and procurement plans.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "External benchmarks for urban drainage standards, reservoir safety inspection frequency, and landslide monitoring technology adoption.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Market size and growth forecasts for flood prevention equipment, drainage pumps, sensors, drones, and satellite communications in China and the Gulf.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Policy documents on local special bonds, central budget investment, and disaster prevention funding priorities.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Case studies of China-UAE technology transfer in smart city, water management, and emergency response.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "China climate-resilience infrastructure funding trajectory (2022–2026)",
+      "chart_type": "line",
+      "executive_question": "Is government funding for water conservancy, urban drainage, and disaster prevention on a durable multi-year growth path after the 2026 flood and typhoon season?",
+      "required_metrics": [
+        "China central government disaster prevention and emergency management budget allocation, CNY billion, 2022",
+        "China central government disaster prevention and emergency management budget allocation, CNY billion, 2023",
+        "China central government disaster prevention and emergency management budget allocation, CNY billion, 2024",
+        "China central government disaster prevention and emergency management budget allocation, CNY billion, 2025",
+        "China central government disaster prevention and emergency management budget allocation, CNY billion, 2026",
+        "China local government special bond issuance for water conservancy and urban drainage, CNY billion, 2022–2026",
+        "China National Development and Reform Commission central budget investment in disaster prevention and reduction, CNY billion, 2022–2026"
+      ],
+      "comparison_set": [
+        "Annual central budget allocation vs. local special bond issuance vs. NDRC central budget investment for disaster prevention, 2022–2026"
+      ],
+      "preferred_sources": [
+        "Ministry of Finance of the People's Republic of China budget reports",
+        "National Development and Reform Commission annual investment plans",
+        "Ministry of Water Resources annual work conferences and budget disclosures",
+        "China Government Bond and local special bond issuance data from ChinaBond or Wind"
+      ],
+      "search_queries": [
+        "财政部 应急管理 防灾减灾 预算 2022 2023 2024 2025 2026",
+        "地方政府专项债 水利 城市排水 防灾 2022 2023 2024 2025 2026",
+        "国家发展改革委 中央预算内投资 防灾减灾 年度计划"
+      ],
+      "data_quality_rule": "Use only official budget documents or bond issuance data with explicit annual figures. If fewer than four same-basis annual observations are found, apply a transparent CAGR or GDP-linked estimation rule, mark intermediate years as estimates, and never present two endpoints as a trend line.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the funding tailwind that underpins the multi-year order pipeline thesis before segment-level attractiveness is discussed.",
+      "pre_exhibit_context": "The 2026 disaster response is expected to accelerate government spending, but the investment committee needs evidence that this is a trend, not a one-off emergency supplement.",
+      "post_exhibit_takeaway": "Central and local disaster-prevention funding has grown at a compound rate that supports a multi-year procurement pipeline, with 2026 showing a step-up tied to post-disaster reconstruction and resilience mandates."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "China water conservancy and urban drainage project tenders after July 2026",
+      "chart_type": "bar",
+      "executive_question": "How large and how fast is the post-disaster procurement wave for water conservancy digitalization, reservoir safety, and urban drainage?",
+      "required_metrics": [
+        "Number of water conservancy digitalization tenders issued in China, August–December 2026",
+        "Total contract value of water conservancy digitalization tenders, CNY billion, August–December 2026",
+        "Number of urban drainage and flood prevention tenders issued in China, August–December 2026",
+        "Total contract value of urban drainage and flood prevention tenders, CNY billion, August–December 2026",
+        "Number of reservoir safety reinforcement and monitoring tenders, August–December 2026",
+        "Total contract value of reservoir safety tenders, CNY billion, August–December 2026",
+        "Year-on-year change in tender value for the same categories, August–December 2025 vs. 2026"
+      ],
+      "comparison_set": [
+        "Tender value by segment: water conservancy digitalization vs. urban drainage vs. reservoir safety, August–December 2026"
+      ],
+      "preferred_sources": [
+        "China Government Procurement Network (ccgp.gov.cn)",
+        "China Tendering and Bidding Public Service Platform",
+        "Provincial public resource trading centers in Guangdong, Guangxi, Henan, Hebei, and Fujian",
+        "Ministry of Water Resources project announcements"
+      ],
+      "search_queries": [
+        "水利数字化 招标 2026年8月 2026年12月 中标",
+        "城市排水防涝 招标 2026 广东 广西 河南",
+        "水库安全 监测 加固 招标 2026 中国政府采购网"
+      ],
+      "data_quality_rule": "Count only tenders with published contract values or award amounts. Exclude framework agreements without disclosed values. If monthly data is unavailable, aggregate by quarter and label the aggregation period.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies the near-term order pipeline that validates the demand signal for the highest-priority segments.",
+      "pre_exhibit_context": "The document identifies reservoir overtopping and urban flooding as failure modes, but the committee needs evidence that these translate into actual tenders and contracts.",
+      "post_exhibit_takeaway": "Tender volume and value for water conservancy and drainage projects surged in the months after July 2026, confirming a real procurement wave rather than a policy aspiration."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "Company-level order backlog and disaster-prevention revenue share for listed Chinese infrastructure firms",
+      "chart_type": "bubble",
+      "executive_question": "Which listed companies have the strongest combination of order backlog, recurring O&M revenue, and disaster-prevention revenue exposure?",
+      "required_metrics": [
+        "Order backlog, CNY billion, for each listed company, latest fiscal year",
+        "Disaster-prevention revenue as percentage of total revenue, for each listed company, latest fiscal year",
+        "Accounts receivable turnover ratio, for each listed company, latest fiscal year",
+        "Operating cash flow, CNY billion, for each listed company, latest fiscal year",
+        "Local government customers as percentage of revenue, for each listed company, latest fiscal year",
+        "Market capitalization, CNY billion, for each listed company, as of latest available date"
+      ],
+      "comparison_set": [
+        "Listed Chinese companies in water conservancy digitalization, geological monitoring, emergency equipment, and reconstruction materials"
+      ],
+      "preferred_sources": [
+        "Shanghai and Shenzhen Stock Exchange annual reports",
+        "Company investor relations presentations",
+        "Wind or Choice financial data terminals",
+        "China Association of Environmental Protection Industry reports"
+      ],
+      "search_queries": [
+        "水利信息化 上市公司 在手订单 应收账款 2025 年报",
+        "地质灾害监测 上市公司 防灾收入 占比 2025",
+        "应急排水 上市公司 订单 现金流 2025 年报"
+      ],
+      "data_quality_rule": "Use only audited annual report figures or exchange filings. If a company does not disclose disaster-prevention revenue separately, mark it as not disclosed and exclude from the revenue-share axis rather than estimating.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Screens the investable universe by commercial viability criteria, separating companies with durable order books from those with volatile event-driven revenue.",
+      "pre_exhibit_context": "The segment-level opportunity is clear, but the committee needs to know which companies can actually convert policy demand into revenue and cash flow.",
+      "post_exhibit_takeaway": "Companies with high disaster-prevention revenue share and large order backlogs are concentrated in monitoring and digitalization, while emergency equipment and reconstruction firms show lower backlog visibility and higher receivables risk."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "China and UAE catastrophe insurance penetration and flood risk protection gap (2020–2026)",
+      "chart_type": "line",
+      "executive_question": "Is catastrophe insurance penetration in China and UAE growing fast enough to create a durable climate finance opportunity, or are insurers still in a payout-heavy phase?",
+      "required_metrics": [
+        "China catastrophe insurance premium volume, CNY billion, 2020–2026",
+        "China catastrophe insurance penetration rate, percentage of economic losses covered, 2020–2026",
+        "UAE catastrophe insurance premium volume, AED billion, 2020–2026",
+        "UAE catastrophe insurance penetration rate, percentage of economic losses covered, 2020–2026",
+        "China agricultural weather insurance premium volume, CNY billion, 2020–2026",
+        "UAE parametric insurance premium volume, AED billion, 2020–2026"
+      ],
+      "comparison_set": [
+        "China vs. UAE catastrophe insurance premium volume and penetration rate, 2020–2026"
+      ],
+      "preferred_sources": [
+        "National Financial Regulatory Administration (金融监管总局) insurance statistics",
+        "UAE Central Bank insurance sector reports",
+        "Swiss Re sigma reports",
+        "Munich Re NatCatSERVICE database"
+      ],
+      "search_queries": [
+        "中国 巨灾保险 保费 渗透率 2020 2021 2022 2023 2024 2025 2026",
+        "UAE catastrophe insurance penetration premium 2020 2021 2022 2023 2024 2025 2026",
+        "parametric insurance flood UAE premium volume 2020 2026"
+      ],
+      "data_quality_rule": "Use only regulatory or reinsurer published annual figures. If penetration rate is not directly published, calculate as insured losses divided by total economic losses from the same source and label as derived. If fewer than four annual observations are available, apply a transparent CAGR from the earliest and latest available years, mark intermediate years as estimates, and never present two endpoints as a trend line.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Tests the insurance and climate finance hypothesis by showing the gap between economic losses and insured losses over time.",
+      "pre_exhibit_context": "The document notes insurance payout increases after disasters, but the committee needs to see whether penetration is rising structurally or only after major events.",
+      "post_exhibit_takeaway": "Catastrophe insurance penetration remains low relative to economic losses in both markets, indicating a large protection gap but also confirming that insurers face short-term payout pressure before risk-model and parametric products scale."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "UAE climate adaptation budgets and procurement plans by customer segment",
+      "chart_type": "bar",
+      "executive_question": "Which UAE customer segments have the largest and most accessible climate adaptation budgets for flood prevention, slope monitoring, and emergency response?",
+      "required_metrics": [
+        "UAE municipal climate adaptation budget, AED billion, 2024–2026",
+        "UAE free zone infrastructure resilience budget, AED billion, 2024–2026",
+        "UAE real estate developer flood prevention investment, AED billion, 2024–2026",
+        "UAE airport drainage and emergency response budget, AED billion, 2024–2026",
+        "UAE industrial park climate resilience procurement value, AED billion, 2024–2026",
+        "Number of UAE climate adaptation tenders by customer segment, 2024–2026"
+      ],
+      "comparison_set": [
+        "UAE customer segments: municipal, free zone, real estate, airport, industrial park"
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Energy and Infrastructure publications",
+        "Dubai Municipality and Abu Dhabi Municipality budget statements",
+        "UAE free zone authority annual reports",
+        "UAE Federal Competitiveness and Statistics Centre"
+      ],
+      "search_queries": [
+        "UAE municipal climate adaptation budget 2024 2025 2026 flood prevention",
+        "Dubai free zone infrastructure resilience procurement 2024 2025 2026",
+        "UAE airport drainage emergency response budget 2024 2025 2026"
+      ],
+      "data_quality_rule": "Use only published government or free zone authority budget documents. If a segment does not disclose a separate adaptation budget, mark it as not disclosed and exclude from the chart rather than estimating.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Sizes the addressable demand pool for the China-UAE cross-border solution by customer segment.",
+      "pre_exhibit_context": "The cross-border solution hypothesis requires evidence that UAE municipal, real estate, industrial, airport, and free zone clients have funded adaptation programs.",
+      "post_exhibit_takeaway": "Municipal and free zone clients show the largest disclosed adaptation budgets, while real estate and airport operators have smaller but faster-moving procurement cycles, making them suitable for pilot deployments."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "China-UAE climate resilience technology transfer and cooperation milestones (2020–2026)",
+      "chart_type": "timeline",
+      "executive_question": "What is the track record of China-UAE cooperation in smart city, water management, and emergency response that can de-risk a cross-border solution?",
+      "required_metrics": [
+        "Date of China-UAE smart city or water management cooperation agreement, 2020–2026",
+        "Value of China-UAE climate resilience project contracts, USD million, 2020–2026",
+        "Number of China-UAE joint pilot projects in water management or emergency response, 2020–2026",
+        "Date of UAE participation in China-led climate resilience initiatives, 2020–2026",
+        "Date of Chinese technology deployment in UAE municipal or free zone projects, 2020–2026"
+      ],
+      "comparison_set": [
+        "Chronological milestones of China-UAE cooperation in smart city, water management, and emergency response"
+      ],
+      "preferred_sources": [
+        "UAE Ministry of Foreign Affairs and International Cooperation announcements",
+        "China Ministry of Commerce outbound investment records",
+        "UAE-China Business Council publications",
+        "Embassy of the People's Republic of China in the UAE press releases"
+      ],
+      "search_queries": [
+        "中国 阿联酋 智慧城市 水务 合作 协议 2020 2021 2022 2023 2024 2025 2026",
+        "China UAE water management emergency response cooperation project 2020 2026",
+        "UAE China climate resilience technology transfer agreement 2020 2026"
+      ],
+      "data_quality_rule": "Include only milestones with a verifiable date and official source. Exclude announcements without a specific project or agreement. If contract values are not disclosed, show the milestone without a value and note the disclosure gap.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides the precedent and relationship capital evidence for the cross-border solution hypothesis.",
+      "pre_exhibit_context": "The committee needs to know whether China-UAE technology transfer in climate resilience is a new idea or an established pattern with existing agreements and pilot projects.",
+      "post_exhibit_takeaway": "China-UAE cooperation has moved from broad memoranda of understanding to specific smart city and water management projects, indicating a viable pathway for a bundled climate-resilience solution."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "Global flood prevention equipment and monitoring technology market size (2022–2026)",
+      "chart_type": "line",
+      "executive_question": "Is the global market for flood prevention equipment, drainage pumps, sensors, drones, and satellite communications growing fast enough to support a China-UAE export strategy?",
+      "required_metrics": [
+        "Global flood prevention equipment market size, USD billion, 2022–2026",
+        "Global drainage pump market size, USD billion, 2022–2026",
+        "Global environmental sensor market size, USD billion, 2022–2026",
+        "Global drone market size for emergency response, USD billion, 2022–2026",
+        "Global satellite communication market size for disaster response, USD billion, 2022–2026",
+        "Gulf Cooperation Council flood prevention equipment market size, USD billion, 2022–2026"
+      ],
+      "comparison_set": [
+        "Global market size by technology segment: flood prevention equipment, drainage pumps, sensors, drones, satellite communications, 2022–2026"
+      ],
+      "preferred_sources": [
+        "Grand View Research",
+        "MarketsandMarkets",
+        "Fortune Business Insights",
+        "International Trade Centre trade data",
+        "Gulf Cooperation Council Secretariat reports"
+      ],
+      "search_queries": [
+        "global flood prevention equipment market size 2022 2023 2024 2025 2026",
+        "global drainage pump market size 2022 2023 2024 2025 2026",
+        "GCC flood prevention equipment market size 2022 2023 2024 2025 2026"
+      ],
+      "data_quality_rule": "Use only published market research reports with explicit annual values. If fewer than four same-basis annual observations are available, apply a transparent CAGR from the earliest and latest available years, mark intermediate years as estimates, and never present two endpoints as a trend line.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Provides the external market benchmark that validates the scale and growth rate of the technology segments in the cross-border solution.",
+      "pre_exhibit_context": "The cross-border solution depends on global demand for the same technology modules, so the committee needs a market growth benchmark outside China.",
+      "post_exhibit_takeaway": "Global demand for flood prevention equipment and monitoring technology is growing at a mid-to-high single-digit rate, with sensors and satellite communications growing faster than traditional drainage pumps, supporting a technology-led export strategy."
+    }
+  ],
+  "storyline_plan": {
+    "report_archetype": "market_investment",
+    "selected_modules": [
+      "source and forecast comparison",
+      "base, upside and downside scenarios",
+      "sensitivity drivers",
+      "segment and micro-market implications",
+      "investment recommendations"
+    ],
+    "coverage_requirements": [
+      "executive thesis",
+      "source-backed findings",
+      "causal mechanisms",
+      "counter-evidence and risks",
+      "decision implications",
+      "evidence-based actions"
+    ],
+    "core_question": "Should we prioritize investment and partnership in climate-resilience infrastructure segments—especially water conservancy digitalization, monitoring and early warning, and drainage equipment—based on the 2026 China disaster evidence, and how should we structure a China-UAE cross-border solution?",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: market, funding, timeline, adoption",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "For instance, according to the White & Case LLP “Currents of Capital 2025” report, 30% of surveyed respondents deployed more than USD 500 million into the water sector in 2024, and a majority of organizations expected to increase investment levels in 2025 compared to the previous year",
+      "For instance, according to the White & Case LLP “Currents of Capital 2025” report, 30% of surveyed respondents deployed more than USD 500 million into the water sector in 2024, and a majority of organizations expected to increase investment levels in 2025 compared to the previous year",
+      "China is a major driver of regional growth, with USD 182.4 billion invested in water conservancy facilities in 2025 and Shenzhen's deployment of IoT-enabled smart metering across over 80% of residential households achieving NRW rates of approximately 6.2%",
+      "China is a major driver of regional growth, with USD 182.4 billion invested in water conservancy facilities in 2025 and Shenzhen's deployment of IoT-enabled smart metering across over 80% of residential households achieving NRW rates of approximately 6.2%",
+      "China is a major driver of regional growth, with USD 182.4 billion invested in water conservancy facilities in 2025 and Shenzhen's deployment of IoT-enabled smart metering across over 80% of residential households achieving NRW rates of approximately 6.2%",
+      "China Country Partnership Framework for the Period FY2026-2031 .."
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "The 2026 China flood and typhoon events will accelerate government spending on water conservancy digitalization, reservoir safety, and urban drainage, creating multi-year order pipelines for companies with existing government contracts and O&M revenue.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H2",
+        "hypothesis": "Geological disaster monitoring and early warning is a higher-barrier, higher-recurring-revenue segment than emergency equipment, because it requires slope radar, InSAR, BeiDou, sensors, and AI landslide warning with ongoing service income.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H3",
+        "hypothesis": "Emergency equipment and mobile infrastructure offer the most direct short-term orders but revenue is volatile and tied to disaster occurrence, making it less attractive for durable investment than monitoring and digitalization.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H4",
+        "hypothesis": "Traditional post-disaster reconstruction materials and engineering benefit from rebuilding but are not necessarily good equity investments due to intense competition and long receivables cycles.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H5",
+        "hypothesis": "Catastrophe insurance and climate finance have long-term potential, but traditional insurers face increased payouts in the short term, so 'larger disaster equals better insurance stocks' is not a valid simple conclusion.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H6",
+        "hypothesis": "A China-UAE cross-border solution integrating urban flood prevention, slope monitoring, mobile drainage, satellite communications, and insurance risk models can be exported to UAE municipal departments, real estate developers, industrial parks, airports, and free zones.",
+        "decision_relevance": "",
+        "needed_evidence": []
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

@@ -1,0 +1,345 @@
+{
+  "objective": "Produce a decision brief on how the 2026 China flood and typhoon disaster response is creating durable business and investment opportunities in climate-resilience infrastructure, using the provided document as the primary source of truth and external context only for benchmarks, regulations, and market data.",
+  "audience": "Investment committee, corporate strategy team, and cross-border business development leads evaluating China and UAE climate-resilience opportunities.",
+  "decision_question": "Should we prioritize investment and partnership in climate-resilience infrastructure segments—especially water conservancy digitalization, monitoring and early warning, and drainage equipment—based on the 2026 China disaster evidence, and how should we structure a China-UAE cross-border solution?",
+  "issue_tree": {
+    "root": "Generative AI and Its Impact on Business Operations",
+    "branches": [
+      {
+        "branch": "Disaster evidence and operational pain points",
+        "sub_issues": [
+          "Which events in the document show infrastructure failure modes (reservoir overtopping, urban flooding, landslides, typhoon impacts)?",
+          "What quantified human and insurance impacts are documented?",
+          "Which regions and asset types are repeatedly affected?"
+        ]
+      },
+      {
+        "branch": "Business and investment opportunity segments",
+        "sub_issues": [
+          "Water conservancy and reservoir safety upgrades",
+          "Urban drainage and flood prevention",
+          "Geological disaster monitoring and early warning",
+          "Emergency equipment and mobile infrastructure",
+          "Post-disaster reconstruction materials and engineering",
+          "Agricultural recovery and smart agriculture",
+          "Catastrophe insurance and climate finance",
+          "China-UAE cross-border solution integration"
+        ]
+      },
+      {
+        "branch": "Commercial viability and screening criteria",
+        "sub_issues": [
+          "Government order backlog and recurring O&M revenue",
+          "Accounts receivable collection and local government customer concentration",
+          "Cash flow and share of real disaster-prevention revenue",
+          "Technology barriers and service revenue durability"
+        ]
+      },
+      {
+        "branch": "Risks and counter-evidence",
+        "sub_issues": [
+          "Short-term demand volatility tied to disaster events",
+          "Traditional materials competition and long payment cycles",
+          "Insurance payout increases before long-term climate finance benefits",
+          "Data gaps: no official national disaster loss summary for July 2026"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "The 2026 China flood and typhoon events will accelerate government spending on water conservancy digitalization, reservoir safety, and urban drainage, creating multi-year order pipelines for companies with existing government contracts and O&M revenue.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "Geological disaster monitoring and early warning is a higher-barrier, higher-recurring-revenue segment than emergency equipment, because it requires slope radar, InSAR, BeiDou, sensors, and AI landslide warning with ongoing service income.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "Emergency equipment and mobile infrastructure offer the most direct short-term orders but revenue is volatile and tied to disaster occurrence, making it less attractive for durable investment than monitoring and digitalization.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "Traditional post-disaster reconstruction materials and engineering benefit from rebuilding but are not necessarily good equity investments due to intense competition and long receivables cycles.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "Catastrophe insurance and climate finance have long-term potential, but traditional insurers face increased payouts in the short term, so 'larger disaster equals better insurance stocks' is not a valid simple conclusion.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H6",
+      "hypothesis": "A China-UAE cross-border solution integrating urban flood prevention, slope monitoring, mobile drainage, satellite communications, and insurance risk models can be exported to UAE municipal departments, real estate developers, industrial parks, airports, and free zones.",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "Official government procurement and tender data for water conservancy digitalization, reservoir safety, and urban drainage in China after July 2026.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "Company-level order backlog, accounts receivable turnover, cash flow, and share of disaster-prevention revenue for listed Chinese infrastructure and monitoring firms.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "Insurance regulatory data on catastrophe insurance, parametric insurance, and agricultural weather insurance penetration in China and UAE.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "UAE municipal, real estate, industrial park, airport, and free zone climate adaptation budgets and procurement plans.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "External benchmarks for urban drainage standards, reservoir safety inspection frequency, and landslide monitoring technology adoption.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "Market size and growth forecasts for flood prevention equipment, drainage pumps, sensors, drones, and satellite communications in China and the Gulf.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "Policy documents on local special bonds, central budget investment, and disaster prevention funding priorities.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "Case studies of China-UAE technology transfer in smart city, water management, and emergency response.",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "China water conservancy digitalization market size 2026",
+    "China urban drainage flood prevention investment policy 2026",
+    "China reservoir safety inspection and reinforcement regulations",
+    "global landslide monitoring technology market forecast",
+    "UAE urban flood prevention infrastructure projects",
+    "UAE climate adaptation spending municipal budgets",
+    "catastrophe insurance penetration China versus UAE",
+    "parametric insurance flood risk Gulf countries",
+    "China UAE smart city water management cooperation",
+    "emergency drainage pump market size China",
+    "InSAR satellite monitoring slope stability cost",
+    "climate resilience infrastructure investment benchmarks Asia"
+  ],
+  "source_strategy": "Primary source is the provided document for all disaster facts, quantified impacts, and identified opportunity segments. External sources are used only to supplement with industry benchmarks, regulations, market data, and cross-border context. Prioritize official Chinese government sources (应急管理部, 水利部, 金融监管总局, 国家发改委), UAE government and free zone publications, industry research reports, and company filings. Avoid using external sources to contradict or replace document facts; use them to validate market size, policy frameworks, and technology adoption rates.",
+  "outline": [
+    "The 2026 China flood and typhoon season exposed specific infrastructure failure modes—reservoir overtopping, urban flooding, and landslides—that create a multi-year pipeline for climate-resilience infrastructure.",
+    "Water conservancy digitalization and urban drainage are the most policy-backed segments, with government funding mechanisms already visible in central and local budget allocations.",
+    "Geological disaster monitoring and early warning offer higher technical barriers and recurring service revenue, making them more attractive than volatile emergency equipment orders.",
+    "Post-disaster reconstruction materials and traditional engineering face competition and long receivables cycles, so they should not be prioritized over digital and monitoring solutions.",
+    "Catastrophe insurance and climate finance have long-term potential but require careful timing because insurers face short-term payout increases before risk-model and parametric products scale.",
+    "A China-UAE cross-border solution integrating flood prevention, slope monitoring, mobile drainage, satellite communications, and insurance risk models can target UAE municipal, real estate, industrial, airport, and free zone clients."
+  ],
+  "exhibit_ideas": [
+    "Timeline of major 2026 China flood and typhoon events with documented casualties, displacements, and insurance losses.",
+    "Segment attractiveness matrix comparing water conservancy digitalization, urban drainage, geological monitoring, emergency equipment, reconstruction materials, agriculture, and insurance on barriers, recurring revenue, and policy support.",
+    "Map of affected regions and corresponding infrastructure opportunity types.",
+    "Funding flow diagram showing central emergency funds, National Development and Reform Commission allocations, and insurance payouts.",
+    "China-UAE cross-border solution architecture linking Chinese technology modules to UAE customer segments.",
+    "Screening scorecard for companies based on order backlog, receivables, local government customer share, cash flow, and disaster-prevention revenue share."
+  ],
+  "risks": [
+    "The document lacks an official national disaster loss summary for July 2026, so total economic loss estimates are incomplete and may be revised.",
+    "Casualty figures may have cross-counting between dead and missing in Guangxi, and scattered casualties elsewhere are not fully included.",
+    "Short-term demand for emergency equipment and supplies may fluctuate with disaster occurrence, making revenue unpredictable.",
+    "Traditional reconstruction materials and engineering face intense competition and long payment cycles, which may reduce investment returns.",
+    "Insurance companies may face increased payouts in the short term, offsetting long-term climate finance opportunities.",
+    "Cross-border China-UAE solution requires navigating different regulatory, procurement, and business environments, which may slow adoption.",
+    "External market data may not be directly comparable to China or UAE contexts, requiring careful validation."
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Generative AI and Its Impact on Business Operations, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations total market size segment share",
+          "Generative AI and Its Impact on Business Operations demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations customer count price ARPU",
+          "Generative AI and Its Impact on Business Operations adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations pilot customer conversion",
+          "Generative AI and Its Impact on Business Operations orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations ROI cost savings case study",
+          "Generative AI and Its Impact on Business Operations value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Generative AI and Its Impact on Business Operations capacity utilization unit price",
+          "Generative AI and Its Impact on Business Operations project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "critical_evidence_required": [
+    {
+      "id": "BASE-1",
+      "description": "Product-specific demand: procurement records, tenders, RFPs, orders, or contracts for the specific product category in the target market",
+      "type": "demand_signal",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-2",
+      "description": "Identifiable customer or procurement route: named buyer, procurement channel, or comparable contract in the target geography",
+      "type": "customer",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-3",
+      "description": "Competitive alternatives: named competing products, services, or suppliers with at least one comparable data point",
+      "type": "competition",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-4",
+      "description": "Indicative commercial economics: pricing, contract value, margin, or cost benchmark from a comparable transaction or product",
+      "type": "financial",
+      "required_for": "invest"
+    },
+    {
+      "id": "BASE-5",
+      "description": "Regulatory pathway: relevant approvals, certifications, standards, or licences required for the product in the target market",
+      "type": "regulation",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-6",
+      "description": "Technical feasibility: performance specification, integration requirement, or comparable deployment evidence",
+      "type": "technical",
+      "required_for": "conditional_pilot"
+    }
+  ]
+}
