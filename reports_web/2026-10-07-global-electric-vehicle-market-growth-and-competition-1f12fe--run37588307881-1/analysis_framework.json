@@ -1,0 +1,609 @@
+{
+  "decision_question": "在2026年7月中国灾情暴露出的水利、排水、地质灾害监测和应急响应短板背景下，哪些气候韧性基础设施细分领域具备由财政资金、保险赔付和地方政府专项债驱动的可持续商业机会，应优先配置资源？",
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "2026年7月广西六蓝水库漫顶缺口及多地水库险情将推动全国中小水库安全鉴定、除险加固、渗漏监测和数字化管理的财政投入，水利EPC、坝体检测、传感器、无人机巡检、排涝泵站及长期运维领域将获得持续订单。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "沈阳、南宁、深圳等城市内涝暴露排水标准不足，地下蓄洪空间、调蓄池、排水管网、泵站、挡水板、海绵城市和城市洪水数字孪生可能成为地方专项债及中央预算投资重点。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "重庆彭水大型山体崩塌和甘肃陇南、渭源滑坡与山洪将推动边坡雷达、InSAR卫星监测、北斗定位、雨量和土壤含水传感器、AI滑坡预警在景区、矿区、公路和铁路边坡监测中的应用，该领域技术壁垒和后续服务收入相对较高。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "应急装备与移动基础设施（大流量排涝泵、救援机器人、无人机、卫星通信终端、移动储能及发电机、应急净水设备、舟艇和临时安置设施）短期订单最直接，但收入通常随灾情波动。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "巨灾保险、参数保险、农业气象保险和气候风险模型具有长期机会，但传统保险公司短期首先面对赔付增加，不能简单理解为灾情越大保险股越受益。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H6",
+      "hypothesis": "投资应优先选择已有政府订单和运维收入的水利数字化、监测预警、排涝设备公司，而非单纯追逐水泥、建材等短期题材；筛选重点为在手订单、应收账款回收、地方政府客户比例、现金流和真实防灾业务收入占比。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H7",
+      "hypothesis": "中国这轮灾情形成的技术升级可转化为向阿联酋市政部门、地产开发商、工业园区、机场和自由区输出城市防内涝、坡体监测、移动排涝、卫星通信和保险风险模型的跨境解决方案。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Global Electric Vehicle Market Growth and Competition, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition total market size segment share",
+          "Global Electric Vehicle Market Growth and Competition demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition customer count price ARPU",
+          "Global Electric Vehicle Market Growth and Competition adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition pilot customer conversion",
+          "Global Electric Vehicle Market Growth and Competition orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition ROI cost savings case study",
+          "Global Electric Vehicle Market Growth and Competition value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition capacity utilization unit price",
+          "Global Electric Vehicle Market Growth and Competition project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "中国水利部、应急管理部关于中小水库安全鉴定、除险加固、渗漏监测和数字化管理的政策文件与投资计划。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "地方政府专项债和中央预算投资在排水管网、调蓄池、海绵城市、城市洪水数字孪生领域的实际投向与规模。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "地质灾害监测预警领域（边坡雷达、InSAR、北斗、AI滑坡预警）的技术标准、采购模式和竞争格局。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "应急装备与移动基础设施（排涝泵、救援机器人、无人机、卫星通信、移动储能）的市场规模、订单波动性和主要供应商。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "巨灾保险、参数保险、农业气象保险和气候风险模型在中国的发展阶段、监管框架和赔付数据。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "灾后重建材料与工程（道路桥梁、管材、电缆、防水材料、预制建筑、通信基站、配电设备）的竞争强度和回款周期。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "农业恢复与智慧农业（补种种子、农机、植保、动物防疫、农产品烘干及冷链、卫星遥感查勘、农业气象指数保险）的市场需求。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "中国-阿联酋在市政、地产、工业园区、机场和自由区领域的气候韧性基础设施合作案例与准入要求。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D9",
+      "metric": "2026年上半年洪涝和地质灾害直接经济损失338.7亿元、全部自然灾害直接损失421.4亿元的背景数据，用于校准损失与投资比例。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D10",
+      "metric": "保险业估损63.8亿元、已赔付28.9亿元、广东赔款约3,679万元等数据的后续更新，以评估保险资金对韧性基础设施的撬动作用。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "chart_data_needs": [
+    {
+      "id": "chart-need-1",
+      "title": "Global EV Sales Volume and Share by Region, 2020–2025",
+      "chart_type": "line",
+      "executive_question": "How fast has global EV adoption grown across major regions, and where is growth accelerating or slowing?",
+      "required_metrics": [
+        "Annual global EV sales volume (million units), 2020–2025",
+        "Annual EV sales volume by region (China, Europe, North America, Rest of World), 2020–2025",
+        "Annual EV share of total new vehicle sales by region (%), 2020–2025"
+      ],
+      "comparison_set": [
+        "China vs Europe vs North America vs Rest of World"
+      ],
+      "preferred_sources": [
+        "IEA Global EV Outlook",
+        "BloombergNEF EV Outlook",
+        "China Association of Automobile Manufacturers (CAAM)",
+        "European Automobile Manufacturers Association (ACEA)",
+        "Argonne National Laboratory"
+      ],
+      "search_queries": [
+        "IEA Global EV Outlook annual EV sales by region 2020 2021 2022 2023 2024 2025",
+        "China Europe North America annual electric vehicle sales volume 2020-2025 official",
+        "global EV share of new car sales by region annual data 2020-2025"
+      ],
+      "data_quality_rule": "Use at least four same-basis annual observations per region. If only two endpoints are available, derive intermediate years using a transparent CAGR or public forecast benchmark, label them as estimates, and never present two endpoints as a trend line.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Establishes the baseline growth trajectory and regional divergence that frames the competitive race.",
+      "pre_exhibit_context": "The report opens with the claim that EV growth is no longer a single global curve but a set of regionally distinct adoption paths.",
+      "post_exhibit_takeaway": "China remains the volume engine, Europe is consolidating, and North America is policy-sensitive; the next phase is about share defense, not just market creation."
+    },
+    {
+      "id": "chart-need-2",
+      "title": "Global EV Market Revenue and Average Selling Price, 2020–2025",
+      "chart_type": "line",
+      "executive_question": "Is market value growing in line with volume, or are price declines compressing revenue growth?",
+      "required_metrics": [
+        "Annual global EV market revenue (USD billion), 2020–2025",
+        "Annual average EV selling price by region (USD/unit), 2020–2025",
+        "Annual EV revenue by region (USD billion), 2020–2025"
+      ],
+      "comparison_set": [
+        "Global vs China vs Europe vs North America"
+      ],
+      "preferred_sources": [
+        "IEA Global EV Outlook",
+        "BloombergNEF",
+        "Company annual reports (Tesla, BYD, Volkswagen, GM, Ford)",
+        "AlixPartners Global Automotive Outlook",
+        "McKinsey Center for Future Mobility"
+      ],
+      "search_queries": [
+        "global electric vehicle market revenue annual 2020 2021 2022 2023 2024 2025 USD billion",
+        "average electric vehicle selling price by region annual 2020-2025",
+        "EV revenue by region annual data IEA BloombergNEF 2020-2025"
+      ],
+      "data_quality_rule": "Use at least four same-basis annual observations. If revenue is not directly reported, calculate from unit sales and ASP, mark calculated years as estimates, and disclose the estimation rule.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Tests whether volume growth translates into revenue growth and sets up the margin pressure argument.",
+      "pre_exhibit_context": "The section argues that EV competition is shifting from volume expansion to value capture as prices fall.",
+      "post_exhibit_takeaway": "Revenue growth is slower than unit growth in several regions, meaning scale alone no longer guarantees profit pool expansion."
+    },
+    {
+      "id": "chart-need-3",
+      "title": "EV Competitive Position Bubble Map: Volume, Growth, and Profitability",
+      "chart_type": "bubble",
+      "executive_question": "Which automakers combine scale, growth, and profitability, and who is vulnerable to a shakeout?",
+      "required_metrics": [
+        "Annual EV unit sales by automaker (thousand units), latest fiscal year",
+        "Year-over-year EV unit sales growth by automaker (%), latest fiscal year",
+        "EV segment operating margin or automotive gross margin by automaker (%), latest fiscal year"
+      ],
+      "comparison_set": [
+        "BYD, Tesla, Volkswagen Group, SAIC, Geely, Hyundai-Kia, GM, Ford, Stellantis, BMW, Mercedes-Benz, NIO, XPeng, Li Auto"
+      ],
+      "preferred_sources": [
+        "Company annual reports and 10-K/20-F filings",
+        "Company quarterly earnings releases",
+        "IEA Global EV Outlook",
+        "BloombergNEF",
+        "S&P Global Mobility"
+      ],
+      "search_queries": [
+        "automaker annual EV unit sales 2024 2025 BYD Tesla Volkswagen SAIC Geely",
+        "EV segment operating margin by automaker annual report 2024 2025",
+        "global EV market share by automaker annual 2024 2025 S&P Global Mobility"
+      ],
+      "data_quality_rule": "Use reported unit sales and margins where available. If EV-specific margin is not disclosed, use automotive segment margin and label it as a proxy. Do not mix fiscal years without disclosure.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Maps the competitive landscape beyond unit sales to reveal which players can sustain investment.",
+      "pre_exhibit_context": "The report claims that the EV race is separating into scale leaders, profit-funded challengers, and loss-making laggards.",
+      "post_exhibit_takeaway": "Only a small group combines high volume, positive growth, and positive EV margins; most others face strategic dependency on external funding or legacy profits."
+    },
+    {
+      "id": "chart-need-4",
+      "title": "Global EV Battery Demand and Manufacturing Capacity, 2020–2025",
+      "chart_type": "bar",
+      "executive_question": "Is battery supply keeping pace with EV demand, and where is overcapacity or shortage emerging?",
+      "required_metrics": [
+        "Annual global EV battery demand (GWh), 2020–2025",
+        "Annual global EV battery manufacturing capacity (GWh), 2020–2025",
+        "Annual battery demand and capacity by region (China, Europe, North America), 2020–2025"
+      ],
+      "comparison_set": [
+        "Demand vs capacity; China vs Europe vs North America"
+      ],
+      "preferred_sources": [
+        "IEA Global EV Outlook",
+        "BloombergNEF",
+        "SNE Research",
+        "Benchmark Mineral Intelligence",
+        "Company annual reports (CATL, LG Energy Solution, Panasonic, BYD)"
+      ],
+      "search_queries": [
+        "global EV battery demand GWh annual 2020 2021 2022 2023 2024 2025 IEA",
+        "global EV battery manufacturing capacity GWh by region annual 2020-2025",
+        "SNE Research battery demand capacity annual 2024 2025"
+      ],
+      "data_quality_rule": "Use same-basis annual demand and capacity data. If capacity is announced rather than operational, label as announced capacity and distinguish from utilized capacity.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Connects upstream supply chain capacity to downstream competitive dynamics and cost trends.",
+      "pre_exhibit_context": "The section argues that battery supply is no longer the binding constraint, shifting competition to cost and technology.",
+      "post_exhibit_takeaway": "Battery capacity has grown faster than demand in several regions, pressuring cell prices and forcing consolidation among suppliers."
+    },
+    {
+      "id": "chart-need-5",
+      "title": "EV Policy and Regulatory Milestones by Major Market, 2020–2030",
+      "chart_type": "timeline",
+      "executive_question": "Which regulatory deadlines and incentives will force or delay EV adoption in the largest markets?",
+      "required_metrics": [
+        "Policy name and jurisdiction",
+        "Effective date or target year",
+        "Quantitative target or penalty (e.g., CO2 g/km, NEV credit %, subsidy amount USD/vehicle)"
+      ],
+      "comparison_set": [
+        "China vs European Union vs United States vs India vs Japan"
+      ],
+      "preferred_sources": [
+        "European Commission",
+        "US EPA",
+        "China Ministry of Industry and Information Technology (MIIT)",
+        "IEA Global EV Outlook",
+        "ICCT"
+      ],
+      "search_queries": [
+        "EU CO2 emission standards passenger cars 2025 2030 2035 official",
+        "China NEV mandate credit percentage 2024 2025 MIIT",
+        "US EPA vehicle emissions rules 2027 2032 IRA EV tax credit official"
+      ],
+      "data_quality_rule": "Use official government or regulator sources. Include effective dates and quantitative targets. Do not include proposed rules without labeling them as proposed.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Shows that competition is shaped by policy clocks, not just consumer demand.",
+      "pre_exhibit_context": "The report claims that the next five years of EV competition will be determined by regulatory gates and subsidy transitions.",
+      "post_exhibit_takeaway": "China’s NEV mandate, Europe’s CO2 targets and 2035 ICE ban, and US IRA/EPA rules create different timing risks and opportunities for automakers."
+    },
+    {
+      "id": "chart-need-6",
+      "title": "EV Charging Infrastructure Deployment vs EV Fleet, 2020–2025",
+      "chart_type": "bar",
+      "executive_question": "Is charging infrastructure keeping pace with EV adoption, and where is the infrastructure gap largest?",
+      "required_metrics": [
+        "Annual public EV charging points by region (thousand units), 2020–2025",
+        "Annual EV fleet by region (million units), 2020–2025",
+        "Charging points per 100 EVs by region, 2020–2025"
+      ],
+      "comparison_set": [
+        "China vs Europe vs United States"
+      ],
+      "preferred_sources": [
+        "IEA Global EV Outlook",
+        "China Electric Vehicle Charging Infrastructure Promotion Alliance (EVCIPA)",
+        "European Alternative Fuels Observatory",
+        "US Department of Energy Alternative Fuels Data Center",
+        "BloombergNEF"
+      ],
+      "search_queries": [
+        "global public EV charging points annual by region 2020 2021 2022 2023 2024 2025 IEA",
+        "China public charging piles annual 2020-2025 EVCIPA",
+        "US public EV chargers annual 2020-2025 Department of Energy"
+      ],
+      "data_quality_rule": "Use same-basis annual counts for public charging points and EV fleet. If data definitions differ (public vs private, slow vs fast), disclose and do not aggregate without adjustment.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Tests whether adoption is constrained by charging availability and identifies infrastructure investment opportunities.",
+      "pre_exhibit_context": "The report argues that charging availability is becoming a competitive differentiator and a bottleneck in some regions.",
+      "post_exhibit_takeaway": "China leads in absolute charger deployment but still faces utilization and grid issues; Europe and the US have larger gaps per EV, creating investment needs."
+    },
+    {
+      "id": "chart-need-7",
+      "title": "EV Cost Parity and Total Cost of Ownership by Segment, 2020–2025",
+      "chart_type": "line",
+      "executive_question": "When and where do EVs reach cost parity with internal combustion vehicles, and how does that vary by segment?",
+      "required_metrics": [
+        "Annual average EV purchase price by segment (USD/unit), 2020–2025",
+        "Annual average ICE purchase price by segment (USD/unit), 2020–2025",
+        "Annual total cost of ownership for EV vs ICE by segment (USD/mile or USD/year), 2020–2025"
+      ],
+      "comparison_set": [
+        "EV vs ICE; compact vs mid-size vs SUV vs truck; China vs Europe vs US"
+      ],
+      "preferred_sources": [
+        "IEA Global EV Outlook",
+        "BloombergNEF",
+        "ICCT",
+        "Argonne National Laboratory",
+        "Kelley Blue Book",
+        "China Association of Automobile Manufacturers"
+      ],
+      "search_queries": [
+        "EV vs ICE purchase price by segment annual 2020 2021 2022 2023 2024 2025",
+        "total cost of ownership EV vs ICE by segment annual 2020-2025 ICCT",
+        "China Europe US EV price parity segment annual data 2020-2025"
+      ],
+      "data_quality_rule": "Use at least four same-basis annual observations per segment. If TCO is not directly reported, calculate from purchase price, fuel/electricity cost, maintenance, and resale value, and label calculated years as estimates.",
+      "sizing_role": "",
+      "hypothesis_ids": [],
+      "narrative_role": "Quantifies the economic driver behind adoption and shows where parity is already achieved or still distant.",
+      "pre_exhibit_context": "The report claims that cost parity is the single most important demand trigger, but it is arriving at different speeds by segment and region.",
+      "post_exhibit_takeaway": "Compact and mid-size EVs in China and Europe are near or at parity, while large SUVs and trucks in the US remain dependent on subsidies or premium pricing."
+    }
+  ],
+  "storyline_plan": {
+    "report_archetype": "market_investment",
+    "selected_modules": [
+      "source and forecast comparison",
+      "base, upside and downside scenarios",
+      "sensitivity drivers",
+      "segment and micro-market implications",
+      "investment recommendations"
+    ],
+    "coverage_requirements": [
+      "executive thesis",
+      "source-backed findings",
+      "causal mechanisms",
+      "counter-evidence and risks",
+      "decision implications",
+      "evidence-based actions"
+    ],
+    "core_question": "在2026年7月中国灾情暴露出的水利、排水、地质灾害监测和应急响应短板背景下，哪些气候韧性基础设施细分领域具备由财政资金、保险赔付和地方政府专项债驱动的可持续商业机会，应优先配置资源？",
+    "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+    "narrative_focus": "Evidence is densest around: timeline, market",
+    "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+    "evidence_must_cover": [
+      "国新办举行新闻发布会介绍加快国家水网建设进展情况 9 Jan 2026",
+      "农村供水关乎亿万群众切身利益。倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+      "农村供水关乎亿万群众切身利益。倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+      "农村供水关乎亿万群众切身利益。倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+      "倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+      "倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。"
+    ],
+    "hypotheses_to_test": [
+      {
+        "id": "H1",
+        "hypothesis": "2026年7月广西六蓝水库漫顶缺口及多地水库险情将推动全国中小水库安全鉴定、除险加固、渗漏监测和数字化管理的财政投入，水利EPC、坝体检测、传感器、无人机巡检、排涝泵站及长期运维领域将获得持续订单。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H2",
+        "hypothesis": "沈阳、南宁、深圳等城市内涝暴露排水标准不足，地下蓄洪空间、调蓄池、排水管网、泵站、挡水板、海绵城市和城市洪水数字孪生可能成为地方专项债及中央预算投资重点。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H3",
+        "hypothesis": "重庆彭水大型山体崩塌和甘肃陇南、渭源滑坡与山洪将推动边坡雷达、InSAR卫星监测、北斗定位、雨量和土壤含水传感器、AI滑坡预警在景区、矿区、公路和铁路边坡监测中的应用，该领域技术壁垒和后续服务收入相对较高。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H4",
+        "hypothesis": "应急装备与移动基础设施（大流量排涝泵、救援机器人、无人机、卫星通信终端、移动储能及发电机、应急净水设备、舟艇和临时安置设施）短期订单最直接，但收入通常随灾情波动。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H5",
+        "hypothesis": "巨灾保险、参数保险、农业气象保险和气候风险模型具有长期机会，但传统保险公司短期首先面对赔付增加，不能简单理解为灾情越大保险股越受益。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H6",
+        "hypothesis": "投资应优先选择已有政府订单和运维收入的水利数字化、监测预警、排涝设备公司，而非单纯追逐水泥、建材等短期题材；筛选重点为在手订单、应收账款回收、地方政府客户比例、现金流和真实防灾业务收入占比。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      },
+      {
+        "id": "H7",
+        "hypothesis": "中国这轮灾情形成的技术升级可转化为向阿联酋市政部门、地产开发商、工业园区、机场和自由区输出城市防内涝、坡体监测、移动排涝、卫星通信和保险风险模型的跨境解决方案。",
+        "decision_relevance": "",
+        "needed_evidence": []
+      }
+    ],
+    "market_sizing_logic": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+    "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+  }
+}

@@ -1,0 +1,393 @@
+{
+  "objective": "基于提供的中国2026年7月灾情文档，构建一份紧凑的决策简报，评估气候韧性基础设施（水利、排水、监测、应急装备、保险）在2026-2029年的商业与投资机会，并形成可执行的行动建议。",
+  "audience": "关注中国气候适应与基础设施投资的机构投资者、企业战略负责人、政策研究者及跨境（中国-阿联酋）业务拓展团队。",
+  "decision_question": "在2026年7月中国灾情暴露出的水利、排水、地质灾害监测和应急响应短板背景下，哪些气候韧性基础设施细分领域具备由财政资金、保险赔付和地方政府专项债驱动的可持续商业机会，应优先配置资源？",
+  "issue_tree": {
+    "root": "气候韧性基础设施投资机会评估",
+    "branches": [
+      {
+        "branch": "灾害暴露与损失规模",
+        "sub_issues": [
+          "人员伤亡与转移安置规模（广西、湖北、重庆、甘肃等）",
+          "直接经济损失与保险估损（63.8亿元估损、28.9亿元已赔付、广东3,679万元赔款）",
+          "财政支持资金流向（中央1.8亿元、浙江1亿元、河北3,000万元、吉林3,000万元）"
+        ]
+      },
+      {
+        "branch": "基础设施短板识别",
+        "sub_issues": [
+          "病险水库与堤坝（广西六蓝水库漫顶缺口）",
+          "城市排水与防内涝（沈阳、南宁、深圳内涝）",
+          "地质灾害监测预警（重庆彭水崩塌、甘肃陇南滑坡、甘肃渭源山洪）"
+        ]
+      },
+      {
+        "branch": "政策与资金机制",
+        "sub_issues": [
+          "中央预算投资与地方专项债投向",
+          "应急管理部与金融监管总局的灾后资金安排",
+          "巨灾保险与参数保险的发展空间"
+        ]
+      },
+      {
+        "branch": "商业机会与竞争格局",
+        "sub_issues": [
+          "水利EPC、坝体检测、传感器、无人机巡检、排涝泵站及运维",
+          "地下蓄洪、调蓄池、排水管网、海绵城市、数字孪生",
+          "边坡雷达、InSAR、北斗、AI滑坡预警",
+          "应急装备与移动基础设施（排涝泵、救援机器人、卫星通信、移动储能）",
+          "灾后重建材料与工程",
+          "农业恢复与智慧农业",
+          "巨灾保险与气候金融"
+        ]
+      },
+      {
+        "branch": "投资筛选标准",
+        "sub_issues": [
+          "在手订单与运维收入",
+          "应收账款回收与现金流",
+          "地方政府客户比例",
+          "真实防灾业务收入占比"
+        ]
+      },
+      {
+        "branch": "跨境输出机会",
+        "sub_issues": [
+          "中国-阿联酋资源整合",
+          "城市防内涝+坡体监测+移动排涝+卫星通信+保险风险模型",
+          "目标客户：市政部门、地产开发商、工业园区、机场、自由区"
+        ]
+      }
+    ]
+  },
+  "hypotheses": [
+    {
+      "id": "H1",
+      "hypothesis": "2026年7月广西六蓝水库漫顶缺口及多地水库险情将推动全国中小水库安全鉴定、除险加固、渗漏监测和数字化管理的财政投入，水利EPC、坝体检测、传感器、无人机巡检、排涝泵站及长期运维领域将获得持续订单。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "沈阳、南宁、深圳等城市内涝暴露排水标准不足，地下蓄洪空间、调蓄池、排水管网、泵站、挡水板、海绵城市和城市洪水数字孪生可能成为地方专项债及中央预算投资重点。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "重庆彭水大型山体崩塌和甘肃陇南、渭源滑坡与山洪将推动边坡雷达、InSAR卫星监测、北斗定位、雨量和土壤含水传感器、AI滑坡预警在景区、矿区、公路和铁路边坡监测中的应用，该领域技术壁垒和后续服务收入相对较高。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "应急装备与移动基础设施（大流量排涝泵、救援机器人、无人机、卫星通信终端、移动储能及发电机、应急净水设备、舟艇和临时安置设施）短期订单最直接，但收入通常随灾情波动。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "巨灾保险、参数保险、农业气象保险和气候风险模型具有长期机会，但传统保险公司短期首先面对赔付增加，不能简单理解为灾情越大保险股越受益。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H6",
+      "hypothesis": "投资应优先选择已有政府订单和运维收入的水利数字化、监测预警、排涝设备公司，而非单纯追逐水泥、建材等短期题材；筛选重点为在手订单、应收账款回收、地方政府客户比例、现金流和真实防灾业务收入占比。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    },
+    {
+      "id": "H7",
+      "hypothesis": "中国这轮灾情形成的技术升级可转化为向阿联酋市政部门、地产开发商、工业园区、机场和自由区输出城市防内涝、坡体监测、移动排涝、卫星通信和保险风险模型的跨境解决方案。",
+      "decision_relevance": "",
+      "needed_evidence": [],
+      "search_queries": []
+    }
+  ],
+  "validation_data_needs": [
+    {
+      "id": "D1",
+      "metric": "中国水利部、应急管理部关于中小水库安全鉴定、除险加固、渗漏监测和数字化管理的政策文件与投资计划。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D2",
+      "metric": "地方政府专项债和中央预算投资在排水管网、调蓄池、海绵城市、城市洪水数字孪生领域的实际投向与规模。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D3",
+      "metric": "地质灾害监测预警领域（边坡雷达、InSAR、北斗、AI滑坡预警）的技术标准、采购模式和竞争格局。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D4",
+      "metric": "应急装备与移动基础设施（排涝泵、救援机器人、无人机、卫星通信、移动储能）的市场规模、订单波动性和主要供应商。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D5",
+      "metric": "巨灾保险、参数保险、农业气象保险和气候风险模型在中国的发展阶段、监管框架和赔付数据。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D6",
+      "metric": "灾后重建材料与工程（道路桥梁、管材、电缆、防水材料、预制建筑、通信基站、配电设备）的竞争强度和回款周期。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D7",
+      "metric": "农业恢复与智慧农业（补种种子、农机、植保、动物防疫、农产品烘干及冷链、卫星遥感查勘、农业气象指数保险）的市场需求。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D8",
+      "metric": "中国-阿联酋在市政、地产、工业园区、机场和自由区领域的气候韧性基础设施合作案例与准入要求。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D9",
+      "metric": "2026年上半年洪涝和地质灾害直接经济损失338.7亿元、全部自然灾害直接损失421.4亿元的背景数据，用于校准损失与投资比例。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    },
+    {
+      "id": "D10",
+      "metric": "保险业估损63.8亿元、已赔付28.9亿元、广东赔款约3,679万元等数据的后续更新，以评估保险资金对韧性基础设施的撬动作用。",
+      "decision_use": "",
+      "preferred_sources": [],
+      "search_queries": []
+    }
+  ],
+  "search_queries": [
+    "中国 中小水库 除险加固 数字化监测 政策 2026",
+    "中国 城市防内涝 专项债 海绵城市 投资 2026",
+    "中国 地质灾害监测预警 边坡雷达 InSAR 市场规模",
+    "中国 应急装备 排涝泵 救援机器人 无人机 采购 2026",
+    "中国 巨灾保险 参数保险 农业气象保险 监管 2026",
+    "中国 灾后重建 建材 管材 电缆 回款周期 竞争格局",
+    "中国 智慧农业 卫星遥感 农业气象指数保险 应用 2026",
+    "阿联酋 城市排水 防洪 基础设施 投资 2026",
+    "阿联酋 地质灾害监测 边坡监测 技术需求",
+    "海湾国家 气候韧性 基础设施 中国合作 案例",
+    "全球 气候适应基础设施 投资趋势 2026",
+    "中国 水利数字化 运维收入 政府订单 上市公司"
+  ],
+  "source_strategy": "以提供的中国2026年7月灾情文档为唯一事实基础，提取人员伤亡、转移安置、经济损失、保险赔付、财政支持和风险预测等具体数据。外部搜索仅用于补充行业基准、监管框架、市场规模和竞争格局，不重复文档已有事实。优先采用政府文件（应急管理部、水利部、金融监管总局、国家气候中心）、行业报告、上市公司公告和权威媒体。对跨境机会，参考阿联酋市政和自由区官方招标信息及中国-阿联酋合作案例。所有外部数据需标注来源和日期，并与文档事实交叉验证。",
+  "outline": [
+    "2026年7月中国灾情造成至少101人死亡、30人失联、364人受伤，暴露出水利、排水和地质灾害监测的系统性短板，气候韧性基础设施成为财政和保险资金的重点投向。",
+    "广西六蓝水库漫顶缺口和多地水库险情将驱动中小水库安全鉴定、除险加固、渗漏监测和数字化管理，水利EPC、坝体检测、传感器、无人机巡检和排涝泵站运维迎来持续订单。",
+    "沈阳、南宁、深圳等城市内涝证明排水标准不足，地下蓄洪、调蓄池、排水管网、泵站、海绵城市和城市洪水数字孪生将获得地方专项债和中央预算投资倾斜。",
+    "重庆彭水崩塌和甘肃陇南、渭源滑坡山洪推动边坡雷达、InSAR、北斗、AI滑坡预警在景区、矿区、公路和铁路边坡监测中的应用，技术壁垒和后续服务收入较高。",
+    "应急装备与移动基础设施短期订单最直接但收入随灾情波动，而巨灾保险、参数保险和气候风险模型具有长期机会，但传统保险公司短期面临赔付增加。",
+    "投资应优先选择已有政府订单和运维收入的水利数字化、监测预警、排涝设备公司，并可将中国技术升级整合为向阿联酋市政、地产、工业园区、机场和自由区输出的跨境解决方案。"
+  ],
+  "exhibit_ideas": [
+    {
+      "title": "2026年7月主要灾情伤亡与转移安置汇总",
+      "type": "表格",
+      "content": "按时间、地区、灾害类型、死亡、失联、受伤、转移安置人数列出广西、湖北、重庆彭水、甘肃渭源、甘肃陇南、浙江、广东等事件，突出至少101人死亡、30人失联、364人受伤的机械汇总。"
+    },
+    {
+      "title": "保险估损与赔付资金流向",
+      "type": "柱状图/表格",
+      "content": "展示截至7月13日20个省区市近38万件报案、估损63.8亿元、已赔付28.9亿元，台风巴威估损5.4亿元；广东截至7月27日20,005件报案、赔款约3,679万元；中央预拨1.8亿元及浙江1亿元、河北3,000万元、吉林3,000万元。"
+    },
+    {
+      "title": "气候韧性基础设施细分领域机会矩阵",
+      "type": "矩阵图",
+      "content": "横轴为收入持续性（短期波动 vs 长期稳定），纵轴为技术壁垒，标注水利数字化、城市排水、地质灾害监测、应急装备、灾后重建材料、农业恢复、巨灾保险等。"
+    },
+    {
+      "title": "投资筛选标准评分卡",
+      "type": "评分卡",
+      "content": "列出手在手订单、应收账款回收、地方政府客户比例、现金流、真实防灾业务收入占比五个维度，用于评估水利数字化、监测预警、排涝设备公司。"
+    },
+    {
+      "title": "中国-阿联酋跨境解决方案输出路径",
+      "type": "流程图",
+      "content": "展示将城市防内涝、坡体监测、移动排涝、卫星通信、保险风险模型整合为解决方案，输出至阿联酋市政部门、地产开发商、工业园区、机场和自由区。"
+    },
+    {
+      "title": "未来一至三周灾害风险预警",
+      "type": "地图/列表",
+      "content": "标注7月29日暴雨黄色预警重点区域（广东、广西、湖北、四川、河南、河北、山东、吉林、黑龙江、内蒙古东北部）及国家气候中心预计的2-3个台风登陆或影响中国、可能一个较强台风北上。"
+    }
+  ],
+  "risks": [
+    "文档中伤亡数字为机械汇总，广西死亡与失联名册可能存在交叉，其他地方零散伤亡尚未完全纳入，甘肃宕昌21名遇难者未计入，因此至少101人死亡、30人失联、364人受伤并非官方全国总数。",
+    "应急管理部尚未发布2026年7月全国自然灾害汇总，网上所谓全国损失数字并不完整，保险估损和财政支持资金不等于实际经济损失，且可能与其他救灾资金部分重叠。",
+    "应急装备与移动基础设施短期订单最直接，但收入通常随灾情波动，不能简单外推为持续增长。",
+    "传统保险公司短期首先面对赔付增加，不能简单理解为灾情越大保险股越受益。",
+    "灾后重建材料与工程受益，但传统建筑材料竞争激烈、回款周期长，不一定等于好的股票投资。",
+    "地方政府客户比例高的公司可能面临应收账款回收和现金流压力，需重点核查在手订单和真实防灾业务收入占比。",
+    "跨境输出至阿联酋面临当地法规、标准、准入和竞争风险，需进一步验证市政部门、地产开发商、工业园区、机场和自由区的具体需求。",
+    "国家气候中心预测仍可能有2-3个台风登陆或影响中国，灾情发展可能改变损失规模和投资优先级。"
+  ],
+  "market_sizing_plan": {
+    "sizing_question": "How large is the credible opportunity for Global Electric Vehicle Market Growth and Competition, and which variables still need validation?",
+    "methods": [
+      {
+        "method": "Top-down sizing",
+        "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+        "variables": [
+          "total market size",
+          "segment share",
+          "reachable geography or use-case share"
+        ],
+        "preferred_sources": [
+          "government data",
+          "industry association",
+          "international organization",
+          "consulting report"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition total market size segment share",
+          "Global Electric Vehicle Market Growth and Competition demand by segment official data"
+        ],
+        "known_limitations": [
+          "High-level market size can include demand that is not serviceable."
+        ]
+      },
+      {
+        "method": "Bottom-up sizing",
+        "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+        "variables": [
+          "customer count",
+          "usage per customer",
+          "price or ARPU",
+          "adoption rate"
+        ],
+        "preferred_sources": [
+          "company announcements",
+          "annual reports",
+          "industry surveys",
+          "regulatory datasets"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition customer count price ARPU",
+          "Global Electric Vehicle Market Growth and Competition adoption rate units price"
+        ],
+        "known_limitations": [
+          "Customer and price definitions must use the same scope."
+        ]
+      },
+      {
+        "method": "Adoption funnel sizing",
+        "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+        "variables": [
+          "target customer pool",
+          "pilot count",
+          "conversion rate",
+          "expansion rate"
+        ],
+        "preferred_sources": [
+          "customer cases",
+          "order announcements",
+          "procurement data",
+          "channel data"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition pilot customer conversion",
+          "Global Electric Vehicle Market Growth and Competition orders customers adoption"
+        ],
+        "known_limitations": [
+          "Early case studies may not represent scaled adoption."
+        ]
+      },
+      {
+        "method": "Value pool sizing",
+        "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+        "variables": [
+          "customer cost pool",
+          "improvement rate",
+          "value-capture rate"
+        ],
+        "preferred_sources": [
+          "customer filings",
+          "industry cost benchmarks",
+          "case studies"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition ROI cost savings case study",
+          "Global Electric Vehicle Market Growth and Competition value pool customer cost"
+        ],
+        "known_limitations": [
+          "Value-capture rate usually needs primary research."
+        ]
+      },
+      {
+        "method": "Supply-side sizing",
+        "formula": "Available capacity x utilization x unit price",
+        "variables": [
+          "capacity",
+          "utilization",
+          "unit price"
+        ],
+        "preferred_sources": [
+          "capacity announcements",
+          "project filings",
+          "company annual reports"
+        ],
+        "search_queries": [
+          "Global Electric Vehicle Market Growth and Competition capacity utilization unit price",
+          "Global Electric Vehicle Market Growth and Competition project capacity announcement"
+        ],
+        "known_limitations": [
+          "Announced capacity is not the same as deliverable capacity."
+        ]
+      }
+    ],
+    "evidence_rule": "Use public source values when available; keep missing variables as validation tasks."
+  },
+  "critical_evidence_required": [
+    {
+      "id": "BASE-1",
+      "description": "Product-specific demand: procurement records, tenders, RFPs, orders, or contracts for the specific product category in the target market",
+      "type": "demand_signal",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-2",
+      "description": "Identifiable customer or procurement route: named buyer, procurement channel, or comparable contract in the target geography",
+      "type": "customer",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-3",
+      "description": "Competitive alternatives: named competing products, services, or suppliers with at least one comparable data point",
+      "type": "competition",
+      "required_for": "conditional_pilot"
+    },
+    {
+      "id": "BASE-4",
+      "description": "Indicative commercial economics: pricing, contract value, margin, or cost benchmark from a comparable transaction or product",
+      "type": "financial",
+      "required_for": "invest"
+    }
+  ]
+}

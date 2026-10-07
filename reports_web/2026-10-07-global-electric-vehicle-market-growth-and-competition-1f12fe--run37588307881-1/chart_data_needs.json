@@ -1,0 +1,227 @@
+[
+  {
+    "id": "chart-need-1",
+    "title": "Global EV Sales Volume and Share by Region, 2020–2025",
+    "chart_type": "line",
+    "executive_question": "How fast has global EV adoption grown across major regions, and where is growth accelerating or slowing?",
+    "required_metrics": [
+      "Annual global EV sales volume (million units), 2020–2025",
+      "Annual EV sales volume by region (China, Europe, North America, Rest of World), 2020–2025",
+      "Annual EV share of total new vehicle sales by region (%), 2020–2025"
+    ],
+    "comparison_set": [
+      "China vs Europe vs North America vs Rest of World"
+    ],
+    "preferred_sources": [
+      "IEA Global EV Outlook",
+      "BloombergNEF EV Outlook",
+      "China Association of Automobile Manufacturers (CAAM)",
+      "European Automobile Manufacturers Association (ACEA)",
+      "Argonne National Laboratory"
+    ],
+    "search_queries": [
+      "IEA Global EV Outlook annual EV sales by region 2020 2021 2022 2023 2024 2025",
+      "China Europe North America annual electric vehicle sales volume 2020-2025 official",
+      "global EV share of new car sales by region annual data 2020-2025"
+    ],
+    "data_quality_rule": "Use at least four same-basis annual observations per region. If only two endpoints are available, derive intermediate years using a transparent CAGR or public forecast benchmark, label them as estimates, and never present two endpoints as a trend line.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Establishes the baseline growth trajectory and regional divergence that frames the competitive race.",
+    "pre_exhibit_context": "The report opens with the claim that EV growth is no longer a single global curve but a set of regionally distinct adoption paths.",
+    "post_exhibit_takeaway": "China remains the volume engine, Europe is consolidating, and North America is policy-sensitive; the next phase is about share defense, not just market creation."
+  },
+  {
+    "id": "chart-need-2",
+    "title": "Global EV Market Revenue and Average Selling Price, 2020–2025",
+    "chart_type": "line",
+    "executive_question": "Is market value growing in line with volume, or are price declines compressing revenue growth?",
+    "required_metrics": [
+      "Annual global EV market revenue (USD billion), 2020–2025",
+      "Annual average EV selling price by region (USD/unit), 2020–2025",
+      "Annual EV revenue by region (USD billion), 2020–2025"
+    ],
+    "comparison_set": [
+      "Global vs China vs Europe vs North America"
+    ],
+    "preferred_sources": [
+      "IEA Global EV Outlook",
+      "BloombergNEF",
+      "Company annual reports (Tesla, BYD, Volkswagen, GM, Ford)",
+      "AlixPartners Global Automotive Outlook",
+      "McKinsey Center for Future Mobility"
+    ],
+    "search_queries": [
+      "global electric vehicle market revenue annual 2020 2021 2022 2023 2024 2025 USD billion",
+      "average electric vehicle selling price by region annual 2020-2025",
+      "EV revenue by region annual data IEA BloombergNEF 2020-2025"
+    ],
+    "data_quality_rule": "Use at least four same-basis annual observations. If revenue is not directly reported, calculate from unit sales and ASP, mark calculated years as estimates, and disclose the estimation rule.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Tests whether volume growth translates into revenue growth and sets up the margin pressure argument.",
+    "pre_exhibit_context": "The section argues that EV competition is shifting from volume expansion to value capture as prices fall.",
+    "post_exhibit_takeaway": "Revenue growth is slower than unit growth in several regions, meaning scale alone no longer guarantees profit pool expansion."
+  },
+  {
+    "id": "chart-need-3",
+    "title": "EV Competitive Position Bubble Map: Volume, Growth, and Profitability",
+    "chart_type": "bubble",
+    "executive_question": "Which automakers combine scale, growth, and profitability, and who is vulnerable to a shakeout?",
+    "required_metrics": [
+      "Annual EV unit sales by automaker (thousand units), latest fiscal year",
+      "Year-over-year EV unit sales growth by automaker (%), latest fiscal year",
+      "EV segment operating margin or automotive gross margin by automaker (%), latest fiscal year"
+    ],
+    "comparison_set": [
+      "BYD, Tesla, Volkswagen Group, SAIC, Geely, Hyundai-Kia, GM, Ford, Stellantis, BMW, Mercedes-Benz, NIO, XPeng, Li Auto"
+    ],
+    "preferred_sources": [
+      "Company annual reports and 10-K/20-F filings",
+      "Company quarterly earnings releases",
+      "IEA Global EV Outlook",
+      "BloombergNEF",
+      "S&P Global Mobility"
+    ],
+    "search_queries": [
+      "automaker annual EV unit sales 2024 2025 BYD Tesla Volkswagen SAIC Geely",
+      "EV segment operating margin by automaker annual report 2024 2025",
+      "global EV market share by automaker annual 2024 2025 S&P Global Mobility"
+    ],
+    "data_quality_rule": "Use reported unit sales and margins where available. If EV-specific margin is not disclosed, use automotive segment margin and label it as a proxy. Do not mix fiscal years without disclosure.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Maps the competitive landscape beyond unit sales to reveal which players can sustain investment.",
+    "pre_exhibit_context": "The report claims that the EV race is separating into scale leaders, profit-funded challengers, and loss-making laggards.",
+    "post_exhibit_takeaway": "Only a small group combines high volume, positive growth, and positive EV margins; most others face strategic dependency on external funding or legacy profits."
+  },
+  {
+    "id": "chart-need-4",
+    "title": "Global EV Battery Demand and Manufacturing Capacity, 2020–2025",
+    "chart_type": "bar",
+    "executive_question": "Is battery supply keeping pace with EV demand, and where is overcapacity or shortage emerging?",
+    "required_metrics": [
+      "Annual global EV battery demand (GWh), 2020–2025",
+      "Annual global EV battery manufacturing capacity (GWh), 2020–2025",
+      "Annual battery demand and capacity by region (China, Europe, North America), 2020–2025"
+    ],
+    "comparison_set": [
+      "Demand vs capacity; China vs Europe vs North America"
+    ],
+    "preferred_sources": [
+      "IEA Global EV Outlook",
+      "BloombergNEF",
+      "SNE Research",
+      "Benchmark Mineral Intelligence",
+      "Company annual reports (CATL, LG Energy Solution, Panasonic, BYD)"
+    ],
+    "search_queries": [
+      "global EV battery demand GWh annual 2020 2021 2022 2023 2024 2025 IEA",
+      "global EV battery manufacturing capacity GWh by region annual 2020-2025",
+      "SNE Research battery demand capacity annual 2024 2025"
+    ],
+    "data_quality_rule": "Use same-basis annual demand and capacity data. If capacity is announced rather than operational, label as announced capacity and distinguish from utilized capacity.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Connects upstream supply chain capacity to downstream competitive dynamics and cost trends.",
+    "pre_exhibit_context": "The section argues that battery supply is no longer the binding constraint, shifting competition to cost and technology.",
+    "post_exhibit_takeaway": "Battery capacity has grown faster than demand in several regions, pressuring cell prices and forcing consolidation among suppliers."
+  },
+  {
+    "id": "chart-need-5",
+    "title": "EV Policy and Regulatory Milestones by Major Market, 2020–2030",
+    "chart_type": "timeline",
+    "executive_question": "Which regulatory deadlines and incentives will force or delay EV adoption in the largest markets?",
+    "required_metrics": [
+      "Policy name and jurisdiction",
+      "Effective date or target year",
+      "Quantitative target or penalty (e.g., CO2 g/km, NEV credit %, subsidy amount USD/vehicle)"
+    ],
+    "comparison_set": [
+      "China vs European Union vs United States vs India vs Japan"
+    ],
+    "preferred_sources": [
+      "European Commission",
+      "US EPA",
+      "China Ministry of Industry and Information Technology (MIIT)",
+      "IEA Global EV Outlook",
+      "ICCT"
+    ],
+    "search_queries": [
+      "EU CO2 emission standards passenger cars 2025 2030 2035 official",
+      "China NEV mandate credit percentage 2024 2025 MIIT",
+      "US EPA vehicle emissions rules 2027 2032 IRA EV tax credit official"
+    ],
+    "data_quality_rule": "Use official government or regulator sources. Include effective dates and quantitative targets. Do not include proposed rules without labeling them as proposed.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Shows that competition is shaped by policy clocks, not just consumer demand.",
+    "pre_exhibit_context": "The report claims that the next five years of EV competition will be determined by regulatory gates and subsidy transitions.",
+    "post_exhibit_takeaway": "China’s NEV mandate, Europe’s CO2 targets and 2035 ICE ban, and US IRA/EPA rules create different timing risks and opportunities for automakers."
+  },
+  {
+    "id": "chart-need-6",
+    "title": "EV Charging Infrastructure Deployment vs EV Fleet, 2020–2025",
+    "chart_type": "bar",
+    "executive_question": "Is charging infrastructure keeping pace with EV adoption, and where is the infrastructure gap largest?",
+    "required_metrics": [
+      "Annual public EV charging points by region (thousand units), 2020–2025",
+      "Annual EV fleet by region (million units), 2020–2025",
+      "Charging points per 100 EVs by region, 2020–2025"
+    ],
+    "comparison_set": [
+      "China vs Europe vs United States"
+    ],
+    "preferred_sources": [
+      "IEA Global EV Outlook",
+      "China Electric Vehicle Charging Infrastructure Promotion Alliance (EVCIPA)",
+      "European Alternative Fuels Observatory",
+      "US Department of Energy Alternative Fuels Data Center",
+      "BloombergNEF"
+    ],
+    "search_queries": [
+      "global public EV charging points annual by region 2020 2021 2022 2023 2024 2025 IEA",
+      "China public charging piles annual 2020-2025 EVCIPA",
+      "US public EV chargers annual 2020-2025 Department of Energy"
+    ],
+    "data_quality_rule": "Use same-basis annual counts for public charging points and EV fleet. If data definitions differ (public vs private, slow vs fast), disclose and do not aggregate without adjustment.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Tests whether adoption is constrained by charging availability and identifies infrastructure investment opportunities.",
+    "pre_exhibit_context": "The report argues that charging availability is becoming a competitive differentiator and a bottleneck in some regions.",
+    "post_exhibit_takeaway": "China leads in absolute charger deployment but still faces utilization and grid issues; Europe and the US have larger gaps per EV, creating investment needs."
+  },
+  {
+    "id": "chart-need-7",
+    "title": "EV Cost Parity and Total Cost of Ownership by Segment, 2020–2025",
+    "chart_type": "line",
+    "executive_question": "When and where do EVs reach cost parity with internal combustion vehicles, and how does that vary by segment?",
+    "required_metrics": [
+      "Annual average EV purchase price by segment (USD/unit), 2020–2025",
+      "Annual average ICE purchase price by segment (USD/unit), 2020–2025",
+      "Annual total cost of ownership for EV vs ICE by segment (USD/mile or USD/year), 2020–2025"
+    ],
+    "comparison_set": [
+      "EV vs ICE; compact vs mid-size vs SUV vs truck; China vs Europe vs US"
+    ],
+    "preferred_sources": [
+      "IEA Global EV Outlook",
+      "BloombergNEF",
+      "ICCT",
+      "Argonne National Laboratory",
+      "Kelley Blue Book",
+      "China Association of Automobile Manufacturers"
+    ],
+    "search_queries": [
+      "EV vs ICE purchase price by segment annual 2020 2021 2022 2023 2024 2025",
+      "total cost of ownership EV vs ICE by segment annual 2020-2025 ICCT",
+      "China Europe US EV price parity segment annual data 2020-2025"
+    ],
+    "data_quality_rule": "Use at least four same-basis annual observations per segment. If TCO is not directly reported, calculate from purchase price, fuel/electricity cost, maintenance, and resale value, and label calculated years as estimates.",
+    "sizing_role": "",
+    "hypothesis_ids": [],
+    "narrative_role": "Quantifies the economic driver behind adoption and shows where parity is already achieved or still distant.",
+    "pre_exhibit_context": "The report claims that cost parity is the single most important demand trigger, but it is arriving at different speeds by segment and region.",
+    "post_exhibit_takeaway": "Compact and mid-size EVs in China and Europe are near or at parity, while large SUVs and trucks in the US remain dependent on subsidies or premium pricing."
+  }
+]

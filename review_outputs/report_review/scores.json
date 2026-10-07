@@ -1,0 +1,92 @@
+{
+  "overall_score": 84,
+  "grade": "Silver",
+  "research_quality": {
+    "score": 22,
+    "max_points": 30,
+    "what_works": [
+      {
+        "point": "The report clearly identifies the lack of relevant data for validating EV market claims, demonstrating a thorough understanding of the evidence base."
+      },
+      {
+        "point": "The report provides a detailed breakdown of the available evidence, explaining why it is not suitable for EV market analysis."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a comprehensive analysis of potential alternative data sources that could be used to validate EV market claims.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+      },
+      {
+        "point": "The report lacks a detailed discussion of the broader implications of the lack of EV data for the firm's strategic planning.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+      }
+    ]
+  },
+  "evidence_and_citations": {
+    "score": 23,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "All claims are backed by named sources, and the report provides specific references to the evidence used."
+      },
+      {
+        "point": "The report includes a detailed bibliography with a variety of sources, including government reports and news articles."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a clear traceability path for some of the statistics mentioned, such as the disaster impact figures.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 3 | "
+      },
+      {
+        "point": "The report could benefit from a more diverse set of sources, particularly international or industry-specific reports on EVs.",
+        "location_ref": "Location -> [Source and forecast comparison: named sources address water and disaster, not EVs] | Para 1 | "
+      }
+    ]
+  },
+  "strategic_clarity": {
+    "score": 21,
+    "max_points": 25,
+    "what_works": [
+      {
+        "point": "The report clearly states the management implications of the lack of EV data, emphasizing the need for a dedicated EV evidence workstream."
+      },
+      {
+        "point": "The report provides a clear action plan for how the firm should proceed, including the requirement for source traceability for any EV numbers used internally."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "The report does not provide a detailed timeline or specific steps for commissioning the required EV-specific data.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+      },
+      {
+        "point": "The report could benefit from a more explicit discussion of the risks associated with delaying EV-related decisions.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+      }
+    ]
+  },
+  "writing_and_structure": {
+    "score": 18,
+    "max_points": 20,
+    "what_works": [
+      {
+        "point": "The report is well-structured with clear section titles that match the content."
+      },
+      {
+        "point": "The writing is clear and concise, avoiding unnecessary jargon and filler language."
+      }
+    ],
+    "what_fails": [
+      {
+        "point": "Some sections contain repetitive information, such as the repeated emphasis on the lack of EV data.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 4 | "
+      },
+      {
+        "point": "The report could benefit from a more streamlined presentation of the management implications, reducing redundancy.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+      }
+    ]
+  }
+}

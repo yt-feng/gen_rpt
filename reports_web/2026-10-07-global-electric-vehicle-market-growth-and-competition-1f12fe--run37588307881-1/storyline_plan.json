@@ -1,0 +1,140 @@
+{
+  "report_archetype": "market_investment",
+  "selected_modules": [
+    "source and forecast comparison",
+    "base, upside and downside scenarios",
+    "sensitivity drivers",
+    "segment and micro-market implications",
+    "investment recommendations"
+  ],
+  "coverage_requirements": [
+    "executive thesis",
+    "source-backed findings",
+    "causal mechanisms",
+    "counter-evidence and risks",
+    "decision implications",
+    "evidence-based actions"
+  ],
+  "core_question": "在2026年7月中国灾情暴露出的水利、排水、地质灾害监测和应急响应短板背景下，哪些气候韧性基础设施细分领域具备由财政资金、保险赔付和地方政府专项债驱动的可持续商业机会，应优先配置资源？",
+  "central_thesis": "The storyline should be led by the strongest public evidence, then translated into management choices.",
+  "narrative_focus": "Evidence is densest around: timeline, market",
+  "structure_logic": "Open with the executive decision, show source-backed data exhibits, then move through business implications, risks and action gates.",
+  "evidence_must_cover": [
+    "国新办举行新闻发布会介绍加快国家水网建设进展情况 9 Jan 2026",
+    "农村供水关乎亿万群众切身利益。倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+    "农村供水关乎亿万群众切身利益。倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+    "农村供水关乎亿万群众切身利益。倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+    "倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。",
+    "倪文进介绍，将会同有关部门和地方进一步推动城乡供水一体化、集中供水规模化、小型供水规范化、县域统管专业化“3+1”标准化建设和管护模式落地见效，力争到2030年，全国农村自来水普及率、规模化供水工程覆盖农村人口比例、农村供水县域统管比例分别达到98%、78%、90%。"
+  ],
+  "hypotheses_to_test": [
+    {
+      "id": "H1",
+      "hypothesis": "2026年7月广西六蓝水库漫顶缺口及多地水库险情将推动全国中小水库安全鉴定、除险加固、渗漏监测和数字化管理的财政投入，水利EPC、坝体检测、传感器、无人机巡检、排涝泵站及长期运维领域将获得持续订单。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H2",
+      "hypothesis": "沈阳、南宁、深圳等城市内涝暴露排水标准不足，地下蓄洪空间、调蓄池、排水管网、泵站、挡水板、海绵城市和城市洪水数字孪生可能成为地方专项债及中央预算投资重点。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H3",
+      "hypothesis": "重庆彭水大型山体崩塌和甘肃陇南、渭源滑坡与山洪将推动边坡雷达、InSAR卫星监测、北斗定位、雨量和土壤含水传感器、AI滑坡预警在景区、矿区、公路和铁路边坡监测中的应用，该领域技术壁垒和后续服务收入相对较高。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H4",
+      "hypothesis": "应急装备与移动基础设施（大流量排涝泵、救援机器人、无人机、卫星通信终端、移动储能及发电机、应急净水设备、舟艇和临时安置设施）短期订单最直接，但收入通常随灾情波动。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H5",
+      "hypothesis": "巨灾保险、参数保险、农业气象保险和气候风险模型具有长期机会，但传统保险公司短期首先面对赔付增加，不能简单理解为灾情越大保险股越受益。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H6",
+      "hypothesis": "投资应优先选择已有政府订单和运维收入的水利数字化、监测预警、排涝设备公司，而非单纯追逐水泥、建材等短期题材；筛选重点为在手订单、应收账款回收、地方政府客户比例、现金流和真实防灾业务收入占比。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    },
+    {
+      "id": "H7",
+      "hypothesis": "中国这轮灾情形成的技术升级可转化为向阿联酋市政部门、地产开发商、工业园区、机场和自由区输出城市防内涝、坡体监测、移动排涝、卫星通信和保险风险模型的跨境解决方案。",
+      "decision_relevance": "",
+      "needed_evidence": []
+    }
+  ],
+  "market_sizing_logic": [
+    {
+      "method": "Top-down sizing",
+      "formula": "Total demand pool x serviceable segment share x reachable geography/use-case share",
+      "variables": [
+        "total market size",
+        "segment share",
+        "reachable geography or use-case share"
+      ],
+      "known_limitations": [
+        "High-level market size can include demand that is not serviceable."
+      ]
+    },
+    {
+      "method": "Bottom-up sizing",
+      "formula": "Potential customers x usage per customer x price/ARPU x adoption rate",
+      "variables": [
+        "customer count",
+        "usage per customer",
+        "price or ARPU",
+        "adoption rate"
+      ],
+      "known_limitations": [
+        "Customer and price definitions must use the same scope."
+      ]
+    },
+    {
+      "method": "Adoption funnel sizing",
+      "formula": "Target customer pool x pilot rate x conversion rate x expansion rate",
+      "variables": [
+        "target customer pool",
+        "pilot count",
+        "conversion rate",
+        "expansion rate"
+      ],
+      "known_limitations": [
+        "Early case studies may not represent scaled adoption."
+      ]
+    },
+    {
+      "method": "Value pool sizing",
+      "formula": "Customer cost/revenue pool x improvement rate x supplier value-capture rate",
+      "variables": [
+        "customer cost pool",
+        "improvement rate",
+        "value-capture rate"
+      ],
+      "known_limitations": [
+        "Value-capture rate usually needs primary research."
+      ]
+    },
+    {
+      "method": "Supply-side sizing",
+      "formula": "Available capacity x utilization x unit price",
+      "variables": [
+        "capacity",
+        "utilization",
+        "unit price"
+      ],
+      "known_limitations": [
+        "Announced capacity is not the same as deliverable capacity."
+      ]
+    }
+  ],
+  "charting_rule": "Charts may use only evidence_ledger values, dates, source counts or same-unit comparable values tied to public URLs.",
+  "exhibit_narrative_rule": "Every exhibit must be embedded in the section argument: prose sets up the management question before the exhibit and interprets the implication after it; never stack exhibits without prose."
+}

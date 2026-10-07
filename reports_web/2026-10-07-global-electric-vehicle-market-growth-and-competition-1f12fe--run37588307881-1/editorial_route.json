@@ -1,0 +1,10 @@
+{
+  "primaryModel": "deepseek-chat",
+  "primaryRoute": "DeepSeek Chat Completions",
+  "fallbackModel": null,
+  "fallbackRoute": null,
+  "activeModel": "deepseek-chat",
+  "activeRoute": "DeepSeek Chat Completions",
+  "fallbackUsed": false,
+  "failoverReason": null
+}

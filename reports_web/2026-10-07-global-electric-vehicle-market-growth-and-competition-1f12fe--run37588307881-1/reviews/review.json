@@ -1,0 +1,538 @@
+{
+  "timestamp": "2026-10-07T07:44:02.841549Z",
+  "report_title": "Global Electric Vehicle Market Growth and Competition: Evidence-Led Validation Review",
+  "report_path": "/tmp/gen-rpt-continuity-ql5by4fb/report/report.md",
+  "scores": {
+    "overall_score": 84,
+    "grade": "Silver",
+    "research_quality": {
+      "score": 22,
+      "max_points": 30,
+      "what_works": [
+        {
+          "point": "The report clearly identifies the lack of relevant data for validating EV market claims, demonstrating a thorough understanding of the evidence base."
+        },
+        {
+          "point": "The report provides a detailed breakdown of the available evidence, explaining why it is not suitable for EV market analysis."
+        }
+      ],
+      "what_fails": [
+        {
+          "point": "The report does not provide a comprehensive analysis of potential alternative data sources that could be used to validate EV market claims.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+        },
+        {
+          "point": "The report lacks a detailed discussion of the broader implications of the lack of EV data for the firm's strategic planning.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+        }
+      ]
+    },
+    "evidence_and_citations": {
+      "score": 23,
+      "max_points": 25,
+      "what_works": [
+        {
+          "point": "All claims are backed by named sources, and the report provides specific references to the evidence used."
+        },
+        {
+          "point": "The report includes a detailed bibliography with a variety of sources, including government reports and news articles."
+        }
+      ],
+      "what_fails": [
+        {
+          "point": "The report does not provide a clear traceability path for some of the statistics mentioned, such as the disaster impact figures.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 3 | "
+        },
+        {
+          "point": "The report could benefit from a more diverse set of sources, particularly international or industry-specific reports on EVs.",
+          "location_ref": "Location -> [Source and forecast comparison: named sources address water and disaster, not EVs] | Para 1 | "
+        }
+      ]
+    },
+    "strategic_clarity": {
+      "score": 21,
+      "max_points": 25,
+      "what_works": [
+        {
+          "point": "The report clearly states the management implications of the lack of EV data, emphasizing the need for a dedicated EV evidence workstream."
+        },
+        {
+          "point": "The report provides a clear action plan for how the firm should proceed, including the requirement for source traceability for any EV numbers used internally."
+        }
+      ],
+      "what_fails": [
+        {
+          "point": "The report does not provide a detailed timeline or specific steps for commissioning the required EV-specific data.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+        },
+        {
+          "point": "The report could benefit from a more explicit discussion of the risks associated with delaying EV-related decisions.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+        }
+      ]
+    },
+    "writing_and_structure": {
+      "score": 18,
+      "max_points": 20,
+      "what_works": [
+        {
+          "point": "The report is well-structured with clear section titles that match the content."
+        },
+        {
+          "point": "The writing is clear and concise, avoiding unnecessary jargon and filler language."
+        }
+      ],
+      "what_fails": [
+        {
+          "point": "Some sections contain repetitive information, such as the repeated emphasis on the lack of EV data.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 4 | "
+        },
+        {
+          "point": "The report could benefit from a more streamlined presentation of the management implications, reducing redundancy.",
+          "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | "
+        }
+      ]
+    }
+  },
+  "claims_audit": {
+    "claims": [
+      {
+        "claim": "The private document context contains no electric-vehicle market data.",
+        "section": "Key Takeaways",
+        "paragraph": 1,
+        "location_ref": "Location -> [Key Takeaways] | Para 1 | \"The private document\" -> \"EV growth and\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The approved source-backed evidence set's only quantified market-family values are rural water-supply coverage targets of 98%, 78%, and 90% by 2030.",
+        "section": "Key Takeaways",
+        "paragraph": 1,
+        "location_ref": "Location -> [Key Takeaways] | Para 1 | \"The approved source-backed\" -> \"cannot be substituted\"",
+        "evidence_provided": true,
+        "data_provided": true,
+        "source_referenced": false,
+        "quantified": true,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The private context does identify a durable investment screening logic — prioritizing companies with existing government orders and operations revenue, and checking order backlog, receivables collection, local-government customer share, cash flow, and.",
+        "section": "Key Takeaways",
+        "paragraph": 1,
+        "location_ref": "Location -> [Key Takeaways] | Para 1 | \"The private context does\" -> \"and checking order\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The approved evidence does not contain the data required to validate any global EV growth or competition claim.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 1,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 1 | \"The decisive finding\" -> \"EV commitment and\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The private document context is a July 2026 China disaster and climate-resilience infrastructure assessment.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 1,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 1 | \"The private document\" -> \"commission targeted EV\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The approved web ledger covers water-network construction, rural water supply, SAR satellite monitoring, and fire-equipment project reviews.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 1,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 1 | \"The private document\" -> \"commission targeted EV\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "No approved source states EV unit sales, EV penetration rates, battery prices, charging-infrastructure counts, or manufacturer market shares.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 2,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 2 | \"The private document\" -> \"not overlap in\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The private context does provide a quantified disaster picture that is relevant only to the climate-resilience question.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 3,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 3 | \"The private context\" -> \"36.79 million yuan\"",
+        "evidence_provided": true,
+        "data_provided": true,
+        "source_referenced": false,
+        "quantified": true,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The approved ledger's market-family entries are rural water-supply targets — 98% tap-water penetration, 78% coverage by large-scale supply projects, and 90% county-level unified management by 2030.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 4,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 4 | \"The approved ledger's\" -> \"Any EV growth\"",
+        "evidence_provided": true,
+        "data_provided": true,
+        "source_referenced": false,
+        "quantified": true,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The management implication is procedural rather than directional.",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "paragraph": 5,
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | \"The management implication\" -> \"on it.\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The firm should not present any EV forecast as evidence-backed.",
+        "section": "Source and forecast comparison: named sources address water and disaster, not EVs",
+        "paragraph": 8,
+        "location_ref": "Location -> [Source and forecast comparison: named sources address water and disaster, not EVs] | Para 8 | \"Because no approved\" -> \"research.\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "Scenario construction for EVs is not possible from approved values.",
+        "section": "Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence",
+        "paragraph": 1,
+        "location_ref": "Location -> [Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence] | Para 1 | \"Scenario construction\" -> \"not assigned.\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The sensitivity drivers that the evidence supports are disaster frequency, fiscal and insurance funding, and local-government procurement capacity.",
+        "section": "Sensitivity drivers: what actually moves the supported thesis, and what is missing for EVs",
+        "paragraph": 1,
+        "location_ref": "Location -> [Sensitivity drivers: what actually moves the supported thesis, and what is missing for EVs] | Para 1 | \"The sensitivity drivers\" -> \"are absent from\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "For EVs, the sensitivity drivers are unknown.",
+        "section": "Sensitivity drivers: what actually moves the supported thesis, and what is missing for EVs",
+        "paragraph": 5,
+        "location_ref": "Location -> [Sensitivity drivers: what actually moves the supported thesis, and what is missing for EVs] | Para 5 | \"For EVs, the\" -> \"until the underlying\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The private context names specific resilience sub-sectors with distinct commercial characteristics, and these can be mapped to micro-market implications.",
+        "section": "Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not",
+        "paragraph": 1,
+        "location_ref": "Location -> [Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not] | Para 1 | \"The private context\" -> \"not\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "No comparable EV segment mapping is possible from the approved evidence.",
+        "section": "Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not",
+        "paragraph": 1,
+        "location_ref": "Location -> [Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not] | Para 1 | \"The private context\" -> \"not\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The recommendation is a screening and evidence-gating posture, not a commitment.",
+        "section": "Investment recommendations within the validation_only boundary: screen, do not commit",
+        "paragraph": 1,
+        "location_ref": "Location -> [Investment recommendations within the validation_only boundary: screen, do not commit] | Para 1 | \"Under the validation\" -> \"without new evidence.\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "The private context states a clear investment preference: prioritize water-digitalization, monitoring and early-warning, and drainage-equipment companies that already have government orders and operations revenue.",
+        "section": "Investment recommendations within the validation_only boundary: screen, do not commit",
+        "paragraph": 2,
+        "location_ref": "Location -> [Investment recommendations within the validation_only boundary: screen, do not commit] | Para 2 | \"The private context\" -> \"as products and\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      },
+      {
+        "claim": "No EV recommendation is made.",
+        "section": "Investment recommendations within the validation_only boundary: screen, do not commit",
+        "paragraph": 3,
+        "location_ref": "Location -> [Investment recommendations within the validation_only boundary: screen, do not commit] | Para 3 | \"This is a\" -> \"until EV-specific evidence\"",
+        "evidence_provided": true,
+        "data_provided": false,
+        "source_referenced": false,
+        "quantified": false,
+        "confidence_justified": true,
+        "classification": "supported"
+      }
+    ],
+    "quantification_ratio": 30,
+    "total_claims": 19,
+    "supported_count": 19,
+    "partially_supported_count": 0,
+    "unsupported_count": 0,
+    "high_risk_count": 0,
+    "speculative_count": 0
+  },
+  "recommendations": {
+    "strengths": [
+      {
+        "finding": "The report references specific sources for the disaster and climate-resilience data, ensuring traceability.",
+        "location_ref": "Location -> [References] | Para 1 | \"- Private source\" -> \"- Private source\"",
+        "severity": "Low"
+      }
+    ],
+    "weaknesses": [
+      {
+        "finding": "The report lacks a comprehensive bibliography and does not provide in-text citations for all claims, reducing the traceability of evidence.",
+        "location_ref": "Location -> [References] | Para 1 | \"- Private source\" -> \"- Private source\"",
+        "severity": "High"
+      }
+    ],
+    "data_gaps": [
+      {
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "claim": "The approved evidence does not contain the data required to validate any global EV growth or competition claim.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 1 | \"The decisive finding is that the approved evidence...\" -> \"...commission targeted EV evidence.\"",
+        "missing_data": [
+          "EV unit sales",
+          "EV penetration rates",
+          "battery prices",
+          "charging-infrastructure counts",
+          "manufacturer market shares"
+        ],
+        "severity": "High"
+      },
+      {
+        "section": "Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence",
+        "claim": "Scenario construction for EVs is not possible from approved values.",
+        "location_ref": "Location -> [Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence] | Para 1 | \"Scenario construction for EVs is not possible...\" -> \"...are not assigned.\"",
+        "missing_data": [
+          "EV demand parameters",
+          "EV price parameters",
+          "EV share parameters"
+        ],
+        "severity": "High"
+      }
+    ],
+    "weak_assumptions": [
+      {
+        "forecast_or_claim": "The forward risk view, attributed to the National Climate Center, expects two to three more typhoons to land or affect China during the 'seven-down, eight-up' period.",
+        "location_ref": "Location -> [Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence] | Para 2 | \"The forward risk view, attributed to the National Climate Center...\" -> \"...with above-normal rainfall in the Beijing-Tianjin-Hebei and Northeast regions.\"",
+        "missing_evidence": "Specific data or models supporting the forecast of additional typhoons and their impact.",
+        "severity": "High"
+      }
+    ],
+    "writing_flaws": [
+      {
+        "flaw_type": "repeated_phrase",
+        "example": "The management implication is...",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | \"The management implication is procedural rather than directional.\" -> \"...until that evidence exists.\"",
+        "severity": "Medium",
+        "suggestion": "Consider using different phrasing to avoid repetition."
+      },
+      {
+        "flaw_type": "overloaded_sentence",
+        "example": "The private document context addresses which climate-resilience infrastructure sub-sectors merit priority resource allocation, driven by fiscal funds, insurance payouts, and local-government special bonds.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 2 | \"The private document context addresses which climate-resilience infrastructure sub-sectors...\" -> \"...local-government special bonds.\"",
+        "severity": "Medium",
+        "suggestion": "Break this sentence into two or more sentences for clarity."
+      }
+    ],
+    "narrative_gaps": [
+      {
+        "gap_type": "broken_flow",
+        "finding": "The report transitions abruptly from discussing the lack of EV data to detailed climate-resilience infrastructure scenarios without a clear bridge.",
+        "location_ref": "Location -> [Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence] | Para 2 | \"The forward risk view, attributed to the National Climate Center...\" -> \"...with above-normal rainfall in the Beijing-Tianjin-Hebei and Northeast regions.\"",
+        "severity": "Medium"
+      }
+    ],
+    "strategic_gaps": [
+      {
+        "gap_type": "missing_so_what",
+        "finding": "The report does not clearly articulate the implications of the lack of EV data for the broader strategic direction of the firm.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | \"The management implication is procedural rather than directional.\" -> \"...until that evidence exists.\"",
+        "severity": "High"
+      },
+      {
+        "gap_type": "no_risk_opportunity_split",
+        "finding": "The report does not provide a clear risk and opportunity analysis for the climate-resilience infrastructure, which could be crucial for decision-making.",
+        "location_ref": "Location -> [Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not] | Para 3 | \"The private context characterizes the geological monitoring segment...\" -> \"...climate risk models, but traditional insurers first face higher payouts.\"",
+        "severity": "Medium"
+      }
+    ],
+    "audience_relevance_gaps": [
+      {
+        "audience": "Minister",
+        "finding": "The report lacks a high-level summary and strategic implications that would be relevant for a Minister.",
+        "location_ref": "Location -> [Executive decision: the EV thesis cannot be validated on the current evidence base] | Para 5 | \"The management implication is procedural rather than directional.\" -> \"...until that evidence exists.\"",
+        "severity": "High"
+      },
+      {
+        "audience": "Board",
+        "finding": "The report does not provide a clear risk and opportunity analysis, which is essential for Board-level decision-making.",
+        "location_ref": "Location -> [Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not] | Para 3 | \"The private context characterizes the geological monitoring segment...\" -> \"...climate risk models, but traditional insurers first face higher payouts.\"",
+        "severity": "High"
+      },
+      {
+        "audience": "SWF",
+        "finding": "The report lacks a detailed financial analysis and risk assessment, which are crucial for a Sovereign Wealth Fund.",
+        "location_ref": "Location -> [Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not] | Para 3 | \"The private context characterizes the geological monitoring segment...\" -> \"...climate risk models, but traditional insurers first face higher payouts.\"",
+        "severity": "High"
+      }
+    ],
+    "executive_communication": {
+      "minister_ready": false,
+      "board_ready": false,
+      "swf_ready": false,
+      "minister_reason": "The report lacks a high-level summary and strategic implications, making it unsuitable for a Minister's needs.",
+      "board_reason": "The report does not provide a clear risk and opportunity analysis, which is essential for Board-level decision-making.",
+      "swf_reason": "The report lacks a detailed financial analysis and risk assessment, which are crucial for a Sovereign Wealth Fund.",
+      "flagged_sections": [
+        {
+          "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+          "issue": "Lacks strategic implications and high-level summary"
+        },
+        {
+          "section": "Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not",
+          "issue": "Lacks clear risk and opportunity analysis"
+        },
+        {
+          "section": "References",
+          "issue": "Lacks comprehensive bibliography and in-text citations"
+        }
+      ]
+    },
+    "improvement_tasks": [
+      {
+        "priority": "Critical",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "issue": "Lack of data to validate EV claims",
+        "fix": "Commission targeted EV evidence to fill gaps in EV unit sales, penetration rates, battery prices, charging-infrastructure counts, and manufacturer market shares.",
+        "expected_impact": "Enables validation of EV claims and supports strategic decision-making."
+      },
+      {
+        "priority": "Critical",
+        "section": "Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence",
+        "issue": "Scenario construction for EVs is not possible from approved values",
+        "fix": "Gather and integrate EV demand, price, and share parameters to construct robust scenarios.",
+        "expected_impact": "Facilitates more accurate scenario planning and risk assessment."
+      },
+      {
+        "priority": "High",
+        "section": "Base, upside, and downside scenarios: qualitative triggers only, with unresolved EV evidence",
+        "issue": "Weak assumption about typhoon frequency and impact",
+        "fix": "Obtain specific data or models supporting the forecast of additional typhoons and their impact from the National Climate Center.",
+        "expected_impact": "Strengthens the forward risk view and enhances credibility."
+      },
+      {
+        "priority": "High",
+        "section": "References",
+        "issue": "Lack of comprehensive bibliography and in-text citations",
+        "fix": "Develop a comprehensive bibliography and ensure all claims are supported by in-text citations.",
+        "expected_impact": "Improves traceability and credibility of the report."
+      },
+      {
+        "priority": "High",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "issue": "Lack of strategic implications",
+        "fix": "Articulate the implications of the lack of EV data for the broader strategic direction of the firm.",
+        "expected_impact": "Clarifies the strategic impact and guides future actions."
+      },
+      {
+        "priority": "Medium",
+        "section": "Segment and micro-market implications: resilience sub-sectors are evidenced; EV segments are not",
+        "issue": "Lack of risk and opportunity analysis",
+        "fix": "Provide a clear risk and opportunity analysis for the climate-resilience infrastructure.",
+        "expected_impact": "Enhances decision-making for strategic investments."
+      },
+      {
+        "priority": "Medium",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "issue": "Broken flow in narrative",
+        "fix": "Bridge the transition from discussing the lack of EV data to climate-resilience infrastructure scenarios with a clear connecting paragraph.",
+        "expected_impact": "Improves the coherence and readability of the report."
+      },
+      {
+        "priority": "Medium",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "issue": "Repeated phrase",
+        "fix": "Vary the phrasing of 'The management implication is...' to avoid repetition.",
+        "expected_impact": "Enhances the writing style and readability."
+      },
+      {
+        "priority": "Medium",
+        "section": "Executive decision: the EV thesis cannot be validated on the current evidence base",
+        "issue": "Overloaded sentence",
+        "fix": "Break the sentence about climate-resilience infrastructure sub-sectors into two or more sentences for clarity.",
+        "expected_impact": "Improves clarity and readability."
+      },
+      {
+        "priority": "Low",
+        "section": "References",
+        "issue": "General writing flaws",
+        "fix": "Conduct a thorough review of the report to identify and correct any remaining writing flaws, such as awkward phrasing or grammatical errors.",
+        "expected_impact": "Polishes the final document and enhances professionalism."
+      }
+    ]
+  }
+}

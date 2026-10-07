@@ -1,0 +1,24 @@
+{
+  "review_timestamp": "2026-10-07T07:44:02.841549Z",
+  "report_title": "Global Electric Vehicle Market Growth and Competition: Evidence-Led Validation Review",
+  "report_path": "/tmp/gen-rpt-continuity-ql5by4fb/report/report.md",
+  "overall_score": 84,
+  "grade": "Silver",
+  "total_claims": 19,
+  "high_risk_claims": 0,
+  "unsupported_claims": 0,
+  "improvement_tasks": 10,
+  "minister_ready": false,
+  "board_ready": false,
+  "swf_ready": false,
+  "output_dir": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews",
+  "files": {
+    "review_json": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/review.json",
+    "review_md": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/review.md",
+    "review_html": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/review.html",
+    "claims_json": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/claims.json",
+    "findings_json": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/findings.json",
+    "scores_json": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/scores.json",
+    "audit_manifest": "/tmp/gen-rpt-continuity-ql5by4fb/report/reviews/audit_manifest.json"
+  }
+}
