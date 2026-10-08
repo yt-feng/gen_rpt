@@ -1,0 +1,94 @@
+{
+  "title": "A Conceptual Overview of Discovery and Reading",
+  "intro": [
+    "Discovery and reading are fundamental human activities that involve finding information and making meaning from it. This overview explores these concepts in general terms, focusing on qualitative trade-offs, useful questions, and practical next steps. It does not address any specific country, report, or current events.",
+    "Reading is not merely decoding symbols; it is an active process of constructing understanding. Discovery, similarly, is the act of encountering something new, whether in a text, an environment, or an idea. Together, they form a cycle: discovery leads to reading, and reading enables further discovery."
+  ],
+  "sections": [
+    {
+      "title": "The Nature of Discovery",
+      "paragraphs": [
+        "Discovery can be intentional or accidental. Intentional discovery involves seeking out information with a goal, such as researching a topic. Accidental discovery, often called serendipity, occurs when we stumble upon something valuable while looking for something else. Both modes have trade-offs: intentional discovery is efficient but may miss unexpected connections; accidental discovery is rich but unpredictable and time-consuming.",
+        "A key question for discovery is: What am I really looking for? Sometimes the answer is clear, but often the search itself clarifies the goal. Another question: How will I know when I have found it? This helps define criteria for relevance and quality. Practical next steps include setting a purpose, choosing diverse sources, and allowing time for exploration without a fixed agenda."
+      ],
+      "id": "section-1",
+      "lead": "",
+      "evidence": [],
+      "so_what": "",
+      "key_takeaways": [],
+      "visual_hint": "image-1"
+    },
+    {
+      "title": "The Process of Reading",
+      "paragraphs": [
+        "Reading varies by purpose. Skimming for gist, scanning for specific details, and deep reading for understanding are different modes. Each has trade-offs: skimming is fast but shallow; deep reading is thorough but slow. The reader must choose the mode that fits the task.",
+        "Useful questions before reading: What do I already know about this topic? What do I want to learn? During reading: Does this make sense? How does it connect to what I know? After reading: What are the main ideas? What questions remain? Practical steps include previewing the text, annotating key points, and summarizing in your own words."
+      ],
+      "id": "section-2",
+      "lead": "",
+      "evidence": [],
+      "so_what": "",
+      "key_takeaways": [],
+      "visual_hint": "image-2"
+    },
+    {
+      "title": "The Interplay of Discovery and Reading",
+      "paragraphs": [
+        "Discovery and reading are mutually reinforcing. Reading exposes us to new ideas, which spark further discovery. Discovery, in turn, provides new texts to read. This cycle can be virtuous or vicious: without critical reading, discovery may lead to misinformation; without curiosity, reading may become passive.",
+        "A useful question is: How do I balance breadth and depth? Breadth helps you see connections; depth helps you understand nuances. Another question: When should I stop and reflect? Reflection consolidates learning and guides next steps. Practical next steps include keeping a reading journal, discussing ideas with others, and following references to expand discovery."
+      ],
+      "id": "section-3",
+      "lead": "",
+      "evidence": [],
+      "so_what": "",
+      "key_takeaways": [],
+      "visual_hint": "image-3"
+    },
+    {
+      "title": "Qualitative Trade-offs in Discovery and Reading",
+      "paragraphs": [
+        "Every approach to discovery and reading involves trade-offs. Speed versus accuracy: fast reading may miss details; slow reading may be inefficient. Quantity versus quality: reading many sources gives breadth but may lack depth; reading few sources deeply gives depth but may miss alternative views. Structure versus flexibility: a planned search is organized but may overlook serendipity; an open search is flexible but may lack focus.",
+        "Recognizing these trade-offs helps you make conscious choices. Ask: What is my priority right now? What can I afford to sacrifice? There is no single best method; the best method depends on context and goals."
+      ],
+      "id": "section-4",
+      "lead": "",
+      "evidence": [],
+      "so_what": "",
+      "key_takeaways": [],
+      "visual_hint": "image-4"
+    }
+  ],
+  "faq": [
+    {
+      "question": "What is the difference between discovery and reading?",
+      "answer": "Discovery is the act of finding something new, while reading is the act of interpreting and understanding text. Discovery can happen without reading (e.g., observing nature), and reading can happen without discovery (e.g., rereading a familiar text). However, they often work together: discovery provides material for reading, and reading leads to new discoveries."
+    },
+    {
+      "question": "How can I improve my reading comprehension?",
+      "answer": "Improving comprehension involves active strategies: preview the text, ask questions, make predictions, connect to prior knowledge, monitor understanding, and summarize. Practice with a variety of texts and purposes. Reflecting on what you read and discussing it with others also strengthens comprehension."
+    },
+    {
+      "question": "What are some practical steps for effective discovery?",
+      "answer": "Start with a clear purpose, but stay open to unexpected findings. Use multiple sources and search strategies. Keep a record of what you find and how you found it. Evaluate sources critically. Allow time for exploration and follow leads that seem promising, even if they are outside your original plan."
+    }
+  ],
+  "references": [],
+  "exhibits": [],
+  "content_mode": "general_overview",
+  "generation_outcome": {
+    "status": "generated_degraded",
+    "reason": "research_quality_downgraded",
+    "overview_method": "model_overview",
+    "trigger_reason": "research_quality_downgraded",
+    "evidence_verified": false,
+    "content_policy": "seo_overview",
+    "requested_rag_required": false,
+    "run_id": "37766809166",
+    "run_attempt": "1",
+    "job_id": "",
+    "job_retry_count": "",
+    "slug": "blue-ocean-country-report-2026-oman-investment-economy-marke-259cd8",
+    "report_id": "2026-10-08-blue-ocean-country-report-2026-oman-investment-economy-marke-259cd8--run37766809166-1"
+  },
+  "disclaimer": "General overview: conceptual guidance and questions for further research. No private-document findings, verified current data or source citations are claimed."
+}
