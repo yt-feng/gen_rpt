@@ -52,25 +52,41 @@ def encoded_json(value: Any) -> bytes:
 
 class GatexApi:
     routes = {"/inventory", "/source", "/progress", "/publish", "/artifact"}
-    def __init__(self, token: str, base: str = BASE, session_factory=requests.Session, sleep=time.sleep, on_inventory_page=None):
+    def __init__(self, token: str, base: str = BASE, session_factory=requests.Session, sleep=time.sleep, on_inventory_page=None, clock=time.monotonic):
         if base.rstrip("/") != BASE or not token:
             raise RunnerError("INVALID_API_CONFIGURATION")
         self.token, self.base, self.session_factory, self.sleep = token, base, session_factory, sleep
         self.on_inventory_page = on_inventory_page
+        self.clock, self.request_deadline = clock, None
+
+    def remaining_time(self):
+        remaining = None if self.request_deadline is None else self.request_deadline - self.clock()
+        if remaining is not None and remaining <= 0:
+            raise RunnerError("API_DEADLINE_EXCEEDED")
+        return remaining
+
+    def retry_pause(self, seconds):
+        remaining = self.remaining_time()
+        if remaining is not None and remaining <= seconds:
+            raise RunnerError("API_DEADLINE_EXCEEDED")
+        self.sleep(seconds)
 
     def request(self, method: str, route: str, *, binary=False, retry=True, **kwargs):
         if route.split("?", 1)[0] not in self.routes:
             raise RunnerError("UNTRUSTED_API_ROUTE")
         attempts = 3 if retry else 1
         for attempt in range(attempts):
+            remaining = self.remaining_time()
+            connect_timeout = 15 if remaining is None else min(15, remaining / 4)
+            read_timeout = 180 if remaining is None else min(180, remaining - connect_timeout)
             try:
                 with self.session_factory() as session:
                     response = session.request(method, self.base + route,
                         headers={"Authorization": "Bearer " + self.token, "Accept": "application/pdf" if binary else "application/json"},
-                        timeout=(15, 180), allow_redirects=False, stream=True, **kwargs)
+                        timeout=(connect_timeout, read_timeout), allow_redirects=False, stream=True, **kwargs)
                     try:
                         if response.status_code in {429, 500, 502, 503, 504} and attempt < attempts - 1:
-                            self.sleep(2 ** attempt)
+                            self.retry_pause(2 ** attempt)
                             continue
                         if not 200 <= response.status_code < 300:
                             raise RunnerError("API_HTTP_ERROR", response.status_code, response.headers.get("x-gatex-error-code"))
@@ -80,6 +96,7 @@ class GatexApi:
                             raise RunnerError("RESPONSE_TOO_LARGE")
                         parts, size = [], 0
                         for chunk in response.iter_content(65536):
+                            self.remaining_time()
                             size += len(chunk)
                             if size > maximum:
                                 raise RunnerError("RESPONSE_TOO_LARGE")
@@ -91,7 +108,7 @@ class GatexApi:
             except (requests.Timeout, requests.ConnectionError):
                 if attempt == attempts - 1:
                     raise RunnerError("API_CONNECTION_FAILED") from None
-                self.sleep(2 ** attempt)
+                self.retry_pause(2 ** attempt)
             except (ValueError, json.JSONDecodeError):
                 raise RunnerError("INVALID_API_RESPONSE") from None
         raise RunnerError("API_CONNECTION_FAILED")
@@ -189,27 +206,78 @@ class NewsfeedApi(GatexApi):
         self.base = "https://gatex.fund/api/newsfeed/locales"
 
 
-def warm_news(api: NewsfeedApi) -> dict:
-    for attempt in range(3):
-        try:
-            # A timeout may follow a completed model call. Read current state
-            # before repeating a warming mutation whose outcome is unknown.
-            api.request("POST", "/warm", json={}, retry=False)
-        except RunnerError as error:
-            if error.code != "API_CONNECTION_FAILED" and not (error.code == "API_HTTP_ERROR" and (error.status == 429 or error.status and error.status >= 500)):
-                raise
+def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time.monotonic, emit_progress=None) -> dict:
+    if type(max_passes) is not int or not 1 <= max_passes <= 36 or not isinstance(budget_seconds, (int, float)) or isinstance(budget_seconds, bool) or not 0 < budget_seconds <= 600:
+        raise RunnerError("INVALID_NEWS_BATCH_OPTIONS")
+    started, previous_clock, previous_deadline = clock(), api.clock, api.request_deadline
+    api.clock, api.request_deadline = clock, started + budget_seconds
+    passes, stalled = 0, 0
+    report = None
+
+    def status_report():
         status = api.request("GET", "/status")
         if not isinstance(status, dict) or any(type(status.get(key)) is not int or status[key] < 0 for key in ("total", "ready", "pending", "failed")):
             raise RunnerError("INVALID_NEWS_STATUS")
-        if any(status[key] > status["total"] for key in ("ready", "pending", "failed")):
+        if any(status[key] > status["total"] for key in ("ready", "pending", "failed")) or status["ready"] + status["pending"] != status["total"]:
             raise RunnerError("INVALID_NEWS_STATUS")
-        report = {"schema": "gatex-news-localization-run/v1", "status": "passed" if status.get("ok") is True and status.get("complete") is True and status["failed"] == 0 and status["total"] > 0 and status["ready"] == status["total"] and status["pending"] == 0 else "failed"}
-        report.update({key: status.get(key) for key in ("version", "snapshotHash", "total", "ready", "pending", "failed")})
+        result = {"schema": "gatex-news-localization-run/v1", "status": "passed" if status.get("ok") is True and status.get("complete") is True and status["failed"] == 0 and status["total"] > 0 and status["ready"] == status["total"] and status["pending"] == 0 else "failed"}
+        result.update({key: status.get(key) for key in ("version", "snapshotHash", "total", "ready", "pending", "failed")})
+        return result
+
+    def finish(reason):
+        return {**report, "warmPasses": passes, "elapsedSeconds": round(max(0, clock() - started), 3), "stopReason": reason}
+
+    try:
+        # A fully reviewed cache requires no provider request, including when
+        # an earlier workflow finished warming after its client timed out.
+        report = status_report()
         if report["status"] == "passed":
-            return report
-        if attempt < 2:
-            api.sleep(2 ** (attempt + 1))
-    return report
+            return finish("COMPLETE")
+        if report["total"] == 0:
+            return finish("EMPTY_SNAPSHOT")
+        for attempt in range(max_passes):
+            if clock() >= api.request_deadline:
+                return finish("DEADLINE")
+            previous = report
+            try:
+                passes += 1
+                api.request("POST", "/warm", json={}, retry=False)
+            except RunnerError as error:
+                if error.code == "API_DEADLINE_EXCEEDED":
+                    return finish("DEADLINE")
+                if error.code != "API_CONNECTION_FAILED" and not (error.code == "API_HTTP_ERROR" and (error.status == 429 or error.status and error.status >= 500)):
+                    raise
+            # Always learn the remote outcome before another warming POST.
+            # Never reuse a POST body or infer success from HTTP 200 alone.
+            try:
+                report = status_report()
+            except RunnerError as error:
+                if error.code == "API_DEADLINE_EXCEEDED":
+                    return finish("DEADLINE")
+                raise
+            if emit_progress:
+                emit_progress({"event": "news_warm_pass", "pass": passes,
+                    **{key: report[key] for key in ("version", "snapshotHash", "total", "ready", "pending", "failed")},
+                    "elapsedSeconds": round(max(0, clock() - started), 3)})
+            if report["status"] == "passed":
+                return finish("COMPLETE")
+            if report["total"] == 0:
+                return finish("EMPTY_SNAPSHOT")
+            same_snapshot = report["snapshotHash"] == previous["snapshotHash"]
+            stalled = stalled + 1 if same_snapshot and report["ready"] <= previous["ready"] else 0
+            # Permit a complete fair cycle of four-record batches before
+            # stopping an unchanged snapshot that has made no progress.
+            fair_cycle = max(3, (report["total"] + 3) // 4)
+            if stalled >= fair_cycle:
+                return finish("NO_PROGRESS")
+            if attempt < max_passes - 1:
+                delay = min(8, 2 ** (attempt + 1))
+                if api.request_deadline - clock() <= delay:
+                    return finish("DEADLINE")
+                api.sleep(delay)
+        return finish("MAX_PASSES")
+    finally:
+        api.clock, api.request_deadline = previous_clock, previous_deadline
 
 
 def inventory_report(api: GatexApi) -> dict:
@@ -348,6 +416,8 @@ def main() -> int:
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--sample-id", help="Process exactly this published report without scanning the entire inventory")
     parser.add_argument("--expected-source-sha256", help="Pin an exact sample source digest before translation; required for OCR diagnostics")
+    parser.add_argument("--news-max-passes", type=int, default=12, help="Maximum restartable public-news warming passes (1-36)")
+    parser.add_argument("--news-budget-seconds", type=float, default=600, help="Overall public-news warming budget, at most 600 seconds")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--news-only", action="store_true")
     mode.add_argument("--inventory-only", action="store_true", help="Audit published inventory without model calls or PDF processing")
@@ -357,7 +427,8 @@ def main() -> int:
     emit = lambda value: print(json.dumps(value, ensure_ascii=False), flush=True)
     try:
         if args.news_only:
-            report = warm_news(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")))
+            report = warm_news(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")),
+                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit)
         else:
             api = GatexApi(os.environ.get("GATEX_GENERATION_CALLBACK_SECRET", ""), on_inventory_page=emit)
             if args.ocr_diagnostic_only:
