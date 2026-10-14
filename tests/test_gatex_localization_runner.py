@@ -3,6 +3,8 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import threading
+import time
 import unittest
 
 PATH = Path(__file__).resolve().parents[1] / 'scripts' / 'gatex_localization_runner.py'
@@ -318,6 +320,67 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(events[-1]['completedCount'], 2)
         self.assertEqual(events[-1]['translatedCount'], 2)
         self.assertNotIn('title', json.dumps(events))
+
+    def test_identical_source_aliases_serialize_checkpoint_and_reuse_translation(self):
+        guard, downloaded = threading.Lock(), threading.Barrier(2)
+        class DigestApi(FakeApi):
+            shared_progress = None
+            active = maximum = 0
+            def source(self, row):
+                result = super().source(row)
+                downloaded.wait(timeout=2)
+                return result
+            def progress(self, identifier, digest):
+                with guard:
+                    self.active += 1
+                    self.maximum = max(self.maximum, self.active)
+                    return self.shared_progress
+            def save_progress(self, identifier, digest, value):
+                super().save_progress(identifier, digest, value)
+                self.shared_progress = json.loads(json.dumps(value))
+            def artifact(self, identifier, digest):
+                result = super().artifact(identifier, digest)
+                with guard:
+                    self.active -= 1
+                return result
+        api = DigestApi([item('catalogue-alias'), item('commerce-alias')])
+        model_calls = []
+        def resume(**kwargs):
+            if not kwargs['progress']:
+                model_calls.append(kwargs['source_sha256'])
+                time.sleep(0.02)
+            return translated(**kwargs)
+        report = self.run_batch(api, resume, limit=0, concurrency=2)
+        self.assertEqual(report['translatedCount'], 2)
+        self.assertEqual(set(api.published), {'catalogue-alias', 'commerce-alias'})
+        self.assertEqual(api.maximum, 1)
+        self.assertEqual(api.active, 0)
+        self.assertEqual(model_calls, [DIGEST])
+
+    def test_distinct_source_digests_keep_parallel_translation(self):
+        guard, translating = threading.Lock(), threading.Barrier(2)
+        class UniqueApi(FakeApi):
+            def source(self, row):
+                self.source_calls.append(row['id'])
+                data = ORIGINAL + row['id'].encode()
+                return data, {'x-source-sha256': runner.sha256(data), 'x-source-version': 'v1'}
+        api = UniqueApi([item('first'), item('second')])
+        active = maximum = 0
+        def parallel(**kwargs):
+            nonlocal active, maximum
+            with guard:
+                active += 1
+                maximum = max(maximum, active)
+            try:
+                translating.wait(timeout=2)
+                return translated(**kwargs)
+            finally:
+                with guard:
+                    active -= 1
+        report = self.run_batch(api, parallel, limit=0, concurrency=2)
+        self.assertEqual(report['translatedCount'], 2)
+        self.assertEqual(maximum, 2)
+        self.assertEqual(len({row['sourceSha256'] for row in report['results']}), 2)
 
     def test_safe_engine_error_code_is_preserved_without_exception_message(self):
         class EngineError(Exception):
