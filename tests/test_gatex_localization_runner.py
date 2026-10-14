@@ -3,6 +3,8 @@ import importlib.util
 import json
 from pathlib import Path
 import tempfile
+import threading
+import time
 import unittest
 
 PATH = Path(__file__).resolve().parents[1] / 'scripts' / 'gatex_localization_runner.py'
@@ -318,6 +320,110 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(events[-1]['completedCount'], 2)
         self.assertEqual(events[-1]['translatedCount'], 2)
         self.assertNotIn('title', json.dumps(events))
+
+    def test_identical_source_aliases_serialize_checkpoint_and_reuse_translation(self):
+        guard, downloaded = threading.Lock(), threading.Barrier(2)
+        class DigestApi(FakeApi):
+            shared_progress = None
+            active = maximum = 0
+            def source(self, row):
+                result = super().source(row)
+                downloaded.wait(timeout=2)
+                return result
+            def progress(self, identifier, digest):
+                with guard:
+                    self.active += 1
+                    self.maximum = max(self.maximum, self.active)
+                    return self.shared_progress
+            def save_progress(self, identifier, digest, value):
+                super().save_progress(identifier, digest, value)
+                self.shared_progress = json.loads(json.dumps(value))
+            def artifact(self, identifier, digest):
+                result = super().artifact(identifier, digest)
+                with guard:
+                    self.active -= 1
+                return result
+        api = DigestApi([item('catalogue-alias'), item('commerce-alias')])
+        model_calls = []
+        def resume(**kwargs):
+            if not kwargs['progress']:
+                model_calls.append(kwargs['source_sha256'])
+                time.sleep(0.02)
+            return translated(**kwargs)
+        report = self.run_batch(api, resume, limit=0, concurrency=2)
+        self.assertEqual(report['translatedCount'], 2)
+        self.assertEqual(set(api.published), {'catalogue-alias', 'commerce-alias'})
+        self.assertEqual(api.maximum, 1)
+        self.assertEqual(api.active, 0)
+        self.assertEqual(model_calls, [DIGEST])
+
+    def test_distinct_source_digests_keep_parallel_translation(self):
+        guard, translating = threading.Lock(), threading.Barrier(2)
+        class UniqueApi(FakeApi):
+            def source(self, row):
+                self.source_calls.append(row['id'])
+                data = ORIGINAL + row['id'].encode()
+                return data, {'x-source-sha256': runner.sha256(data), 'x-source-version': 'v1'}
+        api = UniqueApi([item('first'), item('second')])
+        active = maximum = 0
+        def parallel(**kwargs):
+            nonlocal active, maximum
+            with guard:
+                active += 1
+                maximum = max(maximum, active)
+            try:
+                translating.wait(timeout=2)
+                return translated(**kwargs)
+            finally:
+                with guard:
+                    active -= 1
+        report = self.run_batch(api, parallel, limit=0, concurrency=2)
+        self.assertEqual(report['translatedCount'], 2)
+        self.assertEqual(maximum, 2)
+        self.assertEqual(len({row['sourceSha256'] for row in report['results']}), 2)
+
+    def test_ocr_diagnostic_summary_contains_counts_only_and_never_publishes(self):
+        class DiagnosticReady(Exception):
+            code = 'OCR_DIAGNOSTIC_READY'
+            diagnostic_counts = {'sourcePageCount': 4, 'rasterRegionCount': 1, 'wordCount': 8,
+                'privateWords': ['private source label']}
+        api = FakeApi([item('sample')])
+        api.inventory = lambda: self.fail('diagnostic scanned the entire catalogue')
+        api.publish = lambda *args: self.fail('diagnostic published a PDF')
+        def capture(**kwargs):
+            self.assertFalse(kwargs['force'])
+            kwargs['save_progress']({'blocks': {'existing': 'preserved private translation'},
+                'ocrDiagnostics': {'words': ['private source label']}})
+            raise DiagnosticReady('private source label')
+        with tempfile.TemporaryDirectory() as directory:
+            report = runner.run_ocr_diagnostic(api, capture, Path(directory), sample_id='sample', expected_source_sha256=DIGEST)
+        self.assertEqual(report['scope'], 'diagnostic')
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(report['counts'], {'sourcePageCount': 4, 'rasterRegionCount': 1, 'wordCount': 8})
+        self.assertEqual(report['translatedCount'], 0)
+        self.assertEqual(report['publishedCount'], 0)
+        self.assertNotIn('private source label', json.dumps(report))
+        self.assertEqual(api.saved[('sample', DIGEST)]['blocks']['existing'], 'preserved private translation')
+
+    def test_ocr_diagnostic_pins_source_before_capture_or_checkpoint_write(self):
+        api = FakeApi([item('sample')])
+        def capture(**kwargs):
+            self.fail('changed source reached the diagnostic engine')
+        api.save_progress = lambda *args: self.fail('changed source wrote progress')
+        with tempfile.TemporaryDirectory() as directory:
+            report = runner.run_ocr_diagnostic(api, capture, Path(directory), sample_id='sample', expected_source_sha256='f'*64)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['code'], 'DIAGNOSTIC_SOURCE_CHANGED')
+        self.assertEqual(api.published, {})
+
+    def test_ocr_diagnostic_requires_exact_sample_and_digest_before_network(self):
+        api = FakeApi([])
+        api.source = lambda *args: self.fail('invalid diagnostic options downloaded source')
+        with tempfile.TemporaryDirectory() as directory:
+            for sample_id, digest in [('', DIGEST), ('sample', ''), ('sample', 'not-a-digest')]:
+                with self.subTest(sample_id=sample_id, digest=digest), self.assertRaises(runner.RunnerError) as caught:
+                    runner.run_ocr_diagnostic(api, translated, Path(directory), sample_id=sample_id, expected_source_sha256=digest)
+                self.assertEqual(caught.exception.code, 'DIAGNOSTIC_SAMPLE_AND_DIGEST_REQUIRED')
 
     def test_safe_engine_error_code_is_preserved_without_exception_message(self):
         class EngineError(Exception):
