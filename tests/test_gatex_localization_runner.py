@@ -222,7 +222,8 @@ class RunnerTests(unittest.TestCase):
         report = runner.warm_news(api)
         self.assertEqual(report['status'], 'failed')
         self.assertEqual(report['pending'], 1)
-        self.assertEqual(sum(method == 'POST' for method, _, _ in calls), 3)
+        self.assertEqual(sum(method == 'POST' for method, _, _ in calls), 9)
+        self.assertEqual(report['stopReason'], 'NO_PROGRESS')
         self.assertNotIn('records', report)
 
     def test_news_requires_complete_nonempty_snapshot(self):
@@ -322,16 +323,18 @@ class RunnerTests(unittest.TestCase):
 
     def test_unknown_news_post_is_checked_before_repeating_model_work(self):
         api = runner.NewsfeedApi('test-token', sleep=lambda _: self.fail('completed warm retried'))
-        calls = []
+        calls, completed = [], False
         def request(method, route, **kwargs):
+            nonlocal completed
             calls.append((method, route))
             if method == 'POST':
+                completed = True
                 raise runner.RunnerError('API_CONNECTION_FAILED')
-            return {'ok': True, 'complete': True, 'total': 36, 'ready': 36,
-                'pending': 0, 'failed': 0, 'version': 'v1', 'snapshotHash': 'a'*64}
+            return {'ok': True, 'complete': completed, 'total': 36, 'ready': 36 if completed else 0,
+                'pending': 0 if completed else 36, 'failed': 0, 'version': 'v1', 'snapshotHash': 'a'*64}
         api.request = request
         self.assertEqual(runner.warm_news(api)['status'], 'passed')
-        self.assertEqual(calls, [('POST', '/warm'), ('GET', '/status')])
+        self.assertEqual(calls, [('GET', '/status'), ('POST', '/warm'), ('GET', '/status')])
 
     def test_inventory_preflight_reports_unavailable_without_source_or_model(self):
         api = FakeApi([item('ready', 'ready'), item('pending'), item('missing', error='private source path')])
@@ -468,6 +471,140 @@ class RunnerTests(unittest.TestCase):
         unsafe = EngineError('hidden')
         unsafe.code = 'private source prose'
         self.assertEqual(runner.error_code(unsafe), 'EngineError')
+
+
+class NewsWarmBudgetTests(unittest.TestCase):
+    class Clock:
+        now = 0.0
+        def __call__(self):
+            return self.now
+        def sleep(self, seconds):
+            self.now += seconds
+
+    @staticmethod
+    def state(ready=0, total=36, snapshot='a' * 64):
+        return {'ok': True, 'version': 'reviewed-v2', 'snapshotHash': snapshot,
+            'total': total, 'ready': ready, 'pending': total-ready, 'failed': 0,
+            'complete': total > 0 and ready == total,
+            'records': [{'summary': 'private-looking source content excluded from statistics'}]}
+
+    def test_status_first_cache_hit_never_sends_warming_post(self):
+        api = runner.NewsfeedApi('test-token')
+        calls = []
+        def request(method, route, **kwargs):
+            calls.append((method, route))
+            self.assertEqual((method, route), ('GET', '/status'))
+            return self.state(36)
+        api.request = request
+        report = runner.warm_news(api)
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(report['warmPasses'], 0)
+        self.assertEqual(calls, [('GET', '/status')])
+        self.assertNotIn('records', report)
+        self.assertIsNone(api.request_deadline)
+
+    def test_nine_four_record_passes_complete_with_safe_aggregate_progress(self):
+        clock = self.Clock()
+        api = runner.NewsfeedApi('test-token', sleep=clock.sleep, clock=clock)
+        ready, calls, events = 0, [], []
+        def request(method, route, **kwargs):
+            nonlocal ready
+            calls.append((method, route))
+            clock.now += 1
+            if method == 'POST':
+                self.assertFalse(kwargs['retry'])
+                ready = min(36, ready + 4)
+            return self.state(ready)
+        api.request = request
+        report = runner.warm_news(api, clock=clock, emit_progress=events.append)
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(report['warmPasses'], 9)
+        self.assertEqual(report['ready'], 36)
+        self.assertEqual(report['pending'], 0)
+        self.assertEqual(calls[0], ('GET', '/status'))
+        self.assertTrue(all(calls[i+1] == ('GET', '/status') for i, c in enumerate(calls) if c[0] == 'POST'))
+        self.assertEqual(len(events), 9)
+        self.assertEqual(events[-1]['ready'], 36)
+        self.assertNotIn('source content', json.dumps(events))
+        self.assertNotIn('records', report)
+        self.assertIsNone(api.request_deadline)
+
+    def test_deadline_stops_new_passes_and_preserves_last_verified_counts(self):
+        clock = self.Clock()
+        api = runner.NewsfeedApi('test-token', sleep=clock.sleep, clock=clock)
+        ready, calls = 0, []
+        def request(method, route, **kwargs):
+            nonlocal ready
+            calls.append((method, route))
+            if method == 'POST':
+                ready += 4
+                clock.now += 2
+            return self.state(ready)
+        api.request = request
+        report = runner.warm_news(api, budget_seconds=3, clock=clock)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['stopReason'], 'DEADLINE')
+        self.assertEqual(report['warmPasses'], 1)
+        self.assertEqual(report['ready'], 4)
+        self.assertEqual(report['pending'], 32)
+        self.assertLessEqual(report['elapsedSeconds'], 3)
+        self.assertEqual(sum(c[0] == 'POST' for c in calls), 1)
+        self.assertIsNone(api.request_deadline)
+
+    def test_explicit_pass_limit_remains_an_incomplete_failure(self):
+        api = runner.NewsfeedApi('test-token', sleep=lambda _: None)
+        api.request = lambda *args, **kwargs: self.state(35)
+        report = runner.warm_news(api, max_passes=2)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['stopReason'], 'MAX_PASSES')
+        self.assertEqual(report['warmPasses'], 2)
+        self.assertEqual(report['pending'], 1)
+
+    def test_invalid_budgets_fail_before_status_or_warming_requests(self):
+        api = runner.NewsfeedApi('test-token')
+        api.request = lambda *args, **kwargs: self.fail('invalid options reached API')
+        for passes, budget in [(0, 600), (37, 600), (12, 0), (12, 601), (True, 600), (12, float('nan'))]:
+            with self.subTest(passes=passes, budget=budget), self.assertRaises(runner.RunnerError) as caught:
+                runner.warm_news(api, max_passes=passes, budget_seconds=budget)
+            self.assertEqual(caught.exception.code, 'INVALID_NEWS_BATCH_OPTIONS')
+
+    def test_http_timeout_and_stream_reads_obey_remaining_budget(self):
+        clock = self.Clock()
+        calls = []
+        class Response:
+            status_code, headers = 200, {}
+            closed = False
+            def iter_content(self, size):
+                clock.now += 1
+                yield b'{"ok":true}'
+            def close(self):
+                self.closed = True
+        response = Response()
+        class Session:
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+            def request(self, method, url, **kwargs):
+                calls.append(kwargs)
+                return response
+        api = runner.NewsfeedApi('test-token', session_factory=Session, clock=clock)
+        api.request_deadline = 0.8
+        with self.assertRaises(runner.RunnerError) as caught:
+            api.request('GET', '/status')
+        self.assertEqual(caught.exception.code, 'API_DEADLINE_EXCEEDED')
+        self.assertLessEqual(sum(calls[0]['timeout']), 0.8)
+        self.assertEqual(len(calls), 1)
+        self.assertTrue(response.closed)
+
+    def test_empty_snapshot_does_not_pass_or_call_provider(self):
+        api = runner.NewsfeedApi('test-token')
+        def request(method, route, **kwargs):
+            self.assertEqual(method, 'GET')
+            return self.state(0, 0)
+        api.request = request
+        report = runner.warm_news(api)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['stopReason'], 'EMPTY_SNAPSHOT')
+        self.assertEqual(report['warmPasses'], 0)
 
 
 if __name__ == '__main__':

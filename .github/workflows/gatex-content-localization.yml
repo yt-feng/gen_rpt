@@ -23,6 +23,14 @@ on:
         description: 'Warm public Chinese news without PDF translation; inventory_only takes priority'
         type: boolean
         default: false
+      news_max_passes:
+        description: 'Maximum public-news warming passes (1-36), bounded by the overall budget'
+        type: number
+        default: 12
+      news_budget_seconds:
+        description: 'Overall public-news warming budget in seconds (1-600)'
+        type: number
+        default: 600
       ocr_diagnostic_only:
         description: 'Capture private Tesseract evidence for the exact sample without models or publication'
         type: boolean
@@ -184,9 +192,13 @@ jobs:
       - name: Warm and verify public Chinese news content
         env:
           GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
+          GATEX_NEWS_MAX_PASSES: ${{ github.event_name == 'workflow_dispatch' && toJSON(inputs.news_max_passes) || '12' }}
+          GATEX_NEWS_BUDGET_SECONDS: ${{ github.event_name == 'workflow_dispatch' && toJSON(inputs.news_budget_seconds) || '600' }}
         run: |
           umask 077
           PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only \
+            --news-max-passes "$GATEX_NEWS_MAX_PASSES" \
+            --news-budget-seconds "$GATEX_NEWS_BUDGET_SECONDS" \
             --runtime "$RUNNER_TEMP/gatex-news-localization-private" \
             --summary "$RUNNER_TEMP/gatex-news-localization-qa/summary.json"
       - name: Upload news QA statistics only
