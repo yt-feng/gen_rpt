@@ -27,9 +27,10 @@ QA_SCHEMA = "gatex-pdf-translation-qa/v1"
 
 
 class RunnerError(RuntimeError):
-    def __init__(self, code: str, status: int | None = None):
+    def __init__(self, code: str, status: int | None = None, api_code: str | None = None):
         super().__init__(code)
         self.code, self.status = code, status
+        self.api_code = api_code if isinstance(api_code, str) and re.fullmatch(r"[A-Z0-9_]{1,80}", api_code) else None
 
 
 def error_code(error: Exception) -> str:
@@ -71,7 +72,7 @@ class GatexApi:
                             self.sleep(2 ** attempt)
                             continue
                         if not 200 <= response.status_code < 300:
-                            raise RunnerError("API_HTTP_ERROR", response.status_code)
+                            raise RunnerError("API_HTTP_ERROR", response.status_code, response.headers.get("x-gatex-error-code"))
                         maximum = MAX_PDF if binary else MAX_PROGRESS
                         length = response.headers.get("content-length")
                         if length and int(length) > maximum:
@@ -279,7 +280,7 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
             return {"id": item["id"], "status": "ready", "sourceSha256": digest, "sha256": metadata["sha256"], "pageCount": page_count, "byteSize": len(data), "sourceBlockCount": artifact["qa"]["sourceBlockCount"], "translatedBlockCount": artifact["qa"]["translatedBlockCount"]}
         except Exception as error:
             # Never echo provider responses, source text, credentials or traceback.
-            return {"id": item["id"], "status": "failed", "phase": phase, "code": error_code(error), "httpStatus": error.status if isinstance(error, RunnerError) else None}
+            return {"id": item["id"], "status": "failed", "phase": phase, "code": error_code(error), "httpStatus": error.status if isinstance(error, RunnerError) else None, "apiCode": error.api_code if isinstance(error, RunnerError) else None}
         finally:
             import shutil
             shutil.rmtree(directory, ignore_errors=True)
@@ -326,7 +327,7 @@ def main() -> int:
             report = inventory_report(api) if args.inventory_only else run(api, engine(args.engine_module), args.runtime,
                 limit=args.limit, concurrency=args.concurrency, force=args.force, sample_id=args.sample_id, emit_progress=emit)
     except Exception as error:
-        report = {"schema": "gatex-localization-run/v1", "status": "failed", "phase": "news" if args.news_only else "inventory", "httpStatus": error.status if isinstance(error, RunnerError) else None, "code": error_code(error)}
+        report = {"schema": "gatex-localization-run/v1", "status": "failed", "phase": "news" if args.news_only else "inventory", "httpStatus": error.status if isinstance(error, RunnerError) else None, "code": error_code(error), "apiCode": error.api_code if isinstance(error, RunnerError) else None}
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     args.summary.write_bytes(encoded_json(report))
     print(json.dumps({key: value for key, value in report.items() if key not in {"results", "items"}}, ensure_ascii=False))

@@ -61,7 +61,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
           python -m pip install --disable-pip-version-check -r requirements-localization.txt
       - name: Validate recovery and publication without provider credentials
-        run: python -m unittest discover -s tests -p 'test_gatex_localization_runner.py'
+        run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
 
   inventory:
     if: github.event_name == 'workflow_dispatch' && inputs.inventory_only
