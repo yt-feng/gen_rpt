@@ -1,9 +1,10 @@
 name: GateX content localization
 
 on:
-  # Enable only after the first verified publication and readback.
+  # Enable only after verified sample, complete PDF processing and news readback.
   # schedule:
   #   - cron: '23 4 * * *'
+  #   - cron: '7,37 * * * *'
   pull_request:
     paths:
       - '.github/workflows/gatex-content-localization.yml'
@@ -16,6 +17,10 @@ on:
     inputs:
       inventory_only:
         description: 'Audit published PDF inventory without model calls or news warming'
+        type: boolean
+        default: false
+      news_only:
+        description: 'Warm public Chinese news without PDF translation; inventory_only takes priority'
         type: boolean
         default: false
       pdf_limit:
@@ -61,7 +66,7 @@ jobs:
           sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
           python -m pip install --disable-pip-version-check -r requirements-localization.txt
       - name: Validate recovery and publication without provider credentials
-        run: python -m unittest discover -s tests -p 'test_gatex_localization_runner.py'
+        run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
 
   inventory:
     if: github.event_name == 'workflow_dispatch' && inputs.inventory_only
@@ -94,7 +99,7 @@ jobs:
           retention-days: 7
 
   localize:
-    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && !inputs.inventory_only
+    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.news_only) || (github.event_name == 'schedule' && github.event.schedule == '23 4 * * *')
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -145,7 +150,7 @@ jobs:
         run: rm -rf -- "$RUNNER_TEMP/gatex-localization-private"
 
   warm-news:
-    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && !inputs.inventory_only
+    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
