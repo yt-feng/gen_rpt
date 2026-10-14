@@ -117,7 +117,6 @@ jobs:
       GATEX_LOCALIZATION_CONCURRENCY: ${{ inputs.concurrency || '2' }}
       GATEX_LOCALIZATION_SAMPLE: ${{ inputs.sample_id || '' }}
       GATEX_LOCALIZATION_FORCE: ${{ inputs.force && 'true' || 'false' }}
-      GATEX_PDF_OCR_DIAGNOSTIC_ONLY: ${{ inputs.ocr_diagnostic_only && 'true' || 'false' }}
       GATEX_LOCALIZATION_EXPECTED_SHA256: ${{ inputs.expected_source_sha256 || '' }}
     steps:
       - uses: actions/checkout@v4
@@ -135,6 +134,7 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
       - name: Translate, validate, publish and read back Chinese PDFs
         env:
+          GATEX_PDF_OCR_DIAGNOSTIC_ONLY: ${{ inputs.ocr_diagnostic_only && 'true' || 'false' }}
           GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
           APIMART_API_KEY: ${{ !inputs.ocr_diagnostic_only && secrets.APIMART_API_KEY || '' }}
         run: |
