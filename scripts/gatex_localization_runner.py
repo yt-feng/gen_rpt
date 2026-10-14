@@ -227,9 +227,11 @@ def engine(module_name: str):
     return translator
 
 
-def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurrency=2, force=False, sample_id=None, emit_progress=None) -> dict:
+def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurrency=2, force=False, sample_id=None, expected_source_sha256=None, emit_progress=None) -> dict:
     if limit < 0 or concurrency not in (1, 2, 3):
         raise RunnerError("INVALID_BATCH_OPTIONS")
+    if expected_source_sha256 is not None and (not sample_id or not re.fullmatch(r"[a-f0-9]{64}", expected_source_sha256)):
+        raise RunnerError("PINNED_SAMPLE_AND_DIGEST_REQUIRED")
     # Snapshot every inventory page before publishing changes item status.
     inventory = [{"id": sample_id, "status": "pending", "sourceVersion": None, "sourceUrl": "/api/internal/localized-pdfs/source?" + urlencode({"id": sample_id})}] if sample_id else api.inventory()
     eligible = [item for item in inventory if force or item.get("status") != "ready" or item.get("error")]
@@ -250,6 +252,8 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
             digest = normalized_headers.get("x-source-sha256", "")
             if not re.fullmatch("[a-f0-9]{64}", digest) or digest != sha256(original) or not original.startswith(b"%PDF-"):
                 raise RunnerError("SOURCE_DIGEST_MISMATCH")
+            if expected_source_sha256 is not None and digest != expected_source_sha256:
+                raise RunnerError("SOURCE_CHANGED_FROM_PIN")
             if not normalized_headers.get("x-source-version") or (item.get("sourceVersion") is not None and item["sourceVersion"] != normalized_headers.get("x-source-version")):
                 raise RunnerError("SOURCE_VERSION_CHANGED")
             source = directory / "source.pdf"
@@ -343,7 +347,7 @@ def main() -> int:
     parser.add_argument("--runtime", type=Path, required=True)
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--sample-id", help="Process exactly this published report without scanning the entire inventory")
-    parser.add_argument("--expected-source-sha256", help="Required immutable source digest for OCR diagnostics")
+    parser.add_argument("--expected-source-sha256", help="Pin an exact sample source digest before translation; required for OCR diagnostics")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--news-only", action="store_true")
     mode.add_argument("--inventory-only", action="store_true", help="Audit published inventory without model calls or PDF processing")
@@ -365,7 +369,8 @@ def main() -> int:
                     sample_id=args.sample_id, expected_source_sha256=args.expected_source_sha256, emit_progress=emit)
             else:
                 report = inventory_report(api) if args.inventory_only else run(api, engine(args.engine_module), args.runtime,
-                    limit=args.limit, concurrency=args.concurrency, force=args.force, sample_id=args.sample_id, emit_progress=emit)
+                    limit=args.limit, concurrency=args.concurrency, force=args.force, sample_id=args.sample_id,
+                    expected_source_sha256=args.expected_source_sha256, emit_progress=emit)
     except Exception as error:
         report = {"schema": "gatex-localization-run/v1", "status": "failed", "phase": "news" if args.news_only else "diagnostic" if args.ocr_diagnostic_only else "inventory", "httpStatus": error.status if isinstance(error, RunnerError) else None, "code": error_code(error), "apiCode": error.api_code if isinstance(error, RunnerError) else None}
     args.summary.parent.mkdir(parents=True, exist_ok=True)

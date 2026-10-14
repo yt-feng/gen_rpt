@@ -28,7 +28,7 @@ on:
         type: boolean
         default: false
       expected_source_sha256:
-        description: 'Required source SHA-256 for the OCR diagnostic sample'
+        description: 'Pin an exact PDF sample SHA-256; required for OCR diagnostics'
         type: string
         default: ''
       pdf_limit:
@@ -143,8 +143,9 @@ jobs:
           force_args=()
           if [ -n "$GATEX_LOCALIZATION_SAMPLE" ]; then force_args+=(--sample-id "$GATEX_LOCALIZATION_SAMPLE"); fi
           if [ "$GATEX_LOCALIZATION_FORCE" = 'true' ]; then force_args+=(--force); fi
+          if [ -n "$GATEX_LOCALIZATION_EXPECTED_SHA256" ]; then force_args+=(--expected-source-sha256 "$GATEX_LOCALIZATION_EXPECTED_SHA256"); fi
           if [ "$GATEX_PDF_OCR_DIAGNOSTIC_ONLY" = 'true' ]; then
-            force_args+=(--ocr-diagnostic-only --expected-source-sha256 "$GATEX_LOCALIZATION_EXPECTED_SHA256");
+            force_args+=(--ocr-diagnostic-only);
           fi
           PYTHONPATH=. python -u scripts/gatex_localization_runner.py \
             --limit "$GATEX_LOCALIZATION_LIMIT" \
@@ -165,7 +166,7 @@ jobs:
         run: rm -rf -- "$RUNNER_TEMP/gatex-localization-private"
 
   warm-news:
-    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
+    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only && (inputs.news_only || !inputs.sample_id)) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
     concurrency:
       group: gatex-news-localization
       cancel-in-progress: false
