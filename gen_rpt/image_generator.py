@@ -20,6 +20,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageStat
 
 from .deepseek_client import DeepSeekClient
 from .theme import load_theme
+from .stock_photo_assets import prepare_stock_photo
 
 THEME = load_theme()
 PALETTE = THEME.get("palette", {})
@@ -74,67 +75,65 @@ def generate_ai_image_assets(
     used_hashes: set[str] = set()
 
     if single_editorial_image:
+        # GateX jobs use original licensed photography, then the reviewed stock
+        # catalogue. Generic report modes keep their explicit AI capability below.
         sections = report.get("sections", []) or []
         first_section = sections[0] if sections and isinstance(sections[0], dict) else {}
         title = _section_title_for_prompt(first_section, 1)
-        lead = _shorten(first_section.get("lead", ""), 220)
-        prompt = _sanitize(
-            f"{topic}; {title}; {lead}; one signature editorial image for a GateX executive intelligence report; "
-            "a sophisticated, topic-specific real-world scene or concrete strategic metaphor; "
-            "photorealistic magazine-quality composition, crisp foreground detail, layered depth, natural materials, "
-            "human-scale context when relevant, cinematic but credible lighting; restrained navy, white and cool-blue accents; "
-            "no readable words, no logo, no chart, no UI, no generic stock-photo pose"
-        )
         target = assets_dir / "image-1.png"
-        status, reason = _download_pollinations_or_fallback(
-            prompt,
-            target,
-            kind="section",
-            timeout_seconds=timeout_seconds,
-            retries=retries,
-            allow_fallback=False,
-        )
-        if status != "pollinations" or not target.exists() or target.stat().st_size <= 0:
-            target.unlink(missing_ok=True)
-            raise RuntimeError("The simplified GateX report did not produce its required editorial image.")
-        try:
-            with Image.open(target) as image:
-                width, height = image.size
-                image.verify()
-        except Exception as exc:
-            target.unlink(missing_ok=True)
-            raise RuntimeError("The simplified GateX editorial image is invalid.") from exc
-        if width < 1_000 or height < 650:
-            target.unlink(missing_ok=True)
-            raise RuntimeError("The simplified GateX editorial image is below publication resolution.")
-        quality_issues = _editorial_image_quality_issues(target)
-        if quality_issues:
-            target.unlink(missing_ok=True)
-            raise RuntimeError(
-                "The simplified GateX editorial image failed publication quality: "
-                + "; ".join(quality_issues)
-            )
-        result["image-1"] = f"assets/{target.name}"
-        prompt_records.append(
-            {
-                "id": "image-1",
-                "keywords": f"{topic}; {title}; {lead}",
-                "prompt": prompt,
-                "url": _url(prompt),
-                "status": status,
-                "reason": reason,
-            }
-        )
-        report["image_assets"] = []
-        (backup_dir / "image_prompts.json").write_text(
-            json.dumps(prompt_records, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-        (backup_dir / "image_sources.json").write_text("[]\n", encoding="utf-8")
-        _log(
-            "AI image generation completed | mode=single_editorial "
-            f"| status={status} | generated_assets=1"
-        )
+        status, source_record = "native", None
+        previous_sources = backup_dir / "image_sources.json"
+        if target.is_file() and not _editorial_image_quality_issues(target):
+            status = "cached"
+            try:
+                saved = json.loads(previous_sources.read_text(encoding="utf-8"))
+                source_records = [row for row in saved if isinstance(row, dict) and row.get("exhibit") == "image-1"]
+            except (OSError, ValueError, TypeError):
+                source_records = []
+        else:
+            candidates = _discover_source_image_candidates(sources or [], timeout_seconds=min(10, timeout_seconds))
+            for candidate in sorted(candidates, key=lambda row: _candidate_score(row, topic), reverse=True):
+                # Only explicit commercial licences. A footer mentioning a licence
+                # is insufficient for restrictive/noncommercial source images.
+                if not _commercial_source_license(candidate) or _candidate_score(candidate, topic) < 3:
+                    continue
+                digest, _ = _download_source_candidate(candidate, target, timeout_seconds=min(18, timeout_seconds))
+                if digest and not _editorial_image_quality_issues(target):
+                    status, source_record = "web_source", {**candidate, "source_image_sha256": digest, "image_sha256": hashlib.sha256(target.read_bytes()).hexdigest()}
+                    break
+            if source_record is None:
+                try:
+                    receipt = prepare_stock_photo(topic, target, industry=str(report.get("industry") or ""), summary=str(first_section.get("lead") or ""), seed=assets_dir.parent.name)
+                except Exception:
+                    receipt = None
+                if receipt:
+                    source = receipt["source"]
+                    status = "stock"
+                    source_record = {**source, "stockSource": source,
+                        "original_image_url": source["imageUrl"], "source_page_url": source["sourceUrl"],
+                        "source_domain": source["origin"], "source_title": source["title"],
+                        "caption": source["title"], "alt_text": source["title"],
+                        "attribution": source["credit"], "license_url": source["licenseUrl"],
+                        "source_image_sha256": receipt["sourceImageSha256"], "cropApplied": True,
+                        "image_sha256": receipt["sha256"]}
+                else:
+                    target.unlink(missing_ok=True)
+        if status != "native" and target.is_file():
+            result["image-1"] = f"assets/{target.name}"
+            if source_record:
+                source_records = [_image_source_record(source_record, target, assets_dir, "image-1", title, status, report)]
+            if source_records:
+                record = source_records[0]
+                first_section["image_caption"] = record.get("caption") or title
+                first_section["image_source"] = " · ".join(str(record.get(key) or "") for key in ("attribution", "source_page_url", "license_url") if record.get(key))
+        else:
+            # The renderer retains its native cover and all research paragraphs.
+            for section in sections:
+                if isinstance(section, dict): section["visual_hint"] = ""
+        report["image_assets"] = source_records
+        previous_sources.write_text(json.dumps(source_records, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        (backup_dir / "image_prompts.json").write_text(json.dumps([{"id":"image-1", "status":status, "keywords":topic}], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        _log(f"GateX image selection completed | provider={status} | prepared_assets={len(result)}")
         return result
 
     web_candidates = _discover_source_image_candidates(sources or [], timeout_seconds=min(10, timeout_seconds))
@@ -242,6 +241,15 @@ Rules:
     except Exception:
         pass
     return _sanitize(f"Premium GateX topic-specific executive intelligence report visual, photorealistic, crisp detail, natural lighting, restrained navy and cool-blue accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
+
+
+def _commercial_source_license(candidate: Dict[str, Any]) -> bool:
+    name = str(candidate.get("license") or "").lower()
+    url = str(candidate.get("license_url") or "").lower()
+    if re.search(r"(?:\bnc\b|non.?commercial|\bnd\b|no.?derivatives)", name + " " + url):
+        return False
+    return bool((name in {"public domain", "cc0"}) or
+        (name in {"cc by", "cc by-sa"} and re.match(r"https?://creativecommons\.org/licenses/by(?:-sa)?/", url)))
 
 
 def _source_first_image(

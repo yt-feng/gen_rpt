@@ -19,6 +19,7 @@ SUITES = (
     "tests.test_rag_bridge",
     "tests.test_generation_continuity",
     "tests.test_generation_workflows",
+    "tests.test_gatex_stock_photos",
     "tests.test_report_publication_contract",
     "tests.test_simplified_report_mode",
     "tests.test_report_contract_runner",
