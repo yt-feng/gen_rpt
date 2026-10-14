@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
+from threading import Lock
 import time
 from typing import Any, Callable
 from urllib.parse import parse_qs, urlencode, urlsplit
@@ -234,6 +235,7 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
     eligible = [item for item in inventory if force or item.get("status") != "ready" or item.get("error")]
     selected = eligible if limit == 0 else eligible[:limit]
     runtime.mkdir(parents=True, exist_ok=True, mode=0o700)
+    digest_locks, digest_locks_guard = {}, Lock()
 
     def process(item):
         phase = "source"
@@ -251,33 +253,39 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
                 raise RunnerError("SOURCE_VERSION_CHANGED")
             source = directory / "source.pdf"
             source.write_bytes(original)
-            phase = "progress"
-            progress = api.progress(item["id"], digest)
-            phase = "translation"
-            artifact = translate(source_pdf=source, output_pdf=directory / "zh.pdf", source_sha256=digest,
-                progress=progress, save_progress=lambda value: api.save_progress(item["id"], digest, value), force=force)
-            phase = "validation"
-            if not isinstance(artifact, dict):
-                raise RunnerError("INVALID_ENGINE_ARTIFACT")
-            pdf = Path(artifact["path"]).resolve()
-            if not pdf.is_relative_to(directory.resolve()) or not pdf.is_file():
-                raise RunnerError("INVALID_ENGINE_ARTIFACT")
-            data = pdf.read_bytes()
-            if not data.startswith(b"%PDF-") or len(data) > MAX_PDF or artifact.get("byteSize") != len(data) or artifact.get("sha256") != sha256(data):
-                raise RunnerError("ARTIFACT_DIGEST_MISMATCH")
-            page_count = artifact.get("pageCount")
-            validate_qa(artifact.get("qa"), page_count)
-            if sha256(data) == digest:
-                raise RunnerError("UNTRANSLATED_SOURCE_ARTIFACT")
-            metadata = {"id": item["id"], "sourceSha256": digest, "sha256": sha256(data), "pageCount": page_count, "byteSize": len(data), "qa": artifact["qa"]}
-            phase = "publication"
-            api.publish(metadata, pdf)
-            phase = "readback"
-            stored, stored_headers = api.artifact(item["id"], digest)
-            stored_headers = {key.lower(): value for key, value in stored_headers.items()}
-            if sha256(stored) != metadata["sha256"] or len(stored) != metadata["byteSize"] or stored_headers.get("x-source-sha256") != digest or stored_headers.get("x-artifact-sha256") != metadata["sha256"]:
-                raise RunnerError("ARTIFACT_READBACK_FAILED")
-            return {"id": item["id"], "status": "ready", "sourceSha256": digest, "sha256": metadata["sha256"], "pageCount": page_count, "byteSize": len(data), "sourceBlockCount": artifact["qa"]["sourceBlockCount"], "translatedBlockCount": artifact["qa"]["translatedBlockCount"]}
+            # Different publication IDs can refer to identical PDF bytes. The
+            # durable checkpoint is content-addressed, so serialize its writers
+            # and let the next alias load the first alias's validated progress.
+            with digest_locks_guard:
+                digest_lock = digest_locks.setdefault(digest, Lock())
+            with digest_lock:
+                phase = "progress"
+                progress = api.progress(item["id"], digest)
+                phase = "translation"
+                artifact = translate(source_pdf=source, output_pdf=directory / "zh.pdf", source_sha256=digest,
+                    progress=progress, save_progress=lambda value: api.save_progress(item["id"], digest, value), force=force)
+                phase = "validation"
+                if not isinstance(artifact, dict):
+                    raise RunnerError("INVALID_ENGINE_ARTIFACT")
+                pdf = Path(artifact["path"]).resolve()
+                if not pdf.is_relative_to(directory.resolve()) or not pdf.is_file():
+                    raise RunnerError("INVALID_ENGINE_ARTIFACT")
+                data = pdf.read_bytes()
+                if not data.startswith(b"%PDF-") or len(data) > MAX_PDF or artifact.get("byteSize") != len(data) or artifact.get("sha256") != sha256(data):
+                    raise RunnerError("ARTIFACT_DIGEST_MISMATCH")
+                page_count = artifact.get("pageCount")
+                validate_qa(artifact.get("qa"), page_count)
+                if sha256(data) == digest:
+                    raise RunnerError("UNTRANSLATED_SOURCE_ARTIFACT")
+                metadata = {"id": item["id"], "sourceSha256": digest, "sha256": sha256(data), "pageCount": page_count, "byteSize": len(data), "qa": artifact["qa"]}
+                phase = "publication"
+                api.publish(metadata, pdf)
+                phase = "readback"
+                stored, stored_headers = api.artifact(item["id"], digest)
+                stored_headers = {key.lower(): value for key, value in stored_headers.items()}
+                if sha256(stored) != metadata["sha256"] or len(stored) != metadata["byteSize"] or stored_headers.get("x-source-sha256") != digest or stored_headers.get("x-artifact-sha256") != metadata["sha256"]:
+                    raise RunnerError("ARTIFACT_READBACK_FAILED")
+                return {"id": item["id"], "status": "ready", "sourceSha256": digest, "sha256": metadata["sha256"], "pageCount": page_count, "byteSize": len(data), "sourceBlockCount": artifact["qa"]["sourceBlockCount"], "translatedBlockCount": artifact["qa"]["translatedBlockCount"]}
         except Exception as error:
             # Never echo provider responses, source text, credentials or traceback.
             return {"id": item["id"], "status": "failed", "phase": phase, "code": error_code(error), "httpStatus": error.status if isinstance(error, RunnerError) else None, "apiCode": error.api_code if isinstance(error, RunnerError) else None}
