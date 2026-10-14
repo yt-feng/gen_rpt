@@ -427,6 +427,89 @@ class ModelContractTests(unittest.TestCase):
         with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
             validate_translation("GATEX", {"text": "GateX", "retainedEnglish": [{"text": "GateX", "kind": "brand"}], "reviewed": True})
 
+    def test_exact_house_masthead_metadata_reconciliation_preserves_ordinary_gate(self):
+        cases = [("GATEX INTELLIGENCE", "GATEX 前沿洞察", [{"text": "GATEX", "kind": "brand"}]),
+                 ("TECHNOLOGY FRONTIERS", "科技前沿", [])]
+        for source, target, expected in cases:
+            with self.subTest(source=source):
+                raw = {"text": target, "retainedEnglish": [{"text": source, "kind": "brand"}]}
+                record = _source_verified_record(source, raw)
+                self.assertEqual(validate_translation(source, {**record, "reviewed": True})["retainedEnglish"], expected)
+                self.assertEqual(raw["retainedEnglish"], [{"text": source, "kind": "brand"}], "private raw evidence is unchanged")
+                invalid = {"text": target, "retainedEnglish": [{"text": "Invented Brand", "kind": "brand"}]}
+                with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+                    validate_translation(source, {**_source_verified_record(source, invalid), "reviewed": True})
+        for source, target, retained in [("TECHNOLOGY FRONTIERS", "TECHNOLOGY FRONTIERS", [{"text": "TECHNOLOGY FRONTIERS", "kind": "brand"}]),
+                                         ("TECHNOLOGY FRONTIERS overview", "科技前沿", [{"text": "TECHNOLOGY FRONTIERS", "kind": "brand"}]),
+                                         ("GATEX INTELLIGENCE", "GATEX INTELLIGENCE", [])]:
+            with self.subTest(source=source, target=target):
+                with self.assertRaises(LocalizationError):
+                    validate_translation(source, {**_source_verified_record(source, {"text": target, "retainedEnglish": retained}), "reviewed": True})
+
+    def test_real_masthead_shapes_still_require_fresh_review_before_checkpoint(self):
+        client = self.client()
+        blocks = [Block("footer", 1, "GATEX INTELLIGENCE", (0, 0, 100, 30)),
+                  Block("series", 2, "TECHNOLOGY FRONTIERS", (0, 40, 100, 70))]
+        calls, saved = [], []
+        client.accepted_callback = saved.append
+        def once(payload, **kwargs):
+            calls.append(payload)
+            if len(calls) == 1:
+                self.assertEqual(saved, [])
+                return {"blocks": [{"id": "footer", "text": "GATEX 前沿洞察", "retainedEnglish": [{"text": "GATEX INTELLIGENCE", "kind": "brand"}]},
+                                   {"id": "series", "text": "科技前沿", "retainedEnglish": [{"text": "TECHNOLOGY FRONTIERS", "kind": "brand"}]}]}
+            self.assertEqual(saved, [], "deterministic metadata reconciliation is not semantic approval")
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []} for block in blocks]}
+        client._once = once
+        result = client.translate(blocks)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(saved, [result])
+        self.assertEqual(result["footer"]["retainedEnglish"], [{"text": "GATEX", "kind": "brand"}])
+        self.assertEqual(result["series"]["retainedEnglish"], [])
+
+    def test_known_source_title_requires_its_chinese_counterpart_not_surrounding_chinese(self):
+        source = 'Today, I am copying the work "Good and Bad Procrastination" by Paul Graham, the founder of YC.'
+        raw = {"text": "今天，我正在抄录由YC创始人Paul Graham所著的《Good and Bad Procrastination》。",
+               "retainedEnglish": [{"text": "YC", "kind": "organisation"}, {"text": "Paul Graham", "kind": "person"},
+                                   {"text": "Good and Bad Procrastination", "kind": "source_title"}], "reviewed": True}
+        with self.assertRaisesRegex(LocalizationError, "MISSING_CHINESE_SOURCE_TITLE"):
+            validate_translation(source, raw)
+        translated = {**raw, "text": "今天，我复制YC创始人Paul Graham的作品《拖延的好与坏》（Good and Bad Procrastination）。"}
+        self.assertEqual(validate_translation(source, translated)["text"], translated["text"])
+        for alias in ("拖延的好与坏", "好的拖延与坏的拖延", "好与坏的拖延"):
+            for title in (f"《{alias}》（Good and Bad Procrastination）", f"《Good and Bad Procrastination》（{alias}）",
+                          f"《{alias}（Good and Bad Procrastination）》"):
+                with self.subTest(title=title):
+                    variant = {**raw, "text": f"今天，我复制YC创始人Paul Graham的作品{title}。"}
+                    self.assertEqual(validate_translation(source, variant)["text"], variant["text"])
+        with self.assertRaisesRegex(LocalizationError, "MISSING_CHINESE_SOURCE_TITLE"):
+            validate_translation(source, {**raw, "text": "我谈论拖延的好与坏，今天抄录YC创始人Paul Graham的作品《Good and Bad Procrastination》。"})
+        with self.assertRaisesRegex(LocalizationError, "MISSING_CHINESE_SOURCE_TITLE"):
+            validate_translation(source, {**raw, "retainedEnglish": [{**entry, "kind": "brand"} if entry["kind"] == "source_title" else entry for entry in raw["retainedEnglish"]]})
+
+    def test_known_title_failure_gives_source_bound_generation_feedback_without_pressuring_review(self):
+        client = self.client()
+        block = Block("copied-work", 1, 'I am copying "Good and Bad Procrastination".', (0, 0, 100, 30))
+        responses = [
+            {"blocks": [{"id": block.id, "text": "我正在抄录《Good and Bad Procrastination》。", "retainedEnglish": [{"text": "Good and Bad Procrastination", "kind": "source_title"}]}]},
+            {"blocks": [{"id": block.id, "text": "我复制《拖延的好与坏》（Good and Bad Procrastination）。", "retainedEnglish": [{"text": "Good and Bad Procrastination", "kind": "source_title"}]}]},
+            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]},
+        ]
+        messages, rejected = [], []
+        client.rejection_callback = rejected.append
+        def once(payload, **kwargs):
+            messages.append(payload)
+            return responses.pop(0)
+        client._once = once
+        result = client.translate([block])
+        self.assertEqual(result[block.id]["text"], "我复制《拖延的好与坏》（Good and Bad Procrastination）。")
+        self.assertEqual(len(messages), 3)
+        self.assertEqual(rejected[0]["code"], "MISSING_CHINESE_SOURCE_TITLE")
+        self.assertIn("sourceTitleTranslations", messages[1][-1]["content"])
+        self.assertIn("拖延的好与坏", messages[1][-1]["content"])
+        self.assertEqual(len(messages[2]), 2)
+        self.assertNotIn("rejectedRecord", json.dumps(messages[2]))
+
     def test_salutation_and_typed_codes_have_positive_source_evidence_without_expanding_names(self):
         person = "Mr. Graham describes the choices."
         code = "This is type C."
