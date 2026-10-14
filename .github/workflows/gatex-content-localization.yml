@@ -44,10 +44,6 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: gatex-content-localization
-  cancel-in-progress: false
-
 jobs:
   validate:
     if: github.event_name == 'pull_request'
@@ -70,6 +66,9 @@ jobs:
 
   inventory:
     if: github.event_name == 'workflow_dispatch' && inputs.inventory_only
+    concurrency:
+      group: gatex-pdf-localization
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -100,6 +99,9 @@ jobs:
 
   localize:
     if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.news_only) || (github.event_name == 'schedule' && github.event.schedule == '23 4 * * *')
+    concurrency:
+      group: gatex-pdf-localization
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 180
     env:
@@ -151,6 +153,9 @@ jobs:
 
   warm-news:
     if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
+    concurrency:
+      group: gatex-news-localization
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
