@@ -1,5 +1,6 @@
 """Evaluate actual GitHub job conditions against intended execution modes."""
 import ast
+import json
 from pathlib import Path
 import re
 import unittest
@@ -23,6 +24,26 @@ def enabled(job, event='workflow_dispatch', *, inventory=False, news=False, diag
     if any(not isinstance(node, allowed) for node in ast.walk(parsed)):
         raise AssertionError('Unexpected workflow expression syntax')
     return bool(eval(compile(parsed, str(WORKFLOW), 'eval'), {'__builtins__': {}}, {}))
+
+
+def environment_value(key, supplied, event='workflow_dispatch'):
+    line = re.search(r'^\s+' + re.escape(key) + r':\s*\$\{\{(.*?)\}\}\s*$', WORKFLOW.read_text(), re.MULTILINE)
+    if not line:
+        raise AssertionError('Workflow environment expression missing')
+    condition = line.group(1)
+    for name, value in {'github.event_name': event, 'inputs.news_max_passes': supplied,
+                        'inputs.news_budget_seconds': supplied}.items():
+        condition = condition.replace(name, repr(value))
+    condition = condition.replace('&&', ' and ').replace('||', ' or ').strip()
+    parsed = ast.parse(condition, mode='eval')
+    allowed = (ast.Expression, ast.Constant, ast.BoolOp, ast.And, ast.Or,
+               ast.Compare, ast.Eq, ast.Call, ast.Name, ast.Load)
+    if any(not isinstance(node, allowed) for node in ast.walk(parsed)) or any(
+        isinstance(node, ast.Name) and node.id not in {'format', 'toJSON'} for node in ast.walk(parsed)):
+        raise AssertionError('Unexpected workflow environment expression')
+    functions = {'__builtins__': {}, 'format': lambda template, value: template.format(value),
+                 'toJSON': lambda value: json.dumps(value, separators=(',', ':'))}
+    return str(eval(compile(parsed, str(WORKFLOW), 'eval'), functions, {}))
 
 
 class WorkflowModeTests(unittest.TestCase):
@@ -50,6 +71,18 @@ class WorkflowModeTests(unittest.TestCase):
         self.assertFalse(enabled('localize', 'schedule', cron='7,37 * * * *'))
         self.assertFalse(enabled('localize', 'pull_request'))
         self.assertFalse(enabled('warm-news', 'pull_request'))
+
+    def test_numeric_dispatch_controls_forward_strings_and_numbers_without_json_quotes(self):
+        for key, text in [('GATEX_NEWS_MAX_PASSES', '12'), ('GATEX_NEWS_BUDGET_SECONDS', '600')]:
+            for value in [text, int(text)]:
+                with self.subTest(key=key, supplied=value):
+                    rendered = environment_value(key, value)
+                    self.assertEqual(rendered, text)
+                    self.assertEqual(int(rendered), int(text))
+            self.assertEqual(environment_value(key, 0), '0', 'invalid zero must reach runner validation')
+            self.assertEqual(environment_value(key, '0'), '0')
+        self.assertEqual(environment_value('GATEX_NEWS_MAX_PASSES', None, 'schedule'), '12')
+        self.assertEqual(environment_value('GATEX_NEWS_BUDGET_SECONDS', None, 'schedule'), '600')
 
 
 if __name__ == '__main__':
