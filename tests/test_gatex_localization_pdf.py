@@ -80,6 +80,34 @@ class PdfLocalizationTests(unittest.TestCase):
         result = translate_pdf(source, output, digest(source.read_bytes()), translation_client=translator, **kwargs)
         return source, output, result, translator
 
+    def test_rejected_records_are_checkpointed_privately_without_an_artifact_or_public_source_text(self):
+        with TemporaryDirectory() as directory:
+            source, output = Path(directory) / "en.pdf", Path(directory) / "zh.pdf"
+            source_pdf(source)
+            states, calls = [], []
+            with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+                client = ModelClient(sleep=lambda seconds: None)
+            def once(messages, **kwargs):
+                calls.append(messages)
+                supplied = json.loads(messages[1]["content"])["blocks"]
+                return {"blocks": [{"id": item["id"], "text": PAIRS[item["text"]],
+                    "retainedEnglish": [{"text": "Invented organisation", "kind": "organisation"}]} for item in supplied]}
+            client._once = once
+            with self.assertRaises(LocalizationError) as caught:
+                translate_pdf(source, output, digest(source.read_bytes()), translation_client=client, save_progress=states.append)
+            self.assertEqual(str(caught.exception), "INVALID_RETAINED_IDENTITY")
+            self.assertNotIn("Invented", str(caught.exception))
+            self.assertEqual(len(calls), 3)
+            self.assertFalse(output.exists())
+            self.assertEqual(states[-1]["sourceSha256"], digest(source.read_bytes()))
+            rejections = states[-1]["modelRejections"]
+            self.assertEqual(len(rejections), 3)
+            self.assertEqual(rejections[-1]["source"], "Research report")
+            self.assertEqual(rejections[-1]["record"]["retainedEnglish"][0]["text"], "Invented organisation")
+            self.assertEqual(rejections[-1]["sourceHash"], digest("Research report"))
+            self.assertEqual(rejections[-1]["code"], "INVALID_RETAINED_IDENTITY")
+            self.assertIn(rejections[-1]["blockId"], calls[1][-1]["content"])
+
     def test_complete_native_table_footer_link_and_figures(self):
         with TemporaryDirectory() as directory:
             source, output, result, _ = self.run_fixture(directory, raster=True,
@@ -373,6 +401,32 @@ class ModelContractTests(unittest.TestCase):
         self.assertIn("may changed to will", messages[2][-1]["content"])
         self.assertEqual(len(messages[3]), 2)
         self.assertNotIn("previous response", json.dumps(messages[3]))
+
+    def test_retained_case_failure_has_private_record_and_block_specific_retry_without_relaxing_gate(self):
+        client = self.client()
+        block = Block("cover-brand", 0, "GATEX", (0, 0, 100, 30))
+        responses = [
+            {"blocks": [{"id": block.id, "text": "GateX", "retainedEnglish": [{"text": "GateX", "kind": "brand"}]}]},
+            {"blocks": [{"id": block.id, "text": "GATEX", "retainedEnglish": [{"text": "GATEX", "kind": "brand"}]}]},
+            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]},
+        ]
+        messages, rejected = [], []
+        client.rejection_callback = rejected.append
+        def once(payload, **kwargs):
+            messages.append(payload)
+            return responses.pop(0)
+        client._once = once
+        result = client.translate([block])
+        self.assertEqual(result[block.id]["text"], "GATEX")
+        self.assertEqual(len(messages), 3)
+        self.assertEqual(len(rejected), 1)
+        self.assertEqual(rejected[0]["source"], "GATEX")
+        self.assertEqual(rejected[0]["record"]["retainedEnglish"][0]["text"], "GateX")
+        self.assertIn(block.id, messages[1][-1]["content"])
+        self.assertIn("exact source spelling", messages[1][-1]["content"])
+        self.assertEqual(len(messages[2]), 2, "independent review gets no failure history")
+        with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+            validate_translation("GATEX", {"text": "GateX", "retainedEnglish": [{"text": "GateX", "kind": "brand"}], "reviewed": True})
 
     def test_persistent_semantic_failure_is_three_generation_attempts(self):
         client = self.client()
