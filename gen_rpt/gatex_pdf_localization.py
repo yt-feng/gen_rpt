@@ -163,6 +163,65 @@ class Block:
         return digest(self.text)
 
 
+def tesseract_words(image_bytes: bytes) -> dict:
+    """Private verbatim detector evidence, including exact pixel rectangles."""
+    if not shutil.which("tesseract"):
+        raise LocalizationError("RASTER_OCR_UNAVAILABLE")
+    import pytesseract
+    image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    try:
+        data = pytesseract.image_to_data(image, lang="eng", config="--psm 11", output_type=pytesseract.Output.DICT, timeout=90)
+    except (pytesseract.TesseractError, RuntimeError, OSError):
+        raise LocalizationError("RASTER_OCR_FAILED") from None
+    words = []
+    for index, text in enumerate(data["text"]):
+        if not text.strip():
+            continue
+        left, top = int(data["left"][index]), int(data["top"][index])
+        width, height = int(data["width"][index]), int(data["height"][index])
+        confidence = float(data["conf"][index])
+        if not math.isfinite(confidence):
+            raise LocalizationError("INVALID_RASTER_DETECTOR_RESULT")
+        words.append({"text": text, "confidence": confidence, "bbox": [left, top, left + width, top + height]})
+    return {"width": image.width, "height": image.height, "words": words}
+
+
+def _diagnose_pdf(source_pdf: Path, source_sha256: str, progress: dict | None, save_progress: Callable) -> None:
+    # This path deliberately precedes model construction and normal checkpoint
+    # migration. Existing cache/status/unknown fields remain byte-for-byte in
+    # meaning, even when its promptVersion or model differs from the engine.
+    state = copy.deepcopy(progress) if progress is not None else {"schema": PROGRESS_SCHEMA, "sourceSha256": source_sha256}
+    if not isinstance(state, dict) or state.get("sourceSha256") != source_sha256:
+        raise LocalizationError("PROGRESS_SOURCE_MISMATCH")
+    counts = {"sourcePageCount": 0, "rasterRegionCount": 0, "wordCount": 0}
+    diagnosis = {"schema": "gatex-pdf-ocr-diagnostic/v1", "sourceSha256": source_sha256, "regions": {}}
+    with fitz.open(source_pdf) as source:
+        if source.needs_pass or source.page_count < 1:
+            raise LocalizationError("SOURCE_PDF_UNREADABLE")
+        counts["sourcePageCount"] = source.page_count
+        for page_number, page in enumerate(source):
+            page.set_rotation(0)
+            visible_boxes = [fitz.Rect(trace["bbox"]) for trace in page.get_texttrace() if trace.get("type") != 3]
+            native = [{"text": word[4], "bbox": list(word[:4])} for word in page.get_text("words")
+                      if any(not (fitz.Rect(word[:4]) & visible).is_empty for visible in visible_boxes)]
+            for region_number, rect in enumerate(_image_regions(page)):
+                image_bytes = page.get_pixmap(matrix=fitz.Matrix(3, 3), clip=rect, alpha=False).tobytes("png")
+                evidence = tesseract_words(image_bytes)
+                key = f"p{page_number + 1}-r{region_number + 1}"
+                diagnosis["regions"][key] = {"sourcePage": page_number + 1, "regionBBox": list(rect),
+                    "imageSha256": digest(image_bytes), "nativeVisibleWords": native, **evidence}
+                counts["rasterRegionCount"] += 1
+                counts["wordCount"] += len(evidence["words"])
+                state["ocrDiagnostics"] = diagnosis
+                save_progress(copy.deepcopy(state))
+    diagnosis["counts"] = counts
+    state["ocrDiagnostics"] = diagnosis
+    save_progress(copy.deepcopy(state))
+    error = LocalizationError("OCR_DIAGNOSTIC_READY")
+    error.diagnostic_counts = counts
+    raise error
+
+
 class ModelClient:
     """APIMART chat/vision client with at most three attempts per operation."""
 
@@ -342,18 +401,11 @@ does not fail fidelity. A faithful translation may retain proper names and techn
         raise LocalizationError(last_code)
 
     def ocr(self, image_bytes: bytes) -> dict:
-        if not shutil.which("tesseract"):
-            raise LocalizationError("RASTER_OCR_UNAVAILABLE")
-        import pytesseract
-        image = Image.open(io.BytesIO(image_bytes)).convert("RGB")
-        try:
-            tess = pytesseract.image_to_data(image, lang="eng", config="--psm 11", output_type=pytesseract.Output.DICT, timeout=90)
-        except (pytesseract.TesseractError, RuntimeError, OSError):
-            raise LocalizationError("RASTER_OCR_FAILED") from None
+        evidence = tesseract_words(image_bytes)
         detected = Counter()
-        for index, word in enumerate(tess["text"]):
-            if float(tess["conf"][index]) >= 75 and re.search(r"[A-Za-z0-9]", word):
-                detected.update(re.findall(r"[a-z0-9]+", word.casefold()))
+        for word in evidence["words"]:
+            if word["confidence"] >= 75 and re.search(r"[A-Za-z0-9]", word["text"]):
+                detected.update(re.findall(r"[a-z0-9]+", word["text"].casefold()))
 
         def validate(result):
             if result.get("verified") is not True or result.get("uncertainRegions") != [] or not isinstance(result.get("lines"), list):
@@ -678,6 +730,8 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
         raise LocalizationError("SOURCE_DIGEST_MISMATCH")
     if source_pdf.resolve() == output_pdf.resolve():
         raise LocalizationError("SOURCE_OVERWRITE_FORBIDDEN")
+    if os.getenv("GATEX_PDF_OCR_DIAGNOSTIC_ONLY", "").strip().lower() in {"1", "true", "yes"}:
+        _diagnose_pdf(source_pdf, source_sha256, progress, save_progress or (lambda value: None))
     client = translation_client or ModelClient()
     model = getattr(client, "model", "injected-test-client")
     checkpoint_callback = save_progress or (lambda value: None)

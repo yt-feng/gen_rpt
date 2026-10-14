@@ -23,6 +23,14 @@ on:
         description: 'Warm public Chinese news without PDF translation; inventory_only takes priority'
         type: boolean
         default: false
+      ocr_diagnostic_only:
+        description: 'Capture private Tesseract evidence for the exact sample without models or publication'
+        type: boolean
+        default: false
+      expected_source_sha256:
+        description: 'Required source SHA-256 for the OCR diagnostic sample'
+        type: string
+        default: ''
       pdf_limit:
         description: 'Maximum pending PDFs (0 processes all)'
         type: number
@@ -98,7 +106,7 @@ jobs:
           retention-days: 7
 
   localize:
-    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.news_only) || (github.event_name == 'schedule' && github.event.schedule == '23 4 * * *')
+    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && (!inputs.news_only || inputs.ocr_diagnostic_only)) || (github.event_name == 'schedule' && github.event.schedule == '23 4 * * *')
     concurrency:
       group: gatex-pdf-localization
       cancel-in-progress: false
@@ -109,6 +117,7 @@ jobs:
       GATEX_LOCALIZATION_CONCURRENCY: ${{ inputs.concurrency || '2' }}
       GATEX_LOCALIZATION_SAMPLE: ${{ inputs.sample_id || '' }}
       GATEX_LOCALIZATION_FORCE: ${{ inputs.force && 'true' || 'false' }}
+      GATEX_LOCALIZATION_EXPECTED_SHA256: ${{ inputs.expected_source_sha256 || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -125,14 +134,18 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
       - name: Translate, validate, publish and read back Chinese PDFs
         env:
+          GATEX_PDF_OCR_DIAGNOSTIC_ONLY: ${{ inputs.ocr_diagnostic_only && 'true' || 'false' }}
           GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
-          APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
+          APIMART_API_KEY: ${{ !inputs.ocr_diagnostic_only && secrets.APIMART_API_KEY || '' }}
         run: |
           set -euo pipefail
           umask 077
           force_args=()
           if [ -n "$GATEX_LOCALIZATION_SAMPLE" ]; then force_args+=(--sample-id "$GATEX_LOCALIZATION_SAMPLE"); fi
           if [ "$GATEX_LOCALIZATION_FORCE" = 'true' ]; then force_args+=(--force); fi
+          if [ "$GATEX_PDF_OCR_DIAGNOSTIC_ONLY" = 'true' ]; then
+            force_args+=(--ocr-diagnostic-only --expected-source-sha256 "$GATEX_LOCALIZATION_EXPECTED_SHA256");
+          fi
           PYTHONPATH=. python -u scripts/gatex_localization_runner.py \
             --limit "$GATEX_LOCALIZATION_LIMIT" \
             --concurrency "$GATEX_LOCALIZATION_CONCURRENCY" \
@@ -152,7 +165,7 @@ jobs:
         run: rm -rf -- "$RUNNER_TEMP/gatex-localization-private"
 
   warm-news:
-    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
+    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
     concurrency:
       group: gatex-news-localization
       cancel-in-progress: false

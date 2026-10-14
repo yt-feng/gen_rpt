@@ -382,6 +382,49 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(maximum, 2)
         self.assertEqual(len({row['sourceSha256'] for row in report['results']}), 2)
 
+    def test_ocr_diagnostic_summary_contains_counts_only_and_never_publishes(self):
+        class DiagnosticReady(Exception):
+            code = 'OCR_DIAGNOSTIC_READY'
+            diagnostic_counts = {'sourcePageCount': 4, 'rasterRegionCount': 1, 'wordCount': 8,
+                'privateWords': ['private source label']}
+        api = FakeApi([item('sample')])
+        api.inventory = lambda: self.fail('diagnostic scanned the entire catalogue')
+        api.publish = lambda *args: self.fail('diagnostic published a PDF')
+        def capture(**kwargs):
+            self.assertFalse(kwargs['force'])
+            kwargs['save_progress']({'blocks': {'existing': 'preserved private translation'},
+                'ocrDiagnostics': {'words': ['private source label']}})
+            raise DiagnosticReady('private source label')
+        with tempfile.TemporaryDirectory() as directory:
+            report = runner.run_ocr_diagnostic(api, capture, Path(directory), sample_id='sample', expected_source_sha256=DIGEST)
+        self.assertEqual(report['scope'], 'diagnostic')
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(report['counts'], {'sourcePageCount': 4, 'rasterRegionCount': 1, 'wordCount': 8})
+        self.assertEqual(report['translatedCount'], 0)
+        self.assertEqual(report['publishedCount'], 0)
+        self.assertNotIn('private source label', json.dumps(report))
+        self.assertEqual(api.saved[('sample', DIGEST)]['blocks']['existing'], 'preserved private translation')
+
+    def test_ocr_diagnostic_pins_source_before_capture_or_checkpoint_write(self):
+        api = FakeApi([item('sample')])
+        def capture(**kwargs):
+            self.fail('changed source reached the diagnostic engine')
+        api.save_progress = lambda *args: self.fail('changed source wrote progress')
+        with tempfile.TemporaryDirectory() as directory:
+            report = runner.run_ocr_diagnostic(api, capture, Path(directory), sample_id='sample', expected_source_sha256='f'*64)
+        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['code'], 'DIAGNOSTIC_SOURCE_CHANGED')
+        self.assertEqual(api.published, {})
+
+    def test_ocr_diagnostic_requires_exact_sample_and_digest_before_network(self):
+        api = FakeApi([])
+        api.source = lambda *args: self.fail('invalid diagnostic options downloaded source')
+        with tempfile.TemporaryDirectory() as directory:
+            for sample_id, digest in [('', DIGEST), ('sample', ''), ('sample', 'not-a-digest')]:
+                with self.subTest(sample_id=sample_id, digest=digest), self.assertRaises(runner.RunnerError) as caught:
+                    runner.run_ocr_diagnostic(api, translated, Path(directory), sample_id=sample_id, expected_source_sha256=digest)
+                self.assertEqual(caught.exception.code, 'DIAGNOSTIC_SAMPLE_AND_DIGEST_REQUIRED')
+
     def test_safe_engine_error_code_is_preserved_without_exception_message(self):
         class EngineError(Exception):
             code = 'RASTER_OCR_UNRESOLVED'

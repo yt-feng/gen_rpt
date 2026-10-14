@@ -239,6 +239,7 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
 
     def process(item):
         phase = "source"
+        digest = ""
         identity = sha256(item["id"].encode())
         directory = Path(tempfile.mkdtemp(prefix=identity[:12] + "-", dir=runtime))
         try:
@@ -288,7 +289,13 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
                 return {"id": item["id"], "status": "ready", "sourceSha256": digest, "sha256": metadata["sha256"], "pageCount": page_count, "byteSize": len(data), "sourceBlockCount": artifact["qa"]["sourceBlockCount"], "translatedBlockCount": artifact["qa"]["translatedBlockCount"]}
         except Exception as error:
             # Never echo provider responses, source text, credentials or traceback.
-            return {"id": item["id"], "status": "failed", "phase": phase, "code": error_code(error), "httpStatus": error.status if isinstance(error, RunnerError) else None, "apiCode": error.api_code if isinstance(error, RunnerError) else None}
+            result = {"id": item["id"], "status": "failed", "phase": phase, "code": error_code(error), "httpStatus": error.status if isinstance(error, RunnerError) else None, "apiCode": error.api_code if isinstance(error, RunnerError) else None}
+            if result["code"] == "OCR_DIAGNOSTIC_READY":
+                counts = getattr(error, "diagnostic_counts", {})
+                if isinstance(counts, dict):
+                    result["diagnosticCounts"] = {key: counts[key] for key in ("sourcePageCount", "rasterRegionCount", "wordCount") if type(counts.get(key)) is int and counts[key] >= 0}
+                result["sourceSha256"] = digest
+            return result
         finally:
             import shutil
             shutil.rmtree(directory, ignore_errors=True)
@@ -313,6 +320,21 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
     return {"schema": "gatex-localization-run/v1", "status": "failed" if failed or (remaining is None and not sample_id) else "passed", "scope": "single" if sample_id else "inventory", "inventoryCount": len(inventory), "selectedCount": len(selected), "translatedCount": len(results)-failed, "failedCount": failed, "remainingPending": remaining, "force": force, "results": results}
 
 
+def run_ocr_diagnostic(api: GatexApi, translate: Callable, runtime: Path, *, sample_id: str, expected_source_sha256: str, emit_progress=None) -> dict:
+    if not sample_id or not re.fullmatch(r"[a-f0-9]{64}", expected_source_sha256 or ""):
+        raise RunnerError("DIAGNOSTIC_SAMPLE_AND_DIGEST_REQUIRED")
+    def pinned(**kwargs):
+        if kwargs["source_sha256"] != expected_source_sha256:
+            raise RunnerError("DIAGNOSTIC_SOURCE_CHANGED")
+        return translate(**kwargs)
+    batch = run(api, pinned, runtime, limit=1, concurrency=1, force=False, sample_id=sample_id, emit_progress=emit_progress)
+    result = batch["results"][0]
+    counts = result.get("diagnosticCounts", {})
+    complete = result.get("code") == "OCR_DIAGNOSTIC_READY" and result.get("sourceSha256") == expected_source_sha256 and set(counts) == {"sourcePageCount", "rasterRegionCount", "wordCount"} and counts["sourcePageCount"] > 0
+    return {"schema": "gatex-pdf-ocr-diagnostic/v1", "status": "passed" if complete else "failed", "scope": "diagnostic", "id": sample_id, "sourceSha256": expected_source_sha256,
+        "code": result.get("code"), "httpStatus": result.get("httpStatus"), "apiCode": result.get("apiCode"), "counts": counts, "translatedCount": 0, "publishedCount": 0}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=5, help="0 processes the entire pending inventory")
@@ -321,9 +343,11 @@ def main() -> int:
     parser.add_argument("--runtime", type=Path, required=True)
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--sample-id", help="Process exactly this published report without scanning the entire inventory")
+    parser.add_argument("--expected-source-sha256", help="Required immutable source digest for OCR diagnostics")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--news-only", action="store_true")
     mode.add_argument("--inventory-only", action="store_true", help="Audit published inventory without model calls or PDF processing")
+    mode.add_argument("--ocr-diagnostic-only", action="store_true", help="Capture private Tesseract evidence without model calls or publication")
     parser.add_argument("--engine-module", default="gen_rpt.gatex_pdf_localization")
     args = parser.parse_args()
     emit = lambda value: print(json.dumps(value, ensure_ascii=False), flush=True)
@@ -332,10 +356,18 @@ def main() -> int:
             report = warm_news(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")))
         else:
             api = GatexApi(os.environ.get("GATEX_GENERATION_CALLBACK_SECRET", ""), on_inventory_page=emit)
-            report = inventory_report(api) if args.inventory_only else run(api, engine(args.engine_module), args.runtime,
-                limit=args.limit, concurrency=args.concurrency, force=args.force, sample_id=args.sample_id, emit_progress=emit)
+            if args.ocr_diagnostic_only:
+                if args.force:
+                    raise RunnerError("DIAGNOSTIC_FORCE_FORBIDDEN")
+                os.environ["GATEX_PDF_OCR_DIAGNOSTIC_ONLY"] = "true"
+                os.environ.pop("APIMART_API_KEY", None)
+                report = run_ocr_diagnostic(api, engine(args.engine_module), args.runtime,
+                    sample_id=args.sample_id, expected_source_sha256=args.expected_source_sha256, emit_progress=emit)
+            else:
+                report = inventory_report(api) if args.inventory_only else run(api, engine(args.engine_module), args.runtime,
+                    limit=args.limit, concurrency=args.concurrency, force=args.force, sample_id=args.sample_id, emit_progress=emit)
     except Exception as error:
-        report = {"schema": "gatex-localization-run/v1", "status": "failed", "phase": "news" if args.news_only else "inventory", "httpStatus": error.status if isinstance(error, RunnerError) else None, "code": error_code(error), "apiCode": error.api_code if isinstance(error, RunnerError) else None}
+        report = {"schema": "gatex-localization-run/v1", "status": "failed", "phase": "news" if args.news_only else "diagnostic" if args.ocr_diagnostic_only else "inventory", "httpStatus": error.status if isinstance(error, RunnerError) else None, "code": error_code(error), "apiCode": error.api_code if isinstance(error, RunnerError) else None}
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     args.summary.write_bytes(encoded_json(report))
     print(json.dumps({key: value for key, value in report.items() if key not in {"results", "items"}}, ensure_ascii=False))
