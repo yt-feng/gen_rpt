@@ -222,7 +222,7 @@ class RunnerTests(unittest.TestCase):
         report = runner.warm_news(api)
         self.assertEqual(report['status'], 'failed')
         self.assertEqual(report['pending'], 1)
-        self.assertEqual(sum(method == 'POST' for method, _, _ in calls), 9)
+        self.assertEqual(sum(method == 'POST' for method, _, _ in calls), 3)
         self.assertEqual(report['stopReason'], 'NO_PROGRESS')
         self.assertNotIn('records', report)
 
@@ -559,6 +559,25 @@ class NewsWarmBudgetTests(unittest.TestCase):
         self.assertEqual(report['stopReason'], 'MAX_PASSES')
         self.assertEqual(report['warmPasses'], 2)
         self.assertEqual(report['pending'], 1)
+
+    def test_approved_records_do_not_extend_the_stalled_pending_cycle(self):
+        for ready, expected_passes in [(27, 3), (21, 4), (0, 9)]:
+            with self.subTest(ready=ready):
+                clock = self.Clock()
+                api = runner.NewsfeedApi('test-token', sleep=clock.sleep, clock=clock)
+                calls = []
+                def request(method, route, **kwargs):
+                    calls.append((method, route))
+                    return self.state(ready)
+                api.request = request
+                report = runner.warm_news(api, clock=clock)
+                self.assertEqual(report['status'], 'failed')
+                self.assertEqual(report['stopReason'], 'NO_PROGRESS')
+                self.assertEqual(report['warmPasses'], expected_passes)
+                self.assertEqual(report['ready'], ready)
+                self.assertEqual(report['pending'], 36-ready)
+                self.assertEqual(sum(method == 'POST' for method, _ in calls), expected_passes)
+                self.assertTrue(all(calls[i+1] == ('GET', '/status') for i, call in enumerate(calls) if call[0] == 'POST'))
 
     def test_invalid_budgets_fail_before_status_or_warming_requests(self):
         api = runner.NewsfeedApi('test-token')

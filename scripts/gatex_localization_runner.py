@@ -265,9 +265,9 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
                 return finish("EMPTY_SNAPSHOT")
             same_snapshot = report["snapshotHash"] == previous["snapshotHash"]
             stalled = stalled + 1 if same_snapshot and report["ready"] <= previous["ready"] else 0
-            # Permit a complete fair cycle of four-record batches before
-            # stopping an unchanged snapshot that has made no progress.
-            fair_cycle = max(3, (report["total"] + 3) // 4)
+            # Only pending records enter four-record warming batches. Approved
+            # records must not extend an unchanged queue's no-progress budget.
+            fair_cycle = max(3, (report["pending"] + 3) // 4)
             if stalled >= fair_cycle:
                 return finish("NO_PROGRESS")
             if attempt < max_passes - 1:
