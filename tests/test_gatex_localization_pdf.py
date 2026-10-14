@@ -263,6 +263,28 @@ class PdfLocalizationTests(unittest.TestCase):
             with self.assertRaisesRegex(LocalizationError, "INTERACTIVE_OR_ANNOTATED_PDF_UNSUPPORTED"):
                 translate_pdf(annotated, Path(directory) / "zh.pdf", digest(annotated.read_bytes()), translation_client=FixtureTranslator(PAIRS))
 
+    def test_diagnostic_has_zero_model_calls_and_preserves_all_old_checkpoint_fields(self):
+        with TemporaryDirectory() as directory:
+            source, output = Path(directory) / "en.pdf", Path(directory) / "zh.pdf"
+            source_pdf(source, raster=True)
+            original = {"schema": PROGRESS_SCHEMA, "sourceSha256": digest(source.read_bytes()),
+                "model": "different-model", "promptVersion": "older-prompt", "status": "complete", "artifactSha256": "a" * 64,
+                "blocks": {"reviewed": {"text": "已审译文", "reviewed": True}}, "ocr": {"old": {"verified": True}},
+                "unknownFutureField": {"must": "remain"}}
+            states = []
+            evidence = {"width": 100, "height": 100, "words": [{"text": "private detector word", "confidence": 91.5, "bbox": [10, 20, 30, 40]}]}
+            with patch.dict("os.environ", {"GATEX_PDF_OCR_DIAGNOSTIC_ONLY": "true", "APIMART_API_KEY": "", "APIMART_BASE_URL": "invalid-unused"}), \
+                    patch("gen_rpt.gatex_pdf_localization.ModelClient", side_effect=AssertionError("diagnostic cannot construct a model client")), \
+                    patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+                with self.assertRaises(LocalizationError) as caught:
+                    translate_pdf(source, output, original["sourceSha256"], progress=original, save_progress=states.append, force=True)
+            self.assertEqual(str(caught.exception), "OCR_DIAGNOSTIC_READY")
+            self.assertEqual(caught.exception.diagnostic_counts, {"sourcePageCount": 1, "rasterRegionCount": 1, "wordCount": 1})
+            self.assertEqual({key: value for key, value in states[-1].items() if key != "ocrDiagnostics"}, original)
+            self.assertEqual(states[-1]["ocrDiagnostics"]["regions"]["p1-r1"]["words"], evidence["words"])
+            self.assertNotIn("private", str(caught.exception))
+            self.assertFalse(output.exists())
+
 
 class ModelContractTests(unittest.TestCase):
     def client(self):
@@ -379,7 +401,7 @@ class ModelContractTests(unittest.TestCase):
         image = Image.new("RGB", (20, 20), "white")
         stream = io.BytesIO()
         image.save(stream, format="PNG")
-        fake_tesseract = {"text": ["Revenue", "25%"], "conf": [90, 95]}
+        fake_tesseract = {"text": ["Revenue", "25%"], "conf": [90, 95], "left": [0, 10], "top": [0, 0], "width": [10, 10], "height": [10, 10]}
         calls = []
         client._once = lambda messages, **kwargs: calls.append(messages) or {"verified": True, "uncertainRegions": [], "lines": [{"text": "Revenue", "bbox": [0, 0, 500, 500]}]}
         with patch("shutil.which", return_value="/usr/bin/tesseract"), patch("pytesseract.image_to_data", return_value=fake_tesseract):
