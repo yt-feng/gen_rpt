@@ -384,7 +384,7 @@ def _normalized_section(value: Any, index: int, language: str = "en") -> Dict[st
         "visualPlacement": _clean(item.get("visualPlacement") or item.get("visual_placement"), 20).lower(),
         "exhibit": dict(item.get("exhibit") or {}) if isinstance(item.get("exhibit"), Mapping) else {},
         "visualPath": _clean(item.get("visualPath") or item.get("visual_path"), 2_000),
-        "visualAlt": _clean(item.get("visualAlt") or item.get("visual_alt"), 500),
+        "visualAlt": _clean(item.get("visualAlt") or item.get("visual_alt"), 2_000),
     }
     return normalized
 

@@ -105,7 +105,9 @@ class GenerationWorkflowTests(unittest.TestCase):
 
         self.assertIn('default: "deepseek-flash"', workflow)
         self.assertIn('GATEX_RESEARCH_MODEL: deepseek-flash', workflow)
-        self.assertTrue(any(p in workflow for p in ['GATEX_IMAGE_PROVIDER: pollinations', 'GATEX_IMAGE_PROVIDER: apimart']))
+        self.assertIn('GATEX_IMAGE_PROVIDER: stock', workflow)
+        self.assertIn('if [ "$GATEX_IMAGE_PROVIDER" != "stock" ]; then', workflow)
+        self.assertIn('GATEX_REQUIRE_SEMANTIC_VISUAL_QA: "false"', workflow)
         self.assertIn('GATEX_EDITORIAL_FALLBACK_MODEL: ""', workflow)
 
 

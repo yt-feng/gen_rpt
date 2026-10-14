@@ -164,62 +164,38 @@ def _quality_image(path: Path) -> None:
 
 
 class SimplifiedImageTests(unittest.TestCase):
-    def test_single_editorial_mode_generates_only_one_verified_ai_image(self) -> None:
+    def test_single_editorial_mode_uses_stock_without_ai(self) -> None:
         with TemporaryDirectory() as directory:
-            root = Path(directory)
-            assets = root / "assets"
-            backup = root / "backup"
-            assets.mkdir()
-            (assets / "cover-background.png").write_bytes(b"brand-cover")
-
-            def generate(_prompt, target, **_kwargs):
+            root = Path(directory); assets = root / "assets"; backup = root / "backup"
+            assets.mkdir(); (assets / "cover-background.png").write_bytes(b"brand-cover")
+            source = {"id":"reviewed-server", "title":"Server photograph", "author":"Photographer", "credit":"Server photograph — Photographer (CC BY)",
+                "license":"CC BY", "licenseUrl":"https://creativecommons.org/licenses/by/4.0/", "sourceUrl":"https://example.org/photo", "imageUrl":"https://example.org/photo.jpg", "origin":"library"}
+            def selected(_title, target, **_kwargs):
                 _quality_image(target)
-                return "pollinations", ""
-
-            with patch("gen_rpt.image_generator._download_pollinations_or_fallback", side_effect=generate):
-                result = generate_ai_image_assets(
-                    object(),
-                    "AI infrastructure",
-                    {"sections": [{"title": "Deployment economics", "lead": "A grounded market view."}]},
-                    assets,
-                    backup,
-                    single_editorial_image=True,
-                )
-
-            self.assertEqual(result, {"image-1": "assets/image-1.png"})
-            self.assertEqual((assets / "cover-background.png").read_bytes(), b"brand-cover")
+                return {"source":source, "sha256":"output-hash", "sourceImageSha256":"original-hash"}
+            report={"sections":[{"title":"Deployment economics","lead":"All source facts remain."}]}
+            with patch("gen_rpt.image_generator.prepare_stock_photo",side_effect=selected), patch("gen_rpt.image_generator._download_pollinations_or_fallback") as ai:
+                result=generate_ai_image_assets(object(),"AI infrastructure",report,assets,backup,single_editorial_image=True)
+            self.assertEqual(result,{"image-1":"assets/image-1.png"})
+            self.assertEqual((assets / "cover-background.png").read_bytes(),b"brand-cover")
             self.assertFalse((assets / "image-2.png").exists())
-            prompts = json.loads((backup / "image_prompts.json").read_text(encoding="utf-8"))
-            self.assertEqual([entry["status"] for entry in prompts], ["pollinations"])
+            self.assertEqual(report["image_assets"][0]["stockSource"],source)
+            self.assertIn(source["licenseUrl"], report["sections"][0]["image_source"])
+            self.assertEqual(json.loads((backup / "image_prompts.json").read_text())[0]["status"],"stock")
+            ai.assert_not_called()
 
-    def test_single_editorial_mode_rejects_non_ai_fallback_and_low_information_images(self) -> None:
+    def test_single_editorial_mode_keeps_native_cover_if_unmatched(self) -> None:
         with TemporaryDirectory() as directory:
-            root = Path(directory)
-            assets = root / "assets"
-            backup = root / "backup"
-
-            def fallback(_prompt, target, **_kwargs):
-                _quality_image(target)
-                return "fallback", "provider unavailable"
-
-            with patch("gen_rpt.image_generator._download_pollinations_or_fallback", side_effect=fallback):
-                with self.assertRaisesRegex(RuntimeError, "required editorial image"):
-                    generate_ai_image_assets(
-                        object(), "Topic", {"sections": []}, assets, backup, single_editorial_image=True
-                    )
+            root=Path(directory);assets=root / "assets";backup=root / "backup"
+            report={"sections":[{"title":"Original heading","paragraphs":["Every source fact is retained."],"visual_hint":"image-1"}]}
+            with patch("gen_rpt.image_generator.prepare_stock_photo",return_value=None), patch("gen_rpt.image_generator._download_pollinations_or_fallback") as ai:
+                result=generate_ai_image_assets(object(),"Topic",report,assets,backup,single_editorial_image=True)
+            self.assertEqual(result,{})
             self.assertFalse((assets / "image-1.png").exists())
-
-            def black(_prompt, target, **_kwargs):
-                target.parent.mkdir(parents=True, exist_ok=True)
-                Image.new("RGB", (1_200, 800), "black").save(target, format="PNG")
-                return "pollinations", ""
-
-            with patch("gen_rpt.image_generator._download_pollinations_or_fallback", side_effect=black):
-                with self.assertRaisesRegex(RuntimeError, "failed publication quality"):
-                    generate_ai_image_assets(
-                        object(), "Topic", {"sections": []}, assets, backup, single_editorial_image=True
-                    )
-            self.assertFalse((assets / "image-1.png").exists())
+            self.assertEqual(report["sections"][0]["paragraphs"],["Every source fact is retained."])
+            self.assertEqual(report["sections"][0]["visual_hint"],"")
+            self.assertEqual(json.loads((backup / "image_sources.json").read_text()),[])
+            ai.assert_not_called()
 
 
 class SimplifiedReleaseTests(unittest.TestCase):

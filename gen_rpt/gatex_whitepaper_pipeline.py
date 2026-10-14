@@ -26,6 +26,7 @@ from .openalex_fetch import collect_openalex_sources
 from .research_quality import TECHNICAL_AUTHORITY_DOMAIN_HINTS, build_research_fact_pack
 from .web_evidence import build_evidence_ledger
 from .web_fetch import SourceDocument, collect_sources
+from .stock_photo_assets import load_catalog, prepare_stock_photo
 
 
 class GatexWhitepaperError(RuntimeError):
@@ -2980,8 +2981,52 @@ def _sanitize_visual_brief(value: Any, *, fallback: Any = "") -> str:
     return sanitized
 
 
-def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str, dict[str, str]]:
+def _generate_visuals(content: Mapping[str, Any], target_dir: Path, *, title: str = "", industry: str = "") -> dict[str, dict[str, Any]]:
     rows = {str(item.get("id")): item for item in content.get("visuals") or [] if isinstance(item, Mapping)}
+    provider = os.getenv("GATEX_IMAGE_PROVIDER", "stock").strip().lower()
+    if provider == "stock":
+        results: dict[str, dict[str, Any]] = {}
+        used_ids: set[str] = set()
+        used_hashes: set[str] = set()
+        catalog = None
+        primary_title = title or str(content.get("title") or "")
+        for identifier, row in rows.items():
+            target = target_dir / f"{identifier}.jpg"
+            provenance_path = target.with_suffix(".source.json")
+            alt = _clean(row.get("alt"), 500)
+            if target.is_file() and not visual_quality_issues(target):
+                digest = hashlib.sha256(target.read_bytes()).hexdigest()
+                source = None
+                try: source = json.loads(provenance_path.read_text(encoding="utf-8"))
+                except (OSError, ValueError): pass
+                if not isinstance(source, dict): source = None
+                source_id = source.get("id") if source else None
+                if digest not in used_hashes and source_id not in used_ids:
+                    used_hashes.add(digest)
+                    if source_id: used_ids.add(source_id)
+                    results[identifier] = {"path":str(target), "alt":alt, "source":source}
+                    continue
+            try:
+                if catalog is None: catalog = load_catalog()
+                receipt = prepare_stock_photo(primary_title, target, industry=industry,
+                    summary=str(row.get("alt") or ""), seed=f"{primary_title}:{identifier}",
+                    exclude_ids=used_ids, catalog=catalog)
+            except Exception:
+                receipt = None
+            if receipt and visual_quality_issues(target):
+                receipt = None
+            if receipt and receipt["sha256"] not in used_hashes:
+                source = receipt["source"]
+                used_ids.add(source["id"]); used_hashes.add(receipt["sha256"])
+                provenance_path.write_text(json.dumps(source,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+                results[identifier] = {"path":str(target), "alt":source["title"] + ". Photo: " + source["author"] + " (" + source["license"] + ").", "source":source,
+                    "sha256":receipt["sha256"], "sourceImageSha256":receipt["sourceImageSha256"], "cropApplied":True}
+            else:
+                # Unmatched slots keep every text section, with no artificial photo.
+                results[identifier] = {"path":"", "alt":"", "source":None}
+        (target_dir / "image-sources.json").parent.mkdir(parents=True,exist_ok=True)
+        (target_dir / "image-sources.json").write_text(json.dumps(results,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        return results
     shared = (
         " Premium management-consulting white-paper editorial photography, documentary realism, precise natural light, "
         "restrained navy, steel, teal and neutral palette, 3:2 landscape composition. Show the actual industry, infrastructure, "
@@ -3000,7 +3045,7 @@ def _generate_visuals(content: Mapping[str, Any], target_dir: Path) -> dict[str,
                 return identifier, {"path": str(target), "alt": alt}
             print(f"[gatex.whitepaper] cached visual rejected for {identifier}: {'; '.join(issues)}", flush=True)
         errors: list[str] = []
-        provider = os.getenv("GATEX_IMAGE_PROVIDER", "pollinations").strip().lower()
+        provider = os.getenv("GATEX_IMAGE_PROVIDER", "stock").strip().lower()
         if provider not in {"pollinations", "apimart", "auto"}:
             raise GatexWhitepaperError(f"Unsupported GATEX_IMAGE_PROVIDER: {provider}")
         if provider in {"apimart", "auto"} and os.getenv("APIMART_API_KEY", "").strip():
@@ -3134,7 +3179,7 @@ def _build_payload(
             "heading": executive["headline"],
             "lead": executive["deck"],
             "paragraphs": executive["paragraphs"],
-            "visualPath": executive_visual["path"],
+            "visualPath": "" if executive_visual.get("source") else executive_visual["path"],
             "visualAlt": executive_visual["alt"],
             "footnotes": _citation_rows(executive.get("sourceIds") or [], source_map),
         }
@@ -3172,6 +3217,12 @@ def _build_payload(
                 "footnotes": _citation_rows(exhibit.get("sourceIds") or [], source_map),
             }
         )
+    # Credit cover photography on the following text page. Keep the cover image
+    # from being repeated as an executive-summary body photograph.
+    for section in sections:
+        source = visuals.get(section.get("id", ""), {}).get("source")
+        if isinstance(source, Mapping):
+            section["footnotes"].append(f'Photograph: {source["credit"]}. Source: {source["sourceUrl"]}. Licence: {source["licenseUrl"]}. Cropped for layout.' + (" Adapted photograph licensed under the same CC BY-SA terms." if "BY-SA" in source["license"].upper() else ""))
     outlook = content["outlook"]
     sections.append(
         {
@@ -3201,6 +3252,7 @@ def _build_payload(
         "accessScope": "member",
         "contentSections": sections,
         "coverImagePath": executive_visual["path"],
+        "imageSources": {key:value.get("source") for key,value in visuals.items() if value.get("source")},
         "authors": [],
         "authorsApproved": False,
         "publicationSignatory": {"name": "Frank Feng", "role": "Managing Partner"},
@@ -3549,8 +3601,8 @@ def generate_gatex_whitepaper(
     if period_issues := _reporting_period_issues(title, publication_date, content):
         raise GatexWhitepaperError("Reporting-period QA failed: " + " | ".join(period_issues))
 
-    _progress("visuals", 62, "Generating and pixel-checking five contextual editorial images.", 7)
-    visuals = _generate_visuals(content, work_dir / "assets")
+    _progress("visuals", 62, "Selecting licensed photographs for the report.", 7)
+    visuals = _generate_visuals(content, work_dir / "assets", title=title, industry=topic)
     payload = _build_payload(
         slug=slug,
         title=title,

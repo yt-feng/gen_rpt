@@ -50,7 +50,7 @@ jobs:
       QWEN_VL_API_KEY: ${{ secrets.QWEN_VL_API_KEY }}
       QWEN_VL_BASE_URL: https://dashscope.aliyuncs.com/compatible-mode/v1
       QWEN_VL_MODEL: qwen3-vl-flash
-      GATEX_REQUIRE_SEMANTIC_VISUAL_QA: "true"
+      GATEX_REQUIRE_SEMANTIC_VISUAL_QA: "false"
       TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
       OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
       GATEX_OPENALEX_MAX_QUERIES: "3"
@@ -70,7 +70,7 @@ jobs:
       GEN_RPT_GDELT_TIMESPAN: "36months"
       GEN_RPT_FETCH_TIMEOUT: "24"
       GATEX_IMAGE_WORKERS: "3"
-      GATEX_IMAGE_PROVIDER: apimart
+      GATEX_IMAGE_PROVIDER: stock
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -91,9 +91,11 @@ jobs:
       - name: Validate cloud configuration
         run: |
           test -n "$DEEPSEEK_API_KEY" || { echo "Missing DEEPSEEK_API_KEY" >&2; exit 1; }
-          test -n "$APIMART_API_KEY" || { echo "Missing APIMART_API_KEY for image generation" >&2; exit 1; }
+          if [ "$GATEX_IMAGE_PROVIDER" != "stock" ]; then
+            test -n "$APIMART_API_KEY" || { echo "Missing APIMART_API_KEY for explicitly selected AI images" >&2; exit 1; }
+            test -n "$QWEN_VL_API_KEY" || { echo "Missing QWEN_VL_API_KEY for AI image review" >&2; exit 1; }
+          fi
           test -n "$TAVILY_API_KEY" || { echo "Missing TAVILY_API_KEY" >&2; exit 1; }
-          test -n "$QWEN_VL_API_KEY" || { echo "Missing QWEN_VL_API_KEY" >&2; exit 1; }
           test -n "$OPENALEX_API_KEY" || echo "OpenAlex academic supplement is not configured; continuing with primary public sources."
           python -m py_compile \
             gen_rpt/deepseek_client.py \
@@ -101,13 +103,15 @@ jobs:
             gen_rpt/web_fetch.py \
             gen_rpt/gatex_pdf_renderer.py \
             gen_rpt/gatex_whitepaper_pipeline.py \
+            gen_rpt/stock_photo_assets.py \
             tools/generate_gatex_whitepaper.py
 
       - name: Verify publication quality gates
         run: |
           python -m pytest -q \
             tests/test_gatex_pdf_renderer.py \
-            tests/test_gatex_whitepaper_pipeline.py
+            tests/test_gatex_whitepaper_pipeline.py \
+            tests/test_gatex_stock_photos.py
 
       - name: Verify DeepSeek editorial route
         run: |
