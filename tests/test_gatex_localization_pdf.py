@@ -12,7 +12,7 @@ from PIL import Image, ImageDraw
 
 from gen_rpt.gatex_pdf_localization import (
     Block, LocalizationError, ModelClient, PROMPT_VERSION, PROGRESS_SCHEMA,
-    _image_hashes, digest, tokens, translate_pdf, unresolved_english,
+    _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
     validate_translation,
 )
 
@@ -426,6 +426,151 @@ class ModelContractTests(unittest.TestCase):
         self.assertEqual(len(messages[2]), 2, "independent review gets no failure history")
         with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
             validate_translation("GATEX", {"text": "GateX", "retainedEnglish": [{"text": "GateX", "kind": "brand"}], "reviewed": True})
+
+    def test_salutation_and_typed_codes_have_positive_source_evidence_without_expanding_names(self):
+        person = "Mr. Graham describes the choices."
+        code = "This is type C."
+        self.assertEqual(_source_identity_hints(person), [{"text": "Graham", "kind": "person"}])
+        self.assertEqual(_source_identity_hints(code), [{"text": "C", "kind": "code", "sourceCount": 1}])
+        self.assertEqual(_source_identity_hints("Market outlook. Graham describes choices."), [])
+        for source, target, identity in [(person, "Graham先生描述可供选择的方案。", {"text": "Graham", "kind": "person"}),
+                                        (code, "这是C类。", {"text": "C", "kind": "code"})]:
+            record = _source_verified_record(source, {"text": target, "retainedEnglish": [], "reviewed": True})
+            self.assertEqual(validate_translation(source, record)["retainedEnglish"], [identity])
+        for record in [
+            {"text": "Paul Graham先生描述可供选择的方案。", "retainedEnglish": []},
+            {"text": "Paul Graham先生描述可供选择的方案。", "retainedEnglish": [{"text": "Paul Graham", "kind": "person"}]},
+        ]:
+            with self.subTest(record=record):
+                with self.assertRaises(LocalizationError):
+                    validate_translation(person, {**_source_verified_record(person, record), "reviewed": True})
+        for source, target in [("An ordinary article.", "普通文章C类。"), (code, "这是C类 C。"),
+                               (code, "这是B类。"), (code, "这是C。"), ("Two type C examples and type C cases.", "两个C类例子。")]:
+            with self.subTest(source=source, target=target):
+                record = _source_verified_record(source, {"text": target, "retainedEnglish": [], "reviewed": True})
+                with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+                    validate_translation(source, record)
+
+    def test_actual_surname_and_type_shapes_receive_independent_review_without_metadata_retry(self):
+        client = self.client()
+        blocks = [Block("surname", 1, "Mr. Graham describes the choices.", (0, 0, 100, 30)),
+                  Block("type-code", 1, "This is type C.", (0, 40, 100, 70))]
+        messages, saved = [], []
+        client.accepted_callback = saved.append
+        def once(payload, **kwargs):
+            messages.append(payload)
+            if len(messages) == 1:
+                return {"blocks": [{"id": "surname", "text": "Graham先生描述可供选择的方案。", "retainedEnglish": []},
+                                   {"id": "type-code", "text": "这是C类。", "retainedEnglish": []}]}
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []} for block in blocks]}
+        client._once = once
+        result = client.translate(blocks)
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(saved[0], result)
+        generation = json.loads(messages[0][1]["content"])["blocks"]
+        self.assertEqual(generation[0]["sourceVerifiedIdentities"], [{"text": "Graham", "kind": "person"}])
+        self.assertEqual(result["type-code"]["retainedEnglish"], [{"text": "C", "kind": "code"}])
+        self.assertEqual(len(messages[1]), 2, "fresh review receives no failure history")
+
+    def test_reviewed_candidates_are_saved_before_remaining_failures_and_resume_only_pending(self):
+        with TemporaryDirectory() as directory:
+            source, output = Path(directory) / "en.pdf", Path(directory) / "zh.pdf"
+            source_pdf(source)
+            client = self.client()
+            states, generation_ids, review_ids = [], [], []
+            bad_ids = set()
+            def once(payload, **kwargs):
+                supplied = json.loads(payload[1]["content"])["blocks"]
+                if "source" in supplied[0]:
+                    review_ids.append([item["id"] for item in supplied])
+                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
+                generation_ids.append([item["id"] for item in supplied])
+                bad_ids.update(item["id"] for item in supplied if item["text"] == "Supply")
+                return {"blocks": [{"id": item["id"], "text": "Supply" if item["text"] == "Supply" else PAIRS[item["text"]],
+                                   "retainedEnglish": []} for item in supplied]}
+            client._once = once
+            with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+                translate_pdf(source, output, digest(source.read_bytes()), translation_client=client, save_progress=states.append)
+            self.assertEqual(len(generation_ids), 3)
+            self.assertEqual(generation_ids[1], list(bad_ids))
+            self.assertEqual(generation_ids[2], list(bad_ids))
+            self.assertEqual(len(review_ids), 1)
+            self.assertTrue(set(review_ids[0]).isdisjoint(bad_ids))
+            checkpoint = states[-1]
+            self.assertEqual(checkpoint["status"], "in-progress")
+            self.assertTrue(set(review_ids[0]).issubset(checkpoint["blocks"]))
+            self.assertTrue(bad_ids.isdisjoint(checkpoint["blocks"]))
+            self.assertTrue(all(record["reviewed"] and record["sourceHash"] for record in checkpoint["blocks"].values()))
+            self.assertFalse(output.exists(), "partial progress cannot create a PDF artifact")
+            self.assertFalse(output.with_name(output.name + ".partial").exists())
+            resumed = self.client()
+            resume_ids = []
+            def resumed_once(payload, **kwargs):
+                supplied = json.loads(payload[1]["content"])["blocks"]
+                if "source" in supplied[0]:
+                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
+                resume_ids.extend(item["id"] for item in supplied)
+                return {"blocks": [{"id": item["id"], "text": PAIRS[item["text"]], "retainedEnglish": []} for item in supplied]}
+            resumed._once = resumed_once
+            result = translate_pdf(source, output, digest(source.read_bytes()), progress=checkpoint,
+                                   translation_client=resumed, save_progress=states.append)
+            self.assertEqual(set(resume_ids), bad_ids)
+            self.assertTrue(result["qa"]["passed"])
+            self.assertEqual(states[-1]["status"], "complete")
+
+    def test_partial_review_only_accepts_true_verdicts_and_does_not_repeat_approved_blocks(self):
+        client = self.client()
+        blocks = [Block("approved", 0, "Demand", (0, 0, 100, 30)),
+                  Block("pending", 0, "Revenue may grow 7%.", (0, 40, 100, 70))]
+        messages, saved, rejected = [], [], []
+        client.accepted_callback = saved.append
+        client.rejection_callback = rejected.append
+        def once(payload, **kwargs):
+            messages.append(payload)
+            supplied = json.loads(payload[1]["content"])["blocks"]
+            if "source" in supplied[0]:
+                return {"blocks": [{"id": item["id"], "complete": True, "faithful": item["id"] == "approved",
+                    "issues": [] if item["id"] == "approved" else ["may changed to will"]} for item in supplied]}
+            return {"blocks": [{"id": item["id"], "text": "需求" if item["id"] == "approved" else "收入将增长7%。",
+                                "retainedEnglish": []} for item in supplied]}
+        client._once = once
+        with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
+            client.translate(blocks)
+        self.assertEqual(len(messages), 6, "three generation and fresh review attempts maximum")
+        self.assertEqual(list(saved[0]), ["approved"])
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(len(rejected), 3)
+        for rejection in rejected:
+            self.assertEqual(rejection["code"], "SEMANTIC_REVIEW_FAILED")
+            self.assertEqual(rejection["sourceHash"], digest("Revenue may grow 7%."))
+            self.assertEqual(rejection["source"], "Revenue may grow 7%.")
+            self.assertEqual(rejection["record"]["text"], "收入将增长7%。")
+            self.assertEqual(rejection["normalizedCandidate"]["text"], "收入将增长7%。")
+            self.assertFalse(rejection["normalizedCandidate"]["reviewed"])
+            self.assertEqual(rejection["review"]["issues"], ["may changed to will"])
+        self.assertIn("Revenue may grow 7%.", messages[2][-1]["content"])
+        self.assertIn("收入将增长7%。", messages[2][-1]["content"])
+        self.assertIn("may changed to will", messages[2][-1]["content"])
+        for payload in [messages[2], messages[4]]:
+            self.assertEqual([item["id"] for item in json.loads(payload[1]["content"])["blocks"]], ["pending"])
+        for payload in [messages[1], messages[3], messages[5]]:
+            self.assertEqual(len(payload), 2, "the reviewer is never pressured to change its verdict")
+
+    def test_malformed_review_cannot_checkpoint_any_candidate(self):
+        client = self.client()
+        saved, calls = [], []
+        client.accepted_callback = saved.append
+        def once(payload, **kwargs):
+            calls.append(payload)
+            if len(calls) % 2:
+                return {"blocks": [{"id": "b", "text": "需求", "retainedEnglish": []}]}
+            return {"blocks": [{"id": "b", "complete": "true", "faithful": True, "issues": []}]}
+        client._once = once
+        with self.assertRaisesRegex(LocalizationError, "REVIEW_COVERAGE_MISMATCH"):
+            client.translate([Block("b", 0, "Demand", (0, 0, 100, 30))])
+        self.assertEqual(saved, [])
+        self.assertEqual(len(calls), 6)
 
     def test_source_verified_parenthesized_labels_keep_counts_and_do_not_allow_articles(self):
         source = "Choose (a) a task, (b) a smaller task, or (c) a larger task."
