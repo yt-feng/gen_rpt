@@ -192,8 +192,8 @@ jobs:
       - name: Warm and verify public Chinese news content
         env:
           GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
-          GATEX_NEWS_MAX_PASSES: ${{ github.event_name == 'workflow_dispatch' && toJSON(inputs.news_max_passes) || '12' }}
-          GATEX_NEWS_BUDGET_SECONDS: ${{ github.event_name == 'workflow_dispatch' && toJSON(inputs.news_budget_seconds) || '600' }}
+          GATEX_NEWS_MAX_PASSES: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.news_max_passes) || '12' }}
+          GATEX_NEWS_BUDGET_SECONDS: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.news_budget_seconds) || '600' }}
         run: |
           umask 077
           PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only \
