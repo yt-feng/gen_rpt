@@ -60,6 +60,14 @@ volume issue performance efficiency output input capacity demand supply
 """.split())
 SAFE_WORDS = {"GateX", "PDF", "USD", "EUR", "GBP", "CNY", "RMB", "AED", "SAR", "IDR", "JPY", "HKD", "SGD", "AUD", "CAD", "CHF", "INR", "AI", "API", "GPU", "CPU", "GDP", "GCC", "UAE", "BCI", "IPO", "M", "B", "T", "Q1", "Q2", "Q3", "Q4", "H1", "H2", "MW", "GW", "kWh", "GWh", "MWh", "Hz", "GHz", "MHz", "GB", "TB", "bps", "kg", "km", "mm", "cm", "m", "s", "t", "x", "y"}
 RETAINED_KINDS = {"brand", "person", "organisation", "acronym", "code", "unit", "source_title"}
+# Reviewed source-exact house mastheads and this source work's two title forms.
+# These are deliberately bounded; unknown works require fresh semantic review,
+# rather than guessing which Chinese phrase corresponds to an English title.
+HOUSE_MASTHEADS = {"GATEX INTELLIGENCE": ("GATEX 前沿洞察", "GATEX"),
+                   "TECHNOLOGY FRONTIERS": ("科技前沿", None)}
+SOURCE_TITLE_TRANSLATIONS = {"Good and Bad Procrastination": "拖延的好与坏",
+                             "Good vs. Bad Procrastination": "拖延的好与坏"}
+SOURCE_TITLE_ALIASES = ("拖延的好与坏", "好的拖延与坏的拖延", "好与坏的拖延")
 
 
 class LocalizationError(RuntimeError):
@@ -91,6 +99,22 @@ def _strip_links(value: str) -> str:
     return LINK.sub("", value)
 
 
+
+def _known_title_counterpart(english: str, target: str) -> bool:
+    # A curated title variant must be marked as a title or paired directly with
+    # its retained English original, not merely occur in ordinary body prose.
+    original = re.escape(english)
+    for alias in SOURCE_TITLE_ALIASES:
+        chinese = re.escape(alias)
+        for left, right in (("《", "》"), ("“", "”"), ("「", "」"), ("『", "』")):
+            if re.search(re.escape(left) + r"\s*" + chinese + r"(?:\s*[（(]\s*" + original + r"\s*[)）])?\s*" + re.escape(right), target):
+                return True
+        if re.search(chinese + r"\s*[（(]\s*" + original + r"\s*[)）]", target):
+            return True
+        if re.search(original + r"(?:》|”|」|』)?\s*[（(]\s*" + chinese + r"\s*[)）]", target):
+            return True
+    return False
+
 def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = None) -> list[str]:
     source_markers = Counter(STRUCTURAL_MARKER.findall(source))
     target_markers = Counter(STRUCTURAL_MARKER.findall(target))
@@ -103,6 +127,8 @@ def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = N
         text = entry.get("text")
         if not isinstance(text, str) or not text or text not in source or len(text) > 100:
             raise LocalizationError("INVALID_RETAINED_IDENTITY")
+        if text in SOURCE_TITLE_TRANSLATIONS and not _known_title_counterpart(text, target):
+            raise LocalizationError("MISSING_CHINESE_SOURCE_TITLE")
         panel_code = entry["kind"] in {"code", "acronym", "unit"} and re.fullmatch(r"[A-Z]", text)
         if panel_code and not re.search(r"(?<![A-Za-z0-9])" + re.escape(text) + r"(?![A-Za-z0-9])", source):
             raise LocalizationError("INVALID_RETAINED_IDENTITY")
@@ -177,6 +203,16 @@ def _source_verified_record(source: str, record: dict) -> dict:
     if not isinstance(retained, list) or not isinstance(result.get("text"), str):
         return result
     target = result["text"]
+    house = HOUSE_MASTHEADS.get(source)
+    if house and compact(target) == compact(house[0]):
+        # Only these exact, fully translated house mastheads are reconciled.
+        # Keep all other metadata unchanged so an invented identity still fails.
+        retained = [entry for entry in retained if not (isinstance(entry, dict)
+                    and entry.get("kind") == "brand" and entry.get("text") == source)]
+        if house[1]:
+            identity = {"text": house[1], "kind": "brand"}
+            if identity not in retained:
+                retained.append(identity)
     target_codes = Counter()
     for match in re.finditer(r"(?<![A-Za-z0-9])([A-Z])\s*(?:类|型)|(?:类型|类别)\s*([A-Z])(?![A-Za-z0-9])", target):
         target_codes[match.group(1) or match.group(2)] += 1
@@ -190,6 +226,11 @@ def _source_verified_record(source: str, record: dict) -> dict:
             retained.append(identity)
     result["retainedEnglish"] = retained
     return result
+
+def _source_title_hints(source: str) -> list[dict]:
+    return [{"sourceTitle": english, "chineseTitle": chinese}
+            for english, chinese in SOURCE_TITLE_TRANSLATIONS.items() if english in source]
+
 
 def _literal_record(source: str) -> dict | None:
     if not ENGLISH.search(_strip_links(source)):
@@ -399,8 +440,13 @@ GateX-owned mastheads GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS use GATEX 前�
 and 科技前沿 respectively; original article titles, sources and author identities stay faithful.
 Return JSON {"blocks":[{"id":"...","text":"complete translation","retainedEnglish":
 [{"text":"exact source identity","kind":"brand|person|organisation|acronym|code|unit|source_title"}]}]}.
-List only genuine retained identities; a quoted source_title must accompany its Chinese
-translation. A retainedEnglish text must be an EXACT source substring, including casing
+List only genuine retained identities. When retaining an original English source_title,
+include the Chinese translation of that TITLE itself beside it: Chinese in the surrounding
+sentence is not a Chinese title counterpart. sourceTitleTranslations provide reviewed,
+source-bound Chinese titles; e.g. 《拖延的好与坏》（Good and Bad Procrastination）.
+Preserve the literal sense of copying a work without inventing plagiarism or authorization;
+neutral Chinese 复制 can express copying without choosing an unsupported interpretation.
+A retainedEnglish text must be an EXACT source substring, including casing
 and whitespace, and actually appear in the translation. Omit metadata for a name that
 has been fully translated into Chinese. Use exactly the listed kind spellings, including
 organisation. sourceVerifiedIdentities contain positive literal source cues, not permission
@@ -418,7 +464,9 @@ one entry for EVERY id. Mark false and describe any substantive discrepancy. Sty
 does not fail fidelity. A faithful translation may retain proper names and technical codes.
 Never accept expansion of a source surname into an unsupported full name. Source type C
 and target C类 preserve the same type code. GateX-owned masthead translations GATEX 前沿洞察
-and 科技前沿 correspond to GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS respectively."""
+and 科技前沿 correspond to GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS respectively.
+If an English work title is retained, its own Chinese title counterpart must also be present;
+Chinese elsewhere in the sentence does not supply that counterpart."""
 
         def exact_entries(result, expected, code):
             entries = result.get("blocks")
@@ -440,6 +488,7 @@ and 科技前沿 correspond to GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS respe
                 "retainedMetadataType": rejection.get("retainedMetadataType", "list"),
                 "sourceMarkers": rejection.get("sourceMarkers", {}), "targetMarkers": rejection.get("targetMarkers", {}),
                 "sourceVerifiedIdentities": _source_identity_hints(rejection["source"]),
+                "sourceTitleTranslations": _source_title_hints(rejection["source"]),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
                 "allowedRetainedKinds": sorted(RETAINED_KINDS),
                 "instruction": "Use exact source spelling, casing and whitespace for retained identities. Do not expand a surname using another block. Translate ordinary English fully. Preserve source-verified type codes and parenthesized letter markers with their counts. retainedEnglish must be a JSON array. Do not invent context or identities."}
@@ -453,7 +502,8 @@ and 科技前沿 correspond to GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS respe
             feedback_for_attempt, candidates = [], {}
             try:
                 source = [{"id": b.id, "sourcePage": b.page + 1, "text": b.text,
-                    "sourceVerifiedIdentities": _source_identity_hints(b.text)} for b in pending]
+                    "sourceVerifiedIdentities": _source_identity_hints(b.text),
+                    "sourceTitleTranslations": _source_title_hints(b.text)} for b in pending]
                 messages = [{"role": "system", "content": system},
                     {"role": "user", "content": json.dumps({"blocks": source}, ensure_ascii=False)}]
                 if feedback:
