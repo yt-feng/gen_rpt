@@ -407,7 +407,96 @@ class ModelContractTests(unittest.TestCase):
         with patch("shutil.which", return_value="/usr/bin/tesseract"), patch("pytesseract.image_to_data", return_value=fake_tesseract):
             with self.assertRaisesRegex(LocalizationError, "RASTER_TEXT_COVERAGE_MISMATCH"):
                 client.ocr(stream.getvalue())
-        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(calls), 4)
+
+    def test_actual_native_cover_words_and_chair_edge_candidate_are_independently_reconciled(self):
+        client = self.client()
+        image = Image.new("RGB", (1786, 2526), "white")
+        stream = io.BytesIO()
+        image.save(stream, format="PNG")
+        evidence = {"width": 1786, "height": 2526, "words": [
+            {"text": "GATEX", "confidence": 91, "bbox": [146, 161, 382, 211]},
+            {"text": "e", "confidence": 76, "bbox": [792, 2105, 823, 2132]}]}
+        native = [{"text": "GATEX", "bbox": [48 * 1000 / 595.276, 52.1576 * 1000 / 841.89,
+                  127.235 * 1000 / 595.276, 75.1576 * 1000 / 841.89]}]
+        responses = [{"verified": True, "uncertainRegions": [], "lines": []},
+                     {"verified": True, "classification": "non_text", "uncertainRegions": [], "lines": []}]
+        calls = []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            return responses.pop(0)
+        client._once = once
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+            result = client.ocr(stream.getvalue(), native_words=native)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(result["lines"], [])
+        self.assertEqual(result["coverage"]["nativeWordCount"], 1)
+        checks = result["coverage"]["cropChecks"]
+        self.assertEqual(len(checks), 1)
+        self.assertEqual(checks[0]["detector"]["bbox"], [792, 2105, 823, 2132])
+        self.assertEqual(checks[0]["review"]["classification"], "non_text")
+        self.assertIn("Independently inspect", calls[1][0]["content"])
+        self.assertNotIn('"text": "e"', json.dumps(calls[1][1]))
+
+    def test_independent_crop_recovers_an_omitted_table_number(self):
+        client = self.client()
+        image = Image.new("RGB", (20, 20), "white")
+        stream = io.BytesIO()
+        image.save(stream, format="PNG")
+        evidence = {"width": 20, "height": 20, "words": [
+            {"text": "Revenue", "confidence": 90, "bbox": [0, 0, 10, 10]},
+            {"text": "25%", "confidence": 95, "bbox": [10, 0, 20, 10]}]}
+        responses = [{"verified": True, "uncertainRegions": [], "lines": [{"text": "Revenue", "bbox": [0, 0, 500, 500]}]},
+            {"verified": True, "classification": "text", "uncertainRegions": [], "lines": [{"text": "25%", "bbox": [500, 0, 1000, 500]}]}]
+        client._once = lambda messages, **kwargs: responses.pop(0)
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+            result = client.ocr(stream.getvalue())
+        self.assertEqual([line["text"] for line in result["lines"]], ["Revenue", "25%"])
+        self.assertEqual(result["lines"][1]["bbox"], [500, 0, 1000, 500])
+
+    def test_unreadable_crop_is_not_dismissed_as_graphics(self):
+        client = self.client()
+        image = Image.new("RGB", (20, 20), "white")
+        stream = io.BytesIO()
+        image.save(stream, format="PNG")
+        evidence = {"width": 20, "height": 20, "words": [{"text": "25%", "confidence": 95, "bbox": [10, 0, 20, 10]}]}
+        calls = []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            if len(calls) == 1:
+                return {"verified": True, "uncertainRegions": [], "lines": []}
+            return {"verified": False, "classification": "non_text", "uncertainRegions": ["Unreadable candidate"], "lines": []}
+        client._once = once
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+            with self.assertRaisesRegex(LocalizationError, "UNVERIFIED_RASTER_TEXT"):
+                client.ocr(stream.getvalue())
+        self.assertEqual(len(calls), 4)
+
+    def test_native_number_does_not_cover_omitted_raster_number_at_another_location(self):
+        client = self.client()
+        image = Image.new("RGB", (100, 100), "white")
+        stream = io.BytesIO()
+        image.save(stream, format="PNG")
+        evidence = {"width": 100, "height": 100, "words": [
+            {"text": "25%", "confidence": 95, "bbox": [0, 0, 10, 10]},
+            {"text": "25%", "confidence": 95, "bbox": [80, 80, 90, 90]}]}
+        responses = [{"verified": True, "uncertainRegions": [], "lines": [{"text": "25%", "bbox": [0, 0, 100, 100]}]},
+            {"verified": True, "classification": "text", "uncertainRegions": [], "lines": [{"text": "25%", "bbox": [625, 625, 875, 875]}]}]
+        client._once = lambda messages, **kwargs: responses.pop(0)
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+            result = client.ocr(stream.getvalue(), native_words=[{"text": "25%", "bbox": [0, 0, 100, 100]}])
+        self.assertEqual(len(result["lines"]), 2)
+        self.assertEqual(len(result["coverage"]["cropChecks"]), 1)
+
+    def test_explicit_reviewed_single_letter_panel_code_requires_exact_source(self):
+        record = {"text": "图A", "retainedEnglish": [{"text": "A", "kind": "code"}], "reviewed": True}
+        self.assertEqual(validate_translation("Figure A", record)["text"], "图A")
+        with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+            validate_translation("Figure B", record)
+        with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+            validate_translation("Figure AI", record)
+        with self.assertRaisesRegex(LocalizationError, "ORDINARY_ENGLISH_RETAINED"):
+            validate_translation("A report", {"text": "A报告", "retainedEnglish": [{"text": "A", "kind": "brand"}], "reviewed": True})
 
     def test_source_title_requires_parallel_chinese_translation(self):
         source = "The global credit cycle"
