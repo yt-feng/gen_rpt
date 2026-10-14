@@ -246,6 +246,47 @@ class RunnerTests(unittest.TestCase):
         self.assertEqual(caught.exception.status, 403)
         self.assertEqual(len(calls), 1)
 
+    def test_http_error_diagnostic_is_allowlisted_without_reading_body(self):
+        for header, expected in [('CATALOG_SUBREQUEST_LIMIT', 'CATALOG_SUBREQUEST_LIMIT'),
+                ('private source prose and token', None), ('A' * 81, None)]:
+            with self.subTest(header=header):
+                calls, sleeps = [], []
+                class Response:
+                    status_code = 500
+                    headers = {'x-gatex-error-code': header}
+                    def close(self):
+                        pass
+                    def iter_content(self, _):
+                        raise AssertionError('failed response body must not be read')
+                class Session:
+                    def __enter__(self):
+                        return self
+                    def __exit__(self, *args):
+                        pass
+                    def request(self, *args, **kwargs):
+                        calls.append(kwargs)
+                        return Response()
+                api = runner.GatexApi('test-token', session_factory=Session, sleep=sleeps.append)
+                with self.assertRaises(runner.RunnerError) as caught:
+                    api.inventory()
+                self.assertEqual(caught.exception.code, 'API_HTTP_ERROR')
+                self.assertEqual(caught.exception.status, 500)
+                self.assertEqual(caught.exception.api_code, expected)
+                self.assertEqual(len(calls), 3)
+                self.assertEqual(sleeps, [1, 2])
+                self.assertEqual(str(caught.exception), 'API_HTTP_ERROR')
+
+    def test_per_document_failure_summary_retains_only_safe_api_diagnostic(self):
+        api = FakeApi([item('a')])
+        def fail(_):
+            raise runner.RunnerError('API_HTTP_ERROR', 500, 'SOURCE_STORAGE_FAILURE')
+        api.source = fail
+        report = self.run_batch(api)
+        failed = report['results'][0]
+        self.assertEqual(failed['code'], 'API_HTTP_ERROR')
+        self.assertEqual(failed['httpStatus'], 500)
+        self.assertEqual(failed['apiCode'], 'SOURCE_STORAGE_FAILURE')
+
     def test_unknown_news_post_is_checked_before_repeating_model_work(self):
         api = runner.NewsfeedApi('test-token', sleep=lambda _: self.fail('completed warm retried'))
         calls = []
