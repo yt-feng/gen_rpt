@@ -102,9 +102,8 @@ class PdfLocalizationTests(unittest.TestCase):
             self.assertEqual(states[-1]["sourceSha256"], digest(source.read_bytes()))
             rejections = states[-1]["modelRejections"]
             self.assertEqual(len(rejections), 3)
-            self.assertEqual(rejections[-1]["source"], "Research report")
             self.assertEqual(rejections[-1]["record"]["retainedEnglish"][0]["text"], "Invented organisation")
-            self.assertEqual(rejections[-1]["sourceHash"], digest("Research report"))
+            self.assertEqual(rejections[-1]["sourceHash"], digest(rejections[-1]["source"]))
             self.assertEqual(rejections[-1]["code"], "INVALID_RETAINED_IDENTITY")
             self.assertIn(rejections[-1]["blockId"], calls[1][-1]["content"])
 
@@ -427,6 +426,73 @@ class ModelContractTests(unittest.TestCase):
         self.assertEqual(len(messages[2]), 2, "independent review gets no failure history")
         with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
             validate_translation("GATEX", {"text": "GateX", "retainedEnglish": [{"text": "GateX", "kind": "brand"}], "reviewed": True})
+
+    def test_source_verified_parenthesized_labels_keep_counts_and_do_not_allow_articles(self):
+        source = "Choose (a) a task, (b) a smaller task, or (c) a larger task."
+        target = "选择（a）一项任务、（b）一项较小的任务或（c）一项较大的任务。"
+        record = {"text": target, "retainedEnglish": [], "reviewed": True}
+        self.assertEqual(validate_translation(source, record)["text"], target)
+        for invalid in [target.replace("（c）", "（d）"), target + "（a）", target.replace("（a）", "a")]:
+            with self.subTest(invalid=invalid):
+                with self.assertRaisesRegex(LocalizationError, "STRUCTURAL_MARKER_MISMATCH"):
+                    validate_translation(source, {**record, "text": invalid})
+        with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+            validate_translation(source, {**record, "text": target + " a", "retainedEnglish": [{"text": "a", "kind": "code"}]})
+        with self.assertRaisesRegex(LocalizationError, "STRUCTURAL_MARKER_MISMATCH"):
+            validate_translation("An ordinary article.", {"text": "普通文章（a）", "retainedEnglish": [], "reviewed": True})
+
+    def test_surname_is_source_verified_only_with_explicit_metadata_or_chinese_translation(self):
+        source = "Graham describes the available choices."
+        target = "Graham描述可供选择的方案。"
+        with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+            validate_translation(source, {"text": target, "retainedEnglish": [], "reviewed": True})
+        self.assertEqual(validate_translation(source, {"text": target, "retainedEnglish": [{"text": "Graham", "kind": "person"}], "reviewed": True})["text"], target)
+        self.assertEqual(validate_translation(source, {"text": "格雷厄姆描述可供选择的方案。", "retainedEnglish": [], "reviewed": True})["text"], "格雷厄姆描述可供选择的方案。")
+        with self.assertRaisesRegex(LocalizationError, "ORDINARY_ENGLISH_RETAINED"):
+            validate_translation("Market outlook", {"text": "Market展望", "retainedEnglish": [{"text": "Market", "kind": "person"}], "reviewed": True})
+
+    def test_retry_reports_all_rejected_blocks_and_exact_tokens_together(self):
+        client = self.client()
+        blocks = [Block("name-one", 0, "Graham describes a method.", (0, 0, 100, 30)),
+                  Block("name-two", 0, "Stone describes another method.", (0, 40, 100, 70))]
+        responses = [
+            {"blocks": [{"id": "name-one", "text": "Graham描述一种方法。", "retainedEnglish": []},
+                        {"id": "name-two", "text": "Stone描述另一种方法。", "retainedEnglish": []}]},
+            {"blocks": [{"id": "name-one", "text": "Graham描述一种方法。", "retainedEnglish": [{"text": "Graham", "kind": "person"}]},
+                        {"id": "name-two", "text": "Stone描述另一种方法。", "retainedEnglish": [{"text": "Stone", "kind": "person"}]}]},
+            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []} for block in blocks]},
+        ]
+        messages, rejected = [], []
+        client.rejection_callback = rejected.append
+        def once(payload, **kwargs):
+            messages.append(payload)
+            return responses.pop(0)
+        client._once = once
+        result = client.translate(blocks)
+        self.assertEqual(set(result), {block.id for block in blocks})
+        self.assertEqual([record["unresolvedTokens"] for record in rejected], [["Graham"], ["Stone"]])
+        feedback = messages[1][-1]["content"]
+        for value in ["name-one", "name-two", "Graham", "Stone", "unresolvedTokens"]:
+            self.assertIn(value, feedback)
+        self.assertEqual(len(messages), 3)
+        self.assertEqual(len(messages[2]), 2, "review receives only actual source/counterpart pairs")
+
+    def test_malformed_retained_metadata_keeps_safe_error_and_private_record(self):
+        client = self.client()
+        block = Block("metadata-shape", 0, "Revenue may grow 7%.", (0, 0, 100, 30))
+        messages, rejected = [], []
+        client.rejection_callback = rejected.append
+        def once(payload, **kwargs):
+            messages.append(payload)
+            return {"blocks": [{"id": block.id, "text": "收入可能增长7%。", "retainedEnglish": {"text": "not a list"}}]}
+        client._once = once
+        with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+            client.translate([block])
+        self.assertEqual(len(messages), 3)
+        self.assertEqual(len(rejected), 3)
+        self.assertEqual(rejected[-1]["retainedMetadataType"], "dict")
+        self.assertEqual(rejected[-1]["record"]["retainedEnglish"], {"text": "not a list"})
+        self.assertIn('"retainedMetadataType": "dict"', messages[1][-1]["content"])
 
     def test_persistent_semantic_failure_is_three_generation_attempts(self):
         client = self.client()
