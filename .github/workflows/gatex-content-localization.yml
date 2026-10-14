@@ -1,0 +1,178 @@
+name: GateX content localization
+
+on:
+  # Enable only after the first verified publication and readback.
+  # schedule:
+  #   - cron: '23 4 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/gatex-content-localization.yml'
+      - 'gen_rpt/gatex_pdf_localization.py'
+      - 'scripts/gatex_localization_runner.py'
+      - 'scripts/gatex_pdf_translate.py'
+      - 'requirements-localization.txt'
+      - 'tests/test_gatex_localization*.py'
+  workflow_dispatch:
+    inputs:
+      inventory_only:
+        description: 'Audit published PDF inventory without model calls or news warming'
+        type: boolean
+        default: false
+      pdf_limit:
+        description: 'Maximum pending PDFs (0 processes all)'
+        type: number
+        default: 5
+      sample_id:
+        description: 'Optional exact published PDF id, for example catalog:middle-east-situation-analysis'
+        type: string
+        default: ''
+      concurrency:
+        description: 'Parallel PDF translations'
+        type: choice
+        options: ['2', '3']
+        default: '2'
+      force:
+        description: 'Reprocess already verified Chinese editions'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gatex-content-localization
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline validation runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
+          python -m pip install --disable-pip-version-check -r requirements-localization.txt
+      - name: Validate recovery and publication without provider credentials
+        run: python -m unittest discover -s tests -p 'test_gatex_localization_runner.py'
+
+  inventory:
+    if: github.event_name == 'workflow_dispatch' && inputs.inventory_only
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install HTTP client
+        run: python -m pip install --disable-pip-version-check 'requests>=2.32.0'
+      - name: Audit complete inventory without model calls
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+        run: |
+          umask 077
+          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --inventory-only \
+            --runtime "$RUNNER_TEMP/gatex-localization-inventory-private" \
+            --summary "$RUNNER_TEMP/gatex-localization-inventory-qa/summary.json"
+      - name: Upload inventory QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-localization-inventory-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-localization-inventory-qa/summary.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  localize:
+    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && !inputs.inventory_only
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      GATEX_LOCALIZATION_LIMIT: ${{ inputs.pdf_limit || '0' }}
+      GATEX_LOCALIZATION_CONCURRENCY: ${{ inputs.concurrency || '2' }}
+      GATEX_LOCALIZATION_SAMPLE: ${{ inputs.sample_id || '' }}
+      GATEX_LOCALIZATION_FORCE: ${{ inputs.force && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PDF localization runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
+          python -m pip install --disable-pip-version-check -r requirements-localization.txt
+      - name: Verify localization contracts
+        run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
+      - name: Translate, validate, publish and read back Chinese PDFs
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+          APIMART_API_KEY: ${{ secrets.APIMART_API_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          force_args=()
+          if [ -n "$GATEX_LOCALIZATION_SAMPLE" ]; then force_args+=(--sample-id "$GATEX_LOCALIZATION_SAMPLE"); fi
+          if [ "$GATEX_LOCALIZATION_FORCE" = 'true' ]; then force_args+=(--force); fi
+          PYTHONPATH=. python -u scripts/gatex_localization_runner.py \
+            --limit "$GATEX_LOCALIZATION_LIMIT" \
+            --concurrency "$GATEX_LOCALIZATION_CONCURRENCY" \
+            --runtime "$RUNNER_TEMP/gatex-localization-private" \
+            --summary "$RUNNER_TEMP/gatex-localization-qa/summary.json" \
+            "${force_args[@]}"
+      - name: Upload QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-localization-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-localization-qa/summary.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove private working documents
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/gatex-localization-private"
+
+  warm-news:
+    if: (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && !inputs.inventory_only
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install HTTP client
+        run: python -m pip install --disable-pip-version-check 'requests>=2.32.0'
+      - name: Warm and verify public Chinese news content
+        env:
+          GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
+        run: |
+          umask 077
+          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only \
+            --runtime "$RUNNER_TEMP/gatex-news-localization-private" \
+            --summary "$RUNNER_TEMP/gatex-news-localization-qa/summary.json"
+      - name: Upload news QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-news-localization-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-news-localization-qa/summary.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove private working documents
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/gatex-news-localization-private"
