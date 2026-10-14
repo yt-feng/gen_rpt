@@ -27,7 +27,7 @@ TOPICS = (
     ('airport','aviation','airline','机场','航空'),
     ('finance','investment','bank','capital markets','stock exchange','equity','金融','投资','银行','资本市场','证券交易所','股权'),
 )
-GEOGRAPHIES = ('Singapore','新加坡','Hong Kong','香港','Frankfurt','法兰克福','United Arab Emirates','UAE','阿联酋','Saudi Arabia','Saudi','沙特','China','中国','United States','USA','美国','United Kingdom','UK','英国','Germany','德国','Japan','日本','India','印度','Qatar','卡塔尔','Bahrain','巴林','Kuwait','科威特','Oman','阿曼','Australia','澳大利亚','Canada','加拿大','Malaysia','马来西亚','Indonesia','印度尼西亚','Thailand','泰国','Vietnam','越南','Gulf','海湾','Middle East','中东','Dubai','迪拜','Riyadh','利雅得','GCC','海合会','MENA','中东北非')
+GEOGRAPHIES = ('Singapore','新加坡','Hong Kong','香港','Frankfurt','法兰克福','United Arab Emirates','UAE','阿联酋','Saudi Arabia','Saudi','沙特','China','中国','United States','USA','美国','United Kingdom','UK','英国','Germany','德国','Japan','日本','India','印度','Qatar','卡塔尔','Bahrain','巴林','Kuwait','科威特','Oman','阿曼','Australia','澳大利亚','Canada','加拿大','Malaysia','马来西亚','Indonesia','印度尼西亚','Thailand','泰国','Vietnam','越南','Gulf','海湾','Middle East','中东','Dubai','迪拜','Riyadh','利雅得','GCC','海合会','MENA','中东北非','Abu Dhabi','阿布扎比','Shanghai','上海','Beijing','北京','Shenzhen','深圳')
 
 
 def normalized(value):

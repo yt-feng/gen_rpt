@@ -45,6 +45,8 @@ class GateXStockPhotoTests(unittest.TestCase):
     def test_geography_does_not_fake_named_facility(self):
         assert stock.select_stock_photo('Saudi Arabia shipping',CATALOG) is None
         assert stock.select_stock_photo('China supply chain outlook',CATALOG) is None
+        for place in ('Dubai','Abu Dhabi','Riyadh','Shanghai','Beijing','Shenzhen','GCC','MENA','迪拜','阿布扎比','利雅得','上海','北京','深圳','海合会','中东北非'):
+            assert stock.select_stock_photo(place+' shipping',CATALOG) is None
         assert stock.select_stock_photo('Singapore shipping',CATALOG)['id']=='port'
         assert stock.select_stock_photo('Shipping industry outlook',CATALOG)['id']=='port'
         assert stock.select_stock_photo('Hong Kong industry',CATALOG)['id']=='hong-kong'
@@ -153,6 +155,12 @@ class GateXStockPhotoTests(unittest.TestCase):
             assert report["image_assets"][0]["image_sha256"]==hashlib.sha256((root/"assets"/"image-1.png").read_bytes()).hexdigest()
             assert candidate["license_url"] in report["sections"][0]["image_source"]
             selected.assert_not_called();ai.assert_not_called()
+
+    def test_original_photo_also_requires_primary_subject_match(self):
+        from gen_rpt.image_generator import _source_photo_matches_primary
+        assert not _source_photo_matches_primary({"source_title":"Saudi Arabia crude oil outlook", "caption":"Solar capacity comparison", "alt_text":"Solar panels"}, "Saudi Arabia crude oil outlook", "")
+        assert _source_photo_matches_primary({"caption":"Semiconductor wafer facility", "alt_text":"Semiconductor plant"}, "Semiconductor industry", "")
+        assert _source_photo_matches_primary({"caption":"Data center infrastructure", "alt_text":"Computing servers"}, "Data center investment", "")
 
     def test_long_photo_licence_caption_is_retained_by_normalized_renderer(self):
         from gen_rpt.gatex_pdf_renderer import _normalized_section

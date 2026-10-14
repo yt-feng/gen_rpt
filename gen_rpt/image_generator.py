@@ -20,7 +20,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageOps, ImageStat
 
 from .deepseek_client import DeepSeekClient
 from .theme import load_theme
-from .stock_photo_assets import prepare_stock_photo
+from .stock_photo_assets import prepare_stock_photo, select_stock_photo, TOPICS, normalized, matches
 
 THEME = load_theme()
 PALETTE = THEME.get("palette", {})
@@ -95,7 +95,7 @@ def generate_ai_image_assets(
             for candidate in sorted(candidates, key=lambda row: _candidate_score(row, topic), reverse=True):
                 # Only explicit commercial licences. A footer mentioning a licence
                 # is insufficient for restrictive/noncommercial source images.
-                if not _commercial_source_license(candidate) or _candidate_score(candidate, topic) < 3:
+                if not _commercial_source_license(candidate) or not _source_photo_matches_primary(candidate, topic, str(report.get("industry") or "")) or _candidate_score(candidate, topic) < 3:
                     continue
                 digest, _ = _download_source_candidate(candidate, target, timeout_seconds=min(18, timeout_seconds))
                 if digest and not _editorial_image_quality_issues(target):
@@ -241,6 +241,15 @@ Rules:
     except Exception:
         pass
     return _sanitize(f"Premium GateX topic-specific executive intelligence report visual, photorealistic, crisp detail, natural lighting, restrained navy and cool-blue accents, no readable text, no logo, avoid ocean waves and abstract blue filler. Topic: {keywords}")
+
+
+def _source_photo_matches_primary(candidate: Dict[str, Any], title: str, industry: str) -> bool:
+    # The page's subject alone cannot make a comparison/decorative image eligible.
+    caption = normalized(" ".join(str(candidate.get(key) or "") for key in ("caption", "alt_text")))
+    keywords = set(_meaningful_tokens(caption))
+    keywords.update(word for group in TOPICS for word in group if matches(caption, word))
+    photo = {"id": str(candidate.get("original_image_url") or "source"), "keywords": list(keywords)}
+    return select_stock_photo(title, [photo], industry=industry) is not None
 
 
 def _commercial_source_license(candidate: Dict[str, Any]) -> bool:
