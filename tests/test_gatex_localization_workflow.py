@@ -1,0 +1,56 @@
+"""Evaluate actual GitHub job conditions against intended execution modes."""
+import ast
+from pathlib import Path
+import re
+import unittest
+
+WORKFLOW = Path(__file__).resolve().parents[1] / '.github/workflows/gatex-content-localization.yml'
+
+
+def enabled(job, event='workflow_dispatch', *, inventory=False, news=False, diagnostic=False, sample='', cron=''):
+    block = WORKFLOW.read_text().split('  ' + job + ':\n', 1)[1]
+    condition = next(line.strip()[4:] for line in block.splitlines() if line.strip().startswith('if: '))
+    context = {'github.event_name': event, 'github.event.schedule': cron,
+        'inputs.inventory_only': inventory, 'inputs.news_only': news,
+        'inputs.ocr_diagnostic_only': diagnostic, 'inputs.sample_id': sample}
+    for key, value in context.items():
+        condition = condition.replace(key, repr(value))
+    condition = condition.replace('&&', ' and ').replace('||', ' or ')
+    condition = re.sub(r'!(?!=)', ' not ', condition).strip()
+    parsed = ast.parse(condition, mode='eval')
+    allowed = (ast.Expression, ast.Constant, ast.BoolOp, ast.And, ast.Or,
+        ast.UnaryOp, ast.Not, ast.Compare, ast.Eq, ast.NotEq)
+    if any(not isinstance(node, allowed) for node in ast.walk(parsed)):
+        raise AssertionError('Unexpected workflow expression syntax')
+    return bool(eval(compile(parsed, str(WORKFLOW), 'eval'), {'__builtins__': {}}, {}))
+
+
+class WorkflowModeTests(unittest.TestCase):
+    def test_exact_pdf_sample_runs_pdf_without_implicit_news_warming(self):
+        self.assertTrue(enabled('localize', sample='managed:sample'))
+        self.assertFalse(enabled('warm-news', sample='managed:sample'))
+
+    def test_explicit_news_only_runs_news_without_pdf_and_inventory_takes_priority(self):
+        self.assertTrue(enabled('warm-news', news=True))
+        self.assertFalse(enabled('localize', news=True))
+        self.assertTrue(enabled('warm-news', news=True, sample='ignored-sample'))
+        self.assertFalse(enabled('warm-news', inventory=True, news=True))
+        self.assertFalse(enabled('localize', inventory=True, sample='managed:sample'))
+
+    def test_diagnostic_never_warms_news_and_bulk_retains_both_jobs(self):
+        self.assertFalse(enabled('warm-news', diagnostic=True, sample='managed:sample'))
+        self.assertTrue(enabled('localize', diagnostic=True, sample='managed:sample'))
+        self.assertTrue(enabled('warm-news'))
+        self.assertTrue(enabled('localize'))
+
+    def test_daily_pdf_and_news_crons_are_separate_and_pr_runs_neither(self):
+        self.assertTrue(enabled('localize', 'schedule', cron='23 4 * * *'))
+        self.assertFalse(enabled('warm-news', 'schedule', cron='23 4 * * *'))
+        self.assertTrue(enabled('warm-news', 'schedule', cron='7,37 * * * *'))
+        self.assertFalse(enabled('localize', 'schedule', cron='7,37 * * * *'))
+        self.assertFalse(enabled('localize', 'pull_request'))
+        self.assertFalse(enabled('warm-news', 'pull_request'))
+
+
+if __name__ == '__main__':
+    unittest.main()

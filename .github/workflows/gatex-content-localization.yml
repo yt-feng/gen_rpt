@@ -166,7 +166,7 @@ jobs:
         run: rm -rf -- "$RUNNER_TEMP/gatex-localization-private"
 
   warm-news:
-    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
+    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only && (inputs.news_only || !inputs.sample_id)) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
     concurrency:
       group: gatex-news-localization
       cancel-in-progress: false
