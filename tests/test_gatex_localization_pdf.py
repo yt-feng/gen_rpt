@@ -472,6 +472,24 @@ class ModelContractTests(unittest.TestCase):
                 client.ocr(stream.getvalue())
         self.assertEqual(len(calls), 4)
 
+    def test_independent_crop_cannot_change_high_confidence_numeric_tokens(self):
+        client = self.client()
+        image = Image.new("RGB", (20, 20), "white")
+        stream = io.BytesIO()
+        image.save(stream, format="PNG")
+        evidence = {"width": 20, "height": 20, "words": [{"text": "25%", "confidence": 95, "bbox": [10, 0, 20, 10]}]}
+        calls = []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            if len(calls) == 1:
+                return {"verified": True, "uncertainRegions": [], "lines": []}
+            return {"verified": True, "classification": "text", "uncertainRegions": [], "lines": [{"text": "24%", "bbox": [500, 0, 1000, 500]}]}
+        client._once = once
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+            with self.assertRaisesRegex(LocalizationError, "RASTER_NUMERIC_OR_LINK_MISMATCH"):
+                client.ocr(stream.getvalue())
+        self.assertEqual(len(calls), 4)
+
     def test_native_number_does_not_cover_omitted_raster_number_at_another_location(self):
         client = self.client()
         image = Image.new("RGB", (100, 100), "white")

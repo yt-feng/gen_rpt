@@ -480,7 +480,7 @@ A decorative image with no text has lines=[]; verify the entire image before ret
                     return response
                 if classification != "text" or not response["lines"]:
                     raise LocalizationError("RASTER_TEXT_COVERAGE_MISMATCH")
-                relevant = False
+                relevant = []
                 for line in response["lines"]:
                     bbox = line["bbox"]
                     mapped = fitz.Rect(crop_box.x0 + crop_box.width * bbox[0] / 1000,
@@ -488,9 +488,12 @@ A decorative image with no text has lines=[]; verify the entire image before ret
                                        crop_box.x0 + crop_box.width * bbox[2] / 1000,
                                        crop_box.y0 + crop_box.height * bbox[3] / 1000)
                     intersection = mapped & pixel_box
-                    relevant = relevant or not intersection.is_empty and intersection.get_area() >= pixel_box.get_area() * 0.25
+                    if not intersection.is_empty and intersection.get_area() >= pixel_box.get_area() * 0.25:
+                        relevant.append(line["text"])
                 if not relevant:
                     raise LocalizationError("RASTER_TEXT_COVERAGE_MISMATCH")
+                if tokens(word["text"]) - tokens("\n".join(relevant)):
+                    raise LocalizationError("RASTER_NUMERIC_OR_LINK_MISMATCH")
                 return response
 
             reviewed = self._operation([{"role": "system", "content": """Independently inspect this contextual crop of a PDF image.
