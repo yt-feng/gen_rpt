@@ -39,6 +39,9 @@ class GateXStockPhotoTests(unittest.TestCase):
 
     def test_specific_primary_phrase_outweighs_generic_investment(self):
         assert stock.select_stock_photo('Data center investment',CATALOG)['id']=='servers'
+        assert stock.select_stock_photo('Data center investment',CATALOG,exclude_ids={'servers'}) is None
+        wafer=photo('wafer',['semiconductor','wafer'])
+        assert stock.select_stock_photo('Semiconductor finance investment',[wafer,*CATALOG])['id']=='wafer'
         assert stock.select_stock_photo('光伏投资',CATALOG)['id']=='solar'
         assert stock.select_stock_photo('Capital markets investment',CATALOG)['id']=='finance'
 
@@ -155,6 +158,30 @@ class GateXStockPhotoTests(unittest.TestCase):
             assert report["image_assets"][0]["image_sha256"]==hashlib.sha256((root/"assets"/"image-1.png").read_bytes()).hexdigest()
             assert candidate["license_url"] in report["sections"][0]["image_source"]
             selected.assert_not_called();ai.assert_not_called()
+
+    def test_legacy_cached_image_emits_truthful_asset_descriptor_for_site_release(self):
+        from gen_rpt.image_generator import generate_ai_image_assets
+        with TemporaryDirectory() as directory:
+            root=Path(directory);assets=root/'assets';backup=root/'backup'
+            assets.mkdir();backup.mkdir()
+            target=assets/'image-1.png'
+            Image.effect_noise((1200,800),80).convert('RGB').save(target,format='PNG')
+            (backup/'image_sources.json').write_text('[]\n')
+            report={'sections':[{'title':'Existing cover','paragraphs':['Original findings.']}]}
+            with patch('gen_rpt.image_generator._discover_source_image_candidates') as discovery, \
+                patch('gen_rpt.image_generator.prepare_stock_photo') as stock_select, \
+                patch('gen_rpt.image_generator._download_pollinations_or_fallback') as ai:
+                result=generate_ai_image_assets(object(),'AI infrastructure',report,assets,backup,single_editorial_image=True)
+            assert result=={'image-1':'assets/image-1.png'}
+            assert len(report['image_assets'])==1
+            descriptor=report['image_assets'][0]
+            assert descriptor['local_asset_path']=='assets/image-1.png'
+            assert descriptor['exhibit']=='image-1' and descriptor['provider']=='cached'
+            assert descriptor['image_sha256']==hashlib.sha256(target.read_bytes()).hexdigest()
+            assert not any(key in descriptor for key in ('license','author','stockSource','source_page_url'))
+            assert json.loads((backup/'image_sources.json').read_text())==report['image_assets']
+            assert report['sections'][0]['paragraphs']==['Original findings.']
+            discovery.assert_not_called();stock_select.assert_not_called();ai.assert_not_called()
 
     def test_original_photo_also_requires_primary_subject_match(self):
         from gen_rpt.image_generator import _source_photo_matches_primary

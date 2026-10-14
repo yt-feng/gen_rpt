@@ -63,7 +63,8 @@ def select_stock_photo(title, catalog, *, industry='', summary='', seed=None, ex
     primary = title + ' ' + industry
     topics = [words for words in TOPICS if any(matches(primary, word) for word in words)]
     energy = [words for words in topics if words in (TOPICS[2], TOPICS[3])]
-    required = energy or topics
+    specific = [words for words in topics if words != TOPICS[-1]]
+    required = energy or specific or topics
     explicit_location = any(matches(primary, location) for location in GEOGRAPHIES)
     ranked = []
     for photo in catalog:

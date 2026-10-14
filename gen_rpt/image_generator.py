@@ -90,6 +90,12 @@ def generate_ai_image_assets(
                 source_records = [row for row in saved if isinstance(row, dict) and row.get("exhibit") == "image-1"]
             except (OSError, ValueError, TypeError):
                 source_records = []
+            if not source_records:
+                # Earlier GateX AI reports saved an empty provenance list. Keep
+                # their approved cached asset without inventing a photo licence.
+                source_records = [_image_source_record(
+                    {}, target, assets_dir, "image-1", title, "cached", report
+                )]
         else:
             candidates = _discover_source_image_candidates(sources or [], timeout_seconds=min(10, timeout_seconds))
             for candidate in sorted(candidates, key=lambda row: _candidate_score(row, topic), reverse=True):
