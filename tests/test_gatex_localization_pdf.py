@@ -269,6 +269,68 @@ class ModelContractTests(unittest.TestCase):
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
             return ModelClient(sleep=lambda seconds: None)
 
+    def response_client(self, response):
+        class Session:
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                pass
+            def post(self, url, **kwargs):
+                self.kwargs = kwargs
+                return response
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            return ModelClient(session_factory=Session, sleep=lambda seconds: None)
+
+    def test_gateway_data_envelope_and_standard_choices_are_compatible(self):
+        for wrapped in (False, True):
+            for fenced in (False, True):
+                with self.subTest(wrapped=wrapped, fenced=fenced):
+                    expected = {"blocks": [{"id": "b", "text": "需求", "retainedEnglish": []}]}
+                    content = json.dumps(expected, ensure_ascii=False)
+                    if fenced:
+                        content = "```json\n" + content + "\n```"
+                    completion = {"choices": [{"finish_reason": "stop", "message": {"content": content}}]}
+                    class Response:
+                        status_code = 200
+                        closed = False
+                        def json(self):
+                            return {"code": 200, "data": completion} if wrapped else completion
+                        def close(self):
+                            self.closed = True
+                    response = Response()
+                    client = self.response_client(response)
+                    self.assertEqual(client._once([{"role": "user", "content": "fixture"}]), expected)
+                    self.assertTrue(response.closed)
+
+    def test_environment_credential_whitespace_is_normalized_without_logging(self):
+        with patch.dict("os.environ", {"APIMART_API_KEY": "  dummy-not-used\n", "APIMART_BASE_URL": " https://api.apimart.ai/v1/\n", "GATEX_TRANSLATION_MODEL": " gpt-4.1\n"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        self.assertEqual(client.key, "dummy-not-used")
+        self.assertEqual(client.model, "gpt-4.1")
+        self.assertEqual(client.url, "https://api.apimart.ai/v1/chat/completions")
+
+    def test_response_diagnostics_do_not_expose_source_or_provider_body(self):
+        for kind, expected in (("json", "MODEL_RESPONSE_JSON_INVALID"), ("envelope", "MODEL_ENVELOPE_INVALID"),
+                               ("content", "MODEL_CONTENT_JSON_INVALID"), ("http", "MODEL_HTTP_502")):
+            with self.subTest(kind=kind):
+                class Response:
+                    status_code = 502 if kind == "http" else 200
+                    closed = False
+                    def json(self):
+                        if kind == "json":
+                            raise ValueError("private source/provider diagnostic")
+                        if kind == "envelope":
+                            return {"data": {"privateSource": "never printed"}}
+                        return {"choices": [{"finish_reason": "stop", "message": {"content": "private source/provider diagnostic"}}]}
+                    def close(self):
+                        self.closed = True
+                response = Response()
+                with self.assertRaises(LocalizationError) as caught:
+                    self.response_client(response)._once([{"role": "user", "content": "private source"}])
+                self.assertEqual(str(caught.exception), expected)
+                self.assertNotIn("private", str(caught.exception))
+                self.assertTrue(response.closed)
+
     def test_failed_semantic_review_regenerates_then_reviews_independently(self):
         client = self.client()
         block = Block("b", 0, "Revenue may grow 7%.", (0, 0, 100, 30))

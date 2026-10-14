@@ -167,9 +167,9 @@ class ModelClient:
     """APIMART chat/vision client with at most three attempts per operation."""
 
     def __init__(self, *, session_factory=requests.Session, sleep=time.sleep):
-        self.model = os.getenv("GATEX_TRANSLATION_MODEL", "gpt-4.1")
-        self.key = os.getenv("APIMART_API_KEY", "")
-        base = os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").rstrip("/")
+        self.model = os.getenv("GATEX_TRANSLATION_MODEL", "gpt-4.1").strip() or "gpt-4.1"
+        self.key = os.getenv("APIMART_API_KEY", "").strip()
+        base = os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").strip().rstrip("/")
         parsed = urlsplit(base)
         if parsed.scheme != "https" or parsed.username or parsed.password or parsed.query or parsed.fragment:
             raise LocalizationError("INVALID_MODEL_ENDPOINT")
@@ -183,19 +183,46 @@ class ModelClient:
             with self.session_factory() as session:
                 response = session.post(self.url, headers={"Authorization": "Bearer " + self.key},
                     json={"model": self.model, "messages": messages, "temperature": 0,
-                          "max_tokens": maximum, "response_format": {"type": "json_object"}},
+                          "stream": False, "max_tokens": maximum, "response_format": {"type": "json_object"}},
                     timeout=(20, 240), allow_redirects=False)
                 try:
                     if response.status_code not in range(200, 300):
-                        raise LocalizationError("MODEL_HTTP_ERROR")
-                    data = response.json()
-                    choice = data["choices"][0]
+                        raise LocalizationError("MODEL_HTTP_" + str(response.status_code))
+                    try:
+                        envelope = response.json()
+                    except ValueError:
+                        raise LocalizationError("MODEL_RESPONSE_JSON_INVALID") from None
+                    # The deployed APIMART chat gateway uses {data:{choices}}
+                    # as well as the standard OpenAI top-level choices shape.
+                    if not isinstance(envelope, dict):
+                        raise LocalizationError("MODEL_ENVELOPE_INVALID")
+                    data = envelope.get("data") if isinstance(envelope.get("data"), dict) else envelope
+                    if data.get("error") or envelope.get("error"):
+                        raise LocalizationError("MODEL_PROVIDER_ERROR")
+                    choices = data.get("choices")
+                    if not isinstance(choices, list) or not choices or not isinstance(choices[0], dict):
+                        raise LocalizationError("MODEL_ENVELOPE_INVALID")
+                    choice = choices[0]
                     if choice.get("finish_reason") not in ("stop", None):
                         raise LocalizationError("MODEL_OUTPUT_TRUNCATED")
-                    content = choice["message"]["content"]
+                    message = choice.get("message")
+                    if not isinstance(message, dict):
+                        raise LocalizationError("MODEL_ENVELOPE_INVALID")
+                    if message.get("refusal"):
+                        raise LocalizationError("MODEL_REFUSED")
+                    content = message.get("content")
                     if not isinstance(content, str):
-                        raise LocalizationError("INVALID_MODEL_RESPONSE")
-                    result = json.loads(content)
+                        raise LocalizationError("MODEL_CONTENT_INVALID")
+                    if not content.strip():
+                        raise LocalizationError("MODEL_CONTENT_EMPTY")
+                    clean = content.strip()
+                    fenced = re.fullmatch(r"```(?:json)?\s*([\s\S]*?)\s*```", clean)
+                    if fenced:
+                        clean = fenced.group(1)
+                    try:
+                        result = json.loads(clean)
+                    except ValueError:
+                        raise LocalizationError("MODEL_CONTENT_JSON_INVALID") from None
                     if not isinstance(result, dict):
                         raise LocalizationError("INVALID_MODEL_RESPONSE")
                     return result
@@ -203,8 +230,16 @@ class ModelClient:
                     response.close()
         except LocalizationError:
             raise
-        except (requests.RequestException, KeyError, IndexError, TypeError, ValueError):
-            raise LocalizationError("MODEL_REQUEST_FAILED") from None
+        except requests.Timeout:
+            raise LocalizationError("MODEL_TIMEOUT") from None
+        except requests.ConnectionError:
+            raise LocalizationError("MODEL_CONNECTION_FAILED") from None
+        except requests.exceptions.InvalidHeader:
+            raise LocalizationError("MODEL_INVALID_HEADER") from None
+        except requests.RequestException:
+            raise LocalizationError("MODEL_TRANSPORT_FAILED") from None
+        except (KeyError, IndexError, TypeError, ValueError):
+            raise LocalizationError("MODEL_ENVELOPE_INVALID") from None
 
     def _operation(self, messages: list, validate: Callable[[dict], Any], *, maximum=16000):
         feedback = ""
