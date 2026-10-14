@@ -172,6 +172,37 @@ class RunnerTests(unittest.TestCase):
         self.assertIsNone(result['remainingPending'])
         self.assertEqual(api.source_calls, ['catalog:example'])
 
+    def test_paid_sample_pin_is_checked_before_progress_model_or_publication(self):
+        api = FakeApi([])
+        api.inventory = lambda: self.fail('pinned sample scanned inventory')
+        api.progress = lambda *args: self.fail('changed pinned source read progress')
+        api.save_progress = lambda *args: self.fail('changed pinned source wrote progress')
+        api.publish = lambda *args: self.fail('changed pinned source published')
+        def forbidden(**kwargs):
+            self.fail('changed pinned source reached model')
+        result = self.run_batch(api, forbidden, sample_id='sample', expected_source_sha256='f' * 64)
+        self.assertEqual(result['status'], 'failed')
+        self.assertEqual(result['results'][0]['code'], 'SOURCE_CHANGED_FROM_PIN')
+        self.assertEqual(result['results'][0]['phase'], 'source')
+        self.assertEqual(api.source_calls, ['sample'])
+
+    def test_matching_paid_sample_pin_publishes_and_verifies_original_source_digest(self):
+        api = FakeApi([])
+        api.inventory = lambda: self.fail('pinned sample scanned inventory')
+        result = self.run_batch(api, sample_id='sample', expected_source_sha256=DIGEST)
+        self.assertEqual(result['status'], 'passed')
+        self.assertEqual(result['results'][0]['sourceSha256'], DIGEST)
+        self.assertEqual(set(api.published), {'sample'})
+
+    def test_paid_sample_pin_requires_one_exact_sample_and_valid_digest_before_io(self):
+        api = FakeApi([])
+        api.inventory = lambda: self.fail('invalid pin read inventory')
+        api.source = lambda *args: self.fail('invalid pin downloaded source')
+        for sample_id, digest in [(None, DIGEST), ('sample', ''), ('sample', 'not-a-digest')]:
+            with self.subTest(sample_id=sample_id, digest=digest), self.assertRaises(runner.RunnerError) as caught:
+                self.run_batch(api, sample_id=sample_id, expected_source_sha256=digest)
+            self.assertEqual(caught.exception.code, 'PINNED_SAMPLE_AND_DIGEST_REQUIRED')
+
     def test_continuation_page_mapping_can_preserve_complete_translation(self):
         report = qa(); report['pageCount'] = 3
         report['pages'][1]['targetPages'] = [2, 3]
