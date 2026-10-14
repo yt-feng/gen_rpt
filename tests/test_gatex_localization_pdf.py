@@ -13,8 +13,32 @@ from PIL import Image, ImageDraw
 from gen_rpt.gatex_pdf_localization import (
     Block, LocalizationError, ModelClient, PROMPT_VERSION, PROGRESS_SCHEMA,
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
-    validate_translation,
+    validate_translation, _translation_state, OCR_POLICY_VERSION,
 )
+from gen_rpt.gatex_translation_quantities import protect_quantities
+
+
+def fixture_source_text(item):
+    value = item["text"]
+    for hint in item.get("quantityHints", []):
+        value = value.replace(hint["placeholder"], hint["value"])
+    return value
+
+
+def fixture_generated_text(item, value):
+    # Emulate the provider preserving placeholders, without changing prose or
+    # silently correcting deliberately bad numeric values in a fixture.
+    replacements = {}
+    for hint in item.get("quantityHints", []):
+        replacements.setdefault(hint["value"], []).append(hint["placeholder"])
+    if not replacements:
+        return value
+    pattern = re.compile("|".join(re.escape(text) for text in sorted(replacements, key=len, reverse=True)))
+    def replace(match):
+        available = replacements[match.group()]
+        return available.pop(0) if available else match.group()
+    return pattern.sub(replace, value)
+
 
 
 class FixtureTranslator:
@@ -90,7 +114,7 @@ class PdfLocalizationTests(unittest.TestCase):
             def once(messages, **kwargs):
                 calls.append(messages)
                 supplied = json.loads(messages[1]["content"])["blocks"]
-                return {"blocks": [{"id": item["id"], "text": PAIRS[item["text"]],
+                return {"blocks": [{"id": item["id"], "text": fixture_generated_text(item, PAIRS[fixture_source_text(item)]),
                     "retainedEnglish": [{"text": "Invented organisation", "kind": "organisation"}]} for item in supplied]}
             client._once = once
             with self.assertRaises(LocalizationError) as caught:
@@ -245,6 +269,78 @@ class PdfLocalizationTests(unittest.TestCase):
                 translation_client=FixtureTranslator(PAIRS), raster_ocr=ocr)
             self.assertEqual(len(ocr_calls), 1)
 
+    def test_translation_policy_change_reuses_verified_source_image_ocr_but_regenerates_text(self):
+        with TemporaryDirectory() as directory:
+            old_states = []
+            def verified_ocr(data):
+                return {"verified": True, "uncertainRegions": [], "lines": [{"text": "Demand 25%", "bbox": [20, 80, 200, 270]}],
+                        "coverage": {"schema": OCR_POLICY_VERSION}}
+            source, output, _, _ = self.run_fixture(directory, raster=True, raster_ocr=verified_ocr, save_progress=old_states.append)
+            old = old_states[-1]
+            old.update({"promptVersion": "old-literal-digit-policy", "model": "old-translation-model", "unknownPrivateField": {"keep": True}})
+            snapshot = copy.deepcopy(old)
+            with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+                client = ModelClient(sleep=lambda seconds: None)
+            calls, states = [], []
+            def once(payload, **kwargs):
+                calls.append(payload)
+                supplied = json.loads(payload[1]["content"])["blocks"]
+                if "source" in supplied[0]:
+                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
+                return {"blocks": [{"id": item["id"], "text": fixture_generated_text(item, PAIRS[fixture_source_text(item)]),
+                                   "retainedEnglish": []} for item in supplied]}
+            client._once = once
+            client.ocr = lambda *args, **kwargs: self.fail("translation-policy migration must not repeat verified OCR")
+            result = translate_pdf(source, output, digest(source.read_bytes()), progress=old,
+                                   translation_client=client, save_progress=states.append)
+            self.assertTrue(result["qa"]["passed"])
+            self.assertTrue(calls, "old translated blocks must be regenerated and independently reviewed")
+            self.assertEqual(states[0]["ocr"], snapshot["ocr"])
+            self.assertEqual(states[0]["unknownPrivateField"], snapshot["unknownPrivateField"])
+            self.assertEqual(states[0]["status"], "in-progress")
+            self.assertNotIn("artifactSha256", states[0])
+            self.assertEqual(states[-1]["promptVersion"], PROMPT_VERSION)
+            self.assertEqual(states[-1]["ocrPolicyVersion"], OCR_POLICY_VERSION)
+            self.assertEqual(old, snapshot, "the caller's old private checkpoint must remain unchanged")
+
+    def test_ocr_migration_only_accepts_verified_current_coverage_and_source_binding(self):
+        base = {"schema": PROGRESS_SCHEMA, "sourceSha256": "a" * 64, "promptVersion": "old", "model": "old",
+                "blocks": {"old": {}}, "ocr": {}, "status": "complete", "artifactSha256": "b" * 64,
+                "ocrDiagnostics": {"privateEvidence": "kept"}, "unknownPrivateField": True}
+        valid = {"verified": True, "uncertainRegions": [], "lines": [{"text": "Demand 25%", "bbox": [0, 0, 100, 100]}],
+                 "coverage": {"schema": OCR_POLICY_VERSION}}
+        for bad in [{**valid, "verified": False}, {**valid, "uncertainRegions": ["unverified"]},
+                    {**valid, "coverage": {"schema": "obsolete"}}, {**valid, "lines": [{"text": "Demand", "bbox": [0, 0, float("nan"), 100]}]}]:
+            state = _translation_state({**base, "ocr": {"c" * 64: valid, "d" * 64: bad}}, "a" * 64, "new", False, require_ocr_coverage=True)
+            self.assertEqual(set(state["ocr"]), {"c" * 64})
+            self.assertEqual(state["blocks"], {})
+            self.assertEqual(state["ocrDiagnostics"], base["ocrDiagnostics"])
+            self.assertTrue(state["unknownPrivateField"])
+            self.assertNotIn("artifactSha256", state)
+        for changed in [{**base, "sourceSha256": "e" * 64}, {**base, "schema": "other"}, []]:
+            with self.assertRaisesRegex(LocalizationError, "PROGRESS_SOURCE_MISMATCH"):
+                _translation_state(changed, "a" * 64, "new", False, require_ocr_coverage=True)
+        force = _translation_state({**base, "ocr": {"c" * 64: valid}}, "a" * 64, "new", True, require_ocr_coverage=True)
+        self.assertEqual(force["ocr"], {})
+        self.assertEqual(force["blocks"], {})
+        self.assertNotIn("artifactSha256", force)
+        self.assertNotIn("ocrDiagnostics", force)
+
+    def test_mismatched_rendered_image_hash_requires_new_ocr(self):
+        with TemporaryDirectory() as directory:
+            states = []
+            def verified_ocr(data):
+                return {"verified": True, "uncertainRegions": [], "lines": [{"text": "Demand 25%", "bbox": [20, 80, 200, 270]}],
+                        "coverage": {"schema": OCR_POLICY_VERSION}}
+            source, output, _, _ = self.run_fixture(directory, raster=True, raster_ocr=verified_ocr, save_progress=states.append)
+            old = states[-1]
+            old["ocr"] = {"0" * 64: next(iter(old["ocr"].values()))}
+            ocr_calls = []
+            translate_pdf(source, output, digest(source.read_bytes()), progress=old, translation_client=FixtureTranslator(PAIRS),
+                          raster_ocr=lambda data: ocr_calls.append(digest(data)) or verified_ocr(data))
+            self.assertEqual(len(ocr_calls), 1)
+            self.assertNotEqual(ocr_calls[0], "0" * 64)
+
     def test_invisible_ocr_layer_is_deduplicated_and_visible_raster_label_translated(self):
         with TemporaryDirectory() as directory:
             source, layered, output = Path(directory) / "en.pdf", Path(directory) / "layered.pdf", Path(directory) / "zh.pdf"
@@ -380,13 +476,78 @@ class ModelContractTests(unittest.TestCase):
                 self.assertNotIn("private", str(caught.exception))
                 self.assertTrue(response.closed)
 
+    def test_quantity_pipeline_masks_generation_restores_then_reviews_original_values(self):
+        client = self.client()
+        block = Block("amounts", 0, "Revenue may be -US$.5 billion and EUR 2 million in Q3.", (0, 0, 100, 30))
+        calls, saved = [], []
+        client.accepted_callback = saved.append
+        def once(payload, **kwargs):
+            calls.append(payload)
+            supplied = json.loads(payload[1]["content"])["blocks"][0]
+            if "source" not in supplied:
+                self.assertNotIn(".5 billion", supplied["text"])
+                self.assertNotIn("2 million", supplied["text"])
+                self.assertNotIn("Q3", supplied["text"])
+                self.assertEqual([hint["value"] for hint in supplied["quantityHints"]], ["-US$5亿", "EUR 200万", "Q3"])
+                return {"blocks": [{"id": block.id, "text": "收入在{GATEX_QUANTITY_2}可能为{GATEX_QUANTITY_0}和{GATEX_QUANTITY_1}。", "retainedEnglish": []}]}
+            self.assertEqual(saved, [], "restoration alone does not authorize a checkpoint")
+            self.assertEqual(supplied["source"], block.text)
+            self.assertEqual(supplied["translation"], "收入在Q3可能为-US$5亿和EUR 200万。")
+            self.assertNotIn("GATEX_QUANTITY", json.dumps(supplied))
+            self.assertEqual(len(payload), 2)
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+        client._once = once
+        result = client.translate([block])
+        self.assertEqual(result[block.id]["text"], "收入在Q3可能为-US$5亿和EUR 200万。")
+        self.assertEqual(saved, [result])
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(validate_translation(block.text, result[block.id]), result[block.id])
+
+    def test_placeholder_or_metadata_cannot_bypass_quantity_identity_links_or_english(self):
+        cases = [
+            ("Revenue $15 billion", "收入", [], "QUANTITY_PLACEHOLDER_MISMATCH"),
+            ("Revenue $15 billion", "收入{GATEX_QUANTITY_0}{GATEX_QUANTITY_0}", [], "QUANTITY_PLACEHOLDER_MISMATCH"),
+            ("Revenue $15 billion", "收入{GATEX_QUANTITY_0}{GATEX_QUANTITY_99}", [], "QUANTITY_PLACEHOLDER_MISMATCH"),
+            ("Revenue $15 billion", "收入EUR {GATEX_QUANTITY_0}", [], "NUMERIC_OR_LINK_MISMATCH"),
+            ("FOREWORD: Revenue $15 billion", "FOREWORD：收入{GATEX_QUANTITY_0}", [{"text": "FOREWORD", "kind": "brand"}], "ORDINARY_ENGLISH_RETAINED"),
+            ("Revenue $15 billion", "收入{GATEX_QUANTITY_0}和5", [], "NUMERIC_OR_LINK_MISMATCH"),
+            ("Revenue $15 billion", "收入{GATEX_QUANTITY_0}", [{"text": "Invented Brand", "kind": "brand"}], "INVALID_RETAINED_IDENTITY"),
+            ("Revenue $15 billion", "收入{GATEX_QUANTITY_0}", [{"text": "{GATEX_QUANTITY_0}", "kind": "code"}], "INVALID_RETAINED_IDENTITY"),
+            ("Source https://example.test/v2", "来源", [], "QUANTITY_PLACEHOLDER_MISMATCH"),
+        ]
+        for source, target, retained, code in cases:
+            with self.subTest(source=source, target=target, code=code):
+                client = self.client()
+                calls, saved = [], []
+                client.accepted_callback = saved.append
+                def once(payload, **kwargs):
+                    calls.append(payload)
+                    return {"blocks": [{"id": "b", "text": target, "retainedEnglish": retained}]}
+                client._once = once
+                with self.assertRaisesRegex(LocalizationError, code):
+                    client.translate([Block("b", 0, source, (0, 0, 100, 30))])
+                self.assertEqual(saved, [])
+                self.assertEqual(len(calls), 3, "three generation attempts, no review for invalid restoration")
+
+    def test_final_quantity_equivalence_rejects_currency_transfer_and_operator_changes(self):
+        for source, target in [("$1 million £2 million", "$200万 £100万"),
+                               ("20% - 5 percentage points", "20% +5个百分点"),
+                               ("~$84+ and $90", "$84 and ~$90+"),
+                               ("2 million - 1 million", "100万 -200万"),
+                               ("Q3 https://example.test/v2", "Q4 https://example.test/v2")]:
+            with self.subTest(source=source, target=target):
+                with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+                    validate_translation(source, {"text": target, "retainedEnglish": [], "reviewed": True})
+        with self.assertRaisesRegex(LocalizationError, "QUANTITY_PLACEHOLDER_MISMATCH"):
+            validate_translation("Revenue $15 billion", {"text": "收入{GATEX_QUANTITY_0}", "retainedEnglish": [], "reviewed": True})
+
     def test_failed_semantic_review_regenerates_then_reviews_independently(self):
         client = self.client()
         block = Block("b", 0, "Revenue may grow 7%.", (0, 0, 100, 30))
         responses = [
-            {"blocks": [{"id": "b", "text": "收入将增长7%。", "retainedEnglish": []}]},
+            {"blocks": [{"id": "b", "text": "收入将增长{GATEX_QUANTITY_0}。", "retainedEnglish": []}]},
             {"blocks": [{"id": "b", "complete": True, "faithful": False, "issues": ["may changed to will"]}]},
-            {"blocks": [{"id": "b", "text": "收入可能增长7%。", "retainedEnglish": []}]},
+            {"blocks": [{"id": "b", "text": "收入可能增长{GATEX_QUANTITY_0}。", "retainedEnglish": []}]},
             {"blocks": [{"id": "b", "complete": True, "faithful": True, "issues": []}]},
         ]
         messages = []
@@ -570,7 +731,7 @@ class ModelContractTests(unittest.TestCase):
                     return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
                 generation_ids.append([item["id"] for item in supplied])
                 bad_ids.update(item["id"] for item in supplied if item["text"] == "Supply")
-                return {"blocks": [{"id": item["id"], "text": "Supply" if item["text"] == "Supply" else PAIRS[item["text"]],
+                return {"blocks": [{"id": item["id"], "text": "Supply" if item["text"] == "Supply" else fixture_generated_text(item, PAIRS[fixture_source_text(item)]),
                                    "retainedEnglish": []} for item in supplied]}
             client._once = once
             with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
@@ -594,7 +755,7 @@ class ModelContractTests(unittest.TestCase):
                 if "source" in supplied[0]:
                     return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
                 resume_ids.extend(item["id"] for item in supplied)
-                return {"blocks": [{"id": item["id"], "text": PAIRS[item["text"]], "retainedEnglish": []} for item in supplied]}
+                return {"blocks": [{"id": item["id"], "text": fixture_generated_text(item, PAIRS[fixture_source_text(item)]), "retainedEnglish": []} for item in supplied]}
             resumed._once = resumed_once
             result = translate_pdf(source, output, digest(source.read_bytes()), progress=checkpoint,
                                    translation_client=resumed, save_progress=states.append)
@@ -615,7 +776,7 @@ class ModelContractTests(unittest.TestCase):
             if "source" in supplied[0]:
                 return {"blocks": [{"id": item["id"], "complete": True, "faithful": item["id"] == "approved",
                     "issues": [] if item["id"] == "approved" else ["may changed to will"]} for item in supplied]}
-            return {"blocks": [{"id": item["id"], "text": "需求" if item["id"] == "approved" else "收入将增长7%。",
+            return {"blocks": [{"id": item["id"], "text": "需求" if item["id"] == "approved" else "收入将增长{GATEX_QUANTITY_0}。",
                                 "retainedEnglish": []} for item in supplied]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
@@ -628,7 +789,7 @@ class ModelContractTests(unittest.TestCase):
             self.assertEqual(rejection["code"], "SEMANTIC_REVIEW_FAILED")
             self.assertEqual(rejection["sourceHash"], digest("Revenue may grow 7%."))
             self.assertEqual(rejection["source"], "Revenue may grow 7%.")
-            self.assertEqual(rejection["record"]["text"], "收入将增长7%。")
+            self.assertEqual(rejection["record"]["text"], "收入将增长{GATEX_QUANTITY_0}。")
             self.assertEqual(rejection["normalizedCandidate"]["text"], "收入将增长7%。")
             self.assertFalse(rejection["normalizedCandidate"]["reviewed"])
             self.assertEqual(rejection["review"]["issues"], ["may changed to will"])
@@ -712,7 +873,7 @@ class ModelContractTests(unittest.TestCase):
         client.rejection_callback = rejected.append
         def once(payload, **kwargs):
             messages.append(payload)
-            return {"blocks": [{"id": block.id, "text": "收入可能增长7%。", "retainedEnglish": {"text": "not a list"}}]}
+            return {"blocks": [{"id": block.id, "text": "收入可能增长{GATEX_QUANTITY_0}。", "retainedEnglish": {"text": "not a list"}}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
             client.translate([block])
@@ -729,7 +890,7 @@ class ModelContractTests(unittest.TestCase):
         def once(messages, **kwargs):
             calls.append(messages)
             if len(calls) % 2:
-                return {"blocks": [{"id": "b", "text": "收入将增长7%。", "retainedEnglish": []}]}
+                return {"blocks": [{"id": "b", "text": "收入将增长{GATEX_QUANTITY_0}。", "retainedEnglish": []}]}
             return {"blocks": [{"id": "b", "complete": False, "faithful": False, "issues": ["modality lost"]}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
