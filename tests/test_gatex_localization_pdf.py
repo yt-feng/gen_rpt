@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw
 from gen_rpt.gatex_pdf_localization import (
     Block, LocalizationError, ModelClient, PROMPT_VERSION, PROGRESS_SCHEMA,
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
-    validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint,
+    validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint, _source_edition_context,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -410,6 +410,46 @@ class PdfLocalizationTests(unittest.TestCase):
 
 
 class ModelContractTests(unittest.TestCase):
+    def test_edition_context_clarifies_the_source_pdf_without_claiming_upstream_language(self):
+        source = "Sources, rights and third-party material. This edition is an authorized English translation of material published by Example House on 24 September 2026. Permission for this edition does not grant model-training rights."
+        context = _source_edition_context(source)
+        self.assertEqual(context["referenceTranslations"], {"This edition": "原英文版本", "Permission for this edition": "原英文版本的许可"})
+        self.assertEqual(context["upstreamMaterialLanguage"], "not specified by the source; do not infer it")
+        self.assertEqual(context["dateTranslations"], [{"sourceDate": "24 September 2026", "chineseDate": "2026年九月24日"}])
+        self.assertEqual(_source_edition_context("An unrelated author says this edition is a translation."), {})
+        target = "来源、权利与第三方材料。原英文版本为Example House于2026年九月24日发布材料的经授权英文译本。原英文版本的许可不授予模型训练权利。"
+        client, calls = self.client(), []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            entry = json.loads(messages[1]["content"])["blocks"][0]
+            self.assertEqual(entry["sourceEditionContext"], context)
+            if len(calls) == 1:
+                return {"blocks": [{"id": "rights", "text": fixture_generated_text(entry, target),
+                    "retainedEnglish": [{"text": "Example House", "kind": "organisation"}]}]}
+            self.assertEqual(len(messages), 2, "fresh reviewer receives no generation feedback/history")
+            self.assertEqual(entry["source"], source)
+            self.assertEqual(entry["translation"], target)
+            self.assertIn("does not identify the original language of upstream", messages[0]["content"])
+            return {"blocks": [{"id": "rights", "complete": True, "faithful": True, "issues": []}]}
+        client._once = once
+        self.assertTrue(client.translate([Block("rights", 0, source, (0, 0, 400, 100))])["rights"]["reviewed"])
+        self.assertEqual(len(calls), 2)
+
+    def test_inconsistent_negative_review_is_never_overridden_or_marked_approved(self):
+        client, calls, accepted = self.client(), [], []
+        client.accepted_callback = accepted.append
+        def once(messages, **kwargs):
+            calls.append(messages)
+            if "Independently compare" in messages[0]["content"]:
+                self.assertEqual(len(messages), 2)
+                return {"blocks": [{"id": "b", "complete": True, "faithful": False, "issues": ["No substantive discrepancies found."]}]}
+            return {"blocks": [{"id": "b", "text": "需求可能增长。", "retainedEnglish": []}]}
+        client._once = once
+        with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
+            client.translate([Block("b", 0, "Demand may increase.", (0, 0, 100, 30))])
+        self.assertEqual(len(calls), 6)
+        self.assertEqual(accepted, [])
+
     def test_source_exact_bare_domains_are_literals_without_allowing_ordinary_english(self):
         for source, target in [("GATEX.FUND", "GATEX.FUND"),
                 ("Visit GATEX.FUND", "请访问GATEX.FUND"),

@@ -262,6 +262,24 @@ def _source_masthead_hint(source: str) -> dict:
     return {}
 
 
+def _source_edition_context(source: str) -> dict:
+    normalized = " ".join(source.split())
+    if not (normalized.startswith("Sources, rights and third-party material.")
+            and "This edition is an authorized English translation" in normalized):
+        return {}
+    months = {name: chinese for name, chinese in zip(
+        ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+        ("一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"))}
+    dates = [{"sourceDate": match.group(), "chineseDate": f"{match[3]}年{months[match[2]]}月{match[1]}日"}
+             for match in re.finditer(r"\b([0-3]?\d) (" + "|".join(months) + r") (\d{4})\b", normalized)]
+    return {"sourceEdition": "the English PDF supplied for translation",
+            "targetEdition": "the Chinese translation now being produced",
+            "upstreamMaterialLanguage": "not specified by the source; do not infer it",
+            "referenceTranslations": {"This edition": "原英文版本", "Permission for this edition": "原英文版本的许可"},
+            "instruction": "Use 原英文版本 as the subject of the authorization claim, not 本版本 with a trailing parenthetical. Original English edition means the supplied English PDF, never the original language of the upstream material. Preserve its authorization claim without asserting Chinese-edition authorization. Date translations show natural Chinese order; generation must still use the supplied quantity placeholders for the protected day and year.",
+            "dateTranslations": dates}
+
+
 def _literal_record(source: str) -> dict | None:
     if not ENGLISH.search(_strip_links(source)):
         return {"text": source, "retainedEnglish": [], "reviewed": True}
@@ -530,11 +548,17 @@ Do not infer missing context. Return JSON
 {"blocks":[{"id":"...","complete":true/false,"faithful":true/false,"issues":[]}]},
 one entry for EVERY id. Mark false and describe any substantive discrepancy. Style alone
 does not fail fidelity. A faithful translation may retain proper names and technical codes.
+List only actual substantive discrepancies in issues, not faithful passages or style notes.
+If no substantive discrepancy is found, faithful is true and issues is empty; do not return
+a false verdict with an explanation that there are no substantive discrepancies.
 Never accept expansion of a source surname into an unsupported full name. Source type C
 and target C类 preserve the same type code. GateX-owned masthead translations GATEX 前沿洞察
 and 科技前沿 correspond to GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS respectively.
 An authorization or English-language claim about the original source edition must remain
 about that original English edition; it must not assert authorization of the Chinese edition.
+sourceEditionContext identifies that English source PDF and the Chinese target edition.
+Its original-English-edition reference does not identify the original language of upstream
+material or authorize this Chinese edition. Check the stated attribution and permissions.
 If an English work title is retained, its own Chinese title counterpart must also be present;
 Chinese elsewhere in the sentence does not supply that counterpart."""
 
@@ -560,6 +584,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 "sourceVerifiedIdentities": _source_identity_hints(rejection["source"]),
                 "sourceTitleTranslations": _source_title_hints(rejection["source"]),
                 "sourceMastheadTranslation": _source_masthead_hint(rejection["source"]),
+                "sourceEditionContext": _source_edition_context(rejection["source"]),
                 "quantityHints": rejection.get("quantityHints", []),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
                 "allowedRetainedKinds": sorted(RETAINED_KINDS),
@@ -581,7 +606,8 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                     "quantityHints": protections[b.id].hints,
                     "sourceVerifiedIdentities": _source_identity_hints(b.text),
                     "sourceTitleTranslations": _source_title_hints(b.text),
-                    "sourceMastheadTranslation": _source_masthead_hint(b.text)} for b in pending]
+                    "sourceMastheadTranslation": _source_masthead_hint(b.text),
+                    "sourceEditionContext": _source_edition_context(b.text)} for b in pending]
                 messages = [{"role": "system", "content": system},
                     {"role": "user", "content": json.dumps({"blocks": source}, ensure_ascii=False)}]
                 if feedback:
@@ -621,6 +647,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 if candidates:
                     reviewing = [block for block in pending if block.id in candidates]
                     review_input = [{"id": b.id, "source": b.text, "translation": candidates[b.id]["text"],
+                        "sourceEditionContext": _source_edition_context(b.text),
                         "quantityConversions": [{"sourceValue": token.original, "renderedValue": token.replacement,
                                                  "kind": token.kind} for token in protections[b.id].tokens]} for b in reviewing]
                     reviews = exact_entries(self._once([{"role": "system", "content": review_system},
