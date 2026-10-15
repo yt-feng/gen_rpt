@@ -99,6 +99,35 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_complete_currency_placeholder_cannot_gain_a_separate_currency_name(self):
+        block = Block("quoted-gold", 0, "Gold was above $5,400, rose $600, and was above $2,000 in 2022.", None)
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        generations, reviews, rejections = [], [], []
+        client.rejection_callback = rejections.append
+        def once(messages, **kwargs):
+            row = json.loads(messages[1]["content"])["blocks"][0]
+            if "source" in row:
+                reviews.append(row)
+                self.assertEqual(row["translation"], "黄金高于$5,400，上涨$600，2022年高于$2,000。")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+            generations.append(row)
+            if len(generations) > 1:
+                feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
+                details = feedback["quantityValidationDetails"]
+                self.assertEqual(details["sourceStandaloneCurrencies"], [])
+                self.assertEqual(details["targetStandaloneCurrencies"], ["美元"])
+                self.assertEqual(details["excessStandaloneCurrencyCount"], 1)
+                self.assertEqual([r["sourceValue"] for r in details["sourceProtectedValues"]], ["$5,400", "$600", "$2,000", "2022"])
+            text = "黄金高于{GATEX_QUANTITY_0}，上涨{GATEX_QUANTITY_1}，{GATEX_QUANTITY_3}年高于{GATEX_QUANTITY_2}" + ("。币种是美元。" if len(generations) == 1 else "。")
+            return {"blocks": [{"id": block.id, "text": text, "retainedEnglish": []}]}
+        client._once = once
+        accepted = client.translate([block])
+        self.assertEqual((len(generations), len(reviews), len(rejections)), (2, 1, 1))
+        self.assertTrue(accepted[block.id]["reviewed"])
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            validate_translation(block.text, {"text": "黄金高于$5,400，上涨$600，2022年高于$2,000。币种是美元。", "retainedEnglish": [], "reviewed": True})
+
     def test_pdf_folded_brand_evidence_uses_exact_literal_parts_and_fresh_review(self):
         source, target = "Claude\nGov processed data.", "Claude Gov处理数据。"
         raw = {"text": target, "retainedEnglish": [{"text": "Claude Gov", "kind": "brand"}]}

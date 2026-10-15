@@ -350,6 +350,27 @@ def _quantity_placeholder_errors(protection, candidate: Any) -> dict:
             "unknownPlaceholders": {token: count for token, count in actual.items() if token not in expected}}
 
 
+def _quantity_validation_details(protection, candidate: Any) -> dict:
+    """Private regeneration evidence, never an alternative acceptance gate."""
+    details = {"sourceProtectedValues": [{"sourceValue": token.original, "renderedValue": token.replacement,
+                                            "kind": token.kind} for token in protection.tokens]}
+    if not isinstance(candidate, str):
+        return details
+    try:
+        target_tokens = protect_quantities(candidate).tokens
+    except QuantityFidelityError as error:
+        details["targetTokenizationError"] = str(error)
+        return details
+    details["targetProtectedValues"] = [{"value": token.original, "kind": token.kind} for token in target_tokens]
+    source_currencies = [token.original for token in protection.tokens if token.kind == "standalone_currency"]
+    target_currencies = [token.original for token in target_tokens if token.kind == "standalone_currency"]
+    details["sourceStandaloneCurrencies"] = source_currencies
+    details["targetStandaloneCurrencies"] = target_currencies
+    details["excessStandaloneCurrencyCount"] = max(0, len(target_currencies) - len(source_currencies))
+    details["instruction"] = "Compare complete source quantities, bindings and observed target tokens. Do not append a separate currency name to a placeholder that already contains currency. An unqualified $ is not permission to assert USD or add 美元. Preserve every source currency, amount, sign, scale and binding. Different natural Chinese scales can be mathematically equivalent; these lists explain the failure and never authorize changing a value."
+    return details
+
+
 def _date_review_draft(block: Block, draft: dict) -> dict:
     """A private, source-bound formatting migration, never cached approval.
 
@@ -621,7 +642,9 @@ with {GATEX_QUANTITY_N} placeholders. Keep EVERY placeholder EXACTLY ONCE in you
 translation. quantityHints describe its complete rendered value: never replace a placeholder
 with that value yourself and never append currency, scale, sign, %, comparison or per-unit
 symbols already included in it. Do not invent quantities. Numeric codes, plain numbers,
-currencies, dates and links stay literal; spelled English scales alone are restored into
+currency symbols/ISO codes, dates and links stay literal; source-written currency names
+are restored as their Chinese names with the same country/currency identity. An unqualified
+$ or ¥ never authorizes inference of USD, JPY or CNY. Spelled English scales are restored into
 natural Chinese with exact arithmetic ($15 billion -> $150亿), preserving their full value,
 currency, sign, percentage/percentage-point distinction and comparison/expression meaning.
 sourcePageReferences show source-evidenced plain page ranges: pp. 1-6 -> 1-6页,
@@ -710,6 +733,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 "sourceEditionContext": _source_edition_context(rejection["source"]),
                 "quantityHints": rejection.get("quantityHints", []),
                 "quantityPlaceholderErrors": rejection.get("quantityPlaceholderErrors", {}),
+                "quantityValidationDetails": rejection.get("quantityValidationDetails", {}),
                 "sourceCalendarMonths": _source_calendar_hints(rejection["source"]),
                 "sourcePageReferences": _source_page_reference_hints(rejection["source"]),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
@@ -770,6 +794,8 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                             "blockId": block.id, "sourcePage": block.page + 1, "sourceHash": block.source_hash,
                             "source": block.text, "record": copy.deepcopy(raw),
                             "quantityHints": protections[block.id].hints, "normalizedCandidate": {**copy.deepcopy(candidate), "reviewed": False}}
+                        if error.code == "NUMERIC_OR_LINK_MISMATCH":
+                            rejection["quantityValidationDetails"] = _quantity_validation_details(protections[block.id], candidate.get("text"))
                         if error.code == "QUANTITY_PLACEHOLDER_MISMATCH":
                             rejection["quantityPlaceholderErrors"] = _quantity_placeholder_errors(protections[block.id], raw.get("text"))
                         if error.code == "UNRESOLVED_ENGLISH":
