@@ -200,6 +200,8 @@ def validate_translation(source: str, record: dict) -> dict:
     date = _standalone_date(source)
     if date and compact(target) != compact(date):
         raise LocalizationError("DATE_DISPLAY_ORDER")
+    if any(pattern.search(target) for pattern, _ in _source_date_reorderings(source)):
+        raise LocalizationError("DATE_DISPLAY_ORDER")
     if "{GATEX_QUANTITY_" in target:
         raise LocalizationError("QUANTITY_PLACEHOLDER_MISMATCH")
     if not quantities_equivalent(source, target):
@@ -235,12 +237,13 @@ def _source_verified_record(source: str, record: dict) -> dict:
     if not isinstance(retained, list) or not isinstance(result.get("text"), str):
         return result
     target = result["text"]
-    date = _standalone_date(source)
-    match = re.fullmatch(r"([0-3]?\d) (" + "|".join(MONTHS) + r") (\d{4})", source)
-    if date and match and compact(target) == f"{match[1]}{MONTHS[match[2]]}月{match[3]}":
-        # Reordering this isolated date introduces no claim or quantity. The
-        # resulting candidate still receives fresh independent semantic review.
-        result["text"] = target = date
+    for pattern, natural in _source_date_reorderings(source):
+        # Protected day/year quantities do not determine calendar word order.
+        # A candidate may retain English order inside a paragraph. Change
+        # presentation only, using the
+        # exact date evidenced by this block, before independent fresh review.
+        target = pattern.sub(natural, target)
+    result["text"] = target
     house = HOUSE_MASTHEADS.get(source)
     if house and compact(target) == compact(house[0]):
         # Only these exact, fully translated house mastheads are reconciled.
@@ -281,6 +284,15 @@ def _source_masthead_hint(source: str) -> dict:
 def _standalone_date(source: str) -> str | None:
     match = re.fullmatch(r"([0-3]?\d) (" + "|".join(MONTHS) + r") (\d{4})", source)
     return f"{match[3]}年{MONTHS[match[2]]}月{match[1]}日" if match else None
+
+
+def _source_date_reorderings(source: str) -> list[tuple[re.Pattern, str]]:
+    dates = []
+    for match in re.finditer(r"\b([0-3]?\d) (" + "|".join(MONTHS) + r") (\d{4})\b", source):
+        legacy = re.compile(r"(?<![0-9])" + re.escape(match[1]) + r"\s*" + MONTHS[match[2]]
+                            + r"月\s*" + re.escape(match[3]) + r"(?![0-9])")
+        dates.append((legacy, f"{match[3]}年{MONTHS[match[2]]}月{match[1]}日"))
+    return dates
 
 
 def _source_edition_context(source: str) -> dict:
