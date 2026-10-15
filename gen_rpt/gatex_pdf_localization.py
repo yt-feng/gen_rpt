@@ -1440,6 +1440,13 @@ An edited candidate must undergo a new independent fidelity and quality review."
         a candidate, and no generated record is labelled independently reviewed.
         """
         pending, accepted, codes, feedback = list(blocks), {}, {}, []
+        def edition_context(text):
+            context = _source_edition_context(text)
+            if isinstance(context.get("instruction"), str):
+                context["instruction"] = context["instruction"].replace(
+                    "generation must still use the supplied quantity placeholders for the protected day and year",
+                    "preserve each source date value without internal placeholders")
+            return context
         system = """Translate every supplied PDF block into complete, readable Simplified Chinese.
 Return JSON {"blocks":[{"id":"exact input id","text":"complete Chinese translation",
 "retainedEnglish":[{"text":"source identity","kind":"brand|person|organisation|acronym|code|unit|source_title"}]}]}.
@@ -1456,7 +1463,7 @@ content without inventing a missing continuation. Return translations, not revie
         for attempt in range(maximum_attempts):
             source = [{"id": block.id, "text": block.text,
                        "sourcePublicationTerms": _source_publication_terms(block.text),
-                       "sourceEditionContext": _source_edition_context(block.text)} for block in pending]
+                       "sourceEditionContext": edition_context(block.text)} for block in pending]
             messages = [{"role": "system", "content": system},
                         {"role": "user", "content": json.dumps({"blocks": source}, ensure_ascii=False)}]
             if feedback:

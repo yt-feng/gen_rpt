@@ -61,6 +61,17 @@ class ReadableTests(unittest.TestCase):
         self.assertEqual(calls, [["a", "b"], ["b"]])
         self.assertEqual([set(rows) for rows in saved], [{"a"}, {"b"}])
 
+    def test_readable_edition_context_does_not_require_absent_quantity_placeholders(self):
+        translator = client()
+        block = Block("edition", 0, "This edition is an authorized English translation of material published on 24 September 2026.", None)
+        def once(messages, **_):
+            row = json.loads(messages[1]["content"])["blocks"][0]
+            self.assertEqual(row["text"], block.text)
+            self.assertNotIn("must still use the supplied quantity placeholders", json.dumps(row))
+            return {"blocks": [{"id": "edition", "text": "原英文版本是2026年九月24日发布材料的授权英文译本。"}]}
+        translator._once = once
+        self.assertFalse(translator.translate([block])["edition"]["reviewed"])
+
     def test_empty_english_and_internal_tokens_remain_pending_with_no_partial_pdf(self):
         for target in ("", "Demand has increased", "需求{GATEX_QUANTITY_0}"):
             with self.subTest(target=target):
