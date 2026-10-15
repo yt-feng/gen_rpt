@@ -2,7 +2,9 @@
 
 Only a source's spelled-out thousand/million/billion/trillion quantity permits
 an exact change of numeric scale. Other numeric literals, codes, dates, rates,
-links and per-unit suffixes remain literal. This certifies numeric identity
+links and per-unit suffixes remain literal. Written currency names have source-bound
+Chinese counterparts; a bare monetary symbol never acquires a country identity.
+This certifies numeric identity
 only; the caller still checks complete prose, identities, independent semantic
 review and the rendered PDF layout.
 """
@@ -24,9 +26,42 @@ _SCALES = {"thousand": 1000, "million": 1000000, "billion": 1000000000,
            "亿": 100000000, "万亿": 1000000000000}
 _CODES = "USD|CNY|RMB|AED|SAR|QAR|BHD|OMR|KWD|EUR|GBP|JPY|HKD|SGD|INR|IDR|KRW|AUD|CAD|CHF|MYR|THB|VND|PHP|TRY|ZAR|BRL|MXN|RUB|NZD"
 _SYMBOLS = r"[A-Z]{1,3}\$|[$€£¥₹₩]"
-_CURRENCY = rf"(?:{_CODES}|{_SYMBOLS})"
-_CURRENCY_ZH = "美元|英镑|欧元|人民币|日元|卢比|韩元|元"
-_CURRENCY_ZH_NAMED = "美元|英镑|欧元|人民币|日元|卢比|韩元"
+# Currency words are source material too. Protect their identity instead of
+# counting a legitimate Chinese currency noun as an unexplained added amount.
+# Long country-qualified forms precede a generic dollar. Bare $ / ¥ retain
+# their original ambiguous symbols and never acquire an ISO currency identity.
+_CURRENCY_NAMES = [
+    ("USD", "美元", ("United States dollar", "U.S. dollar", "US dollar", "dollar")),
+    ("CAD", "加元", ("Canadian dollar",)),
+    ("AUD", "澳元", ("Australian dollar",)),
+    ("NZD", "新西兰元", ("New Zealand dollar",)),
+    ("SGD", "新加坡元", ("Singapore dollar",)),
+    ("HKD", "港元", ("Hong Kong dollar",)),
+    ("EUR", "欧元", ("euro",)),
+    ("GBP", "英镑", ("British pound", "pound sterling")),
+    ("CNY", "人民币", ("Chinese yuan", "Chinese renminbi", "renminbi")),
+    ("JPY", "日元", ("Japanese yen",)),
+    ("INR", "卢比", ("Indian rupee",)),
+    ("KRW", "韩元", ("South Korean won", "Korean won")),
+    ("AED", "阿联酋迪拉姆", ("UAE dirham", "Emirati dirham")),
+    ("SAR", "沙特里亚尔", ("Saudi riyal",)),
+    ("QAR", "卡塔尔里亚尔", ("Qatari riyal",)),
+]
+_CURRENCY_NAME_ID, _CURRENCY_NAME_ZH = {}, {}
+for _iso, _zh, _names in _CURRENCY_NAMES:
+    _CURRENCY_NAME_ID[_zh] = _iso
+    for _name in _names:
+        _forms = (_name, _name + "s") if _name.endswith(("dollar", "pound", "euro", "rupee", "dirham", "riyal")) else (_name,)
+        if _name == "pound sterling":
+            _forms = (_name, "pounds sterling")
+        for _form in _forms:
+            _CURRENCY_NAME_ID[_form.casefold()] = _iso
+            _CURRENCY_NAME_ZH[_form.casefold()] = _zh
+_WORD_NAMES = sorted(_CURRENCY_NAME_ZH, key=len, reverse=True)
+_CURRENCY_EN = r"(?i:(?:" + "|".join(re.escape(name).replace(r"\ ", r"\s+") for name in _WORD_NAMES) + r"))(?![A-Za-z])"
+_CURRENCY_ZH_NAMED = "|".join(sorted((row[1] for row in _CURRENCY_NAMES), key=len, reverse=True))
+_CURRENCY_ZH = _CURRENCY_ZH_NAMED + "|元"
+_CURRENCY = rf"(?:{_CURRENCY_EN}|{_CODES}|{_SYMBOLS}|{_CURRENCY_ZH_NAMED})"
 _CURRENCY_ID = {"US$": "USD", "HK$": "HKD", "AU$": "AUD", "NZ$": "NZD",
                 "CA$": "CAD", "SG$": "SGD", "£": "GBP", "€": "EUR", "₹": "INR", "₩": "KRW",
                 "RMB": "CNY", "美元": "USD", "英镑": "GBP", "欧元": "EUR",
@@ -137,8 +172,18 @@ def _decimal_text(value: Fraction) -> str:
     return sign + str(whole) + ("." + "".join(digits) if digits else "")
 
 
+def _currency_name(value: str) -> tuple[str, str] | None:
+    key = " ".join(value.split()).casefold()
+    identity = _CURRENCY_NAME_ID.get(key)
+    if identity is None:
+        return None
+    chinese = _CURRENCY_NAME_ZH.get(key, value)
+    return identity, chinese
+
+
 def _currency_id(value: str) -> str:
-    return _CURRENCY_ID.get(value, value)
+    name = _currency_name(value)
+    return name[0] if name else _CURRENCY_ID.get(value, value)
 
 
 def _percent_id(value: str) -> str:
@@ -194,7 +239,12 @@ def _quantity_atom(match: re.Match, text: str) -> _Atom:
     # Plain values and numeric abbreviations retain their exact digits,
     # leading zeros, decimal places, commas and currency marker. Written
     # percent and percentage-point units have distinct canonical forms.
-    literal = ("quantity", number, currency, normalized_scale, percent_unit, per, suffix_currency, outer, constraint, lower_bound)
+    currency_name = _currency_name(currency or suffix_currency)
+    literal_currency = ("name", currency_name[0]) if currency_name else currency
+    literal_suffix = "" if currency_name else suffix_currency
+    # Currency nouns can move around their own amount in Chinese. Symbols and
+    # ISO codes keep the previous literal-position contract for plain numbers.
+    literal = ("quantity", number, literal_currency, normalized_scale, percent_unit, per, literal_suffix, outer, constraint, lower_bound)
     equivalent = (numeric, _currency_id(currency or suffix_currency), sign, percent_unit, per, constraint, lower_bound) if numeric is not None else None
     replacement = original
     if percent and percent != percent_unit:
@@ -218,6 +268,16 @@ def _quantity_atom(match: re.Match, text: str) -> _Atom:
         suffix = suffix_separator + suffix_currency if suffix_currency else ""
         ending = suffix + per if parts["currency_suffix"] else per + suffix
         replacement = constraint + outer + currency + separator + rendered + unit + lower_bound + ending
+    if currency_name and (currency or suffix_currency).strip().casefold() in _CURRENCY_NAME_ZH:
+        # Only written names acquire a Chinese rendering. Source $ / US$ /
+        # USD notation is never rewritten by this branch.
+        label = currency_name[1]
+        if convertible and numeric is not None:
+            amount = rendered + unit + lower_bound
+        else:
+            amount = number + scale + lower_bound + percent_unit
+        ending = per + label if parts["currency_final"] else label + per
+        replacement = constraint + outer + amount + ending
     operator_prefix = constraint or outer or (number[:1] if number.startswith(("+", "-", "−")) else "")
     return _Atom(match.start(), end, original, replacement,
                  "scaled_quantity" if convertible else "quantity", literal, equivalent, convertible,
@@ -300,8 +360,10 @@ def _atoms(text: str) -> list[_Atom]:
                 # internal version dots literal, leaving only trailing dots
                 # outside the protected code for natural Chinese punctuation.
                 original = original.rstrip(".")
+            name = _currency_name(original) if kind == "standalone_currency" else None
             atoms.append(_Atom(match.start(), match.start()+len(original), original,
-                               original, kind, (kind, original)))
+                               name[1] if name else original, kind,
+                               ("currency_name", name[0]) if name else (kind, original)))
     return _expressions(text, atoms)
 
 

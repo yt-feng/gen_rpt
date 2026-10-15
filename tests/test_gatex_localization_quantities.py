@@ -7,6 +7,49 @@ from gen_rpt.gatex_translation_quantities import (
 
 
 class QuantityFidelityTests(unittest.TestCase):
+    def test_currency_words_in_prose_are_protected_and_not_added_money(self):
+        pairs = [("the dollar-centered system", "以美元为中心的体系"),
+                 ("the Canadian dollar and the Australian dollar", "加元和澳元"),
+                 ("the Hong Kong dollar", "港元"), ("the euro and pound sterling", "欧元和英镑")]
+        for source, target in pairs:
+            with self.subTest(source=source):
+                self.assertTrue(quantities_equivalent(source, target))
+                protected = protect_quantities(source)
+                self.assertTrue(quantities_equivalent(source, protected.restore(protected.masked)))
+        self.assertFalse(quantities_equivalent("the Canadian dollar", "美元"))
+        self.assertFalse(quantities_equivalent("the Australian dollar", "加元"))
+        self.assertFalse(quantities_equivalent("the dollar-centered system", "以美元和美元为中心的体系"))
+        self.assertFalse(quantities_equivalent("the financial system", "以美元为中心的体系"))
+        self.assertTrue(quantities_equivalent("$15 and the dollar-centered system", "$15与以美元为中心的体系"))
+        self.assertFalse(quantities_equivalent("$15 and the dollar-centered system", "15美元与以美元为中心的体系"))
+        self.assertFalse(quantities_equivalent("USD 15", "15美元"), "a plain ISO-code amount keeps its existing literal contract")
+        for source in ("Euroclear", "Eurozone", "dollarization", "Mr. Sterling"):
+            self.assertEqual(protect_quantities(source).tokens, ())
+
+    def test_written_currency_amounts_keep_country_value_and_sign(self):
+        pairs = [("15 million US dollars", "1500万美元"),
+                 ("US dollars 15 million", "1500万美元"),
+                 ("2 million Canadian dollars", "200万加元"),
+                 ("15 euros", "15欧元"), ("British pounds 15", "15英镑"),
+                 ("-2 million Australian dollars/M", "-200万澳元/M"),
+                 ("15 U.S. dollars", "15美元"),
+                 ("15 Hong Kong dollars", "15港元"),
+                 ("5 million Saudi riyals", "500万沙特里亚尔")]
+        for source, target in pairs:
+            with self.subTest(source=source):
+                p = protect_quantities(source)
+                self.assertEqual(p.restore(p.masked), target)
+                self.assertTrue(quantities_equivalent(source, target))
+        for source, target in [("15 Canadian dollars", "15美元"),
+                               ("15 euros", "15英镑"),
+                               ("$15 million", "1500万美元"),
+                               ("$15", "USD 15"),
+                               ("US$15", "$15"),
+                               ("-2 million Australian dollars/M", "200万澳元/M"),
+                               ("2 million Canadian dollars and 3 million US dollars", "200万美元和300万加元")]:
+            with self.subTest(source=source, target=target):
+                self.assertFalse(quantities_equivalent(source, target))
+
     def test_spelled_scales_render_natural_chinese_with_exact_arithmetic(self):
         pairs = [
             ("$15 billion", "$150亿"), ("20 million", "2000万"),
