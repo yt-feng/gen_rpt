@@ -48,12 +48,26 @@ version resets only that source's retry state. A failed source does not stop a
 later independently selected source.
 
 Actual translation resumes source-SHA-bound private R2 checkpoints. Inventory
-versions and downloaded PDF SHA-256 are checked before model work. Current QA,
-publication/readback, source identity and minimum font-size checks remain
-mandatory; `force` stays false. A partial checkpoint is progress, not a ready
-Chinese PDF. Unresolved selected sources fail the run. A successful bounded run
-may still report `globalPending > 0`; only `globalComplete=true` means the
-entire current inventory is ready.
+versions and downloaded PDF SHA-256 are checked before model work. Publication
+requires complete source/page/block coverage, preserved figures, a valid PDF,
+the minimum font size and the explicit current acceptance policy; `force` stays
+false. The readable-Chinese policy records detailed semantic/style findings as
+advisories without pretending those independent reviews passed. Existing strict
+QA publications remain supported.
+
+Expected partial translations, bounded deadlines and temporary connection or
+rate-limit/server failures report `status=pending`, `operationalHealthy=true`
+and exit successfully so the next hourly run can resume. Their source codes,
+pending counts and retry times remain visible. Authentication, missing/invalid
+configuration, corrupt bytes, source-pin mismatches and incomplete worker
+results remain failed jobs. A partial checkpoint never becomes a ready PDF.
+
+`readyCount` counts delivered and verified artifacts. `pendingCount` counts
+selected sources awaiting continuation; `selectedComplete` stays false for
+these sources. `globalPending` includes the entire remaining inventory, and is
+unknown (`null`) if the final inventory could not be read. Only
+`globalComplete=true` means the entire current inventory is ready. An ordinary
+bounded run can be operationally healthy while that value remains false.
 
 ## Concurrency and records
 

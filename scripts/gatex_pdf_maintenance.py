@@ -28,11 +28,15 @@ SCHEMA = "gatex-pdf-maintenance-queue/v1"
 REPORT_SCHEMA = "gatex-pdf-maintenance/v1"
 QUALITY_POLICY = "gatex-professional-zh/v1"
 ALIAS_POLICY = "gatex-source-occurrence-review/v1"
+READABLE_POLICY = "gatex-readable-zh/v1"
 MAX_QUEUE_BYTES = 2 * 1024 * 1024
 MAX_UNIQUE = 2
 BACKOFF = (3600, 14400, 43200, 86400)
 ENTRY_KEYS = {"id", "sourceVersion", "firstSeenAt", "lastAttemptAt", "nextAttemptAt", "attemptCount", "lastSafeCode", "sourceSha256", "discoveryClass"}
 PDF_WORKFLOWS = {".github/workflows/gatex-content-localization.yml", ".github/workflows/gatex-pdf-backfill.yml", ".github/workflows/gatex-pdf-maintenance.yml"}
+PENDING_CODES = {"TRANSLATION_BLOCKS_PENDING", "MAINTENANCE_DEADLINE_EXCEEDED", "SOURCE_DEADLINE_EXCEEDED",
+    "PDF_MAINTENANCE_DEFERRED", "API_DEADLINE_EXCEEDED",
+    "MODEL_TIMEOUT", "MODEL_CONNECTION_FAILED", "MODEL_TRANSPORT_FAILED", "API_CONNECTION_FAILED"}
 
 
 def digest(value):
@@ -49,6 +53,26 @@ def timestamp(value):
 
 def safe_code(value):
     return value if isinstance(value, str) and re.fullmatch(r"[A-Z0-9_]{1,80}", value) else "MAINTENANCE_FAILED"
+
+
+def expected_pending(code, http_status=None):
+    """A bounded continuation or temporary outage does not finish a PDF."""
+    return (code in PENDING_CODES or re.fullmatch(r"MODEL_HTTP_(?:429|5\d\d)", code) is not None
+        or code == "API_HTTP_ERROR" and type(http_status) is int and (http_status == 429 or 500 <= http_status <= 599))
+
+
+def unsuccessful(identifier, code, http_status=None, api_code=None):
+    code = safe_code(code)
+    result = {"id": identifier, "status": "pending" if expected_pending(code, http_status) else "failed", "code": code}
+    if type(http_status) is int and 100 <= http_status <= 599:
+        result["httpStatus"] = http_status
+    if isinstance(api_code, str) and safe_code(api_code) == api_code:
+        result["apiCode"] = api_code
+    return result
+
+
+def exception_result(identifier, error):
+    return unsuccessful(identifier, runner.error_code(error), getattr(error, "status", None), getattr(error, "api_code", None))
 
 
 def load_queue(path):
@@ -168,9 +192,17 @@ def parse_source_pins(value):
 def validate_current_qa(qa, pages, source_sha256=None):
     runner.validate_qa(qa, pages)
     if (not digest(qa.get("sourceSha256")) or (source_sha256 is not None and qa["sourceSha256"] != source_sha256)
-            or qa.get("semanticReviewPassed") is not True or qa.get("rasterOCRVerified") is not True
+            or qa.get("rasterOCRVerified") is not True
             or type(qa.get("minimumTranslatedFontSize")) not in (int, float)
-            or not math.isfinite(qa["minimumTranslatedFontSize"]) or qa["minimumTranslatedFontSize"] < 7
+            or not math.isfinite(qa["minimumTranslatedFontSize"]) or qa["minimumTranslatedFontSize"] < 7):
+        raise runner.RunnerError("CURRENT_QUALITY_POLICY_REQUIRED")
+    if qa.get("acceptanceMode") == "readable":
+        if (qa.get("acceptancePolicyVersion") != READABLE_POLICY or qa.get("readableChinesePassed") is not True
+                or type(qa.get("readableCheckedBlockCount")) is not int
+                or qa["readableCheckedBlockCount"] != qa["translatedBlockCount"]):
+            raise runner.RunnerError("CURRENT_QUALITY_POLICY_REQUIRED")
+        return
+    if (qa.get("acceptanceMode") is not None or qa.get("semanticReviewPassed") is not True or qa.get("rasterOCRVerified") is not True
             or qa.get("qualityPolicyVersion") != QUALITY_POLICY or qa.get("professionalChinesePassed") is not True
             or qa.get("ownedTerminologyPassed") is not True or type(qa.get("qualityCheckedBlockCount")) is not int
             or qa["qualityCheckedBlockCount"] != qa["translatedBlockCount"] or qa.get("renderAliasReviewPolicy") != ALIAS_POLICY):
@@ -232,7 +264,10 @@ def process_group(api, translate, pins, sources, runtime):
                     raise runner.RunnerError("ARTIFACT_DIGEST_MISMATCH")
                 cached = data, {key: value for key, value in result.items() if key != "path"}
             except Exception as error:
-                failure = runner.RunnerError(safe_code(runner.error_code(error)))
+                status = getattr(error, "status", None)
+                failure = runner.RunnerError(safe_code(runner.error_code(error)),
+                    status if type(status) is int and 100 <= status <= 599 else None,
+                    getattr(error, "api_code", None))
                 raise failure from None
         data, metadata = cached
         kwargs["output_pdf"].write_bytes(data)
@@ -336,7 +371,7 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
             sources[row["id"]] = (data, headers)
         except Exception as error:
             row["lastSafeCode"] = safe_code(runner.error_code(error))
-            results.append({"id": row["id"], "status": "failed", "code": row["lastSafeCode"]})
+            results.append(exception_result(row["id"], error))
         save_queue(queue_path, entries)
     for index, (value, pins) in enumerate(groups.items()):
         remaining = budget_seconds - (clock() - started)
@@ -350,7 +385,7 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
         try:
             completed = execute(api, pins, sources, runtime, share)
         except Exception as error:
-            completed = [{"id": pin["id"], "status": "failed", "code": safe_code(runner.error_code(error))} for pin in pins]
+            completed = [exception_result(pin["id"], error) for pin in pins]
         for result in completed:
             row = entries[result["id"]]
             if result.get("status") == "ready" and result.get("sourceSha256") == value:
@@ -358,10 +393,10 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
                 results.append({key: result[key] for key in ("id", "status", "sourceSha256", "sha256", "pageCount", "byteSize", "sourceBlockCount", "translatedBlockCount") if key in result})
             else:
                 row["lastSafeCode"] = safe_code(result.get("code"))
-                results.append({"id": row["id"], "status": "failed", "code": row["lastSafeCode"]})
+                results.append(unsuccessful(row["id"], result.get("code"), result.get("httpStatus"), result.get("apiCode")))
         save_queue(queue_path, entries)
         if emit:
-            emit({"event": "maintenance_group_completed", "completedIds": len(results), "readyIds": sum(row["status"] == "ready" for row in results), "failedIds": sum(row["status"] == "failed" for row in results)})
+            emit({"event": "maintenance_group_completed", "completedIds": len(results), "readyIds": sum(row["status"] == "ready" for row in results), "pendingIds": sum(row["status"] == "pending" for row in results), "failedIds": sum(row["status"] == "failed" for row in results)})
     try:
         final = api.inventory()
         final_by_id = {row["id"]: row for row in final}
@@ -379,13 +414,23 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
         entries = reconcile(final, entries, wall())
         save_queue(queue_path, entries)
         unreadable = False
-    except Exception:
+        readback_code = None
+        retryable_readback = False
+    except Exception as error:
         unreadable = True
+        readback_code = safe_code(runner.error_code(error))
+        retryable_readback = expected_pending(readback_code, getattr(error, "status", None))
     failed = sum(row["status"] == "failed" for row in results)
+    pending = sum(row["status"] == "pending" for row in results)
     incomplete = {row["id"] for row in selected} - {row["id"] for row in results} - deferred
-    return {**base, "status": "failed" if failed or incomplete or unreadable else "passed",
+    unhealthy = bool(failed or incomplete - budget_pending or unreadable and not retryable_readback)
+    waiting = bool(pending or incomplete or unreadable)
+    return {**base, "status": "failed" if unhealthy else "pending" if waiting else "passed", "operationalHealthy": not unhealthy,
+        "selectedComplete": not (failed or pending or incomplete or deferred or unreadable),
         "selectedUniqueSources": len(groups), "readyCount": sum(row["status"] == "ready" for row in results),
-        "failedCount": failed, "incompleteSelectedCount": len(incomplete), "deferredSelectedCount": len(deferred), "inventoryReadbackFailed": unreadable,
+        "failedCount": failed, "pendingCount": pending + len(incomplete & budget_pending),
+        "incompleteSelectedCount": len(incomplete), "deferredSelectedCount": len(deferred), "inventoryReadbackFailed": unreadable,
+        "inventoryReadbackCode": readback_code,
         "budgetExhaustedPendingCount": len(budget_pending) + sum(row.get("code") in {"MAINTENANCE_DEADLINE_EXCEEDED", "API_DEADLINE_EXCEEDED"} for row in results),
         "deferredCount": len(entries), "globalPending": None if unreadable else len(entries),
         "globalComplete": not unreadable and not entries, "results": results}
@@ -486,7 +531,10 @@ def main():
             budget_seconds=args.budget_seconds, source_pins=args.source_pins_json,
             emit=lambda value: print(json.dumps(value), flush=True))
     except Exception as error:
-        report = {"schema": REPORT_SCHEMA, "status": "failed", "code": safe_code(runner.error_code(error)), "globalComplete": False}
+        outcome = exception_result("", error)
+        report = {"schema": REPORT_SCHEMA, **{key: value for key, value in outcome.items() if key != "id"},
+            "operationalHealthy": outcome["status"] == "pending", "selectedComplete": False,
+            "globalPending": None, "globalComplete": False}
     write_json(args.summary, report)
     print(json.dumps({key: value for key, value in report.items() if key not in {"results", "selectedIds"}}), flush=True)
     return 1 if report["status"] == "failed" else 0

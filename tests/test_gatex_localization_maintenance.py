@@ -171,7 +171,11 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(budgets, [870, 870])
         self.assertEqual(report["budgetExhaustedPendingCount"], 2)
         self.assertEqual(report["readyCount"], 0)
-        self.assertEqual(report["failedCount"], 2)
+        self.assertEqual(report["failedCount"], 0)
+        self.assertEqual(report["pendingCount"], 2)
+        self.assertEqual(report["status"], "pending")
+        self.assertTrue(report["operationalHealthy"])
+        self.assertFalse(report["selectedComplete"])
         self.assertEqual(report["globalPending"], 3)
         self.assertFalse(report["globalComplete"])
         def resume(**kwargs):
@@ -385,11 +389,13 @@ class MaintenanceTests(unittest.TestCase):
         self.assertEqual(result[0]["code"], "SOURCE_CHANGED_FROM_PIN")
         self.assertEqual(api.progress_calls, [])
 
-    def test_deadline_and_incomplete_child_cannot_claim_success(self):
+    def test_deadline_is_healthy_pending_without_claiming_translation_completion(self):
         api = Api({"catalog:a": (SOURCE, "a")})
         report = self.run_maintenance(api, discovery_only=False,
             execute=lambda *args: (_ for _ in ()).throw(runner.RunnerError("MAINTENANCE_DEADLINE_EXCEEDED")))
-        self.assertEqual(report["status"], "failed")
+        self.assertEqual(report["status"], "pending")
+        self.assertTrue(report["operationalHealthy"])
+        self.assertEqual(report["pendingCount"], 1)
         self.assertEqual(report["results"][0]["code"], "MAINTENANCE_DEADLINE_EXCEEDED")
         self.assertFalse(report["globalComplete"])
         entries, _ = maintenance.load_queue(self.queue)
@@ -407,11 +413,141 @@ class MaintenanceTests(unittest.TestCase):
         report = self.run_maintenance(api, discovery_only=False, execute=execute,
             clock=lambda: elapsed[0], budget_seconds=1800)
         self.assertEqual(budgets, [870, 870])
-        self.assertEqual(report["failedCount"], 1)
+        self.assertEqual(report["failedCount"], 0)
+        self.assertEqual(report["pendingCount"], 1)
         self.assertEqual(report["readyCount"], 1)
         self.assertIn("managed:b", api.ready)
-        self.assertEqual(report["status"], "failed")
+        self.assertEqual(report["status"], "pending")
+        self.assertTrue(report["operationalHealthy"])
         self.assertFalse(report["globalComplete"])
+
+    def test_partial_translation_retains_checkpoint_and_continues_the_next_source(self):
+        api = Api({"catalog:a": (SOURCE, "a"), "managed:b": (SOURCE + b"b", "b")})
+        def execute(api, pins, sources, runtime, seconds):
+            if pins[0]["id"] == "catalog:a":
+                api.save_progress(pins[0]["id"], pins[0]["sourceSha256"], {
+                    "sourceSha256": pins[0]["sourceSha256"], "blocks": {"accepted": {"reviewed": True, "text": "PRIVATE accepted"}},
+                })
+                raise runner.RunnerError("TRANSLATION_BLOCKS_PENDING")
+            return maintenance.process_group(api, translator, pins, sources, runtime)
+        report = self.run_maintenance(api, discovery_only=False, execute=execute)
+        self.assertEqual(report["status"], "pending")
+        self.assertTrue(report["operationalHealthy"])
+        self.assertFalse(report["selectedComplete"])
+        self.assertEqual((report["readyCount"], report["pendingCount"], report["failedCount"], report["globalPending"]), (1, 1, 0, 1))
+        self.assertFalse(report["globalComplete"])
+        entries, _ = maintenance.load_queue(self.queue)
+        self.assertEqual(entries["catalog:a"]["lastSafeCode"], "TRANSLATION_BLOCKS_PENDING")
+        self.assertGreater(entries["catalog:a"]["nextAttemptAt"], self.now)
+        self.assertNotIn("PRIVATE", json.dumps(report) + self.queue.read_text())
+        self.now = entries["catalog:a"]["nextAttemptAt"] + 1
+        def resume(**kwargs):
+            self.assertTrue(kwargs["progress"]["blocks"]["accepted"]["reviewed"])
+            self.assertFalse(kwargs["force"])
+            return translator(**kwargs)
+        resumed = self.run_maintenance(api, discovery_only=False, execute=executor(resume))
+        self.assertEqual(resumed["status"], "passed")
+        self.assertTrue(resumed["selectedComplete"])
+        self.assertTrue(resumed["globalComplete"])
+
+    def test_only_expected_pending_or_transient_failures_exit_without_an_operational_error(self):
+        for code, status, expected in [
+            ("SOURCE_DEADLINE_EXCEEDED", None, "pending"),
+            ("PDF_MAINTENANCE_DEFERRED", None, "pending"),
+            ("MODEL_TIMEOUT", None, "pending"), ("MODEL_CONNECTION_FAILED", None, "pending"),
+            ("MODEL_HTTP_429", None, "pending"), ("MODEL_HTTP_503", None, "pending"),
+            ("API_HTTP_ERROR", 503, "pending"), ("API_HTTP_ERROR", 429, "pending"),
+            ("MODEL_HTTP_401", None, "failed"), ("MODEL_HTTP_402", None, "failed"),
+            ("API_HTTP_ERROR", 403, "failed"), ("MODEL_KEY_MISSING", None, "failed"),
+            ("INVALID_MODEL_CONFIGURATION", None, "failed"), ("SOURCE_DIGEST_MISMATCH", None, "failed"),
+            ("ARTIFACT_READBACK_FAILED", None, "failed"), ("MAINTENANCE_WORKER_RESULT_INVALID", None, "failed"),
+        ]:
+            with self.subTest(code=code, httpStatus=status):
+                self.queue.unlink(missing_ok=True)
+                api = Api({"catalog:a": (SOURCE, "a")})
+                def fail(*args):
+                    raise runner.RunnerError(code, status)
+                report = self.run_maintenance(api, discovery_only=False, execute=fail)
+                self.assertEqual(report["status"], expected)
+                self.assertEqual(report["operationalHealthy"], expected == "pending")
+                self.assertEqual(report["failedCount"], int(expected == "failed"))
+                self.assertEqual(report["pendingCount"], int(expected == "pending"))
+                self.assertFalse(report["globalComplete"])
+
+    def test_actual_checkpoint_503_preserves_http_diagnostics_for_aliases_and_other_sources_continue(self):
+        api = Api({"catalog:a": (SOURCE, "a"), "review:alias": (SOURCE, "alias"), "managed:b": (SOURCE + b"b", "b")})
+        self.run_maintenance(api)
+        entries, _ = maintenance.load_queue(self.queue)
+        for identifier in ("catalog:a", "review:alias"):
+            entries[identifier]["sourceSha256"] = runner.sha256(SOURCE)
+        maintenance.save_queue(self.queue, entries)
+        save, attempts = api.save_progress, []
+        def unavailable(identifier, digest, progress):
+            attempts.append(identifier)
+            if digest == runner.sha256(SOURCE):
+                raise runner.RunnerError("API_HTTP_ERROR", 503, "PDF_API_503")
+            return save(identifier, digest, progress)
+        api.save_progress = unavailable
+        report = self.run_maintenance(api, discovery_only=False, execute=executor(translator))
+        self.assertEqual(report["status"], "pending")
+        self.assertTrue(report["operationalHealthy"])
+        self.assertEqual((report["readyCount"], report["pendingCount"], report["failedCount"]), (1, 2, 0))
+        for result in report["results"]:
+            if result["id"] in {"catalog:a", "review:alias"}:
+                self.assertEqual((result["status"], result["code"], result["httpStatus"], result["apiCode"]),
+                    ("pending", "API_HTTP_ERROR", 503, "PDF_API_503"))
+        self.assertEqual(attempts.count("catalog:a") + attempts.count("review:alias"), 1, "one source failure is reused without a second alias budget")
+        self.assertIn("managed:b", api.ready)
+        self.assertFalse(report["globalComplete"])
+
+    def test_transient_final_inventory_is_unknown_pending_but_auth_failure_stays_an_error(self):
+        for status, expected in [(503, "pending"), (401, "failed")]:
+            with self.subTest(status=status):
+                self.queue.unlink(missing_ok=True)
+                api = Api({"catalog:a": (SOURCE, "a")})
+                inventory, calls = api.inventory, []
+                def read():
+                    calls.append(True)
+                    if len(calls) > 1:
+                        raise runner.RunnerError("API_HTTP_ERROR", status)
+                    return inventory()
+                api.inventory = read
+                report = self.run_maintenance(api, discovery_only=False, execute=executor(translator))
+                self.assertEqual(report["status"], expected)
+                self.assertEqual(report["operationalHealthy"], expected == "pending")
+                self.assertTrue(report["inventoryReadbackFailed"])
+                self.assertEqual(report["inventoryReadbackCode"], "API_HTTP_ERROR")
+                self.assertIsNone(report["globalPending"])
+                self.assertFalse(report["globalComplete"])
+
+    def test_missing_child_result_remains_a_real_failure(self):
+        api = Api({"catalog:a": (SOURCE, "a")})
+        report = self.run_maintenance(api, discovery_only=False, execute=lambda *args: [])
+        self.assertEqual(report["status"], "failed")
+        self.assertFalse(report["operationalHealthy"])
+        self.assertEqual(report["incompleteSelectedCount"], 1)
+        self.assertFalse(report["globalComplete"])
+
+    def test_explicit_readable_policy_accepts_real_advisories_but_not_missing_coverage(self):
+        qa = {**quality(), "acceptanceMode": "readable", "acceptancePolicyVersion": maintenance.READABLE_POLICY,
+            "readableChinesePassed": True, "readableCheckedBlockCount": 2,
+            "semanticReviewPassed": False, "professionalChinesePassed": False, "ownedTerminologyPassed": False,
+            "qualityCheckedBlockCount": 0, "advisoryIssueCount": 1, "advisoryIssueCounts": {"STYLE": 1}}
+        maintenance.validate_current_qa(qa, 1, runner.sha256(SOURCE))
+        for field, value in [("acceptancePolicyVersion", "old"), ("readableChinesePassed", False),
+                ("readableCheckedBlockCount", 1), ("readableCheckedBlockCount", True),
+                ("sourceSha256", "b" * 64), ("minimumTranslatedFontSize", 6.9),
+                ("figuresPreserved", False), ("rasterOCRVerified", False), ("missingBlocks", 1)]:
+            with self.subTest(field=field), self.assertRaises(runner.RunnerError):
+                maintenance.validate_current_qa({**qa, field: value}, 1, runner.sha256(SOURCE))
+
+    def test_cli_pending_exits_zero_but_true_failure_exits_one(self):
+        for status, expected in [("pending", 0), ("failed", 1)]:
+            argv = ["maintenance", "--queue", str(self.queue), "--summary", str(self.root / "summary.json"), "--runtime", str(self.root / "private")]
+            with patch.dict(maintenance.os.environ, {"GITHUB_REPOSITORY": "yt-feng/gen_rpt", "GITHUB_REF": "refs/heads/main", "GITHUB_EVENT_NAME": "schedule"}), \
+                    patch.object(maintenance.sys, "argv", argv), patch.object(runner, "GatexApi", return_value=Api()), \
+                    patch.object(maintenance, "maintain", return_value={"status": status, "globalComplete": False}), patch("builtins.print"):
+                self.assertEqual(maintenance.main(), expected)
 
     def test_model_child_timeout_kills_its_process_group_without_printing_source(self):
         api = Api({"catalog:a": (SOURCE, "a")})
