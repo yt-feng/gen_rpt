@@ -14,6 +14,7 @@ from gen_rpt.gatex_pdf_localization import (
     Block, LocalizationError, ModelClient, PROMPT_VERSION, PROGRESS_SCHEMA,
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
     validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint, _source_edition_context,
+    _writer, _font, _block_writer, _raster_render_aliases, _contained,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -97,6 +98,77 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_fractional_raster_box_is_in_page_without_float32_rect_equality(self):
+        page = fitz.Rect(0, 0, 595.2760009765625, 841.8900146484375)
+        rect = fitz.Rect(38.69294006347656, 87.5565615234375, 110.72133618164062, 102.71058178710938)
+        self.assertNotEqual(rect & page, rect, "the real OCR shape exposes float32 intersection rounding")
+        self.assertIsNotNone(_writer(rect, "前沿洞察", _font(), 7, page))
+        self.assertFalse(_contained(fitz.Rect(0, 0, page.width + 1, 20), page))
+        self.assertIsNone(_writer(fitz.Rect(0, 0, page.width + 1, 20), "前沿洞察", _font(), 7, page))
+
+    def test_short_margin_label_keeps_original_location_and_seven_point_minimum(self):
+        font, page = _font(), fitz.Rect(0, 0, 595.276, 841.89)
+        block = Block("header", 0, "TECHNOLOGY FRONTIERS", (442.8229, 30.79396, 547.27893, 38.79396), font_size=8)
+        writer = _block_writer(block, "科技前沿", font, page, [])
+        self.assertIsNotNone(writer)
+        with fitz.open() as document:
+            drawn = document.new_page(width=page.width, height=page.height)
+            writer.write_text(drawn)
+            span = drawn.get_text("dict")["blocks"][0]["lines"][0]["spans"][0]
+            self.assertEqual(span["size"], 7)
+            self.assertLess(fitz.Rect(span["bbox"]).height, 10)
+            self.assertAlmostEqual(span["bbox"][0], block.bbox[0], delta=1)
+            self.assertAlmostEqual(span["bbox"][1], block.bbox[1], delta=1)
+        # Occupied neighbouring text forbids expansion, even for a header.
+        self.assertIsNone(_block_writer(block, "科技前沿", font, page,
+            [(440, 38.8, 550, 50), (440, 20, 550, 30.79)]))
+        # A true long paragraph still requires complete continuation pages.
+        self.assertIsNone(_block_writer(block, "完整正文" * 100, font, page, []))
+
+    def test_rough_ocr_native_alias_is_source_target_exact_unique_and_local(self):
+        native = Block("native", 0, "TECHNOLOGY FRONTIERS", (48, 180.24246, 179.12, 190.24246))
+        raster = Block("raster", 0, native.text, (38.69294, 165.01044, 183.34501, 181.00635), kind="raster")
+        rows = {native.id: {"text": "科技前沿"}, raster.id: {"text": "科技前沿"}}
+        self.assertEqual(_raster_render_aliases([native, raster], rows), {"raster": "native"})
+        far = copy.deepcopy(raster)
+        far.bbox = (38.69294, 300, 183.34501, 316)
+        self.assertEqual(_raster_render_aliases([native, far], rows), {})
+        adjacent = copy.deepcopy(raster)
+        adjacent.bbox = (48, 190.3, 179.12, 200.3)
+        self.assertEqual(_raster_render_aliases([native, adjacent], rows), {}, "a nearby distinct label has no shared source glyph area")
+        rows[raster.id]["text"] = "前沿科技"
+        self.assertEqual(_raster_render_aliases([native, raster], rows), {})
+        rows[raster.id]["text"] = "科技前沿"
+        hidden = copy.deepcopy(native)
+        hidden.hidden = True
+        self.assertEqual(_raster_render_aliases([hidden, raster], rows), {})
+        duplicate = copy.deepcopy(native)
+        duplicate.id = "second-native"
+        rows[duplicate.id] = rows[native.id]
+        self.assertEqual(_raster_render_aliases([native, duplicate, raster], rows), {})
+        second = copy.deepcopy(raster)
+        second.id = "second-raster"
+        rows[second.id] = rows[raster.id]
+        self.assertEqual(_raster_render_aliases([native, raster, second], rows), {})
+
+    def test_source_metadata_publication_and_standalone_date_are_unambiguous(self):
+        source = "Unabridged English translation - GateX Technology Frontiers"
+        with self.assertRaisesRegex(LocalizationError, "SOURCE_EDITION_REFERENCE_MISSING"):
+            validate_translation(source, {"text": "未删节英文翻译 - GateX 科技前沿", "reviewed": True})
+        self.assertEqual(validate_translation(source, {"text": "原英文版本为未删节英文译本 - GateX 科技前沿", "reviewed": True})["text"],
+                         "原英文版本为未删节英文译本 - GateX 科技前沿")
+        with self.assertRaisesRegex(LocalizationError, "SOURCE_PUBLICATION_IDENTITY_MISSING"):
+            validate_translation("Unsolved Problems", {"text": "《未解问题》", "reviewed": True})
+        self.assertEqual(validate_translation("Unsolved Problems", {"text": "Unsolved Problems", "retainedEnglish": [
+            {"text": "Unsolved Problems", "kind": "organisation"}], "reviewed": True})["text"], "Unsolved Problems")
+        source = "24 September 2026"
+        with self.assertRaisesRegex(LocalizationError, "DATE_DISPLAY_ORDER"):
+            validate_translation(source, {"text": "24 九月 2026", "reviewed": True})
+        normalized = _source_verified_record(source, {"text": "24 九月 2026", "reviewed": False})
+        self.assertEqual(normalized["text"], "2026年九月24日")
+        self.assertFalse(normalized["reviewed"], "date reordering never supplies semantic approval")
+        self.assertEqual(validate_translation(source, {**normalized, "reviewed": True})["text"], "2026年九月24日")
+
     def run_fixture(self, directory, replacements=None, **kwargs):
         source, output = Path(directory) / "en.pdf", Path(directory) / "zh.pdf"
         source_pdf(source, raster=kwargs.pop("raster", False), pages=kwargs.pop("pages", 1), outline=kwargs.pop("outline", False))

@@ -73,6 +73,9 @@ HOUSE_MASTHEADS = {"GATEX INTELLIGENCE": ("GATEX 前沿洞察", "GATEX"),
 SOURCE_TITLE_TRANSLATIONS = {"Good and Bad Procrastination": "拖延的好与坏",
                              "Good vs. Bad Procrastination": "拖延的好与坏"}
 SOURCE_TITLE_ALIASES = ("拖延的好与坏", "好的拖延与坏的拖延", "好与坏的拖延")
+MONTHS = dict(zip(
+    ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
+    ("一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二")))
 
 
 class LocalizationError(RuntimeError):
@@ -190,6 +193,13 @@ def validate_translation(source: str, record: dict) -> dict:
     if not isinstance(record, dict) or not isinstance(record.get("text"), str) or not record["text"].strip():
         raise LocalizationError("MISSING_TRANSLATION")
     target = record["text"].strip()
+    if "Unsolved Problems" in source and "Unsolved Problems" not in target:
+        raise LocalizationError("SOURCE_PUBLICATION_IDENTITY_MISSING")
+    if source == "Unabridged English translation - GateX Technology Frontiers" and not re.match(r"原英文(?:版本|版)", target):
+        raise LocalizationError("SOURCE_EDITION_REFERENCE_MISSING")
+    date = _standalone_date(source)
+    if date and compact(target) != compact(date):
+        raise LocalizationError("DATE_DISPLAY_ORDER")
     if "{GATEX_QUANTITY_" in target:
         raise LocalizationError("QUANTITY_PLACEHOLDER_MISMATCH")
     if not quantities_equivalent(source, target):
@@ -225,6 +235,12 @@ def _source_verified_record(source: str, record: dict) -> dict:
     if not isinstance(retained, list) or not isinstance(result.get("text"), str):
         return result
     target = result["text"]
+    date = _standalone_date(source)
+    match = re.fullmatch(r"([0-3]?\d) (" + "|".join(MONTHS) + r") (\d{4})", source)
+    if date and match and compact(target) == f"{match[1]}{MONTHS[match[2]]}月{match[3]}":
+        # Reordering this isolated date introduces no claim or quantity. The
+        # resulting candidate still receives fresh independent semantic review.
+        result["text"] = target = date
     house = HOUSE_MASTHEADS.get(source)
     if house and compact(target) == compact(house[0]):
         # Only these exact, fully translated house mastheads are reconciled.
@@ -262,21 +278,32 @@ def _source_masthead_hint(source: str) -> dict:
     return {}
 
 
+def _standalone_date(source: str) -> str | None:
+    match = re.fullmatch(r"([0-3]?\d) (" + "|".join(MONTHS) + r") (\d{4})", source)
+    return f"{match[3]}年{MONTHS[match[2]]}月{match[1]}日" if match else None
+
+
 def _source_edition_context(source: str) -> dict:
     normalized = " ".join(source.split())
+    if _standalone_date(source):
+        return {"dateTranslations": [{"sourceDate": source, "chineseDate": _standalone_date(source)}],
+                "instruction": "Render this standalone date in natural Chinese year-month-day order, preserving protected quantity placeholders exactly."}
+    if source == "Unabridged English translation - GateX Technology Frontiers":
+        return {"sourceEdition": "the supplied original English PDF, not the Chinese translation",
+                "referenceTranslations": {source: "原英文版本为未删节英文译本 - GateX 科技前沿"},
+                "instruction": "This PDF metadata describes the original English edition. Begin with 原英文版本; do not describe the Chinese PDF itself as an English translation."}
     if not (normalized.startswith("Sources, rights and third-party material.")
             and "This edition is an authorized English translation" in normalized):
         return {}
-    months = {name: chinese for name, chinese in zip(
-        ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"),
-        ("一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"))}
-    dates = [{"sourceDate": match.group(), "chineseDate": f"{match[3]}年{months[match[2]]}月{match[1]}日"}
-             for match in re.finditer(r"\b([0-3]?\d) (" + "|".join(months) + r") (\d{4})\b", normalized)]
+    dates = [{"sourceDate": match.group(), "chineseDate": f"{match[3]}年{MONTHS[match[2]]}月{match[1]}日"}
+             for match in re.finditer(r"\b([0-3]?\d) (" + "|".join(MONTHS) + r") (\d{4})\b", normalized)]
     return {"sourceEdition": "the English PDF supplied for translation",
             "targetEdition": "the Chinese translation now being produced",
             "upstreamMaterialLanguage": "not specified by the source; do not infer it",
             "referenceTranslations": {"This edition": "原英文版本", "Permission for this edition": "原英文版本的许可"},
-            "instruction": "Use 原英文版本 as the subject of the authorization claim, not 本版本 with a trailing parenthetical. Original English edition means the supplied English PDF, never the original language of the upstream material. Preserve its authorization claim without asserting Chinese-edition authorization. Date translations show natural Chinese order; generation must still use the supplied quantity placeholders for the protected day and year.",
+            "instruction": "Use 原英文版本 as the subject of the authorization claim, not 本版本 with a trailing parenthetical. Original English edition means the supplied English PDF, never the original language of the upstream material. Preserve its authorization claim without asserting Chinese-edition authorization. "
+                + ("Preserve the identifiable source publication name Unsolved Problems exactly, with retainedEnglish kind organisation; do not invent an official Chinese publication name. " if "Unsolved Problems" in source else "")
+                + "Date translations show natural Chinese order; generation must still use the supplied quantity placeholders for the protected day and year.",
             "dateTranslations": dates}
 
 
@@ -1016,10 +1043,17 @@ def _font():
     return fitz.Font("cjk")
 
 
+def _contained(rect, bounds, epsilon=0.05):
+    # Rect intersections round through MuPDF's float32 coordinates. Equality
+    # can reject a genuine in-page OCR box solely for sub-pixel rounding.
+    return (rect.x0 >= bounds.x0 - epsilon and rect.y0 >= bounds.y0 - epsilon
+            and rect.x1 <= bounds.x1 + epsilon and rect.y1 <= bounds.y1 + epsilon)
+
+
 def _writer(rect, text: str, font, size: float, page_rect):
     if rect.is_empty or rect.width < size * 0.3:
         return None
-    if not (rect & (page_rect + (-0.05, -0.05, 0.05, 0.05))) == rect:
+    if not _contained(rect, page_rect):
         return None
     if any(length > rect.width for char, length in zip(text, font.char_lengths(text, fontsize=size)) if not char.isspace()):
         return None
@@ -1033,6 +1067,71 @@ def _writer(rect, text: str, font, size: float, page_rect):
     if writer.text_rect.is_empty:
         return None
     return writer
+
+
+def _raster_render_aliases(blocks: list[Block], records: dict) -> dict[str, str]:
+    """Reconcile a rough OCR box with one exact visible native text instance.
+
+    The OCR image includes native overlays. Equal source AND reviewed target
+    text plus a unique, closely aligned native rectangle establish the same
+    rendered occurrence. Distant repeated chart values and ambiguous matches
+    remain separate. Keep every source/cache ID and account for both records.
+    """
+    aliases = {}
+    for raster in blocks:
+        if raster.kind != "raster":
+            continue
+        box = fitz.Rect(raster.bbox)
+        matches = []
+        for native in blocks:
+            if native.kind != "native" or native.hidden or native.rotated or native.page != raster.page:
+                continue
+            if compact(native.text) != compact(raster.text) or compact(records[native.id]["text"]) != compact(records[raster.id]["text"]):
+                continue
+            other = fitz.Rect(native.bbox)
+            horizontal = min(box.x1, other.x1) - max(box.x0, other.x0)
+            if (not (box & other).is_empty and horizontal >= min(box.width, other.width) * 0.65
+                    and abs((box.y0 + box.y1 - other.y0 - other.y1) / 2) <= max(box.height, other.height) * 1.25
+                    and abs((box.x0 + box.x1 - other.x0 - other.x1) / 2) <= max(box.width, other.width) * 0.3):
+                matches.append(native.id)
+        if len(matches) == 1:
+            aliases[raster.id] = matches[0]
+    # Multiple OCR occurrences cannot silently collapse into one native label.
+    counts = Counter(aliases.values())
+    return {identity: owner for identity, owner in aliases.items() if counts[owner] == 1}
+
+
+def _block_writer(block: Block, text: str, font, page_rect, obstacles: list[tuple]):
+    rect = fitz.Rect(block.bbox)
+    if block.rotated:
+        return None
+    sizes = []
+    size = min(30.0, max(MIN_FONT, block.font_size))
+    while size > MIN_FONT:
+        sizes.append(size)
+        size = round(size - 0.5, 2)
+    sizes.append(MIN_FONT)
+    for size in sizes:
+        writer = _writer(rect, text, font, size, page_rect)
+        if writer is not None:
+            return writer
+    # A short source heading/footer may have an 8pt bbox while a 7pt CJK font
+    # needs 9.16pt. Add only the missing vertical metric space, still in its
+    # original location, if no neighbouring source text can be touched. Never
+    # widen a column or expand a paragraph into another table cell.
+    needed = MIN_FONT * (font.ascender - font.descender)
+    if rect.height < needed and rect.height >= MIN_FONT * 0.7 and len(_wrap(text, rect.width, font, MIN_FONT)) == 1:
+        extra = needed - rect.height + 0.02
+        candidates = [rect + (0, 0, 0, extra), rect + (0, -extra / 2, 0, extra / 2), rect + (0, -extra, 0, 0)]
+        for candidate in candidates:
+            if not _contained(candidate, page_rect):
+                continue
+            if any((candidate & fitz.Rect(other)).get_area() > 0.01 for other in obstacles):
+                continue
+            writer = _writer(candidate, text, font, MIN_FONT, page_rect)
+            if writer is not None:
+                return writer
+    return None
 
 
 def _background(page, rect):
@@ -1232,27 +1331,23 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
             # that same coordinate system and original page rotation restored.
             rotation = source_rotations[source_number]
             page.set_rotation(0)
-            backgrounds = [(box, _background(source[source_number], fitz.Rect(box))) for block in blocks for box in block.raster_boxes]
+            aliases = _raster_render_aliases(blocks, records)
+            rendered_blocks = [block for block in blocks if block.id not in aliases]
+            backgrounds = [(box, _background(source[source_number], fitz.Rect(box))) for block in rendered_blocks for box in block.raster_boxes]
             original_images = _image_hashes(source, source[source_number])
             original_drawings = len(source[source_number].get_drawings())
-            for block in blocks:
+            for block in rendered_blocks:
                 for box in block.line_boxes:
                     page.add_redact_annot(fitz.Rect(box), fill=False, cross_out=False)
-            if any(block.line_boxes for block in blocks):
+            if any(block.line_boxes for block in rendered_blocks):
                 page.apply_redactions(images=0, graphics=0, text=0)
             for box, color in backgrounds:
                 page.draw_rect(fitz.Rect(box), color=None, fill=color, overlay=True)
             overflow = []
-            for block in blocks:
+            for block in rendered_blocks:
                 text, rect = records[block.id]["text"], fitz.Rect(block.bbox)
-                writer = None
-                if not block.rotated:
-                    size = min(30.0, max(MIN_FONT, block.font_size))
-                    while size >= MIN_FONT:
-                        writer = _writer(rect, text, font, size, page.rect)
-                        if writer is not None:
-                            break
-                        size = round(size - 0.5, 2)
+                obstacles = [other.bbox for other in rendered_blocks if other.id != block.id]
+                writer = _block_writer(block, text, font, page.rect, obstacles)
                 if writer is None:
                     overflow.append(block)
                     continue
@@ -1263,6 +1358,8 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
             page.set_rotation(rotation)
             additional, continuation_rendered = _continuations(output, overflow, records, source_number, font)
             rendered.update(continuation_rendered)
+            for identity, owner in aliases.items():
+                rendered[identity] = rendered[owner]
             references_placed = 0
             reference_page = output[target_number - 1]
             reference_rotation = reference_page.rotation
@@ -1286,6 +1383,7 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
                 "sourceBlockCount": len(blocks) + len(owned_aux), "translatedBlockCount": len(blocks) + len(owned_aux),
                 "missingBlocks": 0, "overflowCount": 0, "unresolvedEnglishCount": 0,
                 "continuationBlockCount": len(overflow), "rasterLabelCount": raster_counts[source_number],
+                "reconciledRasterBlockCount": len(aliases),
                 "continuationReferencesPlaced": references_placed,
                 "rasterRegionsVerified": len(_image_regions(source[source_number])), "figuresPreserved": True,
                 "numericChecksPassed": True, "minimumTranslatedFontSize": MIN_FONT})
@@ -1321,7 +1419,7 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
                         for span in line["spans"]:
                             if span["size"] < MIN_FONT - 0.01:
                                 raise LocalizationError("MINIMUM_FONT_SIZE_FAILED")
-                            if not (fitz.Rect(span["bbox"]) & (page.rect + (-0.1, -0.1, 0.1, 0.1))) == fitz.Rect(span["bbox"]):
+                            if not _contained(fitz.Rect(span["bbox"]), page.rect, epsilon=0.1):
                                 raise LocalizationError("RENDERED_TEXT_OVERFLOW")
                 page.set_rotation(rotation)
             for block in all_blocks:
