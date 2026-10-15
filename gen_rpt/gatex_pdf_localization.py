@@ -126,6 +126,16 @@ def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = N
     if source_markers != target_markers:
         raise LocalizationError("STRUCTURAL_MARKER_MISMATCH")
     remaining = STRUCTURAL_MARKER.sub("", _strip_links(target))
+    # Bare source domains are protected as complete literals, just like URLs.
+    # They are not untranslated prose. The quantity gate still verifies their
+    # full spelling, casing, path and multiplicity before publication.
+    try:
+        domains = Counter(token.original for token in protect_quantities(source).tokens if token.kind == "domain")
+    except QuantityFidelityError:
+        domains = Counter()
+    for domain, count in domains.items():
+        if remaining.count(domain) == count:
+            remaining = remaining.replace(domain, "")
     # Country/region dollar prefixes are currency notation, not ordinary
     # English. Keep their exact source identity; final quantity validation binds
     # them to the original amount (US$ is never silently reduced to $/USD).
@@ -242,6 +252,14 @@ def _source_verified_record(source: str, record: dict) -> dict:
 def _source_title_hints(source: str) -> list[dict]:
     return [{"sourceTitle": english, "chineseTitle": chinese}
             for english, chinese in SOURCE_TITLE_TRANSLATIONS.items() if english in source]
+
+
+def _source_masthead_hint(source: str) -> dict:
+    # Guidance for an exact split house masthead, never an identity exception.
+    if source == "INTELLIGENCE":
+        return {"source": source, "translation": "前沿洞察",
+                "instruction": "Translate this standalone house masthead as 前沿洞察. This source block contains no GATEX brand; do not prepend or declare GATEX."}
+    return {}
 
 
 def _literal_record(source: str) -> dict | None:
@@ -541,6 +559,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 "sourceMarkers": rejection.get("sourceMarkers", {}), "targetMarkers": rejection.get("targetMarkers", {}),
                 "sourceVerifiedIdentities": _source_identity_hints(rejection["source"]),
                 "sourceTitleTranslations": _source_title_hints(rejection["source"]),
+                "sourceMastheadTranslation": _source_masthead_hint(rejection["source"]),
                 "quantityHints": rejection.get("quantityHints", []),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
                 "allowedRetainedKinds": sorted(RETAINED_KINDS),
@@ -561,7 +580,8 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 source = [{"id": b.id, "sourcePage": b.page + 1, "text": protections[b.id].masked,
                     "quantityHints": protections[b.id].hints,
                     "sourceVerifiedIdentities": _source_identity_hints(b.text),
-                    "sourceTitleTranslations": _source_title_hints(b.text)} for b in pending]
+                    "sourceTitleTranslations": _source_title_hints(b.text),
+                    "sourceMastheadTranslation": _source_masthead_hint(b.text)} for b in pending]
                 messages = [{"role": "system", "content": system},
                     {"role": "user", "content": json.dumps({"blocks": source}, ensure_ascii=False)}]
                 if feedback:
