@@ -199,14 +199,14 @@ def validate_qa(qa: Any, page_count: int):
 
 
 class NewsfeedApi(GatexApi):
-    routes = {"/warm", "/status"}
+    routes = {"/warm", "/status", "/capture"}
 
     def __init__(self, token: str, **kwargs):
         super().__init__(token, **kwargs)
         self.base = "https://gatex.fund/api/newsfeed/locales"
 
 
-def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time.monotonic, emit_progress=None, require_publication=False) -> dict:
+def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time.monotonic, emit_progress=None, require_publication=False, capture_daily=False) -> dict:
     if type(max_passes) is not int or not 1 <= max_passes <= 36 or not isinstance(budget_seconds, (int, float)) or isinstance(budget_seconds, bool) or not 0 < budget_seconds <= 600:
         raise RunnerError("INVALID_NEWS_BATCH_OPTIONS")
     started, previous_clock, previous_deadline = clock(), api.clock, api.request_deadline
@@ -248,6 +248,9 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
                 and published["ready"] == status["total"])
             result["status"] = "passed" if passed and promoted else "failed"
             result["publication"] = proof
+        daily = status.get("daily")
+        if isinstance(daily, dict):
+            result["daily"] = {key: daily.get(key) for key in ("day", "available", "currentDay", "capturedAt", "poolTotal", "snapshotHash")}
         return result, aware
 
     def status_report(expected=None):
@@ -264,10 +267,24 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
 
     try:
         report, publication_mode = status_report()
-        # A new maintenance invocation lets the server select the latest source
-        # once. Even an already-published edition must not hide newer raw news.
-        # Only legacy library callers can use the old read-only cache shortcut.
-        if report["status"] == "passed" and not publication_mode:
+        if capture_daily:
+            # Idempotent capture is the only source-acquisition operation. An
+            # unknown outcome is resolved by status, never a second POST here.
+            try:
+                captured = api.request("POST", "/capture", json={}, retry=False)
+                report, publication_mode = parse_status(captured)
+            except RunnerError as error:
+                if error.code != "API_CONNECTION_FAILED" and not (error.code == "API_HTTP_ERROR" and error.status and error.status >= 500):
+                    return finish("CAPTURE_FAILED", error)
+                report, publication_mode = status_report()
+            daily = report.get("daily", {})
+            if daily.get("available") is not True or daily.get("day") != daily.get("currentDay") or daily.get("snapshotHash") != report["snapshotHash"] or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily.get("day", ""))):
+                return finish("DAILY_SOURCE_UNAVAILABLE")
+        # Every current server warm is pinned before the first translation.
+        # A completed daily source is a read-only success, never a new crawl.
+        if publication_mode:
+            pinned = report["snapshotHash"]
+        if report["status"] == "passed":
             return finish("COMPLETE")
         if report["total"] == 0:
             return finish("EMPTY_SNAPSHOT")
@@ -464,6 +481,7 @@ def main() -> int:
     parser.add_argument("--sample-id", help="Process exactly this published report without scanning the entire inventory")
     parser.add_argument("--expected-source-sha256", help="Pin an exact sample source digest before translation; required for OCR diagnostics")
     parser.add_argument("--news-max-passes", type=int, default=12, help="Maximum restartable public-news warming passes (1-36)")
+    parser.add_argument("--news-capture-daily", action="store_true", help="Idempotently capture today's English source before pinned news translation")
     parser.add_argument("--news-budget-seconds", type=float, default=600, help="Overall public-news warming budget, at most 600 seconds")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--news-only", action="store_true")
@@ -475,7 +493,7 @@ def main() -> int:
     try:
         if args.news_only:
             report = warm_news(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")),
-                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit, require_publication=True)
+                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit, require_publication=True, capture_daily=args.news_capture_daily)
         else:
             api = GatexApi(os.environ.get("GATEX_GENERATION_CALLBACK_SECRET", ""), on_inventory_page=emit)
             if args.ocr_diagnostic_only:
