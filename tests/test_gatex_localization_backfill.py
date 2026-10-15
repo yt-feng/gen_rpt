@@ -123,6 +123,21 @@ class BackfillTests(unittest.TestCase):
         self.assertEqual(len(backfill.source_groups(report["items"])), 2)
         self.assertNotIn("PRIVATE", json.dumps(report))
 
+    def test_audit_detects_inventory_changes_before_publishing_its_snapshot(self):
+        api = Api(); original_inventory = api.inventory; calls = 0
+        def inventory():
+            nonlocal calls
+            calls += 1
+            if calls == 2:
+                api.rows["managed:new"] = (SOURCE_B, "new-version")
+            return original_inventory()
+        api.inventory = inventory
+        manifest = self.audit(api)
+        self.assertEqual(manifest["status"], "failed")
+        self.assertFalse(manifest["inventoryUnchanged"])
+        self.assertEqual(manifest["counts"]["inventoryCount"], 3)
+        self.assertEqual(manifest["counts"]["auditFailures"], 1)
+
     def test_aliases_translate_once_and_each_alias_is_published_and_read_back(self):
         api = Api(); manifest = self.audit(api); calls = []
         def engine(**kwargs):

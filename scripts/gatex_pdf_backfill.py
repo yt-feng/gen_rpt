@@ -161,7 +161,15 @@ def audit(api, *, concurrency=3, page_counter=pdf_pages, emit=None):
         except Exception as error:
             record["error"] = failure(aliases[0]["id"], error)
         sources.append(record)
-    failed = sum(row["status"] == "failed" for row in items) + sum("error" in row for row in sources)
+    inventory_unchanged, inventory_check = False, None
+    try:
+        current = api.inventory()
+        inventory_unchanged = {row["id"]: row.get("sourceVersion") for row in current} == {row["id"]: row.get("sourceVersion") for row in items}
+        if not inventory_unchanged:
+            inventory_check = {"code": "INVENTORY_CHANGED"}
+    except Exception as error:
+        inventory_check = failure("inventory", error)
+    failed = sum(row["status"] == "failed" for row in items) + sum("error" in row for row in sources) + int(not inventory_unchanged)
     counts = {"inventoryCount": len(items), "uniqueSourceCount": len(sources),
               "sourceVerifiedIds": sum(bool(row.get("sourceSha256")) for row in items),
               "sourceUnavailableIds": sum(not row.get("sourceSha256") for row in items),
@@ -179,6 +187,7 @@ def audit(api, *, concurrency=3, page_counter=pdf_pages, emit=None):
               "verifiedOcrRegions": sum(row.get("checkpoint", {}).get("verifiedOcrRegions", 0) for row in sources),
               "auditFailures": failed}
     return {"schema": SCHEMA, "status": "failed" if failed else "passed", "shardCount": SHARDS,
+            "inventoryUnchanged": inventory_unchanged, "inventoryCheck": inventory_check,
             "capturedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(), "snapshotSha256": snapshot_digest(items),
             "counts": counts, "items": items, "sources": sources}
 
