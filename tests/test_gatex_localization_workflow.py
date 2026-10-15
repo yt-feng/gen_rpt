@@ -72,6 +72,17 @@ class WorkflowModeTests(unittest.TestCase):
         self.assertFalse(enabled('localize', 'pull_request'))
         self.assertFalse(enabled('warm-news', 'pull_request'))
 
+    def test_only_independent_news_schedule_is_enabled(self):
+        # Comments and disabled PDF examples cannot count as real trigger entries.
+        configured = re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", WORKFLOW.read_text(), re.MULTILINE)
+        self.assertEqual(configured, ['7,37 * * * *'])
+        self.assertTrue(enabled('warm-news','schedule',cron=configured[0]))
+        self.assertFalse(enabled('localize','schedule',cron=configured[0]))
+        news_job = WORKFLOW.read_text().split('  warm-news:\n',1)[1]
+        self.assertIn('secrets.GATEX_NEWSFEED_CRON_SECRET',news_job)
+        self.assertNotIn('secrets.APIMART_API_KEY',news_job)
+        self.assertNotIn('secrets.DEEPSEEK_API_KEY',news_job)
+
     def test_numeric_dispatch_controls_forward_strings_and_numbers_without_json_quotes(self):
         for key, text in [('GATEX_NEWS_MAX_PASSES', '12'), ('GATEX_NEWS_BUDGET_SECONDS', '600')]:
             for value in [text, int(text)]:
