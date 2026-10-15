@@ -15,6 +15,7 @@ from gen_rpt.gatex_pdf_localization import (
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
     validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint, _source_edition_context,
     _writer, _font, _block_writer, _raster_render_aliases, _contained,
+    _date_review_draft, _translate,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -98,6 +99,79 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def date_draft_fixture(self):
+        block = Block("dated-edition", 0, "The English edition was published on 24 September 2026.", (40, 50, 500, 90))
+        previous = {"sourceHash": block.source_hash, "text": "原英文版于24 九月 2026发布。", "retainedEnglish": [], "reviewed": True}
+        draft = {"schema": "gatex-pdf-date-review-draft/v1", "sourceHash": block.source_hash,
+                 "previousReviewedTextSha256": digest(previous["text"]), "previousReviewedRecord": previous}
+        return block, draft
+
+    def test_date_migration_changes_only_format_and_never_supplies_approval(self):
+        block, draft = self.date_draft_fixture()
+        candidate = _date_review_draft(block, draft)
+        self.assertEqual(candidate, {"text": "原英文版于2026年九月24日发布。", "retainedEnglish": [], "reviewed": False})
+        with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
+            validate_translation(block.text, candidate)
+        for field, value in (("sourceHash", "f" * 64), ("previousReviewedTextSha256", "0" * 64)):
+            with self.assertRaises(LocalizationError):
+                _date_review_draft(block, {**draft, field: value})
+        for field, value in (("reviewed", False), ("sourceHash", "f" * 64), ("text", "原英文版于25 九月 2026发布。")):
+            altered = copy.deepcopy(draft)
+            altered["previousReviewedRecord"][field] = value
+            altered["previousReviewedTextSha256"] = digest(altered["previousReviewedRecord"]["text"])
+            with self.assertRaises(LocalizationError):
+                _date_review_draft(block, altered)
+        normalized = copy.deepcopy(draft)
+        normalized["previousReviewedRecord"]["text"] = candidate["text"]
+        normalized["previousReviewedTextSha256"] = digest(candidate["text"])
+        with self.assertRaisesRegex(LocalizationError, "DATE_REVIEW_DRAFT_HAS_NO_FORMAT_CHANGE"):
+            _date_review_draft(block, normalized)
+
+    def test_date_draft_receives_fresh_review_without_regenerating_approved_paragraph(self):
+        block, draft = self.date_draft_fixture()
+        state = {"blocks": {block.id: {"sourceHash": block.source_hash, "text": "上游原文于2026年九月24日发布。", "retainedEnglish": [], "reviewed": True}},
+                 "dateReviewDrafts": {block.id: draft}, "ocr": {"unchanged": {"verified": True}}, "status": "complete", "artifactSha256": "a" * 64}
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls, saved = [], []
+        def once(messages, **kwargs):
+            item = json.loads(messages[1]["content"])["blocks"][0]
+            self.assertEqual(item["source"], block.text, "a formatting migration makes no generation request")
+            self.assertEqual(item["translation"], "原英文版于2026年九月24日发布。")
+            calls.append(messages)
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+        client._once = once
+        records = _translate([block], state, lambda s: saved.append(copy.deepcopy(s)), client)
+        self.assertEqual(len(calls), 1)
+        self.assertTrue(records[block.id]["reviewed"])
+        self.assertEqual(state["blocks"][block.id]["text"], "原英文版于2026年九月24日发布。")
+        self.assertEqual(state["dateReviewDrafts"], {})
+        self.assertEqual(state["ocr"], {"unchanged": {"verified": True}})
+        self.assertNotIn("artifactSha256", state)
+        self.assertTrue(all(s["status"] == "in-progress" for s in saved))
+
+    def test_negative_date_draft_review_keeps_independence_and_three_total_attempts(self):
+        block, draft = self.date_draft_fixture()
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        generation, review, rejected, accepted = [], [], [], []
+        client.rejection_callback = rejected.append
+        client.accepted_callback = accepted.append
+        def once(messages, **kwargs):
+            item = json.loads(messages[1]["content"])["blocks"][0]
+            if "source" in item:
+                review.append(messages)
+                self.assertEqual(len(messages), 2, "fresh review does not see previous verdicts")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": False, "issues": ["Check the edition attribution."]}]}
+            generation.append(messages)
+            self.assertIn("原英文版于2026年九月24日发布。", messages[-1]["content"])
+            return {"blocks": [{"id": block.id, "text": item["text"].replace("The English edition was published on ", "原英文版于").replace("September", "九月").replace(".", "发布。"), "retainedEnglish": []}]}
+        client._once = once
+        with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
+            client.translate([block], review_drafts={block.id: _date_review_draft(block, draft)})
+        self.assertEqual((len(generation), len(review), len(rejected), len(accepted)), (2, 3, 3, 0))
+        self.assertEqual(rejected[0]["normalizedCandidate"]["text"], "原英文版于2026年九月24日发布。")
+
     def test_fractional_raster_box_is_in_page_without_float32_rect_equality(self):
         page = fitz.Rect(0, 0, 595.2760009765625, 841.8900146484375)
         rect = fitz.Rect(38.69294006347656, 87.5565615234375, 110.72133618164062, 102.71058178710938)
