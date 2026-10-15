@@ -165,6 +165,42 @@ class QuantityFidelityTests(unittest.TestCase):
             with self.subTest(source=source, target=target):
                 self.assertFalse(quantities_equivalent(source, target))
 
+    def test_same_clause_explicit_percentage_point_rate_ellipsis_is_one_complete_unit(self):
+        source = "40.7 percentage points and the aggregate rate by 30.6 points. This"
+        protected = protect_quantities(source)
+        self.assertEqual([token.original for token in protected.tokens], ["40.7 percentage points", "30.6 points"])
+        self.assertEqual([token.replacement for token in protected.tokens], ["40.7个百分点", "30.6个百分点"])
+        self.assertEqual(protected.masked, "{GATEX_QUANTITY_0} and the aggregate rate by {GATEX_QUANTITY_1}. This")
+        for source, target in [(source, "40.7个百分点，总体增长率高出30.6个百分点。这"),
+                               ("4 percentage points or the overall rate by 3 points", "4个百分点或总体比率3个百分点"),
+                               ("4 percentage\npoints and the\nrate by 3\npoints", "4个百分点和比率3个百分点")]:
+            with self.subTest(source=source):
+                self.assertTrue(quantities_equivalent(source, target))
+                self.assertTrue(quantities_equivalent(source, protect_quantities(source).restore(protect_quantities(source).masked)))
+                self.assertFalse(quantities_equivalent(source, target.replace("3", "2")))
+                self.assertFalse(quantities_equivalent(source, target.replace("个百分点", "%", 1)))
+                self.assertFalse(quantities_equivalent(source, target.replace("个百分点", "", 1)))
+
+    def test_points_ellipsis_cannot_infer_units_from_unrelated_or_cross_sentence_text(self):
+        for source in ["40.7 points and the aggregate rate by 30.6 points",
+                       "40.7 basis points and the aggregate rate by 30.6 points",
+                       "40.7 percentage points. The aggregate rate rose by 30.6 points",
+                       "40.7 percentage points; and the aggregate rate by 30.6 points",
+                       "40.7 percentage points and the score by 30.6 points",
+                       "40.7 percentage points and the index by 30.6 points",
+                       "40.7 percentage points and 30.6 points",
+                       "40.7 percentage points and the aggregate rate by 30.6 basis points",
+                       "40.7 percentage points and the aggregate rate by $30.6 points"]:
+            with self.subTest(source=source):
+                self.assertFalse(quantities_equivalent(source, "40.7个百分点和30.6个百分点"))
+                self.assertNotEqual(protect_quantities(source).tokens[-1].replacement, "30.6个百分点")
+        source = "40.7 percentage points and the aggregate rate by 30.6 points"
+        for target in ["40.7个百分点和30.6%", "40.7个百分点和30.6", "40.7个百分点和30.5个百分点",
+                       "40.7个百分点和-30.6个百分点", "40.7个百分点和30.6个百分点，30.6个百分点",
+                       "$40.7个百分点和30.6个百分点"]:
+            with self.subTest(target=target):
+                self.assertFalse(quantities_equivalent(source, target))
+
     def test_complete_rate_tokens_and_suffixes_are_not_partially_consumed(self):
         protected = protect_quantities("Inflation is 5.03 per cent; the forecast fell 3.1 percentage points.")
         self.assertEqual([token.original for token in protected.tokens], ["5.03 per cent", "3.1 percentage points"])

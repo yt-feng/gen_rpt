@@ -18,7 +18,7 @@ from gen_rpt.gatex_pdf_localization import (
     _writer, _font, _block_writer, _raster_render_aliases, _contained,
     _date_review_draft, _translate, _source_calendar_hints, _quantity_placeholder_errors, _source_page_reference_hints,
     _translation_review_draft, _source_publication_terms,
-    _adjacent_review_context,
+    _adjacent_review_context, _source_month_year_hints,
     _private_ocr_evidence, OCR_CONTEXT_REVIEW_POLICY, OCR_CONTEXT_REVIEW_SYSTEM,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
@@ -103,6 +103,67 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_overlapping_retained_codes_consume_complete_longest_literals_in_any_order(self):
+        source = "The path from HBM3E to HBM4, then HBM4E and HBM5, raises bandwidth and capacity."
+        target = "从HBM3E到HBM4，再到HBM4E和HBM5的路径提升了带宽和容量。"
+        identities = [{"text": code, "kind": "code"} for code in ("HBM3E", "HBM4", "HBM4E", "HBM5")]
+        for retained in (identities, list(reversed(identities)), identities + identities):
+            with self.subTest(retained=retained):
+                self.assertEqual(unresolved_english(source, target, retained), 0)
+                self.assertEqual(validate_translation(source, {"text": target, "retainedEnglish": retained, "reviewed": True})["text"], target)
+        for extra in (" E", " FORECAST", " ordinary", " HBM4Else", " preHBM4", " HBM4_suffix"):
+            with self.subTest(extra=extra):
+                self.assertGreater(unresolved_english(source, target + extra, identities), 0)
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            validate_translation(source, {"text": target.replace("HBM4E", "HBM4"), "retainedEnglish": identities, "reviewed": True})
+        with self.assertRaisesRegex(LocalizationError, "ORDINARY_ENGLISH_RETAINED"):
+            unresolved_english("FORECAST HBM4 HBM4E", "FORECAST HBM4 HBM4E", identities[1:3] + [{"text": "FORECAST", "kind": "brand"}])
+
+    def test_month_year_hints_and_gate_require_complete_source_bound_chinese_format(self):
+        source = "Version 1 appeared in January 2024; revised conditions followed in November 2025."
+        hints = _source_month_year_hints(source)
+        self.assertEqual([date["chineseDisplay"] for date in hints], ["2024年一月", "2025年十一月"])
+        self.assertEqual(_source_month_year_hints("Demand may rise. We march onward. May demand."), [])
+        self.assertEqual(_source_month_year_hints("24 September 2026"), [])
+        good = "版本1于2024年一月发布；修订条件随后于2025年十一月发布。"
+        self.assertEqual(validate_translation(source, {"text": good, "retainedEnglish": [], "reviewed": True})["text"], good)
+        for bad in (good.replace("2024年", "2024"), good.replace("2025年", "2025"),
+                    good.replace("2024年一月", "一月2024"), good.replace("一月", "二月"),
+                    good.replace("2024年", "2023年")):
+            with self.subTest(bad=bad), self.assertRaisesRegex(LocalizationError, "DATE_DISPLAY_ORDER"):
+                validate_translation(source, {"text": bad, "retainedEnglish": [], "reviewed": True})
+        with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
+            validate_translation(source, {"text": good, "retainedEnglish": [], "reviewed": False})
+
+    def test_month_year_retry_corrects_only_observed_format_then_requires_fresh_review(self):
+        block = Block("month-year", 0, "Version 1 appeared in January 2024; revisions followed in November 2025.", None)
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls, saved, rejected = [], [], []
+        client.accepted_callback = saved.append
+        client.rejection_callback = rejected.append
+        def once(messages, **kwargs):
+            calls.append(messages)
+            item = json.loads(messages[1]["content"])["blocks"][0]
+            if "source" in item:
+                self.assertEqual(item["translation"], "版本1于2024年一月发布；修订随后于2025年十一月发布。")
+                self.assertEqual(saved, [])
+                self.assertEqual(len(messages), 2, "fresh review receives no failure history or approval hint")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
+            self.assertEqual([date["chineseDisplay"] for date in item["sourceYearMonthFormats"]], ["2024年一月", "2025年十一月"])
+            separator = "" if len(calls) == 1 else "年"
+            if len(calls) > 1:
+                feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
+                self.assertEqual(feedback["validationError"], "DATE_DISPLAY_ORDER")
+                self.assertEqual(feedback["sourceYearMonthFormats"], item["sourceYearMonthFormats"])
+                self.assertIn("including 年", feedback["instruction"])
+            return {"blocks": [{"id": block.id, "text": "版本{GATEX_QUANTITY_0}于{GATEX_QUANTITY_1}" + separator + "一月发布；修订随后于{GATEX_QUANTITY_2}" + separator + "十一月发布。", "retainedEnglish": []}]}
+        client._once = once
+        result = client.translate([block])
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(rejected), 1)
+        self.assertEqual(saved, [result])
+
     def test_source_matching_line_initial_letter_markers_are_structural_only(self):
         for source, target in [("a) It may change.", "a) 它可能改变。"),
                                ("- b) It may change.", "- b) 它可能改变。"),
