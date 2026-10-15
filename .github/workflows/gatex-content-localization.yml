@@ -1,10 +1,10 @@
 name: GateX content localization
 
 on:
-  # Enable only after verified sample, complete PDF processing and news readback.
-  # schedule:
-  #   - cron: '23 4 * * *'
-  #   - cron: '7,37 * * * *'
+  # News maintenance is independent of the manually controlled PDF rollout.
+  schedule:
+    - cron: '7,37 * * * *'
+  # PDF schedule remains disabled: '23 4 * * *'
   pull_request:
     paths:
       - '.github/workflows/gatex-content-localization.yml'

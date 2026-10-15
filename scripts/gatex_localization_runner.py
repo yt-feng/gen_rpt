@@ -206,32 +206,68 @@ class NewsfeedApi(GatexApi):
         self.base = "https://gatex.fund/api/newsfeed/locales"
 
 
-def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time.monotonic, emit_progress=None) -> dict:
+def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time.monotonic, emit_progress=None, require_publication=False) -> dict:
     if type(max_passes) is not int or not 1 <= max_passes <= 36 or not isinstance(budget_seconds, (int, float)) or isinstance(budget_seconds, bool) or not 0 < budget_seconds <= 600:
         raise RunnerError("INVALID_NEWS_BATCH_OPTIONS")
     started, previous_clock, previous_deadline = clock(), api.clock, api.request_deadline
     api.clock, api.request_deadline = clock, started + budget_seconds
-    passes, stalled = 0, 0
-    report = None
+    passes, stalled, pinned = 0, 0, None
+    report, publication_mode = None, False
 
-    def status_report():
-        status = api.request("GET", "/status")
+    def parse_status(status, expected=None):
         if not isinstance(status, dict) or any(type(status.get(key)) is not int or status[key] < 0 for key in ("total", "ready", "pending", "failed")):
             raise RunnerError("INVALID_NEWS_STATUS")
         if any(status[key] > status["total"] for key in ("ready", "pending", "failed")) or status["ready"] + status["pending"] != status["total"]:
             raise RunnerError("INVALID_NEWS_STATUS")
-        result = {"schema": "gatex-news-localization-run/v1", "status": "passed" if status.get("ok") is True and status.get("complete") is True and status["failed"] == 0 and status["total"] > 0 and status["ready"] == status["total"] and status["pending"] == 0 else "failed"}
+        version = status.get("version")
+        if not isinstance(version, str) or not re.fullmatch(r"[A-Za-z0-9_.-]{1,120}", version):
+            raise RunnerError("INVALID_NEWS_STATUS")
+        digest = status.get("snapshotHash")
+        if not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest):
+            raise RunnerError("INVALID_NEWS_SNAPSHOT")
+        if expected is not None and digest != expected:
+            raise RunnerError("NEWS_SNAPSHOT_CHANGED")
+        candidate, published = status.get("candidate"), status.get("published")
+        aware = isinstance(candidate, dict) and isinstance(published, dict)
+        if require_publication and not aware:
+            raise RunnerError("NEWS_PUBLICATION_CONTRACT_REQUIRED")
+        passed = status.get("ok") is True and status.get("complete") is True and status["failed"] == 0 and status["total"] > 0 and status["ready"] == status["total"] and status["pending"] == 0
+        result = {"schema": "gatex-news-localization-run/v1", "status": "passed" if passed else "failed"}
         result.update({key: status.get(key) for key in ("version", "snapshotHash", "total", "ready", "pending", "failed")})
+        if aware:
+            if any(candidate.get(key) != status[key] for key in ("snapshotHash", "total", "ready", "pending", "failed")):
+                raise RunnerError("INVALID_NEWS_CANDIDATE_STATUS")
+            if any(type(published.get(key)) is not int or published[key] < 0 for key in ("total", "ready")) or published["ready"] > published["total"]:
+                raise RunnerError("INVALID_NEWS_PUBLICATION_STATUS")
+            if any(type(published.get(key)) is not bool for key in ("available", "complete")) or (published.get("snapshotHash") is not None and not re.fullmatch(r"[a-f0-9]{64}", str(published["snapshotHash"]))):
+                raise RunnerError("INVALID_NEWS_PUBLICATION_STATUS")
+            proof = {key: published.get(key) for key in ("available", "snapshotHash", "total", "ready", "complete")}
+            promoted = (candidate.get("fixed") is True and candidate.get("complete") is True
+                and published.get("available") is True and published.get("complete") is True
+                and published.get("snapshotHash") == digest and published["total"] == status["total"]
+                and published["ready"] == status["total"])
+            result["status"] = "passed" if passed and promoted else "failed"
+            result["publication"] = proof
+        return result, aware
+
+    def status_report(expected=None):
+        route = "/status" + ("?" + urlencode({"expectedSnapshotHash": expected}) if expected else "")
+        return parse_status(api.request("GET", route), expected)
+
+    def finish(reason, error=None):
+        result = {**report, "warmPasses": passes, "elapsedSeconds": round(max(0, clock() - started), 3), "stopReason": reason}
+        if pinned: result["expectedSnapshotHash"] = pinned
+        if error:
+            result["status"] = "failed"
+            result.update({"code": error.code, "httpStatus": error.status, "apiCode": error.api_code})
         return result
 
-    def finish(reason):
-        return {**report, "warmPasses": passes, "elapsedSeconds": round(max(0, clock() - started), 3), "stopReason": reason}
-
     try:
-        # A fully reviewed cache requires no provider request, including when
-        # an earlier workflow finished warming after its client timed out.
-        report = status_report()
-        if report["status"] == "passed":
+        report, publication_mode = status_report()
+        # A new maintenance invocation lets the server select the latest source
+        # once. Even an already-published edition must not hide newer raw news.
+        # Only legacy library callers can use the old read-only cache shortcut.
+        if report["status"] == "passed" and not publication_mode:
             return finish("COMPLETE")
         if report["total"] == 0:
             return finish("EMPTY_SNAPSHOT")
@@ -239,41 +275,52 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
             if clock() >= api.request_deadline:
                 return finish("DEADLINE")
             previous = report
+            post_report = None
             try:
                 passes += 1
-                api.request("POST", "/warm", json={}, retry=False)
+                body = {"expectedSnapshotHash": pinned} if pinned else {}
+                response = api.request("POST", "/warm", json=body, retry=False)
+                if publication_mode:
+                    post_report, _ = parse_status(response, pinned)
+                    pinned = pinned or post_report["snapshotHash"]
+                    report = post_report
+                    # The authenticated POST confirms this exact edition was
+                    # promoted. A later default status may already select a new one.
+                    if report["status"] == "passed":
+                        if emit_progress: emit_progress({"event": "news_warm_pass", "pass": passes, **report})
+                        return finish("COMPLETE")
             except RunnerError as error:
-                if error.code == "API_DEADLINE_EXCEEDED":
-                    return finish("DEADLINE")
+                if error.code == "API_DEADLINE_EXCEEDED": return finish("DEADLINE")
+                if error.code == "NEWS_SNAPSHOT_CHANGED" or error.status == 409:
+                    return finish("SNAPSHOT_CHANGED", error)
                 if error.code != "API_CONNECTION_FAILED" and not (error.code == "API_HTTP_ERROR" and (error.status == 429 or error.status and error.status >= 500)):
-                    raise
-            # Always learn the remote outcome before another warming POST.
-            # Never reuse a POST body or infer success from HTTP 200 alone.
+                    return finish("API_FAILURE", error)
+            # Resolve an uncertain POST before any repeat; an established pin
+            # can never silently switch to another candidate snapshot.
             try:
-                report = status_report()
+                report, aware = status_report(pinned)
+                if publication_mode:
+                    if not aware: raise RunnerError("NEWS_PUBLICATION_CONTRACT_REQUIRED")
+                    pinned = pinned or report["snapshotHash"]
             except RunnerError as error:
-                if error.code == "API_DEADLINE_EXCEEDED":
-                    return finish("DEADLINE")
-                raise
+                if error.code == "API_DEADLINE_EXCEEDED": return finish("DEADLINE")
+                if error.code == "NEWS_SNAPSHOT_CHANGED" or error.status == 409:
+                    return finish("SNAPSHOT_CHANGED", error)
+                return finish("API_FAILURE", error)
             if emit_progress:
                 emit_progress({"event": "news_warm_pass", "pass": passes,
                     **{key: report[key] for key in ("version", "snapshotHash", "total", "ready", "pending", "failed")},
+                    **({"publication": report["publication"]} if "publication" in report else {}),
                     "elapsedSeconds": round(max(0, clock() - started), 3)})
-            if report["status"] == "passed":
-                return finish("COMPLETE")
-            if report["total"] == 0:
-                return finish("EMPTY_SNAPSHOT")
+            if report["status"] == "passed": return finish("COMPLETE")
+            if report["total"] == 0: return finish("EMPTY_SNAPSHOT")
             same_snapshot = report["snapshotHash"] == previous["snapshotHash"]
             stalled = stalled + 1 if same_snapshot and report["ready"] <= previous["ready"] else 0
-            # Only pending records enter four-record warming batches. Approved
-            # records must not extend an unchanged queue's no-progress budget.
             fair_cycle = max(3, (report["pending"] + 3) // 4)
-            if stalled >= fair_cycle:
-                return finish("NO_PROGRESS")
+            if stalled >= fair_cycle: return finish("NO_PROGRESS")
             if attempt < max_passes - 1:
                 delay = min(8, 2 ** (attempt + 1))
-                if api.request_deadline - clock() <= delay:
-                    return finish("DEADLINE")
+                if api.request_deadline - clock() <= delay: return finish("DEADLINE")
                 api.sleep(delay)
         return finish("MAX_PASSES")
     finally:
@@ -428,7 +475,7 @@ def main() -> int:
     try:
         if args.news_only:
             report = warm_news(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")),
-                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit)
+                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit, require_publication=True)
         else:
             api = GatexApi(os.environ.get("GATEX_GENERATION_CALLBACK_SECRET", ""), on_inventory_page=emit)
             if args.ocr_diagnostic_only:
