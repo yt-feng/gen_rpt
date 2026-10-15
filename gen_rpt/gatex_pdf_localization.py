@@ -1126,7 +1126,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 or any(not isinstance(row, dict) for row in initial_style_edits.values()))):
             raise LocalizationError("INVALID_STYLE_EDIT_DRAFT")
         style_edits = copy.deepcopy(initial_style_edits or {})
-        pending, accepted, awaiting_review, block_codes = list(blocks), {}, {}, {}
+        pending, accepted, awaiting_review, block_codes, protocol_adverse = list(blocks), {}, {}, {}, {}
         feedback, last_code = [], "MODEL_REQUEST_FAILED"
         for attempt in range(maximum_attempts):
             feedback_for_attempt, candidates = [], {}
@@ -1166,7 +1166,11 @@ An edited candidate must undergo a new independent fidelity and quality review."
                             except QuantityFidelityError as error:
                                 raise LocalizationError(str(error)) from None
                         candidate = _source_verified_record(block.text, candidate)
-                        candidates[block.id] = validate_translation(block.text, {**candidate, "reviewed": True})
+                        validated = validate_translation(block.text, {**candidate, "reviewed": True})
+                        previous = protocol_adverse.get(block.id)
+                        if previous and digest(compact(validated["text"])) in previous["targetHashes"]:
+                            raise LocalizationError(previous["code"])
+                        candidates[block.id] = validated
                     except LocalizationError as error:
                         awaiting_review.pop(block.id, None)
                         block_codes[block.id] = error.code
@@ -1176,6 +1180,10 @@ An edited candidate must undergo a new independent fidelity and quality review."
                             "blockId": block.id, "sourcePage": block.page + 1, "sourceHash": block.source_hash,
                             "source": block.text, "sourceMastheadTranslation": _block_masthead_hint(block, context_blocks or blocks), "record": copy.deepcopy(raw),
                             "quantityHints": protections[block.id].hints, "normalizedCandidate": {**copy.deepcopy(candidate), "reviewed": False}}
+                        previous = protocol_adverse.get(block.id)
+                        if previous and error.code == previous["code"]:
+                            rejection["review"] = {"adverseProtocolReviewRows": copy.deepcopy(previous["rows"]),
+                                                   "candidateUnchangedAfterAdverseReview": True}
                         if error.code == "NUMERIC_OR_LINK_MISMATCH":
                             rejection["quantityValidationDetails"] = _quantity_validation_details(protections[block.id], candidate.get("text"))
                         if error.code == "QUANTITY_PLACEHOLDER_MISMATCH":
@@ -1214,19 +1222,29 @@ An edited candidate must undergo a new independent fidelity and quality review."
                         for block in reviewing:
                             if block.id not in reviews:
                                 raw_rows = review_response.get("blocks", []) if isinstance(review_response, dict) else []
+                                def issues(row, field):
+                                    value = row.get(field)
+                                    return isinstance(value, list) and bool(value) and all(isinstance(item, str) for item in value)
                                 adverse = [row for row in raw_rows if isinstance(row, dict) and row.get("id") == block.id
-                                    and any(row.get(field) is False for field in ("complete", "faithful", "professionalChinese", "ownedTerminology"))] if isinstance(raw_rows, list) else []
+                                    and (any(row.get(field) is False for field in ("complete", "faithful", "professionalChinese", "ownedTerminology"))
+                                         or issues(row, "issues") or issues(row, "qualityIssues"))] if isinstance(raw_rows, list) else []
                                 if adverse:
                                     # Even an invalid protocol must not erase an
                                     # explicit adverse verdict and solicit a
                                     # pass on the same candidate. Regenerate
                                     # using that actual source/candidate pair.
                                     awaiting_review.pop(block.id, None)
-                                    code = "SEMANTIC_REVIEW_FAILED" if any(row.get(field) is False for row in adverse for field in ("complete", "faithful")) else "CHINESE_QUALITY_REVIEW_FAILED"
+                                    code = "SEMANTIC_REVIEW_FAILED" if (any(row.get(field) is False for row in adverse for field in ("complete", "faithful"))
+                                        or any(issues(row, "issues") for row in adverse)) else "CHINESE_QUALITY_REVIEW_FAILED"
+                                    actual_rows = [{key: copy.deepcopy(row[key]) for key in ("complete", "faithful", "professionalChinese", "ownedTerminology", "issues", "qualityIssues")
+                                        if type(row.get(key)) is bool or isinstance(row.get(key), list) and all(isinstance(item, str) for item in row[key])} for row in adverse]
+                                    previous = protocol_adverse.setdefault(block.id, {"targetHashes": set(), "code": code, "rows": actual_rows})
+                                    previous["targetHashes"].add(digest(compact(candidates[block.id]["text"])))
+                                    previous.update(code=code, rows=actual_rows)
                                     block_codes[block.id] = code
                                     feedback_for_attempt.append({"validationError": code, "blockId": block.id,
                                         "source": block.text, "normalizedCandidate": {**copy.deepcopy(candidates[block.id]), "reviewed": False},
-                                        "adverseProtocolReviewRows": copy.deepcopy(adverse)})
+                                        "adverseProtocolReviewRows": actual_rows})
                                     last_code = code
                                     continue
                                 awaiting_review[block.id] = {**copy.deepcopy(candidates[block.id]), "reviewed": False}

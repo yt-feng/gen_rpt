@@ -163,6 +163,70 @@ class FailureIsolationTests(unittest.TestCase):
         self.assertIn("may changed to will",generations[1][-1]["content"])
         self.assertEqual(result["a"]["text"],"需求可能增长。")
 
+    def test_nonempty_issues_remain_adverse_when_true_booleans_have_a_protocol_error(self):
+        for field,issue,code in [
+            ("issues","missing source qualifier","SEMANTIC_REVIEW_FAILED"),
+            ("qualityIssues","unnatural professional Chinese","CHINESE_QUALITY_REVIEW_FAILED"),
+        ]:
+            for malformed in ("unknown-row","invalid-key"):
+                with self.subTest(field=field,malformed=malformed):
+                    translator=client();generations=[];reviews=[];rejections=[]
+                    translator.rejection_callback=rejections.append
+                    def once(messages,**kwargs):
+                        rows=json.loads(messages[1]["content"])["blocks"]
+                        if "source" not in rows[0]:
+                            generations.append(copy.deepcopy(messages))
+                            return {"blocks":[{"id":"a","text":"需求可能增长。" if len(generations)==1 else "需求可能上升。","retainedEnglish":[]}]}
+                        reviews.append(copy.deepcopy(rows))
+                        self.assertEqual(len(messages),2,"fresh reviewer must see no repair feedback")
+                        if len(reviews)==1:
+                            row={**verdict("a"),field:[issue]}
+                            if malformed=="invalid-key":row["professionalChinese"]="true"
+                            return {"blocks":[row]+([verdict("unknown")] if malformed=="unknown-row" else [])}
+                        self.assertEqual(rows[0]["translation"],"需求可能上升。")
+                        return {"blocks":[verdict("a")]}
+                    translator._once=once
+                    result=translator.translate(self.blocks()[:1])
+                    self.assertEqual(len(generations),2)
+                    self.assertEqual(len(reviews),2)
+                    self.assertIn(issue,generations[1][-1]["content"])
+                    self.assertIn(code,generations[1][-1]["content"])
+                    self.assertIn("需求可能增长。",generations[1][-1]["content"])
+                    self.assertEqual(rejections[0]["reviewResponse"]["blocks"][0][field],[issue])
+                    self.assertEqual(result["a"]["text"],"需求可能上升。")
+
+    def test_protocol_issue_cannot_be_washed_by_reviewing_unchanged_or_whitespace_only_candidates(self):
+        for field,issue,code in [
+            ("issues","missing source detail","SEMANTIC_REVIEW_FAILED"),
+            ("qualityIssues","unnatural professional Chinese","CHINESE_QUALITY_REVIEW_FAILED"),
+        ]:
+            with self.subTest(field=field):
+                translator=client();generations=[];reviews=[];rejections=[];approved=[]
+                translator.rejection_callback=rejections.append
+                translator.accepted_callback=approved.append
+                def once(messages,**kwargs):
+                    rows=json.loads(messages[1]["content"])["blocks"]
+                    if "source" not in rows[0]:
+                        generations.append(copy.deepcopy(messages))
+                        return {"blocks":[{"id":"a","text":"需 求可能增长。" if len(generations)==3 else "需求可能增长。","retainedEnglish":[]}]}
+                    reviews.append(copy.deepcopy(rows))
+                    self.assertEqual(len(reviews),1,"unchanged rejected text must not receive another chance at approval")
+                    return {"blocks":[{**verdict("a"),field:[issue]},verdict("unknown")]}
+                translator._once=once
+                with self.assertRaisesRegex(LocalizationError,"^"+code+"$") as failed:
+                    translator.translate(self.blocks()[:1])
+                self.assertEqual(len(generations),3)
+                self.assertEqual(len(reviews),1)
+                self.assertEqual(approved,[])
+                self.assertEqual(failed.exception.block_failures[0]["code"],code)
+                self.assertEqual(failed.exception.block_failures[0]["attemptCount"],3)
+                for messages in generations[1:]:
+                    self.assertIn(issue,messages[-1]["content"])
+                    self.assertIn(code,messages[-1]["content"])
+                self.assertEqual([row["code"] for row in rejections[1:]],[code,code])
+                self.assertTrue(all(row["review"]["candidateUnchangedAfterAdverseReview"] for row in rejections[1:]))
+                json.dumps(rejections,ensure_ascii=False,allow_nan=False)
+
     def test_counted_noun_remains_translatable_and_cannot_bypass_english_or_numeric_gates(self):
         source="A 1,024-accelerator cluster may expand."
         good={"text":"一个1,024个加速器组成的集群可能扩建。","retainedEnglish":[],"reviewed":True}
