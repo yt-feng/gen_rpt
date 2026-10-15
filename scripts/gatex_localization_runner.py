@@ -529,9 +529,10 @@ def main() -> int:
     parser.add_argument("--summary", type=Path, required=True)
     parser.add_argument("--sample-id", help="Process exactly this published report without scanning the entire inventory")
     parser.add_argument("--expected-source-sha256", help="Pin an exact sample source digest before translation; required for OCR diagnostics")
-    parser.add_argument("--news-max-passes", type=int, default=12, help="Maximum restartable public-news warming passes (1-36)")
+    parser.add_argument("--news-full-pool", action="store_true", help="Continue the entire stored daily pool and verify both Chinese publications")
+    parser.add_argument("--news-max-passes", type=int, default=12, help="Maximum warming passes (public: 1-36; full pool: 0 uses the time budget)")
     parser.add_argument("--news-capture-daily", action="store_true", help="Idempotently capture today's English source before pinned news translation")
-    parser.add_argument("--news-budget-seconds", type=float, default=600, help="Overall public-news warming budget, at most 600 seconds")
+    parser.add_argument("--news-budget-seconds", type=float, default=600, help="Overall warming budget (public: at most 600s; full pool: at most 14400s)")
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument("--news-only", action="store_true")
     mode.add_argument("--inventory-only", action="store_true", help="Audit published inventory without model calls or PDF processing")
@@ -541,8 +542,16 @@ def main() -> int:
     emit = lambda value: print(json.dumps(value, ensure_ascii=False), flush=True)
     try:
         if args.news_only:
-            report = warm_news(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")),
-                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit, require_publication=True, capture_daily=args.news_capture_daily)
+            if args.news_full_pool:
+                # Keep one API/error class identity when invoked as a script.
+                import sys
+                sys.modules.setdefault("scripts.gatex_localization_runner", sys.modules[__name__])
+                from scripts.gatex_news_fullpool import warm_daily_pool
+                news_runner = warm_daily_pool
+            else:
+                news_runner = warm_news
+            report = news_runner(NewsfeedApi(os.environ.get("GATEX_NEWSFEED_CRON_SECRET", "")),
+                max_passes=args.news_max_passes, budget_seconds=args.news_budget_seconds, emit_progress=emit, capture_daily=args.news_capture_daily, **({} if args.news_full_pool else {"require_publication": True}))
         else:
             api = GatexApi(os.environ.get("GATEX_GENERATION_CALLBACK_SECRET", ""), on_inventory_page=emit)
             if args.ocr_diagnostic_only:
