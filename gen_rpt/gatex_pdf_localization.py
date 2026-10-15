@@ -228,6 +228,26 @@ def _source_identity_hints(source: str) -> list[dict]:
     return hints
 
 
+def _folded_identity_parts(source: str, target: str, entry: Any) -> list[dict] | None:
+    """Reconcile evidence, not prose: native PDF line wraps can split a name.
+
+    Every resulting literal remains subject to the normal identity/English
+    gates. Words, order, punctuation and case are never inferred or changed.
+    """
+    if not isinstance(entry, dict) or entry.get("kind") not in {"brand", "person", "organisation"}:
+        return None
+    text = entry.get("text")
+    if not isinstance(text, str) or not text or len(text) > 100 or text in source or text not in target:
+        return None
+    parts = text.split()
+    if not 2 <= len(parts) <= 9 or " ".join(parts) != text:
+        return None
+    match = re.search(r"(?<![A-Za-z0-9])" + r"\s+".join(re.escape(part) for part in parts) + r"(?![A-Za-z0-9])", source)
+    if not match or not re.search(r"[\r\n]", match.group()):
+        return None
+    return [{"text": part, "kind": entry["kind"]} for part in parts]
+
+
 def _source_verified_record(source: str, record: dict) -> dict:
     # An explicit, invalid model identity remains invalid. Supplemental identity
     # metadata only describes a literal already evidenced by this source block;
@@ -244,6 +264,11 @@ def _source_verified_record(source: str, record: dict) -> dict:
         # exact date evidenced by this block, before independent fresh review.
         target = pattern.sub(natural, target)
     result["text"] = target
+    reconciled = []
+    for entry in retained:
+        parts = _folded_identity_parts(source, target, entry)
+        reconciled.extend(parts if parts is not None else [entry])
+    retained = reconciled
     house = HOUSE_MASTHEADS.get(source)
     if house and compact(target) == compact(house[0]):
         # Only these exact, fully translated house mastheads are reconciled.
@@ -304,6 +329,14 @@ def _source_calendar_hints(source: str) -> list[dict]:
                 or re.search(r"\b" + name + r"\s+(?:[0-3]?\d(?:,?\s+\d{4})?|\d{4})\b", source)):
             hints.append({"sourceMonth": month, "chineseMonth": chinese + "月",
                           "instruction": "Translate this written calendar month as Chinese words. It has no numeric placeholder of its own; never invent one."})
+    return hints
+
+
+def _source_page_reference_hints(source: str) -> list[dict]:
+    hints = []
+    for match in re.finditer(r"\b(?:pp\.|pages?)\s*(\d+\s*[-–]\s*\d+)(?![A-Za-z0-9]|\.\d)", source):
+        hints.append({"sourceReference": match.group(), "chineseReference": match[1] + "页",
+                      "instruction": "This is a plain source page range, not an ordinal. Preserve the complete range literal; do not prefix 第 or turn its first endpoint into an ordinal."})
     return hints
 
 
@@ -591,11 +624,15 @@ symbols already included in it. Do not invent quantities. Numeric codes, plain n
 currencies, dates and links stay literal; spelled English scales alone are restored into
 natural Chinese with exact arithmetic ($15 billion -> $150亿), preserving their full value,
 currency, sign, percentage/percentage-point distinction and comparison/expression meaning.
+sourcePageReferences show source-evidenced plain page ranges: pp. 1-6 -> 1-6页,
+not 第1-6页, which changes the first endpoint into an ordinal.
 Written month names use Chinese words (September -> 九月); do not add an Arabic 9
 when the source date only contains Arabic day/year numbers. Retained identity metadata
 must use original source names/codes as shown in quantityHints, never an internal placeholder.
 Translate ordinary prose and headings completely; preserve genuine names, brands, codes,
-acronyms and mathematical notation. Keep source brand/author spelling and casing exactly:
+acronyms and mathematical notation. Translate written unit names as Chinese unit words;
+do not introduce a source-absent abbreviation (petabyte-scale -> 拍字节规模, not PB).
+Keep source brand/author spelling and casing exactly:
 GateX stays GateX and GATEX stays GATEX. Never replace source brands/authors.
 An identity must be evidenced by this individual block. Never expand a surname into a full
 name using another block: Mr. Graham may become Graham先生 or 格雷厄姆先生, not Paul Graham.
@@ -674,6 +711,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 "quantityHints": rejection.get("quantityHints", []),
                 "quantityPlaceholderErrors": rejection.get("quantityPlaceholderErrors", {}),
                 "sourceCalendarMonths": _source_calendar_hints(rejection["source"]),
+                "sourcePageReferences": _source_page_reference_hints(rejection["source"]),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
                 "allowedRetainedKinds": sorted(RETAINED_KINDS),
                 "instruction": "Use exact source spelling, casing and whitespace for retained identities. Do not expand a surname using another block. Translate ordinary English fully. Preserve source-verified type codes and parenthesized letter markers with their counts. retainedEnglish must be a JSON array. Do not invent context or identities. For a quantity placeholder error, emit each expectedPlaceholders item exactly once; remove unknown IDs and extra duplicates, restore missing IDs to their actual source quantities. Translate written sourceCalendarMonths as Chinese words, never an invented numeric placeholder."}
@@ -703,6 +741,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 source = [{"id": b.id, "sourcePage": b.page + 1, "text": protections[b.id].masked,
                     "quantityHints": protections[b.id].hints,
                     "sourceCalendarMonths": _source_calendar_hints(b.text),
+                    "sourcePageReferences": _source_page_reference_hints(b.text),
                     "sourceVerifiedIdentities": _source_identity_hints(b.text),
                     "sourceTitleTranslations": _source_title_hints(b.text),
                     "sourceMastheadTranslation": _source_masthead_hint(b.text),
