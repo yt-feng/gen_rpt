@@ -11,10 +11,10 @@ on:
         description: 'Optional manual recovery JSON: at most two {id,expectedSourceSha256} objects; empty uses the ordinary queue'
         type: string
         default: ''
-  # Enable only after producer and GateX current-policy QA acceptance and a
-  # bounded manual maintenance canary. Never enable the older unlimited cron.
-  # schedule:
-  #   - cron: '23 4 * * *'
+  # Merge this schedule only after actual current-policy artifact acceptance.
+  # It resumes the same bounded queue; no second PDF cron is needed.
+  schedule:
+    - cron: '23 * * * *'
   pull_request:
     paths:
       - '.github/workflows/gatex-pdf-maintenance.yml'
