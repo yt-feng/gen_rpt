@@ -7,6 +7,30 @@ from gen_rpt.gatex_translation_quantities import (
 
 
 class QuantityFidelityTests(unittest.TestCase):
+    def test_comma_grouped_count_noun_is_not_partly_restored_as_an_english_code(self):
+        for source, target, count in [("1,024-accelerator cluster", "1,024个加速器组成的集群", "1,024"),
+                                      ("4,096-server installation", "4,096台服务器的设施", "4,096"),
+                                      ("2,000-chip system", "2,000颗芯片组成的系统", "2,000"),
+                                      ("2,000-chips.", "2,000颗芯片。", "2,000")]:
+            with self.subTest(source=source):
+                protected = protect_quantities(source)
+                self.assertEqual([token.original for token in protected.tokens], [count])
+                self.assertEqual(protected.restore(protected.masked), source)
+                self.assertEqual(protected.tokens[0].kind, "quantity")
+                self.assertTrue(quantities_equivalent(source, target))
+                self.assertFalse(quantities_equivalent(source, target.replace(count, "1,023")))
+                self.assertFalse(quantities_equivalent(source, target.replace(count, count.replace(",", ""))))
+        for source in ["HBM4E", "B200", "2025E-2029E", "1,024-HBM4E", "1,024-accelerator2"]:
+            with self.subTest(source=source):
+                protected = protect_quantities(source)
+                self.assertEqual(protected.restore(protected.masked), source)
+                self.assertTrue(any(token.kind == "code" for token in protected.tokens))
+                self.assertFalse(quantities_equivalent(source, source + "0"))
+        self.assertFalse(quantities_equivalent("1,024-accelerator", "1,023个加速器"))
+        self.assertFalse(quantities_equivalent("1,02-accelerator", "1,02个加速器"))
+        self.assertFalse(quantities_equivalent("1,024 - 64", "1,024 + 64"))
+        self.assertFalse(quantities_equivalent("B200 HBM4E", "B200 HBM4E HBM4E"))
+
     def test_complete_tracked_chapter_banner_preserves_leading_zero_and_continuation(self):
         for digits in ("0 1", "0 2", "0 3", "0 4"):
             source = "C H A P T E R  " + digits + "  /  C O N T I N U E D\nSource chapter heading"

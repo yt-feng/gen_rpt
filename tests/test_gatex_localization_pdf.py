@@ -955,7 +955,9 @@ class PdfLocalizationTests(unittest.TestCase):
             client._once = once
             with self.assertRaises(LocalizationError) as caught:
                 translate_pdf(source, output, digest(source.read_bytes()), translation_client=client, save_progress=states.append)
-            self.assertEqual(str(caught.exception), "INVALID_RETAINED_IDENTITY")
+            self.assertEqual(str(caught.exception), "TRANSLATION_BLOCKS_PENDING")
+            self.assertTrue(states[-1]["translationFailures"])
+            self.assertEqual(set(row["code"] for row in states[-1]["translationFailures"].values()), {"INVALID_RETAINED_IDENTITY"})
             self.assertNotIn("Invented", str(caught.exception))
             self.assertEqual(len(calls), 3)
             self.assertFalse(output.exists())
@@ -1652,7 +1654,7 @@ class ModelContractTests(unittest.TestCase):
                 return {"blocks": [{"id": item["id"], "text": "Supply" if item["text"] == "Supply" else fixture_generated_text(item, PAIRS[fixture_source_text(item)]),
                                    "retainedEnglish": []} for item in supplied]}
             client._once = once
-            with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+            with self.assertRaisesRegex(LocalizationError, "TRANSLATION_BLOCKS_PENDING"):
                 translate_pdf(source, output, digest(source.read_bytes()), translation_client=client, save_progress=states.append)
             self.assertEqual(len(generation_ids), 3)
             self.assertEqual(generation_ids[1], list(bad_ids))
@@ -1663,6 +1665,8 @@ class ModelContractTests(unittest.TestCase):
             self.assertEqual(checkpoint["status"], "in-progress")
             self.assertTrue(set(review_ids[0]).issubset(checkpoint["blocks"]))
             self.assertTrue(bad_ids.isdisjoint(checkpoint["blocks"]))
+            self.assertEqual(set(checkpoint["translationFailures"]), bad_ids)
+            self.assertEqual(set(row["code"] for row in checkpoint["translationFailures"].values()), {"UNRESOLVED_ENGLISH"})
             self.assertTrue(all(record["reviewed"] and record["sourceHash"] for record in checkpoint["blocks"].values()))
             self.assertFalse(output.exists(), "partial progress cannot create a PDF artifact")
             self.assertFalse(output.with_name(output.name + ".partial").exists())
@@ -1725,14 +1729,16 @@ class ModelContractTests(unittest.TestCase):
         client.accepted_callback = saved.append
         def once(payload, **kwargs):
             calls.append(payload)
-            if len(calls) % 2:
+            if "source" not in json.loads(payload[1]["content"])["blocks"][0]:
                 return {"blocks": [{"id": "b", "text": "需求", "retainedEnglish": []}]}
             return {"blocks": [{"id": "b", "complete": "true", "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "REVIEW_COVERAGE_MISMATCH"):
             client.translate([Block("b", 0, "Demand", (0, 0, 100, 30))])
         self.assertEqual(saved, [])
-        self.assertEqual(len(calls), 6)
+        self.assertEqual(len(calls), 4, "one generation, then at most three fresh reviews of the unchanged candidate")
+        reviews = [json.loads(payload[1]["content"])["blocks"][0] for payload in calls[1:]]
+        self.assertTrue(all(row["translation"] == "需求" for row in reviews))
 
     def test_source_verified_parenthesized_labels_keep_counts_and_do_not_allow_articles(self):
         source = "Choose (a) a task, (b) a smaller task, or (c) a larger task."
