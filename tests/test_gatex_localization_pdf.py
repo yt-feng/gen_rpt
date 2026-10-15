@@ -13,7 +13,7 @@ from PIL import Image, ImageDraw
 from gen_rpt.gatex_pdf_localization import (
     Block, LocalizationError, ModelClient, PROMPT_VERSION, PROGRESS_SCHEMA,
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
-    validate_translation, _translation_state, OCR_POLICY_VERSION,
+    validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -410,6 +410,46 @@ class PdfLocalizationTests(unittest.TestCase):
 
 
 class ModelContractTests(unittest.TestCase):
+    def test_source_exact_bare_domains_are_literals_without_allowing_ordinary_english(self):
+        for source, target in [("GATEX.FUND", "GATEX.FUND"),
+                ("Visit GATEX.FUND", "请访问GATEX.FUND"),
+                ("GATEX.FUND GATEX.FUND", "GATEX.FUND GATEX.FUND"),
+                ("GATEX.FUND https://GATEX.FUND", "GATEX.FUND https://GATEX.FUND")]:
+            with self.subTest(source=source):
+                self.assertEqual(unresolved_english(source, target), 0)
+                self.assertEqual(validate_translation(source, {"text": target, "retainedEnglish": [], "reviewed": True})["text"], target)
+        for source, target in [("Visit GATEX.FUND", "Visit GATEX.FUND"),
+                ("GATEX.FUND", "GATEX.FUND FOREWORD"), ("FUND", "FUND")]:
+            with self.subTest(source=source), self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+                validate_translation(source, {"text": target, "retainedEnglish": [], "reviewed": True})
+        for target in ["gatex.fund", "GATEX.COM", "GATEX.FUND GATEX.FUND", "GATEX.FUND/path"]:
+            with self.subTest(target=target), self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+                validate_translation("GATEX.FUND", {"text": target, "retainedEnglish": [], "reviewed": True})
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            validate_translation("GATEX.FUND GATEX.FUND", {"text": "GATEX.FUND", "retainedEnglish": [], "reviewed": True})
+
+    def test_split_masthead_guidance_never_permits_an_added_brand_and_keeps_fresh_review(self):
+        hint = _source_masthead_hint("INTELLIGENCE")
+        self.assertEqual(hint["translation"], "前沿洞察")
+        self.assertIn("no GATEX brand", hint["instruction"])
+        self.assertEqual(_source_masthead_hint("Intelligence is useful."), {})
+        with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+            validate_translation("INTELLIGENCE", {"text": "GATEX 前沿洞察", "retainedEnglish": [{"text": "GATEX", "kind": "brand"}], "reviewed": True})
+        client, calls = self.client(), []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            payload = json.loads(messages[1]["content"])
+            if len(calls) == 1:
+                self.assertEqual(payload["blocks"][0]["sourceMastheadTranslation"], hint)
+                return {"blocks": [{"id": "split", "text": "前沿洞察", "retainedEnglish": []}]}
+            self.assertIn("Independently compare", messages[0]["content"])
+            self.assertEqual(payload["blocks"][0]["source"], "INTELLIGENCE")
+            self.assertEqual(payload["blocks"][0]["translation"], "前沿洞察")
+            return {"blocks": [{"id": "split", "complete": True, "faithful": True, "issues": []}]}
+        client._once = once
+        self.assertTrue(client.translate([Block("split", 0, "INTELLIGENCE", (0, 0, 100, 30))])["split"]["reviewed"])
+        self.assertEqual(len(calls), 2)
+
     def client(self):
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
             return ModelClient(sleep=lambda seconds: None)
