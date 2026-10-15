@@ -183,7 +183,7 @@ class PdfLocalizationTests(unittest.TestCase):
             self.assertEqual(rows[0]["translation"], "管理层导读")
             self.assertNotIn("previousReviewedRecord", rows[0])
             self.assertEqual(len(rows), 1)
-            return {"blocks": [{"id": changed.id, "complete": True, "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": changed.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
         result = _translate([changed, same], state, checkpoints.append, client)
         self.assertEqual(len(calls), 1)
@@ -210,7 +210,7 @@ class PdfLocalizationTests(unittest.TestCase):
             rows = json.loads(messages[1]["content"])["blocks"]
             self.assertEqual(rows[1]["adjacentSourceContext"][0]["source"], first.text)
             self.assertEqual(rows[1]["adjacentSourceContext"][0]["translation"], records[first.id]["text"])
-            return {"blocks": [{"id": row["id"], "complete": True, "faithful": True, "issues": []} for row in rows]}
+            return {"blocks": [{"id": row["id"], "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for row in rows]}
         client._once = once
         accepted = client.translate([first, second], review_drafts={key: {**row, "retainedEnglish": [], "reviewed": False} for key, row in records.items()}, context_blocks=[first, second, other_page, metadata])
         self.assertEqual(len(calls), 1, "independent fresh review only; no generation for a supplied source-bound draft")
@@ -250,7 +250,7 @@ class PdfLocalizationTests(unittest.TestCase):
             row = json.loads(messages[1]["content"])["blocks"][0]
             if "source" in row:
                 self.assertEqual(len(messages), 2, "the independent reviewer never sees history or a requested verdict")
-                return {"blocks": [{"id": block.id, "complete": True, "faithful": False, "issues": ["may became definite"]}]}
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": False, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": ["may became definite"]}]}
             return {"blocks": [{"id": block.id, "text": "收入一定上升。", "retainedEnglish": []}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
@@ -390,7 +390,7 @@ class PdfLocalizationTests(unittest.TestCase):
             rows = json.loads(messages[1]["content"])["blocks"]
             if "source" in rows[0]:
                 reviews.extend(rows)
-                return {"blocks": [{"id": r["id"], "complete": True, "faithful": True, "issues": []} for r in rows]}
+                return {"blocks": [{"id": r["id"], "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for r in rows]}
             generations.extend(rows)
             return {"blocks": [{"id": "weapon-code", "text": "{GATEX_QUANTITY_0}可能穿透。", "retainedEnglish": []},
                                {"id": "wing-code", "text": "X翼弹药可能撤离。", "retainedEnglish": []}]}
@@ -405,7 +405,7 @@ class PdfLocalizationTests(unittest.TestCase):
             rows = json.loads(messages[1]["content"])["blocks"]
             calls.append(messages)
             if "source" in rows[0]:
-                return {"blocks": [{"id": "weapon-code", "complete": True, "faithful": False, "issues": ["may became definite"]}]}
+                return {"blocks": [{"id": "weapon-code", "complete": True, "faithful": False, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": ["may became definite"]}]}
             return {"blocks": [{"id": "weapon-code", "text": "{GATEX_QUANTITY_0}肯定穿透。", "retainedEnglish": []}]}
         client._once = reject
         with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
@@ -423,7 +423,7 @@ class PdfLocalizationTests(unittest.TestCase):
             if "source" in row:
                 reviews.append(row)
                 self.assertEqual(row["translation"], "黄金高于$5,400，上涨$600，2022年高于$2,000。")
-                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
             generations.append(row)
             if len(generations) > 1:
                 feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
@@ -468,7 +468,7 @@ class PdfLocalizationTests(unittest.TestCase):
             if "source" in row:
                 reviews.append(row)
                 self.assertEqual(row["translation"], "拍字节规模数据。")
-                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
             generations.append(row)
             if len(generations) > 1:
                 feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
@@ -503,7 +503,7 @@ class PdfLocalizationTests(unittest.TestCase):
             rows = json.loads(messages[1]["content"])["blocks"]
             if "source" in rows[0]:
                 reviewed.extend(rows)
-                return {"blocks": [{"id": r["id"], "complete": True, "faithful": True, "issues": []} for r in rows]}
+                return {"blocks": [{"id": r["id"], "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for r in rows]}
             generated.append(rows)
             output = []
             for row in rows:
@@ -548,7 +548,7 @@ class PdfLocalizationTests(unittest.TestCase):
             calls.append(messages)
             if "source" in item:
                 self.assertEqual(item["translation"], "1. 来源报告，2026年三月9日，页码1-6。")
-                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
             self.assertEqual(item["sourceCalendarMonths"][0]["chineseMonth"], "三月")
             if len(calls) == 1:
                 text = "{GATEX_QUANTITY_0}. 来源报告，{GATEX_QUANTITY_1}年{GATEX_QUANTITY_2}月{GATEX_QUANTITY_3}日，页码{GATEX_QUANTITY_4}。"
@@ -605,7 +605,7 @@ class PdfLocalizationTests(unittest.TestCase):
             self.assertEqual(item["source"], block.text, "a formatting migration makes no generation request")
             self.assertEqual(item["translation"], "原英文版于2026年九月24日发布。")
             calls.append(messages)
-            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
         records = _translate([block], state, lambda s: saved.append(copy.deepcopy(s)), client)
         self.assertEqual(len(calls), 1)
@@ -628,7 +628,7 @@ class PdfLocalizationTests(unittest.TestCase):
             if "source" in item:
                 review.append(messages)
                 self.assertEqual(len(messages), 2, "fresh review does not see previous verdicts")
-                return {"blocks": [{"id": block.id, "complete": True, "faithful": False, "issues": ["Check the edition attribution."]}]}
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": False, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": ["Check the edition attribution."]}]}
             generation.append(messages)
             self.assertIn("原英文版于2026年九月24日发布。", messages[-1]["content"])
             return {"blocks": [{"id": block.id, "text": item["text"].replace("The English edition was published on ", "原英文版于").replace("September", "九月").replace(".", "发布。"), "retainedEnglish": []}]}
@@ -734,7 +734,7 @@ class PdfLocalizationTests(unittest.TestCase):
             if "source" in supplied:
                 self.assertEqual(supplied["source"], block.text)
                 self.assertEqual(supplied["translation"], "材料发布于2026年九月24日。")
-                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
             return {"blocks": [{"id": block.id, "text": supplied["text"].replace("The material was published on ", "材料发布于").replace("September", "九月").replace(".", "。"), "retainedEnglish": []}]}
         client._once = once
         result = client.translate([block])
@@ -931,7 +931,7 @@ class PdfLocalizationTests(unittest.TestCase):
                 calls.append(payload)
                 supplied = json.loads(payload[1]["content"])["blocks"]
                 if "source" in supplied[0]:
-                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
+                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for item in supplied]}
                 return {"blocks": [{"id": item["id"], "text": fixture_generated_text(item, PAIRS[fixture_source_text(item)]),
                                    "retainedEnglish": []} for item in supplied]}
             client._once = once
@@ -1075,7 +1075,7 @@ class ModelContractTests(unittest.TestCase):
             self.assertEqual(entry["source"], source)
             self.assertEqual(entry["translation"], target)
             self.assertIn("does not identify the original language of upstream", messages[0]["content"])
-            return {"blocks": [{"id": "rights", "complete": True, "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": "rights", "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
         self.assertTrue(client.translate([Block("rights", 0, source, (0, 0, 400, 100))])["rights"]["reviewed"])
         self.assertEqual(len(calls), 2)
@@ -1087,7 +1087,7 @@ class ModelContractTests(unittest.TestCase):
             calls.append(messages)
             if "Independently compare" in messages[0]["content"]:
                 self.assertEqual(len(messages), 2)
-                return {"blocks": [{"id": "b", "complete": True, "faithful": False, "issues": ["No substantive discrepancies found."]}]}
+                return {"blocks": [{"id": "b", "complete": True, "faithful": False, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": ["No substantive discrepancies found."]}]}
             return {"blocks": [{"id": "b", "text": "需求可能增长。", "retainedEnglish": []}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
@@ -1114,7 +1114,7 @@ class ModelContractTests(unittest.TestCase):
             validate_translation("GATEX.FUND GATEX.FUND", {"text": "GATEX.FUND", "retainedEnglish": [], "reviewed": True})
 
     def test_split_masthead_guidance_never_permits_an_added_brand_and_keeps_fresh_review(self):
-        hint = _source_masthead_hint("INTELLIGENCE")
+        hint = _source_masthead_hint("INTELLIGENCE", source_brand_context=True)
         self.assertEqual(hint["translation"], "前沿洞察")
         self.assertIn("no GATEX brand", hint["instruction"])
         self.assertEqual(_source_masthead_hint("Intelligence is useful."), {})
@@ -1130,9 +1130,11 @@ class ModelContractTests(unittest.TestCase):
             self.assertIn("Independently compare", messages[0]["content"])
             self.assertEqual(payload["blocks"][0]["source"], "INTELLIGENCE")
             self.assertEqual(payload["blocks"][0]["translation"], "前沿洞察")
-            return {"blocks": [{"id": "split", "complete": True, "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": "split", "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
-        self.assertTrue(client.translate([Block("split", 0, "INTELLIGENCE", (0, 0, 100, 30))])["split"]["reviewed"])
+        split = Block("split", 0, "INTELLIGENCE", (0, 10, 100, 30))
+        brand = Block("source-brand", 0, "GATEX", (0, 0, 100, 8))
+        self.assertTrue(client.translate([split], context_blocks=[brand, split])["split"]["reviewed"])
         self.assertEqual(len(calls), 2)
 
     def client(self):
@@ -1220,7 +1222,7 @@ class ModelContractTests(unittest.TestCase):
             self.assertEqual(supplied["translation"], "收入在Q3可能为-US$5亿和EUR 200万。")
             self.assertNotIn("GATEX_QUANTITY", json.dumps(supplied))
             self.assertEqual(len(payload), 2)
-            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
         result = client.translate([block])
         self.assertEqual(result[block.id]["text"], "收入在Q3可能为-US$5亿和EUR 200万。")
@@ -1271,9 +1273,9 @@ class ModelContractTests(unittest.TestCase):
         block = Block("b", 0, "Revenue may grow 7%.", (0, 0, 100, 30))
         responses = [
             {"blocks": [{"id": "b", "text": "收入将增长{GATEX_QUANTITY_0}。", "retainedEnglish": []}]},
-            {"blocks": [{"id": "b", "complete": True, "faithful": False, "issues": ["may changed to will"]}]},
+            {"blocks": [{"id": "b", "complete": True, "faithful": False, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": ["may changed to will"]}]},
             {"blocks": [{"id": "b", "text": "收入可能增长{GATEX_QUANTITY_0}。", "retainedEnglish": []}]},
-            {"blocks": [{"id": "b", "complete": True, "faithful": True, "issues": []}]},
+            {"blocks": [{"id": "b", "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]},
         ]
         messages = []
         def once(payload, **kwargs):
@@ -1293,7 +1295,7 @@ class ModelContractTests(unittest.TestCase):
         responses = [
             {"blocks": [{"id": block.id, "text": "GateX", "retainedEnglish": [{"text": "GateX", "kind": "brand"}]}]},
             {"blocks": [{"id": block.id, "text": "GATEX", "retainedEnglish": [{"text": "GATEX", "kind": "brand"}]}]},
-            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]},
+            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]},
         ]
         messages, rejected = [], []
         client.rejection_callback = rejected.append
@@ -1345,7 +1347,7 @@ class ModelContractTests(unittest.TestCase):
                 return {"blocks": [{"id": "footer", "text": "GATEX 前沿洞察", "retainedEnglish": [{"text": "GATEX INTELLIGENCE", "kind": "brand"}]},
                                    {"id": "series", "text": "科技前沿", "retainedEnglish": [{"text": "TECHNOLOGY FRONTIERS", "kind": "brand"}]}]}
             self.assertEqual(saved, [], "deterministic metadata reconciliation is not semantic approval")
-            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []} for block in blocks]}
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for block in blocks]}
         client._once = once
         result = client.translate(blocks)
         self.assertEqual(len(calls), 2)
@@ -1379,7 +1381,7 @@ class ModelContractTests(unittest.TestCase):
         responses = [
             {"blocks": [{"id": block.id, "text": "我正在抄录《Good and Bad Procrastination》。", "retainedEnglish": [{"text": "Good and Bad Procrastination", "kind": "source_title"}]}]},
             {"blocks": [{"id": block.id, "text": "我复制《拖延的好与坏》（Good and Bad Procrastination）。", "retainedEnglish": [{"text": "Good and Bad Procrastination", "kind": "source_title"}]}]},
-            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]},
+            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]},
         ]
         messages, rejected = [], []
         client.rejection_callback = rejected.append
@@ -1431,7 +1433,7 @@ class ModelContractTests(unittest.TestCase):
             if len(messages) == 1:
                 return {"blocks": [{"id": "surname", "text": "Graham先生描述可供选择的方案。", "retainedEnglish": []},
                                    {"id": "type-code", "text": "这是C类。", "retainedEnglish": []}]}
-            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []} for block in blocks]}
+            return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for block in blocks]}
         client._once = once
         result = client.translate(blocks)
         self.assertEqual(len(messages), 2)
@@ -1453,7 +1455,7 @@ class ModelContractTests(unittest.TestCase):
                 supplied = json.loads(payload[1]["content"])["blocks"]
                 if "source" in supplied[0]:
                     review_ids.append([item["id"] for item in supplied])
-                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
+                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for item in supplied]}
                 generation_ids.append([item["id"] for item in supplied])
                 bad_ids.update(item["id"] for item in supplied if item["text"] == "Supply")
                 return {"blocks": [{"id": item["id"], "text": "Supply" if item["text"] == "Supply" else fixture_generated_text(item, PAIRS[fixture_source_text(item)]),
@@ -1478,7 +1480,7 @@ class ModelContractTests(unittest.TestCase):
             def resumed_once(payload, **kwargs):
                 supplied = json.loads(payload[1]["content"])["blocks"]
                 if "source" in supplied[0]:
-                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "issues": []} for item in supplied]}
+                    return {"blocks": [{"id": item["id"], "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for item in supplied]}
                 resume_ids.extend(item["id"] for item in supplied)
                 return {"blocks": [{"id": item["id"], "text": fixture_generated_text(item, PAIRS[fixture_source_text(item)]), "retainedEnglish": []} for item in supplied]}
             resumed._once = resumed_once
@@ -1499,7 +1501,7 @@ class ModelContractTests(unittest.TestCase):
             messages.append(payload)
             supplied = json.loads(payload[1]["content"])["blocks"]
             if "source" in supplied[0]:
-                return {"blocks": [{"id": item["id"], "complete": True, "faithful": item["id"] == "approved",
+                return {"blocks": [{"id": item["id"], "complete": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "faithful": item["id"] == "approved",
                     "issues": [] if item["id"] == "approved" else ["may changed to will"]} for item in supplied]}
             return {"blocks": [{"id": item["id"], "text": "需求" if item["id"] == "approved" else "收入将增长{GATEX_QUANTITY_0}。",
                                 "retainedEnglish": []} for item in supplied]}
@@ -1534,7 +1536,7 @@ class ModelContractTests(unittest.TestCase):
             calls.append(payload)
             if len(calls) % 2:
                 return {"blocks": [{"id": "b", "text": "需求", "retainedEnglish": []}]}
-            return {"blocks": [{"id": "b", "complete": "true", "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": "b", "complete": "true", "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "REVIEW_COVERAGE_MISMATCH"):
             client.translate([Block("b", 0, "Demand", (0, 0, 100, 30))])
@@ -1574,7 +1576,7 @@ class ModelContractTests(unittest.TestCase):
                         {"id": "name-two", "text": "Stone描述另一种方法。", "retainedEnglish": []}]},
             {"blocks": [{"id": "name-one", "text": "Graham描述一种方法。", "retainedEnglish": [{"text": "Graham", "kind": "person"}]},
                         {"id": "name-two", "text": "Stone描述另一种方法。", "retainedEnglish": [{"text": "Stone", "kind": "person"}]}]},
-            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []} for block in blocks]},
+            {"blocks": [{"id": block.id, "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []} for block in blocks]},
         ]
         messages, rejected = [], []
         client.rejection_callback = rejected.append
@@ -1616,7 +1618,7 @@ class ModelContractTests(unittest.TestCase):
             calls.append(messages)
             if len(calls) % 2:
                 return {"blocks": [{"id": "b", "text": "收入将增长{GATEX_QUANTITY_0}。", "retainedEnglish": []}]}
-            return {"blocks": [{"id": "b", "complete": False, "faithful": False, "issues": ["modality lost"]}]}
+            return {"blocks": [{"id": "b", "complete": False, "faithful": False, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": ["modality lost"]}]}
         client._once = once
         with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
             client.translate([block])

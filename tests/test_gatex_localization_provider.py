@@ -65,7 +65,7 @@ class ProviderTests(unittest.TestCase):
     def test_generation_and_fresh_independent_review_both_use_pro(self):
         client, calls = self.client([
             {"blocks": [{"id": "b", "text": "需求可能增长。", "retainedEnglish": []}]},
-            {"blocks": [{"id": "b", "complete": True, "faithful": True, "issues": []}]},
+            {"blocks": [{"id": "b", "complete": True, "faithful": True, "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [], "issues": []}]},
         ])
         result = client.translate([Block("b", 0, "Demand may increase.", (0, 0, 100, 30))])
         self.assertTrue(result["b"]["reviewed"])
