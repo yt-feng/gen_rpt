@@ -15,7 +15,7 @@ from gen_rpt.gatex_pdf_localization import (
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
     validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint, _source_edition_context,
     _writer, _font, _block_writer, _raster_render_aliases, _contained,
-    _date_review_draft, _translate, _source_calendar_hints, _quantity_placeholder_errors,
+    _date_review_draft, _translate, _source_calendar_hints, _quantity_placeholder_errors, _source_page_reference_hints,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -99,6 +99,90 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_pdf_folded_brand_evidence_uses_exact_literal_parts_and_fresh_review(self):
+        source, target = "Claude\nGov processed data.", "Claude Gov处理数据。"
+        raw = {"text": target, "retainedEnglish": [{"text": "Claude Gov", "kind": "brand"}]}
+        record = _source_verified_record(source, raw)
+        self.assertEqual(record["text"], target)
+        self.assertEqual(record["retainedEnglish"], [{"text": "Claude", "kind": "brand"}, {"text": "Gov", "kind": "brand"}])
+        self.assertEqual(raw["retainedEnglish"], [{"text": "Claude Gov", "kind": "brand"}], "raw private evidence is not rewritten")
+        with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
+            validate_translation(source, record)
+        self.assertEqual(validate_translation(source, {**record, "reviewed": True})["text"], target)
+        for original in ("Claude GOV processed data.", "Claude Other Gov processed data.", "NewClaude\nGov processed data."):
+            with self.subTest(source=original), self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+                validate_translation(original, {**_source_verified_record(original, raw), "reviewed": True})
+        prose = {"text": "Revenue Growth", "retainedEnglish": [{"text": "Revenue Growth", "kind": "brand"}]}
+        with self.assertRaisesRegex(LocalizationError, "ORDINARY_ENGLISH_RETAINED"):
+            validate_translation("Revenue\nGrowth", {**_source_verified_record("Revenue\nGrowth", prose), "reviewed": True})
+
+    def test_source_absent_unit_abbreviation_is_translated_not_whitelisted(self):
+        block = Block("unit", 0, "Petabyte-scale data.", None)
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        generations, reviews = [], []
+        def once(messages, **kwargs):
+            row = json.loads(messages[1]["content"])["blocks"][0]
+            if "source" in row:
+                reviews.append(row)
+                self.assertEqual(row["translation"], "拍字节规模数据。")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+            generations.append(row)
+            if len(generations) > 1:
+                feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
+                self.assertEqual(feedback["unresolvedTokens"], ["PB"])
+            return {"blocks": [{"id": block.id, "text": "PB规模数据。" if len(generations) == 1 else "拍字节规模数据。", "retainedEnglish": []}]}
+        client._once = once
+        self.assertTrue(client.translate([block])[block.id]["reviewed"])
+        self.assertEqual((len(generations), len(reviews)), (2, 1))
+        with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+            validate_translation(block.text, {"text": "PB规模数据。", "retainedEnglish": [], "reviewed": True})
+
+    def test_source_page_range_feedback_preserves_strict_quantity_gate(self):
+        source = "Source report, pp. 1-6."
+        hint = _source_page_reference_hints(source)
+        self.assertEqual(hint[0]["chineseReference"], "1-6页")
+        self.assertEqual(_source_page_reference_hints("Source reports 1-6; stages 1-6."), [])
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            validate_translation(source, {"text": "来源报告，第1-6页。", "retainedEnglish": [], "reviewed": True})
+        self.assertEqual(validate_translation(source, {"text": "来源报告，1-6页。", "retainedEnglish": [], "reviewed": True})["text"], "来源报告，1-6页。")
+        for target in ("来源报告，1-7页。", "来源报告，6-1页。"):
+            with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+                validate_translation(source, {"text": target, "retainedEnglish": [], "reviewed": True})
+
+    def test_real_shape_page_retry_and_folded_brand_still_receive_fresh_review(self):
+        blocks = [Block("citation", 0, "Source report, pp. 1-6.", None),
+                  Block("brand", 0, "Claude\nGov processed data.", None)]
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        generated, reviewed, rejected = [], [], []
+        client.rejection_callback = rejected.append
+        def once(messages, **kwargs):
+            rows = json.loads(messages[1]["content"])["blocks"]
+            if "source" in rows[0]:
+                reviewed.extend(rows)
+                return {"blocks": [{"id": r["id"], "complete": True, "faithful": True, "issues": []} for r in rows]}
+            generated.append(rows)
+            output = []
+            for row in rows:
+                if row["id"] == "brand":
+                    output.append({"id": "brand", "text": "Claude Gov处理数据。", "retainedEnglish": [{"text": "Claude Gov", "kind": "brand"}]})
+                else:
+                    if len(generated) > 1:
+                        feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
+                        self.assertEqual(feedback["sourcePageReferences"][0]["chineseReference"], "1-6页")
+                    prefix = "第" if len(generated) == 1 else ""
+                    output.append({"id": "citation", "text": "来源报告，" + prefix + "{GATEX_QUANTITY_0}页。", "retainedEnglish": []})
+            return {"blocks": output}
+        client._once = once
+        accepted = client.translate(blocks)
+        self.assertEqual([len(rows) for rows in generated], [2, 1], "accepted brand does not get regenerated")
+        self.assertEqual({r["id"] for r in reviewed}, {"brand", "citation"})
+        self.assertEqual(len(reviewed), 2)
+        self.assertEqual(len(rejected), 1)
+        self.assertEqual(rejected[0]["code"], "NUMERIC_OR_LINK_MISMATCH")
+        self.assertTrue(all(r["reviewed"] for r in accepted.values()))
+
     def test_calendar_hints_require_a_literal_source_date_context(self):
         self.assertEqual(_source_calendar_hints("Demand may rise. May require approval. We march onward."), [])
         self.assertEqual([h["chineseMonth"] for h in _source_calendar_hints("9 March 2026; February 28; May 2026")], ["二月", "三月", "五月"])
