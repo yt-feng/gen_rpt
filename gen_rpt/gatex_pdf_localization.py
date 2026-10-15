@@ -407,8 +407,9 @@ def _source_publication_terms(source: str) -> list[dict]:
 def _source_masthead_hint(source: str, *, source_brand_context=False) -> dict:
     # Guidance for an exact split house masthead, never an identity exception.
     if source in {"INTELLIGENCE", "STRATEGIC INTELLIGENCE", "Strategic Intelligence"} and source_brand_context is True:
-        return {"source": source, "translation": "前沿洞察" if source == "INTELLIGENCE" else "战略洞察",
-                "instruction": "Translate this standalone house masthead as 前沿洞察. This source block contains no GATEX brand; do not prepend or declare GATEX."}
+        translated = "前沿洞察" if source == "INTELLIGENCE" else "战略洞察"
+        return {"source": source, "translation": translated,
+                "instruction": f"Translate this standalone house masthead as {translated}. This source block contains no GATEX brand; do not prepend or declare GATEX."}
     return {}
 
 

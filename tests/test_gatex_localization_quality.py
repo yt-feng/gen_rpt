@@ -195,6 +195,8 @@ class QualityTests(unittest.TestCase):
             self.assertEqual(_block_masthead_hint(heading,[misplaced,heading]),{})
         strategic=Block("s",0,"STRATEGIC INTELLIGENCE",heading.bbox)
         self.assertEqual(_block_masthead_hint(strategic,[brand,strategic])["translation"],"战略洞察")
+        self.assertIn("as 战略洞察.",_block_masthead_hint(strategic,[brand,strategic])["instruction"])
+        self.assertNotIn("前沿洞察",_block_masthead_hint(strategic,[brand,strategic])["instruction"])
         self.assertEqual(_block_masthead_hint(strategic,[strategic]),{})
         self.assertEqual(_source_publication_terms("A third-party strategic intelligence function."),[])
         self.assertEqual(_source_publication_terms("GateX Strategic Intelligence")[-1]["chineseTerm"],"GateX 战略洞察")
