@@ -49,7 +49,7 @@ class NewsMaintenanceTests(unittest.TestCase):
             current=state(36,promoted=True);current['published']=published
             with self.subTest(published=published):
                 report=self.run_news(lambda *args,**kwargs:current,max_passes=1)
-                self.assertEqual(report['status'],'failed');self.assertEqual(report['stopReason'],'MAX_PASSES')
+                self.assertEqual(report['status'],'pending');self.assertFalse(report['complete']);self.assertTrue(report['needsRetry']);self.assertEqual(report['stopReason'],'MAX_PASSES')
 
     def test_wrong_snapshot_never_resets_pin_or_sends_a_warm_to_another_batch(self):
         calls=[];posts=0
@@ -116,12 +116,12 @@ class NewsMaintenanceTests(unittest.TestCase):
         with self.assertRaises(runner.RunnerError) as caught:self.run_news(request)
         self.assertEqual(caught.exception.code,'NEWS_PUBLICATION_CONTRACT_REQUIRED');self.assertEqual(calls,['GET'])
 
-    def test_19_pending_fails_cli_and_preserves_safe_counts(self):
+    def test_19_pending_is_healthy_cli_and_preserves_safe_counts(self):
         current=state(17);api=self.api(lambda *args,**kwargs:current)
         with tempfile.TemporaryDirectory() as directory,patch.object(runner,'NewsfeedApi',return_value=api),\
             patch.object(sys,'argv',['runner','--news-only','--runtime',directory,'--summary',directory+'/summary.json']),contextlib.redirect_stdout(io.StringIO()):
-            self.assertEqual(runner.main(),1);report=json.loads((Path(directory)/'summary.json').read_text())
-        self.assertEqual(report['status'],'failed');self.assertEqual(report['pending'],19)
+            self.assertEqual(runner.main(),0);report=json.loads((Path(directory)/'summary.json').read_text())
+        self.assertEqual(report['status'],'pending');self.assertEqual(report['pending'],19);self.assertFalse(report['complete']);self.assertTrue(report['operationalHealthy']);self.assertTrue(report['needsRetry'])
         self.assertEqual(report['expectedSnapshotHash'],A);self.assertEqual(report['stopReason'],'NO_PROGRESS')
         self.assertNotIn('SOURCE BODY',json.dumps(report))
 
@@ -130,7 +130,7 @@ class NewsMaintenanceTests(unittest.TestCase):
             if method=='POST':raise runner.RunnerError('API_HTTP_ERROR',401,'AUTH_REJECTED')
             return state(17)
         report=self.run_news(request)
-        self.assertEqual(report['status'],'failed');self.assertEqual(report['pending'],19)
+        self.assertEqual(report['status'],'failed');self.assertEqual(report['pending'],19);self.assertFalse(report['operationalHealthy']);self.assertFalse(report['needsRetry'])
         self.assertEqual(report['stopReason'],'API_FAILURE');self.assertEqual(report['httpStatus'],401)
 
     def test_malformed_publication_proof_cannot_echo_source_text(self):

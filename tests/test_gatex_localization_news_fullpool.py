@@ -96,7 +96,9 @@ class FullPoolTests(unittest.TestCase):
             return payload
         api = Api(status(200, 0), reject)
         result, _ = self.run_pool(api)
-        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["status"], "pending")
+        self.assertTrue(result["operationalHealthy"] and result["needsRetry"])
+        self.assertFalse(result["complete"])
         self.assertEqual(result["stopReason"], "NO_PROGRESS_FULL_POOL_CYCLE")
         self.assertEqual(result["warmPasses"], 50, "the previous 12-pass cap must not prevent a full pool traversal")
         self.assertEqual(result["pool"]["pending"], 200)
@@ -144,7 +146,8 @@ class FullPoolTests(unittest.TestCase):
         result, _ = self.run_pool(Api(status(), slow), budget_seconds=5)
         self.assertEqual(result["stopReason"], "DEADLINE")
         self.assertEqual(result["elapsedSeconds"], 5)
-        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["status"], "deferred")
+        self.assertTrue(result["needsRetry"])
 
     def test_bad_item_does_not_prevent_independent_records_from_being_counted(self):
         calls = 0
@@ -175,9 +178,9 @@ class FullPoolTests(unittest.TestCase):
 
     def test_capture_failure_does_not_add_another_acquisition(self):
         api = Api(status())
-        with patch("scripts.gatex_news_fullpool.warm_news", return_value={"stopReason": "DAILY_SOURCE_UNAVAILABLE", "status": "failed"}) as initial:
+        with patch("scripts.gatex_news_fullpool.warm_news", return_value={"stopReason": "DAILY_SOURCE_UNAVAILABLE", "status": "deferred", "operationalHealthy": True, "needsRetry": True}) as initial:
             result = warm_daily_pool(api, clock=api.clock, capture_daily=True)
-        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["status"], "deferred")
         self.assertTrue(initial.call_args.kwargs["capture_daily"])
         self.assertEqual(api.calls, [])
 
@@ -197,7 +200,7 @@ class FullPoolTests(unittest.TestCase):
         self.assertIn("group: gatex-news-localization", workflow)
         self.assertIn("cancel-in-progress: false", workflow)
         self.assertIn("timeout-minutes: 270", workflow)
-        self.assertIn("--news-only --news-full-pool --news-capture-daily", workflow)
+        self.assertIn('--news-only --news-full-pool "${capture_args[@]}"', workflow)
         self.assertIn("--news-budget-seconds 14400", workflow)
         self.assertIn("--news-max-passes 0", workflow)
         self.assertNotIn("digest", workflow.replace("digest/email endpoint", ""))

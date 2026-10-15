@@ -15,7 +15,7 @@ MANUAL = ROOT / '.github/workflows/gatex-content-localization.yml'
 class NewsScheduleTests(unittest.TestCase):
     def test_real_schedules_and_manual_dispatch_can_run_news_only(self):
         text = WORKFLOW.read_text()
-        self.assertEqual(re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", text, re.MULTILINE), ['5 0 * * *'])
+        self.assertEqual(re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", text, re.MULTILINE), ['5 0 * * *', '5 5,10 * * *'])
         self.assertIn('ref: ${{ github.event.repository.default_branch }}', text)
         self.assertIn('--news-only', text)
         self.assertIn('--news-max-passes 0', text)
@@ -27,7 +27,9 @@ class NewsScheduleTests(unittest.TestCase):
         self.assertIn('workflow_dispatch:', text)
         self.assertNotIn('workflow_run:', text)
         self.assertNotIn('17,47', text)
-        self.assertIn('--news-only --news-full-pool --news-capture-daily', text)
+        self.assertIn('capture_args+=(--news-capture-daily)', text)
+        self.assertIn('[[ "$NEWS_EVENT_NAME" == "schedule" && "$NEWS_SCHEDULE" == "5 0 * * *" ]]', text)
+        self.assertIn('--news-only --news-full-pool "${capture_args[@]}"', text)
         # Mail scheduling remains owned by its separate existing workflow.
         self.assertIn('name: Run GateX Newsfeed Digest', DIGEST.read_text())
 
