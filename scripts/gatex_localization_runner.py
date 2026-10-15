@@ -483,6 +483,7 @@ def main() -> int:
                     raise RunnerError("DIAGNOSTIC_FORCE_FORBIDDEN")
                 os.environ["GATEX_PDF_OCR_DIAGNOSTIC_ONLY"] = "true"
                 os.environ.pop("APIMART_API_KEY", None)
+                os.environ.pop("DEEPSEEK_API_KEY", None)
                 report = run_ocr_diagnostic(api, engine(args.engine_module), args.runtime,
                     sample_id=args.sample_id, expected_source_sha256=args.expected_source_sha256, emit_progress=emit)
             else:
