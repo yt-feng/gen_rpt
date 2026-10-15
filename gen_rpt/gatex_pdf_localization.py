@@ -348,6 +348,20 @@ def _standalone_source_identity(source: str, row: dict) -> bool:
     return ordinary * 2 < len(words)
 
 
+def _standalone_technical_range(source: str, target: str) -> bool:
+    """A chart's acronym/year-range label is an identity, not English prose."""
+    if len(source) > 80 or not re.fullmatch(
+            r"(?:[A-Z][A-Z0-9]{1,11}\s*[,，]\s*)?(?:19|20)\d{2}E\s*[-–—]\s*(?:19|20)\d{2}E",
+            source.strip()):
+        return False
+    prefix = re.match(r"[A-Z][A-Z0-9]*", source.strip())
+    if prefix and prefix.group().casefold() in COMMON_ENGLISH:
+        return False
+    def identity(value):
+        return re.sub(r"\s+", "", value).translate(str.maketrans({"，": ",", "–": "-", "—": "-"}))
+    return identity(source) == identity(target)
+
+
 def _readable_translation(source: str, record: dict) -> dict:
     """Accept usable Chinese without claiming an independent fidelity verdict.
 
@@ -363,7 +377,8 @@ def _readable_translation(source: str, record: dict) -> dict:
     retained = record.get("retainedEnglish", [])
     retained = [copy.deepcopy(row) for row in retained if isinstance(row, dict)
                 and isinstance(row.get("text"), str) and row.get("kind") in RETAINED_KINDS] if isinstance(retained, list) else []
-    source_identity = compact(target) == compact(source) and any(_standalone_source_identity(source, row) for row in retained)
+    source_identity = (_standalone_technical_range(source, target)
+        or compact(target) == compact(source) and any(_standalone_source_identity(source, row) for row in retained))
     if literal is None and ENGLISH.search(_strip_links(source)) and not CJK.search(target) and not source_identity:
         raise LocalizationError("CHINESE_TRANSLATION_MISSING")
     source_words = ENGLISH.findall(_strip_links(source))
@@ -1827,6 +1842,8 @@ def _translate_readable_blocks(blocks: list[Block], state: dict, checkpoint: Cal
             except LocalizationError:
                 pass
         literal = _literal_record(block.text)
+        if literal is None and _standalone_technical_range(block.text, block.text):
+            literal = {"text": block.text, "retainedEnglish": [], "reviewed": False}
         if literal is not None:
             records[block.id] = _readable_translation(block.text, literal)
             state["blocks"][block.id] = {"sourceHash": block.source_hash, **records[block.id]}
@@ -2508,7 +2525,8 @@ def _wrap(text: str, width: float, font, size: float) -> list[str]:
     return lines
 
 
-def _continuations(document, blocks: list[Block], records: dict, source_page: int, font) -> tuple[list[int], dict]:
+def _continuations(document, blocks: list[Block], records: dict, source_page: int, font,
+                   *, heading="中文续页") -> tuple[list[int], dict]:
     pages, rendered = [], {}
     page, y = None, 0
     font_size, leading = 10.5, 15.5
@@ -2518,7 +2536,7 @@ def _continuations(document, blocks: list[Block], records: dict, source_page: in
         added = document.new_page(width=width, height=height)
         pages.append(document.page_count)
         header = fitz.TextWriter(added.rect)
-        header.append((margin, 30), f"原文第 {source_page + 1} 页 · 中文续页", font=font, fontsize=9)
+        header.append((margin, 30), f"原文第 {source_page + 1} 页 · {heading}", font=font, fontsize=9)
         header.append((width / 2 - 18, height - 22), f"续页 {document.page_count}", font=font, fontsize=8)
         header.write_text(added, color=(0.25, 0.25, 0.25))
         return added
@@ -2550,6 +2568,45 @@ def _continuations(document, blocks: list[Block], records: dict, source_page: in
             y += leading
         y += 9
     return pages, rendered
+
+
+def _readable_reflow_required(page, blocks: list[Block]) -> bool:
+    """Keep uncertain image/text compositions intact instead of overprinting them.
+
+    OCR boxes describe source text, not safe replacement areas or background
+    colours. A white Chinese page followed by the untouched source illustration
+    is deterministic and does not need another model or an alias judgement.
+    """
+    visible = [block for block in blocks if block.bbox is not None]
+    if not visible:
+        return False
+    if any(block.kind == "raster" or block.raster_boxes for block in visible):
+        return True
+    for index, block in enumerate(visible):
+        box = fitz.Rect(block.bbox)
+        for other in visible[index + 1:]:
+            rectangle = fitz.Rect(other.bbox)
+            if (box & rectangle).get_area() > min(box.get_area(), rectangle.get_area()) * .2:
+                return True
+    # Covers can have visible native text over a dark photograph even without
+    # a separate OCR record. Sample the actual page, never the model's colour.
+    pixels = page.get_pixmap(matrix=fitz.Matrix(.1, .1), colorspace=fitz.csGRAY, alpha=False).samples
+    return bool(pixels) and sum(value < 80 for value in pixels) > len(pixels) * .5
+
+
+def _readable_reference_page(document, source, number: int, font, rotation: int) -> int:
+    original = source[number]
+    margin = 32
+    page = document.new_page(width=original.rect.width, height=original.rect.height + margin)
+    page.show_pdf_page(fitz.Rect(0, margin, original.rect.width, original.rect.height + margin), source, number)
+    header = fitz.TextWriter(page.rect)
+    header.append((12, 20), f"原文第 {number + 1} 页 · 图示参考（保留原页）", font=font, fontsize=9)
+    header.write_text(page, color=(0, 0, 0))
+    if (_image_hashes(source, original) - _image_hashes(document, page)
+            or len(page.get_drawings()) < len(original.get_drawings())):
+        raise LocalizationError("FIGURE_PRESERVATION_FAILED")
+    page.set_rotation(rotation)
+    return document.page_count
 
 
 def _image_hashes(document, page) -> Counter:
@@ -2723,10 +2780,37 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
         if not font.has_glyph(ord("中")):
             raise LocalizationError("CJK_FONT_MISSING_GLYPH")
         output, qa_pages, page_map, rendered = fitz.open(), [], {}, {}
+        reference_map, reference_offsets, reference_pages = {}, {}, set()
         for source_number, blocks in enumerate(page_blocks):
+            owned_aux = [block for block in auxiliary if block.page == source_number]
+            if readable and _readable_reflow_required(source[source_number], blocks):
+                aliases = _raster_render_aliases(blocks, records, source_sha256=source_sha256,
+                                                 evidence=state.get("renderAliasEvidence", []))
+                translated_pages, translated = _continuations(output,
+                    [block for block in blocks if block.id not in aliases], records, source_number, font,
+                    heading="中文译文")
+                page_map[source_number + 1] = translated_pages[0]
+                rendered.update(translated)
+                for identity, owner in aliases.items():
+                    rendered[identity] = rendered[owner]
+                reference = _readable_reference_page(output, source, source_number, font, source_rotations[source_number])
+                reference_map[source_number + 1], reference_offsets[source_number + 1] = reference, 32
+                reference_pages.add(reference)
+                qa_pages.append({"sourcePage": source_number + 1, "targetPages": translated_pages + [reference],
+                    "sourceBlockCount": len(blocks) + len(owned_aux), "translatedBlockCount": len(blocks) + len(owned_aux),
+                    "missingBlocks": 0, "overflowCount": 0,
+                    "unresolvedEnglishCount": sum(observations["english"][block.id] for block in [*blocks, *owned_aux]),
+                    "continuationBlockCount": len(blocks), "rasterLabelCount": raster_counts[source_number],
+                    "reconciledRasterBlockCount": len(aliases), "continuationReferencesPlaced": 0,
+                    "rasterRegionsVerified": len(_image_regions(source[source_number])), "figuresPreserved": True,
+                    "numericChecksPassed": all(observations["numeric"][block.id] for block in [*blocks, *owned_aux]),
+                    "minimumTranslatedFontSize": MIN_FONT, "renderingMode": "chinese-first-reference",
+                    "referenceTargetPage": reference})
+                continue
             output.insert_pdf(source, from_page=source_number, to_page=source_number, links=False)
             target_number = output.page_count
             page_map[source_number + 1] = target_number
+            reference_map[source_number + 1], reference_offsets[source_number + 1] = target_number, 0
             page = output[target_number - 1]
             # Coordinates from extraction are unrotated. Rendering is done in
             # that same coordinate system and original page rotation restored.
@@ -2780,7 +2864,6 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
                     reference_page.insert_link({"kind": fitz.LINK_GOTO, "from": fitz.Rect(block.bbox), "page": destination - 1, "to": fitz.Point(40, 55)})
                     references_placed += 1
             reference_page.set_rotation(reference_rotation)
-            owned_aux = [block for block in auxiliary if block.page == source_number]
             qa_pages.append({"sourcePage": source_number + 1, "targetPages": [target_number] + additional,
                 "sourceBlockCount": len(blocks) + len(owned_aux), "translatedBlockCount": len(blocks) + len(owned_aux),
                 "missingBlocks": 0, "overflowCount": 0,
@@ -2794,9 +2877,12 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
         # Restore source URI links and remap internal destinations after all
         # continuation pages have changed the target page positions.
         for source_number, source_page in enumerate(source):
-            target = output[page_map[source_number + 1] - 1]
+            target = output[reference_map[source_number + 1] - 1]
             for original_link in source_page.get_links():
                 link = {key: value for key, value in original_link.items() if key not in ("xref", "id")}
+                offset = reference_offsets[source_number + 1]
+                if offset:
+                    link["from"] = fitz.Rect(link["from"]) + (0, offset, 0, offset)
                 if link.get("kind") == fitz.LINK_GOTO:
                     link["page"] = page_map.get(link.get("page", -1) + 1, 0) - 1
                 target.insert_link(link)
@@ -2815,7 +2901,11 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
         output.close()
         output = None
         with fitz.open(temporary) as verified:
-            for page in verified:
+            for page_number, page in enumerate(verified, 1):
+                # Reference pages retain the source's own typography. Only the
+                # translated reading pages claim the >=7pt Chinese layout.
+                if page_number in reference_pages:
+                    continue
                 rotation = page.rotation
                 page.set_rotation(0)
                 for text_block in page.get_text("dict", flags=fitz.TEXTFLAGS_DICT & ~fitz.TEXT_PRESERVE_IMAGES)["blocks"]:
