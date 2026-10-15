@@ -1,4 +1,6 @@
 """Offline regressions for exact Chinese quantity rendering and fidelity."""
+import copy
+import hashlib
 import unittest
 
 from gen_rpt.gatex_translation_quantities import (
@@ -7,6 +9,43 @@ from gen_rpt.gatex_translation_quantities import (
 
 
 class QuantityFidelityTests(unittest.TestCase):
+    def test_bibliographic_year_title_separator_requires_complete_source_citation_shape(self):
+        source="Demand: Electricity use in\n2025 and 2026 - Electricity Mid-Year Update 2025...\nExample Agency | Date not stated\nhttps://example.org\nUsed on pp. 4, 10"
+        target="需求：电力使用\n2025年与2026年 - 电力年中更新2025……\n示例机构 | 未注明日期\nhttps://example.org\n使用页码4、10"
+        protected=protect_quantities(source)
+        self.assertEqual(protected.restore(protected.masked),source)
+        self.assertTrue(quantities_equivalent(source,target))
+        for changed in (target.replace("2026","2027"),target.replace("2026年 - 电力","2026 - 2025 电力"),target+" 4",target.replace("2026年 - 电力","2026 - - 电力")):
+            self.assertFalse(quantities_equivalent(source,changed))
+        for invalid in ("10 -","2026 - Electricity Update",source.replace("https://example.org","example.org"),source.replace("Used on pp. 4, 10","Used for research"),source.replace("Example Agency | Date not stated","Example Agency")):
+            with self.subTest(source=invalid),self.assertRaisesRegex(QuantityFidelityError,"UNSUPPORTED_QUANTITY"):
+                protect_quantities(invalid)
+        self.assertTrue(quantities_equivalent("2026 - 2025","2026 - 2025"))
+        self.assertFalse(quantities_equivalent("2026 - 2025","2025 - 2026"))
+
+    def test_source_hashed_native_count_continuation_keeps_value_without_accepting_bare_math(self):
+        source="Reporting describes an example 256-";following="GPU single-layer fabric."
+        context={"schema":"gatex-source-count-continuation/v1","sourceHash":hashlib.sha256(source.encode()).hexdigest(),
+            "sourceKind":"native","sourcePage":10,"sourceBBox":[45,515,270,524],"continuationBlockId":"next",
+            "continuationSourceHash":hashlib.sha256(following.encode()).hexdigest(),"continuationKind":"native",
+            "continuationPage":10,"continuationBBox":[45,527,267,536],"continuationText":following}
+        protected=protect_quantities(source,source_context=context)
+        self.assertEqual(protected.restore(protected.masked),source)
+        self.assertTrue(quantities_equivalent(source,"报道描述了一个256-",source_context=context))
+        self.assertTrue(quantities_equivalent(source,"报道描述了一个256个",source_context=context))
+        for bad in ("报道描述了一个255-","报道描述了一个256 - 128","报道描述了一个256--","报道描述了一个256- 256"):
+            self.assertFalse(quantities_equivalent(source,bad,source_context=context))
+        for key,value in (("sourceHash","0"*64),("continuationSourceHash","0"*64),("sourceKind","raster"),
+                          ("continuationKind","raster"),("continuationPage",11),("continuationBBox",[308,527,530,536]),
+                          ("continuationBBox",[45,627,267,636]),("continuationText","512 GPUs"),("schema","unknown")):
+            invalid=copy.deepcopy(context);invalid[key]=value
+            with self.subTest(key=key,value=value),self.assertRaisesRegex(QuantityFidelityError,"UNSUPPORTED_QUANTITY"):
+                protect_quantities(source,source_context=invalid)
+        with self.assertRaisesRegex(QuantityFidelityError,"UNSUPPORTED_QUANTITY"):protect_quantities(source)
+        for bare in ("10 -","10-","2026-","10 /","10 *"):
+            with self.subTest(bare=bare),self.assertRaisesRegex(QuantityFidelityError,"UNSUPPORTED_QUANTITY"):
+                protect_quantities(bare,source_context=context)
+
     def test_comma_grouped_count_noun_is_not_partly_restored_as_an_english_code(self):
         for source, target, count in [("1,024-accelerator cluster", "1,024个加速器组成的集群", "1,024"),
                                       ("4,096-server installation", "4,096台服务器的设施", "4,096"),

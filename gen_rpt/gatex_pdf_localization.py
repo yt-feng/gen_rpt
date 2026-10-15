@@ -135,6 +135,7 @@ LOCAL_TRANSLATION_FAILURES = frozenset({
     "SOURCE_EDITION_REFERENCE_MISSING", "MISSING_CHINESE_SOURCE_TITLE", "DATE_DISPLAY_ORDER",
     "UNREVIEWED_TRANSLATION", "SEMANTIC_REVIEW_FAILED", "CHINESE_QUALITY_REVIEW_FAILED",
     "BLOCK_COVERAGE_MISMATCH", "REVIEW_COVERAGE_MISMATCH",
+    "UNSUPPORTED_QUANTITY",
 })
 
 
@@ -288,7 +289,7 @@ def unresolved_english(source: str, target: str, retained: list[dict] | None = N
     return len(_unresolved_tokens(source, target, retained))
 
 
-def validate_translation(source: str, record: dict) -> dict:
+def validate_translation(source: str, record: dict, *, quantity_context: dict | None = None) -> dict:
     if not isinstance(record, dict) or not isinstance(record.get("text"), str) or not record["text"].strip():
         raise LocalizationError("MISSING_TRANSLATION")
     target = record["text"].strip()
@@ -306,7 +307,7 @@ def validate_translation(source: str, record: dict) -> dict:
             raise LocalizationError("DATE_DISPLAY_ORDER")
     if "{GATEX_QUANTITY_" in target:
         raise LocalizationError("QUANTITY_PLACEHOLDER_MISMATCH")
-    if not quantities_equivalent(source, target):
+    if not quantities_equivalent(source, target, source_context=quantity_context):
         raise LocalizationError("NUMERIC_OR_LINK_MISMATCH")
     retained = record.get("retainedEnglish", [])
     if not isinstance(retained, list) or unresolved_english(source, target, retained):
@@ -575,7 +576,7 @@ def _date_review_draft(block: Block, draft: dict) -> dict:
         target = pattern.sub(natural, target)
     if target == previous["text"]:
         raise LocalizationError("DATE_REVIEW_DRAFT_HAS_NO_FORMAT_CHANGE")
-    candidate = validate_translation(block.text, {**previous, "text": target})
+    candidate = _validate_block_translation(block, {**previous, "text": target})
     return {**candidate, "reviewed": False}
 
 
@@ -595,7 +596,7 @@ def _translation_review_draft(block: Block, draft: dict, cached: dict | None) ->
             or not isinstance(candidate.get("text"), str)
             or draft.get("candidateTextSha256") != digest(candidate["text"])):
         raise LocalizationError("INVALID_TRANSLATION_REVIEW_DRAFT")
-    validated = validate_translation(block.text, {**copy.deepcopy(candidate), "reviewed": True})
+    validated = _validate_block_translation(block, {**copy.deepcopy(candidate), "reviewed": True})
     return {**validated, "reviewed": False}
 
 
@@ -669,10 +670,54 @@ class Block:
     rotated: bool = False
     hidden: bool = False
     image_sha256: str | None = None
+    quantity_context: dict | None = field(default=None, repr=False)
 
     @property
     def source_hash(self) -> str:
         return digest(self.text)
+
+
+def _bind_quantity_context(blocks: list[Block]):
+    """Bind only a unique immediate native continuation in the same column.
+
+    Source strings/IDs/hashes stay unchanged. Global extraction order may
+    interleave columns and is not evidence of a continued count modifier.
+    """
+    for block in blocks:
+        block.quantity_context = None
+        if (block.kind != "native" or block.bbox is None or block.rotated or block.hidden
+                or not re.search(r"(?<![A-Za-z0-9_.,+\-−])\d+(?:,\d{3})*-$", block.text)):
+            continue
+        own = fitz.Rect(block.bbox)
+        candidates = []
+        for other in blocks:
+            if (other is block or other.page != block.page or other.kind != "native" or other.bbox is None
+                    or other.rotated or other.hidden or abs(other.font_size-block.font_size) > .5
+                    or any(abs(a-b) > .05 for a,b in zip(other.color, block.color))):
+                continue
+            rect = fitz.Rect(other.bbox)
+            overlap = min(own.x1, rect.x1)-max(own.x0, rect.x0)
+            if (abs(own.x0-rect.x0) <= 2 and 0 <= rect.y0-own.y1 <= max(4, min(own.height, rect.height)*1.5)
+                    and overlap >= min(own.width, rect.width)*.7):
+                candidates.append(other)
+        if not candidates:
+            continue
+        first_y = min(fitz.Rect(other.bbox).y0 for other in candidates)
+        nearest = [other for other in candidates if abs(fitz.Rect(other.bbox).y0-first_y) <= .2]
+        if len(nearest) != 1:
+            continue
+        other = nearest[0]
+        block.quantity_context = {"schema": "gatex-source-count-continuation/v1",
+            "sourceHash": block.source_hash, "sourceKind": block.kind, "sourcePage": block.page+1,
+            "sourceBBox": list(block.bbox), "continuationBlockId": other.id,
+            "continuationSourceHash": other.source_hash, "continuationKind": other.kind,
+            "continuationPage": other.page+1, "continuationBBox": list(other.bbox),
+            "continuationText": other.text,
+            "instruction": "This native same-column next line is source context only. When its first word completes a count modifier, the current trailing hyphen is a word join, not subtraction. Preserve this block's count; natural Chinese may omit the joining hyphen. Do not copy words, identities or numbers from the next block into this block."}
+
+
+def _validate_block_translation(block: Block, record: dict) -> dict:
+    return validate_translation(block.text, record, quantity_context=block.quantity_context)
 
 
 def tesseract_words(image_bytes: bytes) -> dict:
@@ -1112,10 +1157,21 @@ An edited candidate must undergo a new independent fidelity and quality review."
         # Approved candidates are durably checkpointed after a fresh review.
         # Three generation attempts total; later attempts contain only pending
         # blocks. Partial progress never qualifies as a publishable artifact.
-        try:
-            protections = {block.id: protect_quantities(block.text) for block in blocks}
-        except QuantityFidelityError as error:
-            raise LocalizationError(str(error)) from None
+        _bind_quantity_context(context_blocks or blocks)
+        protections, source_failures = {}, {}
+        for block in blocks:
+            try:
+                protections[block.id] = protect_quantities(block.text, source_context=block.quantity_context)
+            except QuantityFidelityError as error:
+                if str(error) != "UNSUPPORTED_QUANTITY":
+                    raise LocalizationError(str(error)) from None
+                source_failures[block.id] = {"blockId": block.id, "sourceHash": block.source_hash,
+                    "code": str(error), "attemptCount": 0, "stage": "source_protection"}
+                if self.rejection_callback:
+                    self.rejection_callback({"schema": "gatex-pdf-model-rejection/v1",
+                        "stage": "source_protection", "code": str(error), "blockId": block.id,
+                        "sourcePage": block.page+1, "sourceHash": block.source_hash, "source": block.text,
+                        "sourceQuantityContext": copy.deepcopy(block.quantity_context), "generationAttempted": False})
         if review_drafts is not None and (not isinstance(review_drafts, dict)
                 or not set(review_drafts).issubset({block.id for block in blocks})
                 or any(not isinstance(record, dict) for record in review_drafts.values())):
@@ -1126,9 +1182,12 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 or any(not isinstance(row, dict) for row in initial_style_edits.values()))):
             raise LocalizationError("INVALID_STYLE_EDIT_DRAFT")
         style_edits = copy.deepcopy(initial_style_edits or {})
-        pending, accepted, awaiting_review, block_codes, protocol_adverse = list(blocks), {}, {}, {}, {}
-        feedback, last_code = [], "MODEL_REQUEST_FAILED"
+        pending = [block for block in blocks if block.id not in source_failures]
+        accepted, awaiting_review, block_codes, protocol_adverse = {}, {}, {}, {}
+        feedback, last_code = [], "UNSUPPORTED_QUANTITY" if source_failures else "MODEL_REQUEST_FAILED"
         for attempt in range(maximum_attempts):
+            if not pending:
+                break
             feedback_for_attempt, candidates = [], {}
             try:
                 # A source-bound candidate draft consumes the first of the
@@ -1149,6 +1208,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                     "sourceVerifiedIdentities": _source_identity_hints(b.text),
                     "sourceTitleTranslations": _source_title_hints(b.text),
                     "sourceMastheadTranslation": _block_masthead_hint(b, context_blocks or blocks),
+                    "sourceQuantityContext": copy.deepcopy(b.quantity_context),
                     "sourceEditionContext": _source_edition_context(b.text)} for b in generating]
                 messages = [{"role": "system", "content": system},
                     {"role": "user", "content": json.dumps({"blocks": source}, ensure_ascii=False)}]
@@ -1166,7 +1226,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                             except QuantityFidelityError as error:
                                 raise LocalizationError(str(error)) from None
                         candidate = _source_verified_record(block.text, candidate)
-                        validated = validate_translation(block.text, {**candidate, "reviewed": True})
+                        validated = _validate_block_translation(block, {**candidate, "reviewed": True})
                         previous = protocol_adverse.get(block.id)
                         if previous and digest(compact(validated["text"])) in previous["targetHashes"]:
                             raise LocalizationError(previous["code"])
@@ -1208,6 +1268,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                         "sourceEditionContext": _source_edition_context(b.text),
                         "sourceMastheadTranslation": _block_masthead_hint(b, context_blocks or blocks),
                         "sourcePublicationTerms": _source_publication_terms(b.text),
+                        "sourceQuantityContext": copy.deepcopy(b.quantity_context),
                         "adjacentSourceContext": _adjacent_review_context(b, context_blocks or blocks, contextual_records),
                         "quantityConversions": [{"sourceValue": token.original, "renderedValue": token.replacement,
                                                  "kind": token.kind} for token in protections[b.id].tokens]} for b in reviewing]
@@ -1287,6 +1348,8 @@ An edited candidate must undergo a new independent fidelity and quality review."
                         accepted.update(newly_accepted)
                         pending = [block for block in pending if block.id not in newly_accepted]
                 if not pending:
+                    if source_failures:
+                        break
                     return accepted
                 feedback = feedback_for_attempt
             except LocalizationError as error:
@@ -1296,9 +1359,10 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 feedback = feedback_for_attempt + [{"validationError": error.code}]
             if attempt + 1 < maximum_attempts:
                 self.sleep(min(4, 2 ** attempt))
-        error = LocalizationError(last_code)
-        error.block_failures = [{"blockId": block.id, "sourceHash": block.source_hash,
-            "code": block_codes.get(block.id, last_code), "attemptCount": maximum_attempts} for block in pending]
+        error = LocalizationError(last_code if pending else "UNSUPPORTED_QUANTITY")
+        error.block_failures = [*source_failures.values(), *[{"blockId": block.id, "sourceHash": block.source_hash,
+            "code": block_codes.get(block.id, last_code), "attemptCount": maximum_attempts,
+            "stage": "model_translation"} for block in pending]]
         raise error
 
     def ocr(self, image_bytes: bytes, *, native_words: list[dict] | None = None) -> dict:
@@ -1602,6 +1666,7 @@ def _page_blocks(page, page_number: int, state: dict, checkpoint: Callable, ocr:
 
 
 def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -> dict[str, dict]:
+    _bind_quantity_context(blocks)
     records, pending, review_drafts = {}, [], {}
     drafts = state.get("dateReviewDrafts", {})
     translation_drafts = state.get("translationReviewDrafts", {})
@@ -1624,6 +1689,21 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
         state["status"] = "in-progress"
         state.pop("artifactSha256", None)
     for block in blocks:
+        try:
+            protect_quantities(block.text, source_context=block.quantity_context)
+        except QuantityFidelityError as error:
+            if str(error) != "UNSUPPORTED_QUANTITY":
+                raise LocalizationError(str(error)) from None
+            failures[block.id] = {"sourceHash": block.source_hash, "code": str(error),
+                "attemptCount": 0, "maximumAttempts": MAX_ATTEMPTS,
+                "stage": "source_protection", "sourcePage": block.page+1}
+            callback = getattr(client, "rejection_callback", None)
+            if callback:
+                callback({"schema": "gatex-pdf-model-rejection/v1", "stage": "source_protection",
+                    "code": str(error), "blockId": block.id, "sourcePage": block.page+1,
+                    "sourceHash": block.source_hash, "source": block.text,
+                    "sourceQuantityContext": copy.deepcopy(block.quantity_context), "generationAttempted": False})
+            continue
         if block.id in translation_drafts:
             review_drafts[block.id] = _translation_review_draft(block, translation_drafts[block.id], state["blocks"].get(block.id))
             pending.append(block)
@@ -1635,7 +1715,7 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
         cached = state["blocks"].get(block.id)
         if cached and cached.get("sourceHash") == block.source_hash:
             try:
-                records[block.id] = validate_translation(block.text, cached)
+                records[block.id] = _validate_block_translation(block, cached)
                 failures.pop(block.id, None)
                 continue
             except LocalizationError:
@@ -1659,7 +1739,7 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
         def save_accepted(generated):
             if not isinstance(generated, dict) or not generated or not set(generated).issubset(source_by_id):
                 raise LocalizationError("BLOCK_COVERAGE_MISMATCH")
-            validated = {identity: validate_translation(source_by_id[identity].text, record)
+            validated = {identity: _validate_block_translation(source_by_id[identity], record)
                          for identity, record in generated.items()}
             for identity, record in validated.items():
                 records[identity] = record
@@ -1700,7 +1780,8 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
                     code = error.code
                 attempts = detail.get("attemptCount")
                 failures[block.id] = {"sourceHash": block.source_hash, "code": code,
-                    "attemptCount": attempts if type(attempts) is int and 1 <= attempts <= MAX_ATTEMPTS else None,
+                    "attemptCount": attempts if type(attempts) is int and 0 <= attempts <= MAX_ATTEMPTS else None,
+                    "stage": detail.get("stage") if detail.get("stage") in {"source_protection", "model_translation"} else "model_translation",
                     "maximumAttempts": MAX_ATTEMPTS, "sourcePage": block.page + 1}
             state["status"] = "in-progress"
             state.pop("artifactSha256", None)
@@ -1709,7 +1790,7 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
         if not isinstance(generated, dict) or set(generated) != {b.id for b in batch}:
             raise LocalizationError("BLOCK_COVERAGE_MISMATCH")
         for block in batch:
-            record = validate_translation(block.text, generated[block.id])
+            record = _validate_block_translation(block, generated[block.id])
             records[block.id] = record
             state["blocks"][block.id] = {"sourceHash": block.source_hash, **record}
             failures.pop(block.id, None)
@@ -1788,7 +1869,7 @@ def _audit_cached_quality(blocks, records, state, checkpoint, client):
     quality = state.setdefault("qualityReviews", {})
     pending = []
     for block in blocks:
-        record = validate_translation(block.text, records[block.id])
+        record = _validate_block_translation(block, records[block.id])
         if _quality_cache_matches(block, record, quality.get(block.id), client):
             continue
         literal = _literal_record(block.text)
@@ -1815,6 +1896,7 @@ def _audit_cached_quality(blocks, records, state, checkpoint, client):
         source = [{"id": block.id, "source": block.text, "translation": records[block.id]["text"],
             "sourcePublicationTerms": _source_publication_terms(block.text),
             "sourceMastheadTranslation": _block_masthead_hint(block, blocks),
+            "sourceQuantityContext": copy.deepcopy(block.quantity_context),
             "adjacentSourceContext": _adjacent_review_context(block, blocks, records)} for block in batch]
         result = client._once([{"role": "system", "content": QUALITY_AUDIT_SYSTEM},
             {"role": "user", "content": json.dumps({"blocks": source}, ensure_ascii=False)}], maximum=5000)
@@ -2105,7 +2187,7 @@ def _review_render_aliases(page, blocks: list[Block], records: dict, state: dict
                 context_blocks=blocks, context_records=records, maximum_attempts=MAX_ATTEMPTS)
             if not isinstance(generated, dict) or set(generated) != {raster.id}:
                 raise LocalizationError("RENDER_ALIAS_TARGET_MISMATCH")
-            reconciled = validate_translation(raster.text, generated[raster.id])
+            reconciled = _validate_block_translation(raster, generated[raster.id])
             if digest(reconciled["text"]) != digest(records[native.id]["text"]):
                 raise LocalizationError("RENDER_ALIAS_TARGET_MISMATCH")
             records[raster.id] = reconciled

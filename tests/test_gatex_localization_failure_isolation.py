@@ -25,6 +25,70 @@ def client():
 
 
 class FailureIsolationTests(unittest.TestCase):
+    def test_unsupported_source_block_isolated_before_generation_without_spending_sibling_attempts(self):
+        translator=client();calls=[];approved=[];rejected=[]
+        translator.accepted_callback=approved.append;translator.rejection_callback=rejected.append
+        blocks=[Block("unsupported",0,"Demand is 10 -",None),self.blocks()[1]]
+        def once(messages,**kwargs):
+            rows=json.loads(messages[1]["content"])["blocks"]
+            calls.append([row["id"] for row in rows])
+            self.assertEqual(calls[-1],["b"])
+            return {"blocks":[verdict("b")]} if "source" in rows[0] else {"blocks":[{"id":"b","text":"供应可能下降。","retainedEnglish":[]}]}
+        translator._once=once
+        with self.assertRaisesRegex(LocalizationError,"^UNSUPPORTED_QUANTITY$") as failed:
+            translator.translate(blocks)
+        self.assertEqual(calls,[["b"],["b"]])
+        self.assertEqual([set(row) for row in approved],[{"b"}])
+        self.assertEqual(failed.exception.block_failures,[{"blockId":"unsupported","sourceHash":blocks[0].source_hash,
+            "code":"UNSUPPORTED_QUANTITY","attemptCount":0,"stage":"source_protection"}])
+        self.assertFalse(rejected[0]["generationAttempted"])
+        calls.clear()
+        with self.assertRaisesRegex(LocalizationError,"UNSUPPORTED_QUANTITY"):
+            translator.translate(blocks[:1])
+        self.assertEqual(calls,[])
+
+    def test_source_protection_failure_continues_all_other_batches_but_cannot_publish_partial(self):
+        translator=client();calls=[];state={"blocks":{},"ocr":{}}
+        blocks=[Block("unsupported",0,"Demand is 10 -",None),*self.blocks()[1:]]
+        def once(messages,**kwargs):
+            rows=json.loads(messages[1]["content"])["blocks"]
+            if "source" in rows[0]:return {"blocks":[verdict(row["id"]) for row in rows]}
+            calls.append([row["id"] for row in rows])
+            return {"blocks":[{"id":row["id"],"text":"内容可能变化。","retainedEnglish":[]} for row in rows]}
+        translator._once=once
+        with patch("gen_rpt.gatex_pdf_localization.MAX_BATCH_BLOCKS",2),self.assertRaisesRegex(LocalizationError,"^TRANSLATION_BLOCKS_PENDING$"):
+            _translate(blocks,state,lambda _:None,translator)
+        self.assertEqual(calls,[["b","c"],["d"]])
+        self.assertEqual(set(state["blocks"]),{"b","c","d"})
+        self.assertEqual(state["translationFailures"]["unsupported"]["stage"],"source_protection")
+        self.assertEqual(state["translationFailures"]["unsupported"]["attemptCount"],0)
+        self.assertEqual(state["translationFailureCounts"],{"UNSUPPORTED_QUANTITY":1})
+        self.assertEqual(state["status"],"in-progress")
+
+    def test_unsupported_native_source_cannot_reach_pdf_renderer_and_source_integrity_still_fatal(self):
+        with TemporaryDirectory() as folder:
+            source=Path(folder)/"source.pdf";target=Path(folder)/"target.pdf";doc=fitz.open();page=doc.new_page()
+            page.insert_text((40,40),"Demand is 10 -");page.insert_text((40,90),"Supply may fall.");doc.save(source);doc.close()
+            translator=client();progress=[];generated=[]
+            def once(messages,**kwargs):
+                rows=json.loads(messages[1]["content"])["blocks"]
+                if "source" in rows[0]:return {"blocks":[verdict(row["id"]) for row in rows]}
+                generated.extend(rows)
+                return {"blocks":[{"id":row["id"],"text":"供应可能下降。","retainedEnglish":[]} for row in rows]}
+            translator._once=once
+            with patch("gen_rpt.gatex_pdf_localization._writer",side_effect=AssertionError("partial PDF")):
+                with self.assertRaisesRegex(LocalizationError,"^TRANSLATION_BLOCKS_PENDING$"):
+                    translate_pdf(source,target,digest(source.read_bytes()),save_progress=progress.append,translation_client=translator)
+            self.assertEqual(len(generated),1)
+            self.assertEqual(len(progress[-1]["blocks"]),1)
+            failure=next(iter(progress[-1]["translationFailures"].values()))
+            self.assertEqual((failure["stage"],failure["attemptCount"]),("source_protection",0))
+            self.assertFalse(target.exists())
+            generated.clear()
+            with self.assertRaisesRegex(LocalizationError,"^SOURCE_DIGEST_MISMATCH$"):
+                translate_pdf(source,target,"0"*64,translation_client=translator)
+            self.assertEqual(generated,[])
+
     def blocks(self):
         return [Block(identity, 0, source, None) for identity, source in
                 [("a", "Demand may rise."), ("b", "Supply may fall."),
