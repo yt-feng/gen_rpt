@@ -3,6 +3,8 @@ name: GateX daily news maintenance
 on:
   schedule:
     - cron: '5 0 * * *'
+    # Fixed-source recovery only; these events never acquire another source.
+    - cron: '5 5,10 * * *'
   workflow_dispatch:
 
 permissions:
@@ -15,7 +17,7 @@ concurrency:
 
 jobs:
   maintain:
-    # 08:05 Asia/Shanghai: one fixed daily source, then reviewed publication.
+    # 08:05 Asia/Shanghai captures once; 13:05 / 18:05 resume the stored pool.
     # This job never calls or changes the digest/email endpoint.
     runs-on: ubuntu-latest
     timeout-minutes: 270
@@ -32,9 +34,15 @@ jobs:
       - name: Warm and verify the complete stored daily Chinese news pool
         env:
           GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
+          NEWS_EVENT_NAME: ${{ github.event_name }}
+          NEWS_SCHEDULE: ${{ github.event.schedule }}
         run: |
           umask 077
-          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only --news-full-pool --news-capture-daily \
+          capture_args=()
+          if [[ "$NEWS_EVENT_NAME" == "schedule" && "$NEWS_SCHEDULE" == "5 0 * * *" ]]; then
+            capture_args+=(--news-capture-daily)
+          fi
+          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only --news-full-pool "${capture_args[@]}" \
             --news-max-passes 0 \
             --news-budget-seconds 14400 \
             --runtime "$RUNNER_TEMP/gatex-news-localization-private" \

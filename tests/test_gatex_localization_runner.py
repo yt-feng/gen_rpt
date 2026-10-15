@@ -211,7 +211,7 @@ class RunnerTests(unittest.TestCase):
         with self.assertRaises(runner.RunnerError):
             runner.validate_qa(report, 3)
 
-    def test_news_pending_is_failure_despite_ok_true(self):
+    def test_news_pending_is_incomplete_but_operationally_healthy(self):
         api = runner.NewsfeedApi('test-token', sleep=lambda _: None)
         calls = []
         def request(method, route, **kwargs):
@@ -220,7 +220,7 @@ class RunnerTests(unittest.TestCase):
                 'total': 36, 'ready': 35, 'pending': 1, 'failed': 0, 'complete': False, 'records': [{'title': 'not allowed in QA summary'}]}
         api.request = request
         report = runner.warm_news(api)
-        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['status'], 'pending')
         self.assertEqual(report['pending'], 1)
         self.assertEqual(sum(method == 'POST' for method, _, _ in calls), 3)
         self.assertEqual(report['stopReason'], 'NO_PROGRESS')
@@ -233,7 +233,7 @@ class RunnerTests(unittest.TestCase):
         api.request = lambda *args, **kwargs: state
         self.assertEqual(runner.warm_news(api)['status'], 'passed')
         state.update(total=0, ready=0)
-        self.assertEqual(runner.warm_news(api)['status'], 'failed')
+        self.assertEqual(runner.warm_news(api)['status'], 'deferred')
 
     def test_retry_transient_http_failure_without_redirect_or_token_logging(self):
         class Response:
@@ -542,7 +542,7 @@ class NewsWarmBudgetTests(unittest.TestCase):
             return self.state(ready)
         api.request = request
         report = runner.warm_news(api, budget_seconds=3, clock=clock)
-        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['status'], 'pending')
         self.assertEqual(report['stopReason'], 'DEADLINE')
         self.assertEqual(report['warmPasses'], 1)
         self.assertEqual(report['ready'], 4)
@@ -551,11 +551,11 @@ class NewsWarmBudgetTests(unittest.TestCase):
         self.assertEqual(sum(c[0] == 'POST' for c in calls), 1)
         self.assertIsNone(api.request_deadline)
 
-    def test_explicit_pass_limit_remains_an_incomplete_failure(self):
+    def test_explicit_pass_limit_remains_incomplete_and_resumable(self):
         api = runner.NewsfeedApi('test-token', sleep=lambda _: None)
         api.request = lambda *args, **kwargs: self.state(35)
         report = runner.warm_news(api, max_passes=2)
-        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['status'], 'pending')
         self.assertEqual(report['stopReason'], 'MAX_PASSES')
         self.assertEqual(report['warmPasses'], 2)
         self.assertEqual(report['pending'], 1)
@@ -571,7 +571,7 @@ class NewsWarmBudgetTests(unittest.TestCase):
                     return self.state(ready)
                 api.request = request
                 report = runner.warm_news(api, clock=clock)
-                self.assertEqual(report['status'], 'failed')
+                self.assertEqual(report['status'], 'pending')
                 self.assertEqual(report['stopReason'], 'NO_PROGRESS')
                 self.assertEqual(report['warmPasses'], expected_passes)
                 self.assertEqual(report['ready'], ready)
@@ -621,7 +621,7 @@ class NewsWarmBudgetTests(unittest.TestCase):
             return self.state(0, 0)
         api.request = request
         report = runner.warm_news(api)
-        self.assertEqual(report['status'], 'failed')
+        self.assertEqual(report['status'], 'deferred')
         self.assertEqual(report['stopReason'], 'EMPTY_SNAPSHOT')
         self.assertEqual(report['warmPasses'], 0)
 

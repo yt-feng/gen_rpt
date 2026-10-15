@@ -4,7 +4,7 @@ import math
 import re
 import time
 from urllib.parse import urlencode
-from scripts.gatex_localization_runner import RunnerError, warm_news
+from scripts.gatex_localization_runner import RunnerError, warm_news, news_operational_result
 
 
 def _digest(value):
@@ -82,9 +82,7 @@ def warm_daily_pool(api, *, budget_seconds=14400, max_passes=0, capture_daily=Fa
     def finish(reason, error=None):
         result = {**(report or {"schema": "gatex-news-fullpool-run/v1", "status": "failed"}),
             "warmPasses": passes, "stopReason": reason, "elapsedSeconds": round(max(0, clock() - started), 3)}
-        if error:
-            result.update(status="failed", code=error.code, httpStatus=error.status, apiCode=error.api_code)
-        return result
+        return news_operational_result(result, reason, error)
 
     def read():
         query = {"scope": "pool"}
@@ -99,8 +97,8 @@ def warm_daily_pool(api, *, budget_seconds=14400, max_passes=0, capture_daily=Fa
         if remaining <= 0: return finish("DEADLINE")
         initial = warm_news(api, max_passes=1, budget_seconds=min(600, remaining),
             clock=clock, require_publication=True, capture_daily=capture_daily)
-        if initial.get("stopReason") in {"CAPTURE_FAILED", "DAILY_SOURCE_UNAVAILABLE", "API_FAILURE", "SNAPSHOT_CHANGED"}:
-            return {**initial, "scope": "full-daily-pool", "status": "failed"}
+        if initial.get("stopReason") in {"CAPTURE_FAILED", "DAILY_SOURCE_UNAVAILABLE", "API_FAILURE", "SNAPSHOT_CHANGED", "EMPTY_SNAPSHOT", "DEADLINE"}:
+            return {**initial, "scope": "full-daily-pool"}
         initial_pin = initial.get("expectedSnapshotHash") or initial.get("snapshotHash")
         if _digest(initial_pin): snapshot = initial_pin
         report, _ = read()

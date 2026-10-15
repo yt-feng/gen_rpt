@@ -206,6 +206,21 @@ class NewsfeedApi(GatexApi):
         self.base = "https://gatex.fund/api/newsfeed/locales"
 
 
+def news_operational_result(report, reason, error=None):
+    """Ordinary pending is recoverable; identity/auth/config failures remain fatal."""
+    result = dict(report)
+    transient = error is not None and (error.code in {"API_CONNECTION_FAILED", "API_DEADLINE_EXCEEDED"}
+        or error.code == "API_HTTP_ERROR" and (error.status == 429 or error.status is not None and error.status >= 500))
+    fatal = error is not None and not transient
+    complete = result.get("status") == "passed" and not error
+    result.update(complete=complete, operationalHealthy=not fatal,
+        needsRetry=not complete and not fatal, retryAfterSeconds=0 if complete or fatal else 1800)
+    result["status"] = "failed" if fatal else "passed" if complete else "deferred" if transient or reason in {"DAILY_SOURCE_UNAVAILABLE", "CAPTURE_FAILED", "API_FAILURE", "EMPTY_SNAPSHOT"} else "pending"
+    if error:
+        result.update(code=error.code, httpStatus=error.status, apiCode=error.api_code)
+    return result
+
+
 def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time.monotonic, emit_progress=None, require_publication=False, capture_daily=False) -> dict:
     if type(max_passes) is not int or not 1 <= max_passes <= 36 or not isinstance(budget_seconds, (int, float)) or isinstance(budget_seconds, bool) or not 0 < budget_seconds <= 600:
         raise RunnerError("INVALID_NEWS_BATCH_OPTIONS")
@@ -271,12 +286,9 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
         return parse_status(api.request("GET", route), expected)
 
     def finish(reason, error=None):
-        result = {**report, "warmPasses": passes, "elapsedSeconds": round(max(0, clock() - started), 3), "stopReason": reason}
+        result = {**(report or {"schema": "gatex-news-localization-run/v1", "status": "failed"}), "warmPasses": passes, "elapsedSeconds": round(max(0, clock() - started), 3), "stopReason": reason}
         if pinned: result["expectedSnapshotHash"] = pinned
-        if error:
-            result["status"] = "failed"
-            result.update({"code": error.code, "httpStatus": error.status, "apiCode": error.api_code})
-        return result
+        return news_operational_result(result, reason, error)
 
     try:
         report, publication_mode = status_report()
@@ -389,6 +401,10 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
                 if api.request_deadline - clock() <= delay: return finish("DEADLINE")
                 api.sleep(delay)
         return finish("MAX_PASSES")
+    except RunnerError as error:
+        if error.code in {"API_CONNECTION_FAILED", "API_DEADLINE_EXCEEDED"} or error.code == "API_HTTP_ERROR" and (error.status == 429 or error.status is not None and error.status >= 500):
+            return finish("API_FAILURE", error)
+        raise
     finally:
         api.clock, api.request_deadline = previous_clock, previous_deadline
 
@@ -571,7 +587,7 @@ def main() -> int:
     args.summary.parent.mkdir(parents=True, exist_ok=True)
     args.summary.write_bytes(encoded_json(report))
     print(json.dumps({key: value for key, value in report.items() if key not in {"results", "items"}}, ensure_ascii=False))
-    return 0 if report["status"] == "passed" else 1
+    return 0 if report["status"] == "passed" or args.news_only and report.get("operationalHealthy") is True and report.get("status") in {"pending", "deferred"} else 1
 
 
 if __name__ == "__main__":
