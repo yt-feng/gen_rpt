@@ -96,7 +96,11 @@ _QUANTITY_BODY = (
 _QUANTITY = re.compile(rf"(?<![A-Za-z0-9_.]){_QUANTITY_BODY}(?![A-Za-z0-9_]|\.[A-Za-z0-9]|-[A-Za-z])")
 _PARSE_QUANTITY = re.compile(_QUANTITY_BODY)
 _ORDINAL = r"(?:第\d+|\d+(?:st|nd|rd|th))(?![A-Za-z0-9])"
-_PAGE_REFERENCE = r"(?<![A-Za-z0-9_.+\-–—/])(?:(?i:p\.|page)\s*\d+|第?\d+页)(?![A-Za-z0-9]|\.[A-Za-z0-9]|\s*[-–—/]\s*\d)"
+_PAGE_REFERENCE = r"(?<![A-Za-z0-9_.+\-–—/])(?:(?i:p\.|page)\s*\d+|\d+(?i:st|nd|rd|th)\s+(?i:page)|第\d+页)(?![A-Za-z0-9]|\.[A-Za-z0-9]|\s*[-–—/]\s*\d)"
+# A complete tracked chapter banner is typography, not a division with a
+# missing operand. Only this explicit label shape receives a Chinese form;
+# arbitrary slashes, calculations and prose keep their existing protection.
+_CHAPTER_LABEL = r"(?m:^[ \t]*(?:C[ \t]+H[ \t]+A[ \t]+P[ \t]+T[ \t]+E[ \t]+R[ \t]+\d(?:[ \t]*\d)*[ \t]*/[ \t]*C[ \t]+O[ \t]+N[ \t]+T[ \t]+I[ \t]+N[ \t]+U[ \t]+E[ \t]+D|第\d+章[ \t]*/[ \t]*续)[ \t]*$)"
 _LINK = r"(?:https?://|www\.)[^\s<>\u3000-\u303f\u3400-\u9fff\uff00-\uffef]+|[A-Za-z0-9_.+-]+@[A-Za-z0-9_.-]+\.[A-Za-z]{2,}"
 _DOMAIN = r"(?<![A-Za-z0-9_.])(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?:/[^\s<>\u3000-\u303f\u3400-\u9fff\uff00-\uffef]*)?"
 _DATE = r"(?<!\d)(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})(?!\d)"
@@ -108,6 +112,7 @@ _PLACEHOLDER = r"\{[^{}\n]+\}"
 # occurs inside ordinary words such as 元件、多元化 or 元素.
 _STANDALONE_CURRENCY = rf"(?<![A-Za-z])(?!(?i:yuan)(?![A-Za-z]))(?:{_CURRENCY}|{_CURRENCY_ZH_NAMED})(?![A-Za-z])"
 _SCAN = re.compile("|".join([
+    rf"(?P<chapter_label>{_CHAPTER_LABEL})",
     rf"(?P<link>{_LINK})", rf"(?P<domain>{_DOMAIN})", rf"(?P<date>{_DATE})",
     rf"(?P<time>{_TIME})", rf"(?P<placeholder>{_PLACEHOLDER})",
     rf"(?P<number_code>{_NUMBER_CODE})", rf"(?P<page_reference>{_PAGE_REFERENCE})", rf"(?P<ordinal>{_ORDINAL})",
@@ -351,6 +356,11 @@ def _atoms(text: str) -> list[_Atom]:
         # Inner named groups in the quantity alternative may become lastgroup.
         if match.group("quantity") is not None:
             atoms.append(_quantity_atom(match, text))
+        elif match.group("chapter_label") is not None:
+            original = match.group(0)
+            digits = "".join(re.findall(r"\d", original))
+            atoms.append(_Atom(match.start(), match.end(), original, "第" + digits + "章 / 续",
+                               "chapter_label", ("chapter_label", digits, "continued")))
         elif match.group("page_reference") is not None:
             original = match.group(0)
             digits = re.search(r"\d+", original).group(0)
@@ -424,7 +434,10 @@ def quantities_equivalent(source: str, target: str) -> bool:
         if atom.convertible:
             continue
         index = next((i for i, candidate in enumerate(remaining)
-                      if candidate.literal_key == atom.literal_key), None)
+                      if candidate.literal_key == atom.literal_key
+                      or (atom.kind == "page_reference" and candidate.kind == "quantity"
+                          and candidate.original == atom.literal_key[1]
+                          and target[candidate.end:].lstrip().startswith("页"))), None)
         if index is None:
             return False
         remaining.pop(index)
