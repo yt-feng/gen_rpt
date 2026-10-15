@@ -4,16 +4,16 @@ The persistent entrypoint is `.github/workflows/gatex-pdf-maintenance.yml`.
 The content-localization and SHA-backfill workflows remain manual tools; they
 must not acquire their own PDF schedules.
 
-## Current state and activation
+## Schedule and operation
 
-The hourly schedule is prepared in a draft PR. Keep that PR unmerged until
-actual producer/server acceptance of the current QA contract and review of a
-normal maintenance run. Opening or testing the draft does not start translation.
-This workflow does not change email delivery.
+The workflow runs once per hour at minute 23 UTC on the default branch. It
+discovers pending PDFs and resumes the existing queue. Email delivery remains
+unchanged.
 
-After acceptance, activate only this workflow:
+Operational acceptance requires two separate checks:
 
-1. Merge the reviewed hourly schedule onto `main`.
+1. Inspect actual artifacts from a normal maintenance run and verify the
+   producer/server current-policy QA contract and publication readback.
 2. Verify an actual `schedule` event, its `maintain` job and safe QA summary.
    A manual run, a skipped busy preflight, or offline tests do not demonstrate
    that scheduled translation ran.
@@ -24,9 +24,8 @@ the whole workflow also disables manual runs; reverting only its schedule keeps
 manual metadata discovery available with its default `discovery_only=true`.
 Deliberate manual recovery can still use exact source pins.
 
-The proposed cadence is once per hour at minute 23 UTC. GitHub schedules use
-the default branch and may be delayed; the queue does not depend on a run
-starting at an exact time. See [GitHub schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onschedule).
+GitHub schedules may be delayed; the queue does not depend on a run starting at
+an exact time. See [GitHub schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onschedule).
 
 ## Work and recovery bounds
 
