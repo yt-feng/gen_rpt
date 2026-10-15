@@ -107,6 +107,19 @@ _DATE = r"(?<!\d)(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})
 _TIME = r"(?<!\d)\d{1,2}:\d{2}(?::\d{2})?(?!\d)"
 _NUMBER_CODE = r"(?<![A-Za-z0-9_.])(?:\d+(?:\.\d+){2,}|\d+(?:/\d+)+)(?![A-Za-z0-9_.])"
 _CODE = r"(?<![A-Za-z0-9_])(?=[A-Za-z0-9_.:/+\-]*[A-Za-z])(?=[A-Za-z0-9_.:/+\-]*\d)[A-Za-z0-9][A-Za-z0-9_.:/+\-]*(?![A-Za-z0-9_])"
+# A comma-grouped count modifying a plain lowercase noun is not a model code.
+# Protect the complete count, leaving the lexical noun available to translate.
+# Model identities (B200/HBM4E), mixed-case/digit suffixes and numeric ranges
+# remain on the existing literal-code/expression paths.
+_COUNTED_NOUN_VALUE = re.compile(r"(?<![A-Za-z0-9_.,])\d{1,3}(?:,\d{3})+(?=-[a-z]{2,}(?![A-Za-z0-9_/:+\-]|\.[A-Za-z0-9]))")
+
+
+def counted_noun_words(source: str) -> set[str]:
+    """Ordinary lowercase nouns in positively recognized count compounds."""
+    return {re.match(r"-([a-z]+)", source[match.end():])[1]
+            for match in _COUNTED_NOUN_VALUE.finditer(source)}
+
+
 _PLACEHOLDER = r"\{[^{}\n]+\}"
 # Bare 元 is a currency only when attached to a numeric quantity, not when it
 # occurs inside ordinary words such as 元件、多元化 or 元素.
@@ -116,6 +129,7 @@ _SCAN = re.compile("|".join([
     rf"(?P<link>{_LINK})", rf"(?P<domain>{_DOMAIN})", rf"(?P<date>{_DATE})",
     rf"(?P<time>{_TIME})", rf"(?P<placeholder>{_PLACEHOLDER})",
     rf"(?P<number_code>{_NUMBER_CODE})", rf"(?P<page_reference>{_PAGE_REFERENCE})", rf"(?P<ordinal>{_ORDINAL})",
+    rf"(?P<counted_noun>{_COUNTED_NOUN_VALUE.pattern})",
     rf"(?P<quantity>{_QUANTITY.pattern})", rf"(?P<code>{_CODE})",
     rf"(?P<standalone_currency>{_STANDALONE_CURRENCY})",
 ]))
@@ -334,7 +348,10 @@ def _expressions(text: str, atoms: list[_Atom]) -> list[_Atom]:
         index = following
     # Operators outside protected regions must not quietly become untracked
     # punctuation if they are next to a quantity or ordinal.
+    noun_hyphens = {match.end() for match in _COUNTED_NOUN_VALUE.finditer(text)}
     for match in _MATH_SYMBOL.finditer(text):
+        if match.group() == "-" and match.start() in noun_hyphens:
+            continue
         if any(atom.start <= match.start() < atom.end for atom in combined):
             continue
         before = next((atom for atom in reversed(combined) if atom.end <= match.start()), None)
@@ -389,7 +406,7 @@ def _atoms(text: str) -> list[_Atom]:
     for match in _SCAN.finditer(text):
         kind = match.lastgroup
         # Inner named groups in the quantity alternative may become lastgroup.
-        if match.group("quantity") is not None:
+        if match.group("quantity") is not None or match.group("counted_noun") is not None:
             atoms.append(_quantity_atom(match, text))
         elif match.group("chapter_label") is not None:
             original = match.group(0)

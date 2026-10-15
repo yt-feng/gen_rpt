@@ -32,7 +32,7 @@ from PIL import Image
 import requests
 
 from gen_rpt.gatex_translation_quantities import (
-    QuantityFidelityError, protect_quantities, quantities_equivalent,
+    QuantityFidelityError, protect_quantities, quantities_equivalent, counted_noun_words,
 )
 
 QA_SCHEMA = "gatex-pdf-translation-qa/v1"
@@ -128,6 +128,16 @@ class LocalizationError(RuntimeError):
         self.code = code
 
 
+LOCAL_TRANSLATION_FAILURES = frozenset({
+    "MISSING_TRANSLATION", "QUANTITY_PLACEHOLDER_MISMATCH", "NUMERIC_OR_LINK_MISMATCH",
+    "UNRESOLVED_ENGLISH", "INVALID_RETAINED_IDENTITY", "ORDINARY_ENGLISH_RETAINED",
+    "STRUCTURAL_MARKER_MISMATCH", "SOURCE_PUBLICATION_IDENTITY_MISSING",
+    "SOURCE_EDITION_REFERENCE_MISSING", "MISSING_CHINESE_SOURCE_TITLE", "DATE_DISPLAY_ORDER",
+    "UNREVIEWED_TRANSLATION", "SEMANTIC_REVIEW_FAILED", "CHINESE_QUALITY_REVIEW_FAILED",
+    "BLOCK_COVERAGE_MISMATCH", "REVIEW_COVERAGE_MISMATCH",
+})
+
+
 def digest(value: bytes | str) -> str:
     return hashlib.sha256(value.encode("utf-8") if isinstance(value, str) else value).hexdigest()
 
@@ -205,6 +215,7 @@ def _known_title_counterpart(english: str, target: str) -> bool:
     return False
 
 def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = None) -> list[str]:
+    source_count_nouns = counted_noun_words(source)
     source_markers = Counter(STRUCTURAL_MARKER.findall(source))
     target_markers = Counter(STRUCTURAL_MARKER.findall(target))
     if source_markers != target_markers:
@@ -241,7 +252,7 @@ def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = N
         label = marker.group(1) if marker else text
         structural_code = entry["kind"] == "code" and len(label) == 1 and source_markers[label] > 0
         words = ENGLISH.findall(text)
-        if len(words) > 9 or any(word.casefold() in COMMON_ENGLISH for word in words):
+        if len(words) > 9 or any(word.casefold() in COMMON_ENGLISH or word in source_count_nouns for word in words):
             # A source work title may remain alongside its Chinese translation,
             # but ordinary headings cannot be smuggled in as proper names.
             proper_name = entry["kind"] in {"brand", "person", "organisation"} and len(words) <= 9 and any(
@@ -784,6 +795,80 @@ Style alone must not set complete or faithful false; those fields assess source 
 
     return review_system
 
+
+def _review_protocol_rows(response, blocks):
+    """Individually valid IDs may pass; absent/ambiguous rows never approve."""
+    expected = [block.id for block in blocks]
+    entries = response.get("blocks") if isinstance(response, dict) else None
+    entries = entries if isinstance(entries, list) else []
+    ids = [row.get("id") for row in entries if isinstance(row, dict) and isinstance(row.get("id"), str)]
+    counts = Counter(ids)
+    duplicates = {identity: count for identity, count in counts.items() if count > 1}
+    unknown = [identity for identity in counts if identity not in expected]
+    invalid, valid = [], {}
+    for row in entries:
+        if not isinstance(row, dict) or not isinstance(row.get("id"), str):
+            continue
+        identity = row["id"]
+        if identity not in expected or identity in duplicates:
+            continue
+        if (type(row.get("complete")) is not bool or type(row.get("faithful")) is not bool
+                or not isinstance(row.get("issues"), list)
+                or not all(isinstance(issue, str) for issue in row["issues"])
+                or not _valid_quality_verdict(row)):
+            invalid.append(identity)
+        else:
+            valid[identity] = row
+    unidentified = len(entries) - len(ids)
+    # Unknown/unidentified rows make the response assignment ambiguous. Retain
+    # every candidate for another fresh review; never silently ignore an extra
+    # row and treat the complete batch as approved.
+    if unknown or unidentified:
+        valid = {}
+    diagnostics = {"expectedIds": expected, "actualIds": ids, "actualBlockCount": len(entries),
+        "missingIds": [identity for identity in expected if identity not in counts],
+        "duplicateIds": duplicates, "unknownIds": unknown, "invalidIds": invalid,
+        "unidentifiedRowCount": unidentified,
+        "blocksFieldType": type(response.get("blocks")).__name__ if isinstance(response, dict) else "absent"}
+    diagnostics["passed"] = (set(valid) == set(expected) and not unknown
+        and not duplicates and not diagnostics["unidentifiedRowCount"])
+    return valid, diagnostics
+
+
+def _private_review_protocol_evidence(blocks, candidates, response, diagnostics, maximum=128 * 1024):
+    """Bounded source/candidate-bound JSON only, never HTTP envelopes or keys."""
+    def safe(value):
+        if isinstance(value, float) and not math.isfinite(value):
+            return {"invalidNonFiniteNumber": repr(value)}
+        if isinstance(value, dict):
+            return {key: safe(item) for key, item in value.items()}
+        if isinstance(value, list):
+            return [safe(item) for item in value]
+        return value
+    def encoded(value):
+        return json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode()
+    owner = next((block for block in blocks if block.id not in candidates or block.id in
+        diagnostics["missingIds"] + diagnostics["invalidIds"] + list(diagnostics["duplicateIds"])), blocks[0])
+    raw = safe({"blocks": response.get("blocks")} if isinstance(response, dict) else {"responseType": type(response).__name__, "value": response})
+    record = {"schema": "gatex-pdf-model-rejection/v1", "stage": "review_protocol",
+        "code": "REVIEW_COVERAGE_MISMATCH", "blockId": owner.id, "sourcePage": owner.page + 1,
+        "sourceHash": owner.source_hash, "source": owner.text,
+        "normalizedCandidate": {**copy.deepcopy(candidates.get(owner.id, {})), "reviewed": False},
+        "reviewRequestHashes": [{"id": block.id, "sourceHash": block.source_hash,
+            "targetTextSha256": digest(candidates[block.id]["text"])} for block in blocks],
+        "reviewProtocol": safe(copy.deepcopy(diagnostics)), "reviewResponse": raw}
+    size = len(encoded(record))
+    if size > maximum:
+        record["reviewResponse"] = {"truncated": True, "originalBytes": len(encoded(raw)), "sha256": digest(encoded(raw))}
+        record["truncation"] = {"originalBytes": size, "maximumBytes": maximum}
+    if len(encoded(record)) > maximum:
+        record["source"] = record["source"][:2048]
+        record["normalizedCandidate"] = {"text": record["normalizedCandidate"].get("text", "")[:2048], "reviewed": False}
+        record["reviewProtocol"] = {key: diagnostics[key] for key in ("expectedIds", "missingIds", "invalidIds", "actualBlockCount", "blocksFieldType", "unidentifiedRowCount")}
+        record["truncation"] = {"originalBytes": size, "maximumBytes": maximum, "detailsTruncated": True}
+    return record
+
+
 class ModelClient:
     """Explicit chat/vision provider with at most three attempts per operation."""
 
@@ -1041,7 +1126,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 or any(not isinstance(row, dict) for row in initial_style_edits.values()))):
             raise LocalizationError("INVALID_STYLE_EDIT_DRAFT")
         style_edits = copy.deepcopy(initial_style_edits or {})
-        pending, accepted = list(blocks), {}
+        pending, accepted, awaiting_review, block_codes, protocol_adverse = list(blocks), {}, {}, {}, {}
         feedback, last_code = [], "MODEL_REQUEST_FAILED"
         for attempt in range(maximum_attempts):
             feedback_for_attempt, candidates = [], {}
@@ -1049,7 +1134,8 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 # A source-bound candidate draft consumes the first of the
                 # same three attempts. Review it independently without asking
                 # a generator to rewrite an already accepted paragraph.
-                drafting = {b.id: copy.deepcopy(review_drafts[b.id]) for b in pending if attempt == 0 and b.id in review_drafts}
+                drafting = {b.id: copy.deepcopy(awaiting_review[b.id]) for b in pending if b.id in awaiting_review}
+                drafting.update({b.id: copy.deepcopy(review_drafts[b.id]) for b in pending if attempt == 0 and b.id in review_drafts})
                 generating = [b for b in pending if b.id not in drafting]
                 editing_ids = {b.id for b in generating if b.id in style_edits}
                 source = [{"id": b.id, "sourcePage": b.page + 1,
@@ -1080,14 +1166,24 @@ An edited candidate must undergo a new independent fidelity and quality review."
                             except QuantityFidelityError as error:
                                 raise LocalizationError(str(error)) from None
                         candidate = _source_verified_record(block.text, candidate)
-                        candidates[block.id] = validate_translation(block.text, {**candidate, "reviewed": True})
+                        validated = validate_translation(block.text, {**candidate, "reviewed": True})
+                        previous = protocol_adverse.get(block.id)
+                        if previous and digest(compact(validated["text"])) in previous["targetHashes"]:
+                            raise LocalizationError(previous["code"])
+                        candidates[block.id] = validated
                     except LocalizationError as error:
+                        awaiting_review.pop(block.id, None)
+                        block_codes[block.id] = error.code
                         # Full failed payloads belong only to authenticated,
                         # source-bound progress. Public failures remain codes.
                         rejection = {"schema": "gatex-pdf-model-rejection/v1", "code": error.code,
                             "blockId": block.id, "sourcePage": block.page + 1, "sourceHash": block.source_hash,
                             "source": block.text, "sourceMastheadTranslation": _block_masthead_hint(block, context_blocks or blocks), "record": copy.deepcopy(raw),
                             "quantityHints": protections[block.id].hints, "normalizedCandidate": {**copy.deepcopy(candidate), "reviewed": False}}
+                        previous = protocol_adverse.get(block.id)
+                        if previous and error.code == previous["code"]:
+                            rejection["review"] = {"adverseProtocolReviewRows": copy.deepcopy(previous["rows"]),
+                                                   "candidateUnchangedAfterAdverseReview": True}
                         if error.code == "NUMERIC_OR_LINK_MISMATCH":
                             rejection["quantityValidationDetails"] = _quantity_validation_details(protections[block.id], candidate.get("text"))
                         if error.code == "QUANTITY_PLACEHOLDER_MISMATCH":
@@ -1115,19 +1211,50 @@ An edited candidate must undergo a new independent fidelity and quality review."
                         "adjacentSourceContext": _adjacent_review_context(b, context_blocks or blocks, contextual_records),
                         "quantityConversions": [{"sourceValue": token.original, "renderedValue": token.replacement,
                                                  "kind": token.kind} for token in protections[b.id].tokens]} for b in reviewing]
-                    reviews = exact_entries(self._once([{"role": "system", "content": review_system},
-                        {"role": "user", "content": json.dumps({"blocks": review_input}, ensure_ascii=False)}], maximum=5000),
-                        reviewing, "REVIEW_COVERAGE_MISMATCH")
-                    # Validate the entire review response shape before saving
-                    # any verdict; malformed responses cannot approve a row.
-                    if any(type(review.get("complete")) is not bool or type(review.get("faithful")) is not bool
-                           or not isinstance(review.get("issues"), list)
-                           or not all(isinstance(issue, str) for issue in review["issues"])
-                           or not _valid_quality_verdict(review)
-                           for review in reviews.values()):
-                        raise LocalizationError("REVIEW_COVERAGE_MISMATCH")
+                    review_response = self._once([{"role": "system", "content": review_system},
+                        {"role": "user", "content": json.dumps({"blocks": review_input,
+                            "expectedIds": [block.id for block in reviewing]}, ensure_ascii=False)}], maximum=5000)
+                    reviews, protocol = _review_protocol_rows(review_response, reviewing)
+                    if not protocol["passed"]:
+                        if self.rejection_callback:
+                            self.rejection_callback(_private_review_protocol_evidence(reviewing, candidates, review_response, protocol))
+                        last_code = "REVIEW_COVERAGE_MISMATCH"
+                        for block in reviewing:
+                            if block.id not in reviews:
+                                raw_rows = review_response.get("blocks", []) if isinstance(review_response, dict) else []
+                                def issues(row, field):
+                                    value = row.get(field)
+                                    return isinstance(value, list) and bool(value) and all(isinstance(item, str) for item in value)
+                                adverse = [row for row in raw_rows if isinstance(row, dict) and row.get("id") == block.id
+                                    and (any(row.get(field) is False for field in ("complete", "faithful", "professionalChinese", "ownedTerminology"))
+                                         or issues(row, "issues") or issues(row, "qualityIssues"))] if isinstance(raw_rows, list) else []
+                                if adverse:
+                                    # Even an invalid protocol must not erase an
+                                    # explicit adverse verdict and solicit a
+                                    # pass on the same candidate. Regenerate
+                                    # using that actual source/candidate pair.
+                                    awaiting_review.pop(block.id, None)
+                                    code = "SEMANTIC_REVIEW_FAILED" if (any(row.get(field) is False for row in adverse for field in ("complete", "faithful"))
+                                        or any(issues(row, "issues") for row in adverse)) else "CHINESE_QUALITY_REVIEW_FAILED"
+                                    actual_rows = [{key: copy.deepcopy(row[key]) for key in ("complete", "faithful", "professionalChinese", "ownedTerminology", "issues", "qualityIssues")
+                                        if type(row.get(key)) is bool or isinstance(row.get(key), list) and all(isinstance(item, str) for item in row[key])} for row in adverse]
+                                    previous = protocol_adverse.setdefault(block.id, {"targetHashes": set(), "code": code, "rows": actual_rows})
+                                    previous["targetHashes"].add(digest(compact(candidates[block.id]["text"])))
+                                    previous.update(code=code, rows=actual_rows)
+                                    block_codes[block.id] = code
+                                    feedback_for_attempt.append({"validationError": code, "blockId": block.id,
+                                        "source": block.text, "normalizedCandidate": {**copy.deepcopy(candidates[block.id]), "reviewed": False},
+                                        "adverseProtocolReviewRows": actual_rows})
+                                    last_code = code
+                                    continue
+                                awaiting_review[block.id] = {**copy.deepcopy(candidates[block.id]), "reviewed": False}
+                                block_codes[block.id] = last_code
+                        feedback_for_attempt.append({"validationError": last_code, "reviewProtocol": protocol})
                     newly_accepted, newly_quality = {}, {}
                     for block in reviewing:
+                        if block.id not in reviews:
+                            continue
+                        awaiting_review.pop(block.id, None)
                         review = reviews[block.id]
                         fidelity_passed = review["complete"] and review["faithful"] and not review["issues"]
                         if fidelity_passed and _quality_verdict_passed(review):
@@ -1151,6 +1278,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                                 self.rejection_callback(copy.deepcopy(rejection))
                             feedback_for_attempt.append(rejection_feedback(rejection))
                             last_code = code
+                            block_codes[block.id] = code
                     if newly_accepted:
                         if self.accepted_callback:
                             self.accepted_callback(copy.deepcopy(newly_accepted))
@@ -1163,10 +1291,15 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 feedback = feedback_for_attempt
             except LocalizationError as error:
                 last_code = error.code
+                for block in pending:
+                    block_codes[block.id] = error.code
                 feedback = feedback_for_attempt + [{"validationError": error.code}]
             if attempt + 1 < maximum_attempts:
                 self.sleep(min(4, 2 ** attempt))
-        raise LocalizationError(last_code)
+        error = LocalizationError(last_code)
+        error.block_failures = [{"blockId": block.id, "sourceHash": block.source_hash,
+            "code": block_codes.get(block.id, last_code), "attemptCount": maximum_attempts} for block in pending]
+        raise error
 
     def ocr(self, image_bytes: bytes, *, native_words: list[dict] | None = None) -> dict:
         evidence = tesseract_words(image_bytes)
@@ -1473,6 +1606,13 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
     drafts = state.get("dateReviewDrafts", {})
     translation_drafts = state.get("translationReviewDrafts", {})
     block_ids = {block.id for block in blocks}
+    prior_failures = state.get("translationFailures", {})
+    if not isinstance(prior_failures, dict):
+        raise LocalizationError("INVALID_TRANSLATION_FAILURE_STATE")
+    by_id = {block.id: block for block in blocks}
+    failures = {identity: copy.deepcopy(row) for identity, row in prior_failures.items()
+        if identity in by_id and isinstance(row, dict) and row.get("sourceHash") == by_id[identity].source_hash}
+    state["translationFailures"] = failures
     if not isinstance(drafts, dict) or not set(drafts).issubset(block_ids):
         raise LocalizationError("INVALID_DATE_REVIEW_DRAFT")
     if (not isinstance(translation_drafts, dict) or not set(translation_drafts).issubset(block_ids)
@@ -1496,6 +1636,7 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
         if cached and cached.get("sourceHash") == block.source_hash:
             try:
                 records[block.id] = validate_translation(block.text, cached)
+                failures.pop(block.id, None)
                 continue
             except LocalizationError:
                 pass
@@ -1503,6 +1644,7 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
         if literal is not None:
             records[block.id] = literal
             state["blocks"][block.id] = {"sourceHash": block.source_hash, **literal}
+            failures.pop(block.id, None)
         else:
             pending.append(block)
     if isinstance(client, ModelClient):
@@ -1522,6 +1664,7 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
             for identity, record in validated.items():
                 records[identity] = record
                 state["blocks"][identity] = {"sourceHash": source_by_id[identity].source_hash, **record}
+                failures.pop(identity, None)
                 state.get("dateReviewDrafts", {}).pop(identity, None)
                 state.get("translationReviewDrafts", {}).pop(identity, None)
             state["status"] = "in-progress"
@@ -1536,19 +1679,49 @@ def _translate(blocks: list[Block], state: dict, checkpoint: Callable, client) -
                 break
             batch.append(pending.pop(0))
             characters += len(candidate.text)
-        if isinstance(client, ModelClient):
-            generated = client.translate(batch, review_drafts={block.id: review_drafts[block.id]
-                                         for block in batch if block.id in review_drafts},
-                                         context_blocks=blocks, context_records=records)
-        else:
-            generated = client.translate(batch)
+        try:
+            if isinstance(client, ModelClient):
+                generated = client.translate(batch, review_drafts={block.id: review_drafts[block.id]
+                                             for block in batch if block.id in review_drafts},
+                                             context_blocks=blocks, context_records=records)
+            else:
+                generated = client.translate(batch)
+        except LocalizationError as error:
+            if error.code not in LOCAL_TRANSLATION_FAILURES:
+                raise
+            details = {row.get("blockId"): row for row in getattr(error, "block_failures", [])
+                       if isinstance(row, dict)}
+            for block in batch:
+                if block.id in records:
+                    continue
+                detail = details.get(block.id, {})
+                code = detail.get("code") if detail.get("sourceHash") == block.source_hash else error.code
+                if code not in LOCAL_TRANSLATION_FAILURES:
+                    code = error.code
+                attempts = detail.get("attemptCount")
+                failures[block.id] = {"sourceHash": block.source_hash, "code": code,
+                    "attemptCount": attempts if type(attempts) is int and 1 <= attempts <= MAX_ATTEMPTS else None,
+                    "maximumAttempts": MAX_ATTEMPTS, "sourcePage": block.page + 1}
+            state["status"] = "in-progress"
+            state.pop("artifactSha256", None)
+            checkpoint(state)
+            continue
         if not isinstance(generated, dict) or set(generated) != {b.id for b in batch}:
             raise LocalizationError("BLOCK_COVERAGE_MISMATCH")
         for block in batch:
             record = validate_translation(block.text, generated[block.id])
             records[block.id] = record
             state["blocks"][block.id] = {"sourceHash": block.source_hash, **record}
+            failures.pop(block.id, None)
         checkpoint(state)
+    unresolved = [block for block in blocks if block.id not in records]
+    if unresolved:
+        state["translationFailureCounts"] = dict(Counter(failures[block.id]["code"] for block in unresolved))
+        state["status"] = "in-progress"
+        state.pop("artifactSha256", None)
+        checkpoint(state)
+        raise LocalizationError("TRANSLATION_BLOCKS_PENDING")
+    state.pop("translationFailureCounts", None)
     checkpoint(state)
     return records
 
