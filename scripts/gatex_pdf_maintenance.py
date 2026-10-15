@@ -147,6 +147,24 @@ def select(entries, now, maximum=MAX_UNIQUE):
     return selected
 
 
+def parse_source_pins(value):
+    """Optional manual recovery scope: at most two exact inventory IDs/SHA pairs."""
+    if value is None or value == "":
+        return []
+    try:
+        if not isinstance(value, str) or len(value.encode()) > 4096:
+            raise ValueError
+        rows = json.loads(value)
+        if (not isinstance(rows, list) or not 1 <= len(rows) <= MAX_UNIQUE
+                or any(not isinstance(row, dict) or set(row) != {"id", "expectedSourceSha256"}
+                       or not identity(row["id"]) or not digest(row["expectedSourceSha256"]) for row in rows)
+                or len({row["id"] for row in rows}) != len(rows)):
+            raise ValueError
+        return rows
+    except (ValueError, TypeError, KeyError):
+        raise runner.RunnerError("INVALID_MAINTENANCE_SOURCE_PINS") from None
+
+
 def validate_current_qa(qa, pages, source_sha256=None):
     runner.validate_qa(qa, pages)
     if (not digest(qa.get("sourceSha256")) or (source_sha256 is not None and qa["sourceSha256"] != source_sha256)
@@ -251,25 +269,44 @@ def child_group(api, pins, sources, runtime, seconds):
 
 
 def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budget_seconds=1800,
-             clock=time.monotonic, wall=time.time, execute=child_group, emit=None):
+             clock=time.monotonic, wall=time.time, execute=child_group, emit=None, source_pins=None):
     if type(budget_seconds) not in (int, float) or not math.isfinite(budget_seconds) or not 1 <= budget_seconds <= 3600:
         raise runner.RunnerError("INVALID_MAINTENANCE_BUDGET")
+    if type(maximum) is not int or not 1 <= maximum <= MAX_UNIQUE:
+        raise runner.RunnerError("INVALID_MAINTENANCE_LIMIT")
+    requested = parse_source_pins(source_pins)
+    if len(requested) > maximum:
+        raise runner.RunnerError("INVALID_MAINTENANCE_SOURCE_PINS")
     started, now = clock(), wall()
     prior, rebuilt = load_queue(queue_path)
     inventory = api.inventory()
     entries = reconcile(inventory, prior, now, bootstrap=rebuilt)
-    selected = select(entries, now, maximum)
+    by_id = {item["id"]: item for item in inventory}
+    if any(pin["id"] not in by_id for pin in requested):
+        raise runner.RunnerError("REQUESTED_SOURCE_NOT_IN_INVENTORY")
+    expected = {pin["id"]: pin["expectedSourceSha256"] for pin in requested}
+    selected = [entries[pin["id"]] for pin in requested if pin["id"] in entries] if requested else select(entries, now, maximum)
+    already_ready = [pin for pin in requested if pin["id"] not in entries]
     save_queue(queue_path, entries)
     base = {"schema": REPORT_SCHEMA, "scope": "bounded-maintenance", "discoveryOnly": discovery_only,
         "cacheRebuilt": rebuilt, "inventoryCount": len(inventory), "pendingBefore": len(entries),
-        "selectedIds": [row["id"] for row in selected], "limitUniqueSources": maximum}
+        "selectedIds": [row["id"] for row in selected], "limitUniqueSources": maximum,
+        "requestedSourceIds": [pin["id"] for pin in requested], "sourcePinsVerified": [],
+        "alreadyReadyRequestedCount": 0}
     if discovery_only:
         return {**base, "status": "planned", "selectedUniqueSources": 0, "readyCount": 0, "failedCount": 0,
             "deferredCount": len(entries), "globalPending": len(entries), "globalComplete": not entries, "results": []}
     runtime = Path(runtime)
     runtime.mkdir(parents=True, exist_ok=True, mode=0o700)
-    by_id = {item["id"]: item for item in inventory}
-    groups, sources, results, deferred = {}, {}, [], set()
+    groups, sources, results, deferred, budget_pending = {}, {}, [], set(), set()
+
+    # A requested current-policy edition is never force-rebuilt. Still verify
+    # its actual source/version/SHA before reporting this explicit pin satisfied.
+    for pin in already_ready:
+        _, headers = verify_source(api, by_id[pin["id"]], pin["expectedSourceSha256"])
+        base["sourcePinsVerified"].append({"id": pin["id"], "sourceVersion": by_id[pin["id"]]["sourceVersion"],
+                                           "sourceSha256": headers["x-source-sha256"]})
+        base["alreadyReadyRequestedCount"] += 1
 
     def attempted(row):
         row["attemptCount"] += 1
@@ -278,12 +315,13 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
         row["lastSafeCode"] = "INCOMPLETE_ATTEMPT"
         save_queue(queue_path, entries)
 
-    for row in selected:
+    for selection_index, row in enumerate(selected):
         if clock() - started >= budget_seconds:
+            budget_pending.update(item["id"] for item in selected[selection_index:])
             break
         attempted(row)
         try:
-            data, headers = verify_source(api, by_id[row["id"]])
+            data, headers = verify_source(api, by_id[row["id"]], expected.get(row["id"]))
             value = headers["x-source-sha256"]
             row["sourceSha256"] = value
             if value not in groups and len(groups) >= maximum:
@@ -293,6 +331,7 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
                 continue
             pin = {"id": row["id"], "sourceVersion": row["sourceVersion"], "sourceSha256": value,
                 "sourceUrl": "/api/internal/localized-pdfs/source?" + urlencode({"id": row["id"]})}
+            base["sourcePinsVerified"].append({key: pin[key] for key in ("id", "sourceVersion", "sourceSha256")})
             groups.setdefault(value, []).append(pin)
             sources[row["id"]] = (data, headers)
         except Exception as error:
@@ -306,6 +345,7 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
         final_reserve = min(60, budget_seconds * .05)
         share = (remaining - final_reserve) / (len(groups) - index)
         if share < 1:
+            budget_pending.update(pin["id"] for _, later in list(groups.items())[index:] for pin in later)
             break
         try:
             completed = execute(api, pins, sources, runtime, share)
@@ -325,6 +365,12 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
     try:
         final = api.inventory()
         final_by_id = {row["id"]: row for row in final}
+        for verified in base["sourcePinsVerified"]:
+            if verified["id"] in {pin["id"] for pin in already_ready}:
+                actual = final_by_id.get(verified["id"])
+                if (actual is None or actual.get("status") != "ready" or actual.get("error")
+                        or actual.get("sourceVersion") != verified["sourceVersion"]):
+                    raise runner.RunnerError("FINAL_READINESS_OR_VERSION_CHANGED")
         for result in results:
             actual = final_by_id.get(result["id"])
             if result["status"] == "ready" and (actual is None or actual.get("status") != "ready" or actual.get("error") or actual.get("sourceVersion") != entries[result["id"]]["sourceVersion"]):
@@ -340,6 +386,7 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
     return {**base, "status": "failed" if failed or incomplete or unreadable else "passed",
         "selectedUniqueSources": len(groups), "readyCount": sum(row["status"] == "ready" for row in results),
         "failedCount": failed, "incompleteSelectedCount": len(incomplete), "deferredSelectedCount": len(deferred), "inventoryReadbackFailed": unreadable,
+        "budgetExhaustedPendingCount": len(budget_pending) + sum(row.get("code") in {"MAINTENANCE_DEADLINE_EXCEEDED", "API_DEADLINE_EXCEEDED"} for row in results),
         "deferredCount": len(entries), "globalPending": None if unreadable else len(entries),
         "globalComplete": not unreadable and not entries, "results": results}
 
@@ -403,6 +450,7 @@ def main():
     parser.add_argument("--runtime", type=Path)
     parser.add_argument("--discovery-only", action="store_true")
     parser.add_argument("--budget-seconds", type=int, default=1800)
+    parser.add_argument("--source-pins-json", default="")
     parser.add_argument("--preflight", action="store_true")
     parser.add_argument("--worker", type=Path)
     parser.add_argument("--worker-output", type=Path)
@@ -435,7 +483,8 @@ def main():
         parser.error("queue, summary and runtime paths are required")
     try:
         report = maintain(api, args.queue, args.runtime, discovery_only=args.discovery_only,
-            budget_seconds=args.budget_seconds, emit=lambda value: print(json.dumps(value), flush=True))
+            budget_seconds=args.budget_seconds, source_pins=args.source_pins_json,
+            emit=lambda value: print(json.dumps(value), flush=True))
     except Exception as error:
         report = {"schema": REPORT_SCHEMA, "status": "failed", "code": safe_code(runner.error_code(error)), "globalComplete": False}
     write_json(args.summary, report)

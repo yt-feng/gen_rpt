@@ -1,6 +1,8 @@
 import copy
 import json
+import os
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -80,6 +82,122 @@ class MaintenanceTests(unittest.TestCase):
 
     def run_maintenance(self, api, **kwargs):
         return maintenance.maintain(api, self.queue, self.root / "private", wall=lambda: self.now, **kwargs)
+
+    def pins(self, api, *identifiers):
+        return json.dumps([{"id": identifier, "expectedSourceSha256": runner.sha256(api.rows[identifier][0])} for identifier in identifiers])
+
+    def test_manual_pins_override_only_selection_and_validate_actual_source_before_progress(self):
+        api = Api()
+        self.run_maintenance(api)
+        entries, _ = maintenance.load_queue(self.queue)
+        entries["managed:c"].update(attemptCount=2, nextAttemptAt=self.now + 9999)
+        maintenance.save_queue(self.queue, entries)
+        seen = []
+        def execute(api, pins, sources, runtime, seconds):
+            seen.append((pins, seconds))
+            return maintenance.process_group(api, translator, pins, sources, runtime)
+        report = self.run_maintenance(api, discovery_only=False, source_pins=self.pins(api, "managed:c", "managed:b"), execute=execute)
+        self.assertEqual(report["requestedSourceIds"], ["managed:c", "managed:b"])
+        self.assertEqual(api.source_calls, ["managed:c", "managed:b"])
+        self.assertEqual({identifier for identifier, _ in api.progress_calls}, {"managed:c", "managed:b"})
+        self.assertEqual(len(seen), 2)
+        self.assertTrue(all(0 < budget <= 1800 for _, budget in seen))
+        self.assertEqual([row["sourceVersion"] for row in report["sourcePinsVerified"]], ["version-c", "version-b"])
+        self.assertEqual(report["readyCount"], 2)
+        self.assertEqual(report["globalPending"], 1)
+        self.assertFalse(report["globalComplete"])
+
+    def test_bad_or_unknown_manual_pins_fail_before_source_or_model(self):
+        api = Api()
+        valid = {"id": "catalog:a", "expectedSourceSha256": runner.sha256(SOURCE)}
+        for value in ["{}", "[]", "null", "not-json", json.dumps([valid, valid]),
+                      json.dumps([valid, {**valid, "id": "b"}, {**valid, "id": "c"}]),
+                      json.dumps([{**valid, "expectedSourceSha256": "not-a-sha"}]),
+                      json.dumps([{**valid, "sourceVersion": "untrusted"}]),
+                      json.dumps([{**valid, "id": "bad\ncontrol"}])]:
+            with self.subTest(value=value), self.assertRaisesRegex(runner.RunnerError, "INVALID_MAINTENANCE_SOURCE_PINS"):
+                self.run_maintenance(api, source_pins=value)
+        with self.assertRaisesRegex(runner.RunnerError, "REQUESTED_SOURCE_NOT_IN_INVENTORY"):
+            self.run_maintenance(api, source_pins=json.dumps([{**valid, "id": "catalog:missing"}]))
+        for maximum in (0, 3, True):
+            with self.subTest(maximum=maximum), self.assertRaisesRegex(runner.RunnerError, "INVALID_MAINTENANCE_LIMIT"):
+                self.run_maintenance(api, source_pins=json.dumps([valid]), maximum=maximum)
+        self.assertEqual(api.source_calls, [])
+        self.assertEqual(api.progress_calls, [])
+
+    def test_manual_expected_sha_or_fresh_version_mismatch_never_reaches_model(self):
+        for changed_version in (False, True):
+            api = Api({"catalog:a": (SOURCE, "version-a")})
+            if changed_version:api.bad_versions.add("catalog:a")
+            pins = self.pins(api, "catalog:a") if changed_version else json.dumps([{"id": "catalog:a", "expectedSourceSha256": "a" * 64}])
+            report = self.run_maintenance(api, discovery_only=False, source_pins=pins, execute=lambda *args: self.fail("drift reached model"))
+            self.assertEqual(report["results"][0]["code"], "SOURCE_VERSION_CHANGED" if changed_version else "SOURCE_CHANGED_FROM_PIN")
+            self.assertEqual(report["sourcePinsVerified"], [])
+            self.assertEqual(api.progress_calls, [])
+            self.assertEqual(api.publishes, [])
+            self.assertFalse(report["globalComplete"])
+
+    def test_manual_discovery_does_not_download_or_change_default_queue_order(self):
+        api = Api()
+        report = self.run_maintenance(api, source_pins=self.pins(api, "managed:c"))
+        self.assertEqual(report["selectedIds"], ["managed:c"])
+        self.assertEqual(report["sourcePinsVerified"], [])
+        self.assertEqual(api.source_calls, [])
+        self.assertEqual(self.run_maintenance(api)["selectedIds"], ["catalog:a", "managed:b"])
+
+    def test_manual_already_ready_pin_verifies_source_without_forcing_retranslation(self):
+        api = Api()
+        api.ready.add("managed:c")
+        report = self.run_maintenance(api, discovery_only=False, source_pins=self.pins(api, "managed:c"), execute=lambda *args: self.fail("ready source rebuilt"))
+        self.assertEqual(api.source_calls, ["managed:c"])
+        self.assertEqual(api.progress_calls, [])
+        self.assertEqual(report["alreadyReadyRequestedCount"], 1)
+        self.assertEqual(report["selectedUniqueSources"], 0)
+        self.assertEqual(report["readyCount"], 0, "no newly produced PDF is claimed")
+        self.assertEqual(report["globalPending"], 2)
+        self.assertFalse(report["globalComplete"])
+
+    def test_manual_budget_exhaustion_preserves_partial_checkpoint_for_next_explicit_run(self):
+        api = Api()
+        elapsed, budgets = [0], []
+        def execute(api, pins, sources, runtime, seconds):
+            budgets.append(seconds)
+            pin = pins[0]
+            api.save_progress(pin["id"], pin["sourceSha256"], {"sourceSha256": pin["sourceSha256"], "blocks": {"accepted": {"reviewed": True}}, "ocr": {"verified": True}})
+            elapsed[0] += seconds
+            raise runner.RunnerError("MAINTENANCE_DEADLINE_EXCEEDED")
+        pins = self.pins(api, "managed:b", "managed:c")
+        report = self.run_maintenance(api, discovery_only=False, source_pins=pins, execute=execute, clock=lambda: elapsed[0], budget_seconds=1800)
+        self.assertEqual(budgets, [870, 870])
+        self.assertEqual(report["budgetExhaustedPendingCount"], 2)
+        self.assertEqual(report["readyCount"], 0)
+        self.assertEqual(report["failedCount"], 2)
+        self.assertEqual(report["globalPending"], 3)
+        self.assertFalse(report["globalComplete"])
+        def resume(**kwargs):
+            self.assertIn("accepted", kwargs["progress"]["blocks"])
+            self.assertTrue(kwargs["progress"]["ocr"]["verified"])
+            self.assertFalse(kwargs["force"])
+            return translator(**kwargs)
+        resumed = self.run_maintenance(api, discovery_only=False, source_pins=pins, execute=executor(resume))
+        self.assertEqual(resumed["readyCount"], 2)
+        self.assertEqual(resumed["globalPending"], 1)
+        self.assertFalse(resumed["globalComplete"])
+
+    def test_workflow_passes_manual_json_as_one_literal_argument_without_execution(self):
+        text = (Path(__file__).parents[1] / ".github/workflows/gatex-pdf-maintenance.yml").read_text()
+        self.assertIn("SOURCE_PINS_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.source_pins || '' }}", text)
+        code = text.split("          umask 077\n", 1)[1].split("      - name:", 1)[0]
+        code = "umask 077\n" + "\n".join(line[10:] if line.startswith("          ") else line for line in code.splitlines())
+        malicious = json.dumps([{"id": "catalog:$(touch BAD)`touch BAD2`", "expectedSourceSha256": "a" * 64}])
+        args = self.root / "argv.txt"
+        shell = 'python() { printf "%s\\n" "$@" > "$ARG_FILE"; };\n' + code
+        subprocess.run(["bash", "-c", shell], cwd=self.root, env={"PATH": os.environ["PATH"], "ARG_FILE": str(args), "SOURCE_PINS_JSON": malicious, "DISCOVERY_ONLY": "false", "RUNNER_TEMP": str(self.root)}, check=True)
+        argv = args.read_text().splitlines()
+        self.assertEqual(argv[argv.index("--source-pins-json") + 1], malicious)
+        self.assertEqual(argv[argv.index("--budget-seconds") + 1], "1800")
+        self.assertFalse((self.root / "BAD").exists())
+        self.assertFalse((self.root / "BAD2").exists())
 
     def test_missing_or_corrupt_cache_rebuilds_pending_inventory_without_claiming_completion(self):
         api = Api()
