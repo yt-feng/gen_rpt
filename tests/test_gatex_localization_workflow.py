@@ -90,7 +90,7 @@ class WorkflowModeTests(unittest.TestCase):
         configured = re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", WORKFLOW.read_text(), re.MULTILINE)
         self.assertEqual(configured, [], 'PDF/manual workflow must not duplicate the news schedule')
         configured = re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", NEWS_WORKFLOW.read_text(), re.MULTILINE)
-        self.assertEqual(configured, ['17,47 * * * *'])
+        self.assertEqual(configured, ['5 0 * * *'])
         news_job = WORKFLOW.read_text().split('  warm-news:\n',1)[1]
         self.assertIn('secrets.GATEX_NEWSFEED_CRON_SECRET',news_job)
         self.assertNotIn('secrets.APIMART_API_KEY',news_job)

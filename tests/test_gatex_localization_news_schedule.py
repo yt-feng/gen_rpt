@@ -10,51 +10,26 @@ DIGEST = ROOT / '.github/workflows/run_gatex_newsfeed_digest.yml'
 MANUAL = ROOT / '.github/workflows/gatex-content-localization.yml'
 
 
-def guard(event, *, upstream='schedule', branch='main', default='main', repository='yt-feng/gen_rpt', origin='yt-feng/gen_rpt'):
-    condition = re.search(r'^    if: (.+)$', WORKFLOW.read_text(), re.MULTILINE).group(1)
-    context = {'github.event_name': event, 'github.event.workflow_run.event': upstream,
-               'github.event.workflow_run.head_branch': branch,
-               'github.event.repository.default_branch': default,
-               'github.event.workflow_run.head_repository.full_name': origin,
-               'github.repository': repository}
-    for key in sorted(context, key=len, reverse=True):
-        condition = condition.replace(key, repr(context[key]))
-    condition = condition.replace('&&', ' and ').replace('||', ' or ')
-    parsed = ast.parse(condition.strip(), mode='eval')
-    allowed = (ast.Expression, ast.Constant, ast.BoolOp, ast.And, ast.Or,
-               ast.Compare, ast.Eq, ast.NotEq)
-    if any(not isinstance(node, allowed) for node in ast.walk(parsed)):
-        raise AssertionError('Unexpected workflow guard syntax')
-    return bool(eval(compile(parsed, str(WORKFLOW), 'eval'), {'__builtins__': {}}, {}))
 
 
 class NewsScheduleTests(unittest.TestCase):
     def test_real_schedules_and_manual_dispatch_can_run_news_only(self):
-        self.assertTrue(guard('schedule'))
-        self.assertTrue(guard('workflow_dispatch'))
         text = WORKFLOW.read_text()
-        self.assertEqual(re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", text, re.MULTILINE), ['17,47 * * * *'])
+        self.assertEqual(re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", text, re.MULTILINE), ['5 0 * * *'])
         self.assertIn('ref: ${{ github.event.repository.default_branch }}', text)
         self.assertIn('--news-only', text)
         self.assertIn('--news-max-passes 12', text)
         self.assertIn('--news-budget-seconds 600', text)
         self.assertNotRegex(text, r'--(?:sample-id|pdf-limit|force|inventory-only|ocr-diagnostic-only)\b')
 
-    def test_fallback_accepts_only_the_same_repositorys_default_branch_scheduled_event(self):
-        self.assertTrue(guard('workflow_run'))
-        self.assertTrue(guard('workflow_run', branch='trunk', default='trunk'))
-        for values in [dict(upstream='pull_request'), dict(upstream='workflow_dispatch'),
-                       dict(branch='feature'), dict(origin='someone/fork'),
-                       dict(default='trunk'), dict(origin=''), dict(upstream='')]:
-            with self.subTest(values=values):
-                self.assertFalse(guard('workflow_run', **values))
+    def test_daily_capture_has_no_frequent_or_digest_event_fallback(self):
         text = WORKFLOW.read_text()
-        # The platform's upstream-name filter must follow the actual owned file.
-        name = re.search(r'^name: (.+)$', DIGEST.read_text(), re.MULTILINE).group(1)
-        workflows = ast.literal_eval(re.search(r'^    workflows: (.+)$', text, re.MULTILINE).group(1))
-        self.assertEqual(workflows, [name])
-        self.assertIn('types: [completed]', text)
-        self.assertNotIn('workflow_run.conclusion', text, 'email success or failure must not gate independent news maintenance')
+        self.assertIn('workflow_dispatch:', text)
+        self.assertNotIn('workflow_run:', text)
+        self.assertNotIn('17,47', text)
+        self.assertIn('--news-only --news-capture-daily', text)
+        # Mail scheduling remains owned by its separate existing workflow.
+        self.assertIn('name: Run GateX Newsfeed Digest', DIGEST.read_text())
 
     def test_guard_and_manual_job_share_the_mutex_and_never_receive_model_keys(self):
         text = WORKFLOW.read_text()

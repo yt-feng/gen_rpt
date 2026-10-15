@@ -22,19 +22,15 @@ class NewsMaintenanceTests(unittest.TestCase):
     def run_news(self,request,**kwargs):
         return runner.warm_news(self.api(request),require_publication=True,**kwargs)
 
-    def test_published_old_edition_selects_latest_source_then_pins_until_complete(self):
-        calls=[];current=state(36,digest=A,promoted=True)
+    def test_complete_fixed_edition_never_selects_new_sources_or_warms_again(self):
+        calls=[]
         def request(method,route,**kwargs):
-            nonlocal current
             calls.append((method,route,kwargs.get('json')))
-            if method=='POST':
-                current=state(4,digest=B) if len([c for c in calls if c[0]=='POST'])==1 else state(36,digest=B,promoted=True)
-            return current
+            return state(36,promoted=True)
         report=self.run_news(request)
-        self.assertEqual(report['status'],'passed');self.assertEqual(report['expectedSnapshotHash'],B)
-        self.assertEqual([body for method,_,body in calls if method=='POST'],[{}, {'expectedSnapshotHash':B}])
-        self.assertIn(('GET','/status?expectedSnapshotHash='+B,None),calls)
-        self.assertNotIn('SOURCE BODY',json.dumps(report))
+        self.assertEqual(report['status'],'passed');self.assertEqual(report['expectedSnapshotHash'],A)
+        self.assertEqual(calls,[('GET','/status',None)])
+        self.assertEqual(report['warmPasses'],0)
 
     def test_fixed_candidate_progress_is_resumed_without_replacing_source_batch(self):
         calls=[];current=state(17)
@@ -45,7 +41,7 @@ class NewsMaintenanceTests(unittest.TestCase):
             return current
         report=self.run_news(request)
         self.assertEqual(report['status'],'passed');self.assertEqual(report['warmPasses'],2)
-        self.assertEqual([body for method,_,body in calls if method=='POST'],[{}, {'expectedSnapshotHash':A}])
+        self.assertEqual([body for method,_,body in calls if method=='POST'],[{'expectedSnapshotHash':A}, {'expectedSnapshotHash':A}])
 
     def test_cache_complete_without_confirmed_same_publication_cannot_pass(self):
         for published in ({'available':False,'complete':False,'snapshotHash':None,'total':0,'ready':0},
@@ -67,7 +63,7 @@ class NewsMaintenanceTests(unittest.TestCase):
         report=self.run_news(request)
         self.assertEqual(report['status'],'failed');self.assertEqual(report['stopReason'],'SNAPSHOT_CHANGED')
         self.assertEqual(report['expectedSnapshotHash'],A);self.assertEqual(report['ready'],4)
-        self.assertEqual([body for method,_,body in calls if method=='POST'],[{}, {'expectedSnapshotHash':A}])
+        self.assertEqual([body for method,_,body in calls if method=='POST'],[{'expectedSnapshotHash':A}, {'expectedSnapshotHash':A}])
 
     def test_http409_reports_pin_conflict_without_retrying_paid_work(self):
         posts=0
@@ -91,7 +87,7 @@ class NewsMaintenanceTests(unittest.TestCase):
             return state(36,promoted=True) if completed else state(17)
         report=self.run_news(request)
         self.assertEqual(report['status'],'passed');self.assertEqual(report['warmPasses'],1)
-        self.assertEqual(calls,[('GET','/status',None),('POST','/warm',{}),('GET','/status',None)])
+        self.assertEqual(calls,[('GET','/status',None),('POST','/warm',{'expectedSnapshotHash':A}),('GET','/status?expectedSnapshotHash='+A,None)])
 
     def test_unknown_pinned_post_outcome_uses_pinned_status_read(self):
         calls=[];posts=0
@@ -111,8 +107,8 @@ class NewsMaintenanceTests(unittest.TestCase):
         def request(method,route,**kwargs):
             calls.append((method,route,kwargs.get('json')));return state(36,promoted=True)
         report=self.run_news(request)
-        self.assertEqual(report['status'],'passed');self.assertEqual(report['warmPasses'],1)
-        self.assertEqual(calls,[('GET','/status',None),('POST','/warm',{})])
+        self.assertEqual(report['status'],'passed');self.assertEqual(report['warmPasses'],0)
+        self.assertEqual(calls,[('GET','/status',None)])
 
     def test_current_server_contract_is_required_before_any_warm(self):
         old=state(36,promoted=True);old.pop('candidate');old.pop('published');calls=[]
