@@ -1,4 +1,5 @@
 import copy
+import base64
 import io
 import json
 import re
@@ -18,7 +19,7 @@ from gen_rpt.gatex_pdf_localization import (
     _date_review_draft, _translate, _source_calendar_hints, _quantity_placeholder_errors, _source_page_reference_hints,
     _translation_review_draft, _source_publication_terms,
     _adjacent_review_context,
-    _private_ocr_evidence,
+    _private_ocr_evidence, OCR_CONTEXT_REVIEW_POLICY, OCR_CONTEXT_REVIEW_SYSTEM,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -317,6 +318,85 @@ class PdfLocalizationTests(unittest.TestCase):
         self.assertEqual(len(rejected[-1]["cropBBox"]), 4)
         self.assertRegex(rejected[-1]["cropImageSha256"], r"^[a-f0-9]{64}$")
 
+    def test_targeted_crop_sends_exact_focus_and_context_without_promoting_outer_text(self):
+        image = Image.new("RGB", (300, 200), "white")
+        draw = ImageDraw.Draw(image)
+        draw.text((80, 35), "Peripheral native heading", fill="blue")
+        draw.rectangle((120, 90, 139, 109), fill="gray", outline="black")
+        stream = io.BytesIO(); image.save(stream, format="PNG")
+        detector = {"text": "q", "confidence": 86, "bbox": [120, 90, 140, 110]}
+        evidence = {"width": 300, "height": 200, "words": [detector]}
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls = []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            if len(calls) == 1:
+                return {"verified": True, "uncertainRegions": [], "lines": []}
+            self.assertEqual(messages[0]["content"], OCR_CONTEXT_REVIEW_SYSTEM)
+            content = messages[1]["content"]
+            request = json.loads(content[0]["text"])
+            self.assertEqual(request["policy"], OCR_CONTEXT_REVIEW_POLICY)
+            self.assertEqual(len(content), 3, "one tight view and one context, never a replacement source image")
+            images = [Image.open(io.BytesIO(base64.b64decode(part["image_url"]["url"].split(",", 1)[1]))).convert("RGB") for part in content[1:]]
+            self.assertEqual(images[0].size, (20, 20))
+            self.assertEqual(images[0].tobytes(), image.crop(tuple(detector["bbox"])).tobytes())
+            self.assertEqual(images[1].size, (140, 140))
+            self.assertEqual(images[1].tobytes(), image.crop((60, 30, 200, 170)).tobytes())
+            self.assertEqual(request["candidateBBoxInContext"], [60/140*1000, 60/140*1000, 80/140*1000, 80/140*1000])
+            return {"verified": True, "classification": "non_text", "uncertainRegions": [], "lines": []}
+        client._once = once
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+            result = client.ocr(stream.getvalue())
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(result["lines"], [], "outer text cannot be fabricated into a candidate OCR line")
+        checked = result["coverage"]["cropChecks"][0]
+        self.assertEqual(checked["focusBBox"], detector["bbox"])
+        self.assertEqual(checked["contextReviewPolicy"], OCR_CONTEXT_REVIEW_POLICY)
+        self.assertEqual(checked["reviewPromptSha256"], digest(OCR_CONTEXT_REVIEW_SYSTEM))
+        for key in ("focusImageSha256", "cropImageSha256"):
+            self.assertRegex(checked[key], r"^[a-f0-9]{64}$")
+
+    def test_targeted_crop_keeps_text_boundary_numeric_and_uncertainty_gates(self):
+        image = Image.new("RGB", (100, 100), "white")
+        ImageDraw.Draw(image).text((40, 40), "25%", fill="black")
+        stream = io.BytesIO(); image.save(stream, format="PNG")
+        evidence = {"width": 100, "height": 100, "words": [{"text": "25%", "confidence": 90, "bbox": [40, 40, 60, 50]}]}
+        # Context bounds are [10, 10, 90, 80]. A complete line may touch or
+        # extend past the tight-view edge but must overlap the original box.
+        cases = [
+            ({"verified": True, "classification": "text", "uncertainRegions": [], "lines": [{"text": "25%", "bbox": [350, 400, 650, 600]}]}, None),
+            ({"verified": True, "classification": "text", "uncertainRegions": [], "lines": [{"text": "5%", "bbox": [350, 400, 650, 600]}]}, "RASTER_NUMERIC_OR_LINK_MISMATCH"),
+            ({"verified": True, "classification": "text", "uncertainRegions": [], "lines": [{"text": "Peripheral heading", "bbox": [0, 0, 1000, 100]}]}, "RASTER_TEXT_COVERAGE_MISMATCH"),
+            ({"verified": False, "classification": "non_text", "uncertainRegions": ["Candidate cannot be read"], "lines": []}, "UNVERIFIED_RASTER_TEXT"),
+            ({"verified": True, "classification": "non_text", "uncertainRegions": [], "lines": [{"text": "25%", "bbox": [350, 400, 650, 600]}]}, "RASTER_TEXT_COVERAGE_MISMATCH"),
+        ]
+        for response, code in cases:
+            with self.subTest(code=code):
+                with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+                    client = ModelClient(sleep=lambda seconds: None)
+                calls, rejected = [], []
+                client.ocr_rejection_callback = rejected.append
+                def once(messages, **kwargs):
+                    calls.append(messages)
+                    return {"verified": True, "uncertainRegions": [], "lines": []} if len(calls) == 1 else copy.deepcopy(response)
+                client._once = once
+                with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence):
+                    if code:
+                        with self.assertRaisesRegex(LocalizationError, "^" + code + "$"):
+                            client.ocr(stream.getvalue())
+                    else:
+                        result = client.ocr(stream.getvalue())
+                        self.assertEqual(result["lines"][0]["text"], "25%")
+                        self.assertEqual(result["lines"][0]["bbox"], [380.0, 380.0, 620.0, 520.0])
+                self.assertEqual(len(calls), 4 if code else 2, "same original three-attempt budget")
+                if code:
+                    self.assertEqual(len(rejected), 3)
+                    self.assertEqual(rejected[-1]["contextReviewPolicy"], OCR_CONTEXT_REVIEW_POLICY)
+                    self.assertEqual(rejected[-1]["reviewPromptSha256"], digest(OCR_CONTEXT_REVIEW_SYSTEM))
+                    self.assertEqual(rejected[-1]["focusBBox"], evidence["words"][0]["bbox"])
+                    self.assertNotIn("data:image", json.dumps(rejected))
+
     def test_nonfinite_ocr_candidate_keeps_strict_checkpoint_and_three_attempts(self):
         from scripts.gatex_localization_runner import encoded_json
         with TemporaryDirectory() as directory:
@@ -367,6 +447,56 @@ class PdfLocalizationTests(unittest.TestCase):
                 with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
                     validate_translation(source, candidate)
                 self.assertEqual(validate_translation(source, {**candidate, "reviewed": True})["text"], target)
+
+    def test_estimated_year_ranges_reconcile_only_complete_source_protected_codes(self):
+        for form in ("2025E-2029E", "2026E-2028E", "2025E–2029E", "2025E to 2029E"):
+            source = f"The {form} values remain forecasts."
+            target = f"{form.replace(' to ', '至')}数值仍为预测值。"
+            candidate = _source_verified_record(source, {"text": target, "retainedEnglish": []})
+            self.assertGreaterEqual(len(candidate["retainedEnglish"]), 1)
+            with self.subTest(form=form):
+                self.assertEqual(validate_translation(source, {**candidate, "reviewed": True})["text"], target)
+                with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
+                    validate_translation(source, candidate)
+        source = "The 2025E-2029E values remain forecasts."
+        for target in ("2025E-2028E数值仍为预测值。", "2025E-2029E和2025E-2029E数值仍为预测值。",
+                       "2025e-2029e数值仍为预测值。", "2025E-2029E数值仍为forecasts。",
+                       "2025E-2029E数值 E 仍为预测值。"):
+            with self.subTest(target=target), self.assertRaises(LocalizationError):
+                validate_translation(source, {**_source_verified_record(source, {"text": target, "retainedEnglish": []}), "reviewed": True})
+        self.assertEqual(_source_identity_hints("E and FORECAST remain ordinary text."), [])
+        with self.assertRaisesRegex(LocalizationError, "UNRESOLVED_ENGLISH"):
+            validate_translation("E is a letter.", {"text": "E是字母。", "retainedEnglish": [], "reviewed": True})
+
+    def test_estimated_year_range_restores_then_receives_fresh_fidelity_review(self):
+        block = Block("estimated-range", 0, "The 2025E-2029E values may change.", None)
+        for approved in (True, False):
+            with self.subTest(approved=approved):
+                with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+                    client = ModelClient(sleep=lambda seconds: None)
+                calls, saved = [], []
+                client.accepted_callback = saved.append
+                def once(messages, **kwargs):
+                    calls.append(messages)
+                    row = json.loads(messages[1]["content"])["blocks"][0]
+                    if "source" not in row:
+                        self.assertIn("{GATEX_QUANTITY_0}", row["text"])
+                        return {"blocks": [{"id": block.id, "text": "{GATEX_QUANTITY_0}数值可能变化。", "retainedEnglish": []}]}
+                    self.assertEqual(len(messages), 2, "fresh review never sees earlier verdicts")
+                    self.assertEqual(row["source"], block.text)
+                    self.assertEqual(row["translation"], "2025E-2029E数值可能变化。")
+                    return {"blocks": [{"id": block.id, "complete": True, "faithful": approved,
+                        "professionalChinese": True, "ownedTerminology": True, "qualityIssues": [],
+                        "issues": [] if approved else ["Fixture rejects source fidelity"]}]}
+                client._once = once
+                if approved:
+                    result = client.translate([block])
+                    self.assertIn({"text": "2025E-2029E", "kind": "code"}, result[block.id]["retainedEnglish"])
+                    self.assertEqual((len(calls), len(saved)), (2, 1))
+                else:
+                    with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
+                        client.translate([block])
+                    self.assertEqual((len(calls), len(saved)), (6, 0), "three failed candidates never enter the factual checkpoint")
 
     def test_numeric_code_and_shape_hints_cannot_preserve_ordinary_prose_or_changed_codes(self):
         for source in ("FIGURE-1", "REPORT2026", "FORECAST-2026", "Figure-1", "Ordinary title"):
