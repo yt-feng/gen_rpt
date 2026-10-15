@@ -21,7 +21,7 @@ def verdict(identity):
 
 def client():
     with patch.dict("os.environ", {"GATEX_PDF_TRANSLATION_PROVIDER": "apimart", "APIMART_API_KEY": "not-used"}):
-        return ModelClient(session_factory=lambda: (_ for _ in ()).throw(AssertionError("network forbidden")), sleep=lambda _: None)
+        return ModelClient(acceptance_mode="strict", session_factory=lambda: (_ for _ in ()).throw(AssertionError("network forbidden")), sleep=lambda _: None)
 
 
 class FailureIsolationTests(unittest.TestCase):
