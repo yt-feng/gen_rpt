@@ -1,0 +1,200 @@
+name: GateX PDF SHA audit and bounded backfill
+
+on:
+  workflow_dispatch:
+    inputs:
+      audit_only:
+        description: 'Read-only SHA/page/cache inventory; no translation or publication'
+        type: boolean
+        default: true
+      max_unique_per_shard:
+        description: 'Maximum pending unique source PDFs per shard; 0 processes all'
+        type: number
+        default: 3
+      shard_concurrency:
+        description: 'Parallel source PDFs in each of three shards (default total: 3)'
+        type: choice
+        options: ['1', '2']
+        default: '1'
+  pull_request:
+    paths:
+      - '.github/workflows/gatex-pdf-backfill.yml'
+      - 'scripts/gatex_pdf_backfill.py'
+      - 'scripts/gatex_localization_runner.py'
+      - 'tests/test_gatex_localization*.py'
+
+permissions:
+  contents: read
+
+# The complete manual run owns the same lock as the existing PDF job. Child
+# matrix jobs must not acquire this lock again. News uses a separate group.
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('gatex-pdf-backfill-ci-{0}', github.ref) || 'gatex-pdf-localization' }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install offline contract runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
+          python -m pip install --disable-pip-version-check -r requirements-localization.txt
+      - name: Validate source pinning, recovery, matrix boundaries and final completeness
+        run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
+
+  audit:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      manifest_sha256: ${{ steps.digest.outputs.sha256 }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install read-only audit runtime
+        run: python -m pip install --disable-pip-version-check 'requests>=2.32,<3' 'PyMuPDF>=1.26.7,<1.27'
+      - name: Audit every source and retain safe counts while unavailable sources remain explicit
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+        run: |
+          umask 077
+          PYTHONPATH=. python -u scripts/gatex_pdf_backfill.py audit --allow-partial-audit \
+            --manifest "$RUNNER_TEMP/gatex-pdf-backfill-audit/manifest.json" \
+            --summary "$RUNNER_TEMP/gatex-pdf-backfill-audit/audit.json" \
+            --runtime "$RUNNER_TEMP/gatex-pdf-backfill-private"
+      - name: Bind later jobs to this exact safe manifest
+        id: digest
+        run: |
+          python - <<'PY'
+          import hashlib, os, pathlib
+          manifest = pathlib.Path(os.environ['RUNNER_TEMP']) / 'gatex-pdf-backfill-audit/manifest.json'
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('sha256=' + hashlib.sha256(manifest.read_bytes()).hexdigest() + '\n')
+          PY
+      - name: Upload safe source identities and QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-pdf-backfill-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-backfill-audit/*.json
+          if-no-files-found: warn
+          retention-days: 7
+
+  backfill:
+    if: github.event_name == 'workflow_dispatch' && !inputs.audit_only
+    needs: audit
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        shard: [0, 1, 2]
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install existing PDF localization runtime
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
+          python -m pip install --disable-pip-version-check -r requirements-localization.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: gatex-pdf-backfill-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-backfill-input
+      - name: Resume strict translation and publication for this SHA shard
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+          DEEPSEEK_API_KEY: ${{ secrets.DEEPSEEK_API_KEY }}
+          GATEX_PDF_TRANSLATION_PROVIDER: deepseek
+          GATEX_PDF_TEXT_MODEL: deepseek-v4-pro
+          GATEX_PDF_VISION_MODEL: deepseek-flash
+          BACKFILL_LIMIT: ${{ format('{0}', inputs.max_unique_per_shard) }}
+          BACKFILL_CONCURRENCY: ${{ inputs.shard_concurrency }}
+          BACKFILL_SHARD: ${{ matrix.shard }}
+          MANIFEST_SHA256: ${{ needs.audit.outputs.manifest_sha256 }}
+        run: |
+          umask 077
+          PYTHONPATH=. python -u scripts/gatex_pdf_backfill.py shard \
+            --manifest "$RUNNER_TEMP/gatex-pdf-backfill-input/manifest.json" \
+            --expected-manifest-sha256 "$MANIFEST_SHA256" \
+            --shard "$BACKFILL_SHARD" --limit "$BACKFILL_LIMIT" --concurrency "$BACKFILL_CONCURRENCY" \
+            --summary "$RUNNER_TEMP/gatex-pdf-backfill-qa/shard-$BACKFILL_SHARD.json" \
+            --runtime "$RUNNER_TEMP/gatex-pdf-backfill-private"
+      - name: Upload shard QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-pdf-backfill-shard-${{ matrix.shard }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-backfill-qa/shard-${{ matrix.shard }}.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove private PDFs and working data
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/gatex-pdf-backfill-private"
+
+  completeness:
+    if: always() && github.event_name == 'workflow_dispatch'
+    needs: [audit, backfill]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install readback runtime
+        run: python -m pip install --disable-pip-version-check 'requests>=2.32,<3' 'PyMuPDF>=1.26.7,<1.27'
+      - uses: actions/download-artifact@v4
+        with:
+          name: gatex-pdf-backfill-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-backfill-input
+      - uses: actions/download-artifact@v4
+        if: '!inputs.audit_only'
+        with:
+          pattern: gatex-pdf-backfill-shard-*-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-backfill-reports
+          merge-multiple: true
+      - name: Verify exact-source inventory and every published artifact; pending is failure
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+          AUDIT_ONLY: ${{ inputs.audit_only && 'true' || 'false' }}
+          MANIFEST_SHA256: ${{ needs.audit.outputs.manifest_sha256 }}
+        run: |
+          umask 077
+          audit_args=()
+          if [ "$AUDIT_ONLY" = 'true' ]; then audit_args+=(--audit-only); fi
+          PYTHONPATH=. python -u scripts/gatex_pdf_backfill.py finalize \
+            --manifest "$RUNNER_TEMP/gatex-pdf-backfill-input/manifest.json" \
+            --expected-manifest-sha256 "$MANIFEST_SHA256" \
+            --reports "$RUNNER_TEMP/gatex-pdf-backfill-reports" \
+            --summary "$RUNNER_TEMP/gatex-pdf-backfill-final/summary.json" \
+            --runtime "$RUNNER_TEMP/gatex-pdf-backfill-private" "${audit_args[@]}"
+      - name: Upload final QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-pdf-backfill-final-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-backfill-final/summary.json
+          if-no-files-found: warn
+          retention-days: 7
