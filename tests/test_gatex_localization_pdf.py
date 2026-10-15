@@ -169,6 +169,39 @@ class PdfLocalizationTests(unittest.TestCase):
         self.assertFalse(normalized["reviewed"], "date reordering never supplies semantic approval")
         self.assertEqual(validate_translation(source, {**normalized, "reviewed": True})["text"], "2026年九月24日")
 
+    def test_protected_date_inside_paragraph_is_reordered_before_fresh_review(self):
+        source = "The material was published on 24 September 2026; a revision followed on 7 October 2026."
+        record = {"text": "材料于24 九月 2026发布，修订版于7 十月 2026发布。", "retainedEnglish": [], "reviewed": False}
+        with self.assertRaisesRegex(LocalizationError, "DATE_DISPLAY_ORDER"):
+            validate_translation(source, {**record, "reviewed": True})
+        fixed = _source_verified_record(source, record)
+        self.assertEqual(fixed["text"], "材料于2026年九月24日发布，修订版于2026年十月7日发布。")
+        self.assertFalse(fixed["reviewed"])
+        validate_translation(source, {**fixed, "reviewed": True})
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            validate_translation(source, {**fixed, "text": fixed["text"].replace("24日", "25日"), "reviewed": True})
+        foreign = _source_verified_record("The next review is in 2026.", record)
+        self.assertEqual(foreign["text"], record["text"], "a date without exact source evidence cannot be reformatted")
+
+    def test_independent_review_receives_natural_restored_paragraph_date(self):
+        block = Block("dated-paragraph", 0, "The material was published on 24 September 2026.", (40, 50, 500, 80))
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls = []
+        def once(messages, **kwargs):
+            supplied = json.loads(messages[1]["content"])["blocks"][0]
+            calls.append(supplied)
+            if "source" in supplied:
+                self.assertEqual(supplied["source"], block.text)
+                self.assertEqual(supplied["translation"], "材料发布于2026年九月24日。")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+            return {"blocks": [{"id": block.id, "text": supplied["text"].replace("The material was published on ", "材料发布于").replace("September", "九月").replace(".", "。"), "retainedEnglish": []}]}
+        client._once = once
+        result = client.translate([block])
+        self.assertEqual(len(calls), 2)
+        self.assertTrue(result[block.id]["reviewed"])
+        self.assertEqual(result[block.id]["text"], "材料发布于2026年九月24日。")
+
     def run_fixture(self, directory, replacements=None, **kwargs):
         source, output = Path(directory) / "en.pdf", Path(directory) / "zh.pdf"
         source_pdf(source, raster=kwargs.pop("raster", False), pages=kwargs.pop("pages", 1), outline=kwargs.pop("outline", False))
