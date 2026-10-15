@@ -295,6 +295,28 @@ def _source_date_reorderings(source: str) -> list[tuple[re.Pattern, str]]:
     return dates
 
 
+def _source_calendar_hints(source: str) -> list[dict]:
+    """Positive calendar contexts only; modal May and the verb march are prose."""
+    hints = []
+    for month, chinese in MONTHS.items():
+        name = re.escape(month)
+        if (re.search(r"\b[0-3]?\d\s+" + name + r"(?:\s+\d{4})?\b", source)
+                or re.search(r"\b" + name + r"\s+(?:[0-3]?\d(?:,?\s+\d{4})?|\d{4})\b", source)):
+            hints.append({"sourceMonth": month, "chineseMonth": chinese + "月",
+                          "instruction": "Translate this written calendar month as Chinese words. It has no numeric placeholder of its own; never invent one."})
+    return hints
+
+
+def _quantity_placeholder_errors(protection, candidate: Any) -> dict:
+    expected = Counter(token.placeholder for token in protection.tokens)
+    actual = Counter(re.findall(r"\{GATEX_QUANTITY_[^{}\n]*\}", candidate)) if isinstance(candidate, str) else Counter()
+    return {"expectedPlaceholders": list(expected),
+            "missingPlaceholders": dict(expected - actual),
+            "duplicatePlaceholders": {token: count - expected[token] for token, count in actual.items()
+                                      if token in expected and count > expected[token]},
+            "unknownPlaceholders": {token: count for token, count in actual.items() if token not in expected}}
+
+
 def _date_review_draft(block: Block, draft: dict) -> dict:
     """A private, source-bound formatting migration, never cached approval.
 
@@ -650,9 +672,11 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 "sourceMastheadTranslation": _source_masthead_hint(rejection["source"]),
                 "sourceEditionContext": _source_edition_context(rejection["source"]),
                 "quantityHints": rejection.get("quantityHints", []),
+                "quantityPlaceholderErrors": rejection.get("quantityPlaceholderErrors", {}),
+                "sourceCalendarMonths": _source_calendar_hints(rejection["source"]),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
                 "allowedRetainedKinds": sorted(RETAINED_KINDS),
-                "instruction": "Use exact source spelling, casing and whitespace for retained identities. Do not expand a surname using another block. Translate ordinary English fully. Preserve source-verified type codes and parenthesized letter markers with their counts. retainedEnglish must be a JSON array. Do not invent context or identities."}
+                "instruction": "Use exact source spelling, casing and whitespace for retained identities. Do not expand a surname using another block. Translate ordinary English fully. Preserve source-verified type codes and parenthesized letter markers with their counts. retainedEnglish must be a JSON array. Do not invent context or identities. For a quantity placeholder error, emit each expectedPlaceholders item exactly once; remove unknown IDs and extra duplicates, restore missing IDs to their actual source quantities. Translate written sourceCalendarMonths as Chinese words, never an invented numeric placeholder."}
 
         # Approved candidates are durably checkpointed after a fresh review.
         # Three generation attempts total; later attempts contain only pending
@@ -678,6 +702,7 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                 generating = [b for b in pending if b.id not in drafting]
                 source = [{"id": b.id, "sourcePage": b.page + 1, "text": protections[b.id].masked,
                     "quantityHints": protections[b.id].hints,
+                    "sourceCalendarMonths": _source_calendar_hints(b.text),
                     "sourceVerifiedIdentities": _source_identity_hints(b.text),
                     "sourceTitleTranslations": _source_title_hints(b.text),
                     "sourceMastheadTranslation": _source_masthead_hint(b.text),
@@ -706,6 +731,8 @@ Chinese elsewhere in the sentence does not supply that counterpart."""
                             "blockId": block.id, "sourcePage": block.page + 1, "sourceHash": block.source_hash,
                             "source": block.text, "record": copy.deepcopy(raw),
                             "quantityHints": protections[block.id].hints, "normalizedCandidate": {**copy.deepcopy(candidate), "reviewed": False}}
+                        if error.code == "QUANTITY_PLACEHOLDER_MISMATCH":
+                            rejection["quantityPlaceholderErrors"] = _quantity_placeholder_errors(protections[block.id], raw.get("text"))
                         if error.code == "UNRESOLVED_ENGLISH":
                             retained = candidate.get("retainedEnglish", [])
                             if isinstance(retained, list):
