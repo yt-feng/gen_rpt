@@ -1,0 +1,56 @@
+name: GateX public news maintenance
+
+on:
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+  workflow_run:
+    workflows: ['Run GateX Newsfeed Digest']
+    types: [completed]
+
+permissions:
+  contents: read
+
+# Also serialize with the existing manually dispatched warm-news job.
+concurrency:
+  group: gatex-news-localization
+  cancel-in-progress: false
+
+jobs:
+  maintain:
+    # A scheduled digest is a clock signal; email failure must not block news.
+    # This job never calls or changes the digest/email endpoint.
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.event == 'schedule' && github.event.workflow_run.head_branch == github.event.repository.default_branch && github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install HTTP client
+        run: python -m pip install --disable-pip-version-check 'requests>=2.32.0'
+      - name: Warm and verify one fixed public Chinese news candidate
+        env:
+          GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
+        run: |
+          umask 077
+          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only \
+            --news-max-passes 12 \
+            --news-budget-seconds 600 \
+            --runtime "$RUNNER_TEMP/gatex-news-localization-private" \
+            --summary "$RUNNER_TEMP/gatex-news-localization-qa/summary.json"
+      - name: Upload public QA statistics only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-news-maintenance-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-news-localization-qa/summary.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove private working documents
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/gatex-news-localization-private"

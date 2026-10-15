@@ -6,6 +6,7 @@ import re
 import unittest
 
 WORKFLOW = Path(__file__).resolve().parents[1] / '.github/workflows/gatex-content-localization.yml'
+NEWS_WORKFLOW = WORKFLOW.with_name('gatex-news-maintenance.yml')
 
 
 def enabled(job, event='workflow_dispatch', *, inventory=False, news=False, diagnostic=False, sample='', cron=''):
@@ -75,10 +76,11 @@ class WorkflowModeTests(unittest.TestCase):
         self.assertTrue(enabled('warm-news'))
         self.assertTrue(enabled('localize'))
 
-    def test_daily_pdf_and_news_crons_are_separate_and_pr_runs_neither(self):
+    def test_manual_workflow_does_not_handle_the_independent_news_cron(self):
         self.assertTrue(enabled('localize', 'schedule', cron='23 4 * * *'))
         self.assertFalse(enabled('warm-news', 'schedule', cron='23 4 * * *'))
-        self.assertTrue(enabled('warm-news', 'schedule', cron='7,37 * * * *'))
+        self.assertFalse(enabled('warm-news', 'schedule', cron='7,37 * * * *'))
+        self.assertFalse(enabled('warm-news', 'schedule', cron='17,47 * * * *'))
         self.assertFalse(enabled('localize', 'schedule', cron='7,37 * * * *'))
         self.assertFalse(enabled('localize', 'pull_request'))
         self.assertFalse(enabled('warm-news', 'pull_request'))
@@ -86,9 +88,9 @@ class WorkflowModeTests(unittest.TestCase):
     def test_only_independent_news_schedule_is_enabled(self):
         # Comments and disabled PDF examples cannot count as real trigger entries.
         configured = re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", WORKFLOW.read_text(), re.MULTILINE)
-        self.assertEqual(configured, ['7,37 * * * *'])
-        self.assertTrue(enabled('warm-news','schedule',cron=configured[0]))
-        self.assertFalse(enabled('localize','schedule',cron=configured[0]))
+        self.assertEqual(configured, [], 'PDF/manual workflow must not duplicate the news schedule')
+        configured = re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", NEWS_WORKFLOW.read_text(), re.MULTILINE)
+        self.assertEqual(configured, ['17,47 * * * *'])
         news_job = WORKFLOW.read_text().split('  warm-news:\n',1)[1]
         self.assertIn('secrets.GATEX_NEWSFEED_CRON_SECRET',news_job)
         self.assertNotIn('secrets.APIMART_API_KEY',news_job)

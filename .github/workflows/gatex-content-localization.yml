@@ -1,13 +1,12 @@
 name: GateX content localization
 
 on:
-  # News maintenance is independent of the manually controlled PDF rollout.
-  schedule:
-    - cron: '7,37 * * * *'
+  # Public news scheduling lives in gatex-news-maintenance.yml.
   # PDF schedule remains disabled: '23 4 * * *'
   pull_request:
     paths:
       - '.github/workflows/gatex-content-localization.yml'
+      - '.github/workflows/gatex-news-maintenance.yml'
       - 'gen_rpt/gatex_pdf_localization.py'
       - 'scripts/gatex_localization_runner.py'
       - 'scripts/gatex_pdf_translate.py'
@@ -177,7 +176,7 @@ jobs:
         run: rm -rf -- "$RUNNER_TEMP/gatex-localization-private"
 
   warm-news:
-    if: (github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only && (inputs.news_only || !inputs.sample_id)) || (github.event_name == 'schedule' && github.event.schedule == '7,37 * * * *')
+    if: github.event_name == 'workflow_dispatch' && !inputs.inventory_only && !inputs.ocr_diagnostic_only && (inputs.news_only || !inputs.sample_id)
     concurrency:
       group: gatex-news-localization
       cancel-in-progress: false
