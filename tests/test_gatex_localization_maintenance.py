@@ -474,6 +474,32 @@ class MaintenanceTests(unittest.TestCase):
                 self.assertEqual(report["pendingCount"], int(expected == "pending"))
                 self.assertFalse(report["globalComplete"])
 
+    def test_actual_checkpoint_503_preserves_http_diagnostics_for_aliases_and_other_sources_continue(self):
+        api = Api({"catalog:a": (SOURCE, "a"), "review:alias": (SOURCE, "alias"), "managed:b": (SOURCE + b"b", "b")})
+        self.run_maintenance(api)
+        entries, _ = maintenance.load_queue(self.queue)
+        for identifier in ("catalog:a", "review:alias"):
+            entries[identifier]["sourceSha256"] = runner.sha256(SOURCE)
+        maintenance.save_queue(self.queue, entries)
+        save, attempts = api.save_progress, []
+        def unavailable(identifier, digest, progress):
+            attempts.append(identifier)
+            if digest == runner.sha256(SOURCE):
+                raise runner.RunnerError("API_HTTP_ERROR", 503, "PDF_API_503")
+            return save(identifier, digest, progress)
+        api.save_progress = unavailable
+        report = self.run_maintenance(api, discovery_only=False, execute=executor(translator))
+        self.assertEqual(report["status"], "pending")
+        self.assertTrue(report["operationalHealthy"])
+        self.assertEqual((report["readyCount"], report["pendingCount"], report["failedCount"]), (1, 2, 0))
+        for result in report["results"]:
+            if result["id"] in {"catalog:a", "review:alias"}:
+                self.assertEqual((result["status"], result["code"], result["httpStatus"], result["apiCode"]),
+                    ("pending", "API_HTTP_ERROR", 503, "PDF_API_503"))
+        self.assertEqual(attempts.count("catalog:a") + attempts.count("review:alias"), 1, "one source failure is reused without a second alias budget")
+        self.assertIn("managed:b", api.ready)
+        self.assertFalse(report["globalComplete"])
+
     def test_transient_final_inventory_is_unknown_pending_but_auth_failure_stays_an_error(self):
         for status, expected in [(503, "pending"), (401, "failed")]:
             with self.subTest(status=status):
@@ -511,7 +537,7 @@ class MaintenanceTests(unittest.TestCase):
         for field, value in [("acceptancePolicyVersion", "old"), ("readableChinesePassed", False),
                 ("readableCheckedBlockCount", 1), ("readableCheckedBlockCount", True),
                 ("sourceSha256", "b" * 64), ("minimumTranslatedFontSize", 6.9),
-                ("figuresPreserved", False), ("missingBlocks", 1)]:
+                ("figuresPreserved", False), ("rasterOCRVerified", False), ("missingBlocks", 1)]:
             with self.subTest(field=field), self.assertRaises(runner.RunnerError):
                 maintenance.validate_current_qa({**qa, field: value}, 1, runner.sha256(SOURCE))
 

@@ -192,6 +192,7 @@ def parse_source_pins(value):
 def validate_current_qa(qa, pages, source_sha256=None):
     runner.validate_qa(qa, pages)
     if (not digest(qa.get("sourceSha256")) or (source_sha256 is not None and qa["sourceSha256"] != source_sha256)
+            or qa.get("rasterOCRVerified") is not True
             or type(qa.get("minimumTranslatedFontSize")) not in (int, float)
             or not math.isfinite(qa["minimumTranslatedFontSize"]) or qa["minimumTranslatedFontSize"] < 7):
         raise runner.RunnerError("CURRENT_QUALITY_POLICY_REQUIRED")
@@ -263,7 +264,10 @@ def process_group(api, translate, pins, sources, runtime):
                     raise runner.RunnerError("ARTIFACT_DIGEST_MISMATCH")
                 cached = data, {key: value for key, value in result.items() if key != "path"}
             except Exception as error:
-                failure = runner.RunnerError(safe_code(runner.error_code(error)))
+                status = getattr(error, "status", None)
+                failure = runner.RunnerError(safe_code(runner.error_code(error)),
+                    status if type(status) is int and 100 <= status <= 599 else None,
+                    getattr(error, "api_code", None))
                 raise failure from None
         data, metadata = cached
         kwargs["output_pdf"].write_bytes(data)
