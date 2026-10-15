@@ -480,9 +480,10 @@ class MaintenanceTests(unittest.TestCase):
         self.assertTrue(maintenance.pdf_busy([{**own, "status": "queued"}], lambda _: [], 99))
         self.assertFalse(maintenance.pdf_busy([{**own, "event": "pull_request"}], lambda _: [], 99))
 
-    def test_workflow_keeps_cron_off_main_only_one_mutex_and_metadata_only_cache(self):
+    def test_workflow_hourly_main_only_one_mutex_and_metadata_only_cache(self):
         text = (Path(__file__).parents[1] / ".github/workflows/gatex-pdf-maintenance.yml").read_text()
-        self.assertNotIn("\n  schedule:", text)
+        self.assertIn("\n  schedule:\n    - cron: '23 * * * *'", text)
+        self.assertEqual(text.count("- cron:"), 1)
         self.assertIn("default: true", text)
         self.assertIn("github.ref == 'refs/heads/main'", text)
         self.assertEqual(text.count("group: gatex-pdf-localization"), 1)
@@ -493,6 +494,36 @@ class MaintenanceTests(unittest.TestCase):
         upload = text.split("uses: actions/upload-artifact@v4", 1)[1].split("- name:", 1)[0]
         self.assertIn("/gatex-pdf-maintenance-qa/summary.json", upload)
         self.assertNotIn("/gatex-pdf-maintenance-private", upload)
+
+    def test_scheduled_run_without_manual_inputs_uses_ordinary_bounded_translation(self):
+        text = (Path(__file__).parents[1] / ".github/workflows/gatex-pdf-maintenance.yml").read_text()
+        # A schedule has no workflow_dispatch inputs. Its env branch must
+        # explicitly select translation and omit the manual recovery pins.
+        self.assertIn("DISCOVERY_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.discovery_only && 'true' || 'false' }}", text)
+        self.assertIn("SOURCE_PINS_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.source_pins || '' }}", text)
+        code = text.split("          umask 077\n", 1)[1].split("      - name:", 1)[0]
+        code = "umask 077\n" + "\n".join(line[10:] if line.startswith("          ") else line for line in code.splitlines())
+        args = self.root / "scheduled-argv.txt"
+        shell = 'python() { printf "%s\\n" "$@" > "$ARG_FILE"; };\n' + code
+        subprocess.run(["bash", "-c", shell], cwd=self.root, env={
+            "PATH": os.environ["PATH"], "ARG_FILE": str(args), "SOURCE_PINS_JSON": "",
+            "DISCOVERY_ONLY": "false", "RUNNER_TEMP": str(self.root),
+        }, check=True)
+        argv = args.read_text().splitlines()
+        self.assertNotIn("--discovery-only", argv)
+        self.assertNotIn("--source-pins-json", argv)
+        self.assertEqual(argv[argv.index("--budget-seconds") + 1], "1800")
+        self.assertEqual(maintenance.MAX_UNIQUE, 2)
+        with patch.dict(maintenance.os.environ, {
+            "GITHUB_REPOSITORY": "yt-feng/gen_rpt", "GITHUB_REF": "refs/heads/main",
+            "GITHUB_EVENT_NAME": "schedule",
+        }), patch.object(maintenance.sys, "argv", ["maintenance", *argv[2:]]), \
+                patch.object(runner, "GatexApi", return_value=Api()), \
+                patch.object(maintenance, "maintain", return_value={"status": "passed"}) as maintain:
+            self.assertEqual(maintenance.main(), 0)
+        self.assertFalse(maintain.call_args.kwargs["discovery_only"])
+        self.assertEqual(maintain.call_args.kwargs["budget_seconds"], 1800)
+        self.assertEqual(maintain.call_args.kwargs["source_pins"], "")
 
     def test_untrusted_branch_cli_exits_before_api_or_model_construction(self):
         with patch.dict(maintenance.os.environ, {"GITHUB_REPOSITORY": "yt-feng/gen_rpt", "GITHUB_REF": "refs/heads/untrusted", "GITHUB_EVENT_NAME": "workflow_dispatch"}), patch.object(maintenance.sys, "argv", ["maintenance", "--preflight"]), patch.object(runner, "GatexApi", side_effect=AssertionError("API constructed")), patch.object(runner, "engine", side_effect=AssertionError("engine imported")):
