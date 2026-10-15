@@ -20,6 +20,7 @@ from gen_rpt.gatex_pdf_localization import (
     _translation_review_draft, _source_publication_terms,
     _adjacent_review_context, _source_month_year_hints,
     _private_ocr_evidence, OCR_CONTEXT_REVIEW_POLICY, OCR_CONTEXT_REVIEW_SYSTEM,
+    _bind_quantity_context, _validate_block_translation,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -1248,6 +1249,51 @@ class PdfLocalizationTests(unittest.TestCase):
 
 
 class ModelContractTests(unittest.TestCase):
+    def test_native_count_modifier_uses_same_column_source_not_interleaved_global_next(self):
+        block=Block("current",9,"Reporting describes an example 256-",(45,515,270,524),9)
+        right=Block("right",9,"Unrelated right-column material.",(308,521,540,530),9)
+        following=Block("left-next",9,"GPU single-layer fabric.",(45,527,267,536),9)
+        original_hash=block.source_hash;blocks=[block,right,following]
+        _bind_quantity_context(blocks)
+        self.assertEqual(block.quantity_context["continuationBlockId"],"left-next")
+        self.assertEqual(block.source_hash,original_hash)
+        client=self.client();calls=[]
+        def once(messages,**kwargs):
+            calls.append(messages);row=json.loads(messages[1]["content"])["blocks"][0]
+            self.assertEqual(row["sourceQuantityContext"]["continuationBlockId"],"left-next")
+            if "source" not in row:
+                self.assertEqual(row["quantityHints"][0]["value"],"256")
+                return {"blocks":[{"id":"current","text":fixture_generated_text(row,"报道描述了一个256个"),"retainedEnglish":[]}]}
+            self.assertEqual(len(messages),2)
+            self.assertEqual(row["source"],block.text)
+            self.assertEqual(row["translation"],"报道描述了一个256个")
+            return {"blocks":[{"id":"current","complete":True,"faithful":True,"issues":[],"professionalChinese":True,"ownedTerminology":True,"qualityIssues":[]}]}
+        client._once=once
+        result=client.translate([block],context_blocks=blocks)
+        self.assertEqual(_validate_block_translation(block,result["current"])["text"],"报道描述了一个256个")
+        self.assertEqual(len(calls),2)
+        self.assertEqual(block.source_hash,original_hash)
+        for target in ("报道描述了一个255个","报道描述了一个256个 FORECAST","报道描述了一个256个 GPU"):
+            with self.subTest(target=target),self.assertRaises(LocalizationError):
+                _validate_block_translation(block,{"text":target,"retainedEnglish":[],"reviewed":True})
+
+    def test_native_continuation_rejects_cross_column_page_caption_ambiguous_or_intervening_text(self):
+        for change in ("other-column","other-page","raster","distant","different-font","duplicate","intervening"):
+            block=Block("current",9,"Reporting describes an example 256-",(45,515,270,524),9)
+            other=Block("next",9,"GPU single-layer fabric.",(45,527,267,536),9);extra=[]
+            if change=="other-column":other.bbox=(308,527,530,536)
+            if change=="other-page":other.page=10
+            if change=="raster":other.kind="raster"
+            if change=="distant":other.bbox=(45,627,267,636)
+            if change=="different-font":other.font_size=12
+            if change=="duplicate":extra=[Block("duplicate",9,other.text,(45,527.1,267,536.1),9)]
+            if change=="intervening":
+                extra=[Block("intervening",9,"Other unrelated material.",(45,525,265,534),9)]
+            with self.subTest(change=change):
+                _bind_quantity_context([block,other,*extra])
+                with self.assertRaisesRegex(ValueError,"UNSUPPORTED_QUANTITY"):
+                    protect_quantities(block.text,source_context=block.quantity_context)
+
     def test_edition_context_clarifies_the_source_pdf_without_claiming_upstream_language(self):
         source = "Sources, rights and third-party material. This edition is an authorized English translation of material published by Example House on 24 September 2026. Permission for this edition does not grant model-training rights."
         context = _source_edition_context(source)

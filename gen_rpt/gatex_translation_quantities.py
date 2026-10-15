@@ -14,6 +14,8 @@ from collections import Counter
 from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 from fractions import Fraction
+import hashlib
+import math
 import re
 
 
@@ -118,6 +120,73 @@ def counted_noun_words(source: str) -> set[str]:
     """Ordinary lowercase nouns in positively recognized count compounds."""
     return {re.match(r"-([a-z]+)", source[match.end():])[1]
             for match in _COUNTED_NOUN_VALUE.finditer(source)}
+
+
+def _bibliographic_dashes(source: str) -> list[tuple[int, str, str]]:
+    """A sourced bibliography title separator is not a subtraction operand."""
+    if not (re.search(r"(?m)^https?://\S+\s*$", source)
+            and re.search(r"(?m)^[^\n|]+\s+\|\s+(?:Date not stated|\d{4}-\d{2}-\d{2})\s*$", source)
+            and re.search(r"(?m)^Used on pp?\.\s+\d+(?:\s*,\s*\d+)*\s*$", source)):
+        return []
+    return [(match.start(2), match[1], match[2]) for match in re.finditer(
+        r"(?<![A-Za-z0-9_])((?:19|20)\d{2})[ \t]+([-–])[ \t]+(?=[A-Z][A-Za-z]{2,}(?:[ -][A-Za-z]{2,}))", source)]
+
+
+_COUNT_MODIFIER = re.compile(r"(?:GPUs?|CPUs?|TPUs?|NPUs?|accelerators?|processors?|chips?|servers?|racks?|nodes?|cores?|ports?|bits?|qubits?)(?![A-Za-z0-9])")
+
+
+def _source_count_join(source: str, context: dict | None) -> str | None:
+    """Only native, source-hashed same-column continuation proves a word join.
+
+    This context is constructed from extracted PDF blocks, never model output.
+    A bare incomplete calculation such as ``10 -`` has no such permission.
+    """
+    if not isinstance(context, dict) or context.get("schema") != "gatex-source-count-continuation/v1":
+        return None
+    other = context.get("continuationText")
+    if (context.get("sourceHash") != hashlib.sha256(source.encode()).hexdigest()
+            or not isinstance(other, str) or not _COUNT_MODIFIER.match(other)
+            or context.get("continuationSourceHash") != hashlib.sha256(other.encode()).hexdigest()
+            or context.get("sourceKind") != "native" or context.get("continuationKind") != "native"
+            or type(context.get("sourcePage")) is not int or context["sourcePage"] < 1
+            or type(context.get("continuationPage")) is not int
+            or context.get("continuationPage") != context["sourcePage"]):
+        return None
+    boxes = [context.get(key) for key in ("sourceBBox", "continuationBBox")]
+    if any(not isinstance(box, (list, tuple)) or len(box) != 4
+           or any(type(value) not in (int, float) or not math.isfinite(value) for value in box)
+           or box[2] <= box[0] or box[3] <= box[1] for box in boxes):
+        return None
+    own, following = boxes
+    gap = following[1] - own[3]
+    overlap = min(own[2], following[2]) - max(own[0], following[0])
+    if (abs(own[0] - following[0]) > 2 or not 0 <= gap <= max(4, min(own[3]-own[1], following[3]-following[1]) * 1.5)
+            or overlap < min(own[2]-own[0], following[2]-following[0]) * .7):
+        return None
+    match = re.search(r"(?<![A-Za-z0-9_.,+\-−])(\d+(?:,\d{3})*)-$", source)
+    if not match or not re.search(r"[A-Za-z]{2,}", source[:match.start()]):
+        return None
+    return match[1]
+
+
+def _source_lexical_hyphens(source: str, context: dict | None) -> set[int]:
+    positions = {position for position, _, _ in _bibliographic_dashes(source)}
+    if _source_count_join(source, context) is not None:
+        positions.add(len(source) - 1)
+    return positions
+
+
+def _target_lexical_hyphens(source: str, target: str, context: dict | None) -> set[int]:
+    positions = set()
+    for _, year, dash in _bibliographic_dashes(source):
+        positions.update(match.start(1) for match in re.finditer(
+            r"(?<![A-Za-z0-9_])" + re.escape(year) + r"\s*年?\s*(" + re.escape(dash)
+            + r")\s*(?=[\u3400-\u9fff]|[A-Za-z]{3,})", target))
+    count = _source_count_join(source, context)
+    if count is not None:
+        positions.update(match.start(1) for match in re.finditer(
+            r"(?<![A-Za-z0-9_.,])" + re.escape(count) + r"(-)\s*$", target))
+    return positions
 
 
 _PLACEHOLDER = r"\{[^{}\n]+\}"
@@ -308,7 +377,7 @@ def _quantity_atom(match: re.Match, text: str) -> _Atom:
                  operator_prefix)
 
 
-def _expressions(text: str, atoms: list[_Atom]) -> list[_Atom]:
+def _expressions(text: str, atoms: list[_Atom], lexical_hyphens: set[int]) -> list[_Atom]:
     """Protect local numeric expressions in order, without evaluating arithmetic.
 
     Prose separators leave independent amounts independent. Opaque codes,
@@ -350,6 +419,8 @@ def _expressions(text: str, atoms: list[_Atom]) -> list[_Atom]:
     # punctuation if they are next to a quantity or ordinal.
     noun_hyphens = {match.end() for match in _COUNTED_NOUN_VALUE.finditer(text)}
     for match in _MATH_SYMBOL.finditer(text):
+        if match.start() in lexical_hyphens:
+            continue
         if match.group() == "-" and match.start() in noun_hyphens:
             continue
         if any(atom.start <= match.start() < atom.end for atom in combined):
@@ -401,7 +472,7 @@ def _percentage_point_ellipsis(text: str, atoms: list[_Atom]) -> list[_Atom]:
     return result
 
 
-def _atoms(text: str) -> list[_Atom]:
+def _atoms(text: str, *, lexical_hyphens: set[int] | None = None) -> list[_Atom]:
     atoms = []
     for match in _SCAN.finditer(text):
         kind = match.lastgroup
@@ -436,10 +507,11 @@ def _atoms(text: str) -> list[_Atom]:
             atoms.append(_Atom(match.start(), match.start()+len(original), original,
                                name[1] if name else original, kind,
                                ("currency_name", name[0]) if name else (kind, original)))
-    return _expressions(text, _percentage_point_ellipsis(text, atoms))
+    return _expressions(text, _percentage_point_ellipsis(text, atoms),
+                        _source_lexical_hyphens(text, None) if lexical_hyphens is None else lexical_hyphens)
 
 
-def protect_quantities(source: str) -> ProtectedQuantities:
+def protect_quantities(source: str, *, source_context: dict | None = None) -> ProtectedQuantities:
     """Mask immutable tokens and render spelled scales with exact arithmetic.
 
     The returned hints describe complete values. A caller must instruct its
@@ -447,7 +519,7 @@ def protect_quantities(source: str) -> ProtectedQuantities:
     currency. Restore before final quantity and independent semantic checks.
     """
     tokens, chunks, cursor = [], [], 0
-    for atom in _atoms(source):
+    for atom in _atoms(source, lexical_hyphens=_source_lexical_hyphens(source, source_context)):
         if atom.kind == "unsupported":
             raise QuantityFidelityError("UNSUPPORTED_QUANTITY")
         placeholder = f"{{GATEX_QUANTITY_{len(tokens)}}}"
@@ -458,13 +530,14 @@ def protect_quantities(source: str) -> ProtectedQuantities:
     return ProtectedQuantities("".join(chunks), tuple(tokens))
 
 
-def quantities_equivalent(source: str, target: str) -> bool:
+def quantities_equivalent(source: str, target: str, *, source_context: dict | None = None) -> bool:
     """Check exact literals plus narrowly permitted spelled-scale equivalents.
 
     This certifies numeric identity only. It cannot approve source attribution,
     omissions, added facts, changed uncertainty or the quality of Chinese prose.
     """
-    originals, counterparts = _atoms(source), _atoms(target)
+    originals = _atoms(source, lexical_hyphens=_source_lexical_hyphens(source, source_context))
+    counterparts = _atoms(target, lexical_hyphens=_target_lexical_hyphens(source, target, source_context))
     if any(atom.kind == "unsupported" for atom in originals + counterparts):
         return False
     remaining = list(counterparts)
