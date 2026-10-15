@@ -99,6 +99,66 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_source_protected_model_codes_and_shape_letters_get_literal_evidence(self):
+        pairs = [("HJ-12 stated static penetration", "HJ-12所述静态穿透力", "HJ-12"),
+                 ("folding X-wing light loitering munition", "折叠X翼轻型巡飞弹药", "X"),
+                 ("an L-shaped beam", "L形梁", "L"),
+                 ("a T-shaped beam", "T型梁", "T"),
+                 ("GPT-4.1 and 3PL", "GPT-4.1和3PL", "GPT-4.1")]
+        for source, target, identity in pairs:
+            with self.subTest(source=source):
+                raw = {"text": target, "retainedEnglish": []}
+                candidate = _source_verified_record(source, raw)
+                self.assertIn({"text": identity, "kind": "code"}, candidate["retainedEnglish"])
+                self.assertEqual(raw["retainedEnglish"], [])
+                with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
+                    validate_translation(source, candidate)
+                self.assertEqual(validate_translation(source, {**candidate, "reviewed": True})["text"], target)
+
+    def test_numeric_code_and_shape_hints_cannot_preserve_ordinary_prose_or_changed_codes(self):
+        for source in ("FIGURE-1", "REPORT2026", "FORECAST-2026", "Figure-1", "Ordinary title"):
+            with self.subTest(source=source):
+                self.assertEqual(_source_identity_hints(source), [])
+        pairs = [("HJ-12 model", "HJ-13型号"), ("HJ-12 model", "HJ-12和HJ-12型号"),
+                 ("HJ-12 model", "hj-12型号"), ("no model identified", "HJ-12型号"),
+                 ("X-wing munition", "X翼弹药，X"), ("X-wing munition", "Y翼弹药"),
+                 ("X-wing munition", "X"), ("wing munition", "X翼弹药")]
+        for source, target in pairs:
+            with self.subTest(source=source, target=target), self.assertRaises(LocalizationError):
+                validate_translation(source, {**_source_verified_record(source, {"text": target, "retainedEnglish": []}), "reviewed": True})
+
+    def test_source_code_metadata_reconciliation_still_needs_independent_prose_review(self):
+        blocks = [Block("weapon-code", 0, "HJ-12 may penetrate.", None),
+                  Block("wing-code", 0, "X-wing munition may withdraw.", None)]
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        reviews, generations = [], []
+        def once(messages, **kwargs):
+            rows = json.loads(messages[1]["content"])["blocks"]
+            if "source" in rows[0]:
+                reviews.extend(rows)
+                return {"blocks": [{"id": r["id"], "complete": True, "faithful": True, "issues": []} for r in rows]}
+            generations.extend(rows)
+            return {"blocks": [{"id": "weapon-code", "text": "{GATEX_QUANTITY_0}可能穿透。", "retainedEnglish": []},
+                               {"id": "wing-code", "text": "X翼弹药可能撤离。", "retainedEnglish": []}]}
+        client._once = once
+        accepted = client.translate(blocks)
+        self.assertEqual((len(generations), len(reviews)), (2, 2))
+        self.assertTrue(all(r["reviewed"] for r in accepted.values()))
+        self.assertIn({"text": "HJ-12", "kind": "code"}, accepted["weapon-code"]["retainedEnglish"])
+        self.assertIn({"text": "X", "kind": "code"}, accepted["wing-code"]["retainedEnglish"])
+        generations.clear(); reviews.clear(); calls = []
+        def reject(messages, **kwargs):
+            rows = json.loads(messages[1]["content"])["blocks"]
+            calls.append(messages)
+            if "source" in rows[0]:
+                return {"blocks": [{"id": "weapon-code", "complete": True, "faithful": False, "issues": ["may became definite"]}]}
+            return {"blocks": [{"id": "weapon-code", "text": "{GATEX_QUANTITY_0}肯定穿透。", "retainedEnglish": []}]}
+        client._once = reject
+        with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
+            client.translate(blocks[:1])
+        self.assertEqual(len(calls), 6, "three full generation/review attempts; never a coerced approval")
+
     def test_complete_currency_placeholder_cannot_gain_a_separate_currency_name(self):
         block = Block("quoted-gold", 0, "Gold was above $5,400, rose $600, and was above $2,000 in 2022.", None)
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):

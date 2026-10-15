@@ -225,6 +225,25 @@ def _source_identity_hints(source: str) -> list[dict]:
     codes = Counter(match.group(1) for match in re.finditer(
         r"(?i:\b(?:type|class|category))\s+([A-Z])(?![A-Za-z0-9])", source))
     hints.extend({"text": code, "kind": "code", "sourceCount": count} for code, count in codes.items())
+    shapes = Counter((match[1], match[2]) for match in re.finditer(
+        r"(?<![A-Za-z0-9])([A-Z])-(wing|shaped)(?![A-Za-z])", source))
+    hints.extend({"text": code, "kind": "code", "sourceCount": count, "sourceForm": form}
+                 for (code, form), count in shapes.items())
+    try:
+        protected = protect_quantities(source)
+    except QuantityFidelityError:
+        protected = None
+    numeric_codes = Counter()
+    for token in protected.tokens if protected else ():
+        value = token.original
+        if token.kind != "code" or not re.fullmatch(r"(?:[A-Z]{1,8}[-/.]?\d+[A-Z0-9./-]*|\d+[A-Z]{1,8})", value):
+            continue
+        prefix = re.match(r"[A-Z]+", value)
+        if prefix and prefix.group().casefold() in COMMON_ENGLISH:
+            continue
+        numeric_codes[value] += 1
+    hints.extend({"text": code, "kind": "code", "sourceCount": count, "sourceForm": "protected_numeric_code"}
+                 for code, count in numeric_codes.items())
     return hints
 
 
@@ -286,8 +305,17 @@ def _source_verified_record(source: str, record: dict) -> dict:
         identity = {"text": hint["text"], "kind": hint["kind"]}
         visible = re.search(r"(?<![A-Za-z0-9])" + re.escape(hint["text"]) + r"(?![A-Za-z0-9])", target)
         literal_count = len(re.findall(r"(?<![A-Za-z0-9])" + re.escape(hint["text"]) + r"(?![A-Za-z0-9])", target))
-        evidenced = hint["kind"] == "person" or (target_codes[hint["text"]] == hint["sourceCount"]
-            and literal_count == len(re.findall(r"(?<![A-Za-z0-9])" + re.escape(hint["text"]) + r"(?![A-Za-z0-9])", source)))
+        source_literal_count = len(re.findall(r"(?<![A-Za-z0-9])" + re.escape(hint["text"]) + r"(?![A-Za-z0-9])", source))
+        form = hint.get("sourceForm")
+        if form == "protected_numeric_code":
+            evidenced = literal_count == source_literal_count == hint["sourceCount"]
+        elif form in {"wing", "shaped"}:
+            counterpart = r"翼" if form == "wing" else r"(?:形|型)"
+            matched_shapes = len(re.findall(r"(?<![A-Za-z0-9])" + re.escape(hint["text"]) + r"\s*" + counterpart, target))
+            evidenced = matched_shapes == hint["sourceCount"] and literal_count == source_literal_count
+        else:
+            evidenced = hint["kind"] == "person" or (target_codes[hint["text"]] == hint["sourceCount"]
+                and literal_count == source_literal_count)
         if visible and evidenced and identity not in retained:
             retained.append(identity)
     result["retainedEnglish"] = retained
@@ -678,7 +706,10 @@ A retainedEnglish text must be an EXACT source substring, including casing
 and whitespace, and actually appear in the translation. Omit metadata for a name that
 has been fully translated into Chinese. Use exactly the listed kind spellings, including
 organisation. sourceVerifiedIdentities contain positive literal source cues, not permission
-to add a name. A source type C may be translated C类, with code C retained exactly.
+to add a name. Source-verified protected model codes such as HJ-12 keep the complete exact code;
+source letter-wing/shaped forms may use X翼/X形 with exactly the same source letter/count.
+These metadata cues do not approve any surrounding prose.
+A source type C may be translated C类, with code C retained exactly.
 Preserve source parenthesized letter markers such as (a), (b), (c), with the same letters and
 counts. Each requested id occurs exactly once; no missing or extra ids."""
         review_system = """Independently compare each source PDF block with its Chinese translation.
