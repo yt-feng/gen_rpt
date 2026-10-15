@@ -7,6 +7,10 @@ on:
         description: 'Metadata discovery only; no PDF download, translation or publication'
         type: boolean
         default: true
+      source_pins:
+        description: 'Optional manual recovery JSON: at most two {id,expectedSourceSha256} objects; empty uses the ordinary queue'
+        type: string
+        default: ''
   # Enable only after producer and GateX current-policy QA acceptance and a
   # bounded manual maintenance canary. Never enable the older unlimited cron.
   # schedule:
@@ -97,10 +101,12 @@ jobs:
           GATEX_PDF_TEXT_MODEL: deepseek-v4-pro
           GATEX_PDF_VISION_MODEL: deepseek-flash
           DISCOVERY_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.discovery_only && 'true' || 'false' }}
+          SOURCE_PINS_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.source_pins || '' }}
         run: |
           umask 077
           discovery_args=()
           if [ "$DISCOVERY_ONLY" = 'true' ]; then discovery_args+=(--discovery-only); fi
+          if [ -n "$SOURCE_PINS_JSON" ]; then discovery_args+=(--source-pins-json "$SOURCE_PINS_JSON"); fi
           PYTHONPATH=. python -u scripts/gatex_pdf_maintenance.py \
             --queue "$RUNNER_TEMP/gatex-pdf-maintenance-state/queue.json" \
             --summary "$RUNNER_TEMP/gatex-pdf-maintenance-qa/summary.json" \
