@@ -19,6 +19,8 @@ def _status(payload, snapshot=None, pool_pin=None):
         raise RunnerError("NEWS_POOL_CONTRACT_REQUIRED")
     if not _digest(payload.get("snapshotHash")) or not _digest(pool.get("poolHash")) or not _digest(pool.get("reviewPolicyHash")):
         raise RunnerError("INVALID_NEWS_POOL_STATUS")
+    if daily.get("snapshotHash") != payload["snapshotHash"]:
+        raise RunnerError("NEWS_POOL_CHANGED")
     if snapshot and payload["snapshotHash"] != snapshot or pool_pin and pool["poolHash"] != pool_pin:
         raise RunnerError("NEWS_POOL_CHANGED")
     for section in (payload, pool):
@@ -26,7 +28,7 @@ def _status(payload, snapshot=None, pool_pin=None):
             raise RunnerError("INVALID_NEWS_POOL_STATUS")
         if section["ready"] + section["pending"] != section["total"] or section["failed"] > section["total"] or type(section.get("complete")) is not bool:
             raise RunnerError("INVALID_NEWS_POOL_STATUS")
-    if (pool["total"] < 1 or type(daily.get("poolTotal")) is not int or daily.get("available") is not True or pool["total"] != daily.get("poolTotal") or pool.get("day") != daily.get("day")
+    if (pool["total"] < payload["total"] or type(daily.get("poolTotal")) is not int or daily.get("available") is not True or pool["total"] != daily.get("poolTotal") or pool.get("day") != daily.get("day")
         or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(pool.get("day", "")))
         or type(pool.get("policyReady")) is not int or not 0 <= pool["policyReady"] <= pool["ready"]
         or type(pool.get("pendingSourceCount")) is not int or not 0 <= pool["pendingSourceCount"] <= pool["pending"]

@@ -121,6 +121,15 @@ class FullPoolTests(unittest.TestCase):
         self.assertEqual(result["status"], "passed")
         self.assertEqual([call[0] for call in api.calls], ["GET", "POST", "GET", "GET"])
 
+    def test_old_public_candidate_and_new_daily_pool_cannot_pass_or_warm(self):
+        payload = status(50, 50)
+        payload["daily"]["snapshotHash"] = "e" * 64
+        api = Api(payload)
+        result, _ = self.run_pool(api)
+        self.assertEqual(result["status"], "failed")
+        self.assertEqual(result["stopReason"], "SOURCE_CHANGED")
+        self.assertEqual([method for method, _, _ in api.calls], ["GET"])
+
     def test_source_change_stops_without_chasing_another_edition(self):
         def changed(_api, _body): raise RunnerError("API_HTTP_ERROR", 409)
         result, _ = self.run_pool(Api(status(), changed))
