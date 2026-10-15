@@ -30,6 +30,8 @@ class QuantityFidelityTests(unittest.TestCase):
         pairs = [("15 million US dollars", "1500万美元"),
                  ("US dollars 15 million", "1500万美元"),
                  ("2 million Canadian dollars", "200万加元"),
+                 ("2 million Canadian\ndollars", "200万加元"),
+                 ("US\ndollars 15", "15美元"),
                  ("15 euros", "15欧元"), ("British pounds 15", "15英镑"),
                  ("-2 million Australian dollars/M", "-200万澳元/M"),
                  ("15 U.S. dollars", "15美元"),

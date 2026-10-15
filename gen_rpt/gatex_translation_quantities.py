@@ -268,7 +268,7 @@ def _quantity_atom(match: re.Match, text: str) -> _Atom:
         suffix = suffix_separator + suffix_currency if suffix_currency else ""
         ending = suffix + per if parts["currency_suffix"] else per + suffix
         replacement = constraint + outer + currency + separator + rendered + unit + lower_bound + ending
-    if currency_name and (currency or suffix_currency).strip().casefold() in _CURRENCY_NAME_ZH:
+    if currency_name and " ".join((currency or suffix_currency).split()).casefold() in _CURRENCY_NAME_ZH:
         # Only written names acquire a Chinese rendering. Source $ / US$ /
         # USD notation is never rewritten by this branch.
         label = currency_name[1]
