@@ -97,16 +97,16 @@ class WorkflowModeTests(unittest.TestCase):
         self.assertNotIn('secrets.DEEPSEEK_API_KEY',news_job)
 
     def test_numeric_dispatch_controls_forward_strings_and_numbers_without_json_quotes(self):
-        for key, text in [('GATEX_NEWS_MAX_PASSES', '12'), ('GATEX_NEWS_BUDGET_SECONDS', '600')]:
+        for key, text in [('GATEX_NEWS_MAX_PASSES', '0'), ('GATEX_NEWS_BUDGET_SECONDS', '14400')]:
             for value in [text, int(text)]:
                 with self.subTest(key=key, supplied=value):
                     rendered = environment_value(key, value)
                     self.assertEqual(rendered, text)
                     self.assertEqual(int(rendered), int(text))
-            self.assertEqual(environment_value(key, 0), '0', 'invalid zero must reach runner validation')
+            self.assertEqual(environment_value(key, 0), '0', 'zero must reach mode-specific runner validation')
             self.assertEqual(environment_value(key, '0'), '0')
-        self.assertEqual(environment_value('GATEX_NEWS_MAX_PASSES', None, 'schedule'), '12')
-        self.assertEqual(environment_value('GATEX_NEWS_BUDGET_SECONDS', None, 'schedule'), '600')
+        self.assertEqual(environment_value('GATEX_NEWS_MAX_PASSES', None, 'schedule'), '0')
+        self.assertEqual(environment_value('GATEX_NEWS_BUDGET_SECONDS', None, 'schedule'), '14400')
 
 
 if __name__ == '__main__':

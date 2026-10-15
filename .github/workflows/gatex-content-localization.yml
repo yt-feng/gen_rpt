@@ -9,6 +9,7 @@ on:
       - '.github/workflows/gatex-news-maintenance.yml'
       - 'gen_rpt/gatex_pdf_localization.py'
       - 'scripts/gatex_localization_runner.py'
+      - 'scripts/gatex_news_fullpool.py'
       - 'scripts/gatex_pdf_translate.py'
       - 'requirements-localization.txt'
       - 'tests/test_gatex_localization*.py'
@@ -23,13 +24,13 @@ on:
         type: boolean
         default: false
       news_max_passes:
-        description: 'Maximum public-news warming passes (1-36), bounded by the overall budget'
+        description: 'Maximum full-pool warming passes (0 continues until the time budget)'
         type: number
-        default: 12
+        default: 0
       news_budget_seconds:
-        description: 'Overall public-news warming budget in seconds (1-600)'
+        description: 'Overall daily-pool warming budget in seconds (1-14400)'
         type: number
-        default: 600
+        default: 14400
       ocr_diagnostic_only:
         description: 'Capture private Tesseract evidence for the exact sample without models or publication'
         type: boolean
@@ -181,7 +182,7 @@ jobs:
       group: gatex-news-localization
       cancel-in-progress: false
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 270
     steps:
       - uses: actions/checkout@v4
         with:
@@ -194,11 +195,11 @@ jobs:
       - name: Warm and verify public Chinese news content
         env:
           GATEX_NEWSFEED_CRON_SECRET: ${{ secrets.GATEX_NEWSFEED_CRON_SECRET }}
-          GATEX_NEWS_MAX_PASSES: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.news_max_passes) || '12' }}
-          GATEX_NEWS_BUDGET_SECONDS: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.news_budget_seconds) || '600' }}
+          GATEX_NEWS_MAX_PASSES: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.news_max_passes) || '0' }}
+          GATEX_NEWS_BUDGET_SECONDS: ${{ github.event_name == 'workflow_dispatch' && format('{0}', inputs.news_budget_seconds) || '14400' }}
         run: |
           umask 077
-          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only \
+          PYTHONPATH=. python -u scripts/gatex_localization_runner.py --news-only --news-full-pool \
             --news-max-passes "$GATEX_NEWS_MAX_PASSES" \
             --news-budget-seconds "$GATEX_NEWS_BUDGET_SECONDS" \
             --runtime "$RUNNER_TEMP/gatex-news-localization-private" \

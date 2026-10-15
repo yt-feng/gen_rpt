@@ -18,8 +18,8 @@ class NewsScheduleTests(unittest.TestCase):
         self.assertEqual(re.findall(r"^\s+- cron: ['\"]([^'\"]+)['\"]", text, re.MULTILINE), ['5 0 * * *'])
         self.assertIn('ref: ${{ github.event.repository.default_branch }}', text)
         self.assertIn('--news-only', text)
-        self.assertIn('--news-max-passes 12', text)
-        self.assertIn('--news-budget-seconds 600', text)
+        self.assertIn('--news-max-passes 0', text)
+        self.assertIn('--news-budget-seconds 14400', text)
         self.assertNotRegex(text, r'--(?:sample-id|pdf-limit|force|inventory-only|ocr-diagnostic-only)\b')
 
     def test_daily_capture_has_no_frequent_or_digest_event_fallback(self):
@@ -27,7 +27,7 @@ class NewsScheduleTests(unittest.TestCase):
         self.assertIn('workflow_dispatch:', text)
         self.assertNotIn('workflow_run:', text)
         self.assertNotIn('17,47', text)
-        self.assertIn('--news-only --news-capture-daily', text)
+        self.assertIn('--news-only --news-full-pool --news-capture-daily', text)
         # Mail scheduling remains owned by its separate existing workflow.
         self.assertIn('name: Run GateX Newsfeed Digest', DIGEST.read_text())
 
