@@ -15,7 +15,7 @@ from gen_rpt.gatex_pdf_localization import (
     _image_hashes, _source_identity_hints, _source_verified_record, digest, tokens, translate_pdf, unresolved_english,
     validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint, _source_edition_context,
     _writer, _font, _block_writer, _raster_render_aliases, _contained,
-    _date_review_draft, _translate,
+    _date_review_draft, _translate, _source_calendar_hints, _quantity_placeholder_errors,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -99,6 +99,46 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_calendar_hints_require_a_literal_source_date_context(self):
+        self.assertEqual(_source_calendar_hints("Demand may rise. May require approval. We march onward."), [])
+        self.assertEqual([h["chineseMonth"] for h in _source_calendar_hints("9 March 2026; February 28; May 2026")], ["二月", "三月", "五月"])
+        self.assertEqual(_source_calendar_hints("May demand outlook; March production outlook"), [])
+
+    def test_quantity_feedback_reports_exact_missing_duplicate_and_unknown_ids(self):
+        protected = protect_quantities("Revenue 120 million; dated 9 March 2026.")
+        problems = _quantity_placeholder_errors(protected, "{GATEX_QUANTITY_0} {GATEX_QUANTITY_0} {GATEX_QUANTITY_3}")
+        self.assertEqual(problems["duplicatePlaceholders"], {"{GATEX_QUANTITY_0}": 1})
+        self.assertEqual(problems["missingPlaceholders"], {"{GATEX_QUANTITY_1}": 1, "{GATEX_QUANTITY_2}": 1})
+        self.assertEqual(problems["unknownPlaceholders"], {"{GATEX_QUANTITY_3}": 1})
+
+    def test_written_month_cannot_invent_quantity_and_receives_specific_retry_feedback(self):
+        block = Block("footnote-date", 0, "1. Source report, 9 March 2026, pages 1-6.", (40, 50, 500, 90))
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls, rejections = [], []
+        client.rejection_callback = rejections.append
+        def once(messages, **kwargs):
+            item = json.loads(messages[1]["content"])["blocks"][0]
+            calls.append(messages)
+            if "source" in item:
+                self.assertEqual(item["translation"], "1. 来源报告，2026年三月9日，页码1-6。")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": True, "issues": []}]}
+            self.assertEqual(item["sourceCalendarMonths"][0]["chineseMonth"], "三月")
+            if len(calls) == 1:
+                text = "{GATEX_QUANTITY_0}. 来源报告，{GATEX_QUANTITY_1}年{GATEX_QUANTITY_2}月{GATEX_QUANTITY_3}日，页码{GATEX_QUANTITY_4}。"
+            else:
+                feedback = json.loads(messages[2]["content"].split(": ", 1)[1])[0]
+                self.assertEqual(feedback["quantityPlaceholderErrors"]["unknownPlaceholders"], {"{GATEX_QUANTITY_4}": 1})
+                text = "{GATEX_QUANTITY_0}. 来源报告，{GATEX_QUANTITY_2}年三月{GATEX_QUANTITY_1}日，页码{GATEX_QUANTITY_3}。"
+            return {"blocks": [{"id": block.id, "text": text, "retainedEnglish": []}]}
+        client._once = once
+        accepted = client.translate([block])
+        self.assertEqual(len(calls), 3, "one invalid generation, one corrected generation and one independent review")
+        self.assertEqual(len(rejections), 1)
+        self.assertTrue(accepted[block.id]["reviewed"])
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            validate_translation(block.text, {"text": "1. 来源报告，2026年四月10日，页码1-6。", "retainedEnglish": [], "reviewed": True})
+
     def date_draft_fixture(self):
         block = Block("dated-edition", 0, "The English edition was published on 24 September 2026.", (40, 50, 500, 90))
         previous = {"sourceHash": block.source_hash, "text": "原英文版于24 九月 2026发布。", "retainedEnglish": [], "reviewed": True}
