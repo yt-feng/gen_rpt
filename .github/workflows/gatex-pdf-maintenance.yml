@@ -1,0 +1,125 @@
+name: GateX bounded PDF maintenance
+
+on:
+  workflow_dispatch:
+    inputs:
+      discovery_only:
+        description: 'Metadata discovery only; no PDF download, translation or publication'
+        type: boolean
+        default: true
+  # Enable only after producer and GateX current-policy QA acceptance and a
+  # bounded manual maintenance canary. Never enable the older unlimited cron.
+  # schedule:
+  #   - cron: '23 4 * * *'
+  pull_request:
+    paths:
+      - '.github/workflows/gatex-pdf-maintenance.yml'
+      - 'scripts/gatex_pdf_maintenance.py'
+      - 'tests/test_gatex_localization_maintenance.py'
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  validate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check 'requests>=2.32,<3'
+      - name: Validate fair recovery, strict source pins, policy readiness and scheduling boundaries offline
+        run: python -m unittest tests.test_gatex_localization_maintenance -v
+
+  preflight:
+    if: github.repository == 'yt-feng/gen_rpt' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      proceed: ${{ steps.busy.outputs.proceed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install --disable-pip-version-check 'requests>=2.32,<3'
+      - name: Defer while another PDF run is active or pending; never cancel or replace it
+        id: busy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: PYTHONPATH=. python scripts/gatex_pdf_maintenance.py --preflight
+
+  maintain:
+    needs: preflight
+    if: needs.preflight.outputs.proceed == 'true'
+    # Only this job takes the writer mutex. The preflight and child Python
+    # processes must not reacquire it. News retains its independent lock.
+    concurrency:
+      group: gatex-pdf-localization
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install metadata-only runtime
+        run: python -m pip install --disable-pip-version-check 'requests>=2.32,<3'
+      - name: Install existing PDF runtime only for authorized translation
+        if: github.event_name == 'schedule' || !inputs.discovery_only
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends fonts-noto-cjk tesseract-ocr tesseract-ocr-eng
+          python -m pip install --disable-pip-version-check -r requirements-localization.txt
+      - uses: actions/cache/restore@v4
+        with:
+          path: ${{ runner.temp }}/gatex-pdf-maintenance-state/queue.json
+          key: gatex-pdf-maintenance-queue-v1-main-${{ github.run_id }}-${{ github.run_attempt }}
+          restore-keys: gatex-pdf-maintenance-queue-v1-main-
+      - name: Discover or resume at most two unique sources; preserve failure checkpoints
+        env:
+          GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
+          DEEPSEEK_API_KEY: ${{ (github.event_name == 'schedule' || !inputs.discovery_only) && secrets.DEEPSEEK_API_KEY || '' }}
+          GATEX_PDF_TRANSLATION_PROVIDER: deepseek
+          GATEX_PDF_TEXT_MODEL: deepseek-v4-pro
+          GATEX_PDF_VISION_MODEL: deepseek-flash
+          DISCOVERY_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.discovery_only && 'true' || 'false' }}
+        run: |
+          umask 077
+          discovery_args=()
+          if [ "$DISCOVERY_ONLY" = 'true' ]; then discovery_args+=(--discovery-only); fi
+          PYTHONPATH=. python -u scripts/gatex_pdf_maintenance.py \
+            --queue "$RUNNER_TEMP/gatex-pdf-maintenance-state/queue.json" \
+            --summary "$RUNNER_TEMP/gatex-pdf-maintenance-qa/summary.json" \
+            --runtime "$RUNNER_TEMP/gatex-pdf-maintenance-private" \
+            --budget-seconds 1800 "${discovery_args[@]}"
+      - name: Retain safe metadata queue even after a selected source fails
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ runner.temp }}/gatex-pdf-maintenance-state/queue.json
+          key: gatex-pdf-maintenance-queue-v1-main-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Upload counts, hashes and safe outcomes only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gatex-pdf-maintenance-qa-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/gatex-pdf-maintenance-qa/summary.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Remove all private PDF and model working data
+        if: always()
+        run: rm -rf -- "$RUNNER_TEMP/gatex-pdf-maintenance-private"
