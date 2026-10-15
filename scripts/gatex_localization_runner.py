@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import importlib
 import json
+import math
 import os
 from pathlib import Path
 import re
@@ -170,7 +171,7 @@ class GatexApi:
         return self.request("GET", "/artifact?" + urlencode({"id": identifier, "sourceSha256": digest}), binary=True)
 
 
-def validate_qa(qa: Any, page_count: int):
+def validate_qa(qa: Any, page_count: int, *, source_sha256: str | None = None):
     if not isinstance(qa, dict) or qa.get("schema") != QA_SCHEMA or qa.get("passed") is not True:
         raise RunnerError("QUALITY_CHECK_FAILED")
     for key in ("sourcePageCount", "pageCount", "sourceBlockCount", "translatedBlockCount"):
@@ -178,9 +179,20 @@ def validate_qa(qa: Any, page_count: int):
             raise RunnerError("QUALITY_CHECK_FAILED")
     if type(page_count) is not int or qa["pageCount"] != page_count or page_count < 1 or qa["sourcePageCount"] < 1:
         raise RunnerError("PAGE_COVERAGE_FAILED")
-    if qa["sourceBlockCount"] != qa["translatedBlockCount"] or any(qa.get(key) != 0 for key in ("missingBlocks", "overflowCount", "unresolvedEnglishCount")):
+    readable = qa.get("acceptanceMode") == "readable"
+    if readable and (qa.get("acceptancePolicyVersion") != "gatex-readable-zh/v1"
+            or qa.get("readableChinesePassed") is not True
+            or type(qa.get("readableCheckedBlockCount")) is not int
+            or qa["readableCheckedBlockCount"] != qa["translatedBlockCount"]
+            or not isinstance(qa.get("sourceSha256"), str) or not re.fullmatch(r"[a-f0-9]{64}", qa["sourceSha256"])
+            or source_sha256 is not None and qa["sourceSha256"] != source_sha256
+            or type(qa.get("minimumTranslatedFontSize")) not in (int, float)
+            or not math.isfinite(qa["minimumTranslatedFontSize"]) or qa["minimumTranslatedFontSize"] < 7
+            or qa.get("rasterOCRVerified") is not True):
         raise RunnerError("QUALITY_CHECK_FAILED")
-    if qa.get("figuresPreserved") is not True or qa.get("numericChecksPassed") is not True:
+    if qa["sourceBlockCount"] != qa["translatedBlockCount"] or any(qa.get(key) != 0 for key in ("missingBlocks", "overflowCount")):
+        raise RunnerError("QUALITY_CHECK_FAILED")
+    if qa.get("figuresPreserved") is not True or not readable and (qa.get("numericChecksPassed") is not True or qa.get("unresolvedEnglishCount") != 0):
         raise RunnerError("QUALITY_CHECK_FAILED")
     pages = qa.get("pages")
     if not isinstance(pages, list) or len(pages) != qa["sourcePageCount"]:
@@ -460,7 +472,7 @@ def run(api: GatexApi, translate: Callable, runtime: Path, *, limit=5, concurren
                 if not data.startswith(b"%PDF-") or len(data) > MAX_PDF or artifact.get("byteSize") != len(data) or artifact.get("sha256") != sha256(data):
                     raise RunnerError("ARTIFACT_DIGEST_MISMATCH")
                 page_count = artifact.get("pageCount")
-                validate_qa(artifact.get("qa"), page_count)
+                validate_qa(artifact.get("qa"), page_count, source_sha256=digest)
                 if sha256(data) == digest:
                     raise RunnerError("UNTRANSLATED_SOURCE_ARTIFACT")
                 metadata = {"id": item["id"], "sourceSha256": digest, "sha256": sha256(data), "pageCount": page_count, "byteSize": len(data), "qa": artifact["qa"]}

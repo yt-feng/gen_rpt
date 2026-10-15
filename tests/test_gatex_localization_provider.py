@@ -39,7 +39,7 @@ class ProviderTests(unittest.TestCase):
         with patch.dict(os.environ, {"GATEX_PDF_TRANSLATION_PROVIDER": "deepseek",
                 "DEEPSEEK_API_KEY": "  deepseek-fixture\n", "APIMART_API_KEY": "different-unused-fixture",
                 "APIMART_BASE_URL": "https://unused.invalid", **extra}, clear=True):
-            client = ModelClient(session_factory=Session, sleep=lambda _: None)
+            client = ModelClient(acceptance_mode="strict", session_factory=Session, sleep=lambda _: None)
         return client, calls
 
     def test_deepseek_text_uses_pro_and_its_own_key_endpoint(self):

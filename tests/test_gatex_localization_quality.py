@@ -32,7 +32,7 @@ def record(text):
 class QualityTests(unittest.TestCase):
     def client(self):
         with patch.dict(os.environ, {"GATEX_PDF_TRANSLATION_PROVIDER": "deepseek", "DEEPSEEK_API_KEY": "offline-fixture"}):
-            return ModelClient(sleep=lambda _: None)
+            return ModelClient(acceptance_mode="strict", sleep=lambda _: None)
 
     def test_fresh_style_failure_edits_only_candidate_and_rechecks_fidelity(self):
         client = self.client()

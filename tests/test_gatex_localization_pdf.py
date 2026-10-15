@@ -139,7 +139,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_month_year_retry_corrects_only_observed_format_then_requires_fresh_review(self):
         block = Block("month-year", 0, "Version 1 appeared in January 2024; revisions followed in November 2025.", None)
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls, saved, rejected = [], [], []
         client.accepted_callback = saved.append
         client.rejection_callback = rejected.append
@@ -237,7 +237,7 @@ class PdfLocalizationTests(unittest.TestCase):
                      "previousReviewedRecord": previous, "previousReviewedTextSha256": digest(previous["text"]),
                      "candidateTextSha256": digest("管理层导读"), "candidate": {"text": "管理层导读", "retainedEnglish": [], "reviewed": False}}}}
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls, checkpoints = [], []
         def once(messages, **kwargs):
             calls.append(messages)
@@ -266,7 +266,7 @@ class PdfLocalizationTests(unittest.TestCase):
         self.assertEqual(context, [{"position": "previous", "id": first.id, "source": first.text, "translation": records[first.id]["text"]}])
         self.assertEqual(_adjacent_review_context(metadata, [first, second, other_page, metadata], records), [])
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls = []
         def once(messages, **kwargs):
             calls.append(messages)
@@ -283,7 +283,7 @@ class PdfLocalizationTests(unittest.TestCase):
         amount = Block("amount", 0, "Revenue may be $15.", None)
         neighbour = Block("neighbour", 0, "Dr. Jones discussed costs.", None)
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls = []
         def missing(messages, **kwargs):
             calls.append(messages)
@@ -305,7 +305,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_rejected_editorial_draft_keeps_false_verdict_and_bounded_regeneration(self):
         block = Block("conditional", 0, "Revenue may rise.", None)
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls, rejected = [], []
         client.rejection_callback = rejected.append
         def once(messages, **kwargs):
@@ -327,7 +327,7 @@ class PdfLocalizationTests(unittest.TestCase):
             source_pdf(source, raster=True)
             sha = digest(source.read_bytes())
             with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-private-key"}):
-                client = ModelClient(sleep=lambda seconds: None)
+                client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
             calls, checkpoints = [], []
             def once(messages, **kwargs):
                 calls.append(messages)
@@ -361,7 +361,7 @@ class PdfLocalizationTests(unittest.TestCase):
         stream = io.BytesIO(); image.save(stream, format="PNG")
         evidence = {"width": 100, "height": 100, "words": [{"text": "25%", "confidence": 90, "bbox": [40, 40, 60, 50]}]}
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls, rejected = [], []
         client.ocr_rejection_callback = rejected.append
         def once(messages, **kwargs):
@@ -389,7 +389,7 @@ class PdfLocalizationTests(unittest.TestCase):
         detector = {"text": "q", "confidence": 86, "bbox": [120, 90, 140, 110]}
         evidence = {"width": 300, "height": 200, "words": [detector]}
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls = []
         def once(messages, **kwargs):
             calls.append(messages)
@@ -436,7 +436,7 @@ class PdfLocalizationTests(unittest.TestCase):
         for response, code in cases:
             with self.subTest(code=code):
                 with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-                    client = ModelClient(sleep=lambda seconds: None)
+                    client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
                 calls, rejected = [], []
                 client.ocr_rejection_callback = rejected.append
                 def once(messages, **kwargs):
@@ -465,7 +465,7 @@ class PdfLocalizationTests(unittest.TestCase):
             source, output = Path(directory) / "source.pdf", Path(directory) / "zh.pdf"
             source_pdf(source, raster=True)
             with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-                client = ModelClient(sleep=lambda seconds: None)
+                client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
             calls, checkpoints = [], []
             def once(messages, **kwargs):
                 calls.append(messages)
@@ -535,7 +535,7 @@ class PdfLocalizationTests(unittest.TestCase):
         for approved in (True, False):
             with self.subTest(approved=approved):
                 with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-                    client = ModelClient(sleep=lambda seconds: None)
+                    client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
                 calls, saved = [], []
                 client.accepted_callback = saved.append
                 def once(messages, **kwargs):
@@ -576,7 +576,7 @@ class PdfLocalizationTests(unittest.TestCase):
         blocks = [Block("weapon-code", 0, "HJ-12 may penetrate.", None),
                   Block("wing-code", 0, "X-wing munition may withdraw.", None)]
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         reviews, generations = [], []
         def once(messages, **kwargs):
             rows = json.loads(messages[1]["content"])["blocks"]
@@ -607,7 +607,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_complete_currency_placeholder_cannot_gain_a_separate_currency_name(self):
         block = Block("quoted-gold", 0, "Gold was above $5,400, rose $600, and was above $2,000 in 2022.", None)
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         generations, reviews, rejections = [], [], []
         client.rejection_callback = rejections.append
         def once(messages, **kwargs):
@@ -653,7 +653,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_source_absent_unit_abbreviation_is_translated_not_whitelisted(self):
         block = Block("unit", 0, "Petabyte-scale data.", None)
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         generations, reviews = [], []
         def once(messages, **kwargs):
             row = json.loads(messages[1]["content"])["blocks"][0]
@@ -688,7 +688,7 @@ class PdfLocalizationTests(unittest.TestCase):
         blocks = [Block("citation", 0, "Source report, pp. 1-6.", None),
                   Block("brand", 0, "Claude\nGov processed data.", None)]
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         generated, reviewed, rejected = [], [], []
         client.rejection_callback = rejected.append
         def once(messages, **kwargs):
@@ -732,7 +732,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_written_month_cannot_invent_quantity_and_receives_specific_retry_feedback(self):
         block = Block("footnote-date", 0, "1. Source report, 9 March 2026, pages 1-6.", (40, 50, 500, 90))
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls, rejections = [], []
         client.rejection_callback = rejections.append
         def once(messages, **kwargs):
@@ -790,7 +790,7 @@ class PdfLocalizationTests(unittest.TestCase):
         state = {"blocks": {block.id: {"sourceHash": block.source_hash, "text": "上游原文于2026年九月24日发布。", "retainedEnglish": [], "reviewed": True}},
                  "dateReviewDrafts": {block.id: draft}, "ocr": {"unchanged": {"verified": True}}, "status": "complete", "artifactSha256": "a" * 64}
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls, saved = [], []
         def once(messages, **kwargs):
             item = json.loads(messages[1]["content"])["blocks"][0]
@@ -811,7 +811,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_negative_date_draft_review_keeps_independence_and_three_total_attempts(self):
         block, draft = self.date_draft_fixture()
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         generation, review, rejected, accepted = [], [], [], []
         client.rejection_callback = rejected.append
         client.accepted_callback = accepted.append
@@ -918,7 +918,7 @@ class PdfLocalizationTests(unittest.TestCase):
     def test_independent_review_receives_natural_restored_paragraph_date(self):
         block = Block("dated-paragraph", 0, "The material was published on 24 September 2026.", (40, 50, 500, 80))
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         calls = []
         def once(messages, **kwargs):
             supplied = json.loads(messages[1]["content"])["blocks"][0]
@@ -947,7 +947,7 @@ class PdfLocalizationTests(unittest.TestCase):
             source_pdf(source)
             states, calls = [], []
             with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-                client = ModelClient(sleep=lambda seconds: None)
+                client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
             def once(messages, **kwargs):
                 calls.append(messages)
                 supplied = json.loads(messages[1]["content"])["blocks"]
@@ -1119,7 +1119,7 @@ class PdfLocalizationTests(unittest.TestCase):
             old.update({"promptVersion": "old-literal-digit-policy", "model": "old-translation-model", "unknownPrivateField": {"keep": True}})
             snapshot = copy.deepcopy(old)
             with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-                client = ModelClient(sleep=lambda seconds: None)
+                client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
             calls, states = [], []
             def once(payload, **kwargs):
                 calls.append(payload)
@@ -1378,7 +1378,7 @@ class ModelContractTests(unittest.TestCase):
 
     def client(self):
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            return ModelClient(sleep=lambda seconds: None)
+            return ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
 
     def response_client(self, response):
         class Session:
@@ -1390,7 +1390,7 @@ class ModelContractTests(unittest.TestCase):
                 self.kwargs = kwargs
                 return response
         with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
-            return ModelClient(session_factory=Session, sleep=lambda seconds: None)
+            return ModelClient(acceptance_mode="strict", session_factory=Session, sleep=lambda seconds: None)
 
     def test_gateway_data_envelope_and_standard_choices_are_compatible(self):
         for wrapped in (False, True):
@@ -1415,7 +1415,7 @@ class ModelContractTests(unittest.TestCase):
 
     def test_environment_credential_whitespace_is_normalized_without_logging(self):
         with patch.dict("os.environ", {"APIMART_API_KEY": "  dummy-not-used\n", "APIMART_BASE_URL": " https://api.apimart.ai/v1/\n", "GATEX_TRANSLATION_MODEL": " gpt-4.1\n"}):
-            client = ModelClient(sleep=lambda seconds: None)
+            client = ModelClient(acceptance_mode="strict", sleep=lambda seconds: None)
         self.assertEqual(client.key, "dummy-not-used")
         self.assertEqual(client.model, "gpt-4.1")
         self.assertEqual(client.url, "https://api.apimart.ai/v1/chat/completions")
