@@ -133,6 +133,17 @@ class NewsDailyTests(unittest.TestCase):
         self.assertLess(ticks[0], 30)
         self.assertEqual(calls.count(('POST', '/capture')), 1)
 
+    def test_daily_qa_metadata_cannot_echo_unvalidated_source_text(self):
+        for key in ['day', 'currentDay', 'capturedAt', 'snapshotHash', 'poolTotal']:
+            result = state(); result['daily'][key] = 'PRIVATE SOURCE BODY'
+            with self.subTest(key=key), self.assertRaises(runner.RunnerError) as caught:
+                self.run_daily(lambda *args, **kwargs: result)
+            self.assertEqual(caught.exception.code, 'INVALID_NEWS_DAILY_STATUS')
+        result = state(); result['daily']['acquisition'] = dict(state='PRIVATE SOURCE BODY', attempts=1, retryInSeconds=0)
+        with self.assertRaises(runner.RunnerError) as caught:
+            self.run_daily(lambda *args, **kwargs: result)
+        self.assertEqual(caught.exception.code, 'INVALID_NEWS_DAILY_STATUS')
+
     def test_api_route_allowlist_has_no_email_or_source_override(self):
         self.assertEqual(runner.NewsfeedApi.routes, {'/status', '/capture', '/warm'})
 

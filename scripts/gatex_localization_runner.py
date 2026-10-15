@@ -250,9 +250,19 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
             result["publication"] = proof
         daily = status.get("daily")
         if isinstance(daily, dict):
+            if (type(daily.get("available")) is not bool or type(daily.get("poolTotal")) is not int or daily["poolTotal"] < 0
+                or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily.get("currentDay", "")))
+                or daily.get("day") is not None and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily["day"]))
+                or daily.get("snapshotHash") is not None and not re.fullmatch(r"[a-f0-9]{64}", str(daily["snapshotHash"]))
+                or daily.get("capturedAt") is not None and not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z", str(daily["capturedAt"]))):
+                raise RunnerError("INVALID_NEWS_DAILY_STATUS")
             result["daily"] = {key: daily.get(key) for key in ("day", "available", "currentDay", "capturedAt", "poolTotal", "snapshotHash")}
             acquisition = daily.get("acquisition")
             if isinstance(acquisition, dict):
+                if (acquisition.get("state") not in {"missing", "acquiring", "failed", "ready"}
+                    or type(acquisition.get("attempts")) is not int or not 0 <= acquisition["attempts"] <= 2
+                    or type(acquisition.get("retryInSeconds")) is not int or not 0 <= acquisition["retryInSeconds"] <= 300):
+                    raise RunnerError("INVALID_NEWS_DAILY_STATUS")
                 result["daily"]["acquisition"] = {key: acquisition.get(key) for key in ("state", "attempts", "retryInSeconds")}
         return result, aware
 
