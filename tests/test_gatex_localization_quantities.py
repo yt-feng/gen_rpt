@@ -7,6 +7,65 @@ from gen_rpt.gatex_translation_quantities import (
 
 
 class QuantityFidelityTests(unittest.TestCase):
+    def test_complete_tracked_chapter_banner_preserves_leading_zero_and_continuation(self):
+        for digits in ("0 1", "0 2", "0 3", "0 4"):
+            source = "C H A P T E R  " + digits + "  /  C O N T I N U E D\nSource chapter heading"
+            p = protect_quantities(source)
+            self.assertEqual(len(p.tokens), 1)
+            self.assertEqual(p.tokens[0].kind, "chapter_label")
+            expected = "第" + digits.replace(" ", "") + "章 / 续"
+            self.assertEqual(p.tokens[0].replacement, expected)
+            self.assertTrue(quantities_equivalent(source, expected + "\n来源章节标题"))
+            self.assertTrue(quantities_equivalent(source, p.restore(p.masked)))
+            for changed in (expected.replace("第0", "第"), expected.replace("续", "完"),
+                            expected.replace(" / 续", ""), expected + "\n" + expected):
+                self.assertFalse(quantities_equivalent(source, changed + "\n来源章节标题"))
+
+    def test_chapter_banner_rule_does_not_swallow_other_slashes_or_incomplete_expressions(self):
+        for source in ("20 / 4", "Capital / Markets", "10/3", "2 million/M"):
+            with self.subTest(source=source):
+                p = protect_quantities(source)
+                self.assertFalse(any(token.kind == "chapter_label" for token in p.tokens))
+                self.assertTrue(quantities_equivalent(source, p.restore(p.masked)))
+        self.assertFalse(quantities_equivalent("20 / 4", "20 / 5"))
+        for source in ("20 /", "20 / words", "CHAPTER 01 / CONTINUED",
+                       "C H A P T E R 0 1 / C O N T I N U E D extra text",
+                       "Prefix C H A P T E R 0 1 / C O N T I N U E D"):
+            with self.subTest(source=source), self.assertRaisesRegex(QuantityFidelityError, "UNSUPPORTED_QUANTITY"):
+                protect_quantities(source)
+
+    def test_source_written_yuan_is_bound_to_its_amount_without_becoming_a_surname(self):
+        for source, target in [("save 1 million yuan each year", "每年节省100万元"),
+                               ("15 yuan", "15元"), ("-2 million yuan/M", "-200万元/M")]:
+            with self.subTest(source=source):
+                p = protect_quantities(source)
+                self.assertTrue(quantities_equivalent(source, p.restore(p.masked)))
+                self.assertTrue(quantities_equivalent(source, target))
+        self.assertEqual(protect_quantities("Mr. Yuan discussed components.").tokens, ())
+        for source, target in [("1 million yuan", "100万"), ("1 million yuan", "100万美元"),
+                               ("1 million yuan", "100万日元"), ("1 million yuan", "100万元元"),
+                               ("1 million yuan and 2 million US dollars", "100万美元和200万元"),
+                               ("1 million", "100万元"), ("-2 million yuan/M", "200万元/M")]:
+            with self.subTest(source=source, target=target):
+                self.assertFalse(quantities_equivalent(source, target))
+
+    def test_source_single_page_reference_is_not_a_bare_number_or_general_ordinal(self):
+        for source, target in [("p. 17", "第17页"), ("p.17", "17页"),
+                               ("page 017", "第017页"), ("Citations on p. 17.", "引文见第17页。"),
+                               ("The 17th page", "第17页"), ("The report has 17 pages.", "该报告有17页。")]:
+            with self.subTest(source=source):
+                p = protect_quantities(source)
+                self.assertTrue(quantities_equivalent(source, p.restore(p.masked)))
+                self.assertTrue(quantities_equivalent(source, target))
+        for source, target in [("p. 17", "第18页"), ("p. 017", "第17页"),
+                               ("17", "第17页"), ("17th", "第17页"),
+                               ("17 pages", "第17页"), ("p. 17", "16页"),
+                               ("p. 17", "17"), ("p. 17", "第17页、第17页"),
+                               ("pp. 1-6", "第1-6页"), ("p. 17/18", "第17页/18")]:
+            with self.subTest(source=source, target=target):
+                self.assertFalse(quantities_equivalent(source, target))
+        self.assertTrue(quantities_equivalent("pp. 1-6", "1-6页"))
+
     def test_currency_words_in_prose_are_protected_and_not_added_money(self):
         pairs = [("the dollar-centered system", "以美元为中心的体系"),
                  ("the Canadian dollar and the Australian dollar", "加元和澳元"),
