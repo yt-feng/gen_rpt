@@ -16,6 +16,9 @@ from gen_rpt.gatex_pdf_localization import (
     validate_translation, _translation_state, OCR_POLICY_VERSION, _source_masthead_hint, _source_edition_context,
     _writer, _font, _block_writer, _raster_render_aliases, _contained,
     _date_review_draft, _translate, _source_calendar_hints, _quantity_placeholder_errors, _source_page_reference_hints,
+    _translation_review_draft, _source_publication_terms,
+    _adjacent_review_context,
+    _private_ocr_evidence,
 )
 from gen_rpt.gatex_translation_quantities import protect_quantities
 
@@ -99,6 +102,256 @@ PAIRS = {
 
 
 class PdfLocalizationTests(unittest.TestCase):
+    def test_source_matching_line_initial_letter_markers_are_structural_only(self):
+        for source, target in [("a) It may change.", "a) 它可能改变。"),
+                               ("- b) It may change.", "- b) 它可能改变。"),
+                               ("c) It may change.\nd) It may remain.", "c) 它可能改变。\nd) 它可能维持不变。")]:
+            with self.subTest(source=source):
+                self.assertEqual(validate_translation(source, {"text": target, "retainedEnglish": [], "reviewed": True})["text"], target)
+        self.assertEqual(unresolved_english("- a) It may change.", "- a) 它可能改变。", [{"text": "a", "kind": "code"}]), 0)
+        for source, target in [("a) It may change.", "b) 它可能改变。"),
+                               ("a) It may change.", "a) 它可能改变。\na) 再次出现。"),
+                               ("It may change.", "a) 它可能改变。"),
+                               ("a) It may change.", "a) 它可能改变，a。"),
+                               ("It has a parenthesis.", "它包含 a) 括号。")]:
+            with self.subTest(source=source, target=target), self.assertRaises(LocalizationError):
+                validate_translation(source, {"text": target, "retainedEnglish": [{"text": "a", "kind": "code"}], "reviewed": True})
+
+    def test_source_folded_metadata_remains_literal_when_name_is_translated(self):
+        source = "An agreement with North River\nSecurities Exchange."
+        target = "与北河证券交易所签署了一份协议。"
+        raw = {"text": target, "retainedEnglish": [{"text": "North River Securities Exchange", "kind": "organisation"}]}
+        normalized = _source_verified_record(source, raw)
+        self.assertEqual([e["text"] for e in normalized["retainedEnglish"]], ["North", "River", "Securities", "Exchange"])
+        self.assertEqual(raw["retainedEnglish"][0]["text"], "North River Securities Exchange")
+        with self.assertRaisesRegex(LocalizationError, "UNREVIEWED_TRANSLATION"):
+            validate_translation(source, normalized)
+        self.assertEqual(validate_translation(source, {**normalized, "reviewed": True})["text"], target)
+        for original in ("North river\nSecurities Exchange", "North Other River\nSecurities Exchange"):
+            with self.subTest(original=original), self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+                validate_translation(original, {**_source_verified_record(original, raw), "reviewed": True})
+
+    def test_publication_vocabulary_is_source_bound_and_not_military_renaming(self):
+        hints = _source_publication_terms("This member edition packages a de-SPAC transaction for the GateX\nintelligence room.")
+        terms = {h["sourceTerm"]: h["chineseTerm"] for h in hints}
+        self.assertEqual(terms["GateX intelligence room"], "GateX 洞察工作区")
+        self.assertEqual(terms["de-SPAC transaction"], "SPAC合并上市交易")
+        self.assertEqual(_source_publication_terms("Military intelligence changed; a third party's Intelligence Room remained."), [])
+        self.assertEqual(_source_publication_terms("Market Intelligence")[0]["chineseTerm"], "市场洞察")
+        self.assertEqual(_source_publication_terms("Military market intelligence was assessed."), [])
+
+    def test_translation_review_draft_binds_both_texts_and_current_source_cache(self):
+        block = Block("editorial", 0, "This member edition preserves the source report.", None)
+        cached = {"sourceHash": block.source_hash, "text": "本会员版保留来源报告。", "retainedEnglish": [], "reviewed": True}
+        draft = {"schema": "gatex-pdf-translation-review-draft/v1", "sourceHash": block.source_hash,
+                 "previousReviewedRecord": copy.deepcopy(cached), "previousReviewedTextSha256": digest(cached["text"]),
+                 "candidate": {"text": "本会员版保留原报告。", "retainedEnglish": [], "reviewed": False},
+                 "candidateTextSha256": digest("本会员版保留原报告。")}
+        self.assertFalse(_translation_review_draft(block, draft, cached)["reviewed"])
+        for field, value in (("sourceHash", "0" * 64), ("candidateTextSha256", "0" * 64), ("previousReviewedTextSha256", "0" * 64)):
+            invalid = {**draft, field: value}
+            with self.subTest(field=field), self.assertRaises(LocalizationError):
+                _translation_review_draft(block, invalid, cached)
+        with self.assertRaises(LocalizationError):
+            _translation_review_draft(block, draft, {**cached, "text": "另一个旧译文。"})
+        with self.assertRaises(LocalizationError):
+            _translation_review_draft(block, {**draft, "candidate": {**draft["candidate"], "reviewed": True}}, cached)
+        numeric = Block("amount", 0, "Revenue may be $15.", None)
+        old = {"sourceHash": numeric.source_hash, "text": "收入可能为$15。", "retainedEnglish": [], "reviewed": True}
+        bad = {**draft, "sourceHash": numeric.source_hash, "previousReviewedRecord": old,
+               "previousReviewedTextSha256": digest(old["text"]), "candidateTextSha256": digest("收入可能为$16。"),
+               "candidate": {"text": "收入可能为$16。", "retainedEnglish": [], "reviewed": False}}
+        with self.assertRaisesRegex(LocalizationError, "NUMERIC_OR_LINK_MISMATCH"):
+            _translation_review_draft(numeric, bad, old)
+
+    def test_editorial_draft_first_request_is_fresh_review_and_other_cache_is_reused(self):
+        changed = Block("editorial", 0, "Executive Reading", None)
+        same = Block("same", 0, "Research report", None)
+        previous = {"sourceHash": changed.source_hash, "text": "执行层阅读", "retainedEnglish": [], "reviewed": True}
+        state = {"blocks": {changed.id: copy.deepcopy(previous), same.id: {"sourceHash": same.source_hash, "text": "研究报告", "retainedEnglish": [], "reviewed": True}},
+                 "ocr": {"preserved": {"verified": True}}, "status": "ready", "artifactSha256": "f" * 64,
+                 "translationReviewDrafts": {changed.id: {"schema": "gatex-pdf-translation-review-draft/v1", "sourceHash": changed.source_hash,
+                     "previousReviewedRecord": previous, "previousReviewedTextSha256": digest(previous["text"]),
+                     "candidateTextSha256": digest("管理层导读"), "candidate": {"text": "管理层导读", "retainedEnglish": [], "reviewed": False}}}}
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls, checkpoints = [], []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            rows = json.loads(messages[1]["content"])["blocks"]
+            self.assertEqual(rows[0]["source"], changed.text)
+            self.assertEqual(rows[0]["translation"], "管理层导读")
+            self.assertNotIn("previousReviewedRecord", rows[0])
+            self.assertEqual(len(rows), 1)
+            return {"blocks": [{"id": changed.id, "complete": True, "faithful": True, "issues": []}]}
+        client._once = once
+        result = _translate([changed, same], state, checkpoints.append, client)
+        self.assertEqual(len(calls), 1)
+        self.assertTrue(result[changed.id]["reviewed"])
+        self.assertEqual(result[same.id]["text"], "研究报告")
+        self.assertEqual(state["translationReviewDrafts"], {})
+        self.assertNotIn("artifactSha256", state)
+        self.assertEqual(state["ocr"], {"preserved": {"verified": True}})
+
+    def test_fresh_review_context_uses_only_immediate_same_page_source_and_candidates(self):
+        first = Block("first", 0, "This edition is packaged for GateX", None)
+        second = Block("second", 0, "intelligence room: Source Report.", None)
+        other_page = Block("other-page", 1, "Other material.", None)
+        metadata = Block("metadata", 0, "Metadata subject.", None, kind="metadata")
+        records = {first.id: {"text": "本版整理后供GateX"}, second.id: {"text": "洞察工作区使用：《来源报告》。"}}
+        context = _adjacent_review_context(second, [first, second, other_page, metadata], records)
+        self.assertEqual(context, [{"position": "previous", "id": first.id, "source": first.text, "translation": records[first.id]["text"]}])
+        self.assertEqual(_adjacent_review_context(metadata, [first, second, other_page, metadata], records), [])
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls = []
+        def once(messages, **kwargs):
+            calls.append(messages)
+            rows = json.loads(messages[1]["content"])["blocks"]
+            self.assertEqual(rows[1]["adjacentSourceContext"][0]["source"], first.text)
+            self.assertEqual(rows[1]["adjacentSourceContext"][0]["translation"], records[first.id]["text"])
+            return {"blocks": [{"id": row["id"], "complete": True, "faithful": True, "issues": []} for row in rows]}
+        client._once = once
+        accepted = client.translate([first, second], review_drafts={key: {**row, "retainedEnglish": [], "reviewed": False} for key, row in records.items()}, context_blocks=[first, second, other_page, metadata])
+        self.assertEqual(len(calls), 1, "independent fresh review only; no generation for a supplied source-bound draft")
+        self.assertEqual(len(accepted), 2)
+
+    def test_adjacent_context_cannot_supply_missing_quantities_or_borrow_a_name(self):
+        amount = Block("amount", 0, "Revenue may be $15.", None)
+        neighbour = Block("neighbour", 0, "Dr. Jones discussed costs.", None)
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls = []
+        def missing(messages, **kwargs):
+            calls.append(messages)
+            self.assertNotIn("source", json.loads(messages[1]["content"])["blocks"][0], "invalid own-block quantities must never reach a reviewer")
+            return {"blocks": [{"id": amount.id, "text": "收入可能出现。", "retainedEnglish": []}]}
+        client._once = missing
+        with self.assertRaisesRegex(LocalizationError, "QUANTITY_PLACEHOLDER_MISMATCH"):
+            client.translate([amount], context_blocks=[amount, neighbour], context_records={neighbour.id: {"text": "琼斯博士讨论$15的成本。"}})
+        self.assertEqual(len(calls), 3)
+        calls.clear()
+        def borrowed(messages, **kwargs):
+            calls.append(messages)
+            return {"blocks": [{"id": amount.id, "text": "Jones称收入可能为{GATEX_QUANTITY_0}。", "retainedEnglish": [{"text": "Jones", "kind": "person"}]}]}
+        client._once = borrowed
+        with self.assertRaisesRegex(LocalizationError, "INVALID_RETAINED_IDENTITY"):
+            client.translate([amount], context_blocks=[amount, neighbour])
+        self.assertEqual(len(calls), 3)
+
+    def test_rejected_editorial_draft_keeps_false_verdict_and_bounded_regeneration(self):
+        block = Block("conditional", 0, "Revenue may rise.", None)
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls, rejected = [], []
+        client.rejection_callback = rejected.append
+        def once(messages, **kwargs):
+            calls.append(messages)
+            row = json.loads(messages[1]["content"])["blocks"][0]
+            if "source" in row:
+                self.assertEqual(len(messages), 2, "the independent reviewer never sees history or a requested verdict")
+                return {"blocks": [{"id": block.id, "complete": True, "faithful": False, "issues": ["may became definite"]}]}
+            return {"blocks": [{"id": block.id, "text": "收入一定上升。", "retainedEnglish": []}]}
+        client._once = once
+        with self.assertRaisesRegex(LocalizationError, "SEMANTIC_REVIEW_FAILED"):
+            client.translate([block], review_drafts={block.id: {"text": "收入一定上升。", "retainedEnglish": [], "reviewed": False}})
+        self.assertEqual(len(calls), 5, "one draft review plus two full generation/fresh-review attempts")
+        self.assertEqual(len(rejected), 3)
+
+    def test_ocr_failures_checkpoint_only_bounded_private_source_image_evidence(self):
+        with TemporaryDirectory() as directory:
+            source, output = Path(directory) / "source.pdf", Path(directory) / "zh.pdf"
+            source_pdf(source, raster=True)
+            sha = digest(source.read_bytes())
+            with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-private-key"}):
+                client = ModelClient(sleep=lambda seconds: None)
+            calls, checkpoints = [], []
+            def once(messages, **kwargs):
+                calls.append(messages)
+                return {"verified": False, "uncertainRegions": ["Small source marks cannot be identified."], "lines": []}
+            client._once = once
+            evidence = {"width": 1485, "height": 297, "words": [{"text": "25%", "confidence": 90, "bbox": [40, 40, 80, 60]}]}
+            progress = {"schema": PROGRESS_SCHEMA, "sourceSha256": sha, "promptVersion": PROMPT_VERSION, "model": client.model,
+                        "blocks": {}, "ocr": {}, "status": "in-progress", "custom": {"preserve": True}}
+            with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence), self.assertRaisesRegex(LocalizationError, "^UNVERIFIED_RASTER_TEXT$"):
+                translate_pdf(source, output, sha, progress, checkpoints.append, translation_client=client)
+            state = checkpoints[-1]
+            self.assertEqual(len(calls), 3)
+            self.assertEqual(len(state["ocrRejections"]), 2)
+            self.assertEqual([r["attempt"] for r in state["ocrRejections"]], [2, 3])
+            for row in state["ocrRejections"]:
+                self.assertEqual(row["sourceSha256"], sha)
+                self.assertEqual(row["sourcePage"], 1)
+                self.assertRegex(row["imageSha256"], r"^[a-f0-9]{64}$")
+                self.assertEqual(row["stage"], "full_image")
+                self.assertFalse(row["rejectedResponse"]["verified"])
+                self.assertEqual(row["evidence"], evidence)
+                self.assertTrue(row["nativeVisibleWords"])
+            self.assertNotIn("dummy-private-key", json.dumps(state))
+            self.assertEqual(state["custom"], {"preserve": True})
+            self.assertEqual(state["blocks"], {})
+            self.assertEqual(state["ocr"], {})
+            self.assertFalse(output.exists())
+
+    def test_private_crop_rejection_captures_detector_and_raw_number_disagreement(self):
+        image = Image.new("RGB", (100, 100), "white")
+        stream = io.BytesIO(); image.save(stream, format="PNG")
+        evidence = {"width": 100, "height": 100, "words": [{"text": "25%", "confidence": 90, "bbox": [40, 40, 60, 50]}]}
+        with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+            client = ModelClient(sleep=lambda seconds: None)
+        calls, rejected = [], []
+        client.ocr_rejection_callback = rejected.append
+        def once(messages, **kwargs):
+            calls.append(messages)
+            if len(calls) == 1:
+                return {"verified": True, "uncertainRegions": [], "lines": []}
+            return {"verified": True, "uncertainRegions": [], "classification": "text", "lines": [{"text": "5%", "bbox": [0, 0, 1000, 1000]}]}
+        client._once = once
+        with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value=evidence), self.assertRaisesRegex(LocalizationError, "^RASTER_NUMERIC_OR_LINK_MISMATCH$"):
+            client.ocr(stream.getvalue())
+        self.assertEqual(len(calls), 4, "one full-image attempt and the unchanged three crop attempts")
+        self.assertEqual(len(rejected), 3)
+        self.assertEqual(rejected[-1]["detectorCandidate"], evidence["words"][0])
+        self.assertEqual(rejected[-1]["stage"], "context_crop")
+        self.assertEqual(rejected[-1]["rejectedResponse"]["lines"][0]["text"], "5%")
+        self.assertEqual(len(rejected[-1]["cropBBox"]), 4)
+        self.assertRegex(rejected[-1]["cropImageSha256"], r"^[a-f0-9]{64}$")
+
+    def test_nonfinite_ocr_candidate_keeps_strict_checkpoint_and_three_attempts(self):
+        from scripts.gatex_localization_runner import encoded_json
+        with TemporaryDirectory() as directory:
+            source, output = Path(directory) / "source.pdf", Path(directory) / "zh.pdf"
+            source_pdf(source, raster=True)
+            with patch.dict("os.environ", {"APIMART_API_KEY": "dummy-not-used"}):
+                client = ModelClient(sleep=lambda seconds: None)
+            calls, checkpoints = [], []
+            def once(messages, **kwargs):
+                calls.append(messages)
+                return {"verified": True, "uncertainRegions": [], "lines": [{"text": "Demand", "bbox": [0, 0, float("nan"), 100]}]}
+            def save(state):
+                encoded_json(state)  # Use the real runner's allow_nan=False contract.
+                checkpoints.append(state)
+            client._once = once
+            with patch("gen_rpt.gatex_pdf_localization.tesseract_words", return_value={"width": 1485, "height": 297, "words": []}), self.assertRaisesRegex(LocalizationError, "^INVALID_RASTER_TEXT$"):
+                translate_pdf(source, output, digest(source.read_bytes()), save_progress=save, translation_client=client)
+            self.assertEqual(len(calls), 3)
+            self.assertEqual(len(checkpoints[-1]["ocrRejections"]), 2)
+            self.assertEqual(checkpoints[-1]["ocrRejections"][-1]["rejectedResponse"]["lines"][0]["bbox"][2], {"invalidNonFiniteNumber": "nan"})
+            self.assertEqual(checkpoints[-1]["ocr"], {})
+            self.assertFalse(output.exists())
+
+    def test_private_ocr_diagnostic_projection_is_bounded_and_marks_truncation(self):
+        record = {"schema": "gatex-pdf-ocr-rejection/v1", "code": "UNVERIFIED_RASTER_TEXT", "stage": "full_image",
+                  "imageSha256": "a" * 64, "evidence": {"width": 100, "height": 100,
+                    "words": [{"text": "s" * 500, "bbox": [1, 2, 3, 4]} for _ in range(100)]},
+                  "nativeVisibleWords": [{"text": "s" * 500} for _ in range(100)],
+                  "rejectedResponse": {"text": "s" * 50000}, "detectorCandidate": {"text": "25%", "bbox": [1, 2, 3, 4]}}
+        bounded = _private_ocr_evidence(record, maximum=4096)
+        self.assertLessEqual(len(json.dumps(bounded, ensure_ascii=False, allow_nan=False).encode()), 4096)
+        self.assertEqual(bounded["diagnosticTruncation"]["detectorWordCount"], 100)
+        self.assertEqual(bounded["detectorCandidate"]["text"], "25%")
+        self.assertEqual(record["rejectedResponse"]["text"], "s" * 50000, "diagnostic projection never changes validation input")
+
     def test_source_protected_model_codes_and_shape_letters_get_literal_evidence(self):
         pairs = [("HJ-12 stated static penetration", "HJ-12所述静态穿透力", "HJ-12"),
                  ("folding X-wing light loitering munition", "折叠X翼轻型巡飞弹药", "X"),

@@ -57,6 +57,10 @@ for _iso, _zh, _names in _CURRENCY_NAMES:
         for _form in _forms:
             _CURRENCY_NAME_ID[_form.casefold()] = _iso
             _CURRENCY_NAME_ZH[_form.casefold()] = _zh
+# Unqualified yuan is an amount-bound written currency unit. Do not classify
+# the surname Yuan or the Chinese character 元 inside ordinary prose as money.
+_CURRENCY_NAME_ID.update({"yuan": "CNY", "元": "CNY"})
+_CURRENCY_NAME_ZH["yuan"] = "元"
 _WORD_NAMES = sorted(_CURRENCY_NAME_ZH, key=len, reverse=True)
 _CURRENCY_EN = r"(?i:(?:" + "|".join(re.escape(name).replace(r"\ ", r"\s+") for name in _WORD_NAMES) + r"))(?![A-Za-z])"
 _CURRENCY_ZH_NAMED = "|".join(sorted((row[1] for row in _CURRENCY_NAMES), key=len, reverse=True))
@@ -92,6 +96,7 @@ _QUANTITY_BODY = (
 _QUANTITY = re.compile(rf"(?<![A-Za-z0-9_.]){_QUANTITY_BODY}(?![A-Za-z0-9_]|\.[A-Za-z0-9]|-[A-Za-z])")
 _PARSE_QUANTITY = re.compile(_QUANTITY_BODY)
 _ORDINAL = r"(?:第\d+|\d+(?:st|nd|rd|th))(?![A-Za-z0-9])"
+_PAGE_REFERENCE = r"(?<![A-Za-z0-9_.+\-–—/])(?:(?i:p\.|page)\s*\d+|第?\d+页)(?![A-Za-z0-9]|\.[A-Za-z0-9]|\s*[-–—/]\s*\d)"
 _LINK = r"(?:https?://|www\.)[^\s<>\u3000-\u303f\u3400-\u9fff\uff00-\uffef]+|[A-Za-z0-9_.+-]+@[A-Za-z0-9_.-]+\.[A-Za-z]{2,}"
 _DOMAIN = r"(?<![A-Za-z0-9_.])(?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,}(?:/[^\s<>\u3000-\u303f\u3400-\u9fff\uff00-\uffef]*)?"
 _DATE = r"(?<!\d)(?:\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})(?!\d)"
@@ -101,11 +106,11 @@ _CODE = r"(?<![A-Za-z0-9_])(?=[A-Za-z0-9_.:/+\-]*[A-Za-z])(?=[A-Za-z0-9_.:/+\-]*
 _PLACEHOLDER = r"\{[^{}\n]+\}"
 # Bare 元 is a currency only when attached to a numeric quantity, not when it
 # occurs inside ordinary words such as 元件、多元化 or 元素.
-_STANDALONE_CURRENCY = rf"(?<![A-Za-z])(?:{_CURRENCY}|{_CURRENCY_ZH_NAMED})(?![A-Za-z])"
+_STANDALONE_CURRENCY = rf"(?<![A-Za-z])(?!(?i:yuan)(?![A-Za-z]))(?:{_CURRENCY}|{_CURRENCY_ZH_NAMED})(?![A-Za-z])"
 _SCAN = re.compile("|".join([
     rf"(?P<link>{_LINK})", rf"(?P<domain>{_DOMAIN})", rf"(?P<date>{_DATE})",
     rf"(?P<time>{_TIME})", rf"(?P<placeholder>{_PLACEHOLDER})",
-    rf"(?P<number_code>{_NUMBER_CODE})", rf"(?P<ordinal>{_ORDINAL})",
+    rf"(?P<number_code>{_NUMBER_CODE})", rf"(?P<page_reference>{_PAGE_REFERENCE})", rf"(?P<ordinal>{_ORDINAL})",
     rf"(?P<quantity>{_QUANTITY.pattern})", rf"(?P<code>{_CODE})",
     rf"(?P<standalone_currency>{_STANDALONE_CURRENCY})",
 ]))
@@ -346,6 +351,11 @@ def _atoms(text: str) -> list[_Atom]:
         # Inner named groups in the quantity alternative may become lastgroup.
         if match.group("quantity") is not None:
             atoms.append(_quantity_atom(match, text))
+        elif match.group("page_reference") is not None:
+            original = match.group(0)
+            digits = re.search(r"\d+", original).group(0)
+            atoms.append(_Atom(match.start(), match.end(), original, "第" + digits + "页",
+                               "page_reference", ("page_reference", digits)))
         elif match.group("ordinal") is not None:
             original = match.group(0)
             digits = re.search(r"\d+", original).group(0)
