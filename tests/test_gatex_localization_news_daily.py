@@ -20,10 +20,10 @@ def state(ready=0, digest=A, day='2026-10-15'):
 
 
 class NewsDailyTests(unittest.TestCase):
-    def run_daily(self, request):
-        api = runner.NewsfeedApi('offline-token', sleep=lambda _: None)
+    def run_daily(self, request, *, sleep=lambda _: None, **options):
+        api = runner.NewsfeedApi('offline-token', sleep=sleep)
         api.request = request
-        return runner.warm_news(api, require_publication=True, capture_daily=True)
+        return runner.warm_news(api, require_publication=True, capture_daily=True, **options)
 
     def test_capture_once_then_every_translation_post_is_source_pinned(self):
         calls = []
@@ -76,6 +76,73 @@ class NewsDailyTests(unittest.TestCase):
         self.assertEqual(report['stopReason'], 'SNAPSHOT_CHANGED')
         self.assertEqual(report['expectedSnapshotHash'], A)
         self.assertEqual(calls.count('/capture'), 1)
+
+    def test_active_clock_capture_is_read_until_ready_without_another_post(self):
+        calls, ticks = [], [0]
+        def waiting():
+            result = state(); result['daily'].update(available=False, day=None,
+                acquisition=dict(state='acquiring', attempts=1, retryInSeconds=2))
+            return result
+        def request(method, route, **kwargs):
+            calls.append((method, route))
+            if route == '/capture': raise runner.RunnerError('API_HTTP_ERROR', 503)
+            return state(36) if ticks[0] >= 2 else waiting()
+        report = self.run_daily(request, clock=lambda: ticks[0], sleep=lambda seconds: ticks.__setitem__(0, ticks[0]+seconds))
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(calls.count(('POST', '/capture')), 1)
+        self.assertNotIn(('POST', '/warm'), calls)
+
+    def test_failed_capture_waits_for_server_backoff_then_recovers_only_once(self):
+        calls, ticks, posts = [], [0], [0]
+        def request(method, route, **kwargs):
+            calls.append((method, route))
+            if route == '/capture':
+                posts[0] += 1
+                if posts[0] == 2:
+                    raise runner.RunnerError('API_CONNECTION_FAILED')
+            if posts[0] == 2: return state(36)
+            result = state(); result['daily'].update(available=False, day=None,
+                acquisition=dict(state='failed', attempts=1, retryInSeconds=max(0, 3-ticks[0])))
+            return result
+        report = self.run_daily(request, clock=lambda: ticks[0], sleep=lambda seconds: ticks.__setitem__(0, ticks[0]+seconds))
+        self.assertEqual(report['status'], 'passed')
+        self.assertEqual(posts[0], 2)
+        self.assertGreaterEqual(ticks[0], 5)
+        self.assertEqual(calls[-1], ('GET', '/status'), 'unknown recovery result must be read back')
+
+    def test_exhausted_server_capture_budget_does_not_create_a_third_acquisition(self):
+        calls = []
+        def request(method, route, **kwargs):
+            calls.append((method, route))
+            result = state(); result['daily'].update(available=False, day=None,
+                acquisition=dict(state='failed', attempts=2, retryInSeconds=0))
+            return result
+        report = self.run_daily(request)
+        self.assertEqual(report['stopReason'], 'DAILY_SOURCE_UNAVAILABLE')
+        self.assertEqual(calls.count(('POST', '/capture')), 1)
+
+    def test_waiting_for_the_daily_clock_shares_the_existing_total_deadline(self):
+        calls, ticks = [], [0]
+        def request(method, route, **kwargs):
+            calls.append((method, route))
+            result = state(); result['daily'].update(available=False, day=None,
+                acquisition=dict(state='acquiring', attempts=1, retryInSeconds=120))
+            return result
+        report = self.run_daily(request, budget_seconds=30, clock=lambda: ticks[0], sleep=lambda seconds: ticks.__setitem__(0, ticks[0]+seconds))
+        self.assertEqual(report['stopReason'], 'DEADLINE')
+        self.assertLess(ticks[0], 30)
+        self.assertEqual(calls.count(('POST', '/capture')), 1)
+
+    def test_daily_qa_metadata_cannot_echo_unvalidated_source_text(self):
+        for key in ['day', 'currentDay', 'capturedAt', 'snapshotHash', 'poolTotal']:
+            result = state(); result['daily'][key] = 'PRIVATE SOURCE BODY'
+            with self.subTest(key=key), self.assertRaises(runner.RunnerError) as caught:
+                self.run_daily(lambda *args, **kwargs: result)
+            self.assertEqual(caught.exception.code, 'INVALID_NEWS_DAILY_STATUS')
+        result = state(); result['daily']['acquisition'] = dict(state='PRIVATE SOURCE BODY', attempts=1, retryInSeconds=0)
+        with self.assertRaises(runner.RunnerError) as caught:
+            self.run_daily(lambda *args, **kwargs: result)
+        self.assertEqual(caught.exception.code, 'INVALID_NEWS_DAILY_STATUS')
 
     def test_api_route_allowlist_has_no_email_or_source_override(self):
         self.assertEqual(runner.NewsfeedApi.routes, {'/status', '/capture', '/warm'})

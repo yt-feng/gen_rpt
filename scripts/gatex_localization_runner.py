@@ -250,7 +250,20 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
             result["publication"] = proof
         daily = status.get("daily")
         if isinstance(daily, dict):
+            if (type(daily.get("available")) is not bool or type(daily.get("poolTotal")) is not int or daily["poolTotal"] < 0
+                or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily.get("currentDay", "")))
+                or daily.get("day") is not None and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily["day"]))
+                or daily.get("snapshotHash") is not None and not re.fullmatch(r"[a-f0-9]{64}", str(daily["snapshotHash"]))
+                or daily.get("capturedAt") is not None and not re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?Z", str(daily["capturedAt"]))):
+                raise RunnerError("INVALID_NEWS_DAILY_STATUS")
             result["daily"] = {key: daily.get(key) for key in ("day", "available", "currentDay", "capturedAt", "poolTotal", "snapshotHash")}
+            acquisition = daily.get("acquisition")
+            if isinstance(acquisition, dict):
+                if (acquisition.get("state") not in {"missing", "acquiring", "failed", "ready"}
+                    or type(acquisition.get("attempts")) is not int or not 0 <= acquisition["attempts"] <= 2
+                    or type(acquisition.get("retryInSeconds")) is not int or not 0 <= acquisition["retryInSeconds"] <= 300):
+                    raise RunnerError("INVALID_NEWS_DAILY_STATUS")
+                result["daily"]["acquisition"] = {key: acquisition.get(key) for key in ("state", "attempts", "retryInSeconds")}
         return result, aware
 
     def status_report(expected=None):
@@ -277,9 +290,45 @@ def warm_news(api: NewsfeedApi, *, max_passes=12, budget_seconds=600, clock=time
                 if error.code != "API_CONNECTION_FAILED" and not (error.code == "API_HTTP_ERROR" and error.status and error.status >= 500):
                     return finish("CAPTURE_FAILED", error)
                 report, publication_mode = status_report()
-            daily = report.get("daily", {})
-            if daily.get("available") is not True or daily.get("day") != daily.get("currentDay") or daily.get("snapshotHash") != report["snapshotHash"] or not re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily.get("day", ""))):
-                return finish("DAILY_SOURCE_UNAVAILABLE")
+            recovery_used = False
+            while True:
+                daily = report.get("daily", {})
+                if (daily.get("available") is True and daily.get("day") == daily.get("currentDay")
+                    and daily.get("snapshotHash") == report["snapshotHash"]
+                    and re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(daily.get("day", "")))):
+                    break
+                # Poll the one reservation while the daily clock is working.
+                # Only an explicit expired/failed/missing/ready state permits
+                # one recovery POST, still subject to the server's daily CAS.
+                acquisition = daily.get("acquisition", {})
+                phase, attempts, retry_in = (acquisition.get(key) for key in ("state", "attempts", "retryInSeconds"))
+                if (phase not in {"missing", "acquiring", "failed", "ready"}
+                    or type(attempts) is not int or not 0 <= attempts <= 2
+                    or type(retry_in) is not int or not 0 <= retry_in <= 300
+                    or phase == "failed" and attempts >= 2
+                    or phase == "acquiring" and attempts >= 2 and retry_in == 0):
+                    return finish("DAILY_SOURCE_UNAVAILABLE")
+                if clock() >= api.request_deadline:
+                    return finish("DEADLINE")
+                if retry_in > 0:
+                    delay = min(15, retry_in)
+                    if api.request_deadline - clock() <= delay: return finish("DEADLINE")
+                    api.sleep(delay)
+                    report, publication_mode = status_report()
+                    continue
+                if recovery_used:
+                    return finish("DAILY_SOURCE_UNAVAILABLE")
+                recovery_used = True
+                if api.request_deadline - clock() <= 2: return finish("DEADLINE")
+                api.sleep(2)
+                try:
+                    recovered = api.request("POST", "/capture", json={}, retry=False)
+                    report, publication_mode = parse_status(recovered)
+                except RunnerError as error:
+                    if error.code == "API_DEADLINE_EXCEEDED": return finish("DEADLINE")
+                    if error.code != "API_CONNECTION_FAILED" and not (error.code == "API_HTTP_ERROR" and error.status and error.status >= 500):
+                        return finish("CAPTURE_FAILED", error)
+                    report, publication_mode = status_report()
         # Every current server warm is pinned before the first translation.
         # A completed daily source is a read-only success, never a new crawl.
         if publication_mode:
