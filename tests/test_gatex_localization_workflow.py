@@ -47,6 +47,17 @@ def environment_value(key, supplied, event='workflow_dispatch'):
 
 
 class WorkflowModeTests(unittest.TestCase):
+    def test_pdf_provider_is_deepseek_with_separate_supported_text_and_vision_models(self):
+        job = WORKFLOW.read_text().split('  localize:\n', 1)[1].split('  warm-news:\n', 1)[0]
+        execution = job.split('      - name: Translate, validate, publish and read back Chinese PDFs\n', 1)[1]
+        preparation = job.split('      - name: Translate, validate, publish and read back Chinese PDFs\n', 1)[0]
+        self.assertIn('GATEX_PDF_TRANSLATION_PROVIDER: deepseek', execution)
+        self.assertIn('GATEX_PDF_TEXT_MODEL: deepseek-v4-pro', execution)
+        self.assertIn('GATEX_PDF_VISION_MODEL: deepseek-flash', execution)
+        self.assertIn("DEEPSEEK_API_KEY: ${{ !inputs.ocr_diagnostic_only && secrets.DEEPSEEK_API_KEY || '' }}", execution)
+        self.assertNotIn('secrets.APIMART_API_KEY', job)
+        self.assertNotIn('GATEX_PDF_TRANSLATION_PROVIDER:', preparation, 'provider env must not leak into offline contract fixtures')
+
     def test_exact_pdf_sample_runs_pdf_without_implicit_news_warming(self):
         self.assertTrue(enabled('localize', sample='managed:sample'))
         self.assertFalse(enabled('warm-news', sample='managed:sample'))

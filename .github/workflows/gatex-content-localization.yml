@@ -142,9 +142,12 @@ jobs:
         run: python -m unittest discover -s tests -p 'test_gatex_localization*.py'
       - name: Translate, validate, publish and read back Chinese PDFs
         env:
+          GATEX_PDF_TRANSLATION_PROVIDER: deepseek
+          GATEX_PDF_TEXT_MODEL: deepseek-v4-pro
+          GATEX_PDF_VISION_MODEL: deepseek-flash
           GATEX_PDF_OCR_DIAGNOSTIC_ONLY: ${{ inputs.ocr_diagnostic_only && 'true' || 'false' }}
           GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
-          APIMART_API_KEY: ${{ !inputs.ocr_diagnostic_only && secrets.APIMART_API_KEY || '' }}
+          DEEPSEEK_API_KEY: ${{ !inputs.ocr_diagnostic_only && secrets.DEEPSEEK_API_KEY || '' }}
         run: |
           set -euo pipefail
           umask 077

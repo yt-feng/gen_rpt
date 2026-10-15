@@ -37,7 +37,7 @@ from gen_rpt.gatex_translation_quantities import (
 
 QA_SCHEMA = "gatex-pdf-translation-qa/v1"
 PROGRESS_SCHEMA = "gatex-pdf-translation-progress/v1"
-PROMPT_VERSION = "gatex-complete-pdf-zh-20261014-v2-quantities"
+PROMPT_VERSION = "gatex-complete-pdf-zh-20261015-v3-provider-edition"
 OCR_POLICY_VERSION = "gatex-raster-text-coverage/v2"
 MIN_FONT = 7.0
 MAX_BATCH_CHARACTERS = 9000
@@ -331,16 +331,31 @@ def _diagnose_pdf(source_pdf: Path, source_sha256: str, progress: dict | None, s
 
 
 class ModelClient:
-    """APIMART chat/vision client with at most three attempts per operation."""
+    """Explicit chat/vision provider with at most three attempts per operation."""
 
     def __init__(self, *, session_factory=requests.Session, sleep=time.sleep):
-        self.model = os.getenv("GATEX_TRANSLATION_MODEL", "gpt-4.1").strip() or "gpt-4.1"
-        self.key = os.getenv("APIMART_API_KEY", "").strip()
-        base = os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").strip().rstrip("/")
+        self.provider = os.getenv("GATEX_PDF_TRANSLATION_PROVIDER", "apimart").strip().lower()
+        if self.provider not in {"apimart", "deepseek"}:
+            raise LocalizationError("INVALID_MODEL_PROVIDER")
+        if self.provider == "deepseek":
+            self.model = os.getenv("GATEX_PDF_TEXT_MODEL", "deepseek-v4-pro").strip() or "deepseek-v4-pro"
+            self.vision_model = os.getenv("GATEX_PDF_VISION_MODEL", "deepseek-flash").strip() or "deepseek-flash"
+            if self.model not in {"deepseek-v4-pro", "deepseek-flash"} or self.vision_model != "deepseek-flash":
+                raise LocalizationError("INVALID_MODEL_CONFIGURATION")
+            self.key = os.getenv("DEEPSEEK_API_KEY", "").strip()
+            base = "https://api.deepseek.com/v1"
+        else:
+            self.model = os.getenv("GATEX_PDF_TEXT_MODEL", os.getenv("GATEX_TRANSLATION_MODEL", "gpt-4.1")).strip() or "gpt-4.1"
+            self.vision_model = os.getenv("GATEX_PDF_VISION_MODEL", self.model).strip() or self.model
+            self.key = os.getenv("APIMART_API_KEY", "").strip()
+            base = os.getenv("APIMART_BASE_URL", "https://api.apimart.ai").strip().rstrip("/")
         parsed = urlsplit(base)
         if parsed.scheme != "https" or parsed.username or parsed.password or parsed.query or parsed.fragment:
             raise LocalizationError("INVALID_MODEL_ENDPOINT")
         self.url = base + ("/chat/completions" if base.endswith("/v1") else "/v1/chat/completions")
+        self.translation_policy = {"provider": self.provider, "textModel": self.model,
+            "reviewModel": self.model, "visionModel": self.vision_model,
+            "thinking": "disabled" if self.provider == "deepseek" else "provider-default"}
         self.session_factory, self.sleep = session_factory, sleep
         self.rejection_callback: Callable[[dict], None] | None = None
         self.accepted_callback: Callable[[dict[str, dict]], None] | None = None
@@ -349,10 +364,20 @@ class ModelClient:
         if not self.key:
             raise LocalizationError("MODEL_KEY_MISSING")
         try:
+            # Image parts are created only by the OCR routines, never parsed
+            # from source strings. Pro handles all generation/fresh text review;
+            # Flash handles transcription and independent image crop review.
+            vision = any(isinstance(message.get("content"), list) and any(
+                isinstance(part, dict) and part.get("type") == "image_url" for part in message["content"])
+                for message in messages if isinstance(message, dict))
+            payload = {"model": self.vision_model if vision else self.model, "messages": messages,
+                "temperature": 0, "stream": False, "max_tokens": maximum,
+                "response_format": {"type": "json_object"}}
+            if self.provider == "deepseek":
+                payload["thinking"] = {"type": "disabled"}
             with self.session_factory() as session:
                 response = session.post(self.url, headers={"Authorization": "Bearer " + self.key},
-                    json={"model": self.model, "messages": messages, "temperature": 0,
-                          "stream": False, "max_tokens": maximum, "response_format": {"type": "json_object"}},
+                    json=payload,
                     timeout=(20, 240), allow_redirects=False)
                 try:
                     if response.status_code not in range(200, 300):
@@ -456,6 +481,9 @@ Use idiomatic Chinese for the source meaning: serious procrastinators means 重�
 while keeping every qualification and the author's original argument intact.
 GateX-owned mastheads GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS use GATEX 前沿洞察
 and 科技前沿 respectively; original article titles, sources and author identities stay faithful.
+When the source describes this edition as an authorized English translation, make clear
+that this describes the original English edition (原英文版本), not this new Chinese PDF.
+Preserve the original authorization claim and attribution without claiming Chinese authorization.
 Return JSON {"blocks":[{"id":"...","text":"complete translation","retainedEnglish":
 [{"text":"exact source identity","kind":"brand|person|organisation|acronym|code|unit|source_title"}]}]}.
 List only genuine retained identities. When retaining an original English source_title,
@@ -487,6 +515,8 @@ does not fail fidelity. A faithful translation may retain proper names and techn
 Never accept expansion of a source surname into an unsupported full name. Source type C
 and target C类 preserve the same type code. GateX-owned masthead translations GATEX 前沿洞察
 and 科技前沿 correspond to GATEX INTELLIGENCE and TECHNOLOGY FRONTIERS respectively.
+An authorization or English-language claim about the original source edition must remain
+about that original English edition; it must not assert authorization of the Chinese edition.
 If an English work title is retained, its own Chinese title counterpart must also be present;
 Chinese elsewhere in the sentence does not supply that counterpart."""
 
@@ -1053,20 +1083,24 @@ def _verified_ocr_cache(record: dict, *, require_coverage: bool) -> bool:
 
 
 def _translation_state(progress: dict | None, source_sha256: str, model: str, force: bool,
-                       *, require_ocr_coverage: bool) -> dict:
+                       *, require_ocr_coverage: bool, translation_policy: dict | None = None) -> dict:
     if progress is not None and (not isinstance(progress, dict) or progress.get("schema") != PROGRESS_SCHEMA
                                  or progress.get("sourceSha256") != source_sha256):
         raise LocalizationError("PROGRESS_SOURCE_MISMATCH")
     if progress is None or force:
-        return {"schema": PROGRESS_SCHEMA, "sourceSha256": source_sha256, "promptVersion": PROMPT_VERSION,
-                "model": model, "ocrPolicyVersion": OCR_POLICY_VERSION, "blocks": {}, "ocr": {}, "status": "in-progress"}
+        state = {"schema": PROGRESS_SCHEMA, "sourceSha256": source_sha256, "promptVersion": PROMPT_VERSION,
+                 "model": model, "ocrPolicyVersion": OCR_POLICY_VERSION, "blocks": {}, "ocr": {}, "status": "in-progress"}
+        if translation_policy is not None:
+            state["translationPolicy"] = copy.deepcopy(translation_policy)
+        return state
     state = copy.deepcopy(progress)
     if not isinstance(state.get("blocks"), dict) or not isinstance(state.get("ocr"), dict):
         raise LocalizationError("INVALID_PROGRESS")
     # OCR belongs to the immutable source/rendered-image identity, not to the
     # translation model or numeric rendering policy. Preserve verified evidence
     # while invalidating all old text translations and completed artifacts.
-    if state.get("promptVersion") != PROMPT_VERSION or state.get("model") != model:
+    if (state.get("promptVersion") != PROMPT_VERSION or state.get("model") != model
+            or translation_policy is not None and state.get("translationPolicy") != translation_policy):
         state["blocks"] = {}
         state["status"] = "in-progress"
         state.pop("artifactSha256", None)
@@ -1074,6 +1108,8 @@ def _translation_state(progress: dict | None, source_sha256: str, model: str, fo
                     if isinstance(key, str) and re.fullmatch(r"[a-f0-9]{64}", key)
                     and _verified_ocr_cache(record, require_coverage=require_ocr_coverage)}
     state.update({"promptVersion": PROMPT_VERSION, "model": model, "ocrPolicyVersion": OCR_POLICY_VERSION})
+    if translation_policy is not None:
+        state["translationPolicy"] = copy.deepcopy(translation_policy)
     return state
 
 def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progress: dict | None = None,
@@ -1082,7 +1118,7 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
     """Translate one immutable source PDF; raise a safe code on any QA failure.
 
     Optional injected clients exist for deterministic tests. Production callers
-    use the environment-configured APIMART client and its independent OCR audit.
+    use the explicitly selected provider and its independent OCR audit.
     A successful return is publishable; failed artifacts are never returned.
     """
     source_pdf, output_pdf = Path(source_pdf), Path(output_pdf)
@@ -1097,7 +1133,8 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
     model = getattr(client, "model", "injected-test-client")
     checkpoint_callback = save_progress or (lambda value: None)
     state = _translation_state(progress, source_sha256, model, force,
-                               require_ocr_coverage=isinstance(client, ModelClient) and raster_ocr is None)
+                               require_ocr_coverage=isinstance(client, ModelClient) and raster_ocr is None,
+                               translation_policy=getattr(client, "translation_policy", None))
 
     def checkpoint(value):
         checkpoint_callback(copy.deepcopy(value))
@@ -1263,7 +1300,8 @@ def translate_pdf(source_pdf: Path, output_pdf: Path, source_sha256: str, progre
               "overflowCount": 0, "unresolvedEnglishCount": 0, "figuresPreserved": True,
               "numericChecksPassed": True, "pages": qa_pages, "promptVersion": PROMPT_VERSION,
               "model": model, "semanticReviewPassed": True, "rasterOCRVerified": True,
-              "minimumTranslatedFontSize": MIN_FONT}
+              "minimumTranslatedFontSize": MIN_FONT,
+              **({"translationPolicy": copy.deepcopy(client.translation_policy)} if isinstance(client, ModelClient) else {})}
         if len(records) != len(all_blocks):
             raise LocalizationError("BLOCK_COVERAGE_MISMATCH")
         temporary.replace(output_pdf)
