@@ -11,7 +11,7 @@ review and the rendered PDF layout.
 from __future__ import annotations
 
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal, InvalidOperation
 from fractions import Fraction
 import re
@@ -349,6 +349,41 @@ def _expressions(text: str, atoms: list[_Atom]) -> list[_Atom]:
     return sorted(combined, key=lambda atom: atom.start)
 
 
+def _percentage_point_ellipsis(text: str, atoms: list[_Atom]) -> list[_Atom]:
+    """Resolve one explicit same-clause rate-unit ellipsis, never bare points.
+
+    English coordinates ``N percentage points and the ... rate by M points``.
+    The second unit is evidenced by that first explicit unit and the narrowly
+    matched rate clause in this source string. Scores, basis points, sentence
+    boundaries and unrelated point counts cannot acquire this unit.
+    """
+    result = list(atoms)
+    for index in range(1, len(atoms)):
+        first, current = atoms[index - 1:index + 1]
+        if (first.kind != "quantity" or current.kind != "quantity"
+                or first.literal_key[4] != "个百分点" or current.literal_key[4]
+                or not re.search(r"(?i:\b(?:percentage|percent)[\s-]+points?)$", first.original)
+                or any(current.literal_key[position] for position in (2, 3, 5, 6, 7, 8, 9))):
+            continue
+        gap = text[first.end:current.start]
+        if not re.fullmatch(r"(?i:\s+(?:and|or)\s+(?:the\s+)?(?:[a-z]+(?:-[a-z]+)?\s+)?rate\s+by\s+)", gap):
+            continue
+        suffix = re.match(r"(?i:\s+points?)(?![A-Za-z0-9_])", text[current.end:])
+        if suffix is None:
+            continue
+        literal = list(current.literal_key)
+        literal[4] = "个百分点"
+        equivalent = list(current.equivalent_key) if current.equivalent_key is not None else None
+        if equivalent is not None:
+            equivalent[3] = "个百分点"
+        end = current.end + suffix.end()
+        result[index] = replace(current, end=end, original=text[current.start:end],
+                                replacement=current.replacement + "个百分点",
+                                literal_key=tuple(literal),
+                                equivalent_key=tuple(equivalent) if equivalent is not None else None)
+    return result
+
+
 def _atoms(text: str) -> list[_Atom]:
     atoms = []
     for match in _SCAN.finditer(text):
@@ -384,7 +419,7 @@ def _atoms(text: str) -> list[_Atom]:
             atoms.append(_Atom(match.start(), match.start()+len(original), original,
                                name[1] if name else original, kind,
                                ("currency_name", name[0]) if name else (kind, original)))
-    return _expressions(text, atoms)
+    return _expressions(text, _percentage_point_ellipsis(text, atoms))
 
 
 def protect_quantities(source: str) -> ProtectedQuantities:

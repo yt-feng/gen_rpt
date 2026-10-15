@@ -225,6 +225,7 @@ def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = N
     # them to the original amount (US$ is never silently reduced to $/USD).
     remaining = re.sub(r"(?<![A-Za-z0-9])[A-Z]{1,3}\$",
                        lambda match: "" if match.group() in source else match.group(), remaining)
+    retained_literals = set()
     for entry in retained or []:
         if not isinstance(entry, dict) or entry.get("kind") not in RETAINED_KINDS:
             raise LocalizationError("INVALID_RETAINED_IDENTITY")
@@ -252,7 +253,13 @@ def _unresolved_tokens(source: str, target: str, retained: list[dict] | None = N
         # Structural labels have already been removed by their verified marker
         # forms/counts. A code entry must not also erase a free article 'a'.
         if not structural_code:
-            remaining = remaining.replace(text, "")
+            retained_literals.add(text)
+    # Complete identities can overlap (HBM4 and HBM4E). Consume the longest
+    # exact literals first and never erase an identity inside another ASCII
+    # word/code. CJK adjacency is legitimate Chinese typography, not a word
+    # boundary that could hide an extra English suffix or prefix.
+    for text in sorted(retained_literals, key=lambda value: (-len(value), value)):
+        remaining = re.sub(r"(?<![A-Za-z0-9_])" + re.escape(text) + r"(?![A-Za-z0-9_])", "", remaining)
     unresolved = []
     for word in ENGLISH.findall(remaining):
         if word in SAFE_WORDS and word in source:
@@ -283,6 +290,9 @@ def validate_translation(source: str, record: dict) -> dict:
         raise LocalizationError("DATE_DISPLAY_ORDER")
     if any(pattern.search(target) for pattern, _ in _source_date_reorderings(source)):
         raise LocalizationError("DATE_DISPLAY_ORDER")
+    for date in _source_month_year_hints(source):
+        if len(re.findall(re.escape(date["chineseDisplay"]), compact(target))) < date["sourceCount"]:
+            raise LocalizationError("DATE_DISPLAY_ORDER")
     if "{GATEX_QUANTITY_" in target:
         raise LocalizationError("QUANTITY_PLACEHOLDER_MISMATCH")
     if not quantities_equivalent(source, target):
@@ -475,8 +485,23 @@ def _source_calendar_hints(source: str) -> list[dict]:
         if (re.search(r"\b[0-3]?\d\s+" + name + r"(?:\s+\d{4})?\b", source)
                 or re.search(r"\b" + name + r"\s+(?:[0-3]?\d(?:,?\s+\d{4})?|\d{4})\b", source)):
             hints.append({"sourceMonth": month, "chineseMonth": chinese + "月",
-                          "instruction": "Translate this written calendar month as Chinese words. It has no numeric placeholder of its own; never invent one."})
+                          "yearMonthForms": [date for date in _source_month_year_hints(source) if date["sourceMonth"] == month],
+                          "instruction": "Translate this written calendar month as Chinese words. It has no numeric placeholder of its own; never invent one. A source Month YYYY must render YYYY年ChineseMonth月, with 年 after the unchanged year placeholder; YYYYChineseMonth月 is incomplete."})
     return hints
+
+
+def _source_month_year_hints(source: str) -> list[dict]:
+    """Exact written month/year pairs, never modal May or an inferred date."""
+    dates = Counter()
+    for match in re.finditer(r"\b(" + "|".join(MONTHS) + r")\s+(\d{4})\b", source):
+        # A day/month/year source has its own complete-date policy. Do not
+        # mistake that date's month/year suffix for a separate month-only date.
+        if not re.search(r"\b[0-3]?\d\s+$", source[:match.start()]):
+            dates[match[1], match[2]] += 1
+    return [{"sourceMonth": month, "sourceYear": year, "sourceCount": count,
+             "chineseDisplay": f"{year}年{MONTHS[month]}月",
+             "instruction": "Keep this source year and month together. Retain the original year placeholder exactly once and follow it with 年 and the Chinese month. Do not omit 年, change the year/month, or invent another numeric placeholder. Corrected text still requires fresh independent fidelity and Chinese-quality review."}
+            for (month, year), count in dates.items()]
 
 
 def _source_page_reference_hints(source: str) -> list[dict]:
@@ -914,7 +939,10 @@ not 第1-6页, which changes the first endpoint into an ordinal.
 An entire single-page reference placeholder already renders 第17页: do not append
 another 第 or 页, and do not confuse it with a numerical ordinal or a page range.
 Written month names use Chinese words (September -> 九月); do not add an Arabic 9
-when the source date only contains Arabic day/year numbers. Retained identity metadata
+when the source date only contains Arabic day/year numbers. A source Month YYYY
+must render YYYY年ChineseMonth月: January 2024 -> 2024年一月, never 2024一月.
+Keep the year placeholder exactly once and place 年 immediately after it.
+Retained identity metadata
 must use original source names/codes as shown in quantityHints, never an internal placeholder.
 Translate ordinary prose and headings completely; preserve genuine names, brands, codes,
 acronyms and mathematical notation. Translate written unit names as Chinese unit words;
@@ -989,11 +1017,12 @@ An edited candidate must undergo a new independent fidelity and quality review."
                 "quantityPlaceholderErrors": rejection.get("quantityPlaceholderErrors", {}),
                 "quantityValidationDetails": rejection.get("quantityValidationDetails", {}),
                 "sourceCalendarMonths": _source_calendar_hints(rejection["source"]),
+                "sourceYearMonthFormats": _source_month_year_hints(rejection["source"]),
                 "sourcePageReferences": _source_page_reference_hints(rejection["source"]),
                 "sourcePublicationTerms": _source_publication_terms(rejection["source"]),
                 "normalizedCandidate": rejection.get("normalizedCandidate", {}), "review": rejection.get("review", {}),
                 "allowedRetainedKinds": sorted(RETAINED_KINDS),
-                "instruction": "Use exact source spelling, casing and whitespace for retained identities. Do not expand a surname using another block. Translate ordinary English fully. Preserve source-verified type codes and parenthesized letter markers with their counts. retainedEnglish must be a JSON array. Do not invent context or identities. For a quantity placeholder error, emit each expectedPlaceholders item exactly once; remove unknown IDs and extra duplicates, restore missing IDs to their actual source quantities. Translate written sourceCalendarMonths as Chinese words, never an invented numeric placeholder."}
+                "instruction": "Use exact source spelling, casing and whitespace for retained identities. Do not expand a surname using another block. Translate ordinary English fully. Preserve source-verified type codes and parenthesized letter markers with their counts. retainedEnglish must be a JSON array. Do not invent context or identities. For a quantity placeholder error, emit each expectedPlaceholders item exactly once; remove unknown IDs and extra duplicates, restore missing IDs to their actual source quantities. Translate written sourceCalendarMonths as Chinese words, never an invented numeric placeholder. For sourceYearMonthFormats, preserve the exact source year/month and emit YYYY年ChineseMonth月, including 年 immediately after the year placeholder. Correct only the observed format, never change a value or treat this feedback as review approval."}
 
         # Approved candidates are durably checkpointed after a fresh review.
         # Three generation attempts total; later attempts contain only pending
@@ -1028,6 +1057,7 @@ An edited candidate must undergo a new independent fidelity and quality review."
                     **({"minimalStyleEdit": copy.deepcopy(style_edits[b.id])} if b.id in editing_ids else {}),
                     "quantityHints": protections[b.id].hints,
                     "sourceCalendarMonths": _source_calendar_hints(b.text),
+                    "sourceYearMonthFormats": _source_month_year_hints(b.text),
                     "sourcePageReferences": _source_page_reference_hints(b.text),
                     "sourcePublicationTerms": _source_publication_terms(b.text),
                     "sourceVerifiedIdentities": _source_identity_hints(b.text),
