@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   maintain:
+    # Keep automatic retries quiet without weakening manual diagnostics.
+    continue-on-error: ${{ github.event_name == 'schedule' }}
     # 08:05 Asia/Shanghai captures once; 13:05 / 18:05 resume the stored pool.
     # This job never calls or changes the digest/email endpoint.
     runs-on: ubuntu-latest
@@ -58,3 +60,12 @@ jobs:
       - name: Remove private working documents
         if: always()
         run: rm -rf -- "$RUNNER_TEMP/gatex-news-localization-private"
+      - name: Record actual maintenance outcome
+        if: always()
+        env:
+          TASK_STATUS: ${{ job.status }}
+        run: |
+          {
+            printf '### News maintenance receipt\n\n- Job outcome: `%s`\n' "$TASK_STATUS"
+            printf '\nScheduled runs are best effort. The QA artifact records actual coverage and pending work; workflow success does not imply complete news delivery. See failed steps when no artifact was produced.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
