@@ -43,6 +43,8 @@ jobs:
 
   preflight:
     if: github.repository == 'yt-feng/gen_rpt' && github.ref == 'refs/heads/main' && (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+    # Scheduled maintenance is best effort; manual recovery stays strict.
+    continue-on-error: ${{ github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     outputs:
@@ -61,10 +63,21 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: PYTHONPATH=. python scripts/gatex_pdf_maintenance.py --preflight
+      - name: Record actual preflight outcome
+        if: always()
+        env:
+          TASK_STATUS: ${{ job.status }}
+          PROCEED: ${{ steps.busy.outputs.proceed }}
+        run: |
+          {
+            printf '### PDF preflight receipt\n\n- Job outcome: `%s`\n- Proceed: `%s`\n' "$TASK_STATUS" "${PROCEED:-unknown}"
+            printf '\nScheduled runs are best effort. A skipped or failed preflight does not complete any PDF.\n'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   maintain:
     needs: preflight
     if: needs.preflight.outputs.proceed == 'true'
+    continue-on-error: ${{ github.event_name == 'schedule' }}
     # Only this job takes the writer mutex. The preflight and child Python
     # processes must not reacquire it. News retains its independent lock.
     concurrency:
@@ -130,3 +143,12 @@ jobs:
       - name: Remove all private PDF and model working data
         if: always()
         run: rm -rf -- "$RUNNER_TEMP/gatex-pdf-maintenance-private"
+      - name: Record actual maintenance outcome
+        if: always()
+        env:
+          TASK_STATUS: ${{ job.status }}
+        run: |
+          {
+            printf '### PDF maintenance receipt\n\n- Job outcome: `%s`\n' "$TASK_STATUS"
+            printf '\nScheduled runs are best effort. The QA artifact records actual ready/pending/failed counts; workflow success does not imply PDF completion. See failed steps when no artifact was produced.\n'
+          } >> "$GITHUB_STEP_SUMMARY"

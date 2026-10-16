@@ -14,6 +14,8 @@ concurrency:
 
 jobs:
   dispatch:
+    # The next schedule can retry due work; preserve strict manual diagnostics.
+    continue-on-error: ${{ github.event_name == 'schedule' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -27,3 +29,12 @@ jobs:
             --request POST \
             --header "Authorization: Bearer $GATEX_NEWSFEED_CRON_SECRET" \
             https://gatex.fund/api/newsfeed/digest/run
+      - name: Record actual digest outcome
+        if: always()
+        env:
+          TASK_STATUS: ${{ job.status }}
+        run: |
+          {
+            printf '### Digest receipt\n\n- Job outcome: `%s`\n' "$TASK_STATUS"
+            printf '\nScheduled runs are best effort. The endpoint response records delivery results; a failed request is not a successful digest and remains visible in the original step.\n'
+          } >> "$GITHUB_STEP_SUMMARY"

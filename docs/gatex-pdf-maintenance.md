@@ -69,7 +69,15 @@ rate-limit/server failures report `status=pending`, `operationalHealthy=true`
 and exit successfully so the next hourly run can resume. Their source codes,
 pending counts and retry times remain visible. Authentication, missing/invalid
 configuration, corrupt bytes, source-pin mismatches and incomplete worker
-results remain failed jobs. A partial checkpoint never becomes a ready PDF.
+results retain their failed job/step outcomes. A partial checkpoint never becomes a ready PDF.
+
+The three scheduled business workflows (PDF maintenance, news maintenance and
+member digests) use job-level best-effort handling only for `schedule` events.
+A failed scheduled job therefore does not fail the workflow or generate a
+workflow-failure notification. Its original failed steps, safe QA artifact and
+job-outcome summary remain available for inspection. Manual dispatches and PR
+checks are strict. This notification policy never changes API publication,
+readiness or delivery status, and a green workflow is not a completion receipt.
 
 `readyCount` counts delivered and verified artifacts. `pendingCount` counts
 selected sources awaiting continuation; `selectedComplete` stays false for
