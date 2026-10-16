@@ -520,6 +520,8 @@ class MaintenanceTests(unittest.TestCase):
                 self.assertLessEqual(delay, 604800)
                 self.assertGreaterEqual(delay, 21600)
                 self.now = entries["catalog:a"]["nextAttemptAt"] + 1
+        self.now = entries["catalog:a"]["lastAttemptAt"] + 1
+        self.assertEqual(self.run_maintenance(api)["selectedIds"], [])
         api.rows["catalog:a"] = (SOURCE + b"revision", "changed")
         self.assertEqual(self.run_maintenance(api)["selectedIds"], ["catalog:a"])
         entries, _ = maintenance.load_queue(self.queue)
