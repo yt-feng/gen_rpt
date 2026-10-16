@@ -98,6 +98,7 @@ jobs:
           GATEX_GENERATION_CALLBACK_SECRET: ${{ secrets.GATEX_GENERATION_CALLBACK_SECRET }}
           DEEPSEEK_API_KEY: ${{ (github.event_name == 'schedule' || !inputs.discovery_only) && secrets.DEEPSEEK_API_KEY || '' }}
           GATEX_PDF_TRANSLATION_PROVIDER: deepseek
+          GATEX_PDF_ACCEPTANCE_MODE: readable
           GATEX_PDF_TEXT_MODEL: deepseek-v4-pro
           GATEX_PDF_VISION_MODEL: deepseek-flash
           DISCOVERY_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.discovery_only && 'true' || 'false' }}

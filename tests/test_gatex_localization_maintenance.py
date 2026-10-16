@@ -349,7 +349,9 @@ class MaintenanceTests(unittest.TestCase):
             raise runner.RunnerError("SOURCE_REVIEW_REJECTED")
         report = self.run_maintenance(api, discovery_only=False, execute=executor(fail))
         self.assertEqual(len(calls), 1)
-        self.assertEqual(report["failedCount"], 2)
+        self.assertEqual(report["failedCount"], 0)
+        self.assertEqual(report["qualityPendingCount"], 2)
+        self.assertEqual(report["status"], "pending")
         self.assertFalse(report["globalComplete"])
 
     def test_cached_sha_hint_cannot_override_actual_download_identity(self):
@@ -473,6 +475,56 @@ class MaintenanceTests(unittest.TestCase):
                 self.assertEqual(report["failedCount"], int(expected == "failed"))
                 self.assertEqual(report["pendingCount"], int(expected == "pending"))
                 self.assertFalse(report["globalComplete"])
+
+    def test_uncertain_ocr_retains_checkpoint_and_defers_without_blocking_next_pdf(self):
+        api = Api({"catalog:a": (SOURCE, "a"), "managed:b": (SOURCE + b"b", "b")})
+        digest = runner.sha256(SOURCE)
+        def translate(**kwargs):
+            if kwargs["source_sha256"] == digest:
+                kwargs["save_progress"]({"sourceSha256": digest,
+                    "blocks": {"accepted": {"reviewed": True, "text": "PRIVATE accepted"}}, "ocr": {}})
+                raise runner.RunnerError("UNVERIFIED_RASTER_TEXT")
+            return translator(**kwargs)
+        report = self.run_maintenance(api, discovery_only=False, execute=executor(translate))
+        self.assertEqual((report["status"], report["readyCount"], report["pendingCount"], report["failedCount"]),
+            ("pending", 1, 1, 0))
+        self.assertEqual(report["qualityPendingCount"], 1)
+        self.assertTrue(report["operationalHealthy"])
+        self.assertFalse(report["selectedComplete"])
+        self.assertFalse(report["globalComplete"])
+        self.assertEqual([row["id"] for row in api.publishes], ["managed:b"])
+        self.assertEqual(report["results"][0]["pendingReason"], "source_quality")
+        entries, _ = maintenance.load_queue(self.queue)
+        self.assertEqual(entries["catalog:a"]["nextAttemptAt"], self.now + 21600)
+        self.assertEqual(self.run_maintenance(api)["selectedIds"], [])
+        self.assertNotIn("PRIVATE", json.dumps(report) + self.queue.read_text())
+        self.now = entries["catalog:a"]["nextAttemptAt"] + 1
+        def resume(**kwargs):
+            self.assertTrue(kwargs["progress"]["blocks"]["accepted"]["reviewed"])
+            self.assertFalse(kwargs["force"])
+            return translator(**kwargs)
+        resumed = self.run_maintenance(api, discovery_only=False, execute=executor(resume))
+        self.assertEqual(resumed["status"], "passed")
+        self.assertTrue(resumed["globalComplete"])
+
+    def test_quality_holds_use_bounded_backoff_and_changed_sources_can_retry_immediately(self):
+        api = Api({"catalog:a": (SOURCE, "a")})
+        for code in sorted(maintenance.QUALITY_PENDING_CODES):
+            with self.subTest(code=code):
+                def fail(*args):
+                    raise runner.RunnerError(code)
+                report = self.run_maintenance(api, discovery_only=False, execute=fail)
+                self.assertEqual((report["status"], report["qualityPendingCount"], report["failedCount"]), ("pending", 1, 0))
+                entries, _ = maintenance.load_queue(self.queue)
+                delay = entries["catalog:a"]["nextAttemptAt"] - self.now
+                self.assertLessEqual(delay, 604800)
+                self.assertGreaterEqual(delay, 21600)
+                self.now = entries["catalog:a"]["nextAttemptAt"] + 1
+        api.rows["catalog:a"] = (SOURCE + b"revision", "changed")
+        self.assertEqual(self.run_maintenance(api)["selectedIds"], ["catalog:a"])
+        entries, _ = maintenance.load_queue(self.queue)
+        self.assertEqual(entries["catalog:a"]["attemptCount"], 0)
+        self.assertEqual(entries["catalog:a"]["nextAttemptAt"], 0)
 
     def test_actual_checkpoint_503_preserves_http_diagnostics_for_aliases_and_other_sources_continue(self):
         api = Api({"catalog:a": (SOURCE, "a"), "review:alias": (SOURCE, "alias"), "managed:b": (SOURCE + b"b", "b")})
@@ -637,6 +689,7 @@ class MaintenanceTests(unittest.TestCase):
         # explicitly select translation and omit the manual recovery pins.
         self.assertIn("DISCOVERY_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.discovery_only && 'true' || 'false' }}", text)
         self.assertIn("SOURCE_PINS_JSON: ${{ github.event_name == 'workflow_dispatch' && inputs.source_pins || '' }}", text)
+        self.assertIn("GATEX_PDF_ACCEPTANCE_MODE: readable", text)
         code = text.split("          umask 077\n", 1)[1].split("      - name:", 1)[0]
         code = "umask 077\n" + "\n".join(line[10:] if line.startswith("          ") else line for line in code.splitlines())
         args = self.root / "scheduled-argv.txt"
