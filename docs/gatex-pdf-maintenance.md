@@ -55,6 +55,15 @@ false. The readable-Chinese policy records detailed semantic/style findings as
 advisories without pretending those independent reviews passed. Existing strict
 QA publications remain supported.
 
+Scheduled maintenance explicitly uses the readable-Chinese policy. A source
+that still fails OCR, coverage, layout or document-format checks is an optional
+quality hold, not a failed maintenance run. It remains unpublished and pending,
+with its accepted translation checkpoint retained. Quality holds wait 6 hours,
+then 1 day, 3 days and at most 7 days between attempts; a changed source version
+resets this delay immediately. Other selected PDFs continue normally.
+The summary reports `qualityPendingCount` and each held source's original code
+with `pendingReason=source_quality`, without claiming its PDF is complete.
+
 Expected partial translations, bounded deadlines and temporary connection or
 rate-limit/server failures report `status=pending`, `operationalHealthy=true`
 and exit successfully so the next hourly run can resume. Their source codes,

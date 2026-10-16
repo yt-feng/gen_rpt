@@ -32,6 +32,18 @@ READABLE_POLICY = "gatex-readable-zh/v1"
 MAX_QUEUE_BYTES = 2 * 1024 * 1024
 MAX_UNIQUE = 2
 BACKOFF = (3600, 14400, 43200, 86400)
+# Best-effort maintenance must not repeatedly fail the whole scheduled run on
+# one difficult source. Retain its checkpoint and give other PDFs the budget.
+QUALITY_BACKOFF = (21600, 86400, 259200, 604800)
+QUALITY_PENDING_CODES = {
+    "UNVERIFIED_RASTER_TEXT", "INVALID_RASTER_TEXT", "RASTER_TEXT_COVERAGE_MISMATCH",
+    "RASTER_NUMERIC_OR_LINK_MISMATCH", "NATIVE_TEXT_COVERAGE_MISMATCH",
+    "UNVERIFIED_RENDER_ALIAS", "RENDER_ALIAS_TARGET_MISMATCH", "SOURCE_REVIEW_REJECTED",
+    "BLOCK_COVERAGE_MISMATCH", "QUALITY_REVIEW_COVERAGE_MISMATCH", "CHINESE_QUALITY_REVIEW_FAILED",
+    "MINIMUM_FONT_SIZE_FAILED", "RENDERED_TEXT_OVERFLOW", "RENDERED_TEXT_COVERAGE_FAILED",
+    "TARGET_PAGE_COVERAGE_FAILED", "FIGURE_PRESERVATION_FAILED",
+    "SOURCE_PDF_UNREADABLE", "INTERACTIVE_OR_ANNOTATED_PDF_UNSUPPORTED",
+}
 ENTRY_KEYS = {"id", "sourceVersion", "firstSeenAt", "lastAttemptAt", "nextAttemptAt", "attemptCount", "lastSafeCode", "sourceSha256", "discoveryClass"}
 PDF_WORKFLOWS = {".github/workflows/gatex-content-localization.yml", ".github/workflows/gatex-pdf-backfill.yml", ".github/workflows/gatex-pdf-maintenance.yml"}
 PENDING_CODES = {"TRANSLATION_BLOCKS_PENDING", "MAINTENANCE_DEADLINE_EXCEEDED", "SOURCE_DEADLINE_EXCEEDED",
@@ -57,13 +69,15 @@ def safe_code(value):
 
 def expected_pending(code, http_status=None):
     """A bounded continuation or temporary outage does not finish a PDF."""
-    return (code in PENDING_CODES or re.fullmatch(r"MODEL_HTTP_(?:429|5\d\d)", code) is not None
+    return (code in PENDING_CODES or code in QUALITY_PENDING_CODES or re.fullmatch(r"MODEL_HTTP_(?:429|5\d\d)", code) is not None
         or code == "API_HTTP_ERROR" and type(http_status) is int and (http_status == 429 or 500 <= http_status <= 599))
 
 
 def unsuccessful(identifier, code, http_status=None, api_code=None):
     code = safe_code(code)
     result = {"id": identifier, "status": "pending" if expected_pending(code, http_status) else "failed", "code": code}
+    if code in QUALITY_PENDING_CODES:
+        result["pendingReason"] = "source_quality"
     if type(http_status) is int and 100 <= http_status <= 599:
         result["httpStatus"] = http_status
     if isinstance(api_code, str) and safe_code(api_code) == api_code:
@@ -393,6 +407,8 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
                 results.append({key: result[key] for key in ("id", "status", "sourceSha256", "sha256", "pageCount", "byteSize", "sourceBlockCount", "translatedBlockCount") if key in result})
             else:
                 row["lastSafeCode"] = safe_code(result.get("code"))
+                if row["lastSafeCode"] in QUALITY_PENDING_CODES:
+                    row["nextAttemptAt"] = wall() + QUALITY_BACKOFF[min(row["attemptCount"] - 1, len(QUALITY_BACKOFF) - 1)]
                 results.append(unsuccessful(row["id"], result.get("code"), result.get("httpStatus"), result.get("apiCode")))
         save_queue(queue_path, entries)
         if emit:
@@ -429,6 +445,7 @@ def _maintain(api, queue_path, runtime, *, discovery_only=True, maximum=2, budge
         "selectedComplete": not (failed or pending or incomplete or deferred or unreadable),
         "selectedUniqueSources": len(groups), "readyCount": sum(row["status"] == "ready" for row in results),
         "failedCount": failed, "pendingCount": pending + len(incomplete & budget_pending),
+        "qualityPendingCount": sum(row.get("pendingReason") == "source_quality" for row in results),
         "incompleteSelectedCount": len(incomplete), "deferredSelectedCount": len(deferred), "inventoryReadbackFailed": unreadable,
         "inventoryReadbackCode": readback_code,
         "budgetExhaustedPendingCount": len(budget_pending) + sum(row.get("code") in {"MAINTENANCE_DEADLINE_EXCEEDED", "API_DEADLINE_EXCEEDED"} for row in results),
